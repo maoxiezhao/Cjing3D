@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="core">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="renderer">
+      <UniqueIdentifier>{1c5438a2-0632-44fc-833e-ddba1e051fd2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{f62268fb-302c-4224-8257-0896728c9b93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils">
+      <UniqueIdentifier>{fe4bb653-0364-4114-b13f-1cb11a3fd883}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="helper">
+      <UniqueIdentifier>{ebce1040-5acf-412f-878a-2a6ac2d4b492}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\RHI">
+      <UniqueIdentifier>{804ea12d-9833-4ca4-81b0-5949f085ae4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\RHI\d3d11">
+      <UniqueIdentifier>{4700f898-3ca9-45f9-8e84-375e84855299}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="engine.cpp" />
+    <ClCompile Include="utils\window.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="helper\logger.cpp">
+      <Filter>helper</Filter>
+    </ClCompile>
+    <ClCompile Include="helper\debug.cpp">
+      <Filter>helper</Filter>
+    </ClCompile>
+    <ClCompile Include="helper\stringID.cpp">
+      <Filter>helper</Filter>
+    </ClCompile>
+    <ClCompile Include="core\gameComponent.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="helper\profiler.cpp">
+      <Filter>helper</Filter>
+    </ClCompile>
+    <ClCompile Include="helper\systemTime.cpp">
+      <Filter>helper</Filter>
+    </ClCompile>
+    <ClCompile Include="helper\timer.cpp">
+      <Filter>helper</Filter>
+    </ClCompile>
+    <ClCompile Include="helper\IDGenerator.cpp">
+      <Filter>helper</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\renderer.cpp">
+      <Filter>renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\renderableComponent.cpp">
+      <Filter>renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\RHI\device.cpp">
+      <Filter>renderer\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\RHI\deviceD3D11.cpp">
+      <Filter>renderer\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\RHI\pipelineD3D11.cpp">
+      <Filter>renderer\RHI\d3d11</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\swapChainD3D11.cpp">
+      <Filter>renderer\RHI\d3d11</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="engine.h" />
+    <ClInclude Include="renderer\displayConfig.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="common\common.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="core\gameComponent.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\renderableComponent.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\renderableCommon.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\renderer.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\window.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\array.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\math.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\logger.h">
+      <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\debug.h">
+      <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\stringID.h">
+      <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\profiler.h">
+      <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\systemTime.h">
+      <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\timer.h">
+      <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\IDGenerator.h">
+      <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="common\about.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\RHI\device.h">
+      <Filter>renderer\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\RHI\deviceD3D11.h">
+      <Filter>renderer\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\resourceLoader.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\RHI\pipelineD3D11.h">
+      <Filter>renderer\RHI\d3d11</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\swapChainD3D11.h">
+      <Filter>renderer\RHI\d3d11</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\includeD3D11.h">
+      <Filter>renderer\RHI</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
