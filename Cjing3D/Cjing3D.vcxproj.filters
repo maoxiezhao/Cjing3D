@@ -68,7 +68,7 @@
     <ClCompile Include="renderer\RHI\pipelineD3D11.cpp">
       <Filter>renderer\RHI\d3d11</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\swapChainD3D11.cpp">
+    <ClCompile Include="renderer\RHI\swapChainD3D11.cpp">
       <Filter>renderer\RHI\d3d11</Filter>
     </ClCompile>
   </ItemGroup>
@@ -137,10 +137,19 @@
     <ClInclude Include="renderer\RHI\pipelineD3D11.h">
       <Filter>renderer\RHI\d3d11</Filter>
     </ClInclude>
-    <ClInclude Include="renderer\swapChainD3D11.h">
+    <ClInclude Include="renderer\includeD3D11.h">
+      <Filter>renderer\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\RHI\rhiDefinition.h">
+      <Filter>renderer\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\RHI\swapChainD3D11.h">
       <Filter>renderer\RHI\d3d11</Filter>
     </ClInclude>
-    <ClInclude Include="renderer\includeD3D11.h">
+    <ClInclude Include="renderer\RHI\rhiStructure.h">
+      <Filter>renderer\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\RHI\rhiResource.h">
       <Filter>renderer\RHI</Filter>
     </ClInclude>
   </ItemGroup>

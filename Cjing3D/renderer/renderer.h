@@ -18,6 +18,7 @@ public:
 
 	void Initialize(GraphicsDevice* device);
 	void Uninitialize();
+	void Present();
 
 private:
 	Renderer();

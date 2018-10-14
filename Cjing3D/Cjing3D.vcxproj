@@ -145,8 +145,11 @@
     <ClInclude Include="renderer\resourceLoader.h" />
     <ClInclude Include="renderer\RHI\device.h" />
     <ClInclude Include="renderer\RHI\deviceD3D11.h" />
+    <ClInclude Include="renderer\RHI\rhiResource.h" />
     <ClInclude Include="renderer\RHI\pipelineD3D11.h" />
-    <ClInclude Include="renderer\swapChainD3D11.h" />
+    <ClInclude Include="renderer\RHI\rhiDefinition.h" />
+    <ClInclude Include="renderer\RHI\rhiStructure.h" />
+    <ClInclude Include="renderer\RHI\swapChainD3D11.h" />
     <ClInclude Include="utils\array.h" />
     <ClInclude Include="utils\math.h" />
     <ClInclude Include="utils\window.h" />
@@ -166,7 +169,7 @@
     <ClCompile Include="renderer\RHI\device.cpp" />
     <ClCompile Include="renderer\RHI\deviceD3D11.cpp" />
     <ClCompile Include="renderer\RHI\pipelineD3D11.cpp" />
-    <ClCompile Include="renderer\swapChainD3D11.cpp" />
+    <ClCompile Include="renderer\RHI\swapChainD3D11.cpp" />
     <ClCompile Include="utils\window.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

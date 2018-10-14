@@ -4,7 +4,9 @@ namespace Cjing3D
 {
 
 GraphicsDevice::GraphicsDevice():
-	mIsFullScreen(false)
+	mIsFullScreen(false),
+	mIsMultithreadedRendering(false),
+	mIsVsync(false)
 {
 }
 

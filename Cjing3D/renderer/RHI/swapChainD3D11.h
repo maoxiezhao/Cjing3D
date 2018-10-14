@@ -5,16 +5,14 @@
 
 namespace Cjing3D {
 
-	/**
-	*	\brief Ωªªª¡¥∂‘œÛ
-	*/
 	class SwapChainD3D11
 	{
 	public:
 		SwapChainD3D11(ID3D11Device& device,
 			ID3D11DeviceContext& deviceContext,
-			HWND window);
-		~SwapChainD3D11();
+			HWND window,
+			U32x2 resolution,
+			DXGI_FORMAT format);
 
 		HWND GetWindow()const {
 			return mWindow;
@@ -25,17 +23,20 @@ namespace Cjing3D {
 		}
 
 		void Clear();
-		void Present();
+		void Present(bool isVsync);
 
 	private:
-		void CreateSwapChain();
+		void InitAdapterAndOutput();
+		void CreateSwapChain(DXGI_FORMAT format);
 		void CreateRenderTargetView();
 
+		U32x2 mResolution;
 		HWND mWindow;
-
 		ID3D11Device & mDevice;
 		ID3D11DeviceContext& mDeviceContext;
 
+		ComPtr<IDXGIAdapter> mAdapter;
+		ComPtr<IDXGIOutput> mOutput;
 		ComPtr<IDXGISwapChain> mSwapChain;
 		ComPtr<ID3D11RenderTargetView> mRenderTargetView;
 

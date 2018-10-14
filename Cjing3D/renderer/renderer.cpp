@@ -21,6 +21,7 @@ void Renderer::Initialize(GraphicsDevice* device)
 	if (device == nullptr) {
 		return;
 	}
+
 	mGraphicsDevice = std::unique_ptr<GraphicsDevice>(device);
 	mGraphicsDevice->Initialize();
 
@@ -36,6 +37,13 @@ void Renderer::Uninitialize()
 	mGraphicsDevice->Uninitialize();
 
 	mIsInitialized = false;
+}
+
+void Renderer::Present()
+{
+	mGraphicsDevice->PresentBegin();
+
+	mGraphicsDevice->PresentEnd();
 }
 
 }

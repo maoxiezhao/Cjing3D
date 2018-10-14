@@ -10,10 +10,11 @@ void GameComponent::Initialize(Engine& engine)
 {
 	InitializeImpl();
 
-	// initialize render
 	HWND window = engine.GetMainWindow().GetHwnd();
+
+	// initialize render
 	Renderer::GetInstance().Initialize(
-		new GraphicsDeviceD3D11(window, false)
+		new GraphicsDeviceD3D11(window, false, true)
 	);
 }
 
