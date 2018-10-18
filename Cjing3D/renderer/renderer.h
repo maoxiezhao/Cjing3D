@@ -6,6 +6,8 @@
 namespace Cjing3D
 {
 
+class ResourceLoader;
+
 class Renderer
 {
 public:
@@ -19,12 +21,13 @@ public:
 	void Initialize(GraphicsDevice* device);
 	void Uninitialize();
 	void Present();
-
+	
 private:
 	Renderer();
 
 private:
 	std::unique_ptr<GraphicsDevice> mGraphicsDevice;
+	std::unique_ptr<ResourceLoader> mResourceLoader;
 
 	bool mIsInitialized;
 };

@@ -17,11 +17,17 @@
     <Filter Include="helper">
       <UniqueIdentifier>{ebce1040-5acf-412f-878a-2a6ac2d4b492}</UniqueIdentifier>
     </Filter>
-    <Filter Include="renderer\RHI">
+    <Filter Include="renderer\pass">
+      <UniqueIdentifier>{85d86095-fd43-455c-829c-50f748036545}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\rhi">
       <UniqueIdentifier>{804ea12d-9833-4ca4-81b0-5949f085ae4b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="renderer\RHI\d3d11">
+    <Filter Include="renderer\rhi\d3d11">
       <UniqueIdentifier>{4700f898-3ca9-45f9-8e84-375e84855299}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\component">
+      <UniqueIdentifier>{ee3e787a-e22a-40f3-bb5e-9fee90f49608}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -56,35 +62,38 @@
     <ClCompile Include="renderer\renderer.cpp">
       <Filter>renderer</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\renderableComponent.cpp">
-      <Filter>renderer</Filter>
-    </ClCompile>
     <ClCompile Include="renderer\RHI\device.cpp">
-      <Filter>renderer\RHI</Filter>
+      <Filter>renderer\rhi</Filter>
     </ClCompile>
     <ClCompile Include="renderer\RHI\deviceD3D11.cpp">
-      <Filter>renderer\RHI</Filter>
+      <Filter>renderer\rhi</Filter>
     </ClCompile>
     <ClCompile Include="renderer\RHI\pipelineD3D11.cpp">
-      <Filter>renderer\RHI\d3d11</Filter>
+      <Filter>renderer\rhi\d3d11</Filter>
     </ClCompile>
     <ClCompile Include="renderer\RHI\swapChainD3D11.cpp">
-      <Filter>renderer\RHI\d3d11</Filter>
+      <Filter>renderer\rhi\d3d11</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\renderableComponent.cpp">
+      <Filter>renderer\component</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\component\renderableComponent3D.cpp">
+      <Filter>renderer\component</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\shaderLib.cpp">
+      <Filter>renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\stateManager.cpp">
+      <Filter>renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
-    <ClInclude Include="renderer\displayConfig.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
     <ClInclude Include="common\common.h">
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="core\gameComponent.h">
       <Filter>core</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\renderableComponent.h">
-      <Filter>renderer</Filter>
     </ClInclude>
     <ClInclude Include="renderer\renderableCommon.h">
       <Filter>renderer</Filter>
@@ -126,31 +135,49 @@
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="renderer\RHI\device.h">
-      <Filter>renderer\RHI</Filter>
+      <Filter>renderer\rhi</Filter>
     </ClInclude>
     <ClInclude Include="renderer\RHI\deviceD3D11.h">
-      <Filter>renderer\RHI</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\resourceLoader.h">
-      <Filter>renderer</Filter>
+      <Filter>renderer\rhi</Filter>
     </ClInclude>
     <ClInclude Include="renderer\RHI\pipelineD3D11.h">
-      <Filter>renderer\RHI\d3d11</Filter>
+      <Filter>renderer\rhi\d3d11</Filter>
     </ClInclude>
     <ClInclude Include="renderer\includeD3D11.h">
-      <Filter>renderer\RHI</Filter>
+      <Filter>renderer\rhi</Filter>
     </ClInclude>
     <ClInclude Include="renderer\RHI\rhiDefinition.h">
-      <Filter>renderer\RHI</Filter>
+      <Filter>renderer\rhi</Filter>
     </ClInclude>
     <ClInclude Include="renderer\RHI\swapChainD3D11.h">
-      <Filter>renderer\RHI\d3d11</Filter>
+      <Filter>renderer\rhi\d3d11</Filter>
     </ClInclude>
     <ClInclude Include="renderer\RHI\rhiStructure.h">
-      <Filter>renderer\RHI</Filter>
+      <Filter>renderer\rhi</Filter>
     </ClInclude>
     <ClInclude Include="renderer\RHI\rhiResource.h">
-      <Filter>renderer\RHI</Filter>
+      <Filter>renderer\rhi</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\renderableComponent.h">
+      <Filter>renderer\component</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\component\renderableComponent3D.h">
+      <Filter>renderer\component</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\renderResource.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\shaderLib.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\stateManager.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="core\gameContext.hpp">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\gameSystem.hpp">
+      <Filter>core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

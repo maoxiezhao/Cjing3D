@@ -11,12 +11,13 @@ public:
 	virtual ~TestGameComponent();
 
 protected:
-	virtual void InitializeImpl();
+	virtual void BeforeInitializeImpl();
+	virtual void AfterInitializeImpl();
 	virtual void UpdateImpl(EngineTime time);
 	virtual void UninitializeImpl();
 };
 
-class TestRenderableComponent : public RenderableComponent
+class TestRenderableComponent : public RenderableComponent3D
 {
 public:
 

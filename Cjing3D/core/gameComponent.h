@@ -1,6 +1,8 @@
 #pragma once
 
 #include "renderer\renderableComponent.h"
+#include "renderer\component\renderableComponent3D.h"
+#include "core\gameContext.hpp"
 #include "helper\timer.h"
 
 namespace Cjing3D
@@ -10,8 +12,8 @@ namespace Cjing3D
 	class GameComponent
 	{
 	public:
-		GameComponent() {}
-		virtual ~GameComponent() {}
+		GameComponent();
+		virtual ~GameComponent();
 
 		void Run(Timer& timer);
 		void Render();
@@ -29,12 +31,15 @@ namespace Cjing3D
 		}
 
 	protected:
-		virtual void InitializeImpl() = 0;
+		virtual void BeforeInitializeImpl() = 0;
+		virtual void AfterInitializeImpl() = 0;
 		virtual void UpdateImpl(EngineTime time) = 0;
 		virtual void UninitializeImpl() = 0;
 
 	private:
 		RenderableComponentPtr mRenderableComponent;
+
+		std::unique_ptr<GameContext> mGameContext;
 
 	};
 }

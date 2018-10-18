@@ -96,15 +96,12 @@ void Engine::Initialize()
 
 	mTimer.Start();
 
-	// create main window
-	{
-		mMainWindow = std::make_unique<Window>(
-			"Cjing3D",
-			I32x2(1024, 768),
-			false);
-		mAppHandler = std::make_shared<EngineMessageHandler>();
-		mMainWindow->AddMessageHandler(mAppHandler);
-	}
+	mMainWindow = std::make_unique<Window>(
+		"Cjing3D",
+		I32x2(1024, 768),
+		false);
+	mAppHandler = std::make_shared<EngineMessageHandler>();
+	mMainWindow->AddMessageHandler(mAppHandler);
 
 	mIsInitialized = true;
 }
@@ -120,9 +117,7 @@ void Engine::Uninitialize()
 	}
 
 	mMainWindow.reset();
-
 	mTimer.Stop();
-
 	mIsInitialized = false;
 }
 

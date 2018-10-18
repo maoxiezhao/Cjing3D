@@ -8,10 +8,14 @@ TestGameComponent::~TestGameComponent()
 {
 }
 
-void TestGameComponent::InitializeImpl()
+void TestGameComponent::BeforeInitializeImpl()
+{
+	this->RequestRenderableComponent(std::make_shared<TestRenderableComponent>());
+}
+
+void TestGameComponent::AfterInitializeImpl()
 {
 
-	this->RequestRenderableComponent(std::make_shared<TestRenderableComponent>());
 }
 
 void TestGameComponent::UpdateImpl(EngineTime time)

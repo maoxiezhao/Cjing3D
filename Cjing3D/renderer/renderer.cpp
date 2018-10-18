@@ -1,9 +1,11 @@
 #include "renderer.h"
+#include "shaderLib.h"
 
 namespace Cjing3D {
 
 Renderer::Renderer() :
 	mGraphicsDevice(nullptr),
+	mResourceLoader(nullptr),
 	mIsInitialized(false)
 {
 }
@@ -25,6 +27,9 @@ void Renderer::Initialize(GraphicsDevice* device)
 	mGraphicsDevice = std::unique_ptr<GraphicsDevice>(device);
 	mGraphicsDevice->Initialize();
 
+	mResourceLoader = std::make_unique<ResourceLoader>(*this);
+	mResourceLoader->Initialize();
+
 	mIsInitialized = true;
 }
 
@@ -42,7 +47,6 @@ void Renderer::Uninitialize()
 void Renderer::Present()
 {
 	mGraphicsDevice->PresentBegin();
-
 	mGraphicsDevice->PresentEnd();
 }
 

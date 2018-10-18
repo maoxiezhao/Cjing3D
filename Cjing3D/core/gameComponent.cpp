@@ -6,16 +6,29 @@
 
 namespace Cjing3D {
 
+GameComponent::GameComponent() :
+	mRenderableComponent(nullptr),
+	mGameContext(nullptr)
+{
+}
+
+GameComponent::~GameComponent()
+{
+}
+
 void GameComponent::Initialize(Engine& engine)
 {
-	InitializeImpl();
+	BeforeInitializeImpl();
 
-	HWND window = engine.GetMainWindow().GetHwnd();
+	mGameContext = std::make_unique<GameContext>();
 
 	// initialize render
+	HWND window = engine.GetMainWindow().GetHwnd();
 	Renderer::GetInstance().Initialize(
 		new GraphicsDeviceD3D11(window, false, true)
 	);
+
+	AfterInitializeImpl();
 }
 
 void GameComponent::Update(EngineTime time)
@@ -34,7 +47,6 @@ void GameComponent::Uninitialize()
 void GameComponent::Run(Timer& timer)
 {
 	Profiler::GetInstance().BeginFrame();
-
 	auto time = timer.GetTime();
 
 	// update
@@ -46,6 +58,9 @@ void GameComponent::Run(Timer& timer)
 	Profiler::GetInstance().BeginBlock("Render");
 	Render();
 	Profiler::GetInstance().EndBlock();
+
+	// present
+	Renderer::GetInstance().Present();
 
 	Profiler::GetInstance().EndFrame();
 }

@@ -20,8 +20,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{B0A02590-E94E-4CAE-8DDA-CD8758E91C04}</ProjectGuid>
-    <RootNamespace>Cjing3D</RootNamespace>
+    <ProjectGuid>{B0653A50-2C3E-4847-AB79-3A7706EF90F4}</ProjectGuid>
+    <RootNamespace>Shader</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -39,13 +39,13 @@
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -69,17 +69,8 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
-    <IntDir>$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)\Cjing3D\;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
-    <IntDir>$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)\Cjing3D\;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
-  </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
@@ -87,7 +78,7 @@
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
@@ -117,8 +108,6 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -126,58 +115,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="common\about.h" />
-    <ClInclude Include="common\common.h" />
-    <ClInclude Include="core\gameComponent.h" />
-    <ClInclude Include="core\gameContext.hpp" />
-    <ClInclude Include="core\gameSystem.hpp" />
-    <ClInclude Include="engine.h" />
-    <ClInclude Include="helper\debug.h" />
-    <ClInclude Include="helper\IDGenerator.h" />
-    <ClInclude Include="helper\logger.h" />
-    <ClInclude Include="helper\profiler.h" />
-    <ClInclude Include="helper\stringID.h" />
-    <ClInclude Include="helper\systemTime.h" />
-    <ClInclude Include="helper\timer.h" />
-    <ClInclude Include="renderer\component\renderableComponent3D.h" />
-    <ClInclude Include="renderer\renderResource.h" />
-    <ClInclude Include="renderer\includeD3D11.h" />
-    <ClInclude Include="renderer\renderableCommon.h" />
-    <ClInclude Include="renderer\renderableComponent.h" />
-    <ClInclude Include="renderer\renderer.h" />
-    <ClInclude Include="renderer\shaderLib.h" />
-    <ClInclude Include="renderer\RHI\device.h" />
-    <ClInclude Include="renderer\RHI\deviceD3D11.h" />
-    <ClInclude Include="renderer\RHI\rhiResource.h" />
-    <ClInclude Include="renderer\RHI\pipelineD3D11.h" />
-    <ClInclude Include="renderer\RHI\rhiDefinition.h" />
-    <ClInclude Include="renderer\RHI\rhiStructure.h" />
-    <ClInclude Include="renderer\RHI\swapChainD3D11.h" />
-    <ClInclude Include="renderer\stateManager.h" />
-    <ClInclude Include="utils\array.h" />
-    <ClInclude Include="utils\math.h" />
-    <ClInclude Include="utils\window.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="core\gameComponent.cpp" />
-    <ClCompile Include="engine.cpp" />
-    <ClCompile Include="helper\debug.cpp" />
-    <ClCompile Include="helper\IDGenerator.cpp" />
-    <ClCompile Include="helper\logger.cpp" />
-    <ClCompile Include="helper\profiler.cpp" />
-    <ClCompile Include="helper\stringID.cpp" />
-    <ClCompile Include="helper\systemTime.cpp" />
-    <ClCompile Include="helper\timer.cpp" />
-    <ClCompile Include="renderer\component\renderableComponent3D.cpp" />
-    <ClCompile Include="renderer\renderableComponent.cpp" />
-    <ClCompile Include="renderer\renderer.cpp" />
-    <ClCompile Include="renderer\shaderLib.cpp" />
-    <ClCompile Include="renderer\RHI\device.cpp" />
-    <ClCompile Include="renderer\RHI\deviceD3D11.cpp" />
-    <ClCompile Include="renderer\RHI\pipelineD3D11.cpp" />
-    <ClCompile Include="renderer\RHI\swapChainD3D11.cpp" />
-    <ClCompile Include="renderer\stateManager.cpp" />
-    <ClCompile Include="utils\window.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -10,6 +10,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Game", "Game\Game.vcxproj",
 		{B0A02590-E94E-4CAE-8DDA-CD8758E91C04} = {B0A02590-E94E-4CAE-8DDA-CD8758E91C04}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shader", "Shader\Shader.vcxproj", "{B0653A50-2C3E-4847-AB79-3A7706EF90F4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -34,6 +36,14 @@ Global
 		{08AAC5DE-2886-499B-A8B4-878FB69D1A8D}.Release|x64.Build.0 = Debug|x64
 		{08AAC5DE-2886-499B-A8B4-878FB69D1A8D}.Release|x86.ActiveCfg = Release|Win32
 		{08AAC5DE-2886-499B-A8B4-878FB69D1A8D}.Release|x86.Build.0 = Release|Win32
+		{B0653A50-2C3E-4847-AB79-3A7706EF90F4}.Debug|x64.ActiveCfg = Debug|x64
+		{B0653A50-2C3E-4847-AB79-3A7706EF90F4}.Debug|x64.Build.0 = Debug|x64
+		{B0653A50-2C3E-4847-AB79-3A7706EF90F4}.Debug|x86.ActiveCfg = Debug|Win32
+		{B0653A50-2C3E-4847-AB79-3A7706EF90F4}.Debug|x86.Build.0 = Debug|Win32
+		{B0653A50-2C3E-4847-AB79-3A7706EF90F4}.Release|x64.ActiveCfg = Release|x64
+		{B0653A50-2C3E-4847-AB79-3A7706EF90F4}.Release|x64.Build.0 = Release|x64
+		{B0653A50-2C3E-4847-AB79-3A7706EF90F4}.Release|x86.ActiveCfg = Release|Win32
+		{B0653A50-2C3E-4847-AB79-3A7706EF90F4}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
