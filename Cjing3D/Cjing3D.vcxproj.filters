@@ -29,6 +29,9 @@
     <Filter Include="renderer\component">
       <UniqueIdentifier>{ee3e787a-e22a-40f3-bb5e-9fee90f49608}</UniqueIdentifier>
     </Filter>
+    <Filter Include="world">
+      <UniqueIdentifier>{001fdb9e-f2f6-43b6-beed-06ca29094e09}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine.cpp" />
@@ -85,6 +88,9 @@
     </ClCompile>
     <ClCompile Include="renderer\stateManager.cpp">
       <Filter>renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="world\world.cpp">
+      <Filter>world</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -178,6 +184,15 @@
     </ClInclude>
     <ClInclude Include="core\gameSystem.hpp">
       <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="world\world.h">
+      <Filter>world</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\pass\forwardPass.h">
+      <Filter>renderer\pass</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\component\forwardRenderableComponent.h">
+      <Filter>renderer\component</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

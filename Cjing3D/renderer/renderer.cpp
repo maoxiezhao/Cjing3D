@@ -1,11 +1,13 @@
 #include "renderer.h"
 #include "shaderLib.h"
+#include "stateManager.h"
 
 namespace Cjing3D {
 
 Renderer::Renderer() :
 	mGraphicsDevice(nullptr),
 	mResourceLoader(nullptr),
+	mStateManager(nullptr),
 	mIsInitialized(false)
 {
 }
@@ -26,6 +28,9 @@ void Renderer::Initialize(GraphicsDevice* device)
 
 	mGraphicsDevice = std::unique_ptr<GraphicsDevice>(device);
 	mGraphicsDevice->Initialize();
+
+	mStateManager = std::make_unique<StateManager>(*device);
+	mStateManager->SetupStates();
 
 	mResourceLoader = std::make_unique<ResourceLoader>(*this);
 	mResourceLoader->Initialize();

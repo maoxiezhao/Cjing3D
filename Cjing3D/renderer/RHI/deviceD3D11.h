@@ -20,6 +20,9 @@ public:
 
 	virtual void BindViewports(const ViewPort* viewports, U32 numViewports, GraphicsThread threadID);
 
+	virtual HRESULT CreateDepthStencilState(const DepthStencilStateDesc& desc, DepthStencilState& state);
+	virtual HRESULT CreateBlendState(const BlendStateDesc& desc, BlendState& state);
+
 	ID3D11DeviceContext& GetDeviceContext(GraphicsThread type) {
 		return *mDeviceContext[static_cast<U32>(type)].Get();
 	}

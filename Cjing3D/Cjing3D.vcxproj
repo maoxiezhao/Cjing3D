@@ -139,7 +139,9 @@
     <ClInclude Include="helper\stringID.h" />
     <ClInclude Include="helper\systemTime.h" />
     <ClInclude Include="helper\timer.h" />
+    <ClInclude Include="renderer\component\forwardRenderableComponent.h" />
     <ClInclude Include="renderer\component\renderableComponent3D.h" />
+    <ClInclude Include="renderer\pass\forwardPass.h" />
     <ClInclude Include="renderer\renderResource.h" />
     <ClInclude Include="renderer\includeD3D11.h" />
     <ClInclude Include="renderer\renderableCommon.h" />
@@ -157,6 +159,7 @@
     <ClInclude Include="utils\array.h" />
     <ClInclude Include="utils\math.h" />
     <ClInclude Include="utils\window.h" />
+    <ClInclude Include="world\world.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\gameComponent.cpp" />
@@ -178,6 +181,7 @@
     <ClCompile Include="renderer\RHI\swapChainD3D11.cpp" />
     <ClCompile Include="renderer\stateManager.cpp" />
     <ClCompile Include="utils\window.cpp" />
+    <ClCompile Include="world\world.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

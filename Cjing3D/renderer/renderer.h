@@ -7,6 +7,7 @@ namespace Cjing3D
 {
 
 class ResourceLoader;
+class StateManager;
 
 class Renderer
 {
@@ -28,6 +29,7 @@ private:
 private:
 	std::unique_ptr<GraphicsDevice> mGraphicsDevice;
 	std::unique_ptr<ResourceLoader> mResourceLoader;
+	std::unique_ptr<StateManager> mStateManager;
 
 	bool mIsInitialized;
 };
