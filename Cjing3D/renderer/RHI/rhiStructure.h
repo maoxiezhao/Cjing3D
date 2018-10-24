@@ -82,4 +82,34 @@ namespace Cjing3D
 		{}
 	};
 
+	struct RasterizerStateDesc
+	{
+		FillMode mFillMode;
+		CullMode mCullMode;
+		bool mFrontCounterClockwise;
+		U32 mDepthBias;
+		F32 mDepthBiasClamp;
+		F32 mSlopeScaleDepthBias;
+		bool mDepthClipEnable;
+		bool mMultisampleEnable;
+		bool mAntialiaseLineEnable;
+		bool mConservativeRasterizationEnable;
+		U32 mForcedSampleCount;
+
+		RasterizerStateDesc() :
+			mFillMode(FILL_SOLID),
+			mCullMode(CULL_NONE),
+			mFrontCounterClockwise(false),
+			mDepthBias(0),
+			mDepthBiasClamp(0),
+			mSlopeScaleDepthBias(0.0f),
+			mDepthClipEnable(false),
+			mMultisampleEnable(false),
+			mAntialiaseLineEnable(false),
+			mConservativeRasterizationEnable(false),
+			mForcedSampleCount(0)
+		{}
+
+	};
+
 }

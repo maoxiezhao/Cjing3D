@@ -8,16 +8,22 @@ namespace Cjing3D
 {
 	// depthStencilState
 	enum DepthStencilStateID {
-		DepthNone = 0,
-		GreaterEqualReadWrite,
-		Count
+		DepthStencilStateID_DepthNone = 0,
+		DepthStencilStateID_GreaterEqualReadWrite,
+		DepthStencilStateID_Count
 	};
 
 	// blend State
 	enum BlendStateID {
-		Opaque = 0,
-		Transpranent,
-		Count
+		BlendStateID_Opaque = 0,
+		BlendStateID_Transpranent,
+		BlendStateID_Count
+	};
+
+	// Rasterizer State
+	enum RasterizerStateID {
+		RasterizerStateID_Front = 0,
+		RasterizerStateID_Count
 	};
 
 	class StateManager
@@ -33,11 +39,13 @@ namespace Cjing3D
 	private:
 		void SetupDepthStencilStates();
 		void SetupBlendStates();
+		void SetupRasterizerStates();
 
 	private:
 		GraphicsDevice & mDevice;
 
-		std::unique_ptr<DepthStencilState> mDepthStencilStates[DepthStencilStateID::Count];
-		std::unique_ptr<> mBlendStates[BlendStateID::Count];
+		std::unique_ptr<DepthStencilState> mDepthStencilStates[DepthStencilStateID::DepthStencilStateID_Count];
+		std::unique_ptr<BlendState> mBlendStates[BlendStateID::BlendStateID_Count];
+		std::unique_ptr<RasterizerState> mRasterizerStates[RasterizerStateID::RasterizerStateID_Count];
 	};
 }

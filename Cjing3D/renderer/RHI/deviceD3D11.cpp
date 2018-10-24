@@ -152,6 +152,54 @@ namespace {
 
 	inline U32 _ParseColorWriteMask(U32 value)
 	{
+		U32 flag;
+		if (value == ColorWriteEnable::COLOR_WRITE_ENABLE_ALL) {
+			return D3D11_COLOR_WRITE_ENABLE_ALL;
+		}
+
+		if (value & ColorWriteEnable::COLOR_WRITE_ENABLE_RED) {
+			flag |= D3D11_COLOR_WRITE_ENABLE_RED;
+		}
+		if (value & ColorWriteEnable::COLOR_WRITE_ENABLE_GREEN) {
+			flag |= D3D11_COLOR_WRITE_ENABLE_GREEN;
+		}
+		if (value & ColorWriteEnable::COLOR_WRITE_ENABLE_BLUE) {
+			flag |= D3D11_COLOR_WRITE_ENABLE_BLUE;
+		}
+		if (value & ColorWriteEnable::COLOR_WRITE_ENABLE_ALPHA) {
+			flag |= D3D11_COLOR_WRITE_ENABLE_ALPHA;
+		}
+		return flag;
+	}
+
+	inline D3D11_FILL_MODE _ConvertFillMode(FillMode mode)
+	{
+		switch (mode)
+		{
+		case Cjing3D::FILL_WIREFRAME:
+			return D3D11_FILL_WIREFRAME;
+		case Cjing3D::FILL_SOLID:
+			return D3D11_FILL_SOLID;
+		default:
+			break;
+		}
+		return D3D11_FILL_SOLID;
+	}
+
+	inline D3D11_CULL_MODE _ConvertCullMode(CullMode mode)
+	{
+		switch (mode)
+		{
+		case Cjing3D::CULL_NONE:
+			return D3D11_CULL_NONE;
+		case Cjing3D::CULL_FRONT:
+			return D3D11_CULL_FRONT;
+		case Cjing3D::CULL_BACK:
+			return D3D11_CULL_BACK;
+		default:
+			break;
+		}
+		return D3D11_CULL_NONE;
 	}
 
 	//inline HRESULT CreateDepthStencilState(DepthStencilState* depthStencilState)
@@ -301,8 +349,8 @@ HRESULT GraphicsDeviceD3D11::CreateDepthStencilState(const DepthStencilStateDesc
 	depthDesc.BackFace.StencilFailOp		 = _ConvertStencilOp(desc.mBackFace.mStencilFailOp);
 	depthDesc.BackFace.StencilDepthFailOp    = _ConvertStencilOp(desc.mBackFace.mStencilDepthFailOp);
 
-	ID3D11DepthStencilState* depthState = &state.GetState();
-	return mDevice->CreateDepthStencilState(&depthDesc, &depthState);
+	auto& depthStencilState = state.GetStatePtr();
+	return mDevice->CreateDepthStencilState(&depthDesc, depthStencilState.ReleaseAndGetAddressOf());
 }
 
 HRESULT GraphicsDeviceD3D11::CreateBlendState(const BlendStateDesc & desc, BlendState & state)
@@ -324,8 +372,29 @@ HRESULT GraphicsDeviceD3D11::CreateBlendState(const BlendStateDesc & desc, Blend
 		blendDesc.RenderTarget[i].RenderTargetWriteMask = _ParseColorWriteMask(desc.mRenderTarget[i].mRenderTargetWriteMask);
 	}
 
-	ID3D11BlendState* blendState = &state.GetState();
-	return mDevice->CreateBlendState(&blendDesc, &blendState);
+	auto& blendState = state.GetStatePtr();
+	return mDevice->CreateBlendState(&blendDesc, blendState.ReleaseAndGetAddressOf());
+}
+
+HRESULT GraphicsDeviceD3D11::CreateRasterizerState(const RasterizerStateDesc & desc, RasterizerState & state)
+{
+	D3D11_RASTERIZER_DESC rasterizerDesc = {};
+
+	rasterizerDesc.FillMode = _ConvertFillMode(desc.mFillMode);
+	rasterizerDesc.CullMode = _ConvertCullMode(desc.mCullMode);
+	rasterizerDesc.FrontCounterClockwise = desc.mFrontCounterClockwise;
+
+	rasterizerDesc.DepthBias = desc.mDepthBias;
+	rasterizerDesc.DepthBiasClamp = desc.mDepthBiasClamp;
+	rasterizerDesc.SlopeScaledDepthBias = desc.mSlopeScaleDepthBias;
+	rasterizerDesc.DepthClipEnable = desc.mDepthClipEnable;
+
+	rasterizerDesc.ScissorEnable = true;
+	rasterizerDesc.MultisampleEnable = desc.mMultisampleEnable;
+	rasterizerDesc.AntialiasedLineEnable = desc.mAntialiaseLineEnable;
+
+	auto& rasterizerState = state.GetStatePtr();
+	return mDevice->CreateRasterizerState(&rasterizerDesc, rasterizerState.ReleaseAndGetAddressOf());
 }
 
 void GraphicsDeviceD3D11::SetViewport(ViewPort viewport)

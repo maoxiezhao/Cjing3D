@@ -23,6 +23,7 @@ namespace Cjing3D
 	
 		virtual HRESULT CreateDepthStencilState(const DepthStencilStateDesc& desc, DepthStencilState& state) = 0;
 		virtual HRESULT CreateBlendState(const BlendStateDesc& desc, BlendState& state) = 0;
+		virtual HRESULT CreateRasterizerState(const RasterizerStateDesc& desc, RasterizerState& state) = 0;
 
 		FORMAT GetBackBufferFormat()const {
 			return mBackBufferFormat;

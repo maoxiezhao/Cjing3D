@@ -13,7 +13,7 @@ namespace Cjing3D
 
 		DepthStencilStateDesc GetDesc()const { return mDesc; }
 		ID3D11DepthStencilState& GetState() { return *mState.Get(); }
-
+		ComPtr<ID3D11DepthStencilState>& GetStatePtr() { return mState; }
 	private:
 		DepthStencilStateDesc mDesc;
 		ComPtr<ID3D11DepthStencilState> mState;
@@ -26,9 +26,22 @@ namespace Cjing3D
 
 		BlendStateDesc GetDesc()const { return mDesc; }
 		ID3D11BlendState& GetState() { return *mState.Get(); }
-
+		ComPtr<ID3D11BlendState>& GetStatePtr() { return mState; }
 	private:
 		BlendStateDesc mDesc;
 		ComPtr<ID3D11BlendState> mState;
+	};
+
+	class RasterizerState
+	{
+	public:
+		RasterizerState() : mState() {};
+
+		BlendStateDesc GetDesc()const { return mDesc; }
+		ID3D11RasterizerState& GetState() { return *mState.Get(); }
+		ComPtr<ID3D11RasterizerState>& GetStatePtr() { return mState; }
+	private:
+		BlendStateDesc mDesc;
+		ComPtr<ID3D11RasterizerState> mState;
 	};
 }

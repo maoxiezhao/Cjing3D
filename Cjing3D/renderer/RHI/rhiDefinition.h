@@ -87,4 +87,16 @@ namespace Cjing3D
 		BLEND_OP_MIN,
 		BLEND_OP_MAX,
 	};
+
+	enum FillMode
+	{
+		FILL_WIREFRAME,
+		FILL_SOLID,
+	};
+	enum CullMode
+	{
+		CULL_NONE,
+		CULL_FRONT,
+		CULL_BACK,
+	};
 }
