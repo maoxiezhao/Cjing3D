@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common\common.h"
+#include "core\threadSafeSystem.h"
 #include <vector>
 
 namespace Cjing3D

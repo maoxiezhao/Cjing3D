@@ -99,4 +99,10 @@ namespace Cjing3D
 		CULL_FRONT,
 		CULL_BACK,
 	};
+
+	enum InputClassification
+	{
+		INPUT_PER_VERTEX_DATA,
+		INPUT_PER_INSTANCE_DATA
+	};
 }

@@ -2,7 +2,7 @@
 
 #include "renderer\renderableCommon.h"
 #include "renderer\renderer.h"
-#include "renderer\renderResource.h"
+#include "renderer\RHI\rhiResource.h"
 
 namespace Cjing3D
 {
@@ -35,6 +35,8 @@ namespace Cjing3D
 		void SetupStates();
 
 		DepthStencilState& GetDepthStencilState(DepthStencilStateID id);
+		BlendState& GetBlendState(BlendStateID id);
+		RasterizerState& GetRasterizerState(RasterizerStateID id);
 
 	private:
 		void SetupDepthStencilStates();

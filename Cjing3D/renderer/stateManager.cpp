@@ -38,6 +38,18 @@ DepthStencilState & StateManager::GetDepthStencilState(DepthStencilStateID id)
 	return *mDepthStencilStates[static_cast<U32>(id)];
 }
 
+BlendState & StateManager::GetBlendState(BlendStateID id)
+{
+	Debug::CheckAssertion(id < BlendStateID::BlendStateID_Count);
+	return *mBlendStates[static_cast<U32>(id)];
+}
+
+RasterizerState & StateManager::GetRasterizerState(RasterizerStateID id)
+{
+	Debug::CheckAssertion(id < RasterizerStateID::RasterizerStateID_Count);
+	return *mRasterizerStates[static_cast<U32>(id)];
+}
+
 void StateManager::SetupDepthStencilStates()
 {
 	{
@@ -106,6 +118,22 @@ void StateManager::SetupBlendStates()
 
 void StateManager::SetupRasterizerStates()
 {
+	{
+		RasterizerStateDesc desc = {};
+		desc.mFillMode = FILL_SOLID;
+		desc.mCullMode = CULL_BACK;
+		desc.mFrontCounterClockwise = true;
+		desc.mDepthBias = 0;
+		desc.mDepthBiasClamp = 0;
+		desc.mSlopeScaleDepthBias = 0;
+		desc.mDepthClipEnable = true;
+		desc.mMultisampleEnable = false;
+		desc.mAntialiaseLineEnable = false;
+		desc.mConservativeRasterizationEnable = false;
+
+		const auto result = mDevice.CreateRasterizerState(desc, *mRasterizerStates[RasterizerStateID::RasterizerStateID_Front]);
+		Debug::ThrowIfFailed(result, "Failed to create opaque blendState", result);
+	}
 }
 
 }

@@ -1,7 +1,8 @@
 #pragma once
 
-#include "renderer\renderableComponent.h"
-#include "renderer\component\renderableComponent3D.h"
+#include "renderer\renderable\renderableComponent.h"
+#include "renderer\renderable\renderableComponent3D.h"
+#include "renderer\renderable\forwardRenderableComponent.h"
 #include "core\gameContext.hpp"
 #include "helper\timer.h"
 

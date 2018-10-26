@@ -22,7 +22,7 @@ public:
 
 	virtual HRESULT CreateDepthStencilState(const DepthStencilStateDesc& desc, DepthStencilState& state);
 	virtual HRESULT CreateBlendState(const BlendStateDesc& desc, BlendState& state);
-	virtual HRESULT CreateRasterizerState(const RasterizerStateDesc& desc, RasterizerState& state) = 0;
+	virtual HRESULT CreateRasterizerState(const RasterizerStateDesc& desc, RasterizerState& state);
 
 	ID3D11DeviceContext& GetDeviceContext(GraphicsThread type) {
 		return *mDeviceContext[static_cast<U32>(type)].Get();

@@ -15,3 +15,4 @@
 #pragma warning( disable :4005 4018 4522 4715 4800 4996)
 #endif
 
+#define SAFE_DELETE_ARRAY(p) if(p!= nullptr) {delete[](p); p=nullptr;}
