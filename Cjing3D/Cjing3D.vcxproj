@@ -149,8 +149,8 @@
     <ClInclude Include="renderer\renderable\renderableComponent.h" />
     <ClInclude Include="renderer\renderable\renderableComponent3D.h" />
     <ClInclude Include="renderer\renderer.h" />
-    <ClInclude Include="renderer\resource\resoureManager.h" />
     <ClInclude Include="renderer\RHI\rhiResource.h" />
+    <ClInclude Include="renderer\RHI\rhiShader.h" />
     <ClInclude Include="renderer\shaderLib.h" />
     <ClInclude Include="renderer\RHI\device.h" />
     <ClInclude Include="renderer\RHI\deviceD3D11.h" />
@@ -161,6 +161,9 @@
     <ClInclude Include="renderer\stateManager.h" />
     <ClInclude Include="resource\assimpLoader.h" />
     <ClInclude Include="resource\objLoader.h" />
+    <ClInclude Include="resource\resource.h" />
+    <ClInclude Include="resource\resourceManager.h" />
+    <ClInclude Include="resource\resourcePool.hpp" />
     <ClInclude Include="utils\array.h" />
     <ClInclude Include="utils\math.h" />
     <ClInclude Include="utils\window.h" />
@@ -187,8 +190,13 @@
     <ClCompile Include="renderer\RHI\pipelineD3D11.cpp" />
     <ClCompile Include="renderer\RHI\swapChainD3D11.cpp" />
     <ClCompile Include="renderer\stateManager.cpp" />
+    <ClCompile Include="resource\resource.cpp" />
+    <ClCompile Include="resource\resourceManager.cpp" />
     <ClCompile Include="utils\window.cpp" />
     <ClCompile Include="world\world.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resource\resourceManager.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

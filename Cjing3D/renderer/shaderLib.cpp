@@ -1,28 +1,48 @@
 #include "shaderLib.h"
+#include "renderer.h"
 
 namespace Cjing3D
 {
 
-ResourceLoader::ResourceLoader(Renderer & renderer):
+ShaderLib::ShaderLib(Renderer & renderer) :
 	mRenderer(renderer)
 {
 }
 
-void ResourceLoader::Initialize()
+void ShaderLib::Initialize()
 {
-	LoadShader();
 	LoadBuffers();
+	LoadShader();
 }
 
-void ResourceLoader::Uninitialize()
+void ShaderLib::Uninitialize()
 {
 }
 
-void ResourceLoader::LoadShader()
+void ShaderLib::LoadShader()
+{
+	LoadVertexShaders();
+	LoadPixelShaders();
+}
+
+void ShaderLib::LoadVertexShaders()
+{
+	{
+		VertexLayoutDesc layout[] = 
+		{
+			{ "POSITION", 0u, FORMAT_R32G32B32_FLOAT, 0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
+			{ "NORMAL",   0u, FORMAT_R32G32B32_FLOAT, 0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
+			{ "TEXCOORD", 0u, FORMAT_R32G32_FLOAT,    0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u }
+		};
+
+	}
+}
+
+void ShaderLib::LoadPixelShaders()
 {
 }
 
-void ResourceLoader::LoadBuffers()
+void ShaderLib::LoadBuffers()
 {
 }
 

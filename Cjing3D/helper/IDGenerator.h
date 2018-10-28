@@ -4,18 +4,20 @@
 
 namespace Cjing3D {
 
-	/**
-	*	\brief 用于生成全局的GUID
-	*/
-	class IDGenerator
-	{
-	public:
-		static IDGenerator& GetInstance();
-		U64 GenerateNextGUID()const;
+#define GENERATE_ID IDGenerator::GetInstance().GenerateNextGUID()
 
-	private:
-		IDGenerator();
+/**
+*	\brief 用于生成全局的GUID
+*/
+class IDGenerator
+{
+public:
+	static IDGenerator& GetInstance();
+	U32 GenerateNextGUID()const;
 
-		static U64 mCurGUID;
-	};
+private:
+	IDGenerator();
+	static U32 mCurGUID;
+};
+
 }

@@ -2,6 +2,7 @@
 
 #include "common\common.h"
 #include "core\threadSafeSystem.h"
+
 #include <vector>
 
 namespace Cjing3D
@@ -9,7 +10,7 @@ namespace Cjing3D
 
 class GameContext;
 
-class GameSystem
+class GameSystem : public ThreadSafeSystem
 {
 public:
 	GameSystem(GameContext& gameContext) :

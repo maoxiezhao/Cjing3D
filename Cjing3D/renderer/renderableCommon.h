@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common\common.h"
+#include "helper\IDGenerator.h"
 
 #include <wrl.h>
 #include <memory>

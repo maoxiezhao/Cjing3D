@@ -114,13 +114,13 @@ namespace Cjing3D
 
 	struct VertexLayoutDesc
 	{
-		char* SemanticName;
-		U32 SemanticIndex;
-		FORMAT Format;
-		U32 InputSlot;
-		U32 AlignedByteOffset;
-		InputClassification InputSlotClass;
-		U32 InstanceDataStepRate;
+		const char* mSemanticName;
+		U32 mSemanticIndex;
+		FORMAT mFormat;
+		U32 mInputSlot;
+		U32 mAlignedByteOffset;
+		InputClassification mInputSlotClass;
+		U32 mInstanceDataStepRate;
 	};
 
 }

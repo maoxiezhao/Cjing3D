@@ -1,7 +1,7 @@
 #include "idGenerator.h"
 
 namespace Cjing3D {
-	U64 IDGenerator::mCurGUID = 0;
+	U32 IDGenerator::mCurGUID = 0;
 
 	IDGenerator & IDGenerator::GetInstance()
 	{
@@ -9,7 +9,7 @@ namespace Cjing3D {
 		return instance;
 	}
 
-	U64 IDGenerator::GenerateNextGUID() const
+	U32 IDGenerator::GenerateNextGUID() const
 	{
 		return mCurGUID++;
 	}
