@@ -3,22 +3,26 @@
 namespace Cjing3D {
 
 	StringID::StringID() :
-		mValue(0)
+		mValue(0),
+		mStr()
 	{
 	}
 
 	StringID::StringID(const char * str) :
-		mValue(CalculateHash(str))
+		mValue(CalculateHash(str)),
+		mStr(str)
 	{
 	}
 
 	StringID::StringID(const std::string & str) :
-		mValue(CalculateHash(str.c_str()))
+		mValue(CalculateHash(str.c_str())),
+		mStr(str)
 	{
 	}
 
 	StringID::StringID(const StringID & rhs) :
-		mValue(rhs.mValue)
+		mValue(rhs.mValue),
+		mStr(rhs.mStr)
 	{
 	}
 

@@ -93,8 +93,14 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\ThirdParty\Assimp_4.1.0</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\ThirdParty\</AdditionalIncludeDirectories>
     </ClCompile>
+    <Lib>
+      <AdditionalDependencies>physfs.lib;</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>$(SolutionDir)\lib;</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -135,6 +141,7 @@
     <ClInclude Include="core\threadSafeSystem.h" />
     <ClInclude Include="engine.h" />
     <ClInclude Include="helper\debug.h" />
+    <ClInclude Include="helper\fileSystem.h" />
     <ClInclude Include="helper\IDGenerator.h" />
     <ClInclude Include="helper\logger.h" />
     <ClInclude Include="helper\profiler.h" />
@@ -174,6 +181,7 @@
     <ClCompile Include="core\threadSafeSystem.cpp" />
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="helper\debug.cpp" />
+    <ClCompile Include="helper\fileSystem.cpp" />
     <ClCompile Include="helper\IDGenerator.cpp" />
     <ClCompile Include="helper\logger.cpp" />
     <ClCompile Include="helper\profiler.cpp" />

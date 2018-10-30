@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common\common.h"
+#include "helper\stringID.h"
 
 namespace Cjing3D
 {
@@ -33,8 +34,8 @@ namespace Cjing3D
 		Resource_Type GetResourceType()const { return mType; }
 		U32 GetGUID()const { return mGUID; }
 		
-		std::string GetResourceName()const { return mName; }
-		void SetResourceName(const std::string& name) { mName = name; }
+		StringID GetResourceName()const { return mName; }
+		void SetResourceName(const std::string& name) { mName = StringID(name); }
 
 		virtual bool SaveToFile(const std::string& filePath) { return false; };
 		virtual bool LoadFromFile(const std::string& filePath) { return false; };
@@ -44,7 +45,7 @@ namespace Cjing3D
 
 	private:
 		U32 mGUID;
-		std::string mName;
+		StringID mName;
 		Resource_Type mType;
 	};
 

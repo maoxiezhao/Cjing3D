@@ -91,6 +91,10 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../Cjing3D</AdditionalIncludeDirectories>
     </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(SolutionDir)\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>physfs.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "renderer\renderableCommon.h"
 #include "renderer\RHI\rhiStructure.h"
 #include "renderer\includeD3D11.h"
 

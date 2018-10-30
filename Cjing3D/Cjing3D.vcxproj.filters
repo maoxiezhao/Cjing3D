@@ -116,6 +116,9 @@
     <ClCompile Include="resource\resource.cpp">
       <Filter>resource</Filter>
     </ClCompile>
+    <ClCompile Include="helper\fileSystem.cpp">
+      <Filter>helper</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -238,6 +241,9 @@
     </ClInclude>
     <ClInclude Include="renderer\RHI\rhiShader.h">
       <Filter>renderer\rhi</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\fileSystem.h">
+      <Filter>helper</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

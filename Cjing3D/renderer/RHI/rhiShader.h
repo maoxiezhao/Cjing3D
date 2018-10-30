@@ -1,6 +1,5 @@
 #pragma once
 
-#include "renderer\renderableCommon.h"
 #include "renderer\RHI\rhiResource.h"
 #include "resource\resource.h"
 
@@ -32,8 +31,11 @@ namespace Cjing3D
 	using PixelShader = Shader<ID3D11PixelShader>;
 
 	// 顶点着色器信息
-	class VertexShaderInfo
+	class VertexShaderInfo : public Resource
 	{
+	public:
+		VertexShaderInfo() : Resource(Resrouce_VertexShader) {}
+
 		std::shared_ptr<InputLayout> mInputLayout;
 		std::shared_ptr<VertexShader> mVertexShader;
 	};

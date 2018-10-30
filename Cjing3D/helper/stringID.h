@@ -21,6 +21,7 @@ namespace Cjing3D {
 		StringID& operator= (StringID&& rhs);
 
 		U32 HashValue()const { return mValue; }
+		std::string GetString()const { return mStr; }
 
 		operator bool()const { return mValue != 0; }
 
@@ -44,7 +45,7 @@ namespace Cjing3D {
 
 	private:
 		int mValue;
-
+		std::string mStr;
 	};
 
 #define STRING_ID(key) StringID(#key)

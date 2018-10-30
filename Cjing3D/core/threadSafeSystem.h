@@ -15,6 +15,7 @@ public:
 	~SpinLock();
 
 	void Lock();
+	bool TryLock();
 	void UnLock();
 
 private:

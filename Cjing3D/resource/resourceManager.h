@@ -24,6 +24,9 @@ public:
 
 	virtual void Initialize() {};
 	virtual void Uninitialize() {};
+	
+	void AddStandardResourceDirectory(Resource_Type type, const std::string& path);
+	const std::string& GetStandardResourceDirectory(Resource_Type type)const;
 
 	//----------------------------------------------------------------
 	//	Common Method
@@ -37,14 +40,14 @@ public:
 	struct ResourceRecord<ResourceT, std::enable_if_t<is_shader<ResourceT>::value> >
 	{
 	public:
-		using poolType = PersistentResourcePool < std::string, ResourceT>;
+		using poolType = PersistentResourcePool < StringID, ResourceT>;
 	};
 
 	// 如果资源为非Shader类型（Texture、Model),则使用普通资源池
 	template< typename ResourceT>
 	struct ResourceRecord<ResourceT, std::enable_if_t<!is_shader<ResourceT>::value> >
 	{
-		using poolType = ResourcePool < std::string, ResourceT>;
+		using poolType = ResourcePool < StringID, ResourceT>;
 	};
 
 	// 获取指定资源的Key类型和Resource类型
@@ -61,6 +64,16 @@ public:
 	template <typename ResourceT>
 	bool Contains(const typename KeyType<ResourceT>& guid)const;
 
+	//----------------------------------------------------------------
+	//	Special Method
+	//----------------------------------------------------------------
+
+	ResourcePtr GetOrCreate(const StringID& name, Resource_Type type);
+
+	template <typename ResourceT>
+	std::enable_if_t<std::is_same<ResourceT, VertexShaderInfo>::value, std::shared_ptr<VertexShaderInfo> >
+		GetOrCreate(const StringID& name, VertexLayoutDesc& desc, U32 numElements);
+
 private:
 	template <typename ResourceT>
 	PoolType<ResourceT>& GetPool();
@@ -72,9 +85,10 @@ private:
 private:
 	std::map<Resource_Type, std::string> mResourceDirectories;
 
-	PoolType<VertexShader> mVertexShaderPool;
+	PoolType<VertexShaderInfo> mVertexShaderPool;
 	PoolType<PixelShader> mPixelShaderPool;
 };
+
 
 #include "resourceManager.inl"
 

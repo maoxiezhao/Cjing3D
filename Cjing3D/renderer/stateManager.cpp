@@ -1,4 +1,5 @@
 #include "stateManager.h"
+#include "renderer\RHI\device.h"
 
 namespace Cjing3D {
 

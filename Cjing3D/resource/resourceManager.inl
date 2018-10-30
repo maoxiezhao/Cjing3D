@@ -1,3 +1,4 @@
+#include "resourceManager.h"
 #pragma once
 /**
 *	\brief 获取指定资源
@@ -35,8 +36,8 @@ inline ResourceManager::PoolType<ResourceT>& ResourceManager::GetPool()
 *	\brief 返回VertexShader Pool
 */
 template <>
-inline const ResourceManager::PoolType<VertexShader>&
-ResourceManager::GetPool<VertexShader>()const
+inline const ResourceManager::PoolType<VertexShaderInfo>&
+ResourceManager::GetPool<VertexShaderInfo>()const
 {
 	return mVertexShaderPool;
 }
@@ -49,4 +50,15 @@ inline const ResourceManager::PoolType<PixelShader>&
 ResourceManager::GetPool<PixelShader>()const
 {
 	return mPixelShaderPool;
+}
+
+// 创建VertexShader着色器
+template<typename ResourceT>
+inline std::enable_if_t<std::is_same<ResourceT, VertexShaderInfo>::value, std::shared_ptr<VertexShaderInfo>>
+Cjing3D::ResourceManager::GetOrCreate(const StringID & name, VertexLayoutDesc & desc, U32 numElements)
+{
+	PoolType<VertexShaderInfo>& shaderPool = GetPool< VertexShaderInfo >();
+	auto vertexShaderInfo = shaderPool.GetOrCreate(name);
+
+	return vertexShaderInfo;
 }

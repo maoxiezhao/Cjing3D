@@ -1,11 +1,11 @@
 #pragma once
 
 #include "renderer\renderableCommon.h"
-#include "renderer\RHI\device.h"
 
 namespace Cjing3D
 {
 
+class GraphicsDevice;
 class ShaderLib;
 class StateManager;
 

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "renderer\renderableCommon.h"
 #include "renderer\RHI\rhiDefinition.h"
 
 namespace Cjing3D
