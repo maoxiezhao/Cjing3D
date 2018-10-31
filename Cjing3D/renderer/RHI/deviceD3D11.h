@@ -24,6 +24,9 @@ public:
 	virtual HRESULT CreateBlendState(const BlendStateDesc& desc, BlendState& state);
 	virtual HRESULT CreateRasterizerState(const RasterizerStateDesc& desc, RasterizerState& state);
 
+	virtual HRESULT CreateVertexShader(const void* bytecode, size_t length, VertexShader& vertexShader);
+	virtual HRESULT CreateInputLayout(VertexLayoutDesc* desc, U32 numElements, const void* shaderBytecode, size_t shaderLength, InputLayout& inputLayout);
+
 	ID3D11DeviceContext& GetDeviceContext(GraphicsThread type) {
 		return *mDeviceContext[static_cast<U32>(type)].Get();
 	}

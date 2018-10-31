@@ -52,13 +52,3 @@ ResourceManager::GetPool<PixelShader>()const
 	return mPixelShaderPool;
 }
 
-// 创建VertexShader着色器
-template<typename ResourceT>
-inline std::enable_if_t<std::is_same<ResourceT, VertexShaderInfo>::value, std::shared_ptr<VertexShaderInfo>>
-Cjing3D::ResourceManager::GetOrCreate(const StringID & name, VertexLayoutDesc & desc, U32 numElements)
-{
-	PoolType<VertexShaderInfo>& shaderPool = GetPool< VertexShaderInfo >();
-	auto vertexShaderInfo = shaderPool.GetOrCreate(name);
-
-	return vertexShaderInfo;
-}

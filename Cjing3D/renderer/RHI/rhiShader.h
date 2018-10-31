@@ -10,10 +10,9 @@ namespace Cjing3D
 	class Shader : public Resource
 	{
 	public:
-		Shader() : Resource(Resource::DeduceResourceType(Shader<D3D11ShaderType>)) {};
+		Shader() : Resource(Resource::DeduceResourceType<Shader<D3D11ShaderType>>()) {};
 		~Shader() {};
 
-	private:
 		struct ShaderByteCode
 		{
 			BYTE* mByteData;

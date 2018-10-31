@@ -202,10 +202,19 @@ namespace {
 		return D3D11_CULL_NONE;
 	}
 
-	//inline HRESULT CreateDepthStencilState(DepthStencilState* depthStencilState)
-	//{
-	//	return S_OK;
-	//}
+	inline D3D11_INPUT_CLASSIFICATION _ConvertInputClassification(InputClassification inputClassification)
+	{
+		switch (inputClassification)
+		{
+		case Cjing3D::INPUT_PER_VERTEX_DATA:
+			return D3D11_INPUT_PER_VERTEX_DATA;
+		case Cjing3D::INPUT_PER_INSTANCE_DATA:
+			return D3D11_INPUT_PER_INSTANCE_DATA;
+		default:
+			break;
+		}
+		return D3D11_INPUT_PER_VERTEX_DATA;
+	}
 }
 
 GraphicsDeviceD3D11::GraphicsDeviceD3D11(HWND window, bool fullScreen, bool debugLayer):
@@ -395,6 +404,35 @@ HRESULT GraphicsDeviceD3D11::CreateRasterizerState(const RasterizerStateDesc & d
 
 	auto& rasterizerState = state.GetStatePtr();
 	return mDevice->CreateRasterizerState(&rasterizerDesc, rasterizerState.ReleaseAndGetAddressOf());
+}
+
+// 创建顶点着色器
+HRESULT GraphicsDeviceD3D11::CreateVertexShader(const void * bytecode, size_t length, VertexShader & vertexShader)
+{
+	vertexShader.mByteCode.mByteLength = length;
+	vertexShader.mByteCode.mByteData = new BYTE[length];
+	memcpy(vertexShader.mByteCode.mByteData, bytecode, length);
+
+	return mDevice->CreateVertexShader(bytecode, length, nullptr, vertexShader.mResourceD3D11.ReleaseAndGetAddressOf());
+}
+
+// 创建输入布局
+HRESULT GraphicsDeviceD3D11::CreateInputLayout(VertexLayoutDesc* desc, U32 numElements, const void * shaderBytecode, size_t shaderLength, InputLayout & inputLayout)
+{
+	D3D11_INPUT_ELEMENT_DESC* inputLayoutdescs = new D3D11_INPUT_ELEMENT_DESC[numElements];
+	for (int i = 0; i < numElements; i++)
+	{
+		inputLayoutdescs[i].SemanticName	= desc[i].mSemanticName;
+		inputLayoutdescs[i].SemanticIndex = desc[i].mSemanticIndex;
+		inputLayoutdescs[i].Format = _ConvertFormat(desc[i].mFormat);
+		inputLayoutdescs[i].InputSlot  = desc[i].mInputSlot;
+		inputLayoutdescs[i].AlignedByteOffset = desc[i].mAlignedByteOffset;
+		inputLayoutdescs[i].InputSlotClass = _ConvertInputClassification(desc[i].mInputSlotClass);
+		inputLayoutdescs[i].InstanceDataStepRate  = desc[i].mInstanceDataStepRate;
+	}
+
+	auto& inputLayputResource = inputLayout.GetStatePtr();
+	return mDevice->CreateInputLayout(inputLayoutdescs, numElements, shaderBytecode, shaderLength, inputLayputResource.ReleaseAndGetAddressOf());
 }
 
 void GraphicsDeviceD3D11::SetViewport(ViewPort viewport)

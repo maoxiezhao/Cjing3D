@@ -1,5 +1,7 @@
 #include "shaderLib.h"
 #include "renderer.h"
+#include "resource\resourceManager.h"
+#include "renderer\RHI\rhiShader.h"
 
 namespace Cjing3D
 {
@@ -27,6 +29,8 @@ void ShaderLib::LoadShader()
 
 void ShaderLib::LoadVertexShaders()
 {
+	auto& resourceManager = mRenderer.GetResourceManager();
+	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resrouce_VertexShader);
 	{
 		VertexLayoutDesc layout[] = 
 		{
@@ -34,7 +38,7 @@ void ShaderLib::LoadVertexShaders()
 			{ "NORMAL",   0u, FORMAT_R32G32B32_FLOAT, 0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
 			{ "TEXCOORD", 0u, FORMAT_R32G32_FLOAT,    0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u }
 		};
-
+		auto vsinfo = resourceManager.GetOrCreate<VertexShaderInfo>(shaderPath + "objectVS.cso", layout, 3);
 	}
 }
 

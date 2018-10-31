@@ -50,6 +50,9 @@ namespace Cjing3D
 		InputLayout() {};
 		~InputLayout() {};
 
+		const std::vector<VertexLayoutDesc>& GetDesc()const { return mDescs; }
+		ID3D11InputLayout& GetState() { return *mResourceD3D11.Get(); }
+		ComPtr<ID3D11InputLayout>& GetStatePtr() { return mResourceD3D11; }
 	private:
 		ComPtr<ID3D11InputLayout> mResourceD3D11;
 		std::vector<VertexLayoutDesc> mDescs;

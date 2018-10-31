@@ -14,6 +14,7 @@ Resource_Type Resource::DeduceResourceType()
 #define ADDTORESOURCETYPE(T, enumT) template<> Resource_Type Resource::DeduceResourceType<T>() { return enumT; }
 
 ADDTORESOURCETYPE(VertexShaderInfo, Resrouce_VertexShader)
+ADDTORESOURCETYPE(VertexShader, Resrouce_VertexShader)
 ADDTORESOURCETYPE(PixelShader, Resrouce_PixelShader)
 
 Resource::Resource(Resource_Type type) :

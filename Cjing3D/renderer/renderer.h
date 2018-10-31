@@ -1,6 +1,7 @@
 #pragma once
 
 #include "renderer\renderableCommon.h"
+#include "core\gameSystem.hpp"
 
 namespace Cjing3D
 {
@@ -8,23 +9,20 @@ namespace Cjing3D
 class GraphicsDevice;
 class ShaderLib;
 class StateManager;
+class ResourceManager;
 
-class Renderer
+class Renderer : public GameSystem
 {
 public:
-	static Renderer& GetInstance() {
-		static Renderer render;
-		return render;
-	}
-
+	Renderer(GameContext& gameContext);
 	~Renderer();
 
 	void Initialize(GraphicsDevice* device);
 	void Uninitialize();
 	void Present();
 	
-private:
-	Renderer();
+	GraphicsDevice& GetDevice();
+	ResourceManager& GetResourceManager();
 
 private:
 	std::unique_ptr<GraphicsDevice> mGraphicsDevice;

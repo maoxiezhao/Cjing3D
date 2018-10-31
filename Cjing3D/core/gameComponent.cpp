@@ -3,6 +3,7 @@
 #include "helper\profiler.h"
 #include "renderer\renderer.h"
 #include "renderer\RHI\deviceD3D11.h"
+#include "resource\resourceManager.h"
 
 namespace Cjing3D {
 
@@ -22,11 +23,18 @@ void GameComponent::Initialize(Engine& engine)
 
 	mGameContext = std::make_unique<GameContext>();
 
+	// initialize resource manager
+	ResourceManager* resourceManager = new ResourceManager(*mGameContext);
+	resourceManager->Initialize();
+	mGameContext->RegisterGameSystem(resourceManager);
+
 	// initialize render
 	HWND window = engine.GetMainWindow().GetHwnd();
-	Renderer::GetInstance().Initialize(
+	Renderer* renderer = new Renderer(*mGameContext);
+	renderer->Initialize(
 		new GraphicsDeviceD3D11(window, false, true)
 	);
+	mGameContext->RegisterGameSystem(renderer);
 
 	AfterInitializeImpl();
 }
@@ -38,10 +46,13 @@ void GameComponent::Update(EngineTime time)
 
 void GameComponent::Uninitialize()
 {
-	// uninitialize render
-	Renderer::GetInstance().Uninitialize();
-
 	UninitializeImpl();
+
+	// uninitialize render
+	mGameContext->GetGameSystem<Renderer>().Uninitialize();
+
+	// uninitialize resource manager
+	mGameContext->GetGameSystem<ResourceManager>().Uninitialize();
 }
 
 void GameComponent::Run(Timer& timer)
@@ -60,7 +71,7 @@ void GameComponent::Run(Timer& timer)
 	Profiler::GetInstance().EndBlock();
 
 	// present
-	Renderer::GetInstance().Present();
+	mGameContext->GetGameSystem<Renderer>().Present();
 
 	Profiler::GetInstance().EndFrame();
 }

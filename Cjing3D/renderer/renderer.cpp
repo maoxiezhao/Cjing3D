@@ -2,10 +2,13 @@
 #include "shaderLib.h"
 #include "stateManager.h"
 #include "renderer\RHI\device.h"
+#include "core\gameContext.hpp"
+#include "resource\resourceManager.h"
 
 namespace Cjing3D {
 
-Renderer::Renderer() :
+Renderer::Renderer(GameContext& gameContext) :
+	GameSystem(gameContext),
 	mGraphicsDevice(nullptr),
 	mShaderLib(nullptr),
 	mStateManager(nullptr),
@@ -54,6 +57,16 @@ void Renderer::Present()
 {
 	mGraphicsDevice->PresentBegin();
 	mGraphicsDevice->PresentEnd();
+}
+
+GraphicsDevice & Renderer::GetDevice()
+{
+	return *mGraphicsDevice;
+}
+
+ResourceManager & Renderer::GetResourceManager()
+{
+	return mGameContext.GetGameSystem<ResourceManager>();
 }
 
 }

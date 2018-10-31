@@ -4,6 +4,7 @@
 #include "renderer\RHI\rhiResource.h"
 #include "renderer\RHI\rhiDefinition.h"
 #include "renderer\RHI\rhiStructure.h"
+#include "renderer\RHI\rhiShader.h"
 
 namespace Cjing3D
 {
@@ -23,6 +24,9 @@ namespace Cjing3D
 		virtual HRESULT CreateDepthStencilState(const DepthStencilStateDesc& desc, DepthStencilState& state) = 0;
 		virtual HRESULT CreateBlendState(const BlendStateDesc& desc, BlendState& state) = 0;
 		virtual HRESULT CreateRasterizerState(const RasterizerStateDesc& desc, RasterizerState& state) = 0;
+
+		virtual HRESULT CreateVertexShader(const void* bytecode, size_t length, VertexShader& vertexShader) = 0;
+		virtual HRESULT CreateInputLayout(VertexLayoutDesc* desc, U32 numElements, const void* shaderBytecode, size_t shaderLength, InputLayout& inputLayout) = 0;
 
 		FORMAT GetBackBufferFormat()const {
 			return mBackBufferFormat;
