@@ -95,7 +95,7 @@ void Engine::Initialize()
 	Debug::SetDebugConsoleEnable(true);
 	Debug::InitializeDebugConsole();
 
-	std::string dataPath = "../Assets";
+	std::string dataPath = "./../Assets";
 	if (!FileData::OpenData("", dataPath))
 		Debug::Die("No data file was found int the direcion:" + dataPath);
 

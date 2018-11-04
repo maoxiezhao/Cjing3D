@@ -222,4 +222,10 @@ namespace Cjing3D
 		INPUT_PER_VERTEX_DATA,
 		INPUT_PER_INSTANCE_DATA
 	};
+
+	enum IndexFormat
+	{
+		INDEX_FORMAT_16BIT,
+		INDEX_FORMAT_32BIT,
+	};
 }

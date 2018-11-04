@@ -13,7 +13,8 @@ namespace Cjing3D
 		Resrouce_VertexShader,
 		Resrouce_PixelShader,
 		Resource_Texture,
-		Resource_Mesh
+		Resource_Mesh,
+		Resource_Model
 	};
 
 	/**

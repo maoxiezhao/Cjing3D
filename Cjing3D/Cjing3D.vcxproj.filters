@@ -38,11 +38,8 @@
     <Filter Include="renderer\renderable">
       <UniqueIdentifier>{ee3e787a-e22a-40f3-bb5e-9fee90f49608}</UniqueIdentifier>
     </Filter>
-    <Filter Include="renderer\components">
+    <Filter Include="renderer\component">
       <UniqueIdentifier>{d8008cfd-bc4b-4f6c-b158-826a56ca422b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="renderer\resource">
-      <UniqueIdentifier>{c251e3e9-c6f0-4d30-8103-16160d95ceec}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -118,6 +115,18 @@
     </ClCompile>
     <ClCompile Include="helper\fileSystem.cpp">
       <Filter>helper</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\modelImporter.cpp">
+      <Filter>resource\importer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\components\mesh.cpp">
+      <Filter>renderer\component</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\components\model.cpp">
+      <Filter>renderer\component</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\components\material.cpp">
+      <Filter>renderer\component</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -206,12 +215,6 @@
     <ClInclude Include="renderer\pass\forwardPass.h">
       <Filter>renderer\pass</Filter>
     </ClInclude>
-    <ClInclude Include="resource\assimpLoader.h">
-      <Filter>resource\importer</Filter>
-    </ClInclude>
-    <ClInclude Include="resource\objLoader.h">
-      <Filter>resource\importer</Filter>
-    </ClInclude>
     <ClInclude Include="renderer\RHI\rhiResource.h">
       <Filter>renderer\rhi</Filter>
     </ClInclude>
@@ -223,9 +226,6 @@
     </ClInclude>
     <ClInclude Include="renderer\renderable\renderableComponent.h">
       <Filter>renderer\renderable</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\components\camera.h">
-      <Filter>renderer\components</Filter>
     </ClInclude>
     <ClInclude Include="core\threadSafeSystem.h">
       <Filter>core</Filter>
@@ -244,6 +244,27 @@
     </ClInclude>
     <ClInclude Include="helper\fileSystem.h">
       <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="core\object.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="resource\modelImporter.h">
+      <Filter>resource\importer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\components\model.h">
+      <Filter>renderer\component</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\components\mesh.h">
+      <Filter>renderer\component</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\geometry.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\components\material.h">
+      <Filter>renderer\component</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\components\component.h">
+      <Filter>renderer\component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

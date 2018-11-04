@@ -55,7 +55,7 @@ namespace Cjing3D {
 				PHYSFS_init(dataName.c_str());
 
 			dataPath_ = dataPath;
-			string dirDataPath = dataPath + "/data";
+			string dirDataPath = dataPath;
 
 			const string&baseDir = PHYSFS_getBaseDir();
 			PHYSFS_addToSearchPath(dirDataPath.c_str(), 1);
@@ -137,11 +137,11 @@ namespace Cjing3D {
 		{
 			// 确保文件存在
 			Debug::CheckAssertion(PHYSFS_exists(name.c_str()),
-				string("the file:") + name + " isn't exits.");
+				string("The file:") + name + " isn't exits.");
 
 			PHYSFS_file* file = PHYSFS_openRead(name.c_str());
 			Debug::CheckAssertion(file != nullptr,
-				string("the file:") + name + " loaded failed.");
+				string("The file:") + name + " loaded failed.");
 
 			size_t size = static_cast<size_t>(PHYSFS_fileLength(file));
 			std::vector<char> buffer(size);

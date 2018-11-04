@@ -105,8 +105,9 @@ namespace Cjing3D
 
 		void CheckAssertion(bool assertion, const std::string & errorMsg)
 		{
-			if (!assertion)
+			if (!assertion) {
 				Die(errorMsg);
+			}
 		}
 
 		void ThrowIfFailed(bool result)
@@ -154,6 +155,9 @@ namespace Cjing3D
 				MessageBox(NULL, TEXT(dieMsg.c_str()), NULL, MB_OK);
 			if (AbortOnDie)
 				std::abort();
+
+			Exception exception(dieMsg.c_str());
+			throw exception;
 		}
 
 	}

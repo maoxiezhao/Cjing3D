@@ -13,4 +13,9 @@
       <UniqueIdentifier>{51fa7c58-692b-4ba9-86c2-575fcaece361}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="objectVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+  </ItemGroup>
 </Project>

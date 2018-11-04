@@ -2,6 +2,7 @@
 
 #include "common\common.h"
 #include "helper\IDGenerator.h"
+#include "utils\geometry.h"
 
 #include <wrl.h>
 #include <memory>

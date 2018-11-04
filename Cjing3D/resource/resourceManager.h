@@ -4,6 +4,7 @@
 #include "helper\fileSystem.h"
 #include "resource\resource.h"
 #include "resource\resourcePool.hpp"
+#include "resource\modelImporter.h"
 #include "renderer\renderer.h"
 #include "renderer\RHI\rhiResource.h"
 #include "renderer\RHI\device.h"
@@ -30,6 +31,8 @@ public:
 	
 	void AddStandardResourceDirectory(Resource_Type type, const std::string& path);
 	const std::string& GetStandardResourceDirectory(Resource_Type type)const;
+
+	ModelImporter& GetModelImporter();
 
 	//----------------------------------------------------------------
 	//	Common Method
@@ -84,6 +87,7 @@ private:
 	template <typename ResourceT>
 	const PoolType<ResourceT>& GetPool()const;
 
+	std::unique_ptr<ModelImporter> mModelImporter;
 
 private:
 	std::map<Resource_Type, std::string> mResourceDirectories;
@@ -91,38 +95,6 @@ private:
 	PoolType<VertexShaderInfo> mVertexShaderPool;
 	PoolType<PixelShader> mPixelShaderPool;
 };
-
-// 创建VertexShader着色器
-template<typename ResourceT>
-inline std::enable_if_t<std::is_same<ResourceT, VertexShaderInfo>::value, std::shared_ptr<VertexShaderInfo>>
-Cjing3D::ResourceManager::GetOrCreate(const StringID & name, VertexLayoutDesc* desc, U32 numElements)
-{
-	std::shared_ptr<VertexShaderInfo> vertexShaderInfo = nullptr;
-	const std::string byteData = FileData::ReadFile(name.GetString());
-	if (byteData.empty() == false)
-	{
-		PoolType<VertexShaderInfo>& shaderPool = GetPool< VertexShaderInfo >();
-		auto vertexShaderInfo = shaderPool.GetOrCreate(name);
-		vertexShaderInfo->mVertexShader = std::make_shared<VertexShader>();
-		vertexShaderInfo->mInputLayout = std::make_shared<InputLayout>();
-
-		auto& renderer = mGameContext.GetGameSystem<Renderer>();
-		auto& device = renderer.GetDevice();
-		{
-			const HRESULT result = device.CreateVertexShader(static_cast<const void*>(byteData.data()), byteData.size(),
-				*vertexShaderInfo->mVertexShader);
-			Debug::ThrowIfFailed(result, "Failed to create vertex shader: %08X", result);
-		}
-		{
-			const HRESULT result = device.CreateInputLayout(desc, numElements, static_cast<const void*>(byteData.data()),
-				byteData.size(), *vertexShaderInfo->mInputLayout);
-			Debug::ThrowIfFailed(result, "Failed to create input layout: %08X", result);
-		}
-	}
-
-	return vertexShaderInfo;
-}
-
 
 #include "resourceManager.inl"
 
