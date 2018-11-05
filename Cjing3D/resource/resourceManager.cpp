@@ -6,8 +6,9 @@ void ResourceManager::Initialize()
 {
 	mModelImporter = std::make_unique<ModelImporter>();
 
-	AddStandardResourceDirectory(Resrouce_VertexShader, "shaders/");
-	AddStandardResourceDirectory(Resrouce_PixelShader, "shaders/");
+	AddStandardResourceDirectory(Resrouce_VertexShader, "Shaders/");
+	AddStandardResourceDirectory(Resrouce_PixelShader, "Shaders/");
+	AddStandardResourceDirectory(Resource_Model, "Models/");
 }
 
 void ResourceManager::AddStandardResourceDirectory(Resource_Type type, const std::string & path)

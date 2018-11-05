@@ -3,30 +3,32 @@
 #include "renderer\renderableCommon.h"
 #include "renderer\components\mesh.h"
 #include "renderer\components\material.h"
-#include "renderer\components\component.h"
+#include "resource\resource.h"
 
 #include <map>
 
 namespace Cjing3D
 {
 
+class ResourceManager;
+
 using MeshCollection = std::map<std::string, MeshPtr>;
 using materialCollection = std::map<std::string, MaterialPtr>;
 
-class Model
+class Model : public Resource
 {
 public:
 	Model();
 	~Model();
 
-	bool LoadFromFile(const std::string filePath);
-	bool SaveToFile(const std::string& filePath);
+	void LoadFromFile(const std::string filePath, ResourceManager& resourceManager);
 
-	void Update();
+	void AddMaterial(const std::string& name, MaterialPtr material);
+	void AddMesh(const std::string& name, MeshPtr mesh);
 
 private:
-	bool LoadFromEngineFormat(const std::string& filePath);
-	bool LoadFromExternalFormat(const std::string& filePath);
+	void LoadFromEngineFormat(const std::string& filePath, ResourceManager& resourceManager);
+	void LoadFromExternalFormat(const std::string& filePath, ResourceManager& resourceManager);
 	
 	MeshCollection mMeshCollection;
 	materialCollection mMaterialCollection;

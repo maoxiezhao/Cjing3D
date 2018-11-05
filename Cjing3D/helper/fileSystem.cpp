@@ -172,6 +172,20 @@ namespace Cjing3D {
 			return true;
 		}
 
+		std::string GetExtensionFromFilePath(const std::string & filePath)
+		{
+			if (filePath.empty() || filePath == NOT_ASSIGNED) {
+				return NOT_ASSIGNED;
+			}
+
+			auto lastIndex = filePath.find_last_of('.');
+			if (lastIndex != std::string::npos)
+			{
+				return filePath.substr(lastIndex, filePath.length());
+			}
+			return NOT_ASSIGNED;
+		}
+
 		/**
 		*	\brief 获取相对路劲
 		*

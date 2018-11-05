@@ -12,6 +12,6 @@ namespace Cjing3D
 
 	};
 
-	using Component = std::shared_ptr<Component>;
+	using ComponentPtr = std::shared_ptr<Component>;
 
 }

@@ -6,6 +6,9 @@ namespace Cjing3D {
 
 	namespace FileData
 	{
+		static const char* NOT_ASSIGNED = "N/A";
+		static const char* DATA_FORMAT_EXTENSION = ".xml";
+
 		bool OpenData(const std::string&dataName, const std::string& dataPath);
 		void CloseData();
 
@@ -23,5 +26,7 @@ namespace Cjing3D {
 
 		// string parsing
 		std::wstring StringToWString(const std::string& str);
+
+		std::string GetExtensionFromFilePath(const std::string& filePath);
 	}
 }

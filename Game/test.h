@@ -7,8 +7,8 @@ using namespace Cjing3D;
 class TestGameComponent : public GameComponent
 {
 public:
-	TestGameComponent();
-	virtual ~TestGameComponent();
+	TestGameComponent() {};
+	virtual ~TestGameComponent() {};
 
 protected:
 	virtual void BeforeInitializeImpl();

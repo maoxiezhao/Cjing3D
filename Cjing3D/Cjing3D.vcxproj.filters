@@ -38,7 +38,7 @@
     <Filter Include="renderer\renderable">
       <UniqueIdentifier>{ee3e787a-e22a-40f3-bb5e-9fee90f49608}</UniqueIdentifier>
     </Filter>
-    <Filter Include="renderer\component">
+    <Filter Include="renderer\resource">
       <UniqueIdentifier>{d8008cfd-bc4b-4f6c-b158-826a56ca422b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -120,13 +120,13 @@
       <Filter>resource\importer</Filter>
     </ClCompile>
     <ClCompile Include="renderer\components\mesh.cpp">
-      <Filter>renderer\component</Filter>
+      <Filter>renderer\resource</Filter>
     </ClCompile>
     <ClCompile Include="renderer\components\model.cpp">
-      <Filter>renderer\component</Filter>
+      <Filter>renderer\resource</Filter>
     </ClCompile>
     <ClCompile Include="renderer\components\material.cpp">
-      <Filter>renderer\component</Filter>
+      <Filter>renderer\resource</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -252,19 +252,16 @@
       <Filter>resource\importer</Filter>
     </ClInclude>
     <ClInclude Include="renderer\components\model.h">
-      <Filter>renderer\component</Filter>
+      <Filter>renderer\resource</Filter>
     </ClInclude>
     <ClInclude Include="renderer\components\mesh.h">
-      <Filter>renderer\component</Filter>
+      <Filter>renderer\resource</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\components\material.h">
+      <Filter>renderer\resource</Filter>
     </ClInclude>
     <ClInclude Include="utils\geometry.h">
       <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\components\material.h">
-      <Filter>renderer\component</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\components\component.h">
-      <Filter>renderer\component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

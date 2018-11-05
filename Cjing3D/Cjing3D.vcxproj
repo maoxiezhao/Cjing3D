@@ -93,10 +93,10 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\ThirdParty\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\ThirdParty\;..\ThirdParty\Assimp_4.1.0\</AdditionalIncludeDirectories>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>physfs.lib;</AdditionalDependencies>
+      <AdditionalDependencies>physfs.lib;assimp.lib</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)\lib;</AdditionalLibraryDirectories>
@@ -149,7 +149,6 @@
     <ClInclude Include="helper\stringID.h" />
     <ClInclude Include="helper\systemTime.h" />
     <ClInclude Include="helper\timer.h" />
-    <ClInclude Include="renderer\components\component.h" />
     <ClInclude Include="renderer\components\material.h" />
     <ClInclude Include="renderer\components\mesh.h" />
     <ClInclude Include="renderer\components\model.h" />

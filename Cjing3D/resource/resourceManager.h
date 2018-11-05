@@ -9,6 +9,7 @@
 #include "renderer\RHI\rhiResource.h"
 #include "renderer\RHI\device.h"
 #include "renderer\RHI\rhiShader.h"
+#include "renderer\components\model.h"
 #include "core\gameContext.hpp"
 
 namespace Cjing3D
@@ -80,6 +81,10 @@ public:
 	std::enable_if_t<std::is_same<ResourceT, VertexShaderInfo>::value, std::shared_ptr<VertexShaderInfo> >
 		GetOrCreate(const StringID& name, VertexLayoutDesc* desc, U32 numElements);
 
+	template<typename ResourceT>
+	std::enable_if_t<std::is_same<ResourceT, Model>::value, std::shared_ptr<Model>>
+		GetOrCreate(const StringID & filePath);
+
 private:
 	template <typename ResourceT>
 	PoolType<ResourceT>& GetPool();
@@ -94,7 +99,19 @@ private:
 
 	PoolType<VertexShaderInfo> mVertexShaderPool;
 	PoolType<PixelShader> mPixelShaderPool;
+	PoolType<Model> mModelPool;
 };
+
+template<typename ResourceT>
+inline std::enable_if_t<std::is_same<ResourceT, Model>::value, std::shared_ptr<Model>>
+Cjing3D::ResourceManager::GetOrCreate(const StringID & filePath)
+{
+	PoolType<Model>& modelPool = GetPool< Model >();
+	auto model = modelPool.GetOrCreate(filePath);
+	model->LoadFromFile(filePath.GetString(), *this);
+	
+	return model;
+}
 
 #include "resourceManager.inl"
 

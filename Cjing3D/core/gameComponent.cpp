@@ -31,10 +31,10 @@ void GameComponent::Initialize(Engine& engine)
 	// initialize render
 	HWND window = engine.GetMainWindow().GetHwnd();
 	Renderer* renderer = new Renderer(*mGameContext);
+	mGameContext->RegisterGameSystem(renderer);
 	renderer->Initialize(
 		new GraphicsDeviceD3D11(window, false, true)
 	);
-	mGameContext->RegisterGameSystem(renderer);
 
 	AfterInitializeImpl();
 }

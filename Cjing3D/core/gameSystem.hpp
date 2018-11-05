@@ -20,6 +20,8 @@ public:
 	virtual void Initialize() {};
 	virtual void Uninitialize() {};
 
+	GameContext& GetGameContext() { return mGameContext; }
+
 protected:
 	GameContext & mGameContext;
 };

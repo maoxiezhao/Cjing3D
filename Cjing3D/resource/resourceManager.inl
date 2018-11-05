@@ -52,6 +52,13 @@ ResourceManager::GetPool<PixelShader>()const
 	return mPixelShaderPool;
 }
 
+template <>
+inline const ResourceManager::PoolType<Model>&
+ResourceManager::GetPool<Model>()const
+{
+	return mModelPool;
+}
+
 // 创建VertexShader着色器
 template<typename ResourceT>
 inline std::enable_if_t<std::is_same<ResourceT, VertexShaderInfo>::value, std::shared_ptr<VertexShaderInfo>>

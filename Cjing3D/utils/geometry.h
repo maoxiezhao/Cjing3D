@@ -16,8 +16,8 @@ namespace Cjing3D {
 		constexpr F32 GetU()const { return operator[](0); }
 		constexpr F32 GetV()const { return operator[](1); }
 
-		constexpr void SetU(F32 v) { operator[](0) = v; }
-		constexpr void SetV(F32 v) { operator[](1) = v; }
+		void SetU(F32 v) { operator[](0) = v; }
+		void SetV(F32 v) { operator[](1) = v; }
 	};
 
 	/**
@@ -34,9 +34,9 @@ namespace Cjing3D {
 		constexpr F32 GetY()const { return operator[](1); }
 		constexpr F32 GetZ()const { return operator[](2); }
 
-		constexpr void SetX(F32 v) { operator[](0) = v; }
-		constexpr void SetY(F32 v) { operator[](1) = v; }
-		constexpr void SetZ(F32 v) { operator[](2) = v; }
+		void SetX(F32 v) { operator[](0) = v; }
+		void SetY(F32 v) { operator[](1) = v; }
+		void SetZ(F32 v) { operator[](2) = v; }
 	};
 
 	/**
@@ -53,9 +53,9 @@ namespace Cjing3D {
 		constexpr F32 GetY()const { return operator[](1); }
 		constexpr F32 GetZ()const { return operator[](2); }
 
-		constexpr void SetX(F32 v) { operator[](0) = v; }
-		constexpr void SetY(F32 v) { operator[](1) = v; }
-		constexpr void SetZ(F32 v) { operator[](2) = v; }
+		void SetX(F32 v) { operator[](0) = v; }
+		void SetY(F32 v) { operator[](1) = v; }
+		void SetZ(F32 v) { operator[](2) = v; }
 	};
 
 	/**

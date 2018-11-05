@@ -31,6 +31,10 @@ namespace Cjing3D
 			mRenderableComponent = component;
 		}
 
+		GameContext& GetGameContext() {
+			return *mGameContext;
+		}
+
 	protected:
 		virtual void BeforeInitializeImpl() = 0;
 		virtual void AfterInitializeImpl() = 0;
