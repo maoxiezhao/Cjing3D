@@ -3,13 +3,16 @@
 #include "common\common.h"
 #include "renderer\components\model.h"
 
+namespace Cjing3D
+{
+
+// assimp definition
 struct aiNode;
 struct aiScene;
 struct aiMaterial;
 struct aiMesh;
 
-namespace Cjing3D
-{
+
 class ModelImporter
 {
 public:
@@ -19,9 +22,9 @@ public:
 	bool Load(Model& model, const std::string& filePath, const std::string& name = "");
 
 private:
-	void ReadNodeHierarchy(const aiScene* aScene, aiNode* aNode, Model* model);
-	void LoadMesh(const aiScene* aScene, aiMesh* aMesh, Model* model);
-
+	void ProcessNode(Model& model, const aiScene* aScene, aiNode* aNode );
+	void LoadMesh(Model& model, const aiScene* aScene, aiMesh* aMesh);
+	void LoadAnimation(Model& model);
 
 };
 

@@ -4,6 +4,9 @@
 #include "Assimp_4.1.0\assimp\ProgressHandler.hpp"
 #include "Assimp_4.1.0\assimp\version.h"
 
+#include "world\component\renderable.h"
+#include "world\actor.h"
+
 namespace Cjing3D
 {
 
@@ -36,6 +39,19 @@ namespace {
 		aiProcess_OptimizeMeshes |
 		aiProcess_Debone |
 		aiProcess_ConvertToLeftHanded;
+
+	// extract vertice
+	void ExtractVertice(aMesh& mesh, Model& model, int& vertexOffset)
+	{
+
+	}
+
+	// extract indices
+	void ExtractIndices(aMesh& mesh, Model& model, int& indicesOffset)
+	{
+
+	}
+
 }
 
 
@@ -59,7 +75,13 @@ bool ModelImporter::Load(Model & model, const std::string & filePath, const std:
 	const aiScene* scene = importer.ReadFile(filePath, importFlag);
 	if (scene != nullptr)
 	{
+		// process node
+		ProcessNode(model, scene, scene->mRootNode);
 
+		// load animation
+		LoadAnimation(model);
+
+		importer.FreeScene();
 
 		result = true;
 	}
@@ -67,12 +89,38 @@ bool ModelImporter::Load(Model & model, const std::string & filePath, const std:
 	return result;
 }
 
-void ModelImporter::ReadNodeHierarchy(const aiScene * aScene, aiNode * aNode, Model * model)
+void ModelImporter::ProcessNode(Model& model, const aiScene * aScene, aiNode * aNode)
 {
+	// if is root node
+	if (aNode->mParent == nullptr)
+	{
+
+	}
+
+	for (int i = 0; i < aNode->mNumMeshed; i++)
+	{
+		aiMesh* mesh = aScene->mMeshes[aNode->mMeshes[i]];
+		if (mesh == nullptr) {
+			continue;
+		}
+
+		LoadMesh(model, aScene, mesh);
+	}
+
+	for (int i = 0; i < aNode->mNumChildren; i++)
+	{
+		ProcessNode(model, aScene, aNode->mChildren[i]);
+	}
+
 }
 
-void ModelImporter::LoadMesh(const aiScene * aScene, aiMesh * aMesh, Model * model)
+void ModelImporter::LoadMesh(Model& model, const aiScene * aScene, aiMesh * aMesh)
 {
+	int vertexoffset = 0;
+	int indicesOffset = 0;
+
+	ExtractVertice(*aMesh, model, vertexoffset);
+	ExtractIndices(*aMesh, model, indicesOffset);
 }
 
 }

@@ -107,8 +107,12 @@ inline std::enable_if_t<std::is_same<ResourceT, Model>::value, std::shared_ptr<M
 Cjing3D::ResourceManager::GetOrCreate(const StringID & filePath)
 {
 	PoolType<Model>& modelPool = GetPool< Model >();
+	bool isExists = modelPool.Contains(filePath);
+
 	auto model = modelPool.GetOrCreate(filePath);
-	model->LoadFromFile(filePath.GetString(), *this);
+	if (isExists == false) {
+		model->LoadFromFile(filePath.GetString(), *this);		
+	}
 	
 	return model;
 }
