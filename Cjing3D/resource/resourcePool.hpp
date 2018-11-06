@@ -77,14 +77,8 @@ namespace Cjing3D {
 			const std::lock_guard<std::mutex> lock(mMutex);
 
 			auto it = mResourceMap.find(key);
-			if (it != mResourceMap.end())
-			{
-				auto resource = it->second.lock();	// lock创建被管理的资源的shared_ptr
-				if (resource)
-					return true;
-
-				// 释放无引用的资源
-				mResourceMap.erase(it);
+			if (it != mResourceMap.end()){
+				return true;
 			}
 			return false;
 		}

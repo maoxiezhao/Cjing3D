@@ -177,6 +177,9 @@
     <ClInclude Include="utils\geometry.h" />
     <ClInclude Include="utils\math.h" />
     <ClInclude Include="utils\window.h" />
+    <ClInclude Include="world\actor.h" />
+    <ClInclude Include="world\component\component.h" />
+    <ClInclude Include="world\component\renderable.h" />
     <ClInclude Include="world\world.h" />
   </ItemGroup>
   <ItemGroup>
@@ -208,6 +211,9 @@
     <ClCompile Include="resource\resource.cpp" />
     <ClCompile Include="resource\resourceManager.cpp" />
     <ClCompile Include="utils\window.cpp" />
+    <ClCompile Include="world\actor.cpp" />
+    <ClCompile Include="world\component\component.cpp" />
+    <ClCompile Include="world\component\renderable.cpp" />
     <ClCompile Include="world\world.cpp" />
   </ItemGroup>
   <ItemGroup>

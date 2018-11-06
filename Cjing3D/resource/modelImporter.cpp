@@ -1,11 +1,16 @@
 #include "modelImporter.h"
-#include "Assimp_4.1.0\assimp\Importer.hpp"
-#include "Assimp_4.1.0\assimp\postprocess.h"
-#include "Assimp_4.1.0\assimp\ProgressHandler.hpp"
-#include "Assimp_4.1.0\assimp\version.h"
+#include "assimp\Importer.hpp"
+#include "assimp\postprocess.h"
+#include "assimp\ProgressHandler.hpp"
+#include "assimp\version.h"
+#include "assimp\scene.h"
 
 #include "world\component\renderable.h"
 #include "world\actor.h"
+
+#include <unordered_map>
+
+using namespace Assimp;
 
 namespace Cjing3D
 {
@@ -41,17 +46,63 @@ namespace {
 		aiProcess_ConvertToLeftHanded;
 
 	// extract vertice
-	void ExtractVertice(aMesh& mesh, Model& model, int& vertexOffset)
+	void ExtractVerticeIndices(aiMesh& aMesh, Mesh& mesh)
 	{
+		auto& vertices = mesh.GetVertexPosNormalTex();
+		auto& indices  = mesh.GetIndiecs();
 
+		std::unordered_map<size_t, U32> vertexMapping = {};
+
+		for(int faceIndex = 0; faceIndex < aMesh.mNumFaces; faceIndex++)
+		{
+			aiFace face = aMesh.mFaces[faceIndex];
+			if (face.mNumIndices < 3) {
+				continue;
+			}
+
+			for (int index = 0; index < face.mNumIndices; index+= 3)
+			{
+				U32 reordered_indices[] = {
+					face.mIndices[index + 0],
+					face.mIndices[index + 1],
+					face.mIndices[index + 2]
+				};
+
+				// 获取顶点数据
+				for (auto& index : reordered_indices)
+				{
+					Mesh::VertexPosNormalTex vertex;
+
+					// Position
+					auto aPos = aMesh.mVertices[index];
+					vertex.pos = { aPos.x, aPos.y, aPos.z };
+					// Normal
+					if (aMesh.mNormals != nullptr)
+					{
+						auto aNormal = aMesh.mNormals[index];
+						vertex.normal = { aNormal.x, aNormal.y, aNormal.z };
+					}
+					// TexCoords
+					if (aMesh.mTextureCoords != nullptr)
+					{
+						vertex.tex = { 
+							aMesh.mTextureCoords[0][index].x, 
+							aMesh.mTextureCoords[0][index].y
+						};
+					}
+
+					// 通过HashMap将全局Mesh数据转换到局部数据
+					size_t vertexHash = std::hash<int>{}(index);
+					if (vertexMapping.count(vertexHash) == 0)
+					{
+						vertexMapping[vertexHash] = vertices.size();
+						vertices.push_back(vertex);
+					}
+					indices.push_back(vertexMapping[vertexHash]);
+				}
+			}
+		}
 	}
-
-	// extract indices
-	void ExtractIndices(aMesh& mesh, Model& model, int& indicesOffset)
-	{
-
-	}
-
 }
 
 
@@ -97,7 +148,7 @@ void ModelImporter::ProcessNode(Model& model, const aiScene * aScene, aiNode * a
 
 	}
 
-	for (int i = 0; i < aNode->mNumMeshed; i++)
+	for (int i = 0; i < aNode->mNumMeshes; i++)
 	{
 		aiMesh* mesh = aScene->mMeshes[aNode->mMeshes[i]];
 		if (mesh == nullptr) {
@@ -116,11 +167,11 @@ void ModelImporter::ProcessNode(Model& model, const aiScene * aScene, aiNode * a
 
 void ModelImporter::LoadMesh(Model& model, const aiScene * aScene, aiMesh * aMesh)
 {
-	int vertexoffset = 0;
-	int indicesOffset = 0;
+	const auto name = aMesh->mName;
+	MeshPtr meshPtr = std::make_shared<Mesh>(name.C_Str());
+	ExtractVerticeIndices(*aMesh, *meshPtr);
 
-	ExtractVertice(*aMesh, model, vertexoffset);
-	ExtractIndices(*aMesh, model, indicesOffset);
+	model.AddMesh(name.C_Str(), meshPtr);
 }
 
 }

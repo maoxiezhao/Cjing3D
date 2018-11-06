@@ -3,15 +3,14 @@
 #include "common\common.h"
 #include "renderer\components\model.h"
 
-namespace Cjing3D
-{
-
 // assimp definition
 struct aiNode;
 struct aiScene;
 struct aiMaterial;
 struct aiMesh;
 
+namespace Cjing3D
+{
 
 class ModelImporter
 {
