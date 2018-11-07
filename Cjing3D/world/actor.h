@@ -40,12 +40,22 @@ public:
 	template< typename T>
 	void RemoveComponent();
 
+	StringID GetName()const { return mName; }
+	void SetName(const StringID& name) { mName = name; }
+
+	U32 GetGUID()const { return mGuid; }
+
 private:
 	GameContext& mGameContext;
+
+	U32 mGuid;
+	StringID mName;
 
 	// component sets
 	std::map<U32, ComponentPtr> mComponentGUIDMap;
 	std::multimap<ComponentType, ComponentPtr> mComponents;
 };
+
+using ActorPtr = std::shared_ptr<Actor>;
 
 }
