@@ -5,9 +5,11 @@
 
 namespace Cjing3D{
 
-enum ComponentType
+enum Component_Type
 {
-	ComponentType_Unknown
+	ComponentType_Unknown,
+	ComponentType_Renderable,
+	ComponentType_Transform,
 };
 
 class Component
@@ -25,13 +27,17 @@ public:
 	virtual void Uninitialize();
 	virtual void Update();
 
-	ComponentType GetType()const { return mType; }
+	Component_Type GetType()const { return mType; }
+	void SetType(Component_Type type) { mType = type; }
 	U32 GetGUID()const { return mGUID; }
+
+	template<typename T>
+	static Component_Type DeduceComponentType();
 
 private:
 	U32 mGUID;
-	ComponentType mType;
-
+	Component_Type mType;
+	bool mInitialized;
 };
 
 using ComponentPtr = std::shared_ptr<Component>;

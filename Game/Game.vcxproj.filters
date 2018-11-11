@@ -7,4 +7,15 @@
   <ItemGroup>
     <ClInclude Include="test.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Filter Include="game">
+      <UniqueIdentifier>{c6578c8f-fa12-4b50-8fc2-ec6683d84cad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lua">
+      <UniqueIdentifier>{8cf872db-cd70-4b42-8fa3-b2b5441b3b9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="entity">
+      <UniqueIdentifier>{fb277a15-6b57-43a0-8792-dd24c36ebd11}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
 </Project>

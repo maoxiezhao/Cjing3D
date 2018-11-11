@@ -284,6 +284,9 @@
     <ClInclude Include="world\component\renderable.h">
       <Filter>world\component</Filter>
     </ClInclude>
+    <ClInclude Include="world\component\transform.h">
+      <Filter>world\component</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resource\resourceManager.inl">

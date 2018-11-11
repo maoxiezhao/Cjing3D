@@ -6,6 +6,7 @@
 
 #include "helper\logger.h"
 #include "helper\debug.h"
+#include "helper\stringID.h"
 #include "utils\math.h"
 
 #undef min

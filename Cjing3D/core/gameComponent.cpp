@@ -4,6 +4,7 @@
 #include "renderer\renderer.h"
 #include "renderer\RHI\deviceD3D11.h"
 #include "resource\resourceManager.h"
+#include "world\world.h"
 
 namespace Cjing3D {
 
@@ -36,6 +37,11 @@ void GameComponent::Initialize(Engine& engine)
 		new GraphicsDeviceD3D11(window, false, true)
 	);
 
+	// initialize world
+	World* world = new World(*mGameContext);
+	mGameContext->RegisterGameSystem(world);
+	world->Initialize();
+
 	AfterInitializeImpl();
 }
 
@@ -47,6 +53,9 @@ void GameComponent::Update(EngineTime time)
 void GameComponent::Uninitialize()
 {
 	UninitializeImpl();
+
+	// uninitialize world
+	mGameContext->GetGameSystem<World>().Uninitialize();
 
 	// uninitialize render
 	mGameContext->GetGameSystem<Renderer>().Uninitialize();

@@ -2,7 +2,7 @@
 
 #include "common\common.h"
 #include "core\gameContext.hpp"
-#include "world\world.h"
+#include "world\actor.h"
 
 namespace Cjing3D{
 
@@ -19,9 +19,16 @@ public:
 	/******************************************
 	* Actor Method 
 	*******************************************/
+	ActorPtr CreateNewActor();
+	void AddActor(ActorPtr actor);
+	bool RemoveActor(ActorPtr actor);
+
 	ActorPtr GetActorByName(const StringID& name);
 	ActorPtr GetActorByGUID(U32 guid);
 	std::vector<ActorPtr>& GetAllActor();
+	const std::vector<ActorPtr>& GetAllActor()const;
+
+	bool IsActorExists(ActorPtr actor);
 
 private:
 
