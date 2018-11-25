@@ -127,7 +127,7 @@ bool ModelImporter::Load(Model & model, const std::string & filePath, const std:
 	if (scene != nullptr)
 	{
 		// process node
-		ProcessNode(model, scene, scene->mRootNode);
+		//ProcessNode(model, scene, scene->mRootNode);
 
 		// load animation
 		LoadAnimation(model);
@@ -140,7 +140,7 @@ bool ModelImporter::Load(Model & model, const std::string & filePath, const std:
 	return result;
 }
 
-void ModelImporter::ProcessNode(Model& model, const aiScene * aScene, aiNode * aNode)
+void ModelImporter::ProcessNode(Model& model, const aiScene * aScene, aiNode * aNode, Actor* parentNode, Actor* childNode)
 {
 	// if is root node
 	if (aNode->mParent == nullptr)
@@ -155,12 +155,12 @@ void ModelImporter::ProcessNode(Model& model, const aiScene * aScene, aiNode * a
 			continue;
 		}
 
-		LoadMesh(model, aScene, mesh);
+		//LoadMesh(model, aScene, mesh);
 	}
 
 	for (int i = 0; i < aNode->mNumChildren; i++)
 	{
-		ProcessNode(model, aScene, aNode->mChildren[i]);
+		//ProcessNode(model, aScene, aNode->mChildren[i]);
 	}
 
 }

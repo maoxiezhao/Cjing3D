@@ -20,7 +20,7 @@ namespace Cjing3D {
 		StringID& operator= (const StringID& rhs);
 		StringID& operator= (StringID&& rhs);
 
-		U32 HashValue()const { return mValue; }
+		unsigned int HashValue()const { return mValue; }
 		std::string GetString()const { return mStr; }
 
 		operator bool()const { return mValue != 0; }
@@ -41,7 +41,7 @@ namespace Cjing3D {
 		bool operator < (const StringID& rhs) { return mValue < rhs.mValue; }
 		bool operator > (const StringID& rhs) { return mValue > rhs.mValue; }
 
-		static U32	CalculateHash(const char* str);
+		static unsigned int	CalculateHash(const char* str);
 
 	private:
 		int mValue;

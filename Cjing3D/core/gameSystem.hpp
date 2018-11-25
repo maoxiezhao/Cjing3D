@@ -2,6 +2,7 @@
 
 #include "common\common.h"
 #include "core\threadSafeSystem.h"
+#include "core\eventSystem.h"
 
 #include <vector>
 

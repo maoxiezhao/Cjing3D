@@ -10,7 +10,7 @@ namespace Cjing3D
 {
 	class Engine;
 
-	class GameComponent
+	/*class GameComponent
 	{
 	public:
 		GameComponent();
@@ -46,5 +46,5 @@ namespace Cjing3D
 
 		std::unique_ptr<GameContext> mGameContext;
 
-	};
+	};*/
 }

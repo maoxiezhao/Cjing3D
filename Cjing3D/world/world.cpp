@@ -50,12 +50,12 @@ ActorPtr World::GetActorByGUID(U32 guid)
 
 std::vector<ActorPtr>& World::GetAllActor()
 {
-	// TODO: 在此处插入 return 语句
+	return mAllActors;
 }
 
 const std::vector<ActorPtr>& World::GetAllActor() const
 {
-	// TODO: 在此处插入 return 语句
+	return mAllActors;
 }
 
 bool World::IsActorExists(ActorPtr actor)

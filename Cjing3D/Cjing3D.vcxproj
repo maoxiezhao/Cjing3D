@@ -94,6 +94,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>..\ThirdParty\;..\ThirdParty\Assimp_4.1.0\</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Lib>
       <AdditionalDependencies>physfs.lib;assimp.lib</AdditionalDependencies>
@@ -135,6 +136,7 @@
   <ItemGroup>
     <ClInclude Include="common\about.h" />
     <ClInclude Include="common\common.h" />
+    <ClInclude Include="core\eventSystem.h" />
     <ClInclude Include="core\gameComponent.h" />
     <ClInclude Include="core\gameContext.hpp" />
     <ClInclude Include="core\gameSystem.hpp" />
@@ -149,6 +151,7 @@
     <ClInclude Include="helper\stringID.h" />
     <ClInclude Include="helper\systemTime.h" />
     <ClInclude Include="helper\timer.h" />
+    <ClInclude Include="helper\variant.h" />
     <ClInclude Include="renderer\components\material.h" />
     <ClInclude Include="renderer\components\mesh.h" />
     <ClInclude Include="renderer\components\model.h" />
@@ -184,6 +187,7 @@
     <ClInclude Include="world\world.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="core\eventSystem.cpp" />
     <ClCompile Include="core\gameComponent.cpp" />
     <ClCompile Include="core\threadSafeSystem.cpp" />
     <ClCompile Include="engine.cpp" />
@@ -198,6 +202,7 @@
     <ClCompile Include="renderer\components\material.cpp" />
     <ClCompile Include="renderer\components\mesh.cpp" />
     <ClCompile Include="renderer\components\model.cpp" />
+    <ClCompile Include="renderer\pass\forwardPass.cpp" />
     <ClCompile Include="renderer\renderable\forwardRenderableComponent.cpp" />
     <ClCompile Include="renderer\renderable\renderableComponent.cpp" />
     <ClCompile Include="renderer\renderable\renderableComponent3D.cpp" />

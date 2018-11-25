@@ -107,7 +107,7 @@ namespace Cjing3D
 		}
 		{
 			auto it = std::find_if(mComponents.begin(), mComponents.end(),
-				[](auto& component){ return component->GetGUID() == guid});
+				[guid](auto& component) { return component->GetGUID() == guid; });
 
 			if (it != mComponents.end()) {
 				mComponents.erase(it);

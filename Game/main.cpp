@@ -1,6 +1,6 @@
 #include <windows.h>
 
-#include "test.h"
+#include "engine.h"
 
 using namespace Cjing3D;
 
@@ -9,8 +9,8 @@ int WINAPI WinMain(HINSTANCE instance,
 	LPSTR lpCmdLine,
 	int nCmdShow)
 {
-	Engine engine;
-	engine.Run(std::make_shared<TestGameComponent>());
+	//Engine engine;
+	//engine.Run(std::make_shared<TestGameComponent>());
 
 	return 0;
 }

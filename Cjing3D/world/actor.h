@@ -78,12 +78,12 @@ private:
 };
 
 using ActorPtr = std::shared_ptr<Actor>;
-
+using ActorPtrArray = std::vector<ActorPtr>;
 
 template< typename ComponentT>
 std::shared_ptr<ComponentT> Actor::AddComponent()
 {
-	Component_Type type = Component::DeduceComponentType<T>();
+	Component_Type type = Component::DeduceComponentType<ComponentT>();
 	if (type == ComponentType_Unknown) {
 		return nullptr;
 	}
@@ -102,7 +102,7 @@ template<typename ComponentT>
 inline std::vector<std::shared_ptr<ComponentT>> Actor::GetComponents()
 {
 	std::vector<std::shared_ptr<ComponentT>> components;
-	Component_Type type = Component::DeduceComponentType<T>();
+	Component_Type type = Component::DeduceComponentType<ComponentT>();
 	if (type == ComponentType_Unknown) {
 		return components;
 	}
@@ -110,7 +110,7 @@ inline std::vector<std::shared_ptr<ComponentT>> Actor::GetComponents()
 	for (auto& component : mComponents)
 	{
 		if (component->GetType() == type) {
-			components.push_back(component);
+			components.push_back(std::dynamic_pointer_cast<ComponentT>(component));
 		}
 	}
 	return components;
@@ -132,7 +132,7 @@ inline void Actor::RemoveComponent()
 {
 	Component_Type type = Component::DeduceComponentType<T>();
 	if (type == ComponentType_Unknown) {
-		return components;
+		return;
 	}
 
 	for (auto it = mComponents.begin(); it != mComponents.end();)
@@ -154,7 +154,7 @@ inline void Actor::RemoveComponent()
 template<typename ActionT>
 inline void Actor::ForEachComponent(ActionT && action)
 {
-	for (const auto& component : mComponents) {
+	for (auto& component : mComponents) {
 		action(component);
 	}
 }
@@ -162,7 +162,7 @@ inline void Actor::ForEachComponent(ActionT && action)
 template<typename ActionT>
 inline void Actor::ForEachChild(ActionT && action)
 {
-	for (const auto& actor : mChilds) {
+	for (auto& actor : mChilds) {
 		action(actor);
 	}
 }

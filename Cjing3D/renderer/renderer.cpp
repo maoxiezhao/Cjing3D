@@ -39,7 +39,13 @@ void Renderer::Initialize(GraphicsDevice* device)
 	mShaderLib = std::make_unique<ShaderLib>(*this);
 	mShaderLib->Initialize();
 
+	InitializePasses();
+
 	mIsInitialized = true;
+}
+
+void Renderer::Update()
+{
 }
 
 void Renderer::Uninitialize()
@@ -67,6 +73,33 @@ GraphicsDevice & Renderer::GetDevice()
 ResourceManager & Renderer::GetResourceManager()
 {
 	return mGameContext.GetGameSystem<ResourceManager>();
+}
+
+void Renderer::InitializePasses()
+{
+}
+
+/**
+*	\brief 接受参与渲染的actor， 在world渲染时传入actors
+*/
+void Renderer::AccquireActors(std::vector<ActorPtr> actors)
+{
+	mRenderingActors.clear();
+
+	for (const auto& actor : actors)
+	{
+		if (actor == nullptr) {
+			continue;
+		}
+
+		auto renderable = actor->GetComponents<Renderable>();
+	}
+
+	// sort renderging actors
+	if (mRenderingActors.size() > 0)
+	{
+
+	}
 }
 
 }
