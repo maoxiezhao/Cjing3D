@@ -13,16 +13,19 @@ namespace Cjing3D
 		Engine(const Engine& engine) = delete;
 		Engine& operator=(const Engine& engine) = delete;
 
-		//int Run(std::shared_ptr<GameComponent> gameComponent);
-
 		void Initialize();
 		void Update();
 		void Uninitialize();
 
+		void SetHandles(void* windowHwnd, void* windowInstance);
+		void* GetWindowInstance() { return mWindowHinstance; }
+		void* GetWindowHwnd() { return mWindowHwnd; }
+
 	private:
 		bool mIsInitialized;
 
-		//std::unique_ptr<Window> mMainWindow;
+		void* mWindowHinstance;
+		void* mWindowHwnd;
 
 		Timer mTimer;
 		EngineTime mTime;

@@ -2,6 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="game">
@@ -13,5 +14,8 @@
     <Filter Include="entity">
       <UniqueIdentifier>{fb277a15-6b57-43a0-8792-dd24c36ebd11}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="window.h" />
   </ItemGroup>
 </Project>

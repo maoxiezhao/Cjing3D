@@ -5,41 +5,13 @@ namespace Cjing3D
 {
 
 namespace {
-	/**
-	*	\brief 自定义的消息处理
-	*/
-	//class EngineMessageHandler : public WindowMessageHandler
-	//{
-	//public:
-	/*
-		EngineMessageHandler() {}
-		virtual~EngineMessageHandler() {}
-
-		std::function<void(bool actived)> OnActiveChange;
-
-		virtual bool HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam, LRESULT& result)
-		{
-			switch (message)
-			{
-			case WM_ACTIVATEAPP:
-				bool deactive = static_cast<bool>(!wParam);
-				if (OnActiveChange)
-				{
-					OnActiveChange(deactive);
-					result = 0;
-					return true;
-				}
-				break;
-			}
-
-			return false;
-		}
-	};
-	std::shared_ptr<EngineMessageHandler> mAppHandler = nullptr;*/
+	
 }
 
 Engine::Engine():
-	mIsInitialized(false)
+	mIsInitialized(false),
+	mWindowHwnd(nullptr),
+	mWindowHinstance(nullptr)
 {
 	Initialize();
 }
@@ -88,8 +60,10 @@ void Engine::Initialize()
 		return;
 	}
 
+#ifdef CJING_DEBUG
 	Debug::SetDebugConsoleEnable(true);
 	Debug::InitializeDebugConsole();
+#endif
 
 	std::string dataPath = "./../Assets";
 	if (!FileData::OpenData("", dataPath))
@@ -122,11 +96,18 @@ void Engine::Uninitialize()
 	//}
 
 	//mMainWindow.reset();
+
 	mTimer.Stop();
 
 	FileData::CloseData();
 
 	mIsInitialized = false;
+}
+
+void Engine::SetHandles(void * windowHwnd, void * windowInstance)
+{
+	mWindowHwnd = windowHwnd;
+	mWindowHinstance = windowInstance;
 }
 
 }

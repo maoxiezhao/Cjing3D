@@ -47,9 +47,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine.cpp" />
-    <ClCompile Include="utils\window.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
     <ClCompile Include="helper\logger.cpp">
       <Filter>helper</Filter>
     </ClCompile>
@@ -160,9 +157,6 @@
     </ClInclude>
     <ClInclude Include="renderer\renderer.h">
       <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\window.h">
-      <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="utils\array.h">
       <Filter>utils</Filter>
