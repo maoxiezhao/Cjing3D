@@ -1,7 +1,7 @@
 #pragma once
 
 #include "renderer\renderableCommon.h"
-#include "core\gameSystem.hpp"
+#include "core\subSystem.hpp"
 #include "world\actor.h"
 
 #include "renderer\pass\forwardPass.h"
@@ -22,10 +22,10 @@ enum RenderableType
 	RenderableType_Transparent
 };
 
-class Renderer : public GameSystem
+class Renderer : public SubSystem
 {
 public:
-	Renderer(GameContext& gameContext);
+	Renderer(SystemContext& gameContext);
 	~Renderer();
 
 	void Initialize(GraphicsDevice* device);

@@ -2,8 +2,9 @@
 
 #include "common\common.h"
 #include "helper\timer.h"
+#include "core\systemContext.hpp"
 
-namespace Cjing3D
+namespace Cjing3D 
 {
 	class Engine
 	{
@@ -21,6 +22,8 @@ namespace Cjing3D
 		void* GetWindowInstance() { return mWindowHinstance; }
 		void* GetWindowHwnd() { return mWindowHwnd; }
 
+		SystemContext& GetGameContext() { return *mGameContext; }
+
 	private:
 		bool mIsInitialized;
 
@@ -29,5 +32,7 @@ namespace Cjing3D
 
 		Timer mTimer;
 		EngineTime mTime;
+
+		std::unique_ptr<SystemContext> mGameContext;
 	};
 }

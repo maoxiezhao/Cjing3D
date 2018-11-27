@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common\common.h"
-#include "core\gameContext.hpp"
+#include "core\systemContext.hpp"
 
 namespace Cjing3D{
 

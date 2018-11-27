@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core\gameSystem.hpp"
+#include "core\subSystem.hpp"
 #include "helper\fileSystem.h"
 #include "resource\resource.h"
 #include "resource\resourcePool.hpp"
@@ -10,7 +10,7 @@
 #include "renderer\RHI\device.h"
 #include "renderer\RHI\rhiShader.h"
 #include "renderer\components\model.h"
-#include "core\gameContext.hpp"
+#include "core\systemContext.hpp"
 
 namespace Cjing3D
 {
@@ -18,11 +18,11 @@ namespace Cjing3D
 /**
 *	\brief 资源管理器类
 */
-class ResourceManager : public GameSystem
+class ResourceManager : public SubSystem
 {
 public:
-	ResourceManager(GameContext& gameContext) :
-		GameSystem(gameContext),
+	ResourceManager(SystemContext& gameContext) :
+		SubSystem(gameContext),
 		mVertexShaderPool(),
 		mPixelShaderPool() {}
 	~ResourceManager() = default;

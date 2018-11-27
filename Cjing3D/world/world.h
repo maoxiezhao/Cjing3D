@@ -1,15 +1,15 @@
 #pragma once
 
 #include "common\common.h"
-#include "core\gameContext.hpp"
+#include "core\systemContext.hpp"
 #include "world\actor.h"
 
 namespace Cjing3D{
 
-class World : public GameSystem
+class World : public SubSystem
 {
 public:
-	World(GameContext& gameContext);
+	World(SystemContext& gameContext);
 	virtual ~World();
 
 	virtual void Initialize();

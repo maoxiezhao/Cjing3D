@@ -3,7 +3,7 @@
 #include "renderer\renderable\renderableComponent.h"
 #include "renderer\renderable\renderableComponent3D.h"
 #include "renderer\renderable\forwardRenderableComponent.h"
-#include "core\gameContext.hpp"
+#include "core\systemContext.hpp"
 #include "helper\timer.h"
 
 namespace Cjing3D

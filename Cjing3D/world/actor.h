@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common\common.h"
-#include "core\gameContext.hpp"
+#include "core\systemContext.hpp"
 #include "world\component\component.h"
 #include "world\component\renderable.h"
 #include "world\component\transform.h"
@@ -13,7 +13,7 @@ namespace Cjing3D{
 class Actor : public std::enable_shared_from_this<Actor>
 {
 public:
-	Actor(GameContext& gameContext);
+	Actor(SystemContext& gameContext);
 	virtual ~Actor();
 
 	virtual void Initialize();
@@ -63,7 +63,7 @@ public:
 	void ForEachChild(ActionT&& action);
 
 private:
-	GameContext& mGameContext;
+	SystemContext& mGameContext;
 
 	std::unique_ptr<Transform> mTransform;
 

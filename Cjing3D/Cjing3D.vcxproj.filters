@@ -143,6 +143,9 @@
     <ClCompile Include="renderer\pass\forwardPass.cpp">
       <Filter>renderer\pass</Filter>
     </ClCompile>
+    <ClCompile Include="core\jobSystem.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -215,12 +218,6 @@
     <ClInclude Include="renderer\stateManager.h">
       <Filter>renderer</Filter>
     </ClInclude>
-    <ClInclude Include="core\gameContext.hpp">
-      <Filter>core</Filter>
-    </ClInclude>
-    <ClInclude Include="core\gameSystem.hpp">
-      <Filter>core</Filter>
-    </ClInclude>
     <ClInclude Include="world\world.h">
       <Filter>world</Filter>
     </ClInclude>
@@ -292,6 +289,18 @@
     </ClInclude>
     <ClInclude Include="helper\variant.h">
       <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="core\systemContext.hpp">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\subSystem.hpp">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\jobSystem.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\threadSafeBuffer.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

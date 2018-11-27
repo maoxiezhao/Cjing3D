@@ -138,8 +138,9 @@
     <ClInclude Include="common\common.h" />
     <ClInclude Include="core\eventSystem.h" />
     <ClInclude Include="core\gameComponent.h" />
-    <ClInclude Include="core\gameContext.hpp" />
-    <ClInclude Include="core\gameSystem.hpp" />
+    <ClInclude Include="core\jobSystem.h" />
+    <ClInclude Include="core\systemContext.hpp" />
+    <ClInclude Include="core\subSystem.hpp" />
     <ClInclude Include="core\object.h" />
     <ClInclude Include="core\threadSafeSystem.h" />
     <ClInclude Include="engine.h" />
@@ -179,6 +180,7 @@
     <ClInclude Include="utils\array.h" />
     <ClInclude Include="utils\geometry.h" />
     <ClInclude Include="utils\math.h" />
+    <ClInclude Include="utils\threadSafeBuffer.h" />
     <ClInclude Include="world\actor.h" />
     <ClInclude Include="world\component\component.h" />
     <ClInclude Include="world\component\renderable.h" />
@@ -188,6 +190,7 @@
   <ItemGroup>
     <ClCompile Include="core\eventSystem.cpp" />
     <ClCompile Include="core\gameComponent.cpp" />
+    <ClCompile Include="core\jobSystem.cpp" />
     <ClCompile Include="core\threadSafeSystem.cpp" />
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="helper\debug.cpp" />

@@ -65,24 +65,25 @@ void Engine::Initialize()
 	Debug::InitializeDebugConsole();
 #endif
 
+	// initialize file data
 	std::string dataPath = "./../Assets";
 	if (!FileData::OpenData("", dataPath))
 		Debug::Die("No data file was found int the direcion:" + dataPath);
 
-	mTimer.Start();
+	mGameContext = std::make_unique<SystemContext>();
 
-	/*mMainWindow = std::make_unique<Window>(
-		"Cjing3D",
-		I32x2(1024, 768),
-		false);
-	mAppHandler = std::make_shared<EngineMessageHandler>();
-	mMainWindow->AddMessageHandler(mAppHandler);*/
+	// initialize engine time
+	mTimer.Start();
+	mGameContext->SetEngineTime(mTime);
+	
+
 
 	mIsInitialized = true;
 }
 
 void Engine::Update()
 {
+	mGameContext->SetEngineTime(mTime);
 }
 
 void Engine::Uninitialize()

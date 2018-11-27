@@ -1,7 +1,7 @@
 #pragma once
 
 #include "world\component\component.h"
-#include "core\gameContext.hpp"
+#include "core\systemContext.hpp"
 #include "renderer\components\model.h"
 
 namespace Cjing3D{
@@ -10,7 +10,7 @@ class Renderable : public Component
 {
 public:
 	Renderable();
-	Renderable(GameContext& gameContext);
+	Renderable(SystemContext& gameContext);
 	virtual ~Renderable();
 
 	virtual void Initialize();

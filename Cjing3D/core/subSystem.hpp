@@ -9,22 +9,22 @@
 namespace Cjing3D
 {
 
-class GameContext;
+class SystemContext;
 
-class GameSystem : public ThreadSafeSystem
+class SubSystem : public ThreadSafeSystem
 {
 public:
-	GameSystem(GameContext& gameContext) :
+	SubSystem(SystemContext& gameContext) :
 		mGameContext(gameContext)
 	{}
 
 	virtual void Initialize() {};
 	virtual void Uninitialize() {};
 
-	GameContext& GetGameContext() { return mGameContext; }
+	SystemContext& GetGameContext() { return mGameContext; }
 
 protected:
-	GameContext & mGameContext;
+	SystemContext & mGameContext;
 };
 
 }

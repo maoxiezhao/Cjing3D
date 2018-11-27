@@ -73,7 +73,7 @@ Cjing3D::ResourceManager::GetOrCreate(const StringID & name, VertexLayoutDesc* d
 		vertexShaderInfo->mVertexShader = std::make_shared<VertexShader>();
 		vertexShaderInfo->mInputLayout = std::make_shared<InputLayout>();
 
-		auto& renderer = mGameContext.GetGameSystem<Renderer>();
+		auto& renderer = mGameContext.GetSubSystem<Renderer>();
 		auto& device = renderer.GetDevice();
 		{
 			const HRESULT result = device.CreateVertexShader(static_cast<const void*>(byteData.data()), byteData.size(),

@@ -5,7 +5,7 @@ namespace Cjing3D
 	Renderable::Renderable()
 	{
 	}
-	Renderable::Renderable(GameContext & gameContext)
+	Renderable::Renderable(SystemContext & gameContext)
 	{
 	}
 	Renderable::~Renderable()
