@@ -35,8 +35,7 @@ private:
 	ThreadSafeBuffer<TaskJob, MaxJobCount> mJobBuffer;
 	std::condition_variable mWakeCondition;
 	std::mutex mWakeMutex;
-
-	std::vector<std::thread> mThreads;
+	U32 mThreadCount;
 };
 
 }

@@ -1,12 +1,10 @@
 #include "engine.h"
 #include "helper\fileSystem.h"
+#include "core\jobSystem.h"
+#include "resource\resouceManager.h"
 
 namespace Cjing3D
 {
-
-namespace {
-	
-}
 
 Engine::Engine():
 	mIsInitialized(false),
@@ -76,7 +74,13 @@ void Engine::Initialize()
 	mTimer.Start();
 	mGameContext->SetEngineTime(mTime);
 	
+	auto jobSystem = new jobSystem(*mGameContext)
+	jobSystem->Initialize();
+	mGameContext->RegisterSubSystem(jobSystem);
 
+	auto resourceManager = new ResourceManager(*mGameContext);
+	resourceManager->Initialize();
+	mGameContext->RegisterSubSystem(resourceManager);
 
 	mIsInitialized = true;
 }
