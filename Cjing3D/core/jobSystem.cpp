@@ -28,14 +28,12 @@ namespace Cjing3D
 			std::thread worker(&JobSystem::ThreadInvoke, this);
 
 #ifdef _WIN32
-			// ³õÊ¼»¯winÏß³ÌÉèÖÃ
 			HANDLE handle = (HANDLE)worker.native_handle();
 
-			// ½«¸÷¸öÏß³Ì·ÖÅäµ½¸÷¸öºËÐÄÖÐ
+			// 分配各个线程到不同的处理核心
 			DWORD_PTR mask = 1ull << threadID;
 			SetThreadAffinityMask(handle, mask);
 
-			// Îª¸÷¸öÏß³ÌÃüÃû
 			const std::wstring threadName = std::to_wstring(threadID);
 			SetThreadDescription(handle, threadName.c_str());
 #endif
@@ -52,7 +50,7 @@ namespace Cjing3D
 
 	U32 JobSystem::GetThreadCount()
 	{
-		return mThreads.size();
+		return mThreadCount;
 	}
 
 	void JobSystem::ThreadInvoke()
@@ -88,7 +86,7 @@ namespace Cjing3D
 		}
 	}
 
-	void Execute(const TaskJob& task)
+	void JobSystem::Execute(const TaskJob& task)
 	{
 		currentLabel++;
 		while(mJobPool.PushBack(task) == false)
@@ -100,7 +98,7 @@ namespace Cjing3D
 	}
 
 	// 主线程时，不断唤醒其他线程去执行job
-	void Poll()
+	void JobSystem::Poll()
 	{
 		mWakeCondition.notify_one();
 		std::this_thread::yield();	

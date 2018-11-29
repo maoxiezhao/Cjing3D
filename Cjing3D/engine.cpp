@@ -1,7 +1,7 @@
 #include "engine.h"
 #include "helper\fileSystem.h"
 #include "core\jobSystem.h"
-#include "resource\resouceManager.h"
+#include "resource\resourceManager.h"
 
 namespace Cjing3D
 {
@@ -71,10 +71,10 @@ void Engine::Initialize()
 	mGameContext = std::make_unique<SystemContext>();
 
 	// initialize engine time
-	mTimer.Start();
+ 	mTimer.Start();
 	mGameContext->SetEngineTime(mTime);
 	
-	auto jobSystem = new jobSystem(*mGameContext)
+	auto jobSystem = new JobSystem(*mGameContext);
 	jobSystem->Initialize();
 	mGameContext->RegisterSubSystem(jobSystem);
 

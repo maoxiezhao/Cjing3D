@@ -163,6 +163,7 @@
     <ClInclude Include="renderer\renderable\renderableComponent.h" />
     <ClInclude Include="renderer\renderable\renderableComponent3D.h" />
     <ClInclude Include="renderer\renderer.h" />
+    <ClInclude Include="renderer\RHI\rhiPipeline.h" />
     <ClInclude Include="renderer\RHI\rhiResource.h" />
     <ClInclude Include="renderer\RHI\rhiShader.h" />
     <ClInclude Include="renderer\shaderLib.h" />

@@ -228,4 +228,11 @@ namespace Cjing3D
 		INDEX_FORMAT_16BIT,
 		INDEX_FORMAT_32BIT,
 	};
+
+	enum BufferScope
+	{
+		BUFFER_SCOPE_VERTEX,
+		BUFFER_SCOPE_PIXEL,
+		BUFFER_SCOPE_GLOBAL
+	};
 }

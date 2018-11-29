@@ -77,9 +77,6 @@
     <ClCompile Include="renderer\RHI\device.cpp">
       <Filter>renderer\rhi</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\RHI\deviceD3D11.cpp">
-      <Filter>renderer\rhi</Filter>
-    </ClCompile>
     <ClCompile Include="renderer\RHI\pipelineD3D11.cpp">
       <Filter>renderer\rhi\d3d11</Filter>
     </ClCompile>
@@ -146,6 +143,9 @@
     <ClCompile Include="core\jobSystem.cpp">
       <Filter>core</Filter>
     </ClCompile>
+    <ClCompile Include="renderer\RHI\deviceD3D11.cpp">
+      <Filter>renderer\rhi\d3d11</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -194,14 +194,8 @@
     <ClInclude Include="renderer\RHI\device.h">
       <Filter>renderer\rhi</Filter>
     </ClInclude>
-    <ClInclude Include="renderer\RHI\deviceD3D11.h">
-      <Filter>renderer\rhi</Filter>
-    </ClInclude>
     <ClInclude Include="renderer\RHI\pipelineD3D11.h">
       <Filter>renderer\rhi\d3d11</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\includeD3D11.h">
-      <Filter>renderer\rhi</Filter>
     </ClInclude>
     <ClInclude Include="renderer\RHI\rhiDefinition.h">
       <Filter>renderer\rhi</Filter>
@@ -301,6 +295,15 @@
     </ClInclude>
     <ClInclude Include="utils\threadSafeBuffer.h">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\RHI\rhiPipeline.h">
+      <Filter>renderer\rhi</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\includeD3D11.h">
+      <Filter>renderer\rhi\d3d11</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\RHI\deviceD3D11.h">
+      <Filter>renderer\rhi\d3d11</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

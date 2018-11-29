@@ -57,4 +57,26 @@ namespace Cjing3D
 		ComPtr<ID3D11InputLayout> mResourceD3D11;
 		std::vector<VertexLayoutDesc> mDescs;
 	};
+
+	/**
+	*	\brief ConstantBuffer类
+	*/
+	class ConstantBuffer
+	{
+	public:
+		ConstantBuffer(GraphicsDevice& device) :mDevice(device) {}
+		~ConstantBuffer() = default;
+
+		// 刷新数据
+		void Create(U32 size);
+		void UpdateData(const void* data, U32 dataSize);
+
+		ID3D11Buffer* GetBuffer()const {
+			return mBuffer.Get();
+		}
+
+	private:
+		GraphicsDevice & mDevice;
+		ComPtr<ID3D11Buffer> mBuffer;
+	};
 }

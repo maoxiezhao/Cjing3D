@@ -24,6 +24,7 @@ public:
 
 	bool IsBusy()const;
 	void Wait();
+	void Poll();
 
 	U32 GetThreadCount();
 	static const int MaxJobCount = 128;
@@ -32,7 +33,7 @@ public:
 	void ThreadInvoke();
 
 private:
-	ThreadSafeBuffer<TaskJob, MaxJobCount> mJobBuffer;
+	ThreadSafeBuffer<TaskJob, MaxJobCount> mJobPool;
 	std::condition_variable mWakeCondition;
 	std::mutex mWakeMutex;
 	U32 mThreadCount;

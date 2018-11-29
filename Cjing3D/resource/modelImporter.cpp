@@ -174,4 +174,8 @@ void ModelImporter::LoadMesh(Model& model, const aiScene * aScene, aiMesh * aMes
 	model.AddMesh(name.C_Str(), meshPtr);
 }
 
+void ModelImporter::LoadAnimation(Model & model)
+{
+}
+
 }
