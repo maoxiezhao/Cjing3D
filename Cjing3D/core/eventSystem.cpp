@@ -2,12 +2,12 @@
 
 namespace Cjing3D {
 
-	void EventManager::Subscribe(EventType eventID, subscriber && func)
+void EventManager::Register(EventType eventID, subscriber && func)
 {
 	mSubscribers[eventID].push_back(func);
 }
 
-void EventManager::SubscribeWithMap(EventType eventID, subscriberWithMap && func)
+void EventManager::RegisterWithMap(EventType eventID, subscriberWithMap && func)
 {
 	mSubscriberWithMaps[eventID].push_back(func);
 }

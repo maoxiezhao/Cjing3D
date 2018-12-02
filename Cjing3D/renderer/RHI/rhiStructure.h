@@ -2,6 +2,8 @@
 
 #include "renderer\RHI\rhiDefinition.h"
 
+// TODO 整合到rhiDefinition中
+
 namespace Cjing3D
 {
 	// 视口定义
@@ -122,4 +124,26 @@ namespace Cjing3D
 		U32 mInstanceDataStepRate;
 	};
 
+	struct GPUBufferDesc
+	{
+		U32 mByteWidth;
+		USAGE mUsage;
+		U32 mBindFlags;
+		U32 mCPUAccessFlags;
+		U32 mMiscFlags;
+		// needed for typed and structured buffer types!
+		U32 mStructureByteStride; 
+		// only needed for typed buffer!
+		FORMAT mFormat;		
+
+		GPUBufferDesc() :
+			mByteWidth(0),
+			mUsage(USAGE_DEFAULT),
+			mBindFlags(0),
+			mCPUAccessFlags(0),
+			mMiscFlags(0),
+			mStructureByteStride(0),
+			mFormat(FORMAT_UNKNOWN)
+		{}
+	};
 }

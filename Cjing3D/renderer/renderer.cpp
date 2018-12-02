@@ -4,40 +4,53 @@
 #include "renderer\RHI\device.h"
 #include "core\systemContext.hpp"
 #include "resource\resourceManager.h"
+#include "core\eventSystem.h"
+#include "renderer\RHI\deviceD3D11.h"
 
 namespace Cjing3D {
 
-Renderer::Renderer(SystemContext& gameContext) :
+namespace {
+	GraphicsDevice* CreateGraphicsDeviceByType(RenderingDeviceType deviceType, HWND window)
+	{
+		GraphicsDevice* graphicsDevice = nullptr;
+		switch (deviceType)
+		{
+		case RenderingDeviceType_D3D11:
+			graphicsDevice = new GraphicsDeviceD3D11(window, false, true);
+			break;
+		}
+		return graphicsDevice;
+	}
+}
+
+Renderer::Renderer(SystemContext& gameContext, RenderingDeviceType deviceType, HWND window) :
 	SubSystem(gameContext),
 	mGraphicsDevice(nullptr),
 	mShaderLib(nullptr),
 	mStateManager(nullptr),
-	mIsInitialized(false)
+	mIsInitialized(false),
+	mCamera(nullptr)
 {
+	mGraphicsDevice = std::unique_ptr<GraphicsDevice>(CreateGraphicsDeviceByType(deviceType, window));
 }
 
 Renderer::~Renderer()
 {
 }
 
-void Renderer::Initialize(GraphicsDevice* device)
+void Renderer::Initialize()
 {
 	if (mIsInitialized == true){
 		return;
 	}
 
-	if (device == nullptr) {
-		return;
-	}
-
-	mGraphicsDevice = std::unique_ptr<GraphicsDevice>(device);
 	mGraphicsDevice->Initialize();
 
-	mStateManager = std::make_unique<StateManager>(*device);
+	mStateManager = std::make_unique<StateManager>(*mGraphicsDevice);
 	mStateManager->SetupStates();
 
-	mShaderLib = std::make_unique<ShaderLib>(*this);
-	mShaderLib->Initialize();
+	//mShaderLib = std::make_unique<ShaderLib>(*this);
+	//mShaderLib->Initialize();
 
 	InitializePasses();
 
@@ -57,6 +70,10 @@ void Renderer::Uninitialize()
 	mGraphicsDevice->Uninitialize();
 
 	mIsInitialized = false;
+}
+
+void Renderer::Render()
+{
 }
 
 void Renderer::Present()

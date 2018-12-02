@@ -5,6 +5,7 @@
 // need to refactor
 #include "renderer\RHI\rhiResource.h"
 #include "renderer\RHI\rhiShader.h"
+#include "renderer\RHI\rhiBuffer.h"
 
 namespace Cjing3D
 {
@@ -18,11 +19,11 @@ struct BindingConstantBuffer
 
 class GraphicsDevice;
 
-class RHIPipeline
+class Pipeline
 {
 public:
-	RHIPipeline(GraphicsDevice& device);
-	~RHIPipeline();
+	Pipeline(GraphicsDevice& device);
+	~Pipeline();
 
 	void Bind();
 	void Clear();

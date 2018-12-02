@@ -15,7 +15,7 @@ enum Component_Type
 class Component
 {
 public:
-	Component();
+	Component(SystemContext& systemContext);
 	Component(Component&& rhs);
 	Component(const Component& rhs) = delete;
 
@@ -38,6 +38,7 @@ private:
 	U32 mGUID;
 	Component_Type mType;
 	bool mInitialized;
+	SystemContext& mSystemContext;
 };
 
 using ComponentPtr = std::shared_ptr<Component>;

@@ -146,6 +146,21 @@
     <ClCompile Include="renderer\RHI\deviceD3D11.cpp">
       <Filter>renderer\rhi\d3d11</Filter>
     </ClCompile>
+    <ClCompile Include="renderer\RHI\rhiBuffer.cpp">
+      <Filter>renderer\rhi</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\RHI\rhiFactory.cpp">
+      <Filter>renderer\rhi</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\RHI\rhiPipeline.cpp">
+      <Filter>renderer\rhi</Filter>
+    </ClCompile>
+    <ClCompile Include="world\component\camera.cpp">
+      <Filter>world\component</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\intersectable.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -304,6 +319,21 @@
     </ClInclude>
     <ClInclude Include="renderer\RHI\deviceD3D11.h">
       <Filter>renderer\rhi\d3d11</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\RHI\rhiBuffer.h">
+      <Filter>renderer\rhi</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\RHI\rhiFactory.h">
+      <Filter>renderer\rhi</Filter>
+    </ClInclude>
+    <ClInclude Include="core\eventDefine.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="world\component\camera.h">
+      <Filter>world\component</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\intersectable.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -15,7 +15,7 @@ using TaskJob = std::function<void()>;
 class JobSystem : public SubSystem
 {
 public:
-	JobSystem(SystemContext& context);
+	JobSystem(SystemContext& context, bool multThread = true);
 
 	virtual void Initialize();
 	virtual void Uninitialize();
@@ -37,6 +37,7 @@ private:
 	std::condition_variable mWakeCondition;
 	std::mutex mWakeMutex;
 	U32 mThreadCount;
+	bool mIsMultThread;
 };
 
 }

@@ -1,62 +1,43 @@
 #include "engine.h"
 #include "helper\fileSystem.h"
+#include "helper\profiler.h"
 #include "core\jobSystem.h"
+#include "core\eventSystem.h"
 #include "resource\resourceManager.h"
+#include "renderer\renderer.h"
+#include "world\world.h"
 
 namespace Cjing3D
 {
 
-Engine::Engine():
+Engine::Engine(GameComponent* gameConponent):
 	mIsInitialized(false),
 	mWindowHwnd(nullptr),
-	mWindowHinstance(nullptr)
+	mWindowHinstance(nullptr),
+	mRenderingDeviceType(RenderingDeviceType_D3D11)
 {
-	Initialize();
+	mSystemContext = std::make_unique<SystemContext>();
+
+	mGameComponent = std::unique_ptr<GameComponent>(gameConponent);
+	mGameComponent->SetGameContext(mSystemContext.get());
 }
 
 Engine::~Engine()
 {
-	Uninitialize();
 }
-
-//int Engine::Run(std::shared_ptr<GameComponent> gameComponent)
-//{
-//	if (gameComponent == nullptr) {
-//		Debug::Error("The game component is null");
-//		return 0;
-//	}
-//
-//	// init game component
-//	//mGameComponent = gameComponent;
-//	//gameComponent->Initialize(*this);
-//
-//	//// show window
-//	//mMainWindow->Show();
-//
-//	//// message loop
-//	//MSG msg;
-//	//SecureZeroMemory(&msg, sizeof(msg));
-//	//while (msg.message != WM_QUIT)
-//	//{
-//	//	if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-//	//		TranslateMessage(&msg);
-//	//		DispatchMessage(&msg);
-//	//		continue;
-//	//	}
-//
-//	//	gameComponent->Run(mTimer);
-//	//}
-//
-//	//return static_cast<int> (msg.wParam);
-//
-//	return 0;
-//}
 
 void Engine::Initialize()
 {
 	if (mIsInitialized == true) {
 		return;
 	}
+
+	Debug::ThrowIfFailed(mGameComponent != nullptr, "Game component is null.");
+
+	// initialize engine time
+	mTimer.Start();
+	mTime = mTimer.GetTime();
+	mSystemContext->SetEngineTime(mTime);
 
 #ifdef CJING_DEBUG
 	Debug::SetDebugConsoleEnable(true);
@@ -67,27 +48,57 @@ void Engine::Initialize()
 	std::string dataPath = "./../Assets";
 	if (!FileData::OpenData("", dataPath))
 		Debug::Die("No data file was found int the direcion:" + dataPath);
-
-	mGameContext = std::make_unique<SystemContext>();
-
-	// initialize engine time
- 	mTimer.Start();
-	mGameContext->SetEngineTime(mTime);
 	
-	auto jobSystem = new JobSystem(*mGameContext);
+	// initialize job system
+	auto jobSystem = new JobSystem(*mSystemContext, false);
 	jobSystem->Initialize();
-	mGameContext->RegisterSubSystem(jobSystem);
+	mSystemContext->RegisterSubSystem(jobSystem);
+	
+	// setup gamecomponent 
+	mGameComponent->Setup();
 
-	auto resourceManager = new ResourceManager(*mGameContext);
+	// initialize resource manager
+	auto resourceManager = new ResourceManager(*mSystemContext);
 	resourceManager->Initialize();
-	mGameContext->RegisterSubSystem(resourceManager);
+	mSystemContext->RegisterSubSystem(resourceManager);
 
+	// initialize renderer
+	auto renderer = new Renderer(*mSystemContext, mRenderingDeviceType, (HWND)mWindowHwnd);
+	renderer->Initialize();
+	mSystemContext->RegisterSubSystem(renderer);
+
+	// initialize world
+	auto world = new World(*mSystemContext);
+	world->Initialize();
+	mSystemContext->RegisterSubSystem(world);
+
+	// initialize gamecomponent
+	mGameComponent->Initialize();
+
+	Profiler::GetInstance().BeginFrame();
+	
 	mIsInitialized = true;
 }
 
-void Engine::Update()
+void Engine::Tick()
 {
-	mGameContext->SetEngineTime(mTime);
+	mTime = mTimer.GetTime();
+	mSystemContext->SetEngineTime(mTime);
+
+	auto& profiler = Profiler::GetInstance();
+	auto& renderer = mSystemContext->GetSubSystem<Renderer>();
+
+	profiler.BeginBlock("Update");
+	FIRE_EVENT(EventType::EVENT_TICK);
+	profiler.EndBlock();
+
+	profiler.BeginBlock("Render");
+	renderer.Render();
+	profiler.EndBlock();
+
+	profiler.BeginBlock("Compose");
+	renderer.Present();
+	profiler.EndBlock();
 }
 
 void Engine::Uninitialize()
@@ -96,15 +107,18 @@ void Engine::Uninitialize()
 		return;
 	}
 
-	//if (mGameComponent != nullptr){
-	//	mGameComponent->Uninitialize();
-	//}
+	Profiler::GetInstance().EndFrame();
 
-	//mMainWindow.reset();
+	mGameComponent->Uninitialize();
 
-	mTimer.Stop();
+	mSystemContext->GetSubSystem<World>().Uninitialize();
+	mSystemContext->GetSubSystem<Renderer>().Uninitialize();
+	mSystemContext->GetSubSystem<ResourceManager>().Uninitialize();
+	mSystemContext->GetSubSystem<JobSystem>().Uninitialize();
 
 	FileData::CloseData();
+
+	mTimer.Stop();
 
 	mIsInitialized = false;
 }

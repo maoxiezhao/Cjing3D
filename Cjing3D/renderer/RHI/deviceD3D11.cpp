@@ -215,6 +215,77 @@ namespace {
 		}
 		return D3D11_INPUT_PER_VERTEX_DATA;
 	}
+
+	inline D3D11_USAGE _ConvertUsage(USAGE usage)
+	{
+		switch (usage)
+		{
+		case Cjing3D::USAGE_DEFAULT:
+			return D3D11_USAGE_DEFAULT;
+		case Cjing3D::USAGE_IMMUTABLE:
+			return D3D11_USAGE_IMMUTABLE;
+		case Cjing3D::USAGE_DYNAMIC:
+			return D3D11_USAGE_DYNAMIC;
+		case Cjing3D::USAGE_STAGING:
+			return D3D11_USAGE_STAGING;
+		default:
+			break;
+		}
+		return D3D11_USAGE_DEFAULT;
+	}
+
+	inline U32 _ParseBindFlags(U32 value)
+	{
+		U32 flags = 0;
+		if (value & BIND_VERTEX_BUFFER)
+			flags |= D3D11_BIND_VERTEX_BUFFER;
+		if (value & BIND_INDEX_BUFFER)
+			flags |= D3D11_BIND_INDEX_BUFFER;
+		if (value & BIND_CONSTANT_BUFFER)
+			flags |= D3D11_BIND_CONSTANT_BUFFER;
+		if (value & BIND_SHADER_RESOURCE)
+			flags |= D3D11_BIND_SHADER_RESOURCE;
+		if (value & BIND_STREAM_OUTPUT)
+			flags |= D3D11_BIND_STREAM_OUTPUT;
+		if (value & BIND_RENDER_TARGET)
+			flags |= D3D11_BIND_RENDER_TARGET;
+		if (value & BIND_DEPTH_STENCIL)
+			flags |= D3D11_BIND_DEPTH_STENCIL;
+		if (value & BIND_UNORDERED_ACCESS)
+			flags |= D3D11_BIND_UNORDERED_ACCESS;
+
+		return flags;
+	}
+
+	inline U32 _ParseCPUAccessFlags(U32 value)
+	{
+		U32 flags = 0;
+		if (value & CPU_ACCESS_WRITE)
+			flags |= D3D11_CPU_ACCESS_WRITE;
+		if (value & CPU_ACCESS_READ)
+			flags |= D3D11_CPU_ACCESS_READ;
+
+		return flags;
+	}
+
+	inline UINT _ParseResourceMiscFlags(UINT value)
+	{
+		UINT flags = 0;
+		if (value & RESOURCE_MISC_SHARED)
+			flags |= D3D11_RESOURCE_MISC_SHARED;
+		if (value & RESOURCE_MISC_TEXTURECUBE)
+			flags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
+		if (value & RESOURCE_MISC_DRAWINDIRECT_ARGS)
+			flags |= D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS;
+		if (value & RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS)
+			flags |= D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
+		if (value & RESOURCE_MISC_BUFFER_STRUCTURED)
+			flags |= D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+		if (value & RESOURCE_MISC_TILED)
+			flags |= D3D11_RESOURCE_MISC_TILED;
+
+		return flags;
+	}
 }
 
 GraphicsDeviceD3D11::GraphicsDeviceD3D11(HWND window, bool fullScreen, bool debugLayer):
@@ -288,7 +359,7 @@ void GraphicsDeviceD3D11::Initialize()
 	}
 
 	// 创建视口
-	mViewport.mWidth  = static_cast<F32>(mScreenSize[0]);
+	mViewport.mWidth = static_cast<F32>(mScreenSize[0]);
 	mViewport.mHeight = static_cast<F32>(mScreenSize[1]);
 	mViewport.mTopLeftX = 0.0f;
 	mViewport.mTopLeftY = 0.0f;
@@ -307,16 +378,21 @@ void GraphicsDeviceD3D11::Uninitialize()
 
 void GraphicsDeviceD3D11::PresentBegin()
 {
+	ID3D11RenderTargetView* renderTargetView = &mSwapChain->GetRenderTargetView();
 
+	float clearColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+	auto& deviceContext = GetDeviceContext(GraphicsThread_IMMEDIATE);
+	deviceContext.OMSetRenderTargets(1, &renderTargetView, 0);
+	deviceContext.ClearRenderTargetView(renderTargetView, clearColor);
 }
 
 void GraphicsDeviceD3D11::PresentEnd()
 {
 	mSwapChain->Present(mIsVsync);
 
-	PipelineD3D11::OM::BindRTVAndDSV(GetDeviceContext(GraphicsThread_IMMEDIATE), nullptr, nullptr);
-
-	GetDeviceContext(GraphicsThread_IMMEDIATE).ClearState();
+	auto& deviceContext = GetDeviceContext(GraphicsThread_IMMEDIATE);
+	deviceContext.OMSetRenderTargets(0, nullptr, nullptr);
+	deviceContext.ClearState();
 }
 
 // 绑定视口
@@ -433,6 +509,56 @@ HRESULT GraphicsDeviceD3D11::CreateInputLayout(VertexLayoutDesc* desc, U32 numEl
 
 	auto& inputLayputResource = inputLayout.GetStatePtr();
 	return mDevice->CreateInputLayout(inputLayoutdescs, numElements, shaderBytecode, shaderLength, inputLayputResource.ReleaseAndGetAddressOf());
+}
+
+HRESULT GraphicsDeviceD3D11::CreateBuffer(const GPUBufferDesc * desc, ConstantBuffer & buffer)
+{
+	D3D11_BUFFER_DESC bufferDesc = {};
+	bufferDesc.ByteWidth = desc->mByteWidth;
+	bufferDesc.Usage = _ConvertUsage(desc->mUsage);
+	bufferDesc.BindFlags = _ParseBindFlags(desc->mBindFlags);
+	bufferDesc.CPUAccessFlags = _ParseCPUAccessFlags(desc->mCPUAccessFlags);
+	bufferDesc.MiscFlags = _ParseResourceMiscFlags(desc->mMiscFlags);
+	bufferDesc.StructureByteStride = desc->mStructureByteStride;
+
+	auto& bufferPtr = buffer.GetBufferPtr();
+	return mDevice->CreateBuffer(&bufferDesc, nullptr, bufferPtr.ReleaseAndGetAddressOf());
+}
+
+void GraphicsDeviceD3D11::UpdateBuffer(ConstantBuffer & buffer, const void * data, U32 dataSize)
+{
+	const auto& desc = buffer.GetDesc();
+	Debug::CheckAssertion(desc.mUsage != USAGE_IMMUTABLE, "Cannot update IMMUTABLE Buffer");
+	Debug::CheckAssertion(desc.mByteWidth >= dataSize, "Data size is unable");
+
+	dataSize = std::min(dataSize, desc.mByteWidth);
+	if (dataSize <= 0) {
+		return;
+	}
+
+	// 仅当usage为USAGE_DYNAMIC时，CPU使用map/unmap写数据
+	if (desc.mUsage == USAGE_DYNAMIC)
+	{
+		D3D11_MAPPED_SUBRESOURCE mappedResource;
+		HRESULT result = GetDeviceContext(GraphicsThread_IMMEDIATE).Map(&buffer.GetBuffer(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		Debug::ThrowIfFailed(result, "Failed to map buffer:%08x", result);
+
+		memcpy(mappedResource.pData, data, dataSize);
+
+		GetDeviceContext(GraphicsThread_IMMEDIATE).Unmap(&buffer.GetBuffer(), 0);
+	}
+	else
+	{
+		D3D11_BOX box = {};
+		box.left = 0;
+		box.right = dataSize;
+		box.top = 0;
+		box.bottom = 1;
+		box.front = 0;
+		box.back = 1;
+
+		GetDeviceContext(GraphicsThread_IMMEDIATE).UpdateSubresource(&buffer.GetBuffer(), 0, &box, data, 0, 0);
+	}
 }
 
 void GraphicsDeviceD3D11::SetViewport(ViewPort viewport)

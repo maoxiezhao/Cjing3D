@@ -1,5 +1,6 @@
 #include "engine.h"
 #include "window.h"
+#include "gameComponent.h"
 
 #include <functional>
 
@@ -51,7 +52,7 @@ int WINAPI WinMain(HINSTANCE instance,
 	mAppHandler = std::make_shared<ApplicationMessageHandler>();
 	mainWindow->AddMessageHandler(mAppHandler);
 
-	mainEngine = std::make_unique<Engine>();
+	mainEngine = std::make_unique<Engine>(new TestGame());
 	mainEngine->SetHandles(mainWindow->GetHwnd(), mainWindow->GetInstance());
 	mainEngine->Initialize();
 
@@ -81,7 +82,7 @@ int Run()
 			continue;
 		}
 	
-		mainEngine->Update();
+		mainEngine->Tick();
 	}
 	
 	return static_cast<int> (msg.wParam);

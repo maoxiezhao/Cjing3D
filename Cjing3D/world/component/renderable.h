@@ -1,7 +1,6 @@
 #pragma once
 
 #include "world\component\component.h"
-#include "core\systemContext.hpp"
 #include "renderer\components\model.h"
 
 namespace Cjing3D{
@@ -9,8 +8,7 @@ namespace Cjing3D{
 class Renderable : public Component
 {
 public:
-	Renderable();
-	Renderable(SystemContext& gameContext);
+	Renderable(SystemContext& systemContext);
 	virtual ~Renderable();
 
 	virtual void Initialize();
@@ -18,7 +16,7 @@ public:
 	virtual void Update();
 
 private:
-	std::shared_ptr<Model> mModel;
+	//std::shared_ptr<Model> mModel;
 
 };
 

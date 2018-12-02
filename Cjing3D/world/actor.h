@@ -88,7 +88,7 @@ std::shared_ptr<ComponentT> Actor::AddComponent()
 		return nullptr;
 	}
 
-	auto component = std::make_shared<ComponentT>();
+	auto component = std::make_shared<ComponentT>(mGameContext);
 	component->SetType(type);
 	component->Initialize();
 

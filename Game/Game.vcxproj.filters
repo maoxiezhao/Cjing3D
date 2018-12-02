@@ -3,6 +3,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="window.cpp" />
+    <ClCompile Include="gameComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="game">
@@ -17,5 +18,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="window.h" />
+    <ClInclude Include="gameComponent.h" />
   </ItemGroup>
 </Project>

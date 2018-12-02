@@ -5,6 +5,7 @@
 #include "renderer\RHI\rhiDefinition.h"
 #include "renderer\RHI\rhiStructure.h"
 #include "renderer\RHI\rhiShader.h"
+#include "renderer\RHI\rhiBuffer.h"
 
 namespace Cjing3D
 {
@@ -28,6 +29,9 @@ namespace Cjing3D
 		virtual HRESULT CreateVertexShader(const void* bytecode, size_t length, VertexShader& vertexShader) = 0;
 		virtual HRESULT CreateInputLayout(VertexLayoutDesc* desc, U32 numElements, const void* shaderBytecode, size_t shaderLength, InputLayout& inputLayout) = 0;
 
+		virtual HRESULT CreateBuffer(const GPUBufferDesc* desc, ConstantBuffer& buffer) = 0;
+		virtual void UpdateBuffer(ConstantBuffer& buffer, const void* data, U32 dataSize) = 0;
+
 		FORMAT GetBackBufferFormat()const {
 			return mBackBufferFormat;
 		}
@@ -40,11 +44,16 @@ namespace Cjing3D
 			return mIsMultithreadedRendering;
 		}
 
+		ViewPort GetViewport()const {
+			return mViewport;
+		}
+
 	protected:
 		bool mIsFullScreen;
 		FORMAT mBackBufferFormat;
 		U32x2 mScreenSize;
 		bool mIsMultithreadedRendering;
 		bool mIsVsync;						/** 是否垂直同步 */
+		ViewPort mViewport;
 	};
 }

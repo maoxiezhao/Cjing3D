@@ -13,12 +13,14 @@ Component_Type Component::DeduceComponentType()
 ADDTOCOMPONENTTYPE(Renderable, ComponentType_Renderable)
 
 	
-Component::Component():
+Component::Component(SystemContext& systemContext):
+	mSystemContext(systemContext),
 	mInitialized(false)
 {
 }
 
-Component::Component(Component && rhs)
+Component::Component(Component && rhs):
+	mSystemContext(rhs.mSystemContext)
 {
 }
 

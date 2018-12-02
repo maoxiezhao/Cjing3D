@@ -11,3 +11,10 @@
 
 template<typename T>
 using ComPtr = Microsoft::WRL::ComPtr<T>;
+
+enum RenderingDeviceType
+{
+	RenderingDeviceType_D3D11,
+	RenderingDeviceType_D3D12,
+	RenderingDeviceType_Vulkan
+};

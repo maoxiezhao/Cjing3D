@@ -20,12 +20,16 @@ public:
 
 	virtual void BindViewports(const ViewPort* viewports, U32 numViewports, GraphicsThread threadID);
 
+	/** Creating function */
 	virtual HRESULT CreateDepthStencilState(const DepthStencilStateDesc& desc, DepthStencilState& state);
 	virtual HRESULT CreateBlendState(const BlendStateDesc& desc, BlendState& state);
 	virtual HRESULT CreateRasterizerState(const RasterizerStateDesc& desc, RasterizerState& state);
 
 	virtual HRESULT CreateVertexShader(const void* bytecode, size_t length, VertexShader& vertexShader);
 	virtual HRESULT CreateInputLayout(VertexLayoutDesc* desc, U32 numElements, const void* shaderBytecode, size_t shaderLength, InputLayout& inputLayout);
+
+	virtual HRESULT CreateBuffer(const GPUBufferDesc* desc, ConstantBuffer& buffer);
+	virtual void UpdateBuffer(ConstantBuffer& buffer, const void* data, U32 dataSize);
 
 	ID3D11DeviceContext& GetDeviceContext(GraphicsThread type) {
 		return *mDeviceContext[static_cast<U32>(type)].Get();
@@ -39,7 +43,6 @@ private:
 private:
 	HWND mWindow;
 	bool mDebugLayer;
-	ViewPort mViewport;
 
 	ComPtr<ID3D11Device> mDevice;
 	ComPtr<ID3D11DeviceContext> mDeviceContext[GraphicsThread_COUNT];
