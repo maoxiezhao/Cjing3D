@@ -37,6 +37,7 @@ public:
 	
 	GraphicsDevice& GetDevice();
 	ResourceManager& GetResourceManager();
+	Pipeline& GetPipeline();
 
 	/** Rendering setting */
 
@@ -46,6 +47,9 @@ private:
 
 private:
 	bool mIsInitialized;
+	bool mIsRendering;
+	U32 mFrameNum = 0;
+
 	std::shared_ptr<Camera> mCamera;
 
 	std::unique_ptr<GraphicsDevice> mGraphicsDevice;
@@ -57,6 +61,16 @@ private:
 
 	/** rendering pass */
 	std::unique_ptr<ForwardPass> mForwardPass;
+
+	// temp define //////////////////////////
+	float mNearPlane;
+	float mFarPlane;
+	XMMATRIX mView;
+	XMMATRIX mProjection;
+	XMMATRIX mViewProjection;
+
+	void PassGBuffer();
+
 };
 
 }

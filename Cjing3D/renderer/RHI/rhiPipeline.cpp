@@ -56,4 +56,9 @@ namespace Cjing3D
 	{
 	}
 
+	void Pipeline::SetPrimitiveTopology(PRIMITIVE_TOPOLOGY topology)
+	{
+		mPrimitiveTopology = topology;
+	}
+
 }

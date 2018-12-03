@@ -6,6 +6,7 @@
 #include "resource\resourceManager.h"
 #include "core\eventSystem.h"
 #include "renderer\RHI\deviceD3D11.h"
+#include "world\component\camera.h"
 
 namespace Cjing3D {
 
@@ -29,7 +30,9 @@ Renderer::Renderer(SystemContext& gameContext, RenderingDeviceType deviceType, H
 	mShaderLib(nullptr),
 	mStateManager(nullptr),
 	mIsInitialized(false),
-	mCamera(nullptr)
+	mIsRendering(false),
+	mCamera(nullptr),
+	mFrameNum(0)
 {
 	mGraphicsDevice = std::unique_ptr<GraphicsDevice>(CreateGraphicsDeviceByType(deviceType, window));
 }
@@ -46,11 +49,13 @@ void Renderer::Initialize()
 
 	mGraphicsDevice->Initialize();
 
+	// initialize states
 	mStateManager = std::make_unique<StateManager>(*mGraphicsDevice);
 	mStateManager->SetupStates();
 
-	//mShaderLib = std::make_unique<ShaderLib>(*this);
-	//mShaderLib->Initialize();
+	// initialize shader
+	mShaderLib = std::make_unique<ShaderLib>(*this);
+	mShaderLib->Initialize();
 
 	InitializePasses();
 
@@ -74,6 +79,28 @@ void Renderer::Uninitialize()
 
 void Renderer::Render()
 {
+	if (mCamera == nullptr || mRenderingActors.empty()) {
+		mIsRendering = false;
+		return;
+	}
+
+	return;
+
+	// global data
+	{
+		mNearPlane = mCamera->GetNearPlane();
+		mFrameNum = mCamera->GetFarPlane();
+		mView = mCamera->GetViewMatrix();
+		mProjection = mCamera->GetProjectionMatrix();
+		mViewProjection = mCamera->GetViewProjectionMatrix();
+	}
+
+	mIsRendering = true;
+	mFrameNum++;
+
+	//PassGBuffer();
+
+	mIsRendering = false;
 }
 
 void Renderer::Present()
@@ -92,8 +119,14 @@ ResourceManager & Renderer::GetResourceManager()
 	return mGameContext.GetSubSystem<ResourceManager>();
 }
 
+Pipeline & Renderer::GetPipeline()
+{
+	return *mPipeline;
+}
+
 void Renderer::InitializePasses()
 {
+	mForwardPass = std::make_unique<ForwardPass>(mGameContext);
 }
 
 /**
@@ -114,6 +147,25 @@ void Renderer::AccquireActors(std::vector<ActorPtr> actors)
 
 	// sort renderging actors
 	if (mRenderingActors.size() > 0)
+	{
+
+	}
+}
+
+// 以延迟渲染方式绘制不透明物体
+void Renderer::PassGBuffer()
+{
+	if (mRenderingActors[RenderableType::RenderableType_Opaque].empty()) {
+		return;
+	}
+
+	auto gBufferShader = mShaderLib->GetVertexShader(VertexShaderType_Transform);
+
+	mPipeline->SetPrimitiveTopology(PRIMITIVE_TOPOLOGY::TRIANGLELIST);
+	mPipeline->SetFillMode(FILL_SOLID);
+	mPipeline->SetVertexShader(gBufferShader);
+
+	for (auto actor : mRenderingActors[RenderableType::RenderableType_Opaque])
 	{
 
 	}

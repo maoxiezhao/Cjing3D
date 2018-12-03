@@ -44,6 +44,8 @@ public:
 	void SetCullMode(CullMode cullMode);
 	void SetFillMode(FillMode fillMode);
 
+	void SetPrimitiveTopology(PRIMITIVE_TOPOLOGY topology);
+
 private:
 	GraphicsDevice& mDevice;
 
@@ -51,7 +53,7 @@ private:
 
 	CullMode mCullMode;
 	FillMode mFillMode;
-	
+	PRIMITIVE_TOPOLOGY mPrimitiveTopology;
 	ViewPort mViewport;
 };
 }
