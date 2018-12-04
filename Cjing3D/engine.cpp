@@ -82,10 +82,12 @@ void Engine::Initialize()
 
 void Engine::Tick()
 {
+	auto& profiler = Profiler::GetInstance();
+	profiler.BeginFrame();
+
 	mTime = mTimer.GetTime();
 	mSystemContext->SetEngineTime(mTime);
 
-	auto& profiler = Profiler::GetInstance();
 	auto& renderer = mSystemContext->GetSubSystem<Renderer>();
 
 	profiler.BeginBlock("Update");
@@ -99,6 +101,8 @@ void Engine::Tick()
 	profiler.BeginBlock("Compose");
 	renderer.Present();
 	profiler.EndBlock();
+
+	profiler.EndFrame();
 }
 
 void Engine::Uninitialize()

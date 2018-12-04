@@ -3,10 +3,11 @@
 #include "stateManager.h"
 #include "renderer\RHI\device.h"
 #include "core\systemContext.hpp"
-#include "resource\resourceManager.h"
 #include "core\eventSystem.h"
+#include "helper\profiler.h"
 #include "renderer\RHI\deviceD3D11.h"
 #include "world\component\camera.h"
+#include "resource\resourceManager.h"
 
 namespace Cjing3D {
 
@@ -159,6 +160,9 @@ void Renderer::PassGBuffer()
 		return;
 	}
 
+	auto& profiler = Profiler::GetInstance();
+	profiler.BeginBlock("GBuffer_Pass");
+
 	auto gBufferShader = mShaderLib->GetVertexShader(VertexShaderType_Transform);
 
 	mPipeline->SetPrimitiveTopology(PRIMITIVE_TOPOLOGY::TRIANGLELIST);
@@ -169,6 +173,8 @@ void Renderer::PassGBuffer()
 	{
 
 	}
+
+	profiler.EndBlock();
 }
 
 }

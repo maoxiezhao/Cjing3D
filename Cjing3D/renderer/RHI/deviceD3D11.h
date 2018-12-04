@@ -31,6 +31,8 @@ public:
 	virtual HRESULT CreateBuffer(const GPUBufferDesc* desc, ConstantBuffer& buffer);
 	virtual void UpdateBuffer(ConstantBuffer& buffer, const void* data, U32 dataSize);
 
+	virtual HRESULT CreateSamplerState(const SamplerDesc* desc, SamplerState& state);
+
 	ID3D11DeviceContext& GetDeviceContext(GraphicsThread type) {
 		return *mDeviceContext[static_cast<U32>(type)].Get();
 	}

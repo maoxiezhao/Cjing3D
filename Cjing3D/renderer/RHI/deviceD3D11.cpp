@@ -286,6 +286,144 @@ namespace {
 
 		return flags;
 	}
+
+	inline D3D11_FILTER _ConvertFilter(FILTER filter)
+	{
+		switch (filter)
+		{
+		case FILTER_MIN_MAG_MIP_POINT:
+			return D3D11_FILTER_MIN_MAG_MIP_POINT;
+			break;
+		case FILTER_MIN_MAG_POINT_MIP_LINEAR:
+			return D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
+			break;
+		case FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT:
+			return D3D11_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT;
+			break;
+		case FILTER_MIN_POINT_MAG_MIP_LINEAR:
+			return D3D11_FILTER_MIN_POINT_MAG_MIP_LINEAR;
+			break;
+		case FILTER_MIN_LINEAR_MAG_MIP_POINT:
+			return D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT;
+			break;
+		case FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR:
+			return D3D11_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR;
+			break;
+		case FILTER_MIN_MAG_LINEAR_MIP_POINT:
+			return D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+			break;
+		case FILTER_MIN_MAG_MIP_LINEAR:
+			return D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+			break;
+		case FILTER_ANISOTROPIC:
+			return D3D11_FILTER_ANISOTROPIC;
+			break;
+		case FILTER_COMPARISON_MIN_MAG_MIP_POINT:
+			return D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
+			break;
+		case FILTER_COMPARISON_MIN_MAG_POINT_MIP_LINEAR:
+			return D3D11_FILTER_COMPARISON_MIN_MAG_POINT_MIP_LINEAR;
+			break;
+		case FILTER_COMPARISON_MIN_POINT_MAG_LINEAR_MIP_POINT:
+			return D3D11_FILTER_COMPARISON_MIN_POINT_MAG_LINEAR_MIP_POINT;
+			break;
+		case FILTER_COMPARISON_MIN_POINT_MAG_MIP_LINEAR:
+			return D3D11_FILTER_COMPARISON_MIN_POINT_MAG_MIP_LINEAR;
+			break;
+		case FILTER_COMPARISON_MIN_LINEAR_MAG_MIP_POINT:
+			return D3D11_FILTER_COMPARISON_MIN_LINEAR_MAG_MIP_POINT;
+			break;
+		case FILTER_COMPARISON_MIN_LINEAR_MAG_POINT_MIP_LINEAR:
+			return D3D11_FILTER_COMPARISON_MIN_LINEAR_MAG_POINT_MIP_LINEAR;
+			break;
+		case FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT:
+			return D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+			break;
+		case FILTER_COMPARISON_MIN_MAG_MIP_LINEAR:
+			return D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
+			break;
+		case FILTER_COMPARISON_ANISOTROPIC:
+			return D3D11_FILTER_COMPARISON_ANISOTROPIC;
+			break;
+		case FILTER_MINIMUM_MIN_MAG_MIP_POINT:
+			return D3D11_FILTER_MINIMUM_MIN_MAG_MIP_POINT;
+			break;
+		case FILTER_MINIMUM_MIN_MAG_POINT_MIP_LINEAR:
+			return D3D11_FILTER_MINIMUM_MIN_MAG_POINT_MIP_LINEAR;
+			break;
+		case FILTER_MINIMUM_MIN_POINT_MAG_LINEAR_MIP_POINT:
+			return D3D11_FILTER_MINIMUM_MIN_POINT_MAG_LINEAR_MIP_POINT;
+			break;
+		case FILTER_MINIMUM_MIN_POINT_MAG_MIP_LINEAR:
+			return D3D11_FILTER_MINIMUM_MIN_POINT_MAG_MIP_LINEAR;
+			break;
+		case FILTER_MINIMUM_MIN_LINEAR_MAG_MIP_POINT:
+			return D3D11_FILTER_MINIMUM_MIN_LINEAR_MAG_MIP_POINT;
+			break;
+		case FILTER_MINIMUM_MIN_LINEAR_MAG_POINT_MIP_LINEAR:
+			return D3D11_FILTER_MINIMUM_MIN_LINEAR_MAG_POINT_MIP_LINEAR;
+			break;
+		case FILTER_MINIMUM_MIN_MAG_LINEAR_MIP_POINT:
+			return D3D11_FILTER_MINIMUM_MIN_MAG_LINEAR_MIP_POINT;
+			break;
+		case FILTER_MINIMUM_MIN_MAG_MIP_LINEAR:
+			return D3D11_FILTER_MINIMUM_MIN_MAG_MIP_LINEAR;
+			break;
+		case FILTER_MINIMUM_ANISOTROPIC:
+			return D3D11_FILTER_MINIMUM_ANISOTROPIC;
+			break;
+		case FILTER_MAXIMUM_MIN_MAG_MIP_POINT:
+			return D3D11_FILTER_MAXIMUM_MIN_MAG_MIP_POINT;
+			break;
+		case FILTER_MAXIMUM_MIN_MAG_POINT_MIP_LINEAR:
+			return D3D11_FILTER_MAXIMUM_MIN_MAG_POINT_MIP_LINEAR;
+			break;
+		case FILTER_MAXIMUM_MIN_POINT_MAG_LINEAR_MIP_POINT:
+			return D3D11_FILTER_MAXIMUM_MIN_POINT_MAG_LINEAR_MIP_POINT;
+			break;
+		case FILTER_MAXIMUM_MIN_POINT_MAG_MIP_LINEAR:
+			return D3D11_FILTER_MAXIMUM_MIN_POINT_MAG_MIP_LINEAR;
+			break;
+		case FILTER_MAXIMUM_MIN_LINEAR_MAG_MIP_POINT:
+			return D3D11_FILTER_MAXIMUM_MIN_LINEAR_MAG_MIP_POINT;
+			break;
+		case FILTER_MAXIMUM_MIN_LINEAR_MAG_POINT_MIP_LINEAR:
+			return D3D11_FILTER_MAXIMUM_MIN_LINEAR_MAG_POINT_MIP_LINEAR;
+			break;
+		case FILTER_MAXIMUM_MIN_MAG_LINEAR_MIP_POINT:
+			return D3D11_FILTER_MAXIMUM_MIN_MAG_LINEAR_MIP_POINT;
+			break;
+		case FILTER_MAXIMUM_MIN_MAG_MIP_LINEAR:
+			return D3D11_FILTER_MAXIMUM_MIN_MAG_MIP_LINEAR;
+			break;
+		case FILTER_MAXIMUM_ANISOTROPIC:
+			return D3D11_FILTER_MAXIMUM_ANISOTROPIC;
+			break;
+		default:
+			break;
+		}
+		return D3D11_FILTER_MIN_MAG_MIP_POINT;
+	}
+
+	inline D3D11_TEXTURE_ADDRESS_MODE _ConvertTextureAddressMode(TEXTURE_ADDRESS_MODE mode)
+	{
+		switch (mode)
+		{
+		case Cjing3D::TEXTURE_ADDRESS_WRAP:
+			return D3D11_TEXTURE_ADDRESS_WRAP;
+		case Cjing3D::TEXTURE_ADDRESS_MIRROR:
+			return D3D11_TEXTURE_ADDRESS_MIRROR;
+		case Cjing3D::TEXTURE_ADDRESS_CLAMP:
+			return D3D11_TEXTURE_ADDRESS_CLAMP;
+		case Cjing3D::TEXTURE_ADDRESS_BORDER:
+			return D3D11_TEXTURE_ADDRESS_BORDER;
+		case Cjing3D::TEXTURE_ADDRESS_MIRROR_ONCE:
+			return D3D11_TEXTURE_ADDRESS_MIRROR_ONCE;
+		default:
+			break;
+		}
+		return D3D11_TEXTURE_ADDRESS_WRAP;
+	}
 }
 
 GraphicsDeviceD3D11::GraphicsDeviceD3D11(HWND window, bool fullScreen, bool debugLayer):
@@ -559,6 +697,29 @@ void GraphicsDeviceD3D11::UpdateBuffer(ConstantBuffer & buffer, const void * dat
 
 		GetDeviceContext(GraphicsThread_IMMEDIATE).UpdateSubresource(&buffer.GetBuffer(), 0, &box, data, 0, 0);
 	}
+}
+
+// 创建采样器状态
+HRESULT GraphicsDeviceD3D11::CreateSamplerState(const SamplerDesc * desc, SamplerState & state)
+{
+	D3D11_SAMPLER_DESC samplerDesc = {};
+
+	samplerDesc.Filter = _ConvertFilter(desc->mFilter);
+	samplerDesc.AddressU = _ConvertTextureAddressMode(desc->mAddressU);
+	samplerDesc.AddressV = _ConvertTextureAddressMode(desc->mAddressV);
+	samplerDesc.AddressW = _ConvertTextureAddressMode(desc->mAddressW);
+	samplerDesc.MipLODBias = desc->mMipLODBias;
+	samplerDesc.MaxAnisotropy = desc->mMaxAnisotropy;
+	samplerDesc.ComparisonFunc = _ConvertComparisonFunc(desc->mComparisonFunc);
+	samplerDesc.BorderColor[0] = desc->mBorderColor[0];
+	samplerDesc.BorderColor[1] = desc->mBorderColor[1];
+	samplerDesc.BorderColor[2] = desc->mBorderColor[2];
+	samplerDesc.BorderColor[3] = desc->mBorderColor[3];
+	samplerDesc.MinLOD = desc->mMinLOD;
+	samplerDesc.MaxLOD = desc->mMaxLOD;
+
+	auto& statePtr = state.GetStatePtr();
+	return mDevice->CreateSamplerState(&samplerDesc, statePtr.ReleaseAndGetAddressOf());
 }
 
 void GraphicsDeviceD3D11::SetViewport(ViewPort viewport)

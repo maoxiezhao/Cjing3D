@@ -57,4 +57,17 @@ namespace Cjing3D
 		ComPtr<ID3D11InputLayout> mResourceD3D11;
 		std::vector<VertexLayoutDesc> mDescs;
 	};
+
+	class SamplerState
+	{
+	public:
+		SamplerState() : mState() {};
+
+		SamplerDesc GetDesc()const { return mDesc; }
+		ID3D11SamplerState& GetState() { return *mState.Get(); }
+		ComPtr<ID3D11SamplerState>& GetStatePtr() { return mState; }
+	private:
+		SamplerDesc mDesc;
+		ComPtr<ID3D11SamplerState> mState;
+	};
 }

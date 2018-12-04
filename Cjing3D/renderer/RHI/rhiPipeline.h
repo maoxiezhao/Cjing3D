@@ -52,8 +52,14 @@ private:
 	std::vector<BindingConstantBuffer> mConstantBuffers;
 
 	CullMode mCullMode;
+	bool mCullModeDirty;
+
 	FillMode mFillMode;
+	bool mFillModeDirty;
+
 	PRIMITIVE_TOPOLOGY mPrimitiveTopology;
+	bool mPrimitiveTopologyDirty;
+
 	ViewPort mViewport;
 };
 }

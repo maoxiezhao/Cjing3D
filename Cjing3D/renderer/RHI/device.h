@@ -32,6 +32,8 @@ namespace Cjing3D
 		virtual HRESULT CreateBuffer(const GPUBufferDesc* desc, ConstantBuffer& buffer) = 0;
 		virtual void UpdateBuffer(ConstantBuffer& buffer, const void* data, U32 dataSize) = 0;
 
+		virtual HRESULT CreateSamplerState(const SamplerDesc* desc, SamplerState& state) = 0;
+
 		FORMAT GetBackBufferFormat()const {
 			return mBackBufferFormat;
 		}

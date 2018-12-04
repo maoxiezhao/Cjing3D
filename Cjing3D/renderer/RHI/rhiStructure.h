@@ -146,4 +146,31 @@ namespace Cjing3D
 			mFormat(FORMAT_UNKNOWN)
 		{}
 	};
+
+	struct SamplerDesc
+	{
+		FILTER mFilter;
+		TEXTURE_ADDRESS_MODE mAddressU;
+		TEXTURE_ADDRESS_MODE mAddressV;
+		TEXTURE_ADDRESS_MODE mAddressW;
+		F32 mMipLODBias;
+		U32 mMaxAnisotropy;
+		ComparisonFunc mComparisonFunc;
+		F32 mBorderColor[4];
+		F32 mMinLOD;
+		F32 mMaxLOD;
+
+		SamplerDesc() :
+			mFilter(FILTER_MIN_MAG_MIP_POINT),
+			mAddressU(TEXTURE_ADDRESS_CLAMP),
+			mAddressV(TEXTURE_ADDRESS_CLAMP),
+			mAddressW(TEXTURE_ADDRESS_CLAMP),
+			mMipLODBias(0.0f),
+			mMaxAnisotropy(0),
+			mComparisonFunc(COMPARISON_NEVER),
+			mBorderColor{0.0f, 0.0f, 0.0f, 0.0f},
+			mMinLOD(0.0f),
+			mMaxLOD(FLT_MAX)
+		{}
+	};
 }
