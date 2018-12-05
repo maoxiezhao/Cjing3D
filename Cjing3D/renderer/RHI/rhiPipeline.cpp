@@ -21,6 +21,22 @@ namespace Cjing3D
 
 	void Pipeline::Clear()
 	{
+		mConstantBuffers.clear();
+		mConstantBufferDirty = false;;
+
+		mCullMode = CULL_NONE;
+		mCullModeDirty = false;
+
+		mFillMode = FILL_SOLID;
+		mFillModeDirty = false;;
+
+		mPrimitiveTopology = PRIMITIVE_TOPOLOGY::TRIANGLELIST;
+		mPrimitiveTopologyDirty = false;
+
+		mViewportDirty = false;
+
+		mSamplerState.clear();
+		mSamplerStateDirty = false;
 	}
 
 	void Pipeline::SetViewport(ViewPort viewport)
@@ -39,15 +55,15 @@ namespace Cjing3D
 	{
 	}
 
-	void Pipeline::SetSample()
+	void Pipeline::SetSampler(std::shared_ptr<SamplerState> sampler, U32 slot, SHADERSTAGES stage)
+	{
+	}
+
+	void Pipeline::SetConstantBuffer(std::shared_ptr<ConstantBuffer> buffer, U32 slot, SHADERSTAGES stage)
 	{
 	}
 
 	void Pipeline::SetRenderTarget()
-	{
-	}
-
-	void Pipeline::SetConstantBuffer(ConstantBuffer & buffer, U32 slot, BufferScope bufferScope)
 	{
 	}
 

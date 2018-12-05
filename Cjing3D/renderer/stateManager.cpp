@@ -1,5 +1,6 @@
 #include "stateManager.h"
 #include "renderer\RHI\device.h"
+#include "renderer\RHI\rhiFactory.h"
 
 namespace Cjing3D {
 
@@ -7,15 +8,19 @@ StateManager::StateManager(GraphicsDevice& device) :
 		mDevice(device)
 {
 	for (int i = 0; i < DepthStencilStateID::DepthStencilStateID_Count; i++){
-		mDepthStencilStates[static_cast<U32>(i)] = std::make_unique<DepthStencilState>();
+		mDepthStencilStates[static_cast<U32>(i)] = std::make_shared<DepthStencilState>();
 	}
 
 	for (int i = 0; i < BlendStateID::BlendStateID_Count; i++) {
-		mBlendStates[static_cast<U32>(i)] = std::make_unique<BlendState>();
+		mBlendStates[static_cast<U32>(i)] = std::make_shared<BlendState>();
 	}
 
 	for (int i = 0; i < RasterizerStateID::RasterizerStateID_Count; i++) {
-		mRasterizerStates[static_cast<U32>(i)] = std::make_unique<RasterizerState>();
+		mRasterizerStates[static_cast<U32>(i)] = std::make_shared<RasterizerState>();
+	}
+
+	for (int i = 0; i < SamplerStateID_Count; i++) {
+		mSamplerStates[static_cast<U32>(i)] = std::make_shared<SamplerState>();
 	}
 }
 
@@ -31,24 +36,31 @@ void StateManager::SetupStates()
 	SetupDepthStencilStates();
 	SetupBlendStates();
 	SetupRasterizerStates();
+	SetupSamplerStates();
 }
 
-DepthStencilState & StateManager::GetDepthStencilState(DepthStencilStateID id)
+std::shared_ptr<DepthStencilState> StateManager::GetDepthStencilState(DepthStencilStateID id)
 {
 	Debug::CheckAssertion(id < DepthStencilStateID::DepthStencilStateID_Count);
-	return *mDepthStencilStates[static_cast<U32>(id)];
+	return mDepthStencilStates[static_cast<U32>(id)];
 }
 
-BlendState & StateManager::GetBlendState(BlendStateID id)
+std::shared_ptr<BlendState> StateManager::GetBlendState(BlendStateID id)
 {
 	Debug::CheckAssertion(id < BlendStateID::BlendStateID_Count);
-	return *mBlendStates[static_cast<U32>(id)];
+	return mBlendStates[static_cast<U32>(id)];
 }
 
-RasterizerState & StateManager::GetRasterizerState(RasterizerStateID id)
+std::shared_ptr<RasterizerState> StateManager::GetRasterizerState(RasterizerStateID id)
 {
 	Debug::CheckAssertion(id < RasterizerStateID::RasterizerStateID_Count);
-	return *mRasterizerStates[static_cast<U32>(id)];
+	return mRasterizerStates[static_cast<U32>(id)];
+}
+
+std::shared_ptr<SamplerState> StateManager::GetSamplerState(SamplerStateID id)
+{
+	Debug::CheckAssertion(id < SamplerStateID::SamplerStateID_Count);
+	return mSamplerStates[static_cast<U32>(id)];
 }
 
 void StateManager::SetupDepthStencilStates()
@@ -134,6 +146,33 @@ void StateManager::SetupRasterizerStates()
 
 		const auto result = mDevice.CreateRasterizerState(desc, *mRasterizerStates[RasterizerStateID::RasterizerStateID_Front]);
 		Debug::ThrowIfFailed(result, "Failed to create opaque blendState", result);
+	}
+}
+
+void StateManager::SetupSamplerStates()
+{
+	{
+		const auto result = CreateDefaultSamplerState(mDevice, *mSamplerStates[SamplerStateID_PointClampAlways],
+			FILTER_MIN_MAG_MIP_POINT, TEXTURE_ADDRESS_CLAMP, COMPARISON_ALWAYS);
+		Debug::ThrowIfFailed(result, "Failed to create pointClampAlways samplerState", result);
+	}
+
+	{
+		const auto result = CreateDefaultSamplerState(mDevice, *mSamplerStates[SamplerStateID_PointClampGreater],
+			FILTER_MIN_MAG_MIP_POINT, TEXTURE_ADDRESS_CLAMP, COMPARISON_GREATER_EQUAL);
+		Debug::ThrowIfFailed(result, "Failed to create pointClampAlways samplerState", result);
+	}
+
+	{
+		const auto result = CreateDefaultSamplerState(mDevice, *mSamplerStates[SamplerStateID_LinearClampGreater],
+			FILTER_MIN_MAG_LINEAR_MIP_POINT, TEXTURE_ADDRESS_CLAMP, COMPARISON_GREATER_EQUAL);
+		Debug::ThrowIfFailed(result, "Failed to create pointClampAlways samplerState", result);
+	}
+
+	{
+		const auto result = CreateDefaultSamplerState(mDevice, *mSamplerStates[SamplerStateID_LinearWrapGreater],
+			FILTER_MIN_MAG_LINEAR_MIP_POINT, TEXTURE_ADDRESS_WRAP, COMPARISON_GREATER_EQUAL);
+		Debug::ThrowIfFailed(result, "Failed to create pointClampAlways samplerState", result);
 	}
 }
 

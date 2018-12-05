@@ -10,12 +10,24 @@
 namespace Cjing3D
 {
 
-struct BindingConstantBuffer
+template <typename T>
+class BindingGraphicsResource
 {
-	void* const* buffer;
+public:
+	std::shared_ptr<T> data;
 	U32 slot;
-	BufferScope bufferScope;
+	SHADERSTAGES stage;
 };
+
+using BindingConstantBuffer = BindingGraphicsResource<ConstantBuffer>;
+using BindingSamplerState = BindingGraphicsResource<SamplerState>;
+
+//struct BindingConstantBuffer
+//{
+//	void* const* buffer;
+//	U32 slot;
+//	BufferScope bufferScope;
+//};
 
 class GraphicsDevice;
 
@@ -35,11 +47,11 @@ public:
 
 	void SetTexture();
 
-	void SetSample();
-
 	void SetRenderTarget();
 
-	void SetConstantBuffer(ConstantBuffer& buffer, U32 slot, BufferScope bufferScope);
+	void SetSampler(std::shared_ptr<SamplerState> sampler, U32 slot, SHADERSTAGES stage);
+
+	void SetConstantBuffer(std::shared_ptr<ConstantBuffer> buffer, U32 slot, SHADERSTAGES stage);
 
 	void SetCullMode(CullMode cullMode);
 	void SetFillMode(FillMode fillMode);
@@ -50,6 +62,7 @@ private:
 	GraphicsDevice& mDevice;
 
 	std::vector<BindingConstantBuffer> mConstantBuffers;
+	bool mConstantBufferDirty;
 
 	CullMode mCullMode;
 	bool mCullModeDirty;
@@ -61,5 +74,10 @@ private:
 	bool mPrimitiveTopologyDirty;
 
 	ViewPort mViewport;
+	bool mViewportDirty;
+
+	std::vector<BindingSamplerState> mSamplerState;
+	bool mSamplerStateDirty;
 };
+
 }
