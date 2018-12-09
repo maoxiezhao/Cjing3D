@@ -6,6 +6,7 @@
 #include "renderer\RHI\rhiStructure.h"
 #include "renderer\RHI\rhiShader.h"
 #include "renderer\RHI\rhiBuffer.h"
+#include "renderer\RHI\rhiTexture.h"
 
 namespace Cjing3D
 {
@@ -33,6 +34,14 @@ namespace Cjing3D
 		virtual void UpdateBuffer(ConstantBuffer& buffer, const void* data, U32 dataSize) = 0;
 
 		virtual HRESULT CreateSamplerState(const SamplerDesc* desc, SamplerState& state) = 0;
+
+		virtual HRESULT CreateTexture2D(const TextureDesc* desc, const SubresourceData* data, RhiTexture2D& texture2D) = 0;
+
+		virtual HRESULT CreateRenderTargetView(RhiTexture2D& texture) = 0;
+		virtual HRESULT CreateShaderResourceView(RhiTexture2D& texture) = 0;
+		virtual HRESULT CreateDepthStencilView(RhiTexture2D& texture) = 0;
+
+		virtual void DestoryGPUResource(GPUResource& resource) = 0;
 
 		FORMAT GetBackBufferFormat()const {
 			return mBackBufferFormat;

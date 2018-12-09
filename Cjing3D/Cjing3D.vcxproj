@@ -169,6 +169,7 @@
     <ClInclude Include="renderer\RHI\rhiPipeline.h" />
     <ClInclude Include="renderer\RHI\rhiResource.h" />
     <ClInclude Include="renderer\RHI\rhiShader.h" />
+    <ClInclude Include="renderer\RHI\rhiTexture.h" />
     <ClInclude Include="renderer\shaderLib.h" />
     <ClInclude Include="renderer\RHI\device.h" />
     <ClInclude Include="renderer\RHI\deviceD3D11.h" />
@@ -185,6 +186,8 @@
     <ClInclude Include="utils\geometry.h" />
     <ClInclude Include="utils\intersectable.h" />
     <ClInclude Include="utils\math.h" />
+    <ClInclude Include="utils\stb_image.h" />
+    <ClInclude Include="utils\stb_truetype.h" />
     <ClInclude Include="utils\threadSafeBuffer.h" />
     <ClInclude Include="world\actor.h" />
     <ClInclude Include="world\component\camera.h" />
@@ -218,6 +221,7 @@
     <ClCompile Include="renderer\RHI\rhiBuffer.cpp" />
     <ClCompile Include="renderer\RHI\rhiFactory.cpp" />
     <ClCompile Include="renderer\RHI\rhiPipeline.cpp" />
+    <ClCompile Include="renderer\RHI\rhiTexture.cpp" />
     <ClCompile Include="renderer\shaderLib.cpp" />
     <ClCompile Include="renderer\RHI\device.cpp" />
     <ClCompile Include="renderer\RHI\deviceD3D11.cpp" />

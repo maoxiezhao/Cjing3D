@@ -424,6 +424,34 @@ namespace {
 		}
 		return D3D11_TEXTURE_ADDRESS_WRAP;
 	}
+
+	inline D3D11_TEXTURE2D_DESC _ConvertTexture2DDesc(const TextureDesc* desc)
+	{
+		D3D11_TEXTURE2D_DESC texture2DDesc = {};
+		texture2DDesc.Width = desc->mWidth;
+		texture2DDesc.Height = desc->mHeight;
+		texture2DDesc.MipLevels = desc->mMipLevels;
+		texture2DDesc.ArraySize = desc->mArraySize;
+		texture2DDesc.Format = _ConvertFormat(desc->mFormat);
+		texture2DDesc.SampleDesc.Count = desc->mSampleDesc.mCount;
+		texture2DDesc.SampleDesc.Quality = desc->mSampleDesc.mQuality;
+		texture2DDesc.Usage = _ConvertUsage(desc->mUsage);
+		texture2DDesc.BindFlags = _ParseBindFlags(desc->mBindFlags);
+		texture2DDesc.CPUAccessFlags = _ParseCPUAccessFlags(desc->mCPUAccessFlags);
+		texture2DDesc.MiscFlags = _ParseResourceMiscFlags(desc->mMiscFlags);
+
+		return texture2DDesc;
+	}
+
+	inline D3D11_SUBRESOURCE_DATA _ConvertSubresourceData(const SubresourceData& pInitialData)
+	{
+		D3D11_SUBRESOURCE_DATA data;
+		data.pSysMem = pInitialData.mSysMem;
+		data.SysMemPitch = pInitialData.mSysMemPitch;
+		data.SysMemSlicePitch = pInitialData.mSysMemSlicePitch;
+
+		return data;
+	}
 }
 
 GraphicsDeviceD3D11::GraphicsDeviceD3D11(HWND window, bool fullScreen, bool debugLayer):
@@ -720,6 +748,145 @@ HRESULT GraphicsDeviceD3D11::CreateSamplerState(const SamplerDesc * desc, Sample
 
 	auto& statePtr = state.GetStatePtr();
 	return mDevice->CreateSamplerState(&samplerDesc, statePtr.ReleaseAndGetAddressOf());
+}
+
+// 创建2D纹理
+HRESULT GraphicsDeviceD3D11::CreateTexture2D(const TextureDesc * desc, const SubresourceData * data, RhiTexture2D & texture2D)
+{
+	D3D11_TEXTURE2D_DESC tex2D_desc = _ConvertTexture2DDesc(desc);
+
+	// texture initial data
+	D3D11_SUBRESOURCE_DATA* subresource_data = nullptr;
+	if (data != nullptr)
+	{
+		int count = std::max(1, (int)desc->mMipLevels);
+		subresource_data = new D3D11_SUBRESOURCE_DATA[count];
+		for (int i = 0; i < count; i++)	{
+			subresource_data[i] = _ConvertSubresourceData(data[i]);
+		}
+	}
+
+	auto texture2DPtr = texture2D.GetGPUResource();
+	const auto result = mDevice->CreateTexture2D(&tex2D_desc, subresource_data, (ID3D11Texture2D**)&texture2DPtr);
+	if (FAILED(result)) {
+		return result;
+	}
+
+	// create graphics resource
+	CreateRenderTargetView(texture2D);
+	CreateShaderResourceView(texture2D);
+	CreateDepthStencilView(texture2D);
+
+	SAFE_DELETE_ARRAY(data);
+
+	return result;
+}
+
+HRESULT GraphicsDeviceD3D11::CreateRenderTargetView(RhiTexture2D & texture)
+{
+	HRESULT result = E_FAIL;
+	if (texture.GetRenderTargetViewPtr() != nullptr) {
+		return result;
+	}
+
+	const auto& desc = texture.GetDesc();
+	if (desc.mBindFlags & BIND_RENDER_TARGET)
+	{
+		U32 arraySize = desc.mArraySize;
+
+		D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc = {};
+		renderTargetViewDesc.Format = _ConvertFormat(desc.mFormat);
+		renderTargetViewDesc.Texture2DArray.MipSlice = 0;
+		renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+
+		// 立方体贴图
+		if (desc.mMiscFlags & RESOURCE_MISC_TEXTURECUBE)
+		{
+		}
+		else
+		{
+			// 目前不处理texture2DArray,且不处理multisampled
+			if (arraySize > 0 && arraySize <= 1)
+			{
+				auto texture2DPtr = texture.GetGPUResource();
+				auto rtvPtr = texture.GetRenderTargetViewPtr();
+				result = mDevice->CreateRenderTargetView((ID3D11Resource*)&texture2DPtr, &renderTargetViewDesc, (ID3D11RenderTargetView**)&rtvPtr);
+			}
+		}
+	}
+	return result;
+}
+
+HRESULT GraphicsDeviceD3D11::CreateShaderResourceView(RhiTexture2D & texture)
+{
+	HRESULT result = E_FAIL;
+	if (texture.GetShaderResourceView() != CPU_NULL_HANDLE)
+	{
+		return result;
+	}
+
+	const auto& desc = texture.GetDesc();
+	if (desc.mBindFlags & BIND_SHADER_RESOURCE)
+	{
+		U32 arraySize = desc.mArraySize;
+
+		D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
+		shaderResourceViewDesc.Format = _ConvertFormat(desc.mFormat);
+
+		// 目前不处理texture2DArray
+		if (arraySize > 0 && arraySize <= 1)
+		{
+			shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+			shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+			shaderResourceViewDesc.Texture2D.MipLevels = 1;
+
+			auto srv = texture.GetShaderResourceView();
+			auto texture2DPtr = texture.GetGPUResource();
+			result = mDevice->CreateShaderResourceView((ID3D11Resource*)&texture2DPtr, &shaderResourceViewDesc, (ID3D11ShaderResourceView**)&srv);
+		}
+	}
+
+	return result;
+}
+
+HRESULT GraphicsDeviceD3D11::CreateDepthStencilView(RhiTexture2D & texture)
+{
+	HRESULT result = E_FAIL;
+
+	const auto& desc = texture.GetDesc();
+	if (desc.mBindFlags & BIND_DEPTH_STENCIL)
+	{
+		U32 arraySize = desc.mArraySize;
+
+		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = {};
+		depthStencilViewDesc.Format = _ConvertFormat(desc.mFormat);
+
+		// 目前不处理texture2DArray
+		if (arraySize > 0 && arraySize <= 1)
+		{
+			depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+			depthStencilViewDesc.Texture2D.MipSlice = 0;
+
+			auto dsv = texture.GetDepthStencilViewPtr();
+			auto texture2DPtr = texture.GetGPUResource();
+			result = mDevice->CreateDepthStencilView((ID3D11Resource*)&texture2DPtr, &depthStencilViewDesc, (ID3D11DepthStencilView**)&dsv);
+		}
+	}
+
+	return result;
+}
+
+void GraphicsDeviceD3D11::DestoryGPUResource(GPUResource & resource)
+{
+	if (resource.GetGPUResource() != CPU_NULL_HANDLE)
+	{
+		((ID3D11Resource*)resource.GetGPUResource())->Release();
+	}
+
+	if (resource.GetShaderResourceView() != CPU_NULL_HANDLE)
+	{
+		((ID3D11ShaderResourceView*)resource.GetShaderResourceView())->Release();
+	}
 }
 
 void GraphicsDeviceD3D11::SetViewport(ViewPort viewport)

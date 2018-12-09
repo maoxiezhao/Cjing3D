@@ -33,6 +33,14 @@ public:
 
 	virtual HRESULT CreateSamplerState(const SamplerDesc* desc, SamplerState& state);
 
+	virtual HRESULT CreateTexture2D(const TextureDesc* desc, const SubresourceData* data, RhiTexture2D& texture2D);
+
+	virtual HRESULT CreateRenderTargetView(RhiTexture2D& texture);
+	virtual HRESULT CreateShaderResourceView(RhiTexture2D& texture);
+	virtual HRESULT CreateDepthStencilView(RhiTexture2D& texture);
+
+	virtual void DestoryGPUResource(GPUResource& resource);
+
 	ID3D11DeviceContext& GetDeviceContext(GraphicsThread type) {
 		return *mDeviceContext[static_cast<U32>(type)].Get();
 	}

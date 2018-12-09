@@ -173,4 +173,56 @@ namespace Cjing3D
 			mMaxLOD(FLT_MAX)
 		{}
 	};
+
+	struct SampleDesc
+	{
+		UINT mCount;
+		UINT mQuality;
+
+		SampleDesc() :
+			mCount(1),
+			mQuality(0)
+		{}
+	};
+
+	struct TextureDesc
+	{
+		U32 mWidth;
+		U32 mHeight;
+		U32 mDepth;
+		U32 mArraySize;
+		U32 mMipLevels;
+		FORMAT mFormat;
+		SampleDesc mSampleDesc;
+		USAGE mUsage;
+		U32 mBindFlags;
+		U32 mCPUAccessFlags;
+		U32 mMiscFlags;
+
+		TextureDesc() :
+			mWidth(0),
+			mHeight(0),
+			mDepth(0),
+			mArraySize(1),
+			mMipLevels(1),
+			mFormat(FORMAT_UNKNOWN),
+			mUsage(USAGE_DEFAULT),
+			mBindFlags(0),
+			mCPUAccessFlags(0),
+			mMiscFlags(0)
+		{}
+	};
+
+	struct SubresourceData
+	{
+		const void *mSysMem;
+		UINT mSysMemPitch;
+		UINT mSysMemSlicePitch;
+
+		SubresourceData() :
+			mSysMem(nullptr),
+			mSysMemPitch(0),
+			mSysMemSlicePitch(0)
+		{}
+	};
 }

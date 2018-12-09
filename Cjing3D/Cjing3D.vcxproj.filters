@@ -161,6 +161,9 @@
     <ClCompile Include="utils\intersectable.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="renderer\RHI\rhiTexture.cpp">
+      <Filter>renderer\rhi</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -333,6 +336,15 @@
       <Filter>world\component</Filter>
     </ClInclude>
     <ClInclude Include="utils\intersectable.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\RHI\rhiTexture.h">
+      <Filter>renderer\rhi</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\stb_image.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\stb_truetype.h">
       <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
