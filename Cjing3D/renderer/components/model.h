@@ -13,7 +13,7 @@ namespace Cjing3D
 class ResourceManager;
 
 using MeshCollection = std::map<std::string, MeshPtr>;
-using materialCollection = std::map<std::string, MaterialPtr>;
+using MaterialCollection = std::map<StringID, MaterialPtr>;
 
 class Model : public Resource
 {
@@ -24,14 +24,15 @@ public:
 	void LoadFromFile(const std::string filePath, ResourceManager& resourceManager);
 
 	void AddMaterial(const std::string& name, MaterialPtr material);
-	void AddMesh(const std::string& name, MeshPtr mesh);
+	void SetMesh(MeshPtr mesh);
 
 private:
 	void LoadFromEngineFormat(const std::string& filePath, ResourceManager& resourceManager);
 	void LoadFromExternalFormat(const std::string& filePath, ResourceManager& resourceManager);
 	
-	MeshCollection mMeshCollection;
-	materialCollection mMaterialCollection;
+private:
+	MeshPtr mMesh;		
+	MaterialCollection mMaterialCollection;
 	
 };
 

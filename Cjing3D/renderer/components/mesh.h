@@ -7,6 +7,13 @@
 namespace Cjing3D
 {
 
+struct MeshSubset
+{
+	StringID mMaterialID;
+	U32 mIndexOffset = 0;
+	U32 mIndexCount = 0;
+}
+
 class Mesh
 {
 public:
@@ -43,7 +50,9 @@ private:
 	std::vector<U32> mIndices;
 
 	IndexFormat mIndexFormat;
-	std::string mName;
+	std::string mName;	
+
+	std::vector<MeshSubset> mMeshSubsets;
 };
 
 using MeshPtr = std::shared_ptr<Mesh>;

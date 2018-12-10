@@ -5,7 +5,8 @@
 namespace Cjing3D
 {
 	Model::Model():
-		Resource(Resource_Model)
+		Resource(Resource_Model),
+		mMesh(nullptr)
 	{
 	}
 
@@ -42,11 +43,9 @@ namespace Cjing3D
 		}
 	}
 
-	void Model::AddMesh(const std::string & name, MeshPtr mesh)
+	void Model::SetMesh(MeshPtr mesh)
 	{
-		if (mMeshCollection.find(name) != mMeshCollection.end()) {
-			mMeshCollection.insert(std::make_pair(name, mesh));
-		}
+		mMesh = mesh;
 	}
 
 	void Model::LoadFromEngineFormat(const std::string & filePath, ResourceManager& resourceManager)
