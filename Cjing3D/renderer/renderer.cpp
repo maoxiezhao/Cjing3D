@@ -60,11 +60,15 @@ void Renderer::Initialize()
 
 	InitializePasses();
 
+	// initialize mip generator
+	mDeferredMIPGenerator = std::make_unique<DeferredMIPGenerator>(*mGraphicsDevice);
+
 	mIsInitialized = true;
 }
 
 void Renderer::Update()
 {
+	UpdateRenderData();
 }
 
 void Renderer::Uninitialize()
@@ -125,6 +129,11 @@ Pipeline & Renderer::GetPipeline()
 	return *mPipeline;
 }
 
+DeferredMIPGenerator & Renderer::GetDeferredMIPGenerator()
+{
+	return *mDeferredMIPGenerator;
+}
+
 void Renderer::InitializePasses()
 {
 	mForwardPass = std::make_unique<ForwardPass>(mGameContext);
@@ -153,6 +162,15 @@ void Renderer::AccquireActors(std::vector<ActorPtr> actors)
 	}
 }
 
+// 更新渲染数据
+void Renderer::UpdateRenderData()
+{
+	// 处理延时生成的mipmap
+	if (mDeferredMIPGenerator != nullptr) {
+		mDeferredMIPGenerator->UpdateMipGenerating();
+	}
+}
+
 // 以延迟渲染方式绘制不透明物体
 void Renderer::PassGBuffer()
 {
@@ -167,7 +185,7 @@ void Renderer::PassGBuffer()
 
 	mPipeline->SetPrimitiveTopology(PRIMITIVE_TOPOLOGY::TRIANGLELIST);
 	mPipeline->SetFillMode(FILL_SOLID);
-	mPipeline->SetVertexShader(gBufferShader);
+	//mPipeline->SetVertexShader(gBufferShader);
 
 	for (auto actor : mRenderingActors[RenderableType::RenderableType_Opaque])
 	{

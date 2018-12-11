@@ -164,6 +164,9 @@
     <ClCompile Include="renderer\RHI\rhiTexture.cpp">
       <Filter>renderer\rhi</Filter>
     </ClCompile>
+    <ClCompile Include="renderer\rendererUtils.cpp">
+      <Filter>renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -346,6 +349,15 @@
     </ClInclude>
     <ClInclude Include="utils\stb_truetype.h">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\resource\texture.h">
+      <Filter>renderer\resource</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\resource\renderTexture.h">
+      <Filter>renderer\resource</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\rendererUtils.h">
+      <Filter>renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

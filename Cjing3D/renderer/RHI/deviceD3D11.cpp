@@ -782,6 +782,24 @@ HRESULT GraphicsDeviceD3D11::CreateTexture2D(const TextureDesc * desc, const Sub
 	return result;
 }
 
+void GraphicsDeviceD3D11::BindRenderTarget(UINT numView, RhiTexture2D* const *texture2D, RhiTexture2D* depthStencilTexture)
+{
+	// get renderTargetView
+	ID3D11RenderTargetView* renderTargetViews[8] = {};
+	UINT curNum = std::min((int)numView, 8);
+	for (int i = 0; i < curNum; i++) {
+		renderTargetViews[i] = &texture2D[i]->GetRenderTargetView();
+	}
+
+	// get depthStencilView
+	ID3D11DepthStencilView* depthStencilView = nullptr;
+	if (depthStencilView != nullptr) {
+		depthStencilView = &depthStencilTexture->GetDepthStencilView();
+	}
+
+	GetDeviceContext(GraphicsThread_IMMEDIATE).OMSetRenderTargets(curNum, renderTargetViews, depthStencilView);
+}
+
 HRESULT GraphicsDeviceD3D11::CreateRenderTargetView(RhiTexture2D & texture)
 {
 	HRESULT result = E_FAIL;
@@ -874,6 +892,28 @@ HRESULT GraphicsDeviceD3D11::CreateDepthStencilView(RhiTexture2D & texture)
 	}
 
 	return result;
+}
+
+void GraphicsDeviceD3D11::BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot)
+{
+	ID3D11ShaderResourceView* srv = (ID3D11ShaderResourceView*)resource.GetShaderResourceView();
+	switch (stage)
+	{
+	case Cjing3D::SHADERSTAGES_VS:
+		GetDeviceContext(GraphicsThread_IMMEDIATE).VSSetShaderResources(slot, 1, &srv);
+		break;
+	case Cjing3D::SHADERSTAGES_GS:
+		GetDeviceContext(GraphicsThread_IMMEDIATE).GSSetShaderResources(slot, 1, &srv);
+		break;
+	case Cjing3D::SHADERSTAGES_PS:
+		GetDeviceContext(GraphicsThread_IMMEDIATE).PSSetShaderResources(slot, 1, &srv);
+		break;
+	case Cjing3D::SHADERSTAGES_CS:
+		GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetShaderResources(slot, 1, &srv);
+		break;
+	default:
+		break;
+	}
 }
 
 void GraphicsDeviceD3D11::DestoryGPUResource(GPUResource & resource)

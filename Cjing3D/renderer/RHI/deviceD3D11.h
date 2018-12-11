@@ -3,6 +3,8 @@
 #include "renderer\includeD3D11.h"
 #include "renderer\RHI\device.h"
 #include "renderer\RHI\swapChainD3D11.h"
+#include "renderer\RHI\rhiShader.h"
+#include "renderer\RHI\rhiTexture.h"
 
 namespace Cjing3D
 {
@@ -35,10 +37,13 @@ public:
 
 	virtual HRESULT CreateTexture2D(const TextureDesc* desc, const SubresourceData* data, RhiTexture2D& texture2D);
 
+	virtual void BindRenderTarget(UINT numView, RhiTexture2D* const *texture2D, RhiTexture2D* depthStencilTexture);
+
 	virtual HRESULT CreateRenderTargetView(RhiTexture2D& texture);
 	virtual HRESULT CreateShaderResourceView(RhiTexture2D& texture);
 	virtual HRESULT CreateDepthStencilView(RhiTexture2D& texture);
 
+	virtual void BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot);
 	virtual void DestoryGPUResource(GPUResource& resource);
 
 	ID3D11DeviceContext& GetDeviceContext(GraphicsThread type) {

@@ -37,10 +37,13 @@ namespace Cjing3D
 
 		virtual HRESULT CreateTexture2D(const TextureDesc* desc, const SubresourceData* data, RhiTexture2D& texture2D) = 0;
 
+		virtual void BindRenderTarget(UINT numView, RhiTexture2D* const *texture2D, RhiTexture2D* depthStencilTexture) = 0;
+
 		virtual HRESULT CreateRenderTargetView(RhiTexture2D& texture) = 0;
 		virtual HRESULT CreateShaderResourceView(RhiTexture2D& texture) = 0;
 		virtual HRESULT CreateDepthStencilView(RhiTexture2D& texture) = 0;
 
+		virtual void BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot) = 0;
 		virtual void DestoryGPUResource(GPUResource& resource) = 0;
 
 		FORMAT GetBackBufferFormat()const {

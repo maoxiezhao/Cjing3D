@@ -58,6 +58,8 @@ namespace Cjing3D
 		std::vector<VertexLayoutDesc> mDescs;
 	};
 
+	using InputLayoutPtr = std::shared_ptr<InputLayout>;
+
 	class SamplerState
 	{
 	public:

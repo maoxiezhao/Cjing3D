@@ -6,6 +6,7 @@
 #include "renderer\RHI\rhiResource.h"
 #include "renderer\RHI\rhiShader.h"
 #include "renderer\RHI\rhiBuffer.h"
+#include "renderer\RHI\rhiTexture.h"
 
 namespace Cjing3D
 {
@@ -21,6 +22,7 @@ public:
 
 using BindingConstantBuffer = BindingGraphicsResource<ConstantBuffer>;
 using BindingSamplerState = BindingGraphicsResource<SamplerState>;
+using BindingTexture = BindingGraphicsResource<RhiTexture2D>;
 
 //struct BindingConstantBuffer
 //{
@@ -42,12 +44,14 @@ public:
 
 	void SetViewport(ViewPort viewport);
 
-	void SetVertexShader(VertexShaderPtr shader);
+	void SetVertexShader(VertexShaderInfo shader);
 	void SetPixelShader(PixelShaderPtr shader);
 
-	void SetTexture();
+	void SetInputLayout(std::shared_ptr<InputLayout> layout);
 
-	void SetRenderTarget();
+	void SetTexture(RhiTexture2DPtr texture, U32 slot, SHADERSTAGES stage);
+
+	void SetRenderTargets(const std::vector<RhiTexture2DPtr>& textures, RhiTexture2D* depthStencilTexture = nullptr);
 
 	void SetSampler(std::shared_ptr<SamplerState> sampler, U32 slot, SHADERSTAGES stage);
 
@@ -76,8 +80,21 @@ private:
 	ViewPort mViewport;
 	bool mViewportDirty;
 
+	VertexShaderPtr mVertexShader;
+	bool mVertexShaderDirty = false;
+
+	InputLayoutPtr mInputLayout;
+	bool mInputLayoutDirty = false;
+
 	std::vector<BindingSamplerState> mSamplerState;
 	bool mSamplerStateDirty;
+
+	std::vector<BindingTexture> mTextures;
+	bool mTextureDirty = false;
+
+	std::vector<RhiTexture2DPtr> mRenderTargetViews;
+	RhiTexture2D* mDepthStencilTexture;
+	bool mRenderTargetViewDirty = false;
 };
 
 }

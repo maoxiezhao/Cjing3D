@@ -7,13 +7,6 @@
 namespace Cjing3D
 {
 
-struct MeshSubset
-{
-	StringID mMaterialID;
-	U32 mIndexOffset = 0;
-	U32 mIndexCount = 0;
-}
-
 class Mesh
 {
 public:
@@ -44,6 +37,19 @@ public:
 
 	std::vector<VertexPosNormalTex>& GetVertexPosNormalTex() { return mVertexPosNormalTex; }
 	std::vector<U32>& GetIndiecs() { return mIndices; }
+
+	/**************************************
+	*	\brief Mesh Subset
+	**************************************/
+	struct MeshSubset
+	{
+		StringID mMaterialID;
+		U32 mIndexOffset = 0;
+		U32 mIndexCount = 0;
+	};
+
+	void AddMeshSubset(MeshSubset subset);
+	const std::vector<MeshSubset>& GetMeshSubsets()const;
 
 private:
 	std::vector<VertexPosNormalTex> mVertexPosNormalTex;

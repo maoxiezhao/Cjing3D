@@ -46,8 +46,10 @@ private:
 private:
 	Renderer & mRenderer;
 
+	// TODO replacement
 	std::shared_ptr<VertexShader> mVertexShader[VertexShaderType_Count];
 	std::shared_ptr<InputLayout> mInputOuts[InputLayoutType_Count];
+
 	std::shared_ptr<PixelShader> mPixelShader[PixelShaderType_Count];
 
 };

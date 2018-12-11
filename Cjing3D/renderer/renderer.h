@@ -1,10 +1,11 @@
 #pragma once
 
 #include "renderer\renderableCommon.h"
-#include "core\subSystem.hpp"
-#include "world\actor.h"
 #include "renderer\RHI\rhiPipeline.h"
 #include "renderer\pass\forwardPass.h"
+#include "renderer\rendererUtils.h"
+#include "core\subSystem.hpp"
+#include "world\actor.h"
 
 #include <unordered_map>
 
@@ -38,12 +39,14 @@ public:
 	GraphicsDevice& GetDevice();
 	ResourceManager& GetResourceManager();
 	Pipeline& GetPipeline();
+	DeferredMIPGenerator& GetDeferredMIPGenerator();
 
 	/** Rendering setting */
 
 private:
 	void InitializePasses();
 	void AccquireActors(std::vector<ActorPtr> actors);
+	void UpdateRenderData();
 
 private:
 	bool mIsInitialized;
@@ -61,6 +64,8 @@ private:
 
 	/** rendering pass */
 	std::unique_ptr<ForwardPass> mForwardPass;
+
+	std::unique_ptr<DeferredMIPGenerator> mDeferredMIPGenerator;
 
 	// temp define //////////////////////////
 	float mNearPlane;

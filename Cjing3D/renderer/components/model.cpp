@@ -12,7 +12,6 @@ namespace Cjing3D
 
 	Model::~Model()
 	{
-		mMeshCollection.clear();
 		mMaterialCollection.clear();
 	}
 

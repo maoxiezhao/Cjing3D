@@ -13,11 +13,7 @@ namespace Cjing3D
 		mDevice.DestoryGPUResource(*this);
 	}
 
-	RhiTexture::RhiTexture(GraphicsDevice& device) : 
-		Resource(Resource_Texture),
-		GPUResource(device)
-	{}
-
+	RhiTexture::RhiTexture(GraphicsDevice& device) : GPUResource(device) {}
 	RhiTexture::~RhiTexture() = default;
 
 	RhiTexture2D::RhiTexture2D(GraphicsDevice& device) : RhiTexture(device) {};

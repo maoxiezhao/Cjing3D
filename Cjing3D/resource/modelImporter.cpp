@@ -171,7 +171,7 @@ void ModelImporter::LoadMesh(Model& model, const aiScene * aScene, aiMesh * aMes
 	MeshPtr meshPtr = std::make_shared<Mesh>(name.C_Str());
 	ExtractVerticeIndices(*aMesh, *meshPtr);
 
-	model.AddMesh(name.C_Str(), meshPtr);
+	model.SetMesh(meshPtr);
 }
 
 void ModelImporter::LoadAnimation(Model & model)

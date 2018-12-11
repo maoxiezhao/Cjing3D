@@ -82,6 +82,7 @@ void Engine::Initialize()
 
 void Engine::Tick()
 {
+	// begin frame
 	auto& profiler = Profiler::GetInstance();
 	profiler.BeginFrame();
 
@@ -90,18 +91,23 @@ void Engine::Tick()
 
 	auto& renderer = mSystemContext->GetSubSystem<Renderer>();
 
+	// tick
 	profiler.BeginBlock("Update");
 	FIRE_EVENT(EventType::EVENT_TICK);
+	renderer.Update();
 	profiler.EndBlock();
 
+	// render
 	profiler.BeginBlock("Render");
 	renderer.Render();
 	profiler.EndBlock();
 
+	// compose
 	profiler.BeginBlock("Compose");
 	renderer.Present();
 	profiler.EndBlock();
 
+	// end frame
 	profiler.EndFrame();
 }
 

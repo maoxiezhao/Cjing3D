@@ -25,7 +25,7 @@ namespace Cjing3D
 		GraphicsDevice& mDevice;
 	};
 
-	class RhiTexture : public Resource, public GPUResource
+	class RhiTexture : public GPUResource
 	{
 	public:
 		RhiTexture(GraphicsDevice& device);
@@ -61,4 +61,6 @@ namespace Cjing3D
 	private:
 		ComPtr<ID3D11DepthStencilView> mDSV;
 	};
+
+	using RhiTexture2DPtr = std::shared_ptr<RhiTexture2D>;
 }
