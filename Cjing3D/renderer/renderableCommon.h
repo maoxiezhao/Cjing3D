@@ -3,6 +3,7 @@
 #include "common\common.h"
 #include "helper\IDGenerator.h"
 #include "utils\geometry.h"
+#include "utils\intersectable.h"
 
 #include <wrl.h>
 #include <memory>

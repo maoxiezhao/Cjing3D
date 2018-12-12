@@ -243,6 +243,7 @@
     <ClCompile Include="world\world.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="renderer\RHI\rhiFactory.inl" />
     <None Include="resource\resourceManager.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

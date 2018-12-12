@@ -10,11 +10,11 @@ namespace Cjing3D
 	/**
 	*	\brief ConstantBuffer类
 	*/
-	class ConstantBuffer
+	class GPUBuffer
 	{
 	public:
-		ConstantBuffer(GraphicsDevice& device) :mDevice(device) {}
-		~ConstantBuffer() = default;
+		GPUBuffer(GraphicsDevice& device) :mDevice(device) {}
+		~GPUBuffer() = default;
 
 		// 刷新数据
 		void Create(U32 size);

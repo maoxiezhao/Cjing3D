@@ -470,6 +470,8 @@ GraphicsDeviceD3D11::GraphicsDeviceD3D11(HWND window, bool fullScreen, bool debu
 	GetClientRect(window, &rect);
 	mScreenSize[0] = rect.right - rect.left;
 	mScreenSize[1] = rect.bottom - rect.top;
+
+	ClearPrevStates();
 }
 
 void GraphicsDeviceD3D11::Initialize()
@@ -677,7 +679,7 @@ HRESULT GraphicsDeviceD3D11::CreateInputLayout(VertexLayoutDesc* desc, U32 numEl
 	return mDevice->CreateInputLayout(inputLayoutdescs, numElements, shaderBytecode, shaderLength, inputLayputResource.ReleaseAndGetAddressOf());
 }
 
-HRESULT GraphicsDeviceD3D11::CreateBuffer(const GPUBufferDesc * desc, ConstantBuffer & buffer)
+HRESULT GraphicsDeviceD3D11::CreateBuffer(const GPUBufferDesc * desc, GPUBuffer & buffer, const SubresourceData* initialData)
 {
 	D3D11_BUFFER_DESC bufferDesc = {};
 	bufferDesc.ByteWidth = desc->mByteWidth;
@@ -687,11 +689,18 @@ HRESULT GraphicsDeviceD3D11::CreateBuffer(const GPUBufferDesc * desc, ConstantBu
 	bufferDesc.MiscFlags = _ParseResourceMiscFlags(desc->mMiscFlags);
 	bufferDesc.StructureByteStride = desc->mStructureByteStride;
 
+	D3D11_SUBRESOURCE_DATA* subresource_data = nullptr;
+	if (initialData != nullptr)
+	{
+		subresource_data = new D3D11_SUBRESOURCE_DATA;
+		(*subresource_data) = _ConvertSubresourceData(*initialData);
+	}
+
 	auto& bufferPtr = buffer.GetBufferPtr();
-	return mDevice->CreateBuffer(&bufferDesc, nullptr, bufferPtr.ReleaseAndGetAddressOf());
+	return mDevice->CreateBuffer(&bufferDesc, subresource_data, bufferPtr.ReleaseAndGetAddressOf());
 }
 
-void GraphicsDeviceD3D11::UpdateBuffer(ConstantBuffer & buffer, const void * data, U32 dataSize)
+void GraphicsDeviceD3D11::UpdateBuffer(GPUBuffer & buffer, const void * data, U32 dataSize)
 {
 	const auto& desc = buffer.GetDesc();
 	Debug::CheckAssertion(desc.mUsage != USAGE_IMMUTABLE, "Cannot update IMMUTABLE Buffer");
@@ -929,9 +938,40 @@ void GraphicsDeviceD3D11::DestoryGPUResource(GPUResource & resource)
 	}
 }
 
+void GraphicsDeviceD3D11::BindShaderInfoState(ShaderInfoState* state)
+{
+	if (state != nullptr)
+	{
+		ID3D11VertexShader* vs = state->mVertexShader != nullptr ? state->mVertexShader->mResourceD3D11.Get() : nullptr;
+		if (vs != mPrevVertexShader)
+		{
+			GetDeviceContext(GraphicsThread_IMMEDIATE).VSSetShader(vs, nullptr, 0);
+		}
+
+		ID3D11PixelShader* ps = state->mPixelShader != nullptr ? state->mPixelShader->mResourceD3D11.Get() : nullptr;
+		if (ps != mPrevPixelShader)
+		{
+			GetDeviceContext(GraphicsThread_IMMEDIATE).PSSetShader(ps, nullptr, 0);
+		}
+
+		ID3D11InputLayout* il = state->mInputLayout != nullptr ? &state->mInputLayout->GetState() : nullptr;
+		if (il != mPrevInputLayout)
+		{
+			GetDeviceContext(GraphicsThread_IMMEDIATE).IASetInputLayout(il);
+		}
+	}	
+}
+
 void GraphicsDeviceD3D11::SetViewport(ViewPort viewport)
 {
 	mViewport = viewport;
+}
+
+void GraphicsDeviceD3D11::ClearPrevStates()
+{
+	mPrevVertexShader = nullptr;
+	mPrevPixelShader = nullptr;
+	mPrevInputLayout = nullptr;
 }
 
 void GraphicsDeviceD3D11::InitializeDevice()

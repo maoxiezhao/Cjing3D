@@ -7,8 +7,7 @@ namespace Cjing3D
 		mCullModeDirty(false),
 		mFillModeDirty(false),
 		mPrimitiveTopologyDirty(false),
-		mRenderTargetViewDirty(false),
-		mVertexShader(nullptr)
+		mRenderTargetViewDirty(false)
 	{
 	}
 
@@ -36,8 +35,8 @@ namespace Cjing3D
 
 		mViewportDirty = false;
 
-		mVertexShader = nullptr;
-		mVertexShaderDirty = false;
+		mShaderInfoState.Clear();
+		mShaderInfoStateDirty = false;
 
 		mSamplerState.clear();
 		mSamplerStateDirty = false;
@@ -58,10 +57,10 @@ namespace Cjing3D
 	void Pipeline::SetVertexShader(VertexShaderInfo shader)
 	{
 		auto& vertexShader = shader.mVertexShader;
-		if (vertexShader != mVertexShader) 
+		if (vertexShader != mShaderInfoState.mVertexShader)
 		{
-			mVertexShader = vertexShader;
-			mVertexShaderDirty = true;
+			mShaderInfoState.mVertexShader = vertexShader;
+			mShaderInfoStateDirty = true;
 		}
 
 		auto& layout = shader.mInputLayout;
@@ -75,10 +74,10 @@ namespace Cjing3D
 
 	void Pipeline::SetInputLayout(std::shared_ptr<InputLayout> layout)
 	{
-		if (layout != mInputLayout)
+		if (layout != mShaderInfoState.mInputLayout)
 		{
-			mInputLayout = layout;
-			mInputLayoutDirty = true;
+			mShaderInfoState.mInputLayout = layout;
+			mShaderInfoStateDirty = true;
 		}
 	}
 
@@ -130,7 +129,7 @@ namespace Cjing3D
 		}
 	}
 
-	void Pipeline::SetConstantBuffer(std::shared_ptr<ConstantBuffer> buffer, U32 slot, SHADERSTAGES stage)
+	void Pipeline::SetConstantBuffer(std::shared_ptr<GPUBuffer> buffer, U32 slot, SHADERSTAGES stage)
 	{
 		if (buffer != nullptr)
 		{

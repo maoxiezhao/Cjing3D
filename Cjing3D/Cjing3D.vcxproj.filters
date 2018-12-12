@@ -364,5 +364,8 @@
     <None Include="resource\resourceManager.inl">
       <Filter>resource</Filter>
     </None>
+    <None Include="renderer\RHI\rhiFactory.inl">
+      <Filter>renderer\rhi</Filter>
+    </None>
   </ItemGroup>
 </Project>

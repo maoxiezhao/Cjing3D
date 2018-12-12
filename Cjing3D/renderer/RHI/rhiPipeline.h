@@ -20,16 +20,9 @@ public:
 	SHADERSTAGES stage;
 };
 
-using BindingConstantBuffer = BindingGraphicsResource<ConstantBuffer>;
+using BindingConstantBuffer = BindingGraphicsResource<GPUBuffer>;
 using BindingSamplerState = BindingGraphicsResource<SamplerState>;
 using BindingTexture = BindingGraphicsResource<RhiTexture2D>;
-
-//struct BindingConstantBuffer
-//{
-//	void* const* buffer;
-//	U32 slot;
-//	BufferScope bufferScope;
-//};
 
 class GraphicsDevice;
 
@@ -55,7 +48,7 @@ public:
 
 	void SetSampler(std::shared_ptr<SamplerState> sampler, U32 slot, SHADERSTAGES stage);
 
-	void SetConstantBuffer(std::shared_ptr<ConstantBuffer> buffer, U32 slot, SHADERSTAGES stage);
+	void SetConstantBuffer(std::shared_ptr<GPUBuffer> buffer, U32 slot, SHADERSTAGES stage);
 
 	void SetCullMode(CullMode cullMode);
 	void SetFillMode(FillMode fillMode);
@@ -80,11 +73,8 @@ private:
 	ViewPort mViewport;
 	bool mViewportDirty;
 
-	VertexShaderPtr mVertexShader;
-	bool mVertexShaderDirty = false;
-
-	InputLayoutPtr mInputLayout;
-	bool mInputLayoutDirty = false;
+	ShaderInfoState mShaderInfoState;
+	bool mShaderInfoStateDirty;
 
 	std::vector<BindingSamplerState> mSamplerState;
 	bool mSamplerStateDirty;

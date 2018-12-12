@@ -30,8 +30,8 @@ namespace Cjing3D
 		virtual HRESULT CreateVertexShader(const void* bytecode, size_t length, VertexShader& vertexShader) = 0;
 		virtual HRESULT CreateInputLayout(VertexLayoutDesc* desc, U32 numElements, const void* shaderBytecode, size_t shaderLength, InputLayout& inputLayout) = 0;
 
-		virtual HRESULT CreateBuffer(const GPUBufferDesc* desc, ConstantBuffer& buffer) = 0;
-		virtual void UpdateBuffer(ConstantBuffer& buffer, const void* data, U32 dataSize) = 0;
+		virtual HRESULT CreateBuffer(const GPUBufferDesc* desc, GPUBuffer& buffer, const SubresourceData* initialData) = 0;
+		virtual void UpdateBuffer(GPUBuffer& buffer, const void* data, U32 dataSize) = 0;
 
 		virtual HRESULT CreateSamplerState(const SamplerDesc* desc, SamplerState& state) = 0;
 
@@ -45,6 +45,8 @@ namespace Cjing3D
 
 		virtual void BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot) = 0;
 		virtual void DestoryGPUResource(GPUResource& resource) = 0;
+
+		virtual void BindShaderInfoState(ShaderInfoState* state) = 0;
 
 		FORMAT GetBackBufferFormat()const {
 			return mBackBufferFormat;

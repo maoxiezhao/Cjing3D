@@ -2,6 +2,7 @@
 
 #include "renderer\renderableCommon.h"
 #include "renderer\RHI\rhiDefinition.h"
+#include "renderer\RHI\rhiBuffer.h"
 #include "resource\resource.h"
 
 namespace Cjing3D
@@ -55,10 +56,14 @@ private:
 	std::vector<VertexPosNormalTex> mVertexPosNormalTex;
 	std::vector<U32> mIndices;
 
+	std::unique_ptr<GPUBuffer> mVertexBuffer;
+	std::unique_ptr<GPUBuffer> mIndexBuffer;
+
 	IndexFormat mIndexFormat;
 	std::string mName;	
-
 	std::vector<MeshSubset> mMeshSubsets;
+
+	AABB mAABB;
 };
 
 using MeshPtr = std::shared_ptr<Mesh>;

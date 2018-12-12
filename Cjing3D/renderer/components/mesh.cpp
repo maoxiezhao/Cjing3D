@@ -12,4 +12,14 @@ Mesh::~Mesh()
 {
 }
 
+void Mesh::AddMeshSubset(MeshSubset subset)
+{
+	mMeshSubsets.push_back(subset);
+}
+
+const std::vector<Mesh::MeshSubset>& Mesh::GetMeshSubsets() const
+{
+	return mMeshSubsets;
+}
+
 }

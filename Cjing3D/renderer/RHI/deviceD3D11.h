@@ -30,8 +30,8 @@ public:
 	virtual HRESULT CreateVertexShader(const void* bytecode, size_t length, VertexShader& vertexShader);
 	virtual HRESULT CreateInputLayout(VertexLayoutDesc* desc, U32 numElements, const void* shaderBytecode, size_t shaderLength, InputLayout& inputLayout);
 
-	virtual HRESULT CreateBuffer(const GPUBufferDesc* desc, ConstantBuffer& buffer);
-	virtual void UpdateBuffer(ConstantBuffer& buffer, const void* data, U32 dataSize);
+	virtual HRESULT CreateBuffer(const GPUBufferDesc* desc, GPUBuffer& buffer, const SubresourceData* initialData);
+	virtual void UpdateBuffer(GPUBuffer& buffer, const void* data, U32 dataSize);
 
 	virtual HRESULT CreateSamplerState(const SamplerDesc* desc, SamplerState& state);
 
@@ -45,6 +45,9 @@ public:
 
 	virtual void BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot);
 	virtual void DestoryGPUResource(GPUResource& resource);
+
+	virtual void BindShaderInfoState(ShaderInfoState* state);
+	void ClearPrevStates();
 
 	ID3D11DeviceContext& GetDeviceContext(GraphicsThread type) {
 		return *mDeviceContext[static_cast<U32>(type)].Get();
@@ -64,6 +67,12 @@ private:
 	ID3DUserDefinedAnnotation*	mUserDefinedAnnotations[GraphicsThread_COUNT];
 	D3D_FEATURE_LEVEL mFeatureLevel;
 	std::unique_ptr< SwapChainD3D11> mSwapChain;
+
+	// prev state
+	ID3D11VertexShader* mPrevVertexShader;
+	ID3D11PixelShader* mPrevPixelShader;
+	ID3D11InputLayout* mPrevInputLayout;
+
 };
 
 }

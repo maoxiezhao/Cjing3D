@@ -48,4 +48,20 @@ namespace Cjing3D
 	struct is_shader<VertexShader> : public std::true_type {};
 	template <>
 	struct is_shader<PixelShader> : public std::true_type {};
+
+	// shader info state
+	class ShaderInfoState
+	{
+	public:
+		VertexShaderPtr mVertexShader = nullptr;
+		InputLayoutPtr mInputLayout = nullptr;
+		PixelShaderPtr mPixelShader = nullptr;
+
+		void Clear() 
+		{
+			mVertexShader = nullptr;
+			mInputLayout = nullptr;
+			mPixelShader = nullptr;
+		}
+	};
 }
