@@ -66,7 +66,7 @@ namespace Cjing3D
 			// 返回法线法向最大值
 			// if n.x > 0 => control.x = 0xFFFFFFF otherwise control.x = 0x0
 			const auto control = XMVectorGreaterOrEqual(n, DirectX::XMVectorZero());
-			// ret.x = (control.x = 0xffffff)? mMin.x : mMax.x
+			// ret.x = (control.x = 0xffffff)? mMax.x : mMin.x
 			return XMVectorSelect(mMin, mMax, control);
 		}
 	};
@@ -77,6 +77,9 @@ namespace Cjing3D
 	public:
 		Frustum();
 		~Frustum();
+
+		void SetupFrustum(XMMATRIX transform);
+		bool Overlaps(const AABB& aabb)const;
 
 	private:
 		union {

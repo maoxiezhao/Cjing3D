@@ -22,4 +22,9 @@ namespace Cjing3D
 	void Renderable::Update()
 	{
 	}
+
+	AABB Renderable::GetBoundingBox()
+	{
+		return AABB();
+	}
 }

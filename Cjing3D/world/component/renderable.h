@@ -15,6 +15,8 @@ public:
 	virtual void Uninitialize();
 	virtual void Update();
 
+	AABB GetBoundingBox();
+
 private:
 	//std::shared_ptr<Model> mModel;
 

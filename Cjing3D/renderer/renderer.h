@@ -48,6 +48,16 @@ private:
 	void AccquireActors(std::vector<ActorPtr> actors);
 	void UpdateRenderData();
 
+	// 当前帧的裁剪后的数据
+	struct FrameCullings
+	{
+		ActorPtrArray mRenderables;
+		Frustum mFrustum;
+
+		void Clear();
+	};
+	std::unordered_map<CameraPtr, FrameCullings> mFrameCullings;
+	
 private:
 	bool mIsInitialized;
 	bool mIsRendering;
@@ -59,8 +69,6 @@ private:
 	std::unique_ptr<ShaderLib> mShaderLib;
 	std::unique_ptr<StateManager> mStateManager;
 	std::unique_ptr<Pipeline> mPipeline;
-
-	std::unordered_map<RenderableType, ActorPtrArray> mRenderingActors;
 
 	/** rendering pass */
 	std::unique_ptr<ForwardPass> mForwardPass;

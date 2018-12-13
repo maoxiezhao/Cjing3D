@@ -27,6 +27,7 @@ namespace Cjing3D {
 
 		F32 GetNearPlane() { return mNearPlane; }
 		F32 GetFarPlane() { return mFarPlane; }
+		Frustum GetFrustum()const { return mFrustum; }
 
 	private:
 		void ComputeViewMatrix();
@@ -45,4 +46,5 @@ namespace Cjing3D {
 		XMFLOAT4X4 mView, mProjection, mViewProjection;
 	};
 
+	using CameraPtr = std::shared_ptr<Camera>;
 }

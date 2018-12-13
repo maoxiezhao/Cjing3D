@@ -84,7 +84,7 @@ void Renderer::Uninitialize()
 
 void Renderer::Render()
 {
-	if (mCamera == nullptr || mRenderingActors.empty()) {
+	if (mCamera == nullptr) {
 		mIsRendering = false;
 		return;
 	}
@@ -144,21 +144,33 @@ void Renderer::InitializePasses()
 */
 void Renderer::AccquireActors(std::vector<ActorPtr> actors)
 {
-	mRenderingActors.clear();
+	for (auto& kvp : mFrameCullings) {
+		auto& frameCulling = kvp.second;
+		frameCulling.Clear();
 
-	for (const auto& actor : actors)
-	{
-		if (actor == nullptr) {
+		CameraPtr camera = kvp.first;
+		if (camera == nullptr) {
 			continue;
 		}
+		auto currentFrustum = camera->GetFrustum();
+		frameCulling.mFrustum = currentFrustum;
 
-		auto renderable = actor->GetComponents<Renderable>();
-	}
+		for (const auto& actor : actors)
+		{
+			if (actor == nullptr) {
+				continue;
+			}
 
-	// sort renderging actors
-	if (mRenderingActors.size() > 0)
-	{
-
+			// Cull renderable
+			auto renderables = actor->GetComponents<Renderable>();
+			for (auto& renderable : renderables)
+			{
+				if (renderable != nullptr && currentFrustum.Overlaps(renderable->GetBoundingBox()) == true)
+				{
+					frameCulling.mRenderables.push_back(actor);
+				}
+			}
+		}
 	}
 }
 
@@ -174,9 +186,9 @@ void Renderer::UpdateRenderData()
 // 以延迟渲染方式绘制不透明物体
 void Renderer::PassGBuffer()
 {
-	if (mRenderingActors[RenderableType::RenderableType_Opaque].empty()) {
-		return;
-	}
+	//if (mRenderingActors[RenderableType::RenderableType_Opaque].empty()) {
+	//	return;
+	//}
 
 	auto& profiler = Profiler::GetInstance();
 	profiler.BeginBlock("GBuffer_Pass");
@@ -187,12 +199,17 @@ void Renderer::PassGBuffer()
 	mPipeline->SetFillMode(FILL_SOLID);
 	//mPipeline->SetVertexShader(gBufferShader);
 
-	for (auto actor : mRenderingActors[RenderableType::RenderableType_Opaque])
-	{
+	//for (auto actor : mRenderingActors[RenderableType::RenderableType_Opaque])
+	//{
 
-	}
+	//}
 
 	profiler.EndBlock();
+}
+
+void Renderer::FrameCullings::Clear()
+{
+	mRenderables.clear();
 }
 
 }
