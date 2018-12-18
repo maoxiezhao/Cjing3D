@@ -4,6 +4,7 @@ namespace Cjing3D
 {
 
 Mesh::Mesh(const std::string& name):
+	Resource(Resource_Mesh),
 	mName(name)
 {
 }

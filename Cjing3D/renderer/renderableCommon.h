@@ -19,3 +19,9 @@ enum RenderingDeviceType
 	RenderingDeviceType_D3D12,
 	RenderingDeviceType_Vulkan
 };
+
+enum RenderingType
+{
+	RenderingType_Forward,
+	RenderingType_Deferred
+};

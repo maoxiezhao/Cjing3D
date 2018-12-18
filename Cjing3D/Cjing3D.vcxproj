@@ -240,6 +240,7 @@
     <ClCompile Include="world\component\camera.cpp" />
     <ClCompile Include="world\component\component.cpp" />
     <ClCompile Include="world\component\renderable.cpp" />
+    <ClCompile Include="world\component\transform.cpp" />
     <ClCompile Include="world\world.cpp" />
   </ItemGroup>
   <ItemGroup>

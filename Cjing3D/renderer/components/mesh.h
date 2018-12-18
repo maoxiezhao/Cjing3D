@@ -8,7 +8,7 @@
 namespace Cjing3D
 {
 
-class Mesh
+class Mesh : public Resource
 {
 public:
 	Mesh(const std::string& name = "");

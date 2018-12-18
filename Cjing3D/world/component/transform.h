@@ -8,12 +8,14 @@ namespace Cjing3D {
 	class Transform : public Component
 	{
 	public:
-		Transform(SystemContext& gameContext);
+		Transform(SystemContext& context);
 		virtual ~Transform();
 
 		virtual void Initialize();
 		virtual void Uninitialize();
 		virtual void Update();
+
+		XMMATRIX GetMatrix();
 	};
 
 }

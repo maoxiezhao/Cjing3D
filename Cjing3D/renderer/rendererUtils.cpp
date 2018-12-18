@@ -1,5 +1,6 @@
 #include "rendererUtils.h"
 #include "renderer\RHI\device.h"
+#include "world\actor.h"
 
 namespace Cjing3D
 {
@@ -50,6 +51,16 @@ namespace Cjing3D
 
 
 		}
+	}
+
+	void RenderBatch::Init(Renderable & renderable, Actor* actor)
+	{
+		mActor = actor;
+	}
+
+	RenderBatch::RenderBatch():
+		mActor(nullptr)
+	{
 	}
 
 }

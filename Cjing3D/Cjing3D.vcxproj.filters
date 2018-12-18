@@ -167,6 +167,9 @@
     <ClCompile Include="renderer\rendererUtils.cpp">
       <Filter>renderer</Filter>
     </ClCompile>
+    <ClCompile Include="world\component\transform.cpp">
+      <Filter>world\component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />

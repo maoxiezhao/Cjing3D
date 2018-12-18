@@ -7,6 +7,7 @@
 #include "helper\profiler.h"
 #include "renderer\RHI\deviceD3D11.h"
 #include "world\component\camera.h"
+#include "world\component\renderable.h"
 #include "resource\resourceManager.h"
 
 namespace Cjing3D {
@@ -23,6 +24,8 @@ namespace {
 		}
 		return graphicsDevice;
 	}
+
+
 }
 
 Renderer::Renderer(SystemContext& gameContext, RenderingDeviceType deviceType, HWND window) :
@@ -62,6 +65,9 @@ void Renderer::Initialize()
 
 	// initialize mip generator
 	mDeferredMIPGenerator = std::make_unique<DeferredMIPGenerator>(*mGraphicsDevice);
+
+	// initialize render queue;
+	mRenderQueue = std::make_unique<RenderQueue>();
 
 	mIsInitialized = true;
 }
@@ -134,6 +140,42 @@ DeferredMIPGenerator & Renderer::GetDeferredMIPGenerator()
 	return *mDeferredMIPGenerator;
 }
 
+void Renderer::RenderSceneOpaque(std::shared_ptr<Camera> camera, RenderingType renderingType)
+{
+	FrameCullings& frameCulling = mFrameCullings[camera];
+	auto& renderingActors = frameCulling.mRenderingActors;
+
+	mRenderQueue->Clear();
+	for (auto& actor : renderingActors)
+	{
+		auto renderables = actor->GetComponents<Renderable>();
+		for (auto& renderable : renderables)
+		{
+			if (renderable->GetRenderingType() & RenderableType_Opaque)
+			{
+				// 创建一个RenderBatch,其中包含必要的渲染所需信息
+				// TODO; 分布动态分配带来的消耗，将使用内存池缓解
+				RenderBatch* batch = new RenderBatch;
+				batch->Init(*renderable, actor.get());	// ???
+				mRenderQueue->AddBatch(batch);
+			}
+		}
+	}
+
+	if (mRenderQueue->IsEmpty() == false)
+	{
+		XMMATRIX viewProj = camera->GetViewProjectionMatrix();
+
+		mRenderQueue->Sort();
+		ProcessRenderQueue(*mRenderQueue, renderingType, viewProj);
+		mRenderQueue->Clear();
+	}
+}
+
+void Renderer::RenderSceneTransparent(std::shared_ptr<Camera> camera, RenderingType renderingType)
+{
+}
+
 void Renderer::InitializePasses()
 {
 	mForwardPass = std::make_unique<ForwardPass>(mGameContext);
@@ -167,7 +209,7 @@ void Renderer::AccquireActors(std::vector<ActorPtr> actors)
 			{
 				if (renderable != nullptr && currentFrustum.Overlaps(renderable->GetBoundingBox()) == true)
 				{
-					frameCulling.mRenderables.push_back(actor);
+					frameCulling.mRenderingActors.push_back(actor);
 				}
 			}
 		}
@@ -180,6 +222,51 @@ void Renderer::UpdateRenderData()
 	// 处理延时生成的mipmap
 	if (mDeferredMIPGenerator != nullptr) {
 		mDeferredMIPGenerator->UpdateMipGenerating();
+	}
+}
+
+void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderingType renderingType, XMMATRIX viewProj)
+{
+	if (queue.IsEmpty() == false)
+	{
+		U32 prevMeshGUID = 0;
+		U32 instanceSize = 0;
+		U32 instanceCount = 0;
+
+		std::vector<RenderBatchInstance> instances;
+		U32 bathIndex = 0;
+		auto& renderBatches = queue.GetRenderBatches();
+		for (auto& batch : renderBatches)
+		{
+			U32 meshGUID = batch->GetMeshGUID();
+			if (meshGUID != prevMeshGUID)
+			{
+				prevMeshGUID = meshGUID;
+				instanceCount++;
+
+				RenderBatchInstance instance;
+				instance.mMeshGUID = meshGUID;
+				instance.mDataOffset = bathIndex * instanceSize;
+
+				instances.push_back(instance);
+			}
+
+			Actor* actor = batch->GetActor();
+			if (actor == nullptr) {
+				continue;
+			}
+
+			XMMATRIX worldMatrix = actor->GetTransform().GetMatrix() * viewProj;
+			bathIndex++;
+		}
+
+		for (auto& instance : instances)
+		{
+			
+			// bind index buffer
+
+			// bind vertex buffer
+		}
 	}
 }
 
@@ -209,7 +296,7 @@ void Renderer::PassGBuffer()
 
 void Renderer::FrameCullings::Clear()
 {
-	mRenderables.clear();
+	mRenderingActors.clear();
 }
 
 }

@@ -41,22 +41,24 @@ public:
 	Pipeline& GetPipeline();
 	DeferredMIPGenerator& GetDeferredMIPGenerator();
 
-	/** Rendering setting */
+	void RenderSceneOpaque(std::shared_ptr<Camera> camera, RenderingType renderingType);
+	void RenderSceneTransparent(std::shared_ptr<Camera> camera, RenderingType renderingType);
 
 private:
 	void InitializePasses();
 	void AccquireActors(std::vector<ActorPtr> actors);
 	void UpdateRenderData();
+	void ProcessRenderQueue(RenderQueue& queue, RenderingType renderingType, XMMATRIX viewProj);
 
 	// 当前帧的裁剪后的数据
 	struct FrameCullings
 	{
-		ActorPtrArray mRenderables;
+		ActorPtrArray mRenderingActors;
 		Frustum mFrustum;
 
 		void Clear();
 	};
-	std::unordered_map<CameraPtr, FrameCullings> mFrameCullings;
+	std::unordered_map<std::shared_ptr<Camera>, FrameCullings> mFrameCullings;
 	
 private:
 	bool mIsInitialized;
@@ -69,6 +71,7 @@ private:
 	std::unique_ptr<ShaderLib> mShaderLib;
 	std::unique_ptr<StateManager> mStateManager;
 	std::unique_ptr<Pipeline> mPipeline;
+	std::unique_ptr<RenderQueue> mRenderQueue;
 
 	/** rendering pass */
 	std::unique_ptr<ForwardPass> mForwardPass;

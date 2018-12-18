@@ -16,10 +16,13 @@ public:
 	virtual void Update();
 
 	AABB GetBoundingBox();
+	RenderingType GetRenderingType()const { 
+		return mRenderingType; 
+	}
 
 private:
 	//std::shared_ptr<Model> mModel;
-
+	RenderingType mRenderingType;
 };
 
 }

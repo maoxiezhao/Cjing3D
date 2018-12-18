@@ -32,6 +32,8 @@ public:
 	template< typename ComponentT>
 	std::vector<std::shared_ptr<ComponentT>> GetComponents();
 	std::vector<ComponentPtr> GetComponents(Component_Type type);
+	template<typename ComponentT>
+	std::shared_ptr<ComponentT> GetComponent();
 
 	bool HasComponent(Component& component);
 	bool HasComponent(Component_Type type);
@@ -61,6 +63,8 @@ public:
 
 	template< typename ActionT>
 	void ForEachChild(ActionT&& action);
+
+	Transform& GetTransform() { return *mTransform; }
 
 private:
 	SystemContext& mGameContext;
@@ -114,6 +118,23 @@ inline std::vector<std::shared_ptr<ComponentT>> Actor::GetComponents()
 		}
 	}
 	return components;
+}
+
+template<typename ComponentT>
+inline std::shared_ptr<ComponentT> Actor::GetComponent()
+{
+	Component_Type type = Component::DeduceComponentType<ComponentT>();
+	if (type == ComponentType_Unknown) {
+		return nullptr;
+	}
+
+	for (auto& component : mComponents)
+	{
+		if (component->GetType() == type) {
+			return component;
+		}
+	}
+	return nullptr;
 }
 
 template<typename T>
