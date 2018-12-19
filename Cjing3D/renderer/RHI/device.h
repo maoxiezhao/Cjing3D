@@ -33,6 +33,9 @@ namespace Cjing3D
 		virtual HRESULT CreateBuffer(const GPUBufferDesc* desc, GPUBuffer& buffer, const SubresourceData* initialData) = 0;
 		virtual void UpdateBuffer(GPUBuffer& buffer, const void* data, U32 dataSize) = 0;
 
+		virtual HRESULT BindIndexBuffer(GPUBuffer& buffer, IndexFormat format, U32 offset) = 0;
+		virtual HRESULT BindVertexBuffer(GPUBuffer* const* buffer, U32 slot, U32 num, const U32* strides, const U32* offsets) = 0;
+
 		virtual HRESULT CreateSamplerState(const SamplerDesc* desc, SamplerState& state) = 0;
 
 		virtual HRESULT CreateTexture2D(const TextureDesc* desc, const SubresourceData* data, RhiTexture2D& texture2D) = 0;
@@ -47,6 +50,9 @@ namespace Cjing3D
 		virtual void DestoryGPUResource(GPUResource& resource) = 0;
 
 		virtual void BindShaderInfoState(ShaderInfoState* state) = 0;
+
+		virtual void DrawIndexed() = 0;
+		virtual void DrawIndexedInstances(U32 indexCount, U32 instanceCount, U32 startIndexLocation, U32 baseVertexLocation, U32 startInstanceLocation) = 0;
 
 		FORMAT GetBackBufferFormat()const {
 			return mBackBufferFormat;

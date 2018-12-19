@@ -52,6 +52,10 @@ public:
 	void AddMeshSubset(MeshSubset subset);
 	const std::vector<MeshSubset>& GetMeshSubsets()const;
 
+	GPUBuffer& GetVertexBuffer();
+	GPUBuffer& GetIndexBuffer();
+
+	IndexFormat GetIndexFormat()const { return mIndexFormat; }
 private:
 	std::vector<VertexPosNormalTex> mVertexPosNormalTex;
 	std::vector<U32> mIndices;

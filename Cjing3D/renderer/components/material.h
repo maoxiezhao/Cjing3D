@@ -1,10 +1,11 @@
 #pragma once
 
 #include "renderer\renderableCommon.h"
+#include "resource\resource.h"
 
 namespace Cjing3D
 {
-	class Material
+	class Material : public Resource
 	{
 	public:
 		Material();

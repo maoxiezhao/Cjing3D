@@ -227,8 +227,11 @@ void Renderer::UpdateRenderData()
 
 void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderingType renderingType, XMMATRIX viewProj)
 {
+	// TODO replace by pipeline
 	if (queue.IsEmpty() == false)
 	{
+		auto& resourceManager = GetGameContext().GetSubSystem<ResourceManager>();
+
 		U32 prevMeshGUID = 0;
 		U32 instanceSize = 0;
 		U32 instanceCount = 0;
@@ -245,7 +248,7 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderingType renderingTy
 				instanceCount++;
 
 				RenderBatchInstance instance;
-				instance.mMeshGUID = meshGUID;
+				instance.mMesh = batch->GetMesh();
 				instance.mDataOffset = bathIndex * instanceSize;
 
 				instances.push_back(instance);
@@ -262,10 +265,39 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderingType renderingTy
 
 		for (auto& instance : instances)
 		{
-			
-			// bind index buffer
+			MeshPtr mesh = instance.mMesh;
 
-			// bind vertex buffer
+			// bind index buffer
+			mGraphicsDevice->BindIndexBuffer(mesh->GetIndexBuffer(), mesh->GetIndexFormat(), 0);
+
+			for (auto& subset : mesh->GetMeshSubsets())
+			{
+				MaterialPtr material = resourceManager.Get<Material>(subset.mMaterialID);
+				if (material == nullptr) {
+					continue;
+				}
+				
+				// bind vertex buffer
+				GPUBuffer* vbs[] = {
+					&mesh->GetVertexBuffer()
+				};
+
+				U32 strides[] = {
+					sizeof(Mesh::VertexPosNormalTex)
+				};
+
+				U32 offsets[] = {
+					0
+				};
+				mGraphicsDevice->BindVertexBuffer(vbs, 0, 1, strides, offsets);
+
+				// bind shader state
+
+				// bind material texture
+
+				// draw index
+				mGraphicsDevice->DrawIndexedInstances(subset.mIndexCount, instanceCount, instance.mInstanceCount, 0, 0);
+			}
 		}
 	}
 }

@@ -23,4 +23,14 @@ const std::vector<Mesh::MeshSubset>& Mesh::GetMeshSubsets() const
 	return mMeshSubsets;
 }
 
+GPUBuffer & Mesh::GetVertexBuffer()
+{
+	return *mVertexBuffer;
+}
+
+GPUBuffer & Mesh::GetIndexBuffer()
+{
+	return *mIndexBuffer;
+}
+
 }

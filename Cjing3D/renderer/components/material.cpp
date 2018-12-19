@@ -2,9 +2,11 @@
 
 namespace Cjing3D
 {
-	Material::Material()
+	Material::Material() :
+		Resource(Resource_Material)
 	{
 	}
+
 	Material::~Material()
 	{
 	}

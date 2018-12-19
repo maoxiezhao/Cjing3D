@@ -33,6 +33,9 @@ public:
 	virtual HRESULT CreateBuffer(const GPUBufferDesc* desc, GPUBuffer& buffer, const SubresourceData* initialData);
 	virtual void UpdateBuffer(GPUBuffer& buffer, const void* data, U32 dataSize);
 
+	virtual HRESULT BindIndexBuffer(GPUBuffer& buffer, IndexFormat format, U32 offset);
+	virtual HRESULT BindVertexBuffer(GPUBuffer* const* buffer, U32 slot, U32 num, const U32* strides, const U32* offsets);
+
 	virtual HRESULT CreateSamplerState(const SamplerDesc* desc, SamplerState& state);
 
 	virtual HRESULT CreateTexture2D(const TextureDesc* desc, const SubresourceData* data, RhiTexture2D& texture2D);
@@ -48,6 +51,9 @@ public:
 
 	virtual void BindShaderInfoState(ShaderInfoState* state);
 	void ClearPrevStates();
+
+	virtual void DrawIndexed() ;
+	virtual void DrawIndexedInstances(U32 indexCount, U32 instanceCount, U32 startIndexLocation, U32 baseVertexLocation, U32 startInstanceLocation);
 
 	ID3D11DeviceContext& GetDeviceContext(GraphicsThread type) {
 		return *mDeviceContext[static_cast<U32>(type)].Get();

@@ -100,6 +100,8 @@ private:
 	PoolType<VertexShaderInfo> mVertexShaderPool;
 	PoolType<PixelShader> mPixelShaderPool;
 	PoolType<Model> mModelPool;
+	PoolType<Mesh> mPixelShaderPool;
+	PoolType<Material> mModelPool;
 };
 
 template<typename ResourceT>

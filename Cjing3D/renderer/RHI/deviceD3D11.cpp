@@ -736,6 +736,16 @@ void GraphicsDeviceD3D11::UpdateBuffer(GPUBuffer & buffer, const void * data, U3
 	}
 }
 
+HRESULT GraphicsDeviceD3D11::BindIndexBuffer(GPUBuffer & buffer, IndexFormat format, U32 offset)
+{
+	return E_NOTIMPL;
+}
+
+HRESULT GraphicsDeviceD3D11::BindVertexBuffer(GPUBuffer* const* buffer, U32 slot, U32 num, const U32 * strides, const U32 * offsets)
+{
+	return E_NOTIMPL;
+}
+
 // 创建采样器状态
 HRESULT GraphicsDeviceD3D11::CreateSamplerState(const SamplerDesc * desc, SamplerState & state)
 {
@@ -972,6 +982,14 @@ void GraphicsDeviceD3D11::ClearPrevStates()
 	mPrevVertexShader = nullptr;
 	mPrevPixelShader = nullptr;
 	mPrevInputLayout = nullptr;
+}
+
+void GraphicsDeviceD3D11::DrawIndexed()
+{
+}
+
+void GraphicsDeviceD3D11::DrawIndexedInstances(U32 indexCount, U32 instanceCount, U32 startIndexLocation, U32 baseVertexLocation, U32 startInstanceLocation)
+{
 }
 
 void GraphicsDeviceD3D11::InitializeDevice()

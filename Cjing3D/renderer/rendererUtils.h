@@ -1,6 +1,7 @@
 #pragma once
 
 #include "renderer\RHI\rhiPipeline.h"
+#include "renderer\components\mesh.h"
 
 namespace Cjing3D
 {
@@ -34,8 +35,9 @@ namespace Cjing3D
 
 	struct RenderBatchInstance
 	{
-		U32 mMeshGUID;
-		U32 mDataOffset;
+		MeshPtr mMesh = nullptr;
+		U32 mDataOffset = 0;
+		U32 mInstanceCount = 0;
 	};
 
 	class RenderBatch
@@ -50,10 +52,12 @@ namespace Cjing3D
 
 		// TODO
 		Actor* GetActor() { return mActor; }
+		MeshPtr GetMesh() { return mMesh; }
 	private:
 		// 当前仅以MeshGUID作为Hash
 		U32 mHash;
 		Actor* mActor;
+		MeshPtr mMesh;
 	};
 
 	class RenderQueue
