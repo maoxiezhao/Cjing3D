@@ -31,4 +31,9 @@ namespace Cjing3D
 		return device.CreateSamplerState(&desc, state);
 	}
 
+	HRESULT CreateDefaultTexture2D(GraphicsDevice & device, RhiTexture2D & texture, U32x2 size, U32 mipMapLevel, BIND_FLAG flag)
+	{
+		return E_NOTIMPL;
+	}
+
 }

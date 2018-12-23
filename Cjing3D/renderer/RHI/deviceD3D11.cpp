@@ -9,15 +9,361 @@ namespace {
 	{
 		switch (format)
 		{
-		case Cjing3D::FORMAT_UNKNOWN:
+		case FORMAT_UNKNOWN:
 			return DXGI_FORMAT_UNKNOWN;
 			break;
-		case Cjing3D::FORMAT_R8G8B8A8_UNORM:
+		case FORMAT_R32G32B32A32_TYPELESS:
+			return DXGI_FORMAT_R32G32B32A32_TYPELESS;
+			break;
+		case FORMAT_R32G32B32A32_FLOAT:
+			return DXGI_FORMAT_R32G32B32A32_FLOAT;
+			break;
+		case FORMAT_R32G32B32A32_UINT:
+			return DXGI_FORMAT_R32G32B32A32_UINT;
+			break;
+		case FORMAT_R32G32B32A32_SINT:
+			return DXGI_FORMAT_R32G32B32A32_SINT;
+			break;
+		case FORMAT_R32G32B32_TYPELESS:
+			return DXGI_FORMAT_R32G32B32_TYPELESS;
+			break;
+		case FORMAT_R32G32B32_FLOAT:
+			return DXGI_FORMAT_R32G32B32_FLOAT;
+			break;
+		case FORMAT_R32G32B32_UINT:
+			return DXGI_FORMAT_R32G32B32_UINT;
+			break;
+		case FORMAT_R32G32B32_SINT:
+			return DXGI_FORMAT_R32G32B32_SINT;
+			break;
+		case FORMAT_R16G16B16A16_TYPELESS:
+			return DXGI_FORMAT_R16G16B16A16_TYPELESS;
+			break;
+		case FORMAT_R16G16B16A16_FLOAT:
+			return DXGI_FORMAT_R16G16B16A16_FLOAT;
+			break;
+		case FORMAT_R16G16B16A16_UNORM:
+			return DXGI_FORMAT_R16G16B16A16_UNORM;
+			break;
+		case FORMAT_R16G16B16A16_UINT:
+			return DXGI_FORMAT_R16G16B16A16_UINT;
+			break;
+		case FORMAT_R16G16B16A16_SNORM:
+			return DXGI_FORMAT_R16G16B16A16_SNORM;
+			break;
+		case FORMAT_R16G16B16A16_SINT:
+			return DXGI_FORMAT_R16G16B16A16_SINT;
+			break;
+		case FORMAT_R32G32_TYPELESS:
+			return DXGI_FORMAT_R32G32_TYPELESS;
+			break;
+		case FORMAT_R32G32_FLOAT:
+			return DXGI_FORMAT_R32G32_FLOAT;
+			break;
+		case FORMAT_R32G32_UINT:
+			return DXGI_FORMAT_R32G32_UINT;
+			break;
+		case FORMAT_R32G32_SINT:
+			return DXGI_FORMAT_R32G32_SINT;
+			break;
+		case FORMAT_R32G8X24_TYPELESS:
+			return DXGI_FORMAT_R32G8X24_TYPELESS;
+			break;
+		case FORMAT_D32_FLOAT_S8X24_UINT:
+			return DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+			break;
+		case FORMAT_R32_FLOAT_X8X24_TYPELESS:
+			return DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
+			break;
+		case FORMAT_X32_TYPELESS_G8X24_UINT:
+			return DXGI_FORMAT_X32_TYPELESS_G8X24_UINT;
+			break;
+		case FORMAT_R10G10B10A2_TYPELESS:
+			return DXGI_FORMAT_R10G10B10A2_TYPELESS;
+			break;
+		case FORMAT_R10G10B10A2_UNORM:
+			return DXGI_FORMAT_R10G10B10A2_UNORM;
+			break;
+		case FORMAT_R10G10B10A2_UINT:
+			return DXGI_FORMAT_R10G10B10A2_UINT;
+			break;
+		case FORMAT_R11G11B10_FLOAT:
+			return DXGI_FORMAT_R11G11B10_FLOAT;
+			break;
+		case FORMAT_R8G8B8A8_TYPELESS:
+			return DXGI_FORMAT_R8G8B8A8_TYPELESS;
+			break;
+		case FORMAT_R8G8B8A8_UNORM:
 			return DXGI_FORMAT_R8G8B8A8_UNORM;
 			break;
+		case FORMAT_R8G8B8A8_UNORM_SRGB:
+			return DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+			break;
+		case FORMAT_R8G8B8A8_UINT:
+			return DXGI_FORMAT_R8G8B8A8_UINT;
+			break;
+		case FORMAT_R8G8B8A8_SNORM:
+			return DXGI_FORMAT_R8G8B8A8_SNORM;
+			break;
+		case FORMAT_R8G8B8A8_SINT:
+			return DXGI_FORMAT_R8G8B8A8_SINT;
+			break;
+		case FORMAT_R16G16_TYPELESS:
+			return DXGI_FORMAT_R16G16_TYPELESS;
+			break;
+		case FORMAT_R16G16_FLOAT:
+			return DXGI_FORMAT_R16G16_FLOAT;
+			break;
+		case FORMAT_R16G16_UNORM:
+			return DXGI_FORMAT_R16G16_UNORM;
+			break;
+		case FORMAT_R16G16_UINT:
+			return DXGI_FORMAT_R16G16_UINT;
+			break;
+		case FORMAT_R16G16_SNORM:
+			return DXGI_FORMAT_R16G16_SNORM;
+			break;
+		case FORMAT_R16G16_SINT:
+			return DXGI_FORMAT_R16G16_SINT;
+			break;
+		case FORMAT_R32_TYPELESS:
+			return DXGI_FORMAT_R32_TYPELESS;
+			break;
+		case FORMAT_D32_FLOAT:
+			return DXGI_FORMAT_D32_FLOAT;
+			break;
+		case FORMAT_R32_FLOAT:
+			return DXGI_FORMAT_R32_FLOAT;
+			break;
+		case FORMAT_R32_UINT:
+			return DXGI_FORMAT_R32_UINT;
+			break;
+		case FORMAT_R32_SINT:
+			return DXGI_FORMAT_R32_SINT;
+			break;
+		case FORMAT_R24G8_TYPELESS:
+			return DXGI_FORMAT_R24G8_TYPELESS;
+			break;
+		case FORMAT_D24_UNORM_S8_UINT:
+			return DXGI_FORMAT_D24_UNORM_S8_UINT;
+			break;
+		case FORMAT_R24_UNORM_X8_TYPELESS:
+			return DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+			break;
+		case FORMAT_X24_TYPELESS_G8_UINT:
+			return DXGI_FORMAT_X24_TYPELESS_G8_UINT;
+			break;
+		case FORMAT_R8G8_TYPELESS:
+			return DXGI_FORMAT_R8G8_TYPELESS;
+			break;
+		case FORMAT_R8G8_UNORM:
+			return DXGI_FORMAT_R8G8_UNORM;
+			break;
+		case FORMAT_R8G8_UINT:
+			return DXGI_FORMAT_R8G8_UINT;
+			break;
+		case FORMAT_R8G8_SNORM:
+			return DXGI_FORMAT_R8G8_SNORM;
+			break;
+		case FORMAT_R8G8_SINT:
+			return DXGI_FORMAT_R8G8_SINT;
+			break;
+		case FORMAT_R16_TYPELESS:
+			return DXGI_FORMAT_R16_TYPELESS;
+			break;
+		case FORMAT_R16_FLOAT:
+			return DXGI_FORMAT_R16_FLOAT;
+			break;
+		case FORMAT_D16_UNORM:
+			return DXGI_FORMAT_D16_UNORM;
+			break;
+		case FORMAT_R16_UNORM:
+			return DXGI_FORMAT_R16_UNORM;
+			break;
+		case FORMAT_R16_UINT:
+			return DXGI_FORMAT_R16_UINT;
+			break;
+		case FORMAT_R16_SNORM:
+			return DXGI_FORMAT_R16_SNORM;
+			break;
+		case FORMAT_R16_SINT:
+			return DXGI_FORMAT_R16_SINT;
+			break;
+		case FORMAT_R8_TYPELESS:
+			return DXGI_FORMAT_R8_TYPELESS;
+			break;
+		case FORMAT_R8_UNORM:
+			return DXGI_FORMAT_R8_UNORM;
+			break;
+		case FORMAT_R8_UINT:
+			return DXGI_FORMAT_R8_UINT;
+			break;
+		case FORMAT_R8_SNORM:
+			return DXGI_FORMAT_R8_SNORM;
+			break;
+		case FORMAT_R8_SINT:
+			return DXGI_FORMAT_R8_SINT;
+			break;
+		case FORMAT_A8_UNORM:
+			return DXGI_FORMAT_A8_UNORM;
+			break;
+		case FORMAT_R1_UNORM:
+			return DXGI_FORMAT_R1_UNORM;
+			break;
+		case FORMAT_R9G9B9E5_SHAREDEXP:
+			return DXGI_FORMAT_R9G9B9E5_SHAREDEXP;
+			break;
+		case FORMAT_R8G8_B8G8_UNORM:
+			return DXGI_FORMAT_R8G8_B8G8_UNORM;
+			break;
+		case FORMAT_G8R8_G8B8_UNORM:
+			return DXGI_FORMAT_G8R8_G8B8_UNORM;
+			break;
+		case FORMAT_BC1_TYPELESS:
+			return DXGI_FORMAT_BC1_TYPELESS;
+			break;
+		case FORMAT_BC1_UNORM:
+			return DXGI_FORMAT_BC1_UNORM;
+			break;
+		case FORMAT_BC1_UNORM_SRGB:
+			return DXGI_FORMAT_BC1_UNORM_SRGB;
+			break;
+		case FORMAT_BC2_TYPELESS:
+			return DXGI_FORMAT_BC2_TYPELESS;
+			break;
+		case FORMAT_BC2_UNORM:
+			return DXGI_FORMAT_BC2_UNORM;
+			break;
+		case FORMAT_BC2_UNORM_SRGB:
+			return DXGI_FORMAT_BC2_UNORM_SRGB;
+			break;
+		case FORMAT_BC3_TYPELESS:
+			return DXGI_FORMAT_BC3_TYPELESS;
+			break;
+		case FORMAT_BC3_UNORM:
+			return DXGI_FORMAT_BC3_UNORM;
+			break;
+		case FORMAT_BC3_UNORM_SRGB:
+			return DXGI_FORMAT_BC3_UNORM_SRGB;
+			break;
+		case FORMAT_BC4_TYPELESS:
+			return DXGI_FORMAT_BC4_TYPELESS;
+			break;
+		case FORMAT_BC4_UNORM:
+			return DXGI_FORMAT_BC4_UNORM;
+			break;
+		case FORMAT_BC4_SNORM:
+			return DXGI_FORMAT_BC4_SNORM;
+			break;
+		case FORMAT_BC5_TYPELESS:
+			return DXGI_FORMAT_BC5_TYPELESS;
+			break;
+		case FORMAT_BC5_UNORM:
+			return DXGI_FORMAT_BC5_UNORM;
+			break;
+		case FORMAT_BC5_SNORM:
+			return DXGI_FORMAT_BC5_SNORM;
+			break;
+		case FORMAT_B5G6R5_UNORM:
+			return DXGI_FORMAT_B5G6R5_UNORM;
+			break;
+		case FORMAT_B5G5R5A1_UNORM:
+			return DXGI_FORMAT_B5G5R5A1_UNORM;
+			break;
+		case FORMAT_B8G8R8A8_UNORM:
+			return DXGI_FORMAT_B8G8R8A8_UNORM;
+			break;
+		case FORMAT_B8G8R8X8_UNORM:
+			return DXGI_FORMAT_B8G8R8X8_UNORM;
+			break;
+		case FORMAT_R10G10B10_XR_BIAS_A2_UNORM:
+			return DXGI_FORMAT_R10G10B10_XR_BIAS_A2_UNORM;
+			break;
+		case FORMAT_B8G8R8A8_TYPELESS:
+			return DXGI_FORMAT_B8G8R8A8_TYPELESS;
+			break;
+		case FORMAT_B8G8R8A8_UNORM_SRGB:
+			return DXGI_FORMAT_B8G8R8A8_UNORM_SRGB;
+			break;
+		case FORMAT_B8G8R8X8_TYPELESS:
+			return DXGI_FORMAT_B8G8R8X8_TYPELESS;
+			break;
+		case FORMAT_B8G8R8X8_UNORM_SRGB:
+			return DXGI_FORMAT_B8G8R8X8_UNORM_SRGB;
+			break;
+		case FORMAT_BC6H_TYPELESS:
+			return DXGI_FORMAT_BC6H_TYPELESS;
+			break;
+		case FORMAT_BC6H_UF16:
+			return DXGI_FORMAT_BC6H_UF16;
+			break;
+		case FORMAT_BC6H_SF16:
+			return DXGI_FORMAT_BC6H_SF16;
+			break;
+		case FORMAT_BC7_TYPELESS:
+			return DXGI_FORMAT_BC7_TYPELESS;
+			break;
+		case FORMAT_BC7_UNORM:
+			return DXGI_FORMAT_BC7_UNORM;
+			break;
+		case FORMAT_BC7_UNORM_SRGB:
+			return DXGI_FORMAT_BC7_UNORM_SRGB;
+			break;
+		case FORMAT_AYUV:
+			return DXGI_FORMAT_AYUV;
+			break;
+		case FORMAT_Y410:
+			return DXGI_FORMAT_Y410;
+			break;
+		case FORMAT_Y416:
+			return DXGI_FORMAT_Y416;
+			break;
+		case FORMAT_NV12:
+			return DXGI_FORMAT_NV12;
+			break;
+		case FORMAT_P010:
+			return DXGI_FORMAT_P010;
+			break;
+		case FORMAT_P016:
+			return DXGI_FORMAT_P016;
+			break;
+		case FORMAT_420_OPAQUE:
+			return DXGI_FORMAT_420_OPAQUE;
+			break;
+		case FORMAT_YUY2:
+			return DXGI_FORMAT_YUY2;
+			break;
+		case FORMAT_Y210:
+			return DXGI_FORMAT_Y210;
+			break;
+		case FORMAT_Y216:
+			return DXGI_FORMAT_Y216;
+			break;
+		case FORMAT_NV11:
+			return DXGI_FORMAT_NV11;
+			break;
+		case FORMAT_AI44:
+			return DXGI_FORMAT_AI44;
+			break;
+		case FORMAT_IA44:
+			return DXGI_FORMAT_IA44;
+			break;
+		case FORMAT_P8:
+			return DXGI_FORMAT_P8;
+			break;
+		case FORMAT_A8P8:
+			return DXGI_FORMAT_A8P8;
+			break;
+		case FORMAT_B4G4R4A4_UNORM:
+			return DXGI_FORMAT_B4G4R4A4_UNORM;
+			break;
+		case FORMAT_FORCE_UINT:
+			return DXGI_FORMAT_FORCE_UINT;
+			break;
 		default:
-			return DXGI_FORMAT_UNKNOWN;
+			break;
 		}
+		return DXGI_FORMAT_UNKNOWN;
 	}
 
 	inline D3D11_DEPTH_WRITE_MASK _ConvertDepthWriteMask(DepthWriteMask mask)
@@ -452,6 +798,16 @@ namespace {
 
 		return data;
 	}
+
+	inline UINT _ConvertClearFlag(UINT flag)
+	{
+		UINT result = 0;
+		if (flag & CLEAR_DEPTH)
+			result |= D3D11_CLEAR_DEPTH;
+		if (flag & CLEAR_STENCIL)
+			result |= D3D11_CLEAR_STENCIL;
+		return result;
+	}
 }
 
 GraphicsDeviceD3D11::GraphicsDeviceD3D11(HWND window, bool fullScreen, bool debugLayer):
@@ -785,7 +1141,7 @@ HRESULT GraphicsDeviceD3D11::CreateTexture2D(const TextureDesc * desc, const Sub
 		}
 	}
 
-	auto texture2DPtr = texture2D.GetGPUResource();
+	auto& texture2DPtr = texture2D.GetGPUResource();
 	const auto result = mDevice->CreateTexture2D(&tex2D_desc, subresource_data, (ID3D11Texture2D**)&texture2DPtr);
 	if (FAILED(result)) {
 		return result;
@@ -845,9 +1201,9 @@ HRESULT GraphicsDeviceD3D11::CreateRenderTargetView(RhiTexture2D & texture)
 			// 目前不处理texture2DArray,且不处理multisampled
 			if (arraySize > 0 && arraySize <= 1)
 			{
-				auto texture2DPtr = texture.GetGPUResource();
-				auto rtvPtr = texture.GetRenderTargetViewPtr();
-				result = mDevice->CreateRenderTargetView((ID3D11Resource*)&texture2DPtr, &renderTargetViewDesc, (ID3D11RenderTargetView**)&rtvPtr);
+				auto& texture2DPtr = texture.GetGPUResource();
+				auto& rtvPtr = texture.GetRenderTargetViewPtr();
+				result = mDevice->CreateRenderTargetView((ID3D11Resource*)texture2DPtr, &renderTargetViewDesc, rtvPtr.ReleaseAndGetAddressOf());
 			}
 		}
 	}
@@ -877,9 +1233,9 @@ HRESULT GraphicsDeviceD3D11::CreateShaderResourceView(RhiTexture2D & texture)
 			shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 			shaderResourceViewDesc.Texture2D.MipLevels = 1;
 
-			auto srv = texture.GetShaderResourceView();
-			auto texture2DPtr = texture.GetGPUResource();
-			result = mDevice->CreateShaderResourceView((ID3D11Resource*)&texture2DPtr, &shaderResourceViewDesc, (ID3D11ShaderResourceView**)&srv);
+			auto& srv = texture.GetShaderResourceView();
+			auto& texture2DPtr = texture.GetGPUResource();
+			result = mDevice->CreateShaderResourceView((ID3D11Resource*)texture2DPtr, &shaderResourceViewDesc, (ID3D11ShaderResourceView**)&srv);
 		}
 	}
 
@@ -904,13 +1260,25 @@ HRESULT GraphicsDeviceD3D11::CreateDepthStencilView(RhiTexture2D & texture)
 			depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 			depthStencilViewDesc.Texture2D.MipSlice = 0;
 
-			auto dsv = texture.GetDepthStencilViewPtr();
+			auto& dsv = texture.GetDepthStencilViewPtr();
 			auto texture2DPtr = texture.GetGPUResource();
-			result = mDevice->CreateDepthStencilView((ID3D11Resource*)&texture2DPtr, &depthStencilViewDesc, (ID3D11DepthStencilView**)&dsv);
+			result = mDevice->CreateDepthStencilView((ID3D11Resource*)texture2DPtr, &depthStencilViewDesc, dsv.ReleaseAndGetAddressOf());
 		}
 	}
 
 	return result;
+}
+
+void GraphicsDeviceD3D11::ClearRenderTarget(RhiTexture2D & texture, F32x4 color)
+{
+	auto renderTarget = &texture.GetRenderTargetView();
+	GetDeviceContext(GraphicsThread_IMMEDIATE).ClearRenderTargetView(&texture.GetRenderTargetView(), color.data());
+}
+
+void GraphicsDeviceD3D11::ClearDepthStencil(RhiTexture2D & texture, UINT clearFlag, F32 depth, U8 stencil)
+{
+	UINT flag = _ConvertClearFlag(clearFlag);
+	GetDeviceContext(GraphicsThread_IMMEDIATE).ClearDepthStencilView(&texture.GetDepthStencilView(), flag, depth, stencil);
 }
 
 void GraphicsDeviceD3D11::BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot)

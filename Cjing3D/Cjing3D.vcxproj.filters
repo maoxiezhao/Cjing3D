@@ -26,9 +26,6 @@
     <Filter Include="renderer\rhi\d3d11">
       <UniqueIdentifier>{4700f898-3ca9-45f9-8e84-375e84855299}</UniqueIdentifier>
     </Filter>
-    <Filter Include="world">
-      <UniqueIdentifier>{001fdb9e-f2f6-43b6-beed-06ca29094e09}</UniqueIdentifier>
-    </Filter>
     <Filter Include="resource">
       <UniqueIdentifier>{807e886c-a71a-42ec-bdcb-bbee389f4ea8}</UniqueIdentifier>
     </Filter>
@@ -40,6 +37,9 @@
     </Filter>
     <Filter Include="renderer\resource">
       <UniqueIdentifier>{d8008cfd-bc4b-4f6c-b158-826a56ca422b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="world">
+      <UniqueIdentifier>{001fdb9e-f2f6-43b6-beed-06ca29094e09}</UniqueIdentifier>
     </Filter>
     <Filter Include="world\component">
       <UniqueIdentifier>{4f8d85c3-1f5e-4e1c-95eb-16f9a7960f52}</UniqueIdentifier>
@@ -169,6 +169,9 @@
     </ClCompile>
     <ClCompile Include="world\component\transform.cpp">
       <Filter>world\component</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\resource\renderTarget.cpp">
+      <Filter>renderer\resource</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -356,11 +359,11 @@
     <ClInclude Include="renderer\resource\texture.h">
       <Filter>renderer\resource</Filter>
     </ClInclude>
-    <ClInclude Include="renderer\resource\renderTexture.h">
-      <Filter>renderer\resource</Filter>
-    </ClInclude>
     <ClInclude Include="renderer\rendererUtils.h">
       <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\resource\renderTarget.h">
+      <Filter>renderer\resource</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

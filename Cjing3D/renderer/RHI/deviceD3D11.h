@@ -46,6 +46,9 @@ public:
 	virtual HRESULT CreateShaderResourceView(RhiTexture2D& texture);
 	virtual HRESULT CreateDepthStencilView(RhiTexture2D& texture);
 
+	virtual void ClearRenderTarget(RhiTexture2D& texture, F32x4 color);
+	virtual void ClearDepthStencil(RhiTexture2D& texture, UINT clearFlag, F32 depth, U8 stencil);
+
 	virtual void BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot);
 	virtual void DestoryGPUResource(GPUResource& resource);
 

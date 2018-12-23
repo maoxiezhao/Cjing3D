@@ -46,6 +46,9 @@ namespace Cjing3D
 		virtual HRESULT CreateShaderResourceView(RhiTexture2D& texture) = 0;
 		virtual HRESULT CreateDepthStencilView(RhiTexture2D& texture) = 0;
 
+		virtual void ClearRenderTarget(RhiTexture2D& texture, F32x4 color) = 0;
+		virtual void ClearDepthStencil(RhiTexture2D& texture, UINT clearFlag, F32 depth, U8 stencil) = 0;
+
 		virtual void BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot) = 0;
 		virtual void DestoryGPUResource(GPUResource& resource) = 0;
 

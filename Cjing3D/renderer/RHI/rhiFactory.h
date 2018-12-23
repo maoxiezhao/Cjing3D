@@ -20,5 +20,10 @@ namespace Cjing3D
 	**************************************************************/
 	HRESULT CreateDefaultSamplerState(GraphicsDevice& device, SamplerState& state, FILTER filter, TEXTURE_ADDRESS_MODE mode, ComparisonFunc func);
 
+	/**************************************************************
+	*	\brief Texture Creating Method
+	**************************************************************/
+	HRESULT CreateDefaultTexture2D(GraphicsDevice& device, RhiTexture2D& texture, U32x2 size, U32 mipMapLevel, BIND_FLAG flag);
+
 #include "renderer\RHI\rhiFactory.h"
 }

@@ -51,7 +51,14 @@ void Renderer::Initialize()
 		return;
 	}
 
+	U32x2 screenSize = mGraphicsDevice->GetScreenSize();
+
+	// initialize device
 	mGraphicsDevice->Initialize();
+
+	// initialize camera
+	mCamera = std::make_shared<Camera>(mGameContext);
+	mCamera->SetupPerspective(screenSize[0], screenSize[1], 0.1f, 1000.0f);
 
 	// initialize states
 	mStateManager = std::make_unique<StateManager>(*mGraphicsDevice);
@@ -61,13 +68,13 @@ void Renderer::Initialize()
 	mShaderLib = std::make_unique<ShaderLib>(*this);
 	mShaderLib->Initialize();
 
-	InitializePasses();
-
 	// initialize mip generator
 	mDeferredMIPGenerator = std::make_unique<DeferredMIPGenerator>(*mGraphicsDevice);
 
 	// initialize render queue;
 	mRenderQueue = std::make_unique<RenderQueue>();
+
+	InitializePasses();
 
 	mIsInitialized = true;
 }
@@ -90,6 +97,8 @@ void Renderer::Uninitialize()
 
 void Renderer::Render()
 {
+	ForwardRender();
+
 	if (mCamera == nullptr) {
 		mIsRendering = false;
 		return;
@@ -140,6 +149,11 @@ DeferredMIPGenerator & Renderer::GetDeferredMIPGenerator()
 	return *mDeferredMIPGenerator;
 }
 
+Camera & Renderer::GetCamera()
+{
+	return *mCamera;
+}
+
 void Renderer::RenderSceneOpaque(std::shared_ptr<Camera> camera, RenderingType renderingType)
 {
 	FrameCullings& frameCulling = mFrameCullings[camera];
@@ -176,9 +190,13 @@ void Renderer::RenderSceneTransparent(std::shared_ptr<Camera> camera, RenderingT
 {
 }
 
+void Renderer::UpdateCameraCB(Camera & camera)
+{
+}
+
 void Renderer::InitializePasses()
 {
-	mForwardPass = std::make_unique<ForwardPass>(mGameContext);
+	mForwardPass = std::make_unique<ForwardPass>(mGameContext, *this);
 }
 
 /**
@@ -272,7 +290,7 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderingType renderingTy
 
 			for (auto& subset : mesh->GetMeshSubsets())
 			{
-				MaterialPtr material = resourceManager.Get<Material>(subset.mMaterialID);
+				MaterialPtr material = nullptr; //resourceManager.Get<Material>(subset.mMaterialID);
 				if (material == nullptr) {
 					continue;
 				}
@@ -302,6 +320,11 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderingType renderingTy
 	}
 }
 
+void Renderer::ForwardRender()
+{
+	mForwardPass->Render();
+}
+
 // 以延迟渲染方式绘制不透明物体
 void Renderer::PassGBuffer()
 {
@@ -317,11 +340,6 @@ void Renderer::PassGBuffer()
 	mPipeline->SetPrimitiveTopology(PRIMITIVE_TOPOLOGY::TRIANGLELIST);
 	mPipeline->SetFillMode(FILL_SOLID);
 	//mPipeline->SetVertexShader(gBufferShader);
-
-	//for (auto actor : mRenderingActors[RenderableType::RenderableType_Opaque])
-	//{
-
-	//}
 
 	profiler.EndBlock();
 }

@@ -165,7 +165,7 @@
     <ClInclude Include="renderer\renderable\renderableComponent3D.h" />
     <ClInclude Include="renderer\renderer.h" />
     <ClInclude Include="renderer\rendererUtils.h" />
-    <ClInclude Include="renderer\resource\renderTexture.h" />
+    <ClInclude Include="renderer\resource\renderTarget.h" />
     <ClInclude Include="renderer\resource\texture.h" />
     <ClInclude Include="renderer\RHI\rhiBuffer.h" />
     <ClInclude Include="renderer\RHI\rhiFactory.h" />
@@ -222,6 +222,7 @@
     <ClCompile Include="renderer\renderable\renderableComponent3D.cpp" />
     <ClCompile Include="renderer\renderer.cpp" />
     <ClCompile Include="renderer\rendererUtils.cpp" />
+    <ClCompile Include="renderer\resource\renderTarget.cpp" />
     <ClCompile Include="renderer\RHI\rhiBuffer.cpp" />
     <ClCompile Include="renderer\RHI\rhiFactory.cpp" />
     <ClCompile Include="renderer\RHI\rhiPipeline.cpp" />

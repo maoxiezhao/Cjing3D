@@ -15,6 +15,15 @@ namespace Cjing3D
 		F32 mHeight;
 		F32 mMinDepth;
 		F32 mMaxDepth;
+
+		ViewPort() :
+			mTopLeftX(0.0f),
+			mTopLeftY(0.0f),
+			mWidth(0.0f),
+			mHeight(0.0f),
+			mMinDepth(0.0f),
+			mMaxDepth(1.0f)
+		{}
 	};
 
 	// DepthStencil op desc

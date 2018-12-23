@@ -40,15 +40,22 @@ public:
 	ResourceManager& GetResourceManager();
 	Pipeline& GetPipeline();
 	DeferredMIPGenerator& GetDeferredMIPGenerator();
+	Camera& GetCamera();
 
 	void RenderSceneOpaque(std::shared_ptr<Camera> camera, RenderingType renderingType);
 	void RenderSceneTransparent(std::shared_ptr<Camera> camera, RenderingType renderingType);
+
+	// const buffer function
+	void UpdateCameraCB(Camera& camera);
 
 private:
 	void InitializePasses();
 	void AccquireActors(std::vector<ActorPtr> actors);
 	void UpdateRenderData();
 	void ProcessRenderQueue(RenderQueue& queue, RenderingType renderingType, XMMATRIX viewProj);
+
+	// Pass function
+	void ForwardRender();
 
 	// 当前帧的裁剪后的数据
 	struct FrameCullings
@@ -59,7 +66,7 @@ private:
 		void Clear();
 	};
 	std::unordered_map<std::shared_ptr<Camera>, FrameCullings> mFrameCullings;
-	
+
 private:
 	bool mIsInitialized;
 	bool mIsRendering;
@@ -72,11 +79,10 @@ private:
 	std::unique_ptr<StateManager> mStateManager;
 	std::unique_ptr<Pipeline> mPipeline;
 	std::unique_ptr<RenderQueue> mRenderQueue;
+	std::unique_ptr<DeferredMIPGenerator> mDeferredMIPGenerator;
 
 	/** rendering pass */
 	std::unique_ptr<ForwardPass> mForwardPass;
-
-	std::unique_ptr<DeferredMIPGenerator> mDeferredMIPGenerator;
 
 	// temp define //////////////////////////
 	float mNearPlane;

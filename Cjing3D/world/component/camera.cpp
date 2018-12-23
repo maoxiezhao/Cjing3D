@@ -20,18 +20,27 @@ namespace Cjing3D
 	Camera::~Camera()
 	{
 	}
+
 	void Camera::Initialize()
 	{
 	}
+
 	void Camera::Uninitialize()
 	{
 	}
+
 	void Camera::Update()
 	{
 	}
+
+	void Camera::SetupPerspective(F32 width, F32 height, F32 nearPlane, F32 farPlane, F32 fov)
+	{
+	}
+
 	void Camera::ComputeViewMatrix()
 	{
 	}
+
 	void Camera::ComputeProjection()
 	{
 	}

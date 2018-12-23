@@ -15,8 +15,8 @@ namespace Cjing3D
 		GPUResource(GraphicsDevice& device);
 		virtual ~GPUResource();
 
-		CPUHandle GetGPUResource() { return mResource; }
-		CPUHandle GetShaderResourceView() { return mSRV; }
+		CPUHandle& GetGPUResource() { return mResource; }
+		CPUHandle& GetShaderResourceView() { return mSRV; }
 		GraphicsDevice& GetDevice() { return mDevice; }
 
 	private:
@@ -32,6 +32,7 @@ namespace Cjing3D
 		~RhiTexture();
 
 		const TextureDesc& GetDesc()const { return mDesc; }
+		void SetDesc(TextureDesc& desc) { mDesc = desc; }
 
 		ID3D11RenderTargetView& GetRenderTargetView() {
 			return *mRTV.Get();

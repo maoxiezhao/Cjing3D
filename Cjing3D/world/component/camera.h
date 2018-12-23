@@ -29,6 +29,8 @@ namespace Cjing3D {
 		F32 GetFarPlane() { return mFarPlane; }
 		Frustum GetFrustum()const { return mFrustum; }
 
+		void SetupPerspective(F32 width, F32 height, F32 nearPlane, F32 farPlane, F32 fov = XM_PI/2.0f);
+
 	private:
 		void ComputeViewMatrix();
 		void ComputeProjection();
