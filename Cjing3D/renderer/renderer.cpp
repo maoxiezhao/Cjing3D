@@ -25,7 +25,7 @@ namespace {
 		return graphicsDevice;
 	}
 
-
+	const size_t MAX_FRAME_ALLOCATOR_SIZE = 4 * 1024 * 1024;
 }
 
 Renderer::Renderer(SystemContext& gameContext, RenderingDeviceType deviceType, HWND window) :
@@ -73,6 +73,10 @@ void Renderer::Initialize()
 
 	// initialize render queue;
 	mRenderQueue = std::make_unique<RenderQueue>();
+
+	// initialize frame allocator
+	mFrameAllocator = std::make_unique<LinearAllocator>();
+	mFrameAllocator->Reserve(MAX_FRAME_ALLOCATOR_SIZE);
 
 	InitializePasses();
 
@@ -149,9 +153,9 @@ DeferredMIPGenerator & Renderer::GetDeferredMIPGenerator()
 	return *mDeferredMIPGenerator;
 }
 
-Camera & Renderer::GetCamera()
+CameraPtr Renderer::GetCamera()
 {
-	return *mCamera;
+	return mCamera;
 }
 
 void Renderer::RenderSceneOpaque(std::shared_ptr<Camera> camera, RenderingType renderingType)
@@ -169,8 +173,14 @@ void Renderer::RenderSceneOpaque(std::shared_ptr<Camera> camera, RenderingType r
 			{
 				// 创建一个RenderBatch,其中包含必要的渲染所需信息
 				// TODO; 分布动态分配带来的消耗，将使用内存池缓解
-				RenderBatch* batch = new RenderBatch;
-				batch->Init(*renderable, actor.get());	// ???
+				RenderBatch* batch = (RenderBatch*)mFrameAllocator->Allocate(sizeof(RenderBatch));
+				if (batch == nullptr)
+				{
+					Debug::Error("Not enough memory to allocator RenderBatch");
+					break;
+				}
+
+				batch->Init(*renderable);	// ???
 				mRenderQueue->AddBatch(batch);
 			}
 		}
@@ -178,11 +188,15 @@ void Renderer::RenderSceneOpaque(std::shared_ptr<Camera> camera, RenderingType r
 
 	if (mRenderQueue->IsEmpty() == false)
 	{
+		// ??? TODO
 		XMMATRIX viewProj = camera->GetViewProjectionMatrix();
+		size_t batchCount = mRenderQueue->GetBatchCount();
 
 		mRenderQueue->Sort();
 		ProcessRenderQueue(*mRenderQueue, renderingType, viewProj);
 		mRenderQueue->Clear();
+
+		mFrameAllocator->Free(batchCount * sizeof(RenderBatch));
 	}
 }
 
@@ -254,7 +268,7 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderingType renderingTy
 		U32 instanceSize = 0;
 		U32 instanceCount = 0;
 
-		std::vector<RenderBatchInstance> instances;
+		std::vector<RenderBatchInstance*> instances;
 		U32 bathIndex = 0;
 		auto& renderBatches = queue.GetRenderBatches();
 		for (auto& batch : renderBatches)
@@ -265,14 +279,14 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderingType renderingTy
 				prevMeshGUID = meshGUID;
 				instanceCount++;
 
-				RenderBatchInstance instance;
-				instance.mMesh = batch->GetMesh();
-				instance.mDataOffset = bathIndex * instanceSize;
+				RenderBatchInstance* instance = (RenderBatchInstance*)mFrameAllocator->Allocate(sizeof(RenderBatchInstance));
+				instance->mMesh = batch->GetMesh();
+				instance->mDataOffset = bathIndex * instanceSize;
 
 				instances.push_back(instance);
 			}
 
-			Actor* actor = batch->GetActor();
+			Actor* actor = nullptr; //batch->GetActor();
 			if (actor == nullptr) {
 				continue;
 			}
@@ -283,7 +297,7 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderingType renderingTy
 
 		for (auto& instance : instances)
 		{
-			MeshPtr mesh = instance.mMesh;
+			MeshPtr mesh = instance->mMesh;
 
 			// bind index buffer
 			mGraphicsDevice->BindIndexBuffer(mesh->GetIndexBuffer(), mesh->GetIndexFormat(), 0);
@@ -313,10 +327,12 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderingType renderingTy
 
 				// bind material texture
 
-				// draw index
-				mGraphicsDevice->DrawIndexedInstances(subset.mIndexCount, instanceCount, instance.mInstanceCount, 0, 0);
+				// ???
+				mGraphicsDevice->DrawIndexedInstances(subset.mIndexCount, instance->mInstanceCount, instance->mDataOffset, 0, 0);
 			}
 		}
+
+		mFrameAllocator->Free(instanceCount * sizeof(RenderBatchInstance));
 	}
 }
 

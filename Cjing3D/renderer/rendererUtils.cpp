@@ -53,13 +53,18 @@ namespace Cjing3D
 		}
 	}
 
-	void RenderBatch::Init(Renderable & renderable, Actor* actor)
+	void RenderBatch::Init(Renderable& renderable)
 	{
-		mActor = actor;
+		// TODO
+		mRenderable = &renderable;
 	}
 
 	RenderBatch::RenderBatch():
-		mActor(nullptr)
+		mRenderable(nullptr)
+	{
+	}
+
+	RenderBatch::~RenderBatch()
 	{
 	}
 

@@ -185,6 +185,7 @@
     <ClInclude Include="resource\resource.h" />
     <ClInclude Include="resource\resourceManager.h" />
     <ClInclude Include="resource\resourcePool.hpp" />
+    <ClInclude Include="utils\allocator.h" />
     <ClInclude Include="utils\array.h" />
     <ClInclude Include="utils\geometry.h" />
     <ClInclude Include="utils\intersectable.h" />

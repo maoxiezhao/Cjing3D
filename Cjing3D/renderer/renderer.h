@@ -6,6 +6,7 @@
 #include "renderer\rendererUtils.h"
 #include "core\subSystem.hpp"
 #include "world\actor.h"
+#include "utils\allocator.h"
 
 #include <unordered_map>
 
@@ -40,7 +41,7 @@ public:
 	ResourceManager& GetResourceManager();
 	Pipeline& GetPipeline();
 	DeferredMIPGenerator& GetDeferredMIPGenerator();
-	Camera& GetCamera();
+	std::shared_ptr<Camera> GetCamera();
 
 	void RenderSceneOpaque(std::shared_ptr<Camera> camera, RenderingType renderingType);
 	void RenderSceneTransparent(std::shared_ptr<Camera> camera, RenderingType renderingType);
@@ -73,13 +74,13 @@ private:
 	U32 mFrameNum = 0;
 
 	std::shared_ptr<Camera> mCamera;
-
 	std::unique_ptr<GraphicsDevice> mGraphicsDevice;
 	std::unique_ptr<ShaderLib> mShaderLib;
 	std::unique_ptr<StateManager> mStateManager;
 	std::unique_ptr<Pipeline> mPipeline;
 	std::unique_ptr<RenderQueue> mRenderQueue;
 	std::unique_ptr<DeferredMIPGenerator> mDeferredMIPGenerator;
+	std::unique_ptr<LinearAllocator> mFrameAllocator;
 
 	/** rendering pass */
 	std::unique_ptr<ForwardPass> mForwardPass;

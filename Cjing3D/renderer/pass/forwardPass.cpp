@@ -33,13 +33,19 @@ namespace Cjing3D {
 
 	void ForwardPass::Render()
 	{
+		auto camera = mRenderer.GetCamera();
+		if (camera == nullptr) {
+			return;
+		}
+
 		SetupFixedState();
 
-		mRenderer.UpdateCameraCB(mRenderer.GetCamera());
+		mRenderer.UpdateCameraCB(*camera);
 
 		mRenderTarget->Bind(0, 0, 0, 0);
 		{
-			// draw
+			// draw scene
+			mRenderer.RenderSceneOpaque(camera, RenderingType_Forward);
 		}
 		mRenderTarget->UnBind();
 	}

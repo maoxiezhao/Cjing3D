@@ -44,19 +44,19 @@ namespace Cjing3D
 	{
 	public:
 		RenderBatch();
+		~RenderBatch();
 
-		void Init(Renderable& renderable, Actor* actor);
+		void Init(Renderable& renderable);
 
 		U32 GetHash()const { return mHash; }
 		U32 GetMeshGUID()const { return mHash; }
-
-		// TODO
-		Actor* GetActor() { return mActor; }
+		Renderable* GetRenderable() { return mRenderable; }
 		MeshPtr GetMesh() { return mMesh; }
+
 	private:
 		// 当前仅以MeshGUID作为Hash
 		U32 mHash;
-		Actor* mActor;
+		Renderable* mRenderable;
 		MeshPtr mMesh;
 	};
 
@@ -88,6 +88,11 @@ namespace Cjing3D
 		std::vector<RenderBatch*>& GetRenderBatches() 
 		{
 			return mRenderBatch;
+		}
+
+		size_t GetBatchCount()const 
+		{
+			return mRenderBatch.size();
 		}
 
 	private:
