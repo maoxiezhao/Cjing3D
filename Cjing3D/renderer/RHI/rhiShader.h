@@ -63,5 +63,12 @@ namespace Cjing3D
 			mInputLayout = nullptr;
 			mPixelShader = nullptr;
 		}
+
+		bool IsEmpty()
+		{
+			return mVertexShader == nullptr ||
+				mPixelShader == nullptr ||
+				mInputLayout == nullptr;
+		}
 	};
 }

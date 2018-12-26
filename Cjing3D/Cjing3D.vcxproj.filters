@@ -368,6 +368,9 @@
     <ClInclude Include="utils\allocator.h">
       <Filter>utils</Filter>
     </ClInclude>
+    <ClInclude Include="renderer\mappingDefine.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resource\resourceManager.inl">

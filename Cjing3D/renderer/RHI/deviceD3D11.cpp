@@ -1303,6 +1303,31 @@ void GraphicsDeviceD3D11::BindGPUResource(SHADERSTAGES stage, GPUResource& resou
 	}
 }
 
+void GraphicsDeviceD3D11::BindGPUResources(SHADERSTAGES stage, GPUResource * const * resource, U32 slot, U32 count)
+{
+	ID3D11ShaderResourceView* srvs[8];
+	for (int i = 0; i < count; i++) {
+		srvs[i] = resource[i] != nullptr ? (ID3D11ShaderResourceView*)resource[i]->GetShaderResourceView() :nullptr;
+	}
+	switch (stage)
+	{
+	case Cjing3D::SHADERSTAGES_VS:
+		GetDeviceContext(GraphicsThread_IMMEDIATE).VSSetShaderResources(slot, count, srvs);
+		break;
+	case Cjing3D::SHADERSTAGES_GS:
+		GetDeviceContext(GraphicsThread_IMMEDIATE).GSSetShaderResources(slot, count, srvs);
+		break;
+	case Cjing3D::SHADERSTAGES_PS:
+		GetDeviceContext(GraphicsThread_IMMEDIATE).PSSetShaderResources(slot, count, srvs);
+		break;
+	case Cjing3D::SHADERSTAGES_CS:
+		GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetShaderResources(slot, count, srvs);
+		break;
+	default:
+		break;
+	}
+}
+
 void GraphicsDeviceD3D11::DestoryGPUResource(GPUResource & resource)
 {
 	if (resource.GetGPUResource() != CPU_NULL_HANDLE)

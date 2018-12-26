@@ -49,6 +49,8 @@ public:
 	// const buffer function
 	void UpdateCameraCB(Camera& camera);
 
+	ShaderInfoState GetShaderInfoState(Material& material);
+
 private:
 	void InitializePasses();
 	void AccquireActors(std::vector<ActorPtr> actors);

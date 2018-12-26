@@ -50,6 +50,7 @@ public:
 	virtual void ClearDepthStencil(RhiTexture2D& texture, UINT clearFlag, F32 depth, U8 stencil);
 
 	virtual void BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot);
+	virtual void BindGPUResources(SHADERSTAGES stage, GPUResource* const* resource, U32 slot, U32 count);
 	virtual void DestoryGPUResource(GPUResource& resource);
 
 	virtual void BindShaderInfoState(ShaderInfoState* state);

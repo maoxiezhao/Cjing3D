@@ -165,6 +165,7 @@
     <ClInclude Include="renderer\renderable\renderableComponent3D.h" />
     <ClInclude Include="renderer\renderer.h" />
     <ClInclude Include="renderer\rendererUtils.h" />
+    <ClInclude Include="renderer\mappingDefine.h" />
     <ClInclude Include="renderer\resource\renderTarget.h" />
     <ClInclude Include="renderer\resource\texture.h" />
     <ClInclude Include="renderer\RHI\rhiBuffer.h" />

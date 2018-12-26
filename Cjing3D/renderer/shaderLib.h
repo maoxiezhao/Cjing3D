@@ -37,6 +37,7 @@ public:
 	std::shared_ptr<VertexShader> GetVertexShader(VetextShaderType shaderType);
 	std::shared_ptr<PixelShader> GetPixelShader(PixelShaderType shaderType);
 
+	ShaderInfoState GetShaderInfoState(Material& material);
 private:
 	void LoadShader();
 	void LoadVertexShaders();

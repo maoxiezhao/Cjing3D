@@ -4,6 +4,7 @@
 #include "helper\IDGenerator.h"
 #include "utils\geometry.h"
 #include "utils\intersectable.h"
+#include "renderer\mappingDefine.h"
 
 #include <wrl.h>
 #include <memory>

@@ -105,7 +105,7 @@ namespace Cjing3D
 		device.BindViewports(&mViewPort, 1, GraphicsThread_IMMEDIATE);
 
 		// bind rendertarget
-		std::vector<RhiTexture2D*> renderTargets(mRenderTargets.size());
+		std::vector<RhiTexture2D*> renderTargets;
 		for (auto& texture : mRenderTargets){
 			renderTargets.push_back(texture.get());
 		}

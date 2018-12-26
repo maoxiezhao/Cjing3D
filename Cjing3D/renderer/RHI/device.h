@@ -50,6 +50,7 @@ namespace Cjing3D
 		virtual void ClearDepthStencil(RhiTexture2D& texture, UINT clearFlag, F32 depth, U8 stencil) = 0;
 
 		virtual void BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot) = 0;
+		virtual void BindGPUResources(SHADERSTAGES stage, GPUResource* const* resource, U32 slot, U32 count) = 0;
 		virtual void DestoryGPUResource(GPUResource& resource) = 0;
 
 		virtual void BindShaderInfoState(ShaderInfoState* state) = 0;

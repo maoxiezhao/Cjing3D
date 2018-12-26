@@ -24,6 +24,12 @@ void World::Update()
 {
 }
 
+void World::Clear()
+{
+	mAllMaterial.clear();
+	mAllActors.clear();
+}
+
 ActorPtr World::CreateNewActor()
 {
 	return ActorPtr();
@@ -61,6 +67,16 @@ const std::vector<ActorPtr>& World::GetAllActor() const
 bool World::IsActorExists(ActorPtr actor)
 {
 	return false;
+}
+
+MaterialPtr World::GetMaterialByGUID(U32 guid)
+{
+	auto findIt = mAllMaterial.find(guid);
+	if (findIt != mAllMaterial.end())
+	{
+		return findIt->second;
+	}
+	return nullptr;
 }
 
 }

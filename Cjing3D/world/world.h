@@ -3,9 +3,14 @@
 #include "common\common.h"
 #include "core\systemContext.hpp"
 #include "world\actor.h"
+#include "renderer\components\material.h"
+#include "renderer\components\mesh.h"
 
 namespace Cjing3D{
 
+/**
+*	\brief 世界类管理所有的Actor对象，同时还包括Material资源和Mesh资源
+*/
 class World : public SubSystem
 {
 public:
@@ -15,6 +20,7 @@ public:
 	virtual void Initialize();
 	virtual void Uninitialize();
 	virtual void Update();
+	virtual void Clear();
 
 	/******************************************
 	* Actor Method 
@@ -30,11 +36,15 @@ public:
 
 	bool IsActorExists(ActorPtr actor);
 
+	MaterialPtr GetMaterialByGUID(U32 guid);
+
 private:
 
 	std::vector<ActorPtr> mAllActors;
 	std::map<U32, ActorPtr> mActorGuidMap;
 	std::map<StringID, ActorPtr> mActorNameMap;
+
+	std::map<U32, MaterialPtr> mAllMaterial;	// key is guid
 };
 
 }

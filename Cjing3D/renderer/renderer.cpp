@@ -8,7 +8,9 @@
 #include "renderer\RHI\deviceD3D11.h"
 #include "world\component\camera.h"
 #include "world\component\renderable.h"
+#include "world\world.h"
 #include "resource\resourceManager.h"
+#include "renderer\components\material.h"
 
 namespace Cjing3D {
 
@@ -208,6 +210,11 @@ void Renderer::UpdateCameraCB(Camera & camera)
 {
 }
 
+ShaderInfoState Renderer::GetShaderInfoState(Material & material)
+{
+	return mShaderLib->GetShaderInfoState(material);
+}
+
 void Renderer::InitializePasses()
 {
 	mForwardPass = std::make_unique<ForwardPass>(mGameContext, *this);
@@ -259,10 +266,10 @@ void Renderer::UpdateRenderData()
 
 void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderingType renderingType, XMMATRIX viewProj)
 {
-	// TODO replace by pipeline
 	if (queue.IsEmpty() == false)
 	{
 		auto& resourceManager = GetGameContext().GetSubSystem<ResourceManager>();
+		auto& world = GetGameContext().GetSubSystem<World>();
 
 		U32 prevMeshGUID = 0;
 		U32 instanceSize = 0;
@@ -302,32 +309,46 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderingType renderingTy
 			// bind index buffer
 			mGraphicsDevice->BindIndexBuffer(mesh->GetIndexBuffer(), mesh->GetIndexFormat(), 0);
 
+			bool bindVertexBuffer = false;
 			for (auto& subset : mesh->GetMeshSubsets())
 			{
-				MaterialPtr material = nullptr; //resourceManager.Get<Material>(subset.mMaterialID);
+				MaterialPtr material = world.GetMaterialByGUID(subset.mMaterialID); 
 				if (material == nullptr) {
 					continue;
 				}
 				
+				ShaderInfoState state = mShaderLib->GetShaderInfoState(*material);
+				if (state.IsEmpty()) {
+					continue;;
+				}
+
 				// bind vertex buffer
-				GPUBuffer* vbs[] = {
-					&mesh->GetVertexBuffer()
-				};
-
-				U32 strides[] = {
-					sizeof(Mesh::VertexPosNormalTex)
-				};
-
-				U32 offsets[] = {
-					0
-				};
-				mGraphicsDevice->BindVertexBuffer(vbs, 0, 1, strides, offsets);
+				if (bindVertexBuffer == false)
+				{
+					GPUBuffer* vbs[] = {
+						&mesh->GetVertexBuffer()
+					};
+					U32 strides[] = {
+						sizeof(Mesh::VertexPosNormalTex)
+					};
+					U32 offsets[] = {
+						0
+					};
+					mGraphicsDevice->BindVertexBuffer(vbs, 0, 1, strides, offsets);
+				}
 
 				// bind shader state
+				mGraphicsDevice->BindShaderInfoState(&state);
 
 				// bind material texture
-
-				// ???
+				GPUResource* resources[] = {
+					material->GetBaseColorMap().get(),
+					material->GetSurfaceMap().get(),
+					material->GetNormalMap().get(),
+				};
+				mGraphicsDevice->BindGPUResources(SHADERSTAGES_PS, resources, TEXTURE_SLOT_0, 3);
+			
+				// draw
 				mGraphicsDevice->DrawIndexedInstances(subset.mIndexCount, instance->mInstanceCount, instance->mDataOffset, 0, 0);
 			}
 		}
