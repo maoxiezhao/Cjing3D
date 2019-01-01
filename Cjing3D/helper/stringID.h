@@ -22,6 +22,7 @@ namespace Cjing3D {
 
 		unsigned int HashValue()const { return mValue; }
 		std::string GetString()const { return mStr; }
+		void SetString(const std::string& str);
 
 		operator bool()const { return mValue != 0; }
 

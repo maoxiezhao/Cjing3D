@@ -38,6 +38,12 @@ namespace Cjing3D {
 
 	StringID & StringID::operator=(StringID && rhs) = default;
 
+	void StringID::SetString(const std::string & str)
+	{
+		mValue = CalculateHash(str.data());
+		mStr = str;
+	}
+
 	U32 StringID::CalculateHash(const char * str)
 	{
 		if (str == nullptr)

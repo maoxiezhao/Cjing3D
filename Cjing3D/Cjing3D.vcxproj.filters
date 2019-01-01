@@ -173,6 +173,15 @@
     <ClCompile Include="renderer\resource\renderTarget.cpp">
       <Filter>renderer\resource</Filter>
     </ClCompile>
+    <ClCompile Include="resource\modelImporter\modelImporterObj.cpp">
+      <Filter>resource\importer</Filter>
+    </ClCompile>
+    <ClCompile Include="helper\random.cpp">
+      <Filter>helper</Filter>
+    </ClCompile>
+    <ClCompile Include="core\sceneSystem.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -370,6 +379,21 @@
     </ClInclude>
     <ClInclude Include="renderer\mappingDefine.h">
       <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tinyObjLoader.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\helper.h">
+      <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="core\ecsSystem.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\random.h">
+      <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="core\sceneSystem.h">
+      <Filter>core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

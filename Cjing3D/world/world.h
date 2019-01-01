@@ -2,6 +2,7 @@
 
 #include "common\common.h"
 #include "core\systemContext.hpp"
+#include "core\sceneSystem.h"
 #include "world\actor.h"
 #include "renderer\components\material.h"
 #include "renderer\components\mesh.h"
@@ -38,6 +39,8 @@ public:
 
 	MaterialPtr GetMaterialByGUID(U32 guid);
 
+	Scene& GetMainScene();
+
 private:
 
 	std::vector<ActorPtr> mAllActors;
@@ -45,6 +48,8 @@ private:
 	std::map<StringID, ActorPtr> mActorNameMap;
 
 	std::map<U32, MaterialPtr> mAllMaterial;	// key is guid
+
+	Scene mMainScene;
 };
 
 }

@@ -79,4 +79,9 @@ MaterialPtr World::GetMaterialByGUID(U32 guid)
 	return nullptr;
 }
 
+Scene & World::GetMainScene()
+{
+	return mMainScene;
+}
+
 }

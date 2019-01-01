@@ -1,4 +1,5 @@
 #include "gameComponent.h"
+#include "resource\modelImporter.h"
 
 namespace Cjing3D
 {
@@ -12,6 +13,8 @@ namespace Cjing3D
 
 	void TestGame::Setup()
 	{
+		auto systemContext = GetGameContext();
+		ImportModelObj("..\\Assets\\Models\\cornell_box.obj", *systemContext);
 	}
 
 	void TestGame::Initialize()

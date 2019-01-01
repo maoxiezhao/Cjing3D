@@ -12,6 +12,7 @@ struct aiMesh;
 namespace Cjing3D
 {
 class Actor;
+class SystemContext;
 
 class ModelImporter
 {
@@ -27,5 +28,7 @@ private:
 	void LoadAnimation(Model& model);
 
 };
+
+void ImportModelObj(const std::string& fileName, SystemContext& systemContext);
 
 }

@@ -18,18 +18,6 @@ namespace Cjing3D
 	void Pipeline::Bind()
 	{
 
-		GPUBuffer* vbs[] = {
-			&mMesh->GetVertexBuffer()
-		};
-
-		U32 strides[] = {
-			sizeof(Mesh::VertexPosNormalTex)
-		};
-
-		U32 offsets[] = {
-			0
-		};
-		mGraphicsDevice->BindVertexBuffer(vbs, 0, 1, strides, offsets);
 	}
 
 	void Pipeline::Clear()

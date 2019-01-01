@@ -319,7 +319,7 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderingType renderingTy
 				
 				ShaderInfoState state = mShaderLib->GetShaderInfoState(*material);
 				if (state.IsEmpty()) {
-					continue;;
+					continue;
 				}
 
 				// bind vertex buffer
