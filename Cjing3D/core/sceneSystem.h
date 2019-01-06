@@ -5,6 +5,7 @@
 #include "renderer\renderableCommon.h"
 #include "renderer\RHI\rhiDefinition.h"
 #include "renderer\RHI\rhiBuffer.h"
+#include "renderer\RHI\rhiTexture.h"
 #include "helper\stringID.h"
 
 #include <map>
@@ -16,9 +17,9 @@ namespace Cjing3D {
 	struct MeshComponent 
 	{
 	public:
-		std::vector<XMFLOAT3> mVertexPositions;
-		std::vector<XMFLOAT3> mVertexNormals;
-		std::vector<XMFLOAT2> mVertexTexcoords;
+		std::vector<F32x3> mVertexPositions;
+		std::vector<F32x3> mVertexNormals;
+		std::vector<F32x2> mVertexTexcoords;
 		std::vector<U32> mIndices;
 
 		struct MeshSubset
@@ -36,14 +37,43 @@ namespace Cjing3D {
 		AABB mAABB;
 
 	public:
+		void SetupRenderData(GraphicsDevice& device);
 
+	public:
+
+		// 顶点结构体，因为法线值可以以（0-256）存储,故法线坐标可以用3个8位
+		// 表示，同时加上subsetIndex存储在第四个8位中
+		struct VertexPosNormalSubset
+		{
+			F32x3 mPos = F32x3(0.0f, 0.0f, 0.0f);
+			//  subsetindex, normal_z, normal_y, normal_x
+			U32 mNormalSubsetIndex = 0;
+
+			void Setup(F32x3 pos, F32x3 normal, U32 subsetIndex);
+			void Setup(F32x3 normal, U32 subsetIndex);
+		};
 	};
 
 	struct MaterialComponent
 	{
+		F32x4 mBaseColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+		F32 mRoughness = 0.2f;
+		F32 mMetalness = 0.0f;
+
+		std::string mBaseColorMapName;
+		std::string mSurfaceMapName;
+		std::string mNormalMapName;
+
 		RhiTexture2DPtr mBaseColorMap = nullptr;
 		RhiTexture2DPtr mSurfaceMap = nullptr;
 		RhiTexture2DPtr mNormalMap = nullptr;
+	};
+
+	struct ObjectComponent
+	{
+		ECS::Entity mMeshID = ECS::INVALID_ENTITY;
+		F32x3 mCenter = F32x3(0.0f, 0.0f, 0.0f);
+		F32x4 mColor = F32x4(1.0f, 1.0f, 1.0f, 1.0f);
 	};
 
 	// TODO: refactor with template
@@ -59,11 +89,23 @@ namespace Cjing3D {
 		// create function
 		ECS::Entity CreateEntityMaterial(const std::string& name);
 		ECS::Entity CreateEntityMesh(const std::string& name);
+		ECS::Entity CreateEntityObject(const std::string& name);
 
 		ECS::Entity CreateEntityByName(const std::string& name);
 		ECS::Entity GetEntityByName(StringID name);
 
 		void RemoveEntity(ECS::Entity entity);
+
+		template<typename ComponentT>
+		std::shared_ptr<ComponentT> GetComponent(ECS::Entity entity)
+		{
+			auto& manager = GetComponentManager<ComponentT>();
+			return manager.GetComponent(entity);
+		}
+
+	private:
+		template<typename ComponentT>
+		ECS::ComponentManager<ComponentT>& GetComponentManager();
 
 	public:
 		std::map<StringID, ECS::Entity> mNameEntityMap;
@@ -71,7 +113,25 @@ namespace Cjing3D {
 		ECS::ComponentManager<StringID> mNames;
 		ECS::ComponentManager<MeshComponent> mMeshes;
 		ECS::ComponentManager<MaterialComponent> mMaterials;
+		ECS::ComponentManager<ObjectComponent> mObjects;
 	};
 
+	template<>
+	inline ECS::ComponentManager<MeshComponent>& Scene::GetComponentManager()
+	{
+		return mMeshes;
+	}
+
+	template<>
+	inline ECS::ComponentManager<MaterialComponent>& Scene::GetComponentManager()
+	{
+		return mMaterials;
+	}
+
+	template<>
+	inline ECS::ComponentManager<ObjectComponent>& Scene::GetComponentManager()
+	{
+		return mObjects;
+	}
 }
 	

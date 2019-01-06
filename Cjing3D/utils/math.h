@@ -83,4 +83,27 @@ namespace Cjing3D {
 	{
 		return c + (hash << 6) + (hash << 16) - hash;
 	}
+
+	inline F32x3 F32x3Max(F32x3 a, F32x3 b)
+	{
+		return F32x3(
+			max(a[0], b[0]),
+			max(a[1], b[1]),
+			max(a[2], b[2])
+		);
+	}
+
+	inline F32x3 F32x3Min(F32x3 a, F32x3 b)
+	{
+		return F32x3(
+			min(a[0], b[0]),
+			min(a[1], b[1]),
+			min(a[2], b[2])
+		);
+	}
+
+	inline F32x3 F32x3Normalize(F32x3 n)
+	{
+		return XMStore<F32x3>(XMVector3Normalize(XMLoad(n)));
+	}
 }

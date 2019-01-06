@@ -85,6 +85,10 @@ public:
 	std::enable_if_t<std::is_same<ResourceT, Model>::value, std::shared_ptr<Model>>
 		GetOrCreate(const StringID & filePath);
 
+	template<typename ResourceT>
+	std::enable_if_t<std::is_same<ResourceT, RhiTexture2D>::value, std::shared_ptr<RhiTexture2D>>
+		GetOrCreate(const StringID & filePath, GraphicsDevice& device);
+
 private:
 	template <typename ResourceT>
 	PoolType<ResourceT>& GetPool();
@@ -99,26 +103,28 @@ private:
 
 	PoolType<VertexShaderInfo> mVertexShaderPool;
 	PoolType<PixelShader> mPixelShaderPool;
+	PoolType<RhiTexture2D> mTexture2DPool;
+
+	// TO REMOVE
 	PoolType<Model> mModelPool;
 	PoolType<Mesh> mMeshPool;
 };
 
 template<typename ResourceT>
-inline std::enable_if_t<std::is_same<ResourceT, Model>::value, std::shared_ptr<Model>>
-Cjing3D::ResourceManager::GetOrCreate(const StringID & filePath)
+inline std::enable_if_t<std::is_same<ResourceT, RhiTexture2D>::value, std::shared_ptr<RhiTexture2D>>
+Cjing3D::ResourceManager::GetOrCreate(const StringID & filePath, GraphicsDevice& device)
 {
-	PoolType<Model>& modelPool = GetPool< Model >();
-	bool isExists = modelPool.Contains(filePath);
+	PoolType<RhiTexture2D>& texturePool = GetPool< RhiTexture2D >();
 
-	auto model = modelPool.GetOrCreate(filePath);
+	bool isExists = texturePool.Contains(filePath);
+	auto texture = texturePool.GetOrCreate(filePath, device);
 	if (isExists == false) {
-		model->LoadFromFile(filePath.GetString(), *this);		
+		// load Image
 	}
-	
-	return model;
+	return texture;
 }
 
-#include "resourceManager.inl"
+#include "resource\resourceManager.inl"
 
 
 }

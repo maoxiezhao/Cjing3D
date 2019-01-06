@@ -9,6 +9,7 @@ void ResourceManager::Initialize()
 	AddStandardResourceDirectory(Resrouce_VertexShader, "Shaders/");
 	AddStandardResourceDirectory(Resrouce_PixelShader, "Shaders/");
 	AddStandardResourceDirectory(Resource_Model, "Models/");
+
 }
 
 void ResourceManager::AddStandardResourceDirectory(Resource_Type type, const std::string & path)

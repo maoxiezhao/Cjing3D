@@ -1,5 +1,4 @@
-#include "resourceManager.h"
-#pragma once
+
 /**
 *	\brief 获取指定资源
 *	\return 如果不存在则返回nullptr
@@ -59,6 +58,13 @@ ResourceManager::GetPool<Model>()const
 	return mModelPool;
 }
 
+template <>
+inline const ResourceManager::PoolType<RhiTexture2D>&
+ResourceManager::GetPool<RhiTexture2D>()const
+{
+	return mTexture2DPool;
+}
+
 // 创建VertexShader着色器
 template<typename ResourceT>
 inline std::enable_if_t<std::is_same<ResourceT, VertexShaderInfo>::value, std::shared_ptr<VertexShaderInfo>>
@@ -88,4 +94,18 @@ Cjing3D::ResourceManager::GetOrCreate(const StringID & name, VertexLayoutDesc* d
 	}
 
 	return vertexShaderInfo;
+}
+
+template<typename ResourceT>
+inline std::enable_if_t<std::is_same<ResourceT, Model>::value, std::shared_ptr<Model>>
+Cjing3D::ResourceManager::GetOrCreate(const StringID & filePath)
+{
+	PoolType<Model>& modelPool = GetPool< Model >();
+	bool isExists = modelPool.Contains(filePath);
+
+	auto model = modelPool.GetOrCreate(filePath);
+	if (isExists == false) {
+		model->LoadFromFile(filePath.GetString(), *this);
+	}
+	return model;
 }

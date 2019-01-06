@@ -180,7 +180,7 @@
       <Filter>helper</Filter>
     </ClCompile>
     <ClCompile Include="core\sceneSystem.cpp">
-      <Filter>core</Filter>
+      <Filter>world</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -386,22 +386,22 @@
     <ClInclude Include="helper\helper.h">
       <Filter>helper</Filter>
     </ClInclude>
-    <ClInclude Include="core\ecsSystem.h">
-      <Filter>core</Filter>
-    </ClInclude>
     <ClInclude Include="helper\random.h">
       <Filter>helper</Filter>
     </ClInclude>
     <ClInclude Include="core\sceneSystem.h">
-      <Filter>core</Filter>
+      <Filter>world</Filter>
+    </ClInclude>
+    <ClInclude Include="core\ecsSystem.h">
+      <Filter>world</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="resource\resourceManager.inl">
-      <Filter>resource</Filter>
-    </None>
     <None Include="renderer\RHI\rhiFactory.inl">
       <Filter>renderer\rhi</Filter>
+    </None>
+    <None Include="resource\resourceManager.inl">
+      <Filter>resource</Filter>
     </None>
   </ItemGroup>
 </Project>

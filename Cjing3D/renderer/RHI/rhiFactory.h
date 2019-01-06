@@ -10,7 +10,10 @@ namespace Cjing3D
 	HRESULT CreateDynamicConstantBuffer(GraphicsDevice & device, GPUBuffer& buffer, size_t dataSize);
 
 	template <typename VertexT>
-	HRESULT CreateStaticVertexBuffer(GraphicsDevice & device, GPUBuffer& buffer, std::vector<VertexT> vertices);
+	HRESULT CreateBABVertexBuffer(GraphicsDevice & device, GPUBuffer& buffer, std::vector<VertexT> vertices);
+
+	template <typename VertexT>
+	HRESULT CreateStaticVertexBuffer(GraphicsDevice & device, GPUBuffer& buffer, std::vector<VertexT> vertices, FORMAT format = FORMAT_UNKNOWN);
 
 	template <typename IndexT>
 	HRESULT CreateStaticIndexBuffer(GraphicsDevice & device, GPUBuffer& buffer, std::vector<IndexT> indices);
