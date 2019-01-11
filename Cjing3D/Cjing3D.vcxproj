@@ -235,6 +235,7 @@
     <ClCompile Include="renderer\RHI\rhiBuffer.cpp" />
     <ClCompile Include="renderer\RHI\rhiFactory.cpp" />
     <ClCompile Include="renderer\RHI\rhiPipeline.cpp" />
+    <ClCompile Include="renderer\RHI\rhiResource.cpp" />
     <ClCompile Include="renderer\RHI\rhiTexture.cpp" />
     <ClCompile Include="renderer\shaderLib.cpp" />
     <ClCompile Include="renderer\RHI\device.cpp" />

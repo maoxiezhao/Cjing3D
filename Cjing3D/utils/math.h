@@ -1,8 +1,12 @@
 #pragma once
 
 #include <DirectXMath.h>
+#include <algorithm>
 
 #include "array.h"
+
+#undef min
+#undef max
 
 namespace Cjing3D {
 	using namespace DirectX;
@@ -87,18 +91,18 @@ namespace Cjing3D {
 	inline F32x3 F32x3Max(F32x3 a, F32x3 b)
 	{
 		return F32x3(
-			max(a[0], b[0]),
-			max(a[1], b[1]),
-			max(a[2], b[2])
+			std::max(a[0], b[0]),
+			std::max(a[1], b[1]),
+			std::max(a[2], b[2])
 		);
 	}
 
 	inline F32x3 F32x3Min(F32x3 a, F32x3 b)
 	{
 		return F32x3(
-			min(a[0], b[0]),
-			min(a[1], b[1]),
-			min(a[2], b[2])
+			std::min(a[0], b[0]),
+			std::min(a[1], b[1]),
+			std::min(a[2], b[2])
 		);
 	}
 

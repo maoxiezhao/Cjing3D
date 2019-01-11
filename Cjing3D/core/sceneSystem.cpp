@@ -111,6 +111,7 @@ namespace Cjing3D
 
 		F32x3 mMinPos = { FLT_MAX, FLT_MAX, FLT_MAX };
 		F32x3 mMaxPos = { -FLT_MAX, -FLT_MAX, -FLT_MAX };
+
 		// setup vertex pos buffer
 		// format: pos + normal + subsetindex
 		{
@@ -152,11 +153,10 @@ namespace Cjing3D
 		mAABB = AABB(XMLoad(mMinPos), XMLoad(mMaxPos));
 
 		// vertex texcoords
+		if (mVertexTexcoords.empty() == false)
 		{
-
-
-			//const auto result = CreateStaticVertexBuffer(device, *mVertexBufferPos, vertices);
-			//Debug::ThrowIfFailed(result, "Failed to create vertex texcoords buffer:%08x", result);
+			const auto result = CreateStaticVertexBuffer(device, *mVertexBufferTex, mVertexTexcoords, VertexTex::format);
+			Debug::ThrowIfFailed(result, "Failed to create vertex texcoords buffer:%08x", result);
 		}
 
 	}

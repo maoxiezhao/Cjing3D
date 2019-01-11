@@ -10,11 +10,11 @@ namespace Cjing3D
 	/**
 	*	\brief ConstantBuffer类
 	*/
-	class GPUBuffer
+	class GPUBuffer : public GPUResource
 	{
 	public:
-		GPUBuffer(GraphicsDevice& device) :mDevice(device) {}
-		~GPUBuffer() = default;
+		GPUBuffer(GraphicsDevice& device);
+		~GPUBuffer();
 
 		// 刷新数据
 		void Create(U32 size);
@@ -37,7 +37,6 @@ namespace Cjing3D
 		}
 	private:
 		GPUBufferDesc mDesc;
-		GraphicsDevice & mDevice;
 		ComPtr<ID3D11Buffer> mBuffer;
 	};
 }

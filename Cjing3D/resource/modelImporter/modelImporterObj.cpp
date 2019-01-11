@@ -152,7 +152,7 @@ namespace Cjing3D
 				}
 			}
 
-			mesh->SetupRenderData();
+			mesh->SetupRenderData(device);
 		}
 
 		world.GetMainScene().Merge(newScene);

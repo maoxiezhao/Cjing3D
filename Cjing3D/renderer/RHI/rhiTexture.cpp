@@ -3,16 +3,6 @@
 
 namespace Cjing3D
 {
-	GPUResource::GPUResource(GraphicsDevice& device):
-		mDevice(device)
-	{
-	}
-
-	GPUResource::~GPUResource()
-	{
-		mDevice.DestoryGPUResource(*this);
-	}
-
 	RhiTexture::RhiTexture(GraphicsDevice& device) : GPUResource(device) {}
 	RhiTexture::~RhiTexture() = default;
 

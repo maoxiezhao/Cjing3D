@@ -52,6 +52,13 @@ namespace Cjing3D {
 			void Setup(F32x3 pos, F32x3 normal, U32 subsetIndex);
 			void Setup(F32x3 normal, U32 subsetIndex);
 		};
+
+		// TODO:可以用两个Half float 表示的纹理坐标
+		struct VertexTex
+		{
+			F32x2 mTex = F32x2(0.0f, 0.0f);
+			static const FORMAT format = FORMAT::FORMAT_R32G32_FLOAT;
+		};
 	};
 
 	struct MaterialComponent

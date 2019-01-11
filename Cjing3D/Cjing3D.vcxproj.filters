@@ -182,6 +182,9 @@
     <ClCompile Include="core\sceneSystem.cpp">
       <Filter>world</Filter>
     </ClCompile>
+    <ClCompile Include="renderer\RHI\rhiResource.cpp">
+      <Filter>renderer\rhi</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />

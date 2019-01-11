@@ -7,24 +7,6 @@ namespace Cjing3D
 {
 	class GraphicsDevice;
 
-	using CPUHandle = uint64_t;
-	static const CPUHandle CPU_NULL_HANDLE = 0;
-	class GPUResource
-	{
-	public:
-		GPUResource(GraphicsDevice& device);
-		virtual ~GPUResource();
-
-		CPUHandle& GetGPUResource() { return mResource; }
-		CPUHandle& GetShaderResourceView() { return mSRV; }
-		GraphicsDevice& GetDevice() { return mDevice; }
-
-	private:
-		CPUHandle mResource = CPU_NULL_HANDLE;
-		CPUHandle mSRV = CPU_NULL_HANDLE;
-		GraphicsDevice& mDevice;
-	};
-
 	class RhiTexture : public GPUResource
 	{
 	public:

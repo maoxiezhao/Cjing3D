@@ -1053,7 +1053,47 @@ HRESULT GraphicsDeviceD3D11::CreateBuffer(const GPUBufferDesc * desc, GPUBuffer 
 	}
 
 	auto& bufferPtr = buffer.GetBufferPtr();
-	return mDevice->CreateBuffer(&bufferDesc, subresource_data, bufferPtr.ReleaseAndGetAddressOf());
+	HRESULT result = mDevice->CreateBuffer(&bufferDesc, subresource_data, bufferPtr.ReleaseAndGetAddressOf());
+	SAFE_DELETE_ARRAY(subresource_data);
+
+	if (SUCCEEDED(result))
+	{
+		// 根据miscFlags创建SRV
+		if (bufferDesc.BindFlags & D3D11_BIND_SHADER_RESOURCE)
+		{
+			D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+			if (bufferDesc.MiscFlags & D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS)
+			{
+				// byte raw buffer
+				srvDesc.Format = DXGI_FORMAT_R32_TYPELESS; // ????
+				srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
+				srvDesc.Buffer.FirstElement = 0;
+				srvDesc.BufferEx.Flags = D3D11_BUFFEREX_SRV_FLAG_RAW;
+				srvDesc.Buffer.NumElements = desc->mByteWidth / 4;	// 4字节存储
+			}
+			else if (bufferDesc.MiscFlags & D3D11_RESOURCE_MISC_BUFFER_STRUCTURED)
+			{
+				srvDesc.Format = DXGI_FORMAT_UNKNOWN; // ????
+				srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
+				srvDesc.Buffer.FirstElement = 0;
+				srvDesc.Buffer.NumElements = desc->mByteWidth / desc->mStructureByteStride;
+			}
+			else
+			{
+				// typed buffer，存储为numElements个structureByteStride大小的元素
+				srvDesc.Format = _ConvertFormat(desc->mFormat);
+				srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+				srvDesc.Buffer.FirstElement = 0;
+				srvDesc.Buffer.NumElements = desc->mByteWidth / desc->mStructureByteStride;
+			}
+
+			auto& srv = buffer.GetShaderResourceView();
+			auto& resource = buffer.GetGPUResource();
+			result = mDevice->CreateShaderResourceView((ID3D11Resource*)resource, &srvDesc, (ID3D11ShaderResourceView**)&srv);
+		}
+	}
+
+	return result;
 }
 
 void GraphicsDeviceD3D11::UpdateBuffer(GPUBuffer & buffer, const void * data, U32 dataSize)
