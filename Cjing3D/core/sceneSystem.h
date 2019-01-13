@@ -91,7 +91,7 @@ namespace Cjing3D {
 
 		void Update();
 		void Merge(Scene& scene);
-		void Clera();
+		void Clear();
 
 		// create function
 		ECS::Entity CreateEntityMaterial(const std::string& name);
@@ -114,6 +114,8 @@ namespace Cjing3D {
 		template<typename ComponentT>
 		ECS::ComponentManager<ComponentT>& GetComponentManager();
 
+		void UpdateSceneObject();
+
 	public:
 		std::map<StringID, ECS::Entity> mNameEntityMap;
 
@@ -121,6 +123,7 @@ namespace Cjing3D {
 		ECS::ComponentManager<MeshComponent> mMeshes;
 		ECS::ComponentManager<MaterialComponent> mMaterials;
 		ECS::ComponentManager<ObjectComponent> mObjects;
+		ECS::ComponentManager<AABB> mObjectAABBs;
 	};
 
 	template<>
@@ -139,6 +142,12 @@ namespace Cjing3D {
 	inline ECS::ComponentManager<ObjectComponent>& Scene::GetComponentManager()
 	{
 		return mObjects;
+	}
+
+	template<>
+	inline ECS::ComponentManager<AABB>& Scene::GetComponentManager()
+	{
+		return mObjectAABBs;
 	}
 }
 	

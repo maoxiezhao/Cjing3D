@@ -42,4 +42,15 @@ namespace Cjing3D
 		}
 		return true;
 	}
+
+	AABB AABB::GetByTransforming(const XMFLOAT4X4 & mat) const
+	{
+		return AABB();
+	}
+
+	void AABB::CopyFromOther(const AABB & aabb)
+	{
+		mMin = aabb.mMin;
+		mMax = aabb.mMax;
+	}
 }

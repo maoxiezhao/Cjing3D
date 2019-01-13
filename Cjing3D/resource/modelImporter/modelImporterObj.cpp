@@ -80,7 +80,7 @@ namespace Cjing3D
 			ECS::Entity meshEntity = newScene.CreateEntityMesh(shapeName + "_mesh");
 
 			std::shared_ptr<ObjectComponent> object = newScene.GetComponent<ObjectComponent>(objectEntity);
-			std::shared_ptr<MeshComponent> mesh = newScene.GetComponent<MeshComponent>(objectEntity);
+			std::shared_ptr<MeshComponent> mesh = newScene.GetComponent<MeshComponent>(meshEntity);
 		
 			std::unordered_map<U32, U32> materialIndicesSet = {};
 			std::unordered_map<U32, U32> verticesSet = {};

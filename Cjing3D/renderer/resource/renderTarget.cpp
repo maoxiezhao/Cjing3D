@@ -24,6 +24,8 @@ namespace Cjing3D
 		desc.mBindFlags = BIND_DEPTH_STENCIL | BIND_SHADER_RESOURCE;
 
 		mTexture = std::make_shared<RhiTexture2D>(mRenderer.GetDevice());
+		mTexture->SetDesc(desc);
+
 		const auto result = mRenderer.GetDevice().CreateTexture2D(&desc, nullptr, *mTexture);
 		Debug::ThrowIfFailed(result, "Failed to create depth target:%08x", result);
 	}
@@ -33,7 +35,6 @@ namespace Cjing3D
 		if (mTexture != nullptr)
 		{
 			mRenderer.GetDevice().ClearDepthStencil(*mTexture, CLEAR_DEPTH | CLEAR_STENCIL, 0.0f, 0);
-			mTexture = nullptr;
 		}
 	}
 

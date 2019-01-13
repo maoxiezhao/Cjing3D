@@ -22,12 +22,14 @@ void World::Uninitialize()
 
 void World::Update()
 {
+	mMainScene.Update();
 }
 
 void World::Clear()
 {
 	mAllMaterial.clear();
 	mAllActors.clear();
+	mMainScene.Clear();
 }
 
 ActorPtr World::CreateNewActor()

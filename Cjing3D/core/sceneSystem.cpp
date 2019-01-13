@@ -11,6 +11,7 @@ namespace Cjing3D
 
 	void Scene::Update()
 	{
+		UpdateSceneObject();
 	}
 
 	void Scene::Merge(Scene & scene)
@@ -18,6 +19,8 @@ namespace Cjing3D
 		mNames.Merge(scene.mNames);
 		mMeshes.Merge(scene.mMeshes);
 		mMaterials.Merge(scene.mMaterials);
+		mObjects.Merge(scene.mObjects);
+		mObjectAABBs.Merge(scene.mObjectAABBs);
 
 		// TEMP
 		//mNameEntityMap.clear();
@@ -26,12 +29,14 @@ namespace Cjing3D
 		//});
 	}
 
-	void Scene::Clera()
+	void Scene::Clear()
 	{
 		mNameEntityMap.clear();
 		mNames.Clear();
 		mMaterials.Clear();
 		mMeshes.Clear();
+		mObjects.Clear();
+		mObjectAABBs.Clear();
 	}
 
 	ECS::Entity Scene::CreateEntityMaterial(const std::string & name)
@@ -54,6 +59,7 @@ namespace Cjing3D
 	{
 		auto entity = CreateEntityByName(name);
 		mObjects.Create(entity);
+		mObjectAABBs.Create(entity);
 
 		return entity;
 	}
@@ -61,7 +67,8 @@ namespace Cjing3D
 	ECS::Entity Scene::CreateEntityByName(const std::string & name)
 	{
 		// 目前不支持名字重名，后一个将无法添加
-		auto it = mNameEntityMap.find(name);
+		auto nameID = StringID(name);
+		auto it = mNameEntityMap.find(nameID);
 		if (it != mNameEntityMap.end())
 		{
 			Debug::Warning("Duplicate entity name:" + name);
@@ -70,7 +77,7 @@ namespace Cjing3D
 
 		Entity entity = CreateEntity();
 		mNames.Create(entity)->SetString(name);
-		mNameEntityMap[StringID(name)] = entity;
+		mNameEntityMap[nameID] = entity;
 
 		return entity;
 	}
@@ -89,6 +96,8 @@ namespace Cjing3D
 	{
 		mMaterials.Remove(entity);
 		mMeshes.Remove(entity);
+		mObjects.Remove(entity);
+		mObjectAABBs.Remove(entity);
 
 		if (mNames.Contains(entity))
 		{
@@ -101,8 +110,42 @@ namespace Cjing3D
 		}
 	}
 
+	void Scene::UpdateSceneObject()
+	{
+		for (size_t i = 0; i < mObjects.GetCount(); i++)
+		{
+			std::shared_ptr<ObjectComponent> object = mObjects[i];
+			std::shared_ptr<AABB> aabb = mObjectAABBs[i];
+
+			if (object == nullptr || aabb == nullptr) {
+				continue;
+			}
+
+			XMFLOAT4X4 transformMat;
+
+			if (object->mMeshID != ECS::INVALID_ENTITY)
+			{
+				std::shared_ptr<MeshComponent> mesh = mMeshes.GetComponent(object->mMeshID);
+				if (mesh != nullptr)
+				{
+					auto meshAABB = mesh->mAABB.GetByTransforming(transformMat);
+					aabb->CopyFromOther(meshAABB);
+
+					for (auto& subset : mesh->mSubsets)
+					{
+
+					}
+				}
+			}
+		}
+	}
+
 	void MeshComponent::SetupRenderData(GraphicsDevice& device)
 	{
+		mVertexBufferPos = std::make_unique<GPUBuffer>(device);
+		mVertexBufferTex = std::make_unique<GPUBuffer>(device);
+		mIndexBuffer = std::make_unique<GPUBuffer>(device);
+
 		// setup index buffer
 		{
 			const auto result = CreateStaticIndexBuffer(device, *mIndexBuffer, mIndices);

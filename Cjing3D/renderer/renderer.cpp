@@ -88,6 +88,7 @@ void Renderer::Initialize()
 void Renderer::Update()
 {
 	UpdateRenderData();
+	UpdateScene();
 }
 
 void Renderer::Uninitialize()
@@ -357,6 +358,40 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderingType renderingTy
 	}
 }
 
+// 更新场景，并更新FrameCullings
+void Renderer::UpdateScene()
+{
+	auto& world = GetGameContext().GetSubSystem<World>();
+	auto& scene = world.GetMainScene();
+
+	for (auto& kvp : mFrameCullings) {
+		auto& frameCulling = kvp.second;
+		frameCulling.Clear();
+
+		CameraPtr camera = kvp.first;
+		if (camera == nullptr) {
+			continue;
+		}
+
+		camera->Update();
+		auto currentFrustum = camera->GetFrustum();
+		frameCulling.mFrustum = currentFrustum;
+
+		// 遍历场景所有物体的aabb,如果在相机范围内，则添加物体的index
+		auto& objectAABBs = scene.mObjectAABBs;
+		for (size_t i = 0; i < objectAABBs.GetCount(); i++)
+		{
+			auto aabb = objectAABBs[i];
+			if (aabb != nullptr && currentFrustum.Overlaps(*aabb) == true)
+			{
+				frameCulling.mRenderingObjects.push_back((U32)i);
+			}
+		}
+
+
+	}
+}
+
 void Renderer::ForwardRender()
 {
 	mForwardPass->Render();
@@ -384,6 +419,7 @@ void Renderer::PassGBuffer()
 void Renderer::FrameCullings::Clear()
 {
 	mRenderingActors.clear();
+	mRenderingObjects.clear();
 }
 
 }

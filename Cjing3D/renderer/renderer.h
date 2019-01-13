@@ -56,6 +56,7 @@ private:
 	void AccquireActors(std::vector<ActorPtr> actors);
 	void UpdateRenderData();
 	void ProcessRenderQueue(RenderQueue& queue, RenderingType renderingType, XMMATRIX viewProj);
+	void UpdateScene();
 
 	// Pass function
 	void ForwardRender();
@@ -65,6 +66,9 @@ private:
 	{
 		ActorPtrArray mRenderingActors;
 		Frustum mFrustum;
+
+		// ¼ÇÂ¼äÖÈ¾µÄobject index
+		std::vector<U32> mRenderingObjects;
 
 		void Clear();
 	};

@@ -13,12 +13,13 @@ namespace Cjing3D
 
 	void TestGame::Setup()
 	{
-		auto systemContext = GetGameContext();
-		ImportModelObj("..\\Assets\\Models\\cornell_box.obj", *systemContext);
+
 	}
 
 	void TestGame::Initialize()
 	{
+		auto systemContext = GetGameContext();
+		ImportModelObj("..\\Assets\\Models\\cornell_box.obj", *systemContext);
 	}
 
 	void TestGame::Update(EngineTime time)

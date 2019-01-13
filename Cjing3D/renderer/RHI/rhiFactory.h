@@ -10,13 +10,13 @@ namespace Cjing3D
 	HRESULT CreateDynamicConstantBuffer(GraphicsDevice & device, GPUBuffer& buffer, size_t dataSize);
 
 	template <typename VertexT>
-	HRESULT CreateBABVertexBuffer(GraphicsDevice & device, GPUBuffer& buffer, std::vector<VertexT> vertices);
+	HRESULT CreateBABVertexBuffer(GraphicsDevice & device, GPUBuffer& buffer, std::vector<VertexT>& vertices);
 
 	template <typename VertexT>
-	HRESULT CreateStaticVertexBuffer(GraphicsDevice & device, GPUBuffer& buffer, std::vector<VertexT> vertices, FORMAT format = FORMAT_UNKNOWN);
+	HRESULT CreateStaticVertexBuffer(GraphicsDevice & device, GPUBuffer& buffer, std::vector<VertexT>& vertices, FORMAT format = FORMAT_UNKNOWN);
 
 	template <typename IndexT>
-	HRESULT CreateStaticIndexBuffer(GraphicsDevice & device, GPUBuffer& buffer, std::vector<IndexT> indices);
+	HRESULT CreateStaticIndexBuffer(GraphicsDevice & device, GPUBuffer& buffer, std::vector<IndexT>& indices);
 
 	/**************************************************************
 	*	\brief State Creating Method
@@ -32,7 +32,7 @@ namespace Cjing3D
 	/**************************************************************
 	**************************************************************/
 	template <typename VertexT>
-	HRESULT CreateBABVertexBuffer(GraphicsDevice & device, GPUBuffer& buffer, std::vector<VertexT> vertices)
+	HRESULT CreateBABVertexBuffer(GraphicsDevice & device, GPUBuffer& buffer, std::vector<VertexT>& vertices)
 	{
 		GPUBufferDesc desc = {};
 		desc.mBindFlags = BIND_VERTEX_BUFFER | BIND_SHADER_RESOURCE;
@@ -50,11 +50,11 @@ namespace Cjing3D
 		SubresourceData initiaData = {};
 		initiaData.mSysMem = vertices.data();
 
-		return device.CreateBuffer(&desc, buffer, nullptr);
+		return device.CreateBuffer(&desc, buffer, &initiaData);
 	}
 
 	template <typename VertexT>
-	HRESULT CreateStaticVertexBuffer(GraphicsDevice & device, GPUBuffer& buffer, std::vector<VertexT> vertices, FORMAT format)
+	HRESULT CreateStaticVertexBuffer(GraphicsDevice & device, GPUBuffer& buffer, std::vector<VertexT>& vertices, FORMAT format)
 	{
 		GPUBufferDesc desc = {};
 		desc.mBindFlags = BIND_VERTEX_BUFFER | BIND_SHADER_RESOURCE;
@@ -71,16 +71,16 @@ namespace Cjing3D
 		SubresourceData initiaData = {};
 		initiaData.mSysMem = vertices.data();
 
-		return device.CreateBuffer(&desc, buffer, nullptr);
+		return device.CreateBuffer(&desc, buffer, &initiaData);
 	}
 
 	template <typename IndexT>
-	HRESULT CreateStaticIndexBuffer(GraphicsDevice & device, GPUBuffer& buffer, std::vector<IndexT> indices)
+	HRESULT CreateStaticIndexBuffer(GraphicsDevice & device, GPUBuffer& buffer, std::vector<IndexT>& indices)
 	{
 		GPUBufferDesc desc = {};
 		desc.mBindFlags = BIND_INDEX_BUFFER | BIND_SHADER_RESOURCE;
 		desc.mByteWidth = static_cast<U32>(indices.size() * sizeof(IndexT));
-		desc.mFormat = (sizeof(IndexT) == 32 ? FORMAT_R32_UINT : FORMAT_R16_UINT);
+		desc.mFormat = (sizeof(IndexT) == 4 ? FORMAT_R32_UINT : FORMAT_R16_UINT);
 		desc.mStructureByteStride = sizeof(IndexT);
 
 		// GPU: read + no write
@@ -92,7 +92,7 @@ namespace Cjing3D
 		SubresourceData initiaData = {};
 		initiaData.mSysMem = indices.data();
 
-		return device.CreateBuffer(&desc, buffer, nullptr);
+		return device.CreateBuffer(&desc, buffer, &initiaData);
 	}
 
 #include "renderer\RHI\rhiFactory.h"

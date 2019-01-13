@@ -161,6 +161,16 @@ namespace ECS
 			}
 		}
 
+		inline ComponentTPtr operator[](size_t index)
+		{
+			return mComponents[index];
+		}
+
+		inline const ComponentTPtr operator[](size_t index) const
+		{
+			return mComponents[index];
+		}
+
 	private:
 		std::vector<Entity> mEntities;
 		std::vector<ComponentTPtr> mComponents;

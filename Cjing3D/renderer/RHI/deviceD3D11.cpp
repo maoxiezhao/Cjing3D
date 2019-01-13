@@ -1052,8 +1052,8 @@ HRESULT GraphicsDeviceD3D11::CreateBuffer(const GPUBufferDesc * desc, GPUBuffer 
 		(*subresource_data) = _ConvertSubresourceData(*initialData);
 	}
 
-	auto& bufferPtr = buffer.GetBufferPtr();
-	HRESULT result = mDevice->CreateBuffer(&bufferDesc, subresource_data, bufferPtr.ReleaseAndGetAddressOf());
+	auto& resource = buffer.GetGPUResource();
+	HRESULT result = mDevice->CreateBuffer(&bufferDesc, subresource_data, (ID3D11Buffer**)&resource);
 	SAFE_DELETE_ARRAY(subresource_data);
 
 	if (SUCCEEDED(result))
@@ -1088,7 +1088,6 @@ HRESULT GraphicsDeviceD3D11::CreateBuffer(const GPUBufferDesc * desc, GPUBuffer 
 			}
 
 			auto& srv = buffer.GetShaderResourceView();
-			auto& resource = buffer.GetGPUResource();
 			result = mDevice->CreateShaderResourceView((ID3D11Resource*)resource, &srvDesc, (ID3D11ShaderResourceView**)&srv);
 		}
 	}
@@ -1264,14 +1263,22 @@ HRESULT GraphicsDeviceD3D11::CreateShaderResourceView(RhiTexture2D & texture)
 		U32 arraySize = desc.mArraySize;
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
-		shaderResourceViewDesc.Format = _ConvertFormat(desc.mFormat);
+		switch (desc.mFormat)
+		{
+		case FORMAT_R32G8X24_TYPELESS:
+			shaderResourceViewDesc.Format = DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
+			break;
+		default:
+			shaderResourceViewDesc.Format = _ConvertFormat(desc.mFormat);
+			break;
+		}
 
 		// 目前不处理texture2DArray
 		if (arraySize > 0 && arraySize <= 1)
 		{
 			shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 			shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-			shaderResourceViewDesc.Texture2D.MipLevels = 1;
+			shaderResourceViewDesc.Texture2D.MipLevels = -1;
 
 			auto& srv = texture.GetShaderResourceView();
 			auto& texture2DPtr = texture.GetGPUResource();
@@ -1292,7 +1299,15 @@ HRESULT GraphicsDeviceD3D11::CreateDepthStencilView(RhiTexture2D & texture)
 		U32 arraySize = desc.mArraySize;
 
 		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = {};
-		depthStencilViewDesc.Format = _ConvertFormat(desc.mFormat);
+		switch (desc.mFormat)
+		{
+		case FORMAT_R32G8X24_TYPELESS:
+			depthStencilViewDesc.Format = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+			break;
+		default:
+			depthStencilViewDesc.Format = _ConvertFormat(desc.mFormat);
+			break;
+		}
 
 		// 目前不处理texture2DArray
 		if (arraySize > 0 && arraySize <= 1)

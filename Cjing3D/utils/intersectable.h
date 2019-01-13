@@ -69,6 +69,10 @@ namespace Cjing3D
 			// ret.x = (control.x = 0xffffff)? mMax.x : mMin.x
 			return XMVectorSelect(mMin, mMax, control);
 		}
+
+		AABB GetByTransforming(const XMFLOAT4X4& mat)const;
+
+		void CopyFromOther(const AABB& aabb);
 	};
 
 	// ÊÓ×¶Ìå

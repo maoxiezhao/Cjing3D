@@ -37,15 +37,15 @@ namespace Cjing3D {
 			return *this;
 		}
 
-		bool operator == (const StringID& rhs) { return mValue == rhs.mValue; }
-		bool operator != (const StringID& rhs) { return mValue != rhs.mValue; }
-		bool operator < (const StringID& rhs) { return mValue < rhs.mValue; }
-		bool operator > (const StringID& rhs) { return mValue > rhs.mValue; }
+		bool operator == (const StringID& rhs)const { return mValue == rhs.mValue; }
+		bool operator != (const StringID& rhs)const { return mValue != rhs.mValue; }
+		bool operator < (const StringID& rhs)const { return mValue < rhs.mValue; }
+		bool operator > (const StringID& rhs)const { return mValue > rhs.mValue; }
 
 		static unsigned int	CalculateHash(const char* str);
 
 	private:
-		int mValue;
+		unsigned int mValue;
 		std::string mStr;
 	};
 
