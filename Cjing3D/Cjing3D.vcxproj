@@ -202,6 +202,7 @@
     <ClInclude Include="world\actor.h" />
     <ClInclude Include="world\component\camera.h" />
     <ClInclude Include="world\component\component.h" />
+    <ClInclude Include="world\component\componentInclude.h" />
     <ClInclude Include="world\component\renderable.h" />
     <ClInclude Include="world\component\transform.h" />
     <ClInclude Include="world\world.h" />

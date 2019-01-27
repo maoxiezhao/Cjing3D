@@ -44,6 +44,9 @@
     <Filter Include="world\component">
       <UniqueIdentifier>{4f8d85c3-1f5e-4e1c-95eb-16f9a7960f52}</UniqueIdentifier>
     </Filter>
+    <Filter Include="world\removed">
+      <UniqueIdentifier>{b2b4c46e-72ca-40c5-96fd-a9f0d21d2648}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine.cpp" />
@@ -125,9 +128,6 @@
     <ClCompile Include="renderer\components\material.cpp">
       <Filter>renderer\resource</Filter>
     </ClCompile>
-    <ClCompile Include="world\actor.cpp">
-      <Filter>world</Filter>
-    </ClCompile>
     <ClCompile Include="world\component\component.cpp">
       <Filter>world\component</Filter>
     </ClCompile>
@@ -184,6 +184,9 @@
     </ClCompile>
     <ClCompile Include="renderer\RHI\rhiResource.cpp">
       <Filter>renderer\rhi</Filter>
+    </ClCompile>
+    <ClCompile Include="world\actor.cpp">
+      <Filter>world\removed</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -305,9 +308,6 @@
     <ClInclude Include="utils\geometry.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="world\actor.h">
-      <Filter>world</Filter>
-    </ClInclude>
     <ClInclude Include="world\component\component.h">
       <Filter>world\component</Filter>
     </ClInclude>
@@ -397,6 +397,12 @@
     </ClInclude>
     <ClInclude Include="core\ecsSystem.h">
       <Filter>world</Filter>
+    </ClInclude>
+    <ClInclude Include="world\component\componentInclude.h">
+      <Filter>world\component</Filter>
+    </ClInclude>
+    <ClInclude Include="world\actor.h">
+      <Filter>world\removed</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

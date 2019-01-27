@@ -299,7 +299,7 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderingType renderingTy
 				continue;
 			}
 
-			XMMATRIX worldMatrix = actor->GetTransform().GetMatrix() * viewProj;
+			//XMMATRIX worldMatrix = actor->GetTransform().GetMatrix() * viewProj;
 			bathIndex++;
 		}
 
