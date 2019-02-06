@@ -1,12 +1,8 @@
 #pragma once
 
 #include "common\common.h"
-#include "core\ecsSystem.h"
-#include "renderer\renderableCommon.h"
-#include "renderer\RHI\rhiDefinition.h"
-#include "renderer\RHI\rhiBuffer.h"
-#include "renderer\RHI\rhiTexture.h"
-#include "helper\stringID.h"
+#include "world\component\transform.h"
+
 
 #include <map>
 
@@ -63,6 +59,7 @@ namespace Cjing3D {
 
 	struct MaterialComponent
 	{
+	public:
 		F32x4 mBaseColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 		F32 mRoughness = 0.2f;
 		F32 mMetalness = 0.0f;
@@ -74,13 +71,31 @@ namespace Cjing3D {
 		RhiTexture2DPtr mBaseColorMap = nullptr;
 		RhiTexture2DPtr mSurfaceMap = nullptr;
 		RhiTexture2DPtr mNormalMap = nullptr;
+
+		inline bool IsCastingShadow()const { return mIsCastingShadow; }
+
+		bool mIsCastingShadow = false;
 	};
 
 	struct ObjectComponent
 	{
+	public:
+		enum ObjectType
+		{
+			OjbectType_Renderable
+		};
+
 		ECS::Entity mMeshID = ECS::INVALID_ENTITY;
 		F32x3 mCenter = F32x3(0.0f, 0.0f, 0.0f);
 		F32x4 mColor = F32x4(1.0f, 1.0f, 1.0f, 1.0f);
+		ObjectType mObjectType = OjbectType_Renderable;
+
+		RenderableType mRenderableType = RenderableType_Opaque;
+		bool mIsCastingShadow = false;
+
+		inline ObjectType GetObjectType() { return mObjectType; }
+		inline RenderableType GetRenderableType() { return mRenderableType; }
+		inline void SetCastingShadow(bool isCastingShadow) { mIsCastingShadow = isCastingShadow; }
 	};
 
 	// TODO: refactor with template
@@ -124,6 +139,9 @@ namespace Cjing3D {
 		ECS::ComponentManager<MaterialComponent> mMaterials;
 		ECS::ComponentManager<ObjectComponent> mObjects;
 		ECS::ComponentManager<AABB> mObjectAABBs;
+		ECS::ComponentManager<TransformComponent> mTransforms;
+
+		AABB mSceneAABB;
 	};
 
 	template<>
@@ -148,6 +166,12 @@ namespace Cjing3D {
 	inline ECS::ComponentManager<AABB>& Scene::GetComponentManager()
 	{
 		return mObjectAABBs;
+	}
+
+	template<>
+	inline ECS::ComponentManager<TransformComponent>& Scene::GetComponentManager()
+	{
+		return mTransforms;
 	}
 }
 	

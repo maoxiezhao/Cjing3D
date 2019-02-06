@@ -73,9 +73,6 @@ void Renderer::Initialize()
 	// initialize mip generator
 	mDeferredMIPGenerator = std::make_unique<DeferredMIPGenerator>(*mGraphicsDevice);
 
-	// initialize render queue;
-	mRenderQueue = std::make_unique<RenderQueue>();
-
 	// initialize frame allocator
 	mFrameAllocator = std::make_unique<LinearAllocator>();
 	mFrameAllocator->Reserve(MAX_FRAME_ALLOCATOR_SIZE);
@@ -161,49 +158,40 @@ CameraPtr Renderer::GetCamera()
 	return mCamera;
 }
 
-void Renderer::RenderSceneOpaque(std::shared_ptr<Camera> camera, RenderingType renderingType)
+void Renderer::RenderSceneOpaque(std::shared_ptr<Camera> camera, ShaderType renderingType)
 {
+	auto& scene = GetMainScene();
+
+	RenderQueue renderQueue;
+
 	FrameCullings& frameCulling = mFrameCullings[camera];
-	auto& renderingActors = frameCulling.mRenderingActors;
-
-	mRenderQueue->Clear();
-	for (auto& actor : renderingActors)
+	auto& objects = frameCulling.mRenderingObjects;
+	for (const auto& objectEntity : objects)
 	{
-		auto renderables = actor->GetComponents<Renderable>();
-		for (auto& renderable : renderables)
+		auto object = scene.GetComponent<ObjectComponent>(objectEntity);
+		if (object == nullptr  ||
+			object->GetObjectType() != ObjectComponent::OjbectType_Renderable ||
+			object->GetRenderableType() != RenderableType_Opaque)
 		{
-			if (renderable->GetRenderingType() & RenderableType_Opaque)
-			{
-				// 创建一个RenderBatch,其中包含必要的渲染所需信息
-				// TODO; 分布动态分配带来的消耗，将使用内存池缓解
-				RenderBatch* batch = (RenderBatch*)mFrameAllocator->Allocate(sizeof(RenderBatch));
-				if (batch == nullptr)
-				{
-					Debug::Error("Not enough memory to allocator RenderBatch");
-					break;
-				}
-
-				batch->Init(*renderable);	// ???
-				mRenderQueue->AddBatch(batch);
-			}
+			continue;
 		}
+
+		RenderBatch* renderBatch = (RenderBatch*)mFrameAllocator->Allocate(sizeof(RenderBatch));
+		renderBatch->Init(objectEntity, object->mMeshID);
+
+		renderQueue.AddBatch(renderBatch);
 	}
 
-	if (mRenderQueue->IsEmpty() == false)
+	if (renderQueue.IsEmpty() == false)
 	{
-		// ??? TODO
-		XMMATRIX viewProj = camera->GetViewProjectionMatrix();
-		size_t batchCount = mRenderQueue->GetBatchCount();
+		renderQueue.Sort();
+		ProcessRenderQueue(renderQueue, renderingType);
 
-		mRenderQueue->Sort();
-		ProcessRenderQueue(*mRenderQueue, renderingType, viewProj);
-		mRenderQueue->Clear();
-
-		mFrameAllocator->Free(batchCount * sizeof(RenderBatch));
+		mFrameAllocator->Free(renderQueue.GetBatchCount() * sizeof(RenderBatch));
 	}
 }
 
-void Renderer::RenderSceneTransparent(std::shared_ptr<Camera> camera, RenderingType renderingType)
+void Renderer::RenderSceneTransparent(std::shared_ptr<Camera> camera, ShaderType renderingType)
 {
 }
 
@@ -214,6 +202,12 @@ void Renderer::UpdateCameraCB(Camera & camera)
 ShaderInfoState Renderer::GetShaderInfoState(Material & material)
 {
 	return mShaderLib->GetShaderInfoState(material);
+}
+
+Scene & Renderer::GetMainScene()
+{
+	auto& world = GetGameContext().GetSubSystem<World>();
+	return world.GetMainScene();
 }
 
 void Renderer::InitializePasses()
@@ -265,7 +259,42 @@ void Renderer::UpdateRenderData()
 	}
 }
 
-void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderingType renderingType, XMMATRIX viewProj)
+void Renderer::ProcessRenderQueue(RenderQueue & queue, ShaderType renderingType)
+{
+	if (queue.IsEmpty() == true) {
+		return;
+	}
+
+	auto& scene = GetMainScene();
+
+	// 将共同的mesh创建为同一个instancedBatch
+	ECS::Entity prevMeshEntity = ECS::INVALID_ENTITY;
+	U32 instancedBatchCount = 0;
+
+	auto& renderBatches = queue.GetRenderBatches();
+	size_t batchesCount = renderBatches.size();
+	for (size_t index = 0; index < batchesCount; index++)
+	{
+		auto& batch = renderBatches[index];
+		auto meshEntity = batch->GetMeshEntity();
+		auto objectEntity = batch->GetObjectEntity();
+
+		if (meshEntity != prevMeshEntity)
+		{
+			prevMeshEntity = meshEntity;
+			instancedBatchCount++;
+
+			RenderBatchInstance* instance = (RenderBatchInstance*)mFrameAllocator->Allocate(sizeof(RenderBatchInstance));
+			instance->mMeshEntity = meshEntity;
+		}
+
+		const auto& object = scene.GetComponent<ObjectComponent>(objectEntity);
+	}
+
+	mFrameAllocator->Free(instancedBatchCount * sizeof(RenderBatchInstance));
+}
+
+void Renderer::ProcessRenderQueue(RenderQueue & queue, ShaderType renderingType, XMMATRIX viewProj)
 {
 	if (queue.IsEmpty() == false)
 	{
@@ -299,7 +328,7 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderingType renderingTy
 				continue;
 			}
 
-			XMMATRIX worldMatrix = actor->GetTransform().GetMatrix() * viewProj;
+			//XMMATRIX worldMatrix = actor->GetTransform().GetMatrix() * viewProj;
 			bathIndex++;
 		}
 

@@ -19,12 +19,6 @@ class StateManager;
 class ResourceManager;
 class Camera;
 
-enum RenderableType
-{
-	RenderableType_Opaque,
-	RenderableType_Transparent
-};
-
 class Renderer : public SubSystem
 {
 public:
@@ -43,19 +37,21 @@ public:
 	DeferredMIPGenerator& GetDeferredMIPGenerator();
 	std::shared_ptr<Camera> GetCamera();
 
-	void RenderSceneOpaque(std::shared_ptr<Camera> camera, RenderingType renderingType);
-	void RenderSceneTransparent(std::shared_ptr<Camera> camera, RenderingType renderingType);
+	void RenderSceneOpaque(std::shared_ptr<Camera> camera, ShaderType renderingType);
+	void RenderSceneTransparent(std::shared_ptr<Camera> camera, ShaderType renderingType);
 
 	// const buffer function
 	void UpdateCameraCB(Camera& camera);
 
 	ShaderInfoState GetShaderInfoState(Material& material);
+	Scene& GetMainScene();
 
 private:
 	void InitializePasses();
 	void AccquireActors(std::vector<ActorPtr> actors);
 	void UpdateRenderData();
-	void ProcessRenderQueue(RenderQueue& queue, RenderingType renderingType, XMMATRIX viewProj);
+	void ProcessRenderQueue(RenderQueue& queue, ShaderType renderingType);
+	void ProcessRenderQueue(RenderQueue& queue, ShaderType renderingType, XMMATRIX viewProj);
 	void UpdateScene();
 
 	// Pass function
@@ -84,7 +80,6 @@ private:
 	std::unique_ptr<ShaderLib> mShaderLib;
 	std::unique_ptr<StateManager> mStateManager;
 	std::unique_ptr<Pipeline> mPipeline;
-	std::unique_ptr<RenderQueue> mRenderQueue;
 	std::unique_ptr<DeferredMIPGenerator> mDeferredMIPGenerator;
 	std::unique_ptr<LinearAllocator> mFrameAllocator;
 

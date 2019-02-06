@@ -31,8 +31,10 @@ namespace Cjing3D {
 
 		void SetupPerspective(F32 width, F32 height, F32 nearPlane, F32 farPlane, F32 fov = XM_PI/2.0f);
 
+		void SetDirty(bool isDirty) { mIsDirty = isDirty; }
+		bool IsDirty()const { return mIsDirty; }
+
 	private:
-		void ComputeViewMatrix();
 		void ComputeProjection();
 
 	private:
@@ -40,10 +42,12 @@ namespace Cjing3D {
 		bool mIsDirty;
 		Frustum mFrustum;
 
-		F32 mNearPlane;
-		F32 mFarPlane;
-		F32 mFov;
-		
+		F32 mNearPlane = 0.001f;
+		F32 mFarPlane = 800.0f;
+		F32 mFov = XM_PI / 3.0f;
+		F32 mWidth = 0.0f;
+		F32 mHeight = 0.0f;
+
 		F32x3 mEye, mAt, mUp;
 		XMFLOAT4X4 mView, mProjection, mViewProjection;
 	};

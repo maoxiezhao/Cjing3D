@@ -21,12 +21,7 @@ namespace Cjing3D
 		mMaterials.Merge(scene.mMaterials);
 		mObjects.Merge(scene.mObjects);
 		mObjectAABBs.Merge(scene.mObjectAABBs);
-
-		// TEMP
-		//mNameEntityMap.clear();
-		//mNames.ForEachComponent([&](Entity enity, std::shared_ptr<StringID> stringID) {
-		//	mNameEntityMap[*stringID] = enity;
-		//});
+		mTransforms.Merge(scene.mTransforms);
 	}
 
 	void Scene::Clear()
@@ -37,6 +32,7 @@ namespace Cjing3D
 		mMeshes.Clear();
 		mObjects.Clear();
 		mObjectAABBs.Clear();
+		mTransforms.Clear();
 	}
 
 	ECS::Entity Scene::CreateEntityMaterial(const std::string & name)
@@ -60,6 +56,7 @@ namespace Cjing3D
 		auto entity = CreateEntityByName(name);
 		mObjects.Create(entity);
 		mObjectAABBs.Create(entity);
+		mTransforms.Create(entity);
 
 		return entity;
 	}
@@ -98,6 +95,7 @@ namespace Cjing3D
 		mMeshes.Remove(entity);
 		mObjects.Remove(entity);
 		mObjectAABBs.Remove(entity);
+		mTransforms.Remove(entity);
 
 		if (mNames.Contains(entity))
 		{
@@ -112,6 +110,8 @@ namespace Cjing3D
 
 	void Scene::UpdateSceneObject()
 	{
+		AABB sceneAABB;
+
 		for (size_t i = 0; i < mObjects.GetCount(); i++)
 		{
 			std::shared_ptr<ObjectComponent> object = mObjects[i];
@@ -121,23 +121,43 @@ namespace Cjing3D
 				continue;
 			}
 
-			XMFLOAT4X4 transformMat;
+			// 遍历所有的object根据对应的transform，来更新AABB, 更新object的位置
 
 			if (object->mMeshID != ECS::INVALID_ENTITY)
 			{
+				Entity entity = mObjects.GetEntityByIndex(i);
 				std::shared_ptr<MeshComponent> mesh = mMeshes.GetComponent(object->mMeshID);
+	
+				const auto transformIndex = mTransforms.GetEntityIndex(entity);
+				const auto transform = mTransforms[transformIndex];
 				if (mesh != nullptr)
 				{
-					auto meshAABB = mesh->mAABB.GetByTransforming(transformMat);
+					XMFLOAT4X4 worldMatrix = transform->GetWorldTransform();
+					auto meshAABB = mesh->mAABB.GetByTransforming(worldMatrix);
 					aabb->CopyFromOther(meshAABB);
+
+					XMFLOAT4X4 boxMatrix;
+					XMStoreFloat4x4(&boxMatrix, aabb->GetBoxMatrix());
+
+					// update center pos
+					XMFLOAT3 centerPos = *((XMFLOAT3*)&boxMatrix._41);
+					object->mCenter = XMStore<F32x3>(XMLoadFloat3(&centerPos));
 
 					for (auto& subset : mesh->mSubsets)
 					{
-
+						auto material = mMaterials.GetComponent(subset.mMaterialID);
+						if (material != nullptr)
+						{
+							object->SetCastingShadow(material->IsCastingShadow());
+						}
 					}
+
+					sceneAABB = AABB::Union(sceneAABB, *aabb);
 				}
 			}
 		}
+
+		mSceneAABB.CopyFromOther(sceneAABB);
 	}
 
 	void MeshComponent::SetupRenderData(GraphicsDevice& device)

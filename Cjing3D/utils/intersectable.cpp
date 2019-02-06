@@ -10,6 +10,10 @@ namespace Cjing3D
 	{
 	}
 
+	void Frustum::SetupFrustum(const XMFLOAT4X4 & view, const XMFLOAT4X4 & projection, float screenDepth)
+	{
+	}
+
 	void Frustum::SetupFrustum(XMMATRIX transform)
 	{
 		// 根据最终是否在视口范围内创建视锥体，所有的平面法线
@@ -46,6 +50,16 @@ namespace Cjing3D
 	AABB AABB::GetByTransforming(const XMFLOAT4X4 & mat) const
 	{
 		return AABB();
+	}
+
+	XMMATRIX AABB::GetBoxMatrix() const
+	{
+		F32x3 ext = XMStore<F32x3>(GetRadius());
+		XMMATRIX sca = XMMatrixScaling(ext[0], ext[1], ext[2]);
+		F32x3 pos = XMStore<F32x3>(GetCenter());
+		XMMATRIX trans = XMMatrixTranslation(pos[0], pos[1], pos[2]);
+
+		return sca * trans;
 	}
 
 	void AABB::CopyFromOther(const AABB & aabb)

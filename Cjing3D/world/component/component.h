@@ -5,8 +5,6 @@
 
 namespace Cjing3D{
 
-class Transform;
-
 enum Component_Type
 {
 	ComponentType_Unknown,

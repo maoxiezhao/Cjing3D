@@ -71,7 +71,7 @@ namespace Cjing3D
 		}
 
 		AABB GetByTransforming(const XMFLOAT4X4& mat)const;
-
+		XMMATRIX GetBoxMatrix()const;
 		void CopyFromOther(const AABB& aabb);
 	};
 
@@ -82,6 +82,7 @@ namespace Cjing3D
 		Frustum();
 		~Frustum();
 
+		void SetupFrustum(const XMFLOAT4X4& view, const XMFLOAT4X4& projection, float screenDepth);
 		void SetupFrustum(XMMATRIX transform);
 		bool Overlaps(const AABB& aabb)const;
 

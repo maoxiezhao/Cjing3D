@@ -45,7 +45,7 @@ namespace Cjing3D {
 		mRenderTarget->Bind(0, 0, 0, 0);
 		{
 			// draw scene
-			mRenderer.RenderSceneOpaque(camera, RenderingType_Forward);
+			mRenderer.RenderSceneOpaque(camera, ShaderType_Forward);
 		}
 		mRenderTarget->UnBind();
 	}

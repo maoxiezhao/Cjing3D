@@ -5,6 +5,7 @@
 #include "utils\geometry.h"
 #include "utils\intersectable.h"
 #include "renderer\mappingDefine.h"
+#include "helper\stringID.h"
 
 #include <wrl.h>
 #include <memory>
@@ -21,8 +22,14 @@ enum RenderingDeviceType
 	RenderingDeviceType_Vulkan
 };
 
-enum RenderingType
+enum ShaderType
 {
-	RenderingType_Forward,
-	RenderingType_Deferred
+	ShaderType_Forward,
+	ShaderType_Deferred
+};
+
+enum RenderableType
+{
+	RenderableType_Opaque,
+	RenderableType_Transparent
 };
