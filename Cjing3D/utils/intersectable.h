@@ -71,7 +71,7 @@ namespace Cjing3D
 		}
 
 		AABB GetByTransforming(const XMFLOAT4X4& mat)const;
-		XMMATRIX GetBoxMatrix()const;
+
 		void CopyFromOther(const AABB& aabb);
 	};
 

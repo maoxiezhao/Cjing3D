@@ -4,7 +4,8 @@
 namespace Cjing3D
 {
 	Actor::Actor(SystemContext & gameContext):
-		mGameContext(gameContext)
+		mGameContext(gameContext),
+		mTransform(nullptr)
 	{
 	}
 

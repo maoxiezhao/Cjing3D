@@ -1,32 +1,21 @@
 #pragma once
 
-#include "world\component\componentInclude.h"
+#include "world\component\component.h"
+#include "core\systemContext.hpp"
 
 namespace Cjing3D {
 
-	class TransformComponent
+	class Transform : public Component
 	{
 	public:
-		TransformComponent() = default;
+		Transform(SystemContext& context);
+		virtual ~Transform();
 
-		void Update();
-		void Clear();
+		virtual void Initialize();
+		virtual void Uninitialize();
+		virtual void Update();
 
-		void Translate(const XMFLOAT3& value);
-		void RotateRollPitchYaw(const XMFLOAT3& value);
-		void Rotate(const XMFLOAT4& quaternion);
-		void Scale(const XMFLOAT3& value);
-
-		inline void SetDirty(bool isDirty) { mIsDirty = isDirty; }
-		inline bool IsDirty()const { return mIsDirty; }
-		inline XMFLOAT4X4 GetWorldTransform() const { return mWorldTransform; }
-
-	private:
-		XMFLOAT3 mTranslationLocal = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		XMFLOAT4 mRotationLocal = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
-		XMFLOAT3 mScaleLocal = XMFLOAT3(1.0f, 1.0f, 1.0f);
-		XMFLOAT4X4 mWorldTransform = IDENTITYMATRIX;
-
-		bool mIsDirty = true;
+		XMMATRIX GetMatrix();
 	};
+
 }

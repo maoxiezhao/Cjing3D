@@ -19,6 +19,12 @@ class StateManager;
 class ResourceManager;
 class Camera;
 
+enum RenderableType
+{
+	RenderableType_Opaque,
+	RenderableType_Transparent
+};
+
 class Renderer : public SubSystem
 {
 public:

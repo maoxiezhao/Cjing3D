@@ -52,16 +52,6 @@ namespace Cjing3D
 		return AABB();
 	}
 
-	XMMATRIX AABB::GetBoxMatrix() const
-	{
-		F32x3 ext = XMStore<F32x3>(GetRadius());
-		XMMATRIX sca = XMMatrixScaling(ext[0], ext[1], ext[2]);
-		F32x3 pos = XMStore<F32x3>(GetCenter());
-		XMMATRIX trans = XMMatrixTranslation(pos[0], pos[1], pos[2]);
-
-		return sca * trans;
-	}
-
 	void AABB::CopyFromOther(const AABB & aabb)
 	{
 		mMin = aabb.mMin;
