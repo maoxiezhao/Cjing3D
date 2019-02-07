@@ -10,6 +10,10 @@ namespace Cjing3D
 	{
 	}
 
+	void Frustum::SetupFrustum(const XMFLOAT4X4 & view, const XMFLOAT4X4 & projection, float screenDepth)
+	{
+	}
+
 	void Frustum::SetupFrustum(XMMATRIX transform)
 	{
 		// 根据最终是否在视口范围内创建视锥体，所有的平面法线

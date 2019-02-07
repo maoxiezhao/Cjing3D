@@ -22,10 +22,10 @@ enum RenderingDeviceType
 	RenderingDeviceType_Vulkan
 };
 
-enum RenderingType
+enum ShaderType
 {
-	RenderingType_Forward,
-	RenderingType_Deferred
+	ShaderType_Forward,
+	ShaderType_Deferred
 };
 
 enum RenderableType

@@ -59,6 +59,10 @@ namespace Cjing3D
 		mRenderable = &renderable;
 	}
 
+	void RenderBatch::Init(ECS::Entity objectEntity, ECS::Entity meshEntity)
+	{
+	}
+
 	RenderBatch::RenderBatch():
 		mRenderable(nullptr)
 	{
