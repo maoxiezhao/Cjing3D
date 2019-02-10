@@ -917,6 +917,8 @@ void GraphicsDeviceD3D11::PresentEnd()
 	auto& deviceContext = GetDeviceContext(GraphicsThread_IMMEDIATE);
 	deviceContext.OMSetRenderTargets(0, nullptr, nullptr);
 	deviceContext.ClearState();
+
+	mCurrentFrameCount++;
 }
 
 // 绑定视口
@@ -1423,6 +1425,43 @@ void GraphicsDeviceD3D11::BindShaderInfoState(ShaderInfoState* state)
 void GraphicsDeviceD3D11::SetViewport(ViewPort viewport)
 {
 	mViewport = viewport;
+}
+
+GraphicsDevice::GPUAllocation GraphicsDeviceD3D11::AllocateGPU(size_t dataSize)
+{
+	// 分配mGPUAllocator的buffer内存
+	GPUAllocation result;
+
+	if (dataSize == 0) {
+		return result;
+	}
+
+	size_t allocDataSize = std::min(mGPUAllocator.GetDataSize(), dataSize);
+	size_t position = mGPUAllocator.byteOffset;
+
+	// 如果分配的大小超过了最大大小或者分配时处于新的一帧，则覆盖
+	bool wrap = false;
+	if (position + dataSize > mGPUAllocator.GetDataSize() ||
+		mGPUAllocator.residentFrame != mCurrentFrameCount) {
+		wrap = true;
+	}
+	position = wrap ? 0 : position;
+
+	// mapping data
+	D3D11_MAP mapping = wrap ? D3D11_MAP_WRITE_DISCARD : D3D11_MAP_WRITE_NO_OVERWRITE;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	const HRESULT hr = GetDeviceContext(GraphicsThread_IMMEDIATE).Map(&mGPUAllocator.buffer.GetBuffer(), 0, mapping, 0, &mappedResource);
+	Debug::ThrowIfFailed(hr, "Failed to mapped GPUBuffer.");
+
+	mGPUAllocator.residentFrame = mCurrentFrameCount;
+	mGPUAllocator.byteOffset = position + dataSize;
+	mGPUAllocator.dirty = true;
+
+	result.buffer = &mGPUAllocator.buffer;
+	result.offset = position;
+	result.data = (void*)((size_t)mappedResource.pData + position);
+
+	return result;
 }
 
 void GraphicsDeviceD3D11::ClearPrevStates()

@@ -64,12 +64,8 @@ public:
 	template< typename ActionT>
 	void ForEachChild(ActionT&& action);
 
-	Transform& GetTransform() { return *mTransform; }
-
 private:
 	SystemContext& mGameContext;
-
-	std::unique_ptr<Transform> mTransform;
 
 	U32 mGuid;
 	StringID mName;

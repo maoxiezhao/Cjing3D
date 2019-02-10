@@ -35,6 +35,14 @@ namespace Cjing3D {
 	public:
 		void SetupRenderData(GraphicsDevice& device);
 
+		GPUBuffer& GetIndexBuffer() { return *mIndexBuffer; }
+		GPUBuffer& GetVertexBufferPos() { return *mVertexBufferPos; }
+		GPUBuffer& GetVertexBufferTex() { return *mIndexBuffer; }
+
+
+		IndexFormat GetIndexFormat()const { return IndexFormat::INDEX_FORMAT_32BIT; }
+		std::vector<MeshSubset>& GetSubsets() { return mSubsets; }
+
 	public:
 
 		// 顶点结构体，因为法线值可以以（0-256）存储,故法线坐标可以用3个8位

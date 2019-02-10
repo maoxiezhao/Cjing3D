@@ -158,7 +158,7 @@ CameraPtr Renderer::GetCamera()
 	return mCamera;
 }
 
-void Renderer::RenderSceneOpaque(std::shared_ptr<Camera> camera, ShaderType renderingType)
+void Renderer::RenderSceneOpaque(std::shared_ptr<Camera> camera, ShaderType shaderType)
 {
 	auto& scene = GetMainScene();
 
@@ -185,7 +185,7 @@ void Renderer::RenderSceneOpaque(std::shared_ptr<Camera> camera, ShaderType rend
 	if (renderQueue.IsEmpty() == false)
 	{
 		renderQueue.Sort();
-		ProcessRenderQueue(renderQueue, renderingType);
+		ProcessRenderQueue(renderQueue, shaderType, RenderableType_Opaque);
 
 		mFrameAllocator->Free(renderQueue.GetBatchCount() * sizeof(RenderBatch));
 	}
@@ -259,7 +259,7 @@ void Renderer::UpdateRenderData()
 	}
 }
 
-void Renderer::ProcessRenderQueue(RenderQueue & queue, ShaderType renderingType)
+void Renderer::ProcessRenderQueue(RenderQueue & queue, ShaderType shaderType, RenderableType renderableType)
 {
 	if (queue.IsEmpty() == true) {
 		return;
@@ -267,9 +267,14 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, ShaderType renderingType)
 
 	auto& scene = GetMainScene();
 
+	size_t instanceSize = sizeof(RenderInstance);
+	GraphicsDevice::GPUAllocation instances = mGraphicsDevice->AllocateGPU(queue.GetBatchCount() * instanceSize);
+
 	// 将共同的mesh创建为同一个instancedBatch
 	ECS::Entity prevMeshEntity = ECS::INVALID_ENTITY;
 	U32 instancedBatchCount = 0;
+
+	std::vector<RenderBatchInstance*> mRenderBatchInstances;
 
 	auto& renderBatches = queue.GetRenderBatches();
 	size_t batchesCount = renderBatches.size();
@@ -284,11 +289,94 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, ShaderType renderingType)
 			prevMeshEntity = meshEntity;
 			instancedBatchCount++;
 
-			RenderBatchInstance* instance = (RenderBatchInstance*)mFrameAllocator->Allocate(sizeof(RenderBatchInstance));
-			instance->mMeshEntity = meshEntity;
+			RenderBatchInstance* batchInstance = (RenderBatchInstance*)mFrameAllocator->Allocate(sizeof(RenderBatchInstance));
+			batchInstance->mMeshEntity = meshEntity;
+			batchInstance->mDataOffset = instances.offset + index * instanceSize;
+			batchInstance->mInstanceCount = 0;
+
+			mRenderBatchInstances.push_back(batchInstance);
 		}
 
-		const auto& object = scene.GetComponent<ObjectComponent>(objectEntity);
+		const auto object = scene.GetComponent<ObjectComponent>(objectEntity);
+		const auto transform = scene.GetComponent<TransformComponent>(objectEntity);
+
+		// 保存每个batch（包含一个object）的worldMatrix
+		const XMFLOAT4X4 worldMatrix = transform->GetWorldTransform();
+		const XMFLOAT4 color = XMConvert(object->mColor) ;
+		((RenderInstance*)instances.data)[index].Setup(worldMatrix, color);
+
+		// 当前batchInstance必然在array最后
+		mRenderBatchInstances.back()->mInstanceCount++;
+	}
+
+	// process render batch instances
+	for (auto& bathInstance : mRenderBatchInstances)
+	{
+		const auto mesh = scene.GetComponent<MeshComponent>(bathInstance->mMeshEntity);
+
+		mGraphicsDevice->BindIndexBuffer(mesh->GetIndexBuffer(), mesh->GetIndexFormat(), 0);
+
+		bool bindVertexBuffer = false;
+		for (auto& subset : mesh->GetSubsets())
+		{
+			MaterialPtr material = scene.GetComponent<Material>(subset.mMaterialID);
+			if (material == nullptr) {
+				continue;
+			}
+
+			ShaderInfoState state = mShaderLib->GetShaderInfoState(*material);
+			if (state.IsEmpty()) {
+				continue;
+			}
+
+			bool is_renderable = false;
+			if (renderableType == RenderableType_Opaque)
+			{
+				is_renderable = true;
+			}
+
+			if (is_renderable == false)
+			{
+				continue;
+			}
+		
+			// bind vertex buffer
+			if (bindVertexBuffer == false)
+			{
+				bindVertexBuffer = true;
+
+				GPUBuffer* vbs[] = {
+					&mesh->GetVertexBufferPos(),
+					&mesh->GetVertexBufferTex(),
+					instances.buffer
+				};
+				U32 strides[] = {
+					sizeof(MeshComponent::VertexPosNormalSubset),
+					sizeof(MeshComponent::VertexTex),
+					instanceSize
+				};
+				U32 offsets[] = {
+					0,
+					0,
+					bathInstance->mDataOffset	// 因为所有的batch公用一个buffer，所以提供offset
+				};
+				mGraphicsDevice->BindVertexBuffer(vbs, 0, 3, strides, offsets);
+			}
+
+			// bind material state
+			mGraphicsDevice->BindShaderInfoState(&state);
+
+			// bind material texture
+			GPUResource* resources[] = {
+				material->GetBaseColorMap().get(),
+				material->GetSurfaceMap().get(),
+				material->GetNormalMap().get(),
+			};
+			mGraphicsDevice->BindGPUResources(SHADERSTAGES_PS, resources, TEXTURE_SLOT_0, 3);
+
+			// draw
+			mGraphicsDevice->DrawIndexedInstances(subset.mIndexCount, bathInstance->mInstanceCount, subset.mIndexOffset, 0, 0);
+		}
 	}
 
 	mFrameAllocator->Free(instancedBatchCount * sizeof(RenderBatchInstance));
@@ -328,7 +416,7 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, ShaderType renderingType,
 				continue;
 			}
 
-			XMMATRIX worldMatrix = actor->GetTransform().GetMatrix() * viewProj;
+			//XMMATRIX worldMatrix = actor->GetTransform().GetMatrix() * viewProj;
 			bathIndex++;
 		}
 

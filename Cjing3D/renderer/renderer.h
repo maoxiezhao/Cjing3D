@@ -18,12 +18,7 @@ class ShaderLib;
 class StateManager;
 class ResourceManager;
 class Camera;
-
-enum RenderableType
-{
-	RenderableType_Opaque,
-	RenderableType_Transparent
-};
+class Scene;
 
 class Renderer : public SubSystem
 {
@@ -43,7 +38,7 @@ public:
 	DeferredMIPGenerator& GetDeferredMIPGenerator();
 	std::shared_ptr<Camera> GetCamera();
 
-	void RenderSceneOpaque(std::shared_ptr<Camera> camera, ShaderType renderingType);
+	void RenderSceneOpaque(std::shared_ptr<Camera> camera, ShaderType shaderType);
 	void RenderSceneTransparent(std::shared_ptr<Camera> camera, ShaderType renderingType);
 
 	// const buffer function
@@ -56,7 +51,7 @@ private:
 	void InitializePasses();
 	void AccquireActors(std::vector<ActorPtr> actors);
 	void UpdateRenderData();
-	void ProcessRenderQueue(RenderQueue& queue, ShaderType renderingType);
+	void ProcessRenderQueue(RenderQueue& queue, ShaderType shaderType, RenderableType renderableType);
 	void ProcessRenderQueue(RenderQueue& queue, ShaderType renderingType, XMMATRIX viewProj);
 	void UpdateScene();
 

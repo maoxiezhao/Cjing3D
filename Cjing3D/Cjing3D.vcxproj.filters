@@ -398,6 +398,9 @@
     <ClInclude Include="core\ecsSystem.h">
       <Filter>world</Filter>
     </ClInclude>
+    <ClInclude Include="world\component\componentInclude.h">
+      <Filter>world\component</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="renderer\RHI\rhiFactory.inl">

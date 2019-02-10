@@ -47,6 +47,17 @@ namespace Cjing3D {
 		return XMLoadFloat4(reinterpret_cast<const XMFLOAT4*>(&src));
 	}
 
+	inline const XMFLOAT4 XM_CALLCONV XMConvert(const F32x4& src){
+		XMFLOAT4 result;
+		XMStoreFloat4(&result, XMLoad(src));
+		return result;
+	}
+
+	inline const XMFLOAT3 XM_CALLCONV XMConvert(const F32x3& src) {
+		XMFLOAT3 result;
+		XMStoreFloat3(&result, XMLoad(src));
+		return result;
+	}
 
 	/*********************************************************
 	*	\brief XMVector To VertorType

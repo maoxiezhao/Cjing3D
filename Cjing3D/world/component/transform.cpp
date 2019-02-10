@@ -2,28 +2,69 @@
 
 namespace Cjing3D
 {
-	Transform::Transform(SystemContext & context):
-		Component(context)
+	void TransformComponent::Update()
 	{
+		if (mIsDirty == true) {
+			mIsDirty = false;
+
+			XMVECTOR s = XMLoadFloat3(&mScaleLocal);
+			XMVECTOR r = XMLoadFloat4(&mRotationLocal);
+			XMVECTOR t = XMLoadFloat3(&mTranslationLocal);
+			XMMATRIX w = XMMatrixScalingFromVector(s) * XMMatrixRotationQuaternion(r) * XMMatrixTranslationFromVector(t);
+
+			XMStoreFloat4x4(&mWorldTransform, w);
+		}
 	}
 
-	Transform::~Transform()
+	void TransformComponent::Clear()
 	{
+		mTranslationLocal = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		mRotationLocal = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+		mScaleLocal = XMFLOAT3(1.0f, 1.0f, 1.0f);
+
+		mIsDirty = true;
 	}
 
-	void Transform::Initialize()
+	void TransformComponent::Translate(const XMFLOAT3 & value)
 	{
+		mTranslationLocal.x += value.x;
+		mTranslationLocal.y += value.y;
+		mTranslationLocal.z += value.z;
+
+		mIsDirty = true;
 	}
 
-	void Transform::Uninitialize()
+	void TransformComponent::RotateRollPitchYaw(const XMFLOAT3 & value)
 	{
+		XMVECTOR quat = XMLoadFloat4(&mRotationLocal);
+		XMVECTOR x = XMQuaternionRotationRollPitchYaw(value.x, 0.0f, 0.0f);
+		XMVECTOR y = XMQuaternionRotationRollPitchYaw(0.0f, value.y, 0.0f);
+		XMVECTOR z = XMQuaternionRotationRollPitchYaw(0.0f, 0.0f, value.z);
+
+		quat = XMQuaternionMultiply(x, quat);
+		quat = XMQuaternionMultiply(quat, y);
+		quat = XMQuaternionMultiply(z, quat);
+		quat = XMQuaternionNormalize(quat);
+
+		XMStoreFloat4(&mRotationLocal, quat);
+		mIsDirty = true;
 	}
 
-	void Transform::Update()
+	void TransformComponent::Rotate(const XMFLOAT4 & quaternion)
 	{
+		XMVECTOR quat = XMQuaternionMultiply(XMLoadFloat4(&mRotationLocal), XMLoadFloat4(&quaternion));
+		quat = XMQuaternionNormalize(quat);
+
+		XMStoreFloat4(&mRotationLocal, quat);
+		mIsDirty = true;
 	}
-	XMMATRIX Transform::GetMatrix()
+
+	void TransformComponent::Scale(const XMFLOAT3 & value)
 	{
-		return XMMATRIX();
+		mScaleLocal.x *= value.x;
+		mScaleLocal.y *= value.y;
+		mScaleLocal.z *= value.z;
+
+		mIsDirty = true;
 	}
 }

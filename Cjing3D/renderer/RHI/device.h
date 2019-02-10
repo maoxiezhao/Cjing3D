@@ -22,7 +22,7 @@ namespace Cjing3D
 		virtual void PresentEnd() = 0;
 
 		virtual void BindViewports(const ViewPort* viewports, U32 numViewports, GraphicsThread threadID) = 0;
-	
+
 		virtual HRESULT CreateDepthStencilState(const DepthStencilStateDesc& desc, DepthStencilState& state) = 0;
 		virtual HRESULT CreateBlendState(const BlendStateDesc& desc, BlendState& state) = 0;
 		virtual HRESULT CreateRasterizerState(const RasterizerStateDesc& desc, RasterizerState& state) = 0;
@@ -74,6 +74,14 @@ namespace Cjing3D
 			return mViewport;
 		}
 
+		struct GPUAllocation
+		{
+			void* data = nullptr;
+			GPUBuffer* buffer = nullptr;
+			U32 offset = 0;
+		};
+		virtual GPUAllocation AllocateGPU(size_t dataSize) = 0;
+
 	protected:
 		bool mIsFullScreen;
 		FORMAT mBackBufferFormat;
@@ -81,5 +89,17 @@ namespace Cjing3D
 		bool mIsMultithreadedRendering;
 		bool mIsVsync;						/** 是否垂直同步 */
 		ViewPort mViewport;
+		uint64_t mCurrentFrameCount = 0;
+
+		struct GPUAllocator
+		{
+			GPUBuffer buffer;
+			size_t byteOffset = 0;
+			uint64_t residentFrame = 0;
+			bool dirty = false;
+
+			size_t GetDataSize(){ return buffer.GetDesc().mByteWidth; }
+		};
+		GPUAllocator mGPUAllocator;
 	};
 }

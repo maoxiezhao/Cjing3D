@@ -65,6 +65,8 @@ public:
 
 	void SetViewport(ViewPort viewport);
 
+	virtual GPUAllocation AllocateGPU(size_t dataSize);
+
 private:
 	void InitializeDevice();
 
