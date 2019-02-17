@@ -61,6 +61,11 @@ namespace Cjing3D
 
 	void RenderBatch::Init(ECS::Entity objectEntity, ECS::Entity meshEntity)
 	{
+		mObjectEntity = objectEntity;
+		mMeshEntity = meshEntity;
+
+		// ÓÃmmeshEntity×÷Îªhash sort
+		mHash = (U32)(meshEntity);
 	}
 
 	RenderBatch::RenderBatch():

@@ -53,14 +53,14 @@ void Renderer::Initialize()
 		return;
 	}
 
-	U32x2 screenSize = mGraphicsDevice->GetScreenSize();
-
 	// initialize device
 	mGraphicsDevice->Initialize();
 
+	mScreenSize = mGraphicsDevice->GetScreenSize();
+
 	// initialize camera
 	mCamera = std::make_shared<Camera>(mGameContext);
-	mCamera->SetupPerspective(screenSize[0], screenSize[1], 0.1f, 1000.0f);
+	mCamera->SetupPerspective(mScreenSize[0], mScreenSize[1], 0.1f, 1000.0f);
 
 	// initialize states
 	mStateManager = std::make_unique<StateManager>(*mGraphicsDevice);
@@ -166,9 +166,11 @@ void Renderer::RenderSceneOpaque(std::shared_ptr<Camera> camera, ShaderType shad
 
 	FrameCullings& frameCulling = mFrameCullings[camera];
 	auto& objects = frameCulling.mRenderingObjects;
-	for (const auto& objectEntity : objects)
+	for (const auto& objectIndex : objects)
 	{
+		auto objectEntity = scene.GetEntityByIndex<ObjectComponent>(objectIndex);
 		auto object = scene.GetComponent<ObjectComponent>(objectEntity);
+
 		if (object == nullptr  ||
 			object->GetObjectType() != ObjectComponent::OjbectType_Renderable ||
 			object->GetRenderableType() != RenderableType_Opaque)
@@ -199,9 +201,9 @@ void Renderer::UpdateCameraCB(Camera & camera)
 {
 }
 
-ShaderInfoState Renderer::GetShaderInfoState(Material & material)
+ShaderInfoState Renderer::GetShaderInfoState(MaterialComponent & material)
 {
-	return mShaderLib->GetShaderInfoState(material);
+	return ShaderInfoState();
 }
 
 Scene & Renderer::GetMainScene()
@@ -319,12 +321,12 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, ShaderType shaderType, Re
 		bool bindVertexBuffer = false;
 		for (auto& subset : mesh->GetSubsets())
 		{
-			MaterialPtr material = scene.GetComponent<Material>(subset.mMaterialID);
+			auto material = scene.GetComponent<MaterialComponent>(subset.mMaterialID);
 			if (material == nullptr) {
 				continue;
 			}
 
-			ShaderInfoState state = mShaderLib->GetShaderInfoState(*material);
+			ShaderInfoState state;  // TODO
 			if (state.IsEmpty()) {
 				continue;
 			}
@@ -368,9 +370,9 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, ShaderType shaderType, Re
 
 			// bind material texture
 			GPUResource* resources[] = {
-				material->GetBaseColorMap().get(),
-				material->GetSurfaceMap().get(),
-				material->GetNormalMap().get(),
+				material->mBaseColorMap.get(),
+				material->mSurfaceMap.get(),
+				material->mNormalMap.get(),
 			};
 			mGraphicsDevice->BindGPUResources(SHADERSTAGES_PS, resources, TEXTURE_SLOT_0, 3);
 
@@ -435,7 +437,7 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, ShaderType renderingType,
 					continue;
 				}
 				
-				ShaderInfoState state = mShaderLib->GetShaderInfoState(*material);
+				ShaderInfoState state;
 				if (state.IsEmpty()) {
 					continue;
 				}

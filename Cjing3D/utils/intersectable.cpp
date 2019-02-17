@@ -12,6 +12,24 @@ namespace Cjing3D
 
 	void Frustum::SetupFrustum(const XMFLOAT4X4 & view, const XMFLOAT4X4 & projection, float screenDepth)
 	{
+		auto temp_proj = projection;
+
+		// Calculate the minimum Z distance in the frustum.
+		float zMinimum = -temp_proj._43 / temp_proj._33;
+		float r = screenDepth / (screenDepth - zMinimum);
+		temp_proj._33 = r;
+		temp_proj._43 = -r * zMinimum;
+
+		// Create the frustum matrix from the view matrix and updated projection matrix.
+		XMMATRIX t = XMMatrixMultiply(XMLoadFloat4x4(&view), XMLoadFloat4x4(&temp_proj));
+
+		// Calculate near plane of frustum.
+		mleftPlane = XMPlaneNormalize(t.r[0] + t.r[3]);
+		mRightPlane = XMPlaneNormalize(t.r[3] - t.r[0]);
+		mTopPlane = XMPlaneNormalize(t.r[3] - t.r[1]);
+		mBottomPlane = XMPlaneNormalize(t.r[3] + t.r[1]);
+		mNearPlane = XMPlaneNormalize(t.r[2]);
+		mFarPlane = XMPlaneNormalize(t.r[3] - t.r[2]);
 	}
 
 	void Frustum::SetupFrustum(XMMATRIX transform)
@@ -47,9 +65,37 @@ namespace Cjing3D
 		return true;
 	}
 
+	AABB AABB::GetByTransforming(const XMMATRIX & mat) const
+	{
+		// 变换所有顶点后，取极值做AABB
+		XMFLOAT3 corners[8];
+		for (int i = 0; i < 8; ++i)
+		{
+			XMVECTOR point = XMVector3Transform(corner(i), mat);
+			XMStoreFloat3(&corners[i], point);
+		}
+
+		XMFLOAT3 min = corners[0];
+		XMFLOAT3 max = corners[1];
+		for (int i = 0; i < 8; ++i)
+		{
+			const XMFLOAT3& p = corners[i];
+
+			if (p.x < min.x) min.x = p.x;
+			if (p.y < min.y) min.y = p.y;
+			if (p.z < min.z) min.z = p.z;
+
+			if (p.x > max.x) max.x = p.x;
+			if (p.y > max.y) max.y = p.y;
+			if (p.z > max.z) max.z = p.z;
+		}
+
+		return AABB(XMLoadFloat3(&min), XMLoadFloat3(&max));
+	}
+
 	AABB AABB::GetByTransforming(const XMFLOAT4X4 & mat) const
 	{
-		return AABB();
+		return GetByTransforming(XMLoadFloat4x4(&mat));
 	}
 
 	XMMATRIX AABB::GetBoxMatrix() const

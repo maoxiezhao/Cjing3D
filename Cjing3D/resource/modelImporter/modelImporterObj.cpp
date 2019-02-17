@@ -82,6 +82,8 @@ namespace Cjing3D
 			std::shared_ptr<ObjectComponent> object = newScene.GetComponent<ObjectComponent>(objectEntity);
 			std::shared_ptr<MeshComponent> mesh = newScene.GetComponent<MeshComponent>(meshEntity);
 		
+			object->mMeshID = meshEntity;
+
 			std::unordered_map<U32, U32> materialIndicesSet = {};
 			std::unordered_map<U32, U32> verticesSet = {};
 			for (size_t i = 0; i < objShape.mesh.indices.size(); i += 3)

@@ -8,6 +8,8 @@
 namespace Cjing3D
 {
 
+class MaterialComponent;
+
 enum VetextShaderType
 {
 	VertexShaderType_Transform = 0,
@@ -37,7 +39,7 @@ public:
 	std::shared_ptr<VertexShader> GetVertexShader(VetextShaderType shaderType);
 	std::shared_ptr<PixelShader> GetPixelShader(PixelShaderType shaderType);
 
-	ShaderInfoState GetShaderInfoState(Material& material);
+	/*ShaderInfoState GetShaderInfoState(MaterialComponent& material);*/
 private:
 	void LoadShader();
 	void LoadVertexShaders();

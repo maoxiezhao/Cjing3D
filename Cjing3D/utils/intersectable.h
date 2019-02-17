@@ -70,9 +70,30 @@ namespace Cjing3D
 			return XMVectorSelect(mMin, mMax, control);
 		}
 
+		AABB GetByTransforming(const XMMATRIX& mat)const;
 		AABB GetByTransforming(const XMFLOAT4X4& mat)const;
 		XMMATRIX GetBoxMatrix()const;
 		void CopyFromOther(const AABB& aabb);
+
+		inline XMVECTOR corner(int index) const
+		{
+			F32x3(1.0f, 1.0f, 1.0f);
+			auto _min = XMStore<F32x3>(mMin);
+			auto _max = XMStore<F32x3>(mMax);
+			switch (index)
+			{
+			case 0: return XMLoad(_min);
+			case 1: return XMLoad(F32x3(_min[0], _max[1], _min[2]));
+			case 2: return XMLoad(F32x3(_min[0], _max[1], _max[2]));
+			case 3: return XMLoad(F32x3(_min[0], _min[1], _max[2]));
+			case 4: return XMLoad(F32x3(_max[0], _min[1], _min[2]));
+			case 5: return XMLoad(F32x3(_max[0], _max[1], _min[2]));
+			case 6: return XMLoad(_max);
+			case 7: return XMLoad(F32x3(_max[0], _min[1], _max[2]));
+			}
+			assert(0);
+			return XMVECTOR();
+		}
 	};
 
 	// ÊÓ×¶Ìå

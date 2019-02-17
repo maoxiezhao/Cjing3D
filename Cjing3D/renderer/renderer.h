@@ -20,6 +20,8 @@ class ResourceManager;
 class Camera;
 class Scene;
 
+struct MaterialComponent;
+
 class Renderer : public SubSystem
 {
 public:
@@ -44,7 +46,7 @@ public:
 	// const buffer function
 	void UpdateCameraCB(Camera& camera);
 
-	ShaderInfoState GetShaderInfoState(Material& material);
+	ShaderInfoState GetShaderInfoState(MaterialComponent& material);
 	Scene& GetMainScene();
 
 private:
@@ -75,6 +77,7 @@ private:
 	bool mIsInitialized;
 	bool mIsRendering;
 	U32 mFrameNum = 0;
+	U32x2 mScreenSize;
 
 	std::shared_ptr<Camera> mCamera;
 	std::unique_ptr<GraphicsDevice> mGraphicsDevice;

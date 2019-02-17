@@ -62,9 +62,9 @@ std::shared_ptr<PixelShader> ShaderLib::GetPixelShader(PixelShaderType shaderTyp
 	return mPixelShader[static_cast<U32>(shaderType)];
 }
 
-ShaderInfoState ShaderLib::GetShaderInfoState(Material & material)
-{
-	return ShaderInfoState();
-}
+//ShaderInfoState ShaderLib::GetShaderInfoState(MaterialComponent & material)
+//{
+//	return ShaderInfoState();
+//}
 
 }

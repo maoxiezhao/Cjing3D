@@ -90,16 +90,5 @@ namespace Cjing3D
 		bool mIsVsync;						/** 是否垂直同步 */
 		ViewPort mViewport;
 		uint64_t mCurrentFrameCount = 0;
-
-		struct GPUAllocator
-		{
-			GPUBuffer buffer;
-			size_t byteOffset = 0;
-			uint64_t residentFrame = 0;
-			bool dirty = false;
-
-			size_t GetDataSize(){ return buffer.GetDesc().mByteWidth; }
-		};
-		GPUAllocator mGPUAllocator;
 	};
 }

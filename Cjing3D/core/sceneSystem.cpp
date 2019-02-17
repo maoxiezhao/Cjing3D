@@ -11,6 +11,7 @@ namespace Cjing3D
 
 	void Scene::Update()
 	{
+		UpdateSceneTransform();
 		UpdateSceneObject();
 	}
 
@@ -105,6 +106,15 @@ namespace Cjing3D
 				mNameEntityMap.erase(*nameComponent);
 			}
 			mNames.Remove(entity);
+		}
+	}
+
+	void Scene::UpdateSceneTransform()
+	{
+		for (size_t index = 0; index < mTransforms.GetCount(); index++)
+		{
+			auto transform = mTransforms[index];
+			transform->Update();
 		}
 	}
 

@@ -889,6 +889,16 @@ void GraphicsDeviceD3D11::Initialize()
 	mViewport.mTopLeftY = 0.0f;
 	mViewport.mMinDepth = 0.0f;
 	mViewport.mMaxDepth = 0.0f;
+
+	// 初始化gpu allocator
+	mGPUAllocator.buffer = std::make_unique<GPUBuffer>(*this);
+
+	mGPUAllocatorDesc.mByteWidth = 4 * 1024 * 1024;
+	mGPUAllocatorDesc.mBindFlags = BIND_SHADER_RESOURCE | BIND_INDEX_BUFFER | BIND_VERTEX_BUFFER;
+	mGPUAllocatorDesc.mUsage = USAGE_DYNAMIC;
+	mGPUAllocatorDesc.mCPUAccessFlags = CPU_ACCESS_WRITE;
+	mGPUAllocatorDesc.mMiscFlags = RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
+	CreateBuffer(&mGPUAllocatorDesc, *mGPUAllocator.buffer, nullptr);
 }
 
 void GraphicsDeviceD3D11::Uninitialize()
@@ -1450,14 +1460,14 @@ GraphicsDevice::GPUAllocation GraphicsDeviceD3D11::AllocateGPU(size_t dataSize)
 	// mapping data
 	D3D11_MAP mapping = wrap ? D3D11_MAP_WRITE_DISCARD : D3D11_MAP_WRITE_NO_OVERWRITE;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	const HRESULT hr = GetDeviceContext(GraphicsThread_IMMEDIATE).Map(&mGPUAllocator.buffer.GetBuffer(), 0, mapping, 0, &mappedResource);
+	const HRESULT hr = GetDeviceContext(GraphicsThread_IMMEDIATE).Map(&mGPUAllocator.buffer->GetBuffer(), 0, mapping, 0, &mappedResource);
 	Debug::ThrowIfFailed(hr, "Failed to mapped GPUBuffer.");
 
 	mGPUAllocator.residentFrame = mCurrentFrameCount;
 	mGPUAllocator.byteOffset = position + dataSize;
 	mGPUAllocator.dirty = true;
 
-	result.buffer = &mGPUAllocator.buffer;
+	result.buffer = mGPUAllocator.buffer.get();
 	result.offset = position;
 	result.data = (void*)((size_t)mappedResource.pData + position);
 
@@ -1477,6 +1487,14 @@ void GraphicsDeviceD3D11::DrawIndexed()
 
 void GraphicsDeviceD3D11::DrawIndexedInstances(U32 indexCount, U32 instanceCount, U32 startIndexLocation, U32 baseVertexLocation, U32 startInstanceLocation)
 {
+	CommitAllocations();
+
+	GetDeviceContext(GraphicsThread_IMMEDIATE).DrawIndexedInstanced(
+		indexCount,
+		instanceCount,
+		startIndexLocation,
+		baseVertexLocation,
+		startInstanceLocation);
 }
 
 void GraphicsDeviceD3D11::InitializeDevice()
@@ -1536,5 +1554,15 @@ void GraphicsDeviceD3D11::InitializeDevice()
 	}
 }
 
+void GraphicsDeviceD3D11::CommitAllocations()
+{
+	// 在执行操作前（例如draw)需要unmap buffer
+	if (mGPUAllocator.dirty)
+	{
+		auto& buffer = mGPUAllocator.buffer;
+		GetDeviceContext(GraphicsThread_IMMEDIATE).Unmap(&buffer->GetBuffer(), 0);
+		mGPUAllocator.dirty = false;
+	}
+}
 
 }

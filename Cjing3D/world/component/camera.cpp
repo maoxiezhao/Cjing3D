@@ -9,8 +9,10 @@ namespace Cjing3D
 		mNearPlane = 0.001f;
 		mFarPlane = 800.0f;
 		mFov = XM_PI / 3.0f;
+		mWidth = 1024;
+		mHeight = 768;
 
-		mEye = { 0.0f, 0.0f, 0.0f };
+		mEye = { 0.0f, 0.0f, -50.0f };
 		mAt =  { 0.0f, 0.0f, 1.0f };
 		mUp =  { 0.0f, 1.0f, 0.0f };
 
@@ -61,6 +63,8 @@ namespace Cjing3D
 		mFarPlane = farPlane;
 		mFov = fov;
 		mProjectionType = CameraProjectionType_Perspective;
+
+		mIsDirty = true;
 
 		ComputeProjection();
 		Update();

@@ -133,10 +133,31 @@ namespace Cjing3D {
 			return manager.GetComponent(entity);
 		}
 
+		template<typename ComponentT>
+		std::shared_ptr<ComponentT> GetComponentByIndex(U32 index)
+		{
+			auto& manager = GetComponentManager<ComponentT>();
+			if (index >= manager.GetCount())
+				return nullptr;
+
+			return manager[index];
+		}
+
+		template<typename ComponentT>
+		ECS::Entity GetEntityByIndex(U32 index)
+		{
+			auto& manager = GetComponentManager<ComponentT>();
+			if (index >= manager.GetCount())
+				return ECS::INVALID_ENTITY;
+
+			return manager.GetEntityByIndex(index);
+		}
+
 	private:
 		template<typename ComponentT>
 		ECS::ComponentManager<ComponentT>& GetComponentManager();
 
+		void UpdateSceneTransform();
 		void UpdateSceneObject();
 
 	public:

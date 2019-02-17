@@ -90,10 +90,12 @@ void Engine::Tick()
 	mSystemContext->SetEngineTime(mTime);
 
 	auto& renderer = mSystemContext->GetSubSystem<Renderer>();
+	auto& world = mSystemContext->GetSubSystem<World>();
 
 	// tick
 	profiler.BeginBlock("Update");
 	FIRE_EVENT(EventType::EVENT_TICK);
+	world.Update();
 	renderer.Update();
 	profiler.EndBlock();
 

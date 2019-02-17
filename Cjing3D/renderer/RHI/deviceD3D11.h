@@ -70,6 +70,21 @@ public:
 private:
 	void InitializeDevice();
 
+	// GPU Buffer∑÷≈‰
+	struct GPUAllocator
+	{
+		std::unique_ptr<GPUBuffer> buffer;
+		size_t byteOffset = 0;
+		uint64_t residentFrame = 0;
+		bool dirty = false;
+
+		size_t GetDataSize() { return buffer->GetDesc().mByteWidth; }
+	};
+	GPUAllocator mGPUAllocator;
+	GPUBufferDesc mGPUAllocatorDesc;
+
+	void CommitAllocations();
+
 private:
 	HWND mWindow;
 	bool mDebugLayer;

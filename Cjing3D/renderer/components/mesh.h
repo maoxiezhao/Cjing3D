@@ -45,7 +45,6 @@ public:
 	struct MeshSubset
 	{
 		StringID mMaterialID;
-		ECS::Entity mMaterialEntity;
 		U32 mIndexOffset = 0;
 		U32 mIndexCount = 0;
 	};
