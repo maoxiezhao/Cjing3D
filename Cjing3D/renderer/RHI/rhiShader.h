@@ -5,6 +5,7 @@
 
 namespace Cjing3D
 {
+
 	// 着色器结构
 	template<typename D3D11ShaderType>
 	class Shader : public Resource
@@ -49,8 +50,16 @@ namespace Cjing3D
 	template <>
 	struct is_shader<PixelShader> : public std::true_type {};
 
+	class GraphicsDeviceChild
+	{
+	public:
+		GraphicsDevice* mDevice = nullptr;
+		void SetGraphicsDevice(GraphicsDevice* device) { mDevice = device; }
+	};
+
+
 	// shader info state
-	class ShaderInfoState
+	class ShaderInfoState : public GraphicsDeviceChild
 	{
 	public:
 		VertexShaderPtr mVertexShader = nullptr;

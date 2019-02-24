@@ -242,6 +242,7 @@ namespace Cjing3D
 
 	void MeshComponent::VertexPosNormalSubset::Setup(F32x3 normal, U32 subsetIndex)
 	{
+		// normal 必须 normalize
 		// 一个32位依次存储 subsetindex, normal_z, normal_y, normal_x
 		Debug::CheckAssertion(subsetIndex < 256, "Invalid subset index.");
 

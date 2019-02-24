@@ -93,7 +93,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\ThirdParty\;..\ThirdParty\Assimp_4.1.0\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\ThirdParty\;..\ThirdParty\Assimp_4.1.0\;../Shader</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Lib>

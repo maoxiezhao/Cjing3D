@@ -199,6 +199,16 @@ void Renderer::RenderSceneTransparent(std::shared_ptr<Camera> camera, ShaderType
 
 void Renderer::UpdateCameraCB(Camera & camera)
 {
+	CameraCB cb;
+
+	// ÔÚshaderÖÐÊÇÓÒ³Ë
+	DirectX::XMStoreFloat4x4(&cb.gCameraVP,   XMMatrixTranspose(camera.GetViewProjectionMatrix()));
+	DirectX::XMStoreFloat4x4(&cb.gCameraView, XMMatrixTranspose(camera.GetViewProjectionMatrix()));
+	DirectX::XMStoreFloat4x4(&cb.gCameraProj, XMMatrixTranspose(camera.GetViewProjectionMatrix()));
+	cb.gCameraPos = XMConvert(camera.GetCameraPos());
+
+	auto cameraBuffer = mShaderLib->GetConstantBuffer(ConstantBufferType_Camera);
+	GetDevice().UpdateBuffer(*cameraBuffer, &cb, sizeof(CameraCB));
 }
 
 ShaderInfoState Renderer::GetShaderInfoState(MaterialComponent & material)
@@ -326,7 +336,7 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, ShaderType shaderType, Re
 				continue;
 			}
 
-			ShaderInfoState state;  // TODO
+			ShaderInfoState state = mShaderLib->GetShaderInfoState(shaderType, *material);  // TODO
 			if (state.IsEmpty()) {
 				continue;
 			}

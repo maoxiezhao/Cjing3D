@@ -12,10 +12,32 @@
     <Filter Include="hf">
       <UniqueIdentifier>{51fa7c58-692b-4ba9-86c2-575fcaece361}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GPUMapping">
+      <UniqueIdentifier>{d01c5e4d-7bdf-482d-96e7-91ca5f45835c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="objectVS.hlsl">
       <Filter>vs</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="hf\objectInput.hlsli">
+      <Filter>hf</Filter>
+    </None>
+    <None Include="hf\objectHF.hlsli">
+      <Filter>hf</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="hf\shaderInterop.h">
+      <Filter>GPUMapping</Filter>
+    </ClInclude>
+    <ClInclude Include="hf\shaderDefine.h">
+      <Filter>GPUMapping</Filter>
+    </ClInclude>
+    <ClInclude Include="hf\shaderInteropRender.h">
+      <Filter>GPUMapping</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -55,6 +55,8 @@ namespace Cjing3D {
 
 			void Setup(F32x3 pos, F32x3 normal, U32 subsetIndex);
 			void Setup(F32x3 normal, U32 subsetIndex);
+
+			static const FORMAT format = FORMAT::FORMAT_R32G32B32A32_FLOAT;
 		};
 
 		// TODO:可以用两个Half float 表示的纹理坐标

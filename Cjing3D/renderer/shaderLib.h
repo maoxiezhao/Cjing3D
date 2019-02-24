@@ -28,6 +28,12 @@ enum PixelShaderType
 	PixelShaderType_Count,
 };
 
+enum ConstantBufferType
+{
+	ConstantBufferType_Camera = 0,
+	ConstantBufferType_Count,
+};
+
 class ShaderLib
 {
 public:
@@ -37,24 +43,27 @@ public:
 	void Uninitialize();
 
 	std::shared_ptr<VertexShader> GetVertexShader(VetextShaderType shaderType);
+	std::shared_ptr<InputLayout> GetVertexLayout(InputLayoutType layoutType);
 	std::shared_ptr<PixelShader> GetPixelShader(PixelShaderType shaderType);
+	std::shared_ptr<GPUBuffer> GetConstantBuffer(ConstantBufferType bufferType);
 
-	/*ShaderInfoState GetShaderInfoState(MaterialComponent& material);*/
+	ShaderInfoState GetShaderInfoState(ShaderType shaderType, MaterialComponent& material);
 private:
 	void LoadShader();
 	void LoadVertexShaders();
 	void LoadPixelShaders();
 	void LoadBuffers();
+	void LoadShaderInfoState();
 
 private:
 	Renderer & mRenderer;
 
 	// TODO replacement
 	std::shared_ptr<VertexShader> mVertexShader[VertexShaderType_Count];
-	std::shared_ptr<InputLayout> mInputOuts[InputLayoutType_Count];
-
+	std::shared_ptr<InputLayout> mInputLayout[InputLayoutType_Count];
 	std::shared_ptr<PixelShader> mPixelShader[PixelShaderType_Count];
 
+	std::shared_ptr<GPUBuffer> mConstantBuffer[ConstantBufferType_Count];
 };
 
 class CustomShaderLib : public ShaderLib

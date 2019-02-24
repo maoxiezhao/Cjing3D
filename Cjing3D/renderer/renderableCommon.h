@@ -12,6 +12,9 @@
 #include <vector>
 #include <string>
 
+#include "hf\shaderInterop.h"
+#include "hf\shaderInteropRender.h"
+
 template<typename T>
 using ComPtr = Microsoft::WRL::ComPtr<T>;
 
