@@ -4,8 +4,6 @@ namespace Cjing3D
 {
 void ResourceManager::Initialize()
 {
-	mModelImporter = std::make_unique<ModelImporter>();
-
 	AddStandardResourceDirectory(Resrouce_VertexShader, "Shaders/");
 	AddStandardResourceDirectory(Resrouce_PixelShader, "Shaders/");
 	AddStandardResourceDirectory(Resource_Model, "Models/");
@@ -24,11 +22,6 @@ const std::string & ResourceManager::GetStandardResourceDirectory(Resource_Type 
 	{
 		return findIt->second;
 	}
-}
-
-ModelImporter & ResourceManager::GetModelImporter()
-{
-	return *mModelImporter;
 }
 
 ResourcePtr ResourceManager::GetOrCreateByType(const StringID & name, Resource_Type type)

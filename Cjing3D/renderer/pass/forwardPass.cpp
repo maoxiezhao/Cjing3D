@@ -1,6 +1,7 @@
 #include "forwardPass.h"
 #include "renderer\renderer.h"
 #include "renderer\RHI\device.h"
+#include "renderer\renderImage.h"
 
 namespace Cjing3D {
 
@@ -8,7 +9,8 @@ namespace Cjing3D {
 		mContext(context),
 		mRenderer(renderer),
 		mIsInitialized(false),
-		mRenderTarget(nullptr)
+		mRTMain(nullptr),
+		mRTFinal(nullptr)
 	{
 		Initialize();
 	}
@@ -25,13 +27,51 @@ namespace Cjing3D {
 		}
 
 		const auto screenSize = mRenderer.GetDevice().GetScreenSize();
-		mRenderTarget = std::make_unique<RenderTarget>(mRenderer);
-		mRenderTarget->Setup(screenSize[0], screenSize[1], FORMAT_R16G16B16A16_FLOAT, 1, true);
+		mRTMain = std::make_unique<RenderTarget>(mRenderer);
+		mRTMain->Setup(screenSize[0], screenSize[1], FORMAT_R16G16B16A16_FLOAT, 1, true);
+
+		mRTFinal = std::make_unique<RenderTarget>(mRenderer);
+		mRTFinal->Setup(screenSize[0], screenSize[1], FORMAT_R16G16B16A16_FLOAT, 1, false);
 
 		mIsInitialized = true;
 	}
 
 	void ForwardPass::Render()
+	{
+		RenderScene();
+		RenderComposition();
+	}
+
+	void ForwardPass::Uninitialize()
+	{
+		if (mIsInitialized == false) {
+			return;
+		}
+
+		mRTMain->Clear();
+		mRTMain = nullptr;
+
+		mRTFinal->Clear();
+		mRTFinal = nullptr;
+
+		mIsInitialized = false;
+	}
+
+	void ForwardPass::Compose()
+	{
+		RenderImage::Render(mRTFinal->GetTexture(), mRenderer);
+	}
+
+	void ForwardPass::RenderComposition()
+	{
+		mRTFinal->Bind();
+	}
+
+	void ForwardPass::SetupFixedState()
+	{
+	}
+
+	void ForwardPass::RenderScene()
 	{
 		auto camera = mRenderer.GetCamera();
 		if (camera == nullptr) {
@@ -42,28 +82,11 @@ namespace Cjing3D {
 
 		mRenderer.UpdateCameraCB(*camera);
 
-		mRenderTarget->Bind(0, 0, 0, 0);
+		mRTMain->BindAndClear(0, 0, 0, 0);
 		{
-			// draw scene
 			mRenderer.RenderSceneOpaque(camera, ShaderType_Forward);
 		}
-		mRenderTarget->UnBind();
-	}
-
-	void ForwardPass::Uninitialize()
-	{
-		if (mIsInitialized == false) {
-			return;
-		}
-
-		mRenderTarget->Clear();
-		mRenderTarget = nullptr;
-
-		mIsInitialized = false;
-	}
-
-	void ForwardPass::SetupFixedState()
-	{
+		mRTMain->UnBind();
 	}
 
 }

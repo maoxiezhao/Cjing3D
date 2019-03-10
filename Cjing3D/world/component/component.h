@@ -1,44 +1,40 @@
 #pragma once
 
 #include "common\common.h"
-#include "core\systemContext.hpp"
+#include "world\ecsSystem.h"
 
 namespace Cjing3D{
 
-enum Component_Type
+using namespace ECS;
+
+enum ComponentType
 {
 	ComponentType_Unknown,
-	ComponentType_Renderable,
+	ComponentType_Camera,
+	ComponentType_Ojbect,
+	ComponentType_Mesh,
+	ComponentType_Material,
 	ComponentType_Transform,
 };
 
 class Component
 {
 public:
-	Component(SystemContext& systemContext);
-	Component(Component&& rhs);
-	Component(const Component& rhs) = delete;
-
-	Component& operator=(const Component& component) = delete;
-
+	Component(ComponentType type);
 	virtual ~Component();
 
-	virtual void Initialize();
-	virtual void Uninitialize();
-	virtual void Update();
-
-	Component_Type GetType()const { return mType; }
-	void SetType(Component_Type type) { mType = type; }
-	U32 GetGUID()const { return mGUID; }
+	ComponentType GetType()const { return mType; }
+	void SetType(ComponentType type) { mType = type; }
+	Entity GetCurrentEntity()const { return mCurrentEntity; }
+	void SetCurrentEntity(Entity entity) { mCurrentEntity = entity; }
 
 	template<typename T>
-	static Component_Type DeduceComponentType();
+	static ComponentType DeduceComponentType();
 
 private:
-	U32 mGUID;
-	Component_Type mType;
+	Entity mCurrentEntity = INVALID_ENTITY;
+	ComponentType mType;
 	bool mInitialized;
-	SystemContext& mSystemContext;
 };
 
 using ComponentPtr = std::shared_ptr<Component>;

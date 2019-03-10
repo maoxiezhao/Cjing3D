@@ -1047,6 +1047,15 @@ HRESULT GraphicsDeviceD3D11::CreateInputLayout(VertexLayoutDesc* desc, U32 numEl
 	return mDevice->CreateInputLayout(inputLayoutdescs, numElements, shaderBytecode, shaderLength, inputLayputResource.ReleaseAndGetAddressOf());
 }
 
+HRESULT GraphicsDeviceD3D11::CreatePixelShader(const void * bytecode, size_t length, PixelShader & pixelShader)
+{
+	pixelShader.mByteCode.mByteLength = length;
+	pixelShader.mByteCode.mByteData = new BYTE[length];
+	memcpy(pixelShader.mByteCode.mByteData, bytecode, length);
+
+	return mDevice->CreatePixelShader(bytecode, length, nullptr, pixelShader.mResourceD3D11.ReleaseAndGetAddressOf());
+}
+
 HRESULT GraphicsDeviceD3D11::CreateBuffer(const GPUBufferDesc * desc, GPUBuffer & buffer, const SubresourceData* initialData)
 {
 	D3D11_BUFFER_DESC bufferDesc = {};
@@ -1174,6 +1183,28 @@ HRESULT GraphicsDeviceD3D11::CreateSamplerState(const SamplerDesc * desc, Sample
 
 	auto& statePtr = state.GetStatePtr();
 	return mDevice->CreateSamplerState(&samplerDesc, statePtr.ReleaseAndGetAddressOf());
+}
+
+void GraphicsDeviceD3D11::BindSamplerState(SHADERSTAGES stage, SamplerState & state, U32 slot)
+{
+	ID3D11SamplerState* samplerState = state.GetStatePtr().Get();
+	switch (stage)
+	{
+	case Cjing3D::SHADERSTAGES_VS:
+		GetDeviceContext(GraphicsThread_IMMEDIATE).VSSetSamplers(slot, 1, &samplerState);
+		break;
+	case Cjing3D::SHADERSTAGES_GS:
+		GetDeviceContext(GraphicsThread_IMMEDIATE).GSSetSamplers(slot, 1, &samplerState);
+		break;
+	case Cjing3D::SHADERSTAGES_PS:
+		GetDeviceContext(GraphicsThread_IMMEDIATE).PSSetSamplers(slot, 1, &samplerState);
+		break;
+	case Cjing3D::SHADERSTAGES_CS:
+		GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetSamplers(slot, 1, &samplerState);
+		break;
+	default:
+		break;
+	}
 }
 
 // ´´½¨2DÎÆÀí
@@ -1408,28 +1439,25 @@ void GraphicsDeviceD3D11::DestoryGPUResource(GPUResource & resource)
 	}
 }
 
-void GraphicsDeviceD3D11::BindShaderInfoState(ShaderInfoState* state)
+void GraphicsDeviceD3D11::BindShaderInfoState(ShaderInfoState state)
 {
-	if (state != nullptr)
+	ID3D11VertexShader* vs = state.mVertexShader != nullptr ? state.mVertexShader->mResourceD3D11.Get() : nullptr;
+	if (vs != mPrevVertexShader)
 	{
-		ID3D11VertexShader* vs = state->mVertexShader != nullptr ? state->mVertexShader->mResourceD3D11.Get() : nullptr;
-		if (vs != mPrevVertexShader)
-		{
-			GetDeviceContext(GraphicsThread_IMMEDIATE).VSSetShader(vs, nullptr, 0);
-		}
+		GetDeviceContext(GraphicsThread_IMMEDIATE).VSSetShader(vs, nullptr, 0);
+	}
 
-		ID3D11PixelShader* ps = state->mPixelShader != nullptr ? state->mPixelShader->mResourceD3D11.Get() : nullptr;
-		if (ps != mPrevPixelShader)
-		{
-			GetDeviceContext(GraphicsThread_IMMEDIATE).PSSetShader(ps, nullptr, 0);
-		}
+	ID3D11PixelShader* ps = state.mPixelShader != nullptr ? state.mPixelShader->mResourceD3D11.Get() : nullptr;
+	if (ps != mPrevPixelShader)
+	{
+		GetDeviceContext(GraphicsThread_IMMEDIATE).PSSetShader(ps, nullptr, 0);
+	}
 
-		ID3D11InputLayout* il = state->mInputLayout != nullptr ? &state->mInputLayout->GetState() : nullptr;
-		if (il != mPrevInputLayout)
-		{
-			GetDeviceContext(GraphicsThread_IMMEDIATE).IASetInputLayout(il);
-		}
-	}	
+	ID3D11InputLayout* il = state.mInputLayout != nullptr ? &state.mInputLayout->GetState() : nullptr;
+	if (il != mPrevInputLayout)
+	{
+		GetDeviceContext(GraphicsThread_IMMEDIATE).IASetInputLayout(il);
+	}
 }
 
 void GraphicsDeviceD3D11::SetViewport(ViewPort viewport)
@@ -1481,8 +1509,18 @@ void GraphicsDeviceD3D11::ClearPrevStates()
 	mPrevInputLayout = nullptr;
 }
 
-void GraphicsDeviceD3D11::DrawIndexed()
+void GraphicsDeviceD3D11::Draw(UINT vertexCount, UINT startVertexLocation)
 {
+	CommitAllocations();
+
+	GetDeviceContext(GraphicsThread_IMMEDIATE).Draw(vertexCount, startVertexLocation);
+}
+
+void GraphicsDeviceD3D11::DrawIndexed(UINT indexCount, UINT startIndexLocation)
+{
+	CommitAllocations();
+
+	GetDeviceContext(GraphicsThread_IMMEDIATE).DrawIndexed(indexCount, startIndexLocation, 0);
 }
 
 void GraphicsDeviceD3D11::DrawIndexedInstances(U32 indexCount, U32 instanceCount, U32 startIndexLocation, U32 baseVertexLocation, U32 startInstanceLocation)

@@ -1,5 +1,4 @@
 #include "actor.h"
-#include "world\component\renderable.h"
 
 namespace Cjing3D
 {
@@ -59,9 +58,6 @@ namespace Cjing3D
 		{
 		case Cjing3D::ComponentType_Unknown:
 			break;
-		case Cjing3D::ComponentType_Renderable:
-			component = AddComponent<Renderable>();
-			break;
 		default:
 			break;
 		}
@@ -119,9 +115,6 @@ namespace Cjing3D
 		switch (type)
 		{
 		case Cjing3D::ComponentType_Unknown:
-			break;
-		case Cjing3D::ComponentType_Renderable:
-			RemoveComponent<Renderable>();
 			break;
 		default:
 			break;

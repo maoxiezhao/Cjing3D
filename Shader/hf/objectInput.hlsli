@@ -20,6 +20,7 @@ struct InputObjectAll
     InputInstance instance;
 };
 
+// 表面顶点结构，用于从InputInstance 中转换得到各个成员数据
 struct VertexSurface
 {
     float4 position;

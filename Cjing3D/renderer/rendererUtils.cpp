@@ -1,6 +1,5 @@
 #include "rendererUtils.h"
 #include "renderer\RHI\device.h"
-#include "world\actor.h"
 
 namespace Cjing3D
 {
@@ -53,12 +52,6 @@ namespace Cjing3D
 		}
 	}
 
-	void RenderBatch::Init(Renderable& renderable)
-	{
-		// TODO
-		mRenderable = &renderable;
-	}
-
 	void RenderBatch::Init(ECS::Entity objectEntity, ECS::Entity meshEntity)
 	{
 		mObjectEntity = objectEntity;
@@ -68,8 +61,7 @@ namespace Cjing3D
 		mHash = (U32)(meshEntity);
 	}
 
-	RenderBatch::RenderBatch():
-		mRenderable(nullptr)
+	RenderBatch::RenderBatch()
 	{
 	}
 

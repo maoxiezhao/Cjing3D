@@ -7,10 +7,8 @@
 #include "helper\profiler.h"
 #include "renderer\RHI\deviceD3D11.h"
 #include "world\component\camera.h"
-#include "world\component\renderable.h"
 #include "world\world.h"
 #include "resource\resourceManager.h"
-#include "renderer\components\material.h"
 
 namespace Cjing3D {
 
@@ -59,7 +57,7 @@ void Renderer::Initialize()
 	mScreenSize = mGraphicsDevice->GetScreenSize();
 
 	// initialize camera
-	mCamera = std::make_shared<Camera>(mGameContext);
+	mCamera = std::make_shared<CameraComponent>();
 	mCamera->SetupPerspective(mScreenSize[0], mScreenSize[1], 0.1f, 1000.0f);
 
 	// initialize states
@@ -85,7 +83,7 @@ void Renderer::Initialize()
 void Renderer::Update()
 {
 	UpdateRenderData();
-	UpdateScene();
+	UpdateRenderingScene();
 }
 
 void Renderer::Uninitialize()
@@ -101,30 +99,16 @@ void Renderer::Uninitialize()
 
 void Renderer::Render()
 {
+	mIsRendering = true;
+
 	ForwardRender();
 
-	if (mCamera == nullptr) {
-		mIsRendering = false;
-		return;
-	}
-
-	return;
-
-	// global data
-	{
-		mNearPlane = mCamera->GetNearPlane();
-		mFrameNum = mCamera->GetFarPlane();
-		mView = mCamera->GetViewMatrix();
-		mProjection = mCamera->GetProjectionMatrix();
-		mViewProjection = mCamera->GetViewProjectionMatrix();
-	}
-
-	mIsRendering = true;
-	mFrameNum++;
-
-	//PassGBuffer();
-
 	mIsRendering = false;
+}
+
+void Renderer::Compose()
+{
+	mForwardPass->Compose();
 }
 
 void Renderer::Present()
@@ -158,7 +142,17 @@ CameraPtr Renderer::GetCamera()
 	return mCamera;
 }
 
-void Renderer::RenderSceneOpaque(std::shared_ptr<Camera> camera, ShaderType shaderType)
+ShaderLib & Renderer::GetShaderLib()
+{
+	return *mShaderLib;
+}
+
+StateManager & Renderer::GetStateManager()
+{
+	return *mStateManager;
+}
+
+void Renderer::RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, ShaderType shaderType)
 {
 	auto& scene = GetMainScene();
 
@@ -193,11 +187,11 @@ void Renderer::RenderSceneOpaque(std::shared_ptr<Camera> camera, ShaderType shad
 	}
 }
 
-void Renderer::RenderSceneTransparent(std::shared_ptr<Camera> camera, ShaderType renderingType)
+void Renderer::RenderSceneTransparent(std::shared_ptr<CameraComponent> camera, ShaderType renderingType)
 {
 }
 
-void Renderer::UpdateCameraCB(Camera & camera)
+void Renderer::UpdateCameraCB(CameraComponent & camera)
 {
 	CameraCB cb;
 
@@ -225,41 +219,6 @@ Scene & Renderer::GetMainScene()
 void Renderer::InitializePasses()
 {
 	mForwardPass = std::make_unique<ForwardPass>(mGameContext, *this);
-}
-
-/**
-*	\brief 接受参与渲染的actor， 在world渲染时传入actors
-*/
-void Renderer::AccquireActors(std::vector<ActorPtr> actors)
-{
-	for (auto& kvp : mFrameCullings) {
-		auto& frameCulling = kvp.second;
-		frameCulling.Clear();
-
-		CameraPtr camera = kvp.first;
-		if (camera == nullptr) {
-			continue;
-		}
-		auto currentFrustum = camera->GetFrustum();
-		frameCulling.mFrustum = currentFrustum;
-
-		for (const auto& actor : actors)
-		{
-			if (actor == nullptr) {
-				continue;
-			}
-
-			// Cull renderable
-			auto renderables = actor->GetComponents<Renderable>();
-			for (auto& renderable : renderables)
-			{
-				if (renderable != nullptr && currentFrustum.Overlaps(renderable->GetBoundingBox()) == true)
-				{
-					frameCulling.mRenderingActors.push_back(actor);
-				}
-			}
-		}
-	}
 }
 
 // 更新渲染数据
@@ -376,7 +335,7 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, ShaderType shaderType, Re
 			}
 
 			// bind material state
-			mGraphicsDevice->BindShaderInfoState(&state);
+			mGraphicsDevice->BindShaderInfoState(state);
 
 			// bind material texture
 			GPUResource* resources[] = {
@@ -394,101 +353,8 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, ShaderType shaderType, Re
 	mFrameAllocator->Free(instancedBatchCount * sizeof(RenderBatchInstance));
 }
 
-void Renderer::ProcessRenderQueue(RenderQueue & queue, ShaderType renderingType, XMMATRIX viewProj)
-{
-	if (queue.IsEmpty() == false)
-	{
-		auto& resourceManager = GetGameContext().GetSubSystem<ResourceManager>();
-		auto& world = GetGameContext().GetSubSystem<World>();
-
-		U32 prevMeshGUID = 0;
-		U32 instanceSize = 0;
-		U32 instanceCount = 0;
-
-		std::vector<RenderBatchInstance*> instances;
-		U32 bathIndex = 0;
-		auto& renderBatches = queue.GetRenderBatches();
-		for (auto& batch : renderBatches)
-		{
-			U32 meshGUID = batch->GetMeshGUID();
-			if (meshGUID != prevMeshGUID)
-			{
-				prevMeshGUID = meshGUID;
-				instanceCount++;
-
-				RenderBatchInstance* instance = (RenderBatchInstance*)mFrameAllocator->Allocate(sizeof(RenderBatchInstance));
-				instance->mMesh = batch->GetMesh();
-				instance->mDataOffset = bathIndex * instanceSize;
-
-				instances.push_back(instance);
-			}
-
-			Actor* actor = nullptr; //batch->GetActor();
-			if (actor == nullptr) {
-				continue;
-			}
-
-			//XMMATRIX worldMatrix = actor->GetTransform().GetMatrix() * viewProj;
-			bathIndex++;
-		}
-
-		for (auto& instance : instances)
-		{
-			MeshPtr mesh = instance->mMesh;
-
-			// bind index buffer
-			mGraphicsDevice->BindIndexBuffer(mesh->GetIndexBuffer(), mesh->GetIndexFormat(), 0);
-
-			bool bindVertexBuffer = false;
-			for (auto& subset : mesh->GetMeshSubsets())
-			{
-				MaterialPtr material = world.GetMaterialByGUID(subset.mMaterialID); 
-				if (material == nullptr) {
-					continue;
-				}
-				
-				ShaderInfoState state;
-				if (state.IsEmpty()) {
-					continue;
-				}
-
-				// bind vertex buffer
-				if (bindVertexBuffer == false)
-				{
-					GPUBuffer* vbs[] = {
-						&mesh->GetVertexBuffer()
-					};
-					U32 strides[] = {
-						sizeof(Mesh::VertexPosNormalTex)
-					};
-					U32 offsets[] = {
-						0
-					};
-					mGraphicsDevice->BindVertexBuffer(vbs, 0, 1, strides, offsets);
-				}
-
-				// bind shader state
-				mGraphicsDevice->BindShaderInfoState(&state);
-
-				// bind material texture
-				GPUResource* resources[] = {
-					material->GetBaseColorMap().get(),
-					material->GetSurfaceMap().get(),
-					material->GetNormalMap().get(),
-				};
-				mGraphicsDevice->BindGPUResources(SHADERSTAGES_PS, resources, TEXTURE_SLOT_0, 3);
-			
-				// draw
-				mGraphicsDevice->DrawIndexedInstances(subset.mIndexCount, instance->mInstanceCount, instance->mDataOffset, 0, 0);
-			}
-		}
-
-		mFrameAllocator->Free(instanceCount * sizeof(RenderBatchInstance));
-	}
-}
-
 // 更新场景，并更新FrameCullings
-void Renderer::UpdateScene()
+void Renderer::UpdateRenderingScene()
 {
 	auto& world = GetGameContext().GetSubSystem<World>();
 	auto& scene = world.GetMainScene();
@@ -526,28 +392,8 @@ void Renderer::ForwardRender()
 	mForwardPass->Render();
 }
 
-// 以延迟渲染方式绘制不透明物体
-void Renderer::PassGBuffer()
-{
-	//if (mRenderingActors[RenderableType::RenderableType_Opaque].empty()) {
-	//	return;
-	//}
-
-	auto& profiler = Profiler::GetInstance();
-	profiler.BeginBlock("GBuffer_Pass");
-
-	auto gBufferShader = mShaderLib->GetVertexShader(VertexShaderType_Transform);
-
-	mPipeline->SetPrimitiveTopology(PRIMITIVE_TOPOLOGY::TRIANGLELIST);
-	mPipeline->SetFillMode(FILL_SOLID);
-	//mPipeline->SetVertexShader(gBufferShader);
-
-	profiler.EndBlock();
-}
-
 void Renderer::FrameCullings::Clear()
 {
-	mRenderingActors.clear();
 	mRenderingObjects.clear();
 }
 

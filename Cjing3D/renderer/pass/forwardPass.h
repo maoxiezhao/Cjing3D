@@ -18,11 +18,15 @@ public:
 	void Render();
 	void Initialize();
 	void Uninitialize();
+	void Compose();
 
 private:
 	void SetupFixedState();
+	void RenderScene();
+	void RenderComposition();
 
-	std::unique_ptr<RenderTarget> mRenderTarget;
+	std::unique_ptr<RenderTarget> mRTMain;
+	std::unique_ptr<RenderTarget> mRTFinal;
 
 	SystemContext& mContext;
 	Renderer& mRenderer;

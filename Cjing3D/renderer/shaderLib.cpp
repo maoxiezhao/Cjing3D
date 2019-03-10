@@ -46,11 +46,18 @@ void ShaderLib::LoadVertexShaders()
 			{ "COLOR",0u, FORMAT_R32G32B32A32_FLOAT, 4u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 1u }
 		};
 		auto vsinfo = resourceManager.GetOrCreate<VertexShaderInfo>(shaderPath + "objectVS.cso", layout, 6);
+		mVertexShader[VertexShaderType_Transform] = vsinfo->mVertexShader;
+		mInputLayout[InputLayoutType_Transform] = vsinfo->mInputLayout;
 	}
 }
 
 void ShaderLib::LoadPixelShaders()
 {
+	auto& resourceManager = mRenderer.GetResourceManager();
+	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resrouce_PixelShader);
+	{
+		mPixelShader[PixelShaderType_Forward] = resourceManager.GetOrCreate<PixelShader>(shaderPath + "objectForwardPS.cso");
+	}
 }
 
 void ShaderLib::LoadBuffers()
@@ -113,6 +120,11 @@ ShaderInfoState ShaderLib::GetShaderInfoState(ShaderType shaderType, MaterialCom
 	}
 
 	return infoState;
+}
+
+ShaderInfoState ShaderLib::GetImageShaderInfoState()
+{
+	return ShaderInfoState();
 }
 
 }

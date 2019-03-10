@@ -100,20 +100,32 @@ namespace Cjing3D
 		}
 	}
 
-	void RenderTarget::Bind(F32 r, F32 g, F32 b, F32 a)
+	void RenderTarget::Bind()
 	{
 		auto& device = mRenderer.GetDevice();
 		device.BindViewports(&mViewPort, 1, GraphicsThread_IMMEDIATE);
 
 		// bind rendertarget
 		std::vector<RhiTexture2D*> renderTargets;
-		for (auto& texture : mRenderTargets){
+		for (auto& texture : mRenderTargets) {
 			renderTargets.push_back(texture.get());
 		}
 		auto depthTexture = mDepthTarget->GetTexture();
 		device.BindRenderTarget(mNumViews, (RhiTexture2D**)renderTargets.data(), depthTexture != nullptr ? depthTexture.get() : nullptr);
-	
+
+	}
+
+	void RenderTarget::BindAndClear(F32 r, F32 g, F32 b, F32 a)
+	{
+		auto& device = mRenderer.GetDevice();
+		Bind();
+
 		// clear renderTarget
+		std::vector<RhiTexture2D*> renderTargets;
+		for (auto& texture : mRenderTargets) {
+			renderTargets.push_back(texture.get());
+		}
+
 		const F32x4 clearColor = { r, g, b, a };
 		for (auto& texture : renderTargets)
 		{

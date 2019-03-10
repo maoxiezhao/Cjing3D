@@ -2,8 +2,8 @@
 
 namespace Cjing3D
 {
-	Camera::Camera(SystemContext& systemContext):
-		Component(systemContext),
+	CameraComponent::CameraComponent():
+		Component(ComponentType_Camera),
 		mIsDirty(true)
 	{
 		mNearPlane = 0.001f;
@@ -22,19 +22,19 @@ namespace Cjing3D
 		Update();
 	}
 
-	Camera::~Camera()
+	CameraComponent::~CameraComponent()
 	{
 	}
 
-	void Camera::Initialize()
+	void CameraComponent::Initialize()
 	{
 	}
 
-	void Camera::Uninitialize()
+	void CameraComponent::Uninitialize()
 	{
 	}
 
-	void Camera::Update()
+	void CameraComponent::Update()
 	{
 		if (mIsDirty == true)
 		{
@@ -55,7 +55,7 @@ namespace Cjing3D
 		}
 	}
 
-	void Camera::SetupPerspective(F32 width, F32 height, F32 nearPlane, F32 farPlane, F32 fov)
+	void CameraComponent::SetupPerspective(F32 width, F32 height, F32 nearPlane, F32 farPlane, F32 fov)
 	{
 		mWidth = width;
 		mHeight = height;
@@ -71,7 +71,7 @@ namespace Cjing3D
 	}
 
 	// 仅在创建相机时计算projection
-	void Camera::ComputeProjection()
+	void CameraComponent::ComputeProjection()
 	{
 		XMStoreFloat4x4(&mProjection, XMMatrixPerspectiveFovLH(mFov, mWidth / mHeight, mNearPlane, mFarPlane));
 	}

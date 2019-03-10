@@ -29,6 +29,7 @@ namespace Cjing3D
 
 		virtual HRESULT CreateVertexShader(const void* bytecode, size_t length, VertexShader& vertexShader) = 0;
 		virtual HRESULT CreateInputLayout(VertexLayoutDesc* desc, U32 numElements, const void* shaderBytecode, size_t shaderLength, InputLayout& inputLayout) = 0;
+		virtual HRESULT CreatePixelShader(const void* bytecode, size_t length, PixelShader &pixelShader) = 0;
 
 		virtual HRESULT CreateBuffer(const GPUBufferDesc* desc, GPUBuffer& buffer, const SubresourceData* initialData) = 0;
 		virtual void UpdateBuffer(GPUBuffer& buffer, const void* data, U32 dataSize) = 0;
@@ -37,6 +38,7 @@ namespace Cjing3D
 		virtual HRESULT BindVertexBuffer(GPUBuffer* const* buffer, U32 slot, U32 num, const U32* strides, const U32* offsets) = 0;
 
 		virtual HRESULT CreateSamplerState(const SamplerDesc* desc, SamplerState& state) = 0;
+		virtual void BindSamplerState(SHADERSTAGES stage, SamplerState& state, U32 slot) = 0;
 
 		virtual HRESULT CreateTexture2D(const TextureDesc* desc, const SubresourceData* data, RhiTexture2D& texture2D) = 0;
 
@@ -53,9 +55,10 @@ namespace Cjing3D
 		virtual void BindGPUResources(SHADERSTAGES stage, GPUResource* const* resource, U32 slot, U32 count) = 0;
 		virtual void DestoryGPUResource(GPUResource& resource) = 0;
 
-		virtual void BindShaderInfoState(ShaderInfoState* state) = 0;
+		virtual void BindShaderInfoState(ShaderInfoState state) = 0;
 
-		virtual void DrawIndexed() = 0;
+		virtual void Draw(UINT vertexCount, UINT startVertexLocation) = 0;
+		virtual void DrawIndexed(UINT indexCount, UINT startIndexLocation) = 0;
 		virtual void DrawIndexedInstances(U32 indexCount, U32 instanceCount, U32 startIndexLocation, U32 baseVertexLocation, U32 startInstanceLocation) = 0;
 
 		FORMAT GetBackBufferFormat()const {

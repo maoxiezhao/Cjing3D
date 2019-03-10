@@ -28,7 +28,8 @@ typedef XMINT4 int4;
 #else
 
 #define CBUFFER(name, slot) cbuffer name : register(b ## slot)
-
+#define TEXTURE2D(name, slot) Texture2D name : register(t ## slot);
+#define SAMPLERSTATE(name, slot) SamplerState name :register(s ## slot);
 
 #endif
 

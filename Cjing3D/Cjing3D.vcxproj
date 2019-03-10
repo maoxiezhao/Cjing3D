@@ -136,7 +136,6 @@
   <ItemGroup>
     <ClInclude Include="common\about.h" />
     <ClInclude Include="common\common.h" />
-    <ClInclude Include="core\ecsSystem.h" />
     <ClInclude Include="core\eventDefine.h" />
     <ClInclude Include="core\eventSystem.h" />
     <ClInclude Include="core\gameComponent.h" />
@@ -144,7 +143,6 @@
     <ClInclude Include="core\sceneSystem.h" />
     <ClInclude Include="core\systemContext.hpp" />
     <ClInclude Include="core\subSystem.hpp" />
-    <ClInclude Include="core\object.h" />
     <ClInclude Include="core\threadSafeSystem.h" />
     <ClInclude Include="engine.h" />
     <ClInclude Include="helper\debug.h" />
@@ -158,20 +156,14 @@
     <ClInclude Include="helper\systemTime.h" />
     <ClInclude Include="helper\timer.h" />
     <ClInclude Include="helper\variant.h" />
-    <ClInclude Include="renderer\components\material.h" />
-    <ClInclude Include="renderer\components\mesh.h" />
-    <ClInclude Include="renderer\components\model.h" />
     <ClInclude Include="renderer\pass\forwardPass.h" />
     <ClInclude Include="renderer\includeD3D11.h" />
     <ClInclude Include="renderer\renderableCommon.h" />
-    <ClInclude Include="renderer\renderable\forwardRenderableComponent.h" />
-    <ClInclude Include="renderer\renderable\renderableComponent.h" />
-    <ClInclude Include="renderer\renderable\renderableComponent3D.h" />
     <ClInclude Include="renderer\renderer.h" />
     <ClInclude Include="renderer\rendererUtils.h" />
     <ClInclude Include="renderer\mappingDefine.h" />
+    <ClInclude Include="renderer\renderImage.h" />
     <ClInclude Include="renderer\resource\renderTarget.h" />
-    <ClInclude Include="renderer\resource\texture.h" />
     <ClInclude Include="renderer\RHI\rhiBuffer.h" />
     <ClInclude Include="renderer\RHI\rhiFactory.h" />
     <ClInclude Include="renderer\RHI\rhiPipeline.h" />
@@ -199,12 +191,14 @@
     <ClInclude Include="utils\stb_truetype.h" />
     <ClInclude Include="utils\threadSafeBuffer.h" />
     <ClInclude Include="utils\tinyObjLoader.h" />
-    <ClInclude Include="world\actor.h" />
     <ClInclude Include="world\component\camera.h" />
     <ClInclude Include="world\component\component.h" />
     <ClInclude Include="world\component\componentInclude.h" />
-    <ClInclude Include="world\component\renderable.h" />
+    <ClInclude Include="world\component\material.h" />
+    <ClInclude Include="world\component\mesh.h" />
+    <ClInclude Include="world\component\object.h" />
     <ClInclude Include="world\component\transform.h" />
+    <ClInclude Include="world\ecsSystem.h" />
     <ClInclude Include="world\world.h" />
   </ItemGroup>
   <ItemGroup>
@@ -223,15 +217,10 @@
     <ClCompile Include="helper\stringID.cpp" />
     <ClCompile Include="helper\systemTime.cpp" />
     <ClCompile Include="helper\timer.cpp" />
-    <ClCompile Include="renderer\components\material.cpp" />
-    <ClCompile Include="renderer\components\mesh.cpp" />
-    <ClCompile Include="renderer\components\model.cpp" />
     <ClCompile Include="renderer\pass\forwardPass.cpp" />
-    <ClCompile Include="renderer\renderable\forwardRenderableComponent.cpp" />
-    <ClCompile Include="renderer\renderable\renderableComponent.cpp" />
-    <ClCompile Include="renderer\renderable\renderableComponent3D.cpp" />
     <ClCompile Include="renderer\renderer.cpp" />
     <ClCompile Include="renderer\rendererUtils.cpp" />
+    <ClCompile Include="renderer\renderImage.cpp" />
     <ClCompile Include="renderer\resource\renderTarget.cpp" />
     <ClCompile Include="renderer\RHI\rhiBuffer.cpp" />
     <ClCompile Include="renderer\RHI\rhiFactory.cpp" />
@@ -244,15 +233,13 @@
     <ClCompile Include="renderer\RHI\pipelineD3D11.cpp" />
     <ClCompile Include="renderer\RHI\swapChainD3D11.cpp" />
     <ClCompile Include="renderer\stateManager.cpp" />
-    <ClCompile Include="resource\modelImporter.cpp" />
     <ClCompile Include="resource\modelImporter\modelImporterObj.cpp" />
     <ClCompile Include="resource\resource.cpp" />
     <ClCompile Include="resource\resourceManager.cpp" />
     <ClCompile Include="utils\intersectable.cpp" />
-    <ClCompile Include="world\actor.cpp" />
     <ClCompile Include="world\component\camera.cpp" />
     <ClCompile Include="world\component\component.cpp" />
-    <ClCompile Include="world\component\renderable.cpp" />
+    <ClCompile Include="world\component\mesh.cpp" />
     <ClCompile Include="world\component\transform.cpp" />
     <ClCompile Include="world\world.cpp" />
   </ItemGroup>

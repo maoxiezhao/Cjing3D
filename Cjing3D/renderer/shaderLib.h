@@ -48,6 +48,8 @@ public:
 	std::shared_ptr<GPUBuffer> GetConstantBuffer(ConstantBufferType bufferType);
 
 	ShaderInfoState GetShaderInfoState(ShaderType shaderType, MaterialComponent& material);
+	ShaderInfoState GetImageShaderInfoState();
+
 private:
 	void LoadShader();
 	void LoadVertexShaders();

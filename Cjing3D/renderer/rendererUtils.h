@@ -2,12 +2,11 @@
 
 #include "renderer\RHI\rhiPipeline.h"
 #include "renderer\components\mesh.h"
-#include "core\ecsSystem.h"
+#include "world\ecsSystem.h"
 
 namespace Cjing3D
 {
 	class GraphicsDevice;
-	class Renderable;
 	class Actor;
 
 	// 延迟的Mip生成器
@@ -83,12 +82,10 @@ namespace Cjing3D
 		RenderBatch();
 		~RenderBatch();
 
-		void Init(Renderable& renderable);
 		void Init(ECS::Entity objectEntity, ECS::Entity meshEntity);
 
 		U32 GetHash()const { return mHash; }
 		U32 GetMeshGUID()const { return mHash; }
-		Renderable* GetRenderable() { return mRenderable; }
 		MeshPtr GetMesh() { return mMesh; }
 		ECS::Entity GetMeshEntity()const { return mMeshEntity;}
 		ECS::Entity GetObjectEntity()const { return mObjectEntity; }
@@ -99,7 +96,6 @@ namespace Cjing3D
 		ECS::Entity mObjectEntity;
 
 		// TO REMOVE当前仅以MeshGUID作为Hash
-		Renderable* mRenderable;
 		MeshPtr mMesh;
 	};
 

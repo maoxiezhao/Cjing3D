@@ -10,6 +10,8 @@
 
 namespace Cjing3D
 {
+namespace ModelImporter 
+{
 	void ImportModelObj(const std::string& fileName, SystemContext& systemContext)
 	{
 		std::filesystem::path path(fileName);
@@ -41,7 +43,7 @@ namespace Cjing3D
 			ECS::Entity materialEntity = newScene.CreateEntityMaterial(objMaterial.name);
 			std::shared_ptr<MaterialComponent> material = newScene.GetComponent<MaterialComponent>(materialEntity);
 
-			material->mBaseColor = {objMaterial.diffuse[0], objMaterial.diffuse[1], objMaterial.diffuse[2], objMaterial.diffuse[3]};
+			material->mBaseColor = { objMaterial.diffuse[0], objMaterial.diffuse[1], objMaterial.diffuse[2], objMaterial.diffuse[3] };
 			material->mRoughness = objMaterial.roughness;
 			material->mMetalness = objMaterial.metallic;
 
@@ -81,7 +83,7 @@ namespace Cjing3D
 
 			std::shared_ptr<ObjectComponent> object = newScene.GetComponent<ObjectComponent>(objectEntity);
 			std::shared_ptr<MeshComponent> mesh = newScene.GetComponent<MeshComponent>(meshEntity);
-		
+
 			object->mMeshID = meshEntity;
 
 			std::unordered_map<U32, U32> materialIndicesSet = {};
@@ -159,4 +161,5 @@ namespace Cjing3D
 
 		world.GetMainScene().Merge(newScene);
 	}
+}
 }

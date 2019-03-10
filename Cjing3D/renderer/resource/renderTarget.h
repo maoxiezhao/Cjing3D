@@ -31,8 +31,10 @@ public:
 
 	void Setup(U32 width, U32 height, FORMAT format, U32 mipMapLevelCount, bool hasDepth = false);
 	void Clear();
-	void Bind(F32 r, F32 g, F32 b, F32 a);
+	void Bind();
+	void BindAndClear(F32 r, F32 g, F32 b, F32 a);
 	void UnBind();
+	RhiTexture2D& GetTexture(U32 index = 0) { return *mRenderTargets[index]; }
 
 private:
 	U32 mNumViews;

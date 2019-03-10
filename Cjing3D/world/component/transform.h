@@ -4,10 +4,10 @@
 
 namespace Cjing3D {
 
-	class TransformComponent
+	class TransformComponent : public Component
 	{
 	public:
-		TransformComponent() = default;
+		TransformComponent();
 
 		void Update();
 		void Clear();

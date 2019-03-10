@@ -3,7 +3,6 @@
 #include "common\common.h"
 #include "core\systemContext.hpp"
 #include "world\component\component.h"
-#include "world\component\renderable.h"
 #include "world\component\transform.h"
 
 #include <map>

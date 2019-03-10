@@ -9,14 +9,17 @@
 #include "renderer\RHI\rhiResource.h"
 #include "renderer\RHI\device.h"
 #include "renderer\RHI\rhiShader.h"
-#include "renderer\components\model.h"
 #include "core\systemContext.hpp"
 
 namespace Cjing3D
 {
-
 /**
 *	\brief 资源管理器类
+*	
+*	SUPPORT:
+*		Resrouce_VertexShader,
+*		Resrouce_PixelShader,
+*		Resource_Texture,
 */
 class ResourceManager : public SubSystem
 {
@@ -33,8 +36,6 @@ public:
 	void AddStandardResourceDirectory(Resource_Type type, const std::string& path);
 	const std::string& GetStandardResourceDirectory(Resource_Type type)const;
 
-	ModelImporter& GetModelImporter();
-
 	//----------------------------------------------------------------
 	//	Common Method
 	//----------------------------------------------------------------
@@ -50,7 +51,7 @@ public:
 		using poolType = PersistentResourcePool < StringID, ResourceT>;
 	};
 
-	// 如果资源为非Shader类型（Texture、Model),则使用普通资源池
+	// 如果资源为非Shader类型（Texture),则使用普通资源池
 	template< typename ResourceT>
 	struct ResourceRecord<ResourceT, std::enable_if_t<!is_shader<ResourceT>::value> >
 	{
@@ -81,9 +82,9 @@ public:
 	std::enable_if_t<std::is_same<ResourceT, VertexShaderInfo>::value, std::shared_ptr<VertexShaderInfo> >
 		GetOrCreate(const StringID& name, VertexLayoutDesc* desc, U32 numElements);
 
-	template<typename ResourceT>
-	std::enable_if_t<std::is_same<ResourceT, Model>::value, std::shared_ptr<Model>>
-		GetOrCreate(const StringID & filePath);
+	template <typename ResourceT>
+	std::enable_if_t<std::is_same<ResourceT, PixelShader>::value, std::shared_ptr<PixelShader> >
+		GetOrCreate(const StringID& name);
 
 	template<typename ResourceT>
 	std::enable_if_t<std::is_same<ResourceT, RhiTexture2D>::value, std::shared_ptr<RhiTexture2D>>
@@ -96,33 +97,13 @@ private:
 	template <typename ResourceT>
 	const PoolType<ResourceT>& GetPool()const;
 
-	std::unique_ptr<ModelImporter> mModelImporter;
-
 private:
 	std::map<Resource_Type, std::string> mResourceDirectories;
 
 	PoolType<VertexShaderInfo> mVertexShaderPool;
 	PoolType<PixelShader> mPixelShaderPool;
 	PoolType<RhiTexture2D> mTexture2DPool;
-
-	// TO REMOVE
-	PoolType<Model> mModelPool;
-	PoolType<Mesh> mMeshPool;
 };
-
-template<typename ResourceT>
-inline std::enable_if_t<std::is_same<ResourceT, RhiTexture2D>::value, std::shared_ptr<RhiTexture2D>>
-Cjing3D::ResourceManager::GetOrCreate(const StringID & filePath, GraphicsDevice& device)
-{
-	PoolType<RhiTexture2D>& texturePool = GetPool< RhiTexture2D >();
-
-	bool isExists = texturePool.Contains(filePath);
-	auto texture = texturePool.GetOrCreate(filePath, device);
-	if (isExists == false) {
-		// load Image
-	}
-	return texture;
-}
 
 #include "resource\resourceManager.inl"
 

@@ -20,12 +20,30 @@
     <FxCompile Include="objectVS.hlsl">
       <Filter>vs</Filter>
     </FxCompile>
+    <FxCompile Include="objectForwardPS.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
+    <FxCompile Include="screenVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="screenPS.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="hf\objectInput.hlsli">
       <Filter>hf</Filter>
     </None>
     <None Include="hf\objectHF.hlsli">
+      <Filter>hf</Filter>
+    </None>
+    <None Include="hf\brdf.hlsli">
+      <Filter>hf</Filter>
+    </None>
+    <None Include="hf\fullScreenHF.hlsli">
+      <Filter>hf</Filter>
+    </None>
+    <None Include="hf\global.hlsli">
       <Filter>hf</Filter>
     </None>
   </ItemGroup>

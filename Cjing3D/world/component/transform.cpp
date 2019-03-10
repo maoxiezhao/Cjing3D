@@ -2,6 +2,11 @@
 
 namespace Cjing3D
 {
+	TransformComponent::TransformComponent():
+		Component(ComponentType_Transform)
+	{
+	}
+
 	void TransformComponent::Update()
 	{
 		if (mIsDirty == true) {

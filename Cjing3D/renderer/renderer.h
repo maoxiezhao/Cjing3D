@@ -5,7 +5,6 @@
 #include "renderer\pass\forwardPass.h"
 #include "renderer\rendererUtils.h"
 #include "core\subSystem.hpp"
-#include "world\actor.h"
 #include "utils\allocator.h"
 
 #include <unordered_map>
@@ -17,10 +16,9 @@ class GraphicsDevice;
 class ShaderLib;
 class StateManager;
 class ResourceManager;
-class Camera;
+class CameraComponent;
 class Scene;
-
-struct MaterialComponent;
+class MaterialComponent;
 
 class Renderer : public SubSystem
 {
@@ -32,30 +30,31 @@ public:
 	void Update();
 	void Uninitialize();
 	void Render();
+	void Compose();
 	void Present();
 	
 	GraphicsDevice& GetDevice();
 	ResourceManager& GetResourceManager();
 	Pipeline& GetPipeline();
 	DeferredMIPGenerator& GetDeferredMIPGenerator();
-	std::shared_ptr<Camera> GetCamera();
+	std::shared_ptr<CameraComponent> GetCamera();
+	ShaderLib& GetShaderLib();
+	StateManager& GetStateManager();
 
-	void RenderSceneOpaque(std::shared_ptr<Camera> camera, ShaderType shaderType);
-	void RenderSceneTransparent(std::shared_ptr<Camera> camera, ShaderType renderingType);
+	void RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, ShaderType shaderType);
+	void RenderSceneTransparent(std::shared_ptr<CameraComponent> camera, ShaderType renderingType);
 
 	// const buffer function
-	void UpdateCameraCB(Camera& camera);
+	void UpdateCameraCB(CameraComponent& camera);
 
 	ShaderInfoState GetShaderInfoState(MaterialComponent& material);
 	Scene& GetMainScene();
 
 private:
 	void InitializePasses();
-	void AccquireActors(std::vector<ActorPtr> actors);
 	void UpdateRenderData();
 	void ProcessRenderQueue(RenderQueue& queue, ShaderType shaderType, RenderableType renderableType);
-	void ProcessRenderQueue(RenderQueue& queue, ShaderType renderingType, XMMATRIX viewProj);
-	void UpdateScene();
+	void UpdateRenderingScene();
 
 	// Pass function
 	void ForwardRender();
@@ -63,15 +62,12 @@ private:
 	// 当前帧的裁剪后的数据
 	struct FrameCullings
 	{
-		ActorPtrArray mRenderingActors;
 		Frustum mFrustum;
-
-		// 记录渲染的object index
-		std::vector<U32> mRenderingObjects;
+		std::vector<U32> mRenderingObjects; // 记录渲染的object index
 
 		void Clear();
 	};
-	std::unordered_map<std::shared_ptr<Camera>, FrameCullings> mFrameCullings;
+	std::unordered_map<std::shared_ptr<CameraComponent>, FrameCullings> mFrameCullings;
 
 private:
 	bool mIsInitialized;
@@ -79,7 +75,7 @@ private:
 	U32 mFrameNum = 0;
 	U32x2 mScreenSize;
 
-	std::shared_ptr<Camera> mCamera;
+	std::shared_ptr<CameraComponent> mCamera;
 	std::unique_ptr<GraphicsDevice> mGraphicsDevice;
 	std::unique_ptr<ShaderLib> mShaderLib;
 	std::unique_ptr<StateManager> mStateManager;
@@ -87,18 +83,7 @@ private:
 	std::unique_ptr<DeferredMIPGenerator> mDeferredMIPGenerator;
 	std::unique_ptr<LinearAllocator> mFrameAllocator;
 
-	/** rendering pass */
 	std::unique_ptr<ForwardPass> mForwardPass;
-
-	// temp define //////////////////////////
-	float mNearPlane;
-	float mFarPlane;
-	XMMATRIX mView;
-	XMMATRIX mProjection;
-	XMMATRIX mViewProjection;
-
-	void PassGBuffer();
-
 };
 
 }

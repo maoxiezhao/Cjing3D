@@ -32,12 +32,6 @@
     <Filter Include="resource\importer">
       <UniqueIdentifier>{58001ee6-99dc-456b-b56a-6f803a557fda}</UniqueIdentifier>
     </Filter>
-    <Filter Include="renderer\renderable">
-      <UniqueIdentifier>{ee3e787a-e22a-40f3-bb5e-9fee90f49608}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="renderer\resource">
-      <UniqueIdentifier>{d8008cfd-bc4b-4f6c-b158-826a56ca422b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="world">
       <UniqueIdentifier>{001fdb9e-f2f6-43b6-beed-06ca29094e09}</UniqueIdentifier>
     </Filter>
@@ -92,15 +86,6 @@
     <ClCompile Include="world\world.cpp">
       <Filter>world</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\renderable\forwardRenderableComponent.cpp">
-      <Filter>renderer\renderable</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\renderable\renderableComponent3D.cpp">
-      <Filter>renderer\renderable</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\renderable\renderableComponent.cpp">
-      <Filter>renderer\renderable</Filter>
-    </ClCompile>
     <ClCompile Include="core\threadSafeSystem.cpp">
       <Filter>core</Filter>
     </ClCompile>
@@ -113,25 +98,7 @@
     <ClCompile Include="helper\fileSystem.cpp">
       <Filter>helper</Filter>
     </ClCompile>
-    <ClCompile Include="resource\modelImporter.cpp">
-      <Filter>resource\importer</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\components\mesh.cpp">
-      <Filter>renderer\resource</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\components\model.cpp">
-      <Filter>renderer\resource</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\components\material.cpp">
-      <Filter>renderer\resource</Filter>
-    </ClCompile>
-    <ClCompile Include="world\actor.cpp">
-      <Filter>world</Filter>
-    </ClCompile>
     <ClCompile Include="world\component\component.cpp">
-      <Filter>world\component</Filter>
-    </ClCompile>
-    <ClCompile Include="world\component\renderable.cpp">
       <Filter>world\component</Filter>
     </ClCompile>
     <ClCompile Include="core\eventSystem.cpp">
@@ -170,9 +137,6 @@
     <ClCompile Include="world\component\transform.cpp">
       <Filter>world\component</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\resource\renderTarget.cpp">
-      <Filter>renderer\resource</Filter>
-    </ClCompile>
     <ClCompile Include="resource\modelImporter\modelImporterObj.cpp">
       <Filter>resource\importer</Filter>
     </ClCompile>
@@ -184,6 +148,15 @@
     </ClCompile>
     <ClCompile Include="renderer\RHI\rhiResource.cpp">
       <Filter>renderer\rhi</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\resource\renderTarget.cpp">
+      <Filter>renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="world\component\mesh.cpp">
+      <Filter>world\component</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\renderImage.cpp">
+      <Filter>renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -260,15 +233,6 @@
     <ClInclude Include="renderer\RHI\rhiResource.h">
       <Filter>renderer\rhi</Filter>
     </ClInclude>
-    <ClInclude Include="renderer\renderable\forwardRenderableComponent.h">
-      <Filter>renderer\renderable</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\renderable\renderableComponent3D.h">
-      <Filter>renderer\renderable</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\renderable\renderableComponent.h">
-      <Filter>renderer\renderable</Filter>
-    </ClInclude>
     <ClInclude Include="core\threadSafeSystem.h">
       <Filter>core</Filter>
     </ClInclude>
@@ -287,31 +251,13 @@
     <ClInclude Include="helper\fileSystem.h">
       <Filter>helper</Filter>
     </ClInclude>
-    <ClInclude Include="core\object.h">
-      <Filter>core</Filter>
-    </ClInclude>
     <ClInclude Include="resource\modelImporter.h">
       <Filter>resource\importer</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\components\model.h">
-      <Filter>renderer\resource</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\components\mesh.h">
-      <Filter>renderer\resource</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\components\material.h">
-      <Filter>renderer\resource</Filter>
     </ClInclude>
     <ClInclude Include="utils\geometry.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="world\actor.h">
-      <Filter>world</Filter>
-    </ClInclude>
     <ClInclude Include="world\component\component.h">
-      <Filter>world\component</Filter>
-    </ClInclude>
-    <ClInclude Include="world\component\renderable.h">
       <Filter>world\component</Filter>
     </ClInclude>
     <ClInclude Include="world\component\transform.h">
@@ -368,23 +314,14 @@
     <ClInclude Include="utils\stb_truetype.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="renderer\resource\texture.h">
-      <Filter>renderer\resource</Filter>
-    </ClInclude>
     <ClInclude Include="renderer\rendererUtils.h">
       <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\resource\renderTarget.h">
-      <Filter>renderer\resource</Filter>
     </ClInclude>
     <ClInclude Include="utils\allocator.h">
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="renderer\mappingDefine.h">
       <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\tinyObjLoader.h">
-      <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="helper\helper.h">
       <Filter>helper</Filter>
@@ -395,11 +332,29 @@
     <ClInclude Include="core\sceneSystem.h">
       <Filter>world</Filter>
     </ClInclude>
-    <ClInclude Include="core\ecsSystem.h">
-      <Filter>world</Filter>
-    </ClInclude>
     <ClInclude Include="world\component\componentInclude.h">
       <Filter>world\component</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tinyObjLoader.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\resource\renderTarget.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="world\ecsSystem.h">
+      <Filter>world</Filter>
+    </ClInclude>
+    <ClInclude Include="world\component\mesh.h">
+      <Filter>world\component</Filter>
+    </ClInclude>
+    <ClInclude Include="world\component\object.h">
+      <Filter>world\component</Filter>
+    </ClInclude>
+    <ClInclude Include="world\component\material.h">
+      <Filter>world\component</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\renderImage.h">
+      <Filter>renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -32,17 +32,15 @@ void Engine::Initialize()
 		return;
 	}
 
-	Debug::ThrowIfFailed(mGameComponent != nullptr, "Game component is null.");
+#ifdef CJING_DEBUG
+	Debug::SetDebugConsoleEnable(true);
+	Debug::InitializeDebugConsole();
+#endif
 
 	// initialize engine time
 	mTimer.Start();
 	mTime = mTimer.GetTime();
 	mSystemContext->SetEngineTime(mTime);
-
-#ifdef CJING_DEBUG
-	Debug::SetDebugConsoleEnable(true);
-	Debug::InitializeDebugConsole();
-#endif
 
 	// initialize file data
 	std::string dataPath = "./../Assets";
@@ -72,11 +70,9 @@ void Engine::Initialize()
 	world->Initialize();
 	mSystemContext->RegisterSubSystem(world);
 
-	// initialize gamecomponent
 	mGameComponent->Initialize();
 
 	Profiler::GetInstance().BeginFrame();
-	
 	mIsInitialized = true;
 }
 
@@ -92,20 +88,19 @@ void Engine::Tick()
 	auto& renderer = mSystemContext->GetSubSystem<Renderer>();
 	auto& world = mSystemContext->GetSubSystem<World>();
 
-	// tick
 	profiler.BeginBlock("Update");
 	FIRE_EVENT(EventType::EVENT_TICK);
 	world.Update();
 	renderer.Update();
 	profiler.EndBlock();
 
-	// render
 	profiler.BeginBlock("Render");
+	FIRE_EVENT(EventType::EVENT_RENDER);
 	renderer.Render();
 	profiler.EndBlock();
 
-	// compose
 	profiler.BeginBlock("Compose");
+	renderer.Compose();
 	renderer.Present();
 	profiler.EndBlock();
 

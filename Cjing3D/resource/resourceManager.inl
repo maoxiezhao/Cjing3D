@@ -52,13 +52,6 @@ ResourceManager::GetPool<PixelShader>()const
 }
 
 template <>
-inline const ResourceManager::PoolType<Model>&
-ResourceManager::GetPool<Model>()const
-{
-	return mModelPool;
-}
-
-template <>
 inline const ResourceManager::PoolType<RhiTexture2D>&
 ResourceManager::GetPool<RhiTexture2D>()const
 {
@@ -75,7 +68,7 @@ Cjing3D::ResourceManager::GetOrCreate(const StringID & name, VertexLayoutDesc* d
 	if (byteData.empty() == false)
 	{
 		PoolType<VertexShaderInfo>& shaderPool = GetPool< VertexShaderInfo >();
-		auto vertexShaderInfo = shaderPool.GetOrCreate(name);
+		vertexShaderInfo = shaderPool.GetOrCreate(name);
 		vertexShaderInfo->mVertexShader = std::make_shared<VertexShader>();
 		vertexShaderInfo->mInputLayout = std::make_shared<InputLayout>();
 
@@ -97,15 +90,39 @@ Cjing3D::ResourceManager::GetOrCreate(const StringID & name, VertexLayoutDesc* d
 }
 
 template<typename ResourceT>
-inline std::enable_if_t<std::is_same<ResourceT, Model>::value, std::shared_ptr<Model>>
-Cjing3D::ResourceManager::GetOrCreate(const StringID & filePath)
+inline std::enable_if_t<std::is_same<ResourceT, RhiTexture2D>::value, std::shared_ptr<RhiTexture2D>>
+ResourceManager::GetOrCreate(const StringID & filePath, GraphicsDevice& device)
 {
-	PoolType<Model>& modelPool = GetPool< Model >();
-	bool isExists = modelPool.Contains(filePath);
+	PoolType<RhiTexture2D>& texturePool = GetPool< RhiTexture2D >();
 
-	auto model = modelPool.GetOrCreate(filePath);
+	bool isExists = texturePool.Contains(filePath);
+	auto texture = texturePool.GetOrCreate(filePath, device);
 	if (isExists == false) {
-		model->LoadFromFile(filePath.GetString(), *this);
+		// load Image
 	}
-	return model;
+	return texture;
+}
+
+
+template <typename ResourceT>
+inline std::enable_if_t<std::is_same<ResourceT, PixelShader>::value, std::shared_ptr<PixelShader> >
+ResourceManager::GetOrCreate(const StringID& name)
+{
+	std::shared_ptr<PixelShader> pixelShader = nullptr;
+	const std::string byteData = FileData::ReadFile(name.GetString());
+	if (byteData.empty() == false)
+	{
+		PoolType<PixelShader>& shaderPool = GetPool< PixelShader >();
+		pixelShader = shaderPool.GetOrCreate(name);
+
+		auto& renderer = mGameContext.GetSubSystem<Renderer>();
+		auto& device = renderer.GetDevice();
+		{
+			const HRESULT result = device.CreatePixelShader(static_cast<const void*>(
+				byteData.data()), byteData.size(), *pixelShader);
+			Debug::ThrowIfFailed(result, "Failed to create pixel shader: %08X", result);
+		}
+	}
+
+	return pixelShader;
 }

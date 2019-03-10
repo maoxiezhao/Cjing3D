@@ -29,6 +29,7 @@ public:
 
 	virtual HRESULT CreateVertexShader(const void* bytecode, size_t length, VertexShader& vertexShader);
 	virtual HRESULT CreateInputLayout(VertexLayoutDesc* desc, U32 numElements, const void* shaderBytecode, size_t shaderLength, InputLayout& inputLayout);
+	virtual HRESULT CreatePixelShader(const void* bytecode, size_t length, PixelShader &pixelShader);
 
 	virtual HRESULT CreateBuffer(const GPUBufferDesc* desc, GPUBuffer& buffer, const SubresourceData* initialData);
 	virtual void UpdateBuffer(GPUBuffer& buffer, const void* data, U32 dataSize);
@@ -37,6 +38,7 @@ public:
 	virtual HRESULT BindVertexBuffer(GPUBuffer* const* buffer, U32 slot, U32 num, const U32* strides, const U32* offsets);
 
 	virtual HRESULT CreateSamplerState(const SamplerDesc* desc, SamplerState& state);
+	virtual void BindSamplerState(SHADERSTAGES stage, SamplerState& state, U32 slot);
 
 	virtual HRESULT CreateTexture2D(const TextureDesc* desc, const SubresourceData* data, RhiTexture2D& texture2D);
 
@@ -53,10 +55,12 @@ public:
 	virtual void BindGPUResources(SHADERSTAGES stage, GPUResource* const* resource, U32 slot, U32 count);
 	virtual void DestoryGPUResource(GPUResource& resource);
 
-	virtual void BindShaderInfoState(ShaderInfoState* state);
+	virtual void BindShaderInfoState(ShaderInfoState state);
+
 	void ClearPrevStates();
 
-	virtual void DrawIndexed() ;
+	virtual void Draw(UINT vertexCount, UINT startVertexLocation);
+	virtual void DrawIndexed(UINT indexCount, UINT startIndexLocation) ;
 	virtual void DrawIndexedInstances(U32 indexCount, U32 instanceCount, U32 startIndexLocation, U32 baseVertexLocation, U32 startInstanceLocation);
 
 	ID3D11DeviceContext& GetDeviceContext(GraphicsThread type) {

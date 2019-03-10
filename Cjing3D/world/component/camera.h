@@ -1,7 +1,7 @@
 #pragma once
 
-#include "world\component\component.h"
 #include "utils\intersectable.h"
+#include "world\component\componentInclude.h"
 
 namespace Cjing3D {
 
@@ -11,11 +11,11 @@ namespace Cjing3D {
 		CameraProjectionType_Orthographic
 	};
 
-	class Camera : public Component
+	class CameraComponent : public Component
 	{
 	public:
-		Camera(SystemContext& systemContext);
-		virtual ~Camera();
+		CameraComponent();
+		virtual ~CameraComponent();
 
 		virtual void Initialize();
 		virtual void Uninitialize();
@@ -53,5 +53,5 @@ namespace Cjing3D {
 		XMFLOAT4X4 mView, mProjection, mViewProjection;
 	};
 
-	using CameraPtr = std::shared_ptr<Camera>;
+	using CameraPtr = std::shared_ptr<CameraComponent>;
 }
