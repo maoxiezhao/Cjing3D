@@ -93,7 +93,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\ThirdParty\;..\ThirdParty\Assimp_4.1.0\;../Shader</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\ThirdParty\;..\ThirdParty\Assimp_4.1.0\;../Shader;..\ThirdParty\lua_5.3.1\</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Lib>
@@ -156,6 +156,7 @@
     <ClInclude Include="helper\systemTime.h" />
     <ClInclude Include="helper\timer.h" />
     <ClInclude Include="helper\variant.h" />
+    <ClInclude Include="lua\luaBinder.h" />
     <ClInclude Include="renderer\pass\forwardPass.h" />
     <ClInclude Include="renderer\includeD3D11.h" />
     <ClInclude Include="renderer\renderableCommon.h" />

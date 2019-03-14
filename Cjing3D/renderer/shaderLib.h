@@ -13,6 +13,7 @@ class MaterialComponent;
 enum VetextShaderType
 {
 	VertexShaderType_Transform = 0,
+	VertexShaderType_FullScreen,
 	VertexShaderType_Count,
 };
 
@@ -25,6 +26,7 @@ enum InputLayoutType
 enum PixelShaderType
 {
 	PixelShaderType_Forward = 0,
+	PixelShaderType_FullScreen,
 	PixelShaderType_Count,
 };
 

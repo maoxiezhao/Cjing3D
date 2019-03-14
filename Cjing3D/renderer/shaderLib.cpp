@@ -37,17 +37,22 @@ void ShaderLib::LoadVertexShaders()
 		VertexLayoutDesc layout[] = 
 		{
 			{ "POSITION_NORMAL_SUBSETINDEX", 0u, MeshComponent::VertexPosNormalSubset::format, 0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
-			{ "TEXCOORD", 0u, MeshComponent::VertexTex::format, 0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
+			{ "TEXCOORD", 0u, MeshComponent::VertexTex::format, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
 
 			// instance
-			{ "MAIT", 0u, FORMAT_R32G32B32A32_FLOAT, 4u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 1u },
-			{ "MAIT", 1u, FORMAT_R32G32B32A32_FLOAT, 4u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 1u },
-			{ "MAIT", 2u, FORMAT_R32G32B32A32_FLOAT, 4u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 1u },
-			{ "COLOR",0u, FORMAT_R32G32B32A32_FLOAT, 4u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 1u }
+			{ "MAIT", 0u, FORMAT_R32G32B32A32_FLOAT, 2u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
+			{ "MAIT", 1u, FORMAT_R32G32B32A32_FLOAT, 2u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
+			{ "MAIT", 2u, FORMAT_R32G32B32A32_FLOAT, 2u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
+			{ "COLOR",0u, FORMAT_R32G32B32A32_FLOAT, 2u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u }
 		};
 		auto vsinfo = resourceManager.GetOrCreate<VertexShaderInfo>(shaderPath + "objectVS.cso", layout, 6);
 		mVertexShader[VertexShaderType_Transform] = vsinfo->mVertexShader;
 		mInputLayout[InputLayoutType_Transform] = vsinfo->mInputLayout;
+	
+	
+		// full screen vs
+		auto fullScreenVSInfo = resourceManager.GetOrCreate<VertexShaderInfo>(shaderPath + "screenVS.cso", nullptr, 0);
+		mVertexShader[VertexShaderType_FullScreen] = fullScreenVSInfo->mVertexShader;
 	}
 }
 
@@ -57,6 +62,9 @@ void ShaderLib::LoadPixelShaders()
 	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resrouce_PixelShader);
 	{
 		mPixelShader[PixelShaderType_Forward] = resourceManager.GetOrCreate<PixelShader>(shaderPath + "objectForwardPS.cso");
+
+		// full screen ps
+		mPixelShader[PixelShaderType_FullScreen] = resourceManager.GetOrCreate<PixelShader>(shaderPath + "screenPS.cso");
 	}
 }
 
@@ -68,6 +76,7 @@ void ShaderLib::LoadBuffers()
 		mConstantBuffer[i] = std::make_shared<GPUBuffer>(device);
 	}
 
+	// TODO create by rhiFactory
 	// Camera buffer
 	GPUBufferDesc desc = {};
 	desc.mUsage = USAGE_DYNAMIC;	// camera buffer ¸üÐÂÆµ·±
@@ -124,7 +133,13 @@ ShaderInfoState ShaderLib::GetShaderInfoState(ShaderType shaderType, MaterialCom
 
 ShaderInfoState ShaderLib::GetImageShaderInfoState()
 {
-	return ShaderInfoState();
+	ShaderInfoState infoState;
+	infoState.SetGraphicsDevice(&mRenderer.GetDevice());
+
+	infoState.mVertexShader = GetVertexShader(VertexShaderType_FullScreen);
+	infoState.mPixelShader = GetPixelShader(PixelShaderType_FullScreen);
+
+	return infoState;
 }
 
 }

@@ -38,6 +38,9 @@
     <Filter Include="world\component">
       <UniqueIdentifier>{4f8d85c3-1f5e-4e1c-95eb-16f9a7960f52}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lua">
+      <UniqueIdentifier>{bda65b4b-b51e-4eb6-aaa6-764b457d2ed2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine.cpp" />
@@ -355,6 +358,9 @@
     </ClInclude>
     <ClInclude Include="renderer\renderImage.h">
       <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\luaBinder.h">
+      <Filter>lua</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

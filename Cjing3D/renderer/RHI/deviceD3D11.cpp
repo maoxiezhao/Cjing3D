@@ -1066,6 +1066,8 @@ HRESULT GraphicsDeviceD3D11::CreateBuffer(const GPUBufferDesc * desc, GPUBuffer 
 	bufferDesc.MiscFlags = _ParseResourceMiscFlags(desc->mMiscFlags);
 	bufferDesc.StructureByteStride = desc->mStructureByteStride;
 
+	buffer.SetDesc(*desc);
+
 	D3D11_SUBRESOURCE_DATA* subresource_data = nullptr;
 	if (initialData != nullptr)
 	{

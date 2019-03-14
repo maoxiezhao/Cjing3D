@@ -49,26 +49,26 @@ void Engine::Initialize()
 	
 	// initialize job system
 	auto jobSystem = new JobSystem(*mSystemContext, false);
-	jobSystem->Initialize();
 	mSystemContext->RegisterSubSystem(jobSystem);
+	jobSystem->Initialize();
 	
 	// setup gamecomponent 
 	mGameComponent->Setup();
 
 	// initialize resource manager
 	auto resourceManager = new ResourceManager(*mSystemContext);
-	resourceManager->Initialize();
 	mSystemContext->RegisterSubSystem(resourceManager);
+	resourceManager->Initialize();
 
 	// initialize renderer
 	auto renderer = new Renderer(*mSystemContext, mRenderingDeviceType, (HWND)mWindowHwnd);
-	renderer->Initialize();
 	mSystemContext->RegisterSubSystem(renderer);
+	renderer->Initialize();
 
 	// initialize world
 	auto world = new World(*mSystemContext);
-	world->Initialize();
 	mSystemContext->RegisterSubSystem(world);
+	world->Initialize();
 
 	mGameComponent->Initialize();
 

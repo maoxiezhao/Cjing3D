@@ -241,7 +241,9 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, ShaderType shaderType, Re
 	size_t instanceSize = sizeof(RenderInstance);
 	GraphicsDevice::GPUAllocation instances = mGraphicsDevice->AllocateGPU(queue.GetBatchCount() * instanceSize);
 
-	// 将共同的mesh创建为同一个instancedBatch
+	// 对于使用相同mesh的object将创建同一个instanceBatch，包含相同的shader，
+	// 但是依然会为每个object创建一个instance（input layout）包含了颜色和世界坐标变换矩阵
+
 	ECS::Entity prevMeshEntity = ECS::INVALID_ENTITY;
 	U32 instancedBatchCount = 0;
 

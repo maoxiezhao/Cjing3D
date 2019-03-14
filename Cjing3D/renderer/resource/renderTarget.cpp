@@ -110,7 +110,7 @@ namespace Cjing3D
 		for (auto& texture : mRenderTargets) {
 			renderTargets.push_back(texture.get());
 		}
-		auto depthTexture = mDepthTarget->GetTexture();
+		auto depthTexture = (mDepthTarget != nullptr) ? mDepthTarget->GetTexture() : nullptr;
 		device.BindRenderTarget(mNumViews, (RhiTexture2D**)renderTargets.data(), depthTexture != nullptr ? depthTexture.get() : nullptr);
 
 	}

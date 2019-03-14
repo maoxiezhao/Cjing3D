@@ -125,7 +125,7 @@ namespace Cjing3D
 	struct VertexLayoutDesc
 	{
 		const char* mSemanticName;
-		U32 mSemanticIndex;
+		U32 mSemanticIndex;				// semanticName相同时，使用的index下标（name0, name1)
 		FORMAT mFormat;
 		U32 mInputSlot;
 		U32 mAlignedByteOffset;

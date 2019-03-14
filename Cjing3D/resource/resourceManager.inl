@@ -80,9 +80,12 @@ Cjing3D::ResourceManager::GetOrCreate(const StringID & name, VertexLayoutDesc* d
 			Debug::ThrowIfFailed(result, "Failed to create vertex shader: %08X", result);
 		}
 		{
-			const HRESULT result = device.CreateInputLayout(desc, numElements, static_cast<const void*>(byteData.data()),
-				byteData.size(), *vertexShaderInfo->mInputLayout);
-			Debug::ThrowIfFailed(result, "Failed to create input layout: %08X", result);
+			if (desc != nullptr)
+			{
+				const HRESULT result = device.CreateInputLayout(desc, numElements, static_cast<const void*>(byteData.data()),
+					byteData.size(), *vertexShaderInfo->mInputLayout);
+				Debug::ThrowIfFailed(result, "Failed to create input layout: %08X", result);
+			}
 		}
 	}
 

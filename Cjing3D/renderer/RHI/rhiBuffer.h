@@ -21,11 +21,7 @@ namespace Cjing3D
 		void UpdateData(const void* data, U32 dataSize);
 
 		ID3D11Buffer& GetBuffer() {
-			return *mBuffer.Get();
-		}
-
-		ComPtr<ID3D11Buffer>& GetBufferPtr() {
-			return mBuffer;
+			return **((ID3D11Buffer**)&GetGPUResource());
 		}
 
 		GPUBufferDesc GetDesc() {
@@ -37,6 +33,5 @@ namespace Cjing3D
 		}
 	private:
 		GPUBufferDesc mDesc;
-		ComPtr<ID3D11Buffer> mBuffer;
 	};
 }
