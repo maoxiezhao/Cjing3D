@@ -114,6 +114,7 @@ void Renderer::Compose()
 void Renderer::Present()
 {
 	mGraphicsDevice->PresentBegin();
+	Compose();
 	mGraphicsDevice->PresentEnd();
 }
 

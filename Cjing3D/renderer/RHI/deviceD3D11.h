@@ -34,8 +34,8 @@ public:
 	virtual HRESULT CreateBuffer(const GPUBufferDesc* desc, GPUBuffer& buffer, const SubresourceData* initialData);
 	virtual void UpdateBuffer(GPUBuffer& buffer, const void* data, U32 dataSize);
 
-	virtual HRESULT BindIndexBuffer(GPUBuffer& buffer, IndexFormat format, U32 offset);
-	virtual HRESULT BindVertexBuffer(GPUBuffer* const* buffer, U32 slot, U32 num, const U32* strides, const U32* offsets);
+	virtual void BindIndexBuffer(GPUBuffer& buffer, IndexFormat format, U32 offset);
+	virtual void BindVertexBuffer(GPUBuffer* const* buffer, U32 slot, U32 num, const U32* strides, const U32* offsets);
 
 	virtual HRESULT CreateSamplerState(const SamplerDesc* desc, SamplerState& state);
 	virtual void BindSamplerState(SHADERSTAGES stage, SamplerState& state, U32 slot);
@@ -100,10 +100,10 @@ private:
 	std::unique_ptr< SwapChainD3D11> mSwapChain;
 
 	// prev state
-	ID3D11VertexShader* mPrevVertexShader;
-	ID3D11PixelShader* mPrevPixelShader;
-	ID3D11InputLayout* mPrevInputLayout;
-
+	ID3D11VertexShader* mPrevVertexShader = nullptr;
+	ID3D11PixelShader* mPrevPixelShader = nullptr;
+	ID3D11InputLayout* mPrevInputLayout = nullptr;
+	PRIMITIVE_TOPOLOGY mPrevPrimitiveTopology = UNDEFINED_TOPOLOGY;
 };
 
 }

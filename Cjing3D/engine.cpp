@@ -100,7 +100,6 @@ void Engine::Tick()
 	profiler.EndBlock();
 
 	profiler.BeginBlock("Compose");
-	renderer.Compose();
 	renderer.Present();
 	profiler.EndBlock();
 

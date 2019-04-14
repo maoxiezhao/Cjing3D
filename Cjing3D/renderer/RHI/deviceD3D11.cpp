@@ -1154,14 +1154,21 @@ void GraphicsDeviceD3D11::UpdateBuffer(GPUBuffer & buffer, const void * data, U3
 	}
 }
 
-HRESULT GraphicsDeviceD3D11::BindIndexBuffer(GPUBuffer & buffer, IndexFormat format, U32 offset)
+void GraphicsDeviceD3D11::BindIndexBuffer(GPUBuffer & buffer, IndexFormat format, U32 offset)
 {
-	return E_NOTIMPL;
+	ID3D11Buffer& d3d11Buffer = buffer.GetBuffer();
+	DXGI_FORMAT d3d11Format = (format == IndexFormat::INDEX_FORMAT_32BIT) ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT;
+	GetDeviceContext(GraphicsThread_IMMEDIATE).IASetIndexBuffer(&d3d11Buffer, d3d11Format, offset);
 }
 
-HRESULT GraphicsDeviceD3D11::BindVertexBuffer(GPUBuffer* const* buffer, U32 slot, U32 num, const U32 * strides, const U32 * offsets)
+void GraphicsDeviceD3D11::BindVertexBuffer(GPUBuffer* const* buffer, U32 slot, U32 num, const U32 * strides, const U32 * offsets)
 {
-	return E_NOTIMPL;
+	ID3D11Buffer* buffers[8] = { 0 };
+	for (size_t i = 0; i < 8; i++)
+	{
+		buffers[i] = (buffer[i] != nullptr) ? &buffer[i]->GetBuffer() : nullptr;
+	}
+	GetDeviceContext(GraphicsThread_IMMEDIATE).IASetVertexBuffers(slot, num, buffers, strides, offsets);
 }
 
 // 创建采样器状态
@@ -1447,18 +1454,47 @@ void GraphicsDeviceD3D11::BindShaderInfoState(ShaderInfoState state)
 	if (vs != mPrevVertexShader)
 	{
 		GetDeviceContext(GraphicsThread_IMMEDIATE).VSSetShader(vs, nullptr, 0);
+		mPrevVertexShader = vs;
 	}
 
 	ID3D11PixelShader* ps = state.mPixelShader != nullptr ? state.mPixelShader->mResourceD3D11.Get() : nullptr;
 	if (ps != mPrevPixelShader)
 	{
 		GetDeviceContext(GraphicsThread_IMMEDIATE).PSSetShader(ps, nullptr, 0);
+		mPrevPixelShader = ps;
 	}
 
 	ID3D11InputLayout* il = state.mInputLayout != nullptr ? &state.mInputLayout->GetState() : nullptr;
 	if (il != mPrevInputLayout)
 	{
 		GetDeviceContext(GraphicsThread_IMMEDIATE).IASetInputLayout(il);
+		mPrevInputLayout = il;
+	}
+
+	if (state.mPrimitiveTopology != mPrevPrimitiveTopology)
+	{
+		D3D11_PRIMITIVE_TOPOLOGY primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		switch (state.mPrimitiveTopology)
+		{
+		case TRIANGLELIST:
+			primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+			break;
+		case TRIANGLESTRIP:
+			primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
+			break;
+		case POINTLIST:
+			primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
+			break;
+		case LINELIST:
+			primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
+			break;
+		default:
+			primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED;
+			break;
+		}
+
+		GetDeviceContext(GraphicsThread_IMMEDIATE).IASetPrimitiveTopology(primitiveTopology);
+		mPrevPrimitiveTopology = state.mPrimitiveTopology;
 	}
 }
 

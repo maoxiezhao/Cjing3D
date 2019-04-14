@@ -126,6 +126,7 @@ ShaderInfoState ShaderLib::GetShaderInfoState(ShaderType shaderType, MaterialCom
 		infoState.mVertexShader = GetVertexShader(VertexShaderType_Transform);
 		infoState.mInputLayout = GetVertexLayout(InputLayoutType_Transform);
 		infoState.mPixelShader = GetPixelShader(PixelShaderType_Forward);
+		infoState.mPrimitiveTopology = TRIANGLELIST;
 	}
 
 	return infoState;
@@ -138,6 +139,7 @@ ShaderInfoState ShaderLib::GetImageShaderInfoState()
 
 	infoState.mVertexShader = GetVertexShader(VertexShaderType_FullScreen);
 	infoState.mPixelShader = GetPixelShader(PixelShaderType_FullScreen);
+	infoState.mPrimitiveTopology = TRIANGLELIST;
 
 	return infoState;
 }

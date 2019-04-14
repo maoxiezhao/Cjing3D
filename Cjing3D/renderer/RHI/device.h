@@ -34,8 +34,8 @@ namespace Cjing3D
 		virtual HRESULT CreateBuffer(const GPUBufferDesc* desc, GPUBuffer& buffer, const SubresourceData* initialData) = 0;
 		virtual void UpdateBuffer(GPUBuffer& buffer, const void* data, U32 dataSize) = 0;
 
-		virtual HRESULT BindIndexBuffer(GPUBuffer& buffer, IndexFormat format, U32 offset) = 0;
-		virtual HRESULT BindVertexBuffer(GPUBuffer* const* buffer, U32 slot, U32 num, const U32* strides, const U32* offsets) = 0;
+		virtual void BindIndexBuffer(GPUBuffer& buffer, IndexFormat format, U32 offset) = 0;
+		virtual void BindVertexBuffer(GPUBuffer* const* buffer, U32 slot, U32 num, const U32* strides, const U32* offsets) = 0;
 
 		virtual HRESULT CreateSamplerState(const SamplerDesc* desc, SamplerState& state) = 0;
 		virtual void BindSamplerState(SHADERSTAGES stage, SamplerState& state, U32 slot) = 0;
