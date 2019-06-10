@@ -33,7 +33,7 @@ namespace Cjing3D {
 
 		GPUBuffer& GetIndexBuffer() { return *mIndexBuffer; }
 		GPUBuffer& GetVertexBufferPos() { return *mVertexBufferPos; }
-		GPUBuffer& GetVertexBufferTex() { return *mIndexBuffer; }
+		GPUBuffer& GetVertexBufferTex() { return *mVertexBufferTex; }
 
 
 		IndexFormat GetIndexFormat()const { return IndexFormat::INDEX_FORMAT_32BIT; }

@@ -111,7 +111,7 @@ namespace Cjing3D
 			renderTargets.push_back(texture.get());
 		}
 		auto depthTexture = (mDepthTarget != nullptr) ? mDepthTarget->GetTexture() : nullptr;
-		device.BindRenderTarget(mNumViews, (RhiTexture2D**)renderTargets.data(), depthTexture != nullptr ? depthTexture.get() : nullptr);
+		device.BindRenderTarget(renderTargets.size(), (RhiTexture2D**)renderTargets.data(), depthTexture != nullptr ? depthTexture.get() : nullptr);
 
 	}
 

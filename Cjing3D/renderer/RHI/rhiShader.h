@@ -65,7 +65,7 @@ namespace Cjing3D
 		VertexShaderPtr mVertexShader = nullptr;
 		InputLayoutPtr mInputLayout = nullptr;
 		PixelShaderPtr mPixelShader = nullptr;
-		PRIMITIVE_TOPOLOGY mPrimitiveTopology = TRIANGLELIST;
+		PRIMITIVE_TOPOLOGY mPrimitiveTopology = UNDEFINED_TOPOLOGY;
 
 		void Clear() 
 		{

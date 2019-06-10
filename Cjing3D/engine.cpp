@@ -6,6 +6,7 @@
 #include "resource\resourceManager.h"
 #include "renderer\renderer.h"
 #include "world\world.h"
+#include "scripts\luaContext.h"
 
 namespace Cjing3D
 {
@@ -70,6 +71,11 @@ void Engine::Initialize()
 	mSystemContext->RegisterSubSystem(world);
 	world->Initialize();
 
+	// initialize lua context
+	auto luaContext = new LuaContext(*mSystemContext);
+	mSystemContext->RegisterSubSystem(luaContext);
+	luaContext->Initialize();
+
 	mGameComponent->Initialize();
 
 	Profiler::GetInstance().BeginFrame();
@@ -117,6 +123,7 @@ void Engine::Uninitialize()
 
 	mGameComponent->Uninitialize();
 
+	mSystemContext->GetSubSystem<LuaContext>().Uninitialize();
 	mSystemContext->GetSubSystem<World>().Uninitialize();
 	mSystemContext->GetSubSystem<Renderer>().Uninitialize();
 	mSystemContext->GetSubSystem<ResourceManager>().Uninitialize();

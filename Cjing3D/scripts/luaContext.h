@@ -2,25 +2,27 @@
 
 #include "scripts\luaRef.h"
 #include "scripts\luaTools.h"
+#include "core\subSystem.hpp"
 
 #include <string>
 
 namespace Cjing3D
 {
-class LuaContext
+class LuaContext : public SubSystem
 {
 public:
-	LuaContext();
+	LuaContext(SystemContext& systemContext);
 	~LuaContext();
 
-	void Initialize();
+	virtual void Initialize();
+	virtual void Uninitialize();
 	void Update();
-	void Uninitialize();
 
 	using FunctionExportToLua = int(lua_State* l);
 	static FunctionExportToLua
 		api_panic;
 
+	bool DoFileIfExists(const std::string& name);
 	static bool DoFileIfExists(lua_State*l, const std::string& name);
 	static bool LoadFile(lua_State*l, const std::string& name);
 

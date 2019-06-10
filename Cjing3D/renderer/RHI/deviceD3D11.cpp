@@ -928,6 +928,9 @@ void GraphicsDeviceD3D11::PresentEnd()
 	deviceContext.OMSetRenderTargets(0, nullptr, nullptr);
 	deviceContext.ClearState();
 
+	BindShaderInfoState(ShaderInfoState());
+	ClearPrevStates();
+
 	mCurrentFrameCount++;
 }
 
@@ -1164,7 +1167,7 @@ void GraphicsDeviceD3D11::BindIndexBuffer(GPUBuffer & buffer, IndexFormat format
 void GraphicsDeviceD3D11::BindVertexBuffer(GPUBuffer* const* buffer, U32 slot, U32 num, const U32 * strides, const U32 * offsets)
 {
 	ID3D11Buffer* buffers[8] = { 0 };
-	for (size_t i = 0; i < 8; i++)
+	for (size_t i = 0; i < num; i++)
 	{
 		buffers[i] = (buffer[i] != nullptr) ? &buffer[i]->GetBuffer() : nullptr;
 	}
@@ -1545,6 +1548,7 @@ void GraphicsDeviceD3D11::ClearPrevStates()
 	mPrevVertexShader = nullptr;
 	mPrevPixelShader = nullptr;
 	mPrevInputLayout = nullptr;
+	mPrevPrimitiveTopology = UNDEFINED_TOPOLOGY;
 }
 
 void GraphicsDeviceD3D11::Draw(UINT vertexCount, UINT startVertexLocation)

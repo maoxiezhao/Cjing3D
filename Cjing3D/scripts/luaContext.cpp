@@ -4,7 +4,8 @@
 
 namespace Cjing3D {
 
-LuaContext::LuaContext()
+LuaContext::LuaContext(SystemContext& systemContext) :
+	SubSystem(systemContext)
 {
 }
 
@@ -27,6 +28,11 @@ void LuaContext::Uninitialize()
 {
 	lua_close(mLuaState);
 	mLuaState = nullptr;
+}
+
+bool LuaContext::DoFileIfExists(const std::string & name)
+{
+	return LuaContext::DoFileIfExists(mLuaState, name);
 }
 
 bool LuaContext::DoFileIfExists(lua_State* l, const std::string& name)
