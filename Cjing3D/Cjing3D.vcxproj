@@ -156,6 +156,7 @@
     <ClInclude Include="helper\systemTime.h" />
     <ClInclude Include="helper\timer.h" />
     <ClInclude Include="helper\variant.h" />
+    <ClInclude Include="note.h" />
     <ClInclude Include="renderer\pass\forwardPass.h" />
     <ClInclude Include="renderer\includeD3D11.h" />
     <ClInclude Include="renderer\renderableCommon.h" />
@@ -241,6 +242,8 @@
   <ItemGroup>
     <ClCompile Include="core\eventSystem.cpp" />
     <ClCompile Include="core\gameComponent.cpp" />
+    <ClCompile Include="core\InputSystem.cpp" />
+    <ClCompile Include="core\InputSystem.h" />
     <ClCompile Include="core\jobSystem.cpp" />
     <ClCompile Include="core\sceneSystem.cpp" />
     <ClCompile Include="core\threadSafeSystem.cpp" />
@@ -318,6 +321,7 @@
     <ClCompile Include="utils\intersectable.cpp" />
     <ClCompile Include="world\component\camera.cpp" />
     <ClCompile Include="world\component\component.cpp" />
+    <ClCompile Include="world\component\material.cpp" />
     <ClCompile Include="world\component\mesh.cpp" />
     <ClCompile Include="world\component\transform.cpp" />
     <ClCompile Include="world\world.cpp" />

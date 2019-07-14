@@ -25,6 +25,7 @@ struct VertexSurface
 {
     float4 position;
     float3 normal;
+    float4 color;
     uint materialIndex;
     float2 uv;
 };
@@ -43,6 +44,7 @@ inline VertexSurface MakeVertexSurfaceFromInput(InputObjectAll input)
 {
     VertexSurface surface;
     surface.position = float4(input.pos.xyz, 1.0f);
+    surface.color = gMaterialBaseColor;
 
     uint normalSubsetIndex = input.pos.w;
     surface.normal.x = (float) (normalSubsetIndex & 0x000000ff) / 256.0f * 2.0f - 1.0f;

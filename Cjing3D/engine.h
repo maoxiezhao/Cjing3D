@@ -20,6 +20,8 @@ namespace Cjing3D
 		void Tick();
 		void Uninitialize();
 
+		void SetIsExiting(bool isExiting) { mIsExiting = isExiting; }
+		bool GetIsExiting()const { return mIsExiting; }
 		void SetHandles(void* windowHwnd, void* windowInstance);
 		void* GetWindowInstance() { return mWindowHinstance; }
 		void* GetWindowHwnd() { return mWindowHwnd; }
@@ -27,7 +29,8 @@ namespace Cjing3D
 		SystemContext& GetGameContext() { return *mSystemContext; }
 
 	private:
-		bool mIsInitialized;
+		bool mIsInitialized = false;
+		bool mIsExiting = false;
 
 		void* mWindowHinstance;
 		void* mWindowHwnd;

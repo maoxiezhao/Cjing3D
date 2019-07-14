@@ -29,6 +29,7 @@ public:
 	void Initialize();
 	void Update();
 	void Uninitialize();
+	void SetupRenderFrame();
 	void Render();
 	void Compose();
 	void Present();
@@ -56,6 +57,8 @@ private:
 	void ProcessRenderQueue(RenderQueue& queue, ShaderType shaderType, RenderableType renderableType);
 	void UpdateRenderingScene();
 
+	void BindConstanceBuffer(SHADERSTAGES stage);
+
 	// Pass function
 	void ForwardRender();
 
@@ -82,6 +85,8 @@ private:
 	std::unique_ptr<Pipeline> mPipeline;
 	std::unique_ptr<DeferredMIPGenerator> mDeferredMIPGenerator;
 	std::unique_ptr<LinearAllocator> mFrameAllocator;
+	
+	std::vector<int> mPendingUpdateMaterials;
 
 	std::unique_ptr<ForwardPass> mForwardPass;
 };

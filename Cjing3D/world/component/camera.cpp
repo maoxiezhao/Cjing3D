@@ -70,6 +70,14 @@ namespace Cjing3D
 		Update();
 	}
 
+	void CameraComponent::SetCameraStatus(F32x3 eye, F32x3 at, F32x3 up)
+	{
+		mEye = eye;
+		mAt = at;
+		mUp = up;
+		mIsDirty = true;
+	}
+
 	// 仅在创建相机时计算projection
 	void CameraComponent::ComputeProjection()
 	{

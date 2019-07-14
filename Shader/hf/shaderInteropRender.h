@@ -17,5 +17,9 @@ CBUFFER(CameraCB, CBSLOT_RENDERER_CAMERA)
 	float    gPadding;
 };
 
+CBUFFER(MaterialCB, CBSLOT_RENDERER_MATERIAL)
+{
+	float4 gMaterialBaseColor;
+};
 
 #endif

@@ -93,11 +93,12 @@ namespace Cjing3D {
 			posY = (GetSystemMetrics(SM_CYSCREEN) - h) / 2;
 		}
 
-		mHwnd = CreateWindowEx(WS_EX_APPWINDOW,
-			name.c_str(), name.c_str(),
+		mHwnd = CreateWindowEx(
+			WS_EX_APPWINDOW,
+			name.c_str(), 
+			name.c_str(),
 			style,
-			posX,
-			posY,
+			posX, posY,
 			adjusted_rectangle.right - adjusted_rectangle.left,
 			adjusted_rectangle.bottom - adjusted_rectangle.top,
 			NULL, NULL,

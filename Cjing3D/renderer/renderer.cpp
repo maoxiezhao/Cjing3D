@@ -82,8 +82,21 @@ void Renderer::Initialize()
 
 void Renderer::Update()
 {
-	UpdateRenderData();
-	UpdateRenderingScene();
+	mPendingUpdateMaterials.clear();
+
+	auto& scene = GetMainScene();
+	auto& materials = scene.GetComponentManager<MaterialComponent>();
+	for (int index = 0; index < materials.GetCount(); index++)
+	{
+		auto material = materials[index];
+		if (material->IsDirty())
+		{
+			material->SetIsDirty(false);
+			material->SetupConstantBuffer(*mGraphicsDevice);
+
+			mPendingUpdateMaterials.push_back(index);
+		}
+	}
 }
 
 void Renderer::Uninitialize()
@@ -95,6 +108,13 @@ void Renderer::Uninitialize()
 	mGraphicsDevice->Uninitialize();
 
 	mIsInitialized = false;
+}
+
+// do it before rendering
+void Renderer::SetupRenderFrame()
+{
+	UpdateRenderData();
+	UpdateRenderingScene();
 }
 
 void Renderer::Render()
@@ -155,10 +175,13 @@ StateManager & Renderer::GetStateManager()
 
 void Renderer::RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, ShaderType shaderType)
 {
+	// bind constant buffer
+	BindConstanceBuffer(SHADERSTAGES_VS);
+	BindConstanceBuffer(SHADERSTAGES_PS);
+
 	auto& scene = GetMainScene();
 
 	RenderQueue renderQueue;
-
 	FrameCullings& frameCulling = mFrameCullings[camera];
 	auto& objects = frameCulling.mRenderingObjects;
 	for (const auto& objectIndex : objects)
@@ -228,6 +251,18 @@ void Renderer::UpdateRenderData()
 	// 处理延时生成的mipmap
 	if (mDeferredMIPGenerator != nullptr) {
 		mDeferredMIPGenerator->UpdateMipGenerating();
+	}
+
+	auto& mainScene = GetMainScene();
+	// 处理更新material data 
+	for (int materialIndex : mPendingUpdateMaterials)
+	{
+		auto material = mainScene.mMaterials[materialIndex];
+
+		MaterialCB cb;
+		cb.gMaterialBaseColor = XMConvert(material->mBaseColor);
+
+		mGraphicsDevice->UpdateBuffer(material->GetConstantBuffer(), &cb, sizeof(cb));
 	}
 }
 
@@ -340,6 +375,10 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, ShaderType shaderType, Re
 			// bind material state
 			mGraphicsDevice->BindShaderInfoState(state);
 
+			// bind material constant buffer
+			mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_VS, material->GetConstantBuffer(), CB_GETSLOT_NAME(MaterialCB));
+			mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_PS, material->GetConstantBuffer(), CB_GETSLOT_NAME(MaterialCB));
+
 			// bind material texture
 			GPUResource* resources[] = {
 				material->mBaseColorMap.get(),
@@ -385,9 +424,14 @@ void Renderer::UpdateRenderingScene()
 				frameCulling.mRenderingObjects.push_back((U32)i);
 			}
 		}
-
-
 	}
+}
+
+void Renderer::BindConstanceBuffer(SHADERSTAGES stage)
+{
+	auto& cameraBuffer = *mShaderLib->GetConstantBuffer(ConstantBufferType_Camera);
+
+	mGraphicsDevice->BindConstantBuffer(stage, cameraBuffer, CB_GETSLOT_NAME(CameraCB));
 }
 
 void Renderer::ForwardRender()

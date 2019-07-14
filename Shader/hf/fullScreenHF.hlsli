@@ -13,8 +13,8 @@ struct FullScreenPixelInput
 
 inline void FullScreenTriangle(in uint vertexID, out float4 pos)
 {
-    pos.x = (float4) (vertexID / 2) * 2.0f - 1.0f;
-    pos.y = (float4) (vertexID % 2) * 2.0f - 1.0f;
+    pos.x = (float) (vertexID / 2) * 4.0f - 1.0f;
+    pos.y = (float) (vertexID % 2) * 4.0f - 1.0f;
     pos.z = 0.0f;
     pos.w = 1.0f;
 }

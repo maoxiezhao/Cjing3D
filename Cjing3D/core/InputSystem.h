@@ -1,0 +1,63 @@
+#pragma once
+
+#include "common\common.h"
+#include "core\subSystem.hpp"
+
+#define DIRECTINPUT_VERSION 0x0800
+#include <dinput.h>
+#include <Xinput.h>
+#pragma comment(lib,"dinput8.lib")
+
+namespace Cjing3D
+{
+
+enum KeyCode
+{
+	// Keyboard
+	F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, F13, F14, F15,/*Function*/
+	Alpha0, Alpha1, Alpha2, Alpha3, Alpha4, Alpha5, Alpha6, Alpha7, Alpha8, Alpha9,/*Numbers*/
+	Keypad0, Keypad1, Keypad2, Keypad3, Keypad4, Keypad5, Keypad6, Keypad7, Keypad8, Keypad9,/*Numpad*/
+	Q, W, E, R, T, Y, U, I, O, P, A, S, D, F, G, H, J, K, L, Z, X, C, V, B, N, M, /*Letters*/
+	Esc,
+	Tab,
+	Shift_Left, 
+	Shift_Right,
+	Ctrl_Left, 
+	Ctrl_Right,
+	Alt_Left, 
+	Alt_Right,
+	Space,
+	CapsLock,
+	Backspace,
+	Enter,
+	Delete,
+	Arrow_Left, 
+	Arrow_Right, 
+	Arrow_Up,
+	Arrow_Down,
+	Page_Up, Page_Down,
+	Home,
+	End,
+	Insert,
+	// Mouse
+	Click_Left,
+	Click_Middle,
+	Click_Right
+};
+
+class InputManager : public SubSystem
+{
+public:
+	InputManager(SystemContext& systemContext);
+	~InputManager();
+
+	virtual void Initialize(HWND windowHwnd, HINSTANCE windowInstance);
+	virtual void Uninitialize();
+	void Update();
+
+	bool IsKeyDown(const KeyCode key)const;
+	bool IsKeyUp(const KeyCode key)const;
+	bool IsKeyHold(const KeyCode key)const;
+};
+
+}

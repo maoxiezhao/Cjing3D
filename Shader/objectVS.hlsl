@@ -14,6 +14,7 @@ PixelInputType main(InputObjectAll input)
     Out.pos = mul(surface.position, gCameraVP);
     Out.nor = surface.normal;
     Out.tex = surface.uv;
+    Out.color = surface.color;
 
 	return Out;
 }

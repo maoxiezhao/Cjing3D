@@ -8,6 +8,7 @@ struct PixelInputType
 	float4 pos : SV_POSITION;
 	float2 tex : TEXCOORD0;
 	float3 nor : NORMAL;
+    float4 color : COLOR;
 };
 
 

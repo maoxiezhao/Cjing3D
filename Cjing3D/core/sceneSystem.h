@@ -57,10 +57,10 @@ namespace Cjing3D {
 			return manager.GetEntityByIndex(index);
 		}
 
-	private:
 		template<typename ComponentT>
 		ECS::ComponentManager<ComponentT>& GetComponentManager();
 
+	private:
 		void UpdateSceneTransform();
 		void UpdateSceneObject();
 

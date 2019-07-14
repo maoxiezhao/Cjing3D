@@ -51,6 +51,7 @@ int WINAPI WinMain(HINSTANCE instance,
 		false);
 	mAppHandler = std::make_shared<ApplicationMessageHandler>();
 	mainWindow->AddMessageHandler(mAppHandler);
+	mainWindow->Show();
 
 	mainEngine = std::make_unique<Engine>(new TestGame());
 	mainEngine->SetHandles(mainWindow->GetHwnd(), mainWindow->GetInstance());
@@ -69,12 +70,10 @@ int WINAPI WinMain(HINSTANCE instance,
 
 int Run()
 {
-	mainWindow->Show();
-	
 	// message loop
 	MSG msg;
 	SecureZeroMemory(&msg, sizeof(msg));
-	while (msg.message != WM_QUIT)
+	while (msg.message != WM_QUIT && !mainEngine->GetIsExiting())
 	{
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);

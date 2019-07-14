@@ -8,6 +8,7 @@ namespace Cjing3D
 	*	\brief Buffer Creating Method
 	**************************************************************/
 	HRESULT CreateDynamicConstantBuffer(GraphicsDevice & device, GPUBuffer& buffer, size_t dataSize);
+	HRESULT CreateDefaultConstantBuffer(GraphicsDevice & device, GPUBuffer& buffer, size_t dataSize);
 
 	template <typename VertexT>
 	HRESULT CreateBABVertexBuffer(GraphicsDevice & device, GPUBuffer& buffer, std::vector<VertexT>& vertices);

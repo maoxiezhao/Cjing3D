@@ -7,9 +7,22 @@ namespace Cjing3D
 		// CPU可写的Constant Buffer
 		GPUBufferDesc desc = {};
 		desc.mByteWidth = dataSize;
-		desc.mUsage = USAGE_DYNAMIC;		
+		desc.mUsage = USAGE_DYNAMIC;
 		desc.mBindFlags = BIND_CONSTANT_BUFFER;
 		desc.mCPUAccessFlags = CPU_ACCESS_WRITE;
+
+		buffer.SetDesc(desc);
+
+		return device.CreateBuffer(&desc, buffer, nullptr);
+	}
+
+	HRESULT CreateDefaultConstantBuffer(GraphicsDevice & device, GPUBuffer & buffer, size_t dataSize)
+	{
+		// 仅GPU可读写
+		GPUBufferDesc desc = {};
+		desc.mByteWidth = dataSize;
+		desc.mUsage = USAGE_DEFAULT;
+		desc.mBindFlags = BIND_CONSTANT_BUFFER;
 
 		buffer.SetDesc(desc);
 

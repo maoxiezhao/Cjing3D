@@ -44,6 +44,9 @@
     <Filter Include="scripts\Lua">
       <UniqueIdentifier>{f255507f-089f-4c6f-8bb2-704143db939f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="gui">
+      <UniqueIdentifier>{289f993e-822d-49f7-b59f-511fe9b2fc6c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine.cpp" />
@@ -289,6 +292,15 @@
     </ClCompile>
     <ClCompile Include="scripts\lua\lzio.c">
       <Filter>scripts\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="world\component\material.cpp">
+      <Filter>world\component</Filter>
+    </ClCompile>
+    <ClCompile Include="core\InputSystem.h">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\InputSystem.cpp">
+      <Filter>core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -599,6 +611,7 @@
     <ClInclude Include="scripts\lua\lzio.h">
       <Filter>scripts\Lua</Filter>
     </ClInclude>
+    <ClInclude Include="note.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="renderer\RHI\rhiFactory.inl">

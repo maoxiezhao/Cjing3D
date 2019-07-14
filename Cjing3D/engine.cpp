@@ -3,6 +3,7 @@
 #include "helper\profiler.h"
 #include "core\jobSystem.h"
 #include "core\eventSystem.h"
+#include "core\InputSystem.h"
 #include "resource\resourceManager.h"
 #include "renderer\renderer.h"
 #include "world\world.h"
@@ -52,7 +53,12 @@ void Engine::Initialize()
 	auto jobSystem = new JobSystem(*mSystemContext, false);
 	mSystemContext->RegisterSubSystem(jobSystem);
 	jobSystem->Initialize();
-	
+
+	// initialize input system
+	auto inputSystem = new InputManager(*mSystemContext);
+	mSystemContext->RegisterSubSystem(inputSystem);
+	inputSystem->Initialize((HWND)mWindowHwnd, (HINSTANCE)mWindowHinstance);
+
 	// setup gamecomponent 
 	mGameComponent->Setup();
 
@@ -91,13 +97,24 @@ void Engine::Tick()
 	mTime = mTimer.GetTime();
 	mSystemContext->SetEngineTime(mTime);
 
+	auto& inputManager = mSystemContext->GetSubSystem<InputManager>();
+	inputManager.Update();
+
+#ifdef CJING_DEBUG
+	if (inputManager.IsKeyDown(KeyCode::Esc)) {
+		SetIsExiting(true);
+	}
+#endif
+
 	auto& renderer = mSystemContext->GetSubSystem<Renderer>();
 	auto& world = mSystemContext->GetSubSystem<World>();
+	auto& luaContext = mSystemContext->GetSubSystem<LuaContext>();
 
 	profiler.BeginBlock("Update");
 	FIRE_EVENT(EventType::EVENT_TICK);
 	world.Update();
 	renderer.Update();
+	luaContext.Update();
 	profiler.EndBlock();
 
 	profiler.BeginBlock("Render");
@@ -127,6 +144,7 @@ void Engine::Uninitialize()
 	mSystemContext->GetSubSystem<World>().Uninitialize();
 	mSystemContext->GetSubSystem<Renderer>().Uninitialize();
 	mSystemContext->GetSubSystem<ResourceManager>().Uninitialize();
+	mSystemContext->GetSubSystem<InputManager>().Uninitialize();
 	mSystemContext->GetSubSystem<JobSystem>().Uninitialize();
 
 	FileData::CloseData();

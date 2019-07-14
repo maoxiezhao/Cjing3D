@@ -1143,6 +1143,10 @@ void GraphicsDeviceD3D11::UpdateBuffer(GPUBuffer & buffer, const void * data, U3
 
 		GetDeviceContext(GraphicsThread_IMMEDIATE).Unmap(&buffer.GetBuffer(), 0);
 	}
+	else if (desc.mBindFlags & BIND_CONSTANT_BUFFER)
+	{
+		GetDeviceContext(GraphicsThread_IMMEDIATE).UpdateSubresource(&buffer.GetBuffer(), 0, nullptr, data, 0, 0);
+	}
 	else
 	{
 		D3D11_BOX box = {};
@@ -1154,6 +1158,28 @@ void GraphicsDeviceD3D11::UpdateBuffer(GPUBuffer & buffer, const void * data, U3
 		box.back = 1;
 
 		GetDeviceContext(GraphicsThread_IMMEDIATE).UpdateSubresource(&buffer.GetBuffer(), 0, &box, data, 0, 0);
+	}
+}
+
+void GraphicsDeviceD3D11::BindConstantBuffer(SHADERSTAGES stage, GPUBuffer & buffer, U32 slot)
+{
+	ID3D11Buffer* d3dBuffer = &buffer.GetBuffer();
+	switch (stage)
+	{
+	case Cjing3D::SHADERSTAGES_VS:
+		GetDeviceContext(GraphicsThread_IMMEDIATE).VSSetConstantBuffers(slot, 1, &d3dBuffer);
+		break;
+	case Cjing3D::SHADERSTAGES_GS:
+		GetDeviceContext(GraphicsThread_IMMEDIATE).GSSetConstantBuffers(slot, 1, &d3dBuffer);
+		break;
+	case Cjing3D::SHADERSTAGES_PS:
+		GetDeviceContext(GraphicsThread_IMMEDIATE).PSSetConstantBuffers(slot, 1, &d3dBuffer);
+		break;
+	case Cjing3D::SHADERSTAGES_CS:
+		GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetConstantBuffers(slot, 1, &d3dBuffer);
+		break;
+	default:
+		break;
 	}
 }
 

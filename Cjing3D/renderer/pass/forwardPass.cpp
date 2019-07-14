@@ -59,7 +59,7 @@ namespace Cjing3D {
 
 	void ForwardPass::Compose()
 	{
-		RenderImage::Render(mRTFinal->GetTexture(), mRenderer);
+		RenderImage::Render(mRTMain->GetTexture(), mRenderer);
 	}
 
 	void ForwardPass::RenderComposition()
@@ -69,6 +69,7 @@ namespace Cjing3D {
 
 	void ForwardPass::SetupFixedState()
 	{
+		mRenderer.SetupRenderFrame();
 	}
 
 	void ForwardPass::RenderScene()
