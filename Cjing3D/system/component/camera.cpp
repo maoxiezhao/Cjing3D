@@ -55,6 +55,27 @@ namespace Cjing3D
 		}
 	}
 
+	void CameraComponent::TransformCamera(const TransformComponent & transform)
+	{
+		auto worldTransform = transform.GetWorldTransform();
+		XMVECTOR scale, rotation, translate;
+		XMMatrixDecompose(&scale, &rotation, &translate, XMLoadFloat4x4(&worldTransform));
+
+		XMVECTOR eye = translate;
+		XMVECTOR at = XMVectorSet(0, 0, 1, 0);
+		XMVECTOR up = XMVectorSet(0, 1, 0, 0);
+
+		XMMATRIX rotMat = XMMatrixRotationQuaternion(rotation);
+		at = XMVector3TransformNormal(at, rotMat);
+		up = XMVector3TransformNormal(up, rotMat);
+
+		mEye = XMStore<F32x3>(eye);
+		mAt = XMStore<F32x3>(at);
+		mUp = XMStore<F32x3>(up);
+
+		mIsDirty = true;
+	}
+
 	void CameraComponent::SetupPerspective(F32 width, F32 height, F32 nearPlane, F32 farPlane, F32 fov)
 	{
 		mWidth = width;

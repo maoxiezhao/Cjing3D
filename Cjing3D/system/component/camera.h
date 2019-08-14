@@ -1,7 +1,8 @@
 #pragma once
 
 #include "utils\intersectable.h"
-#include "world\component\componentInclude.h"
+#include "system\component\componentInclude.h"
+#include "system\component\transform.h"
 
 namespace Cjing3D {
 
@@ -20,6 +21,8 @@ namespace Cjing3D {
 		virtual void Initialize();
 		virtual void Uninitialize();
 		virtual void Update();
+
+		void TransformCamera(const TransformComponent& transform);
 
 		inline XMMATRIX GetViewMatrix() { return XMLoadFloat4x4(&mView); };
 		inline XMMATRIX GetProjectionMatrix() { return XMLoadFloat4x4(&mProjection); };

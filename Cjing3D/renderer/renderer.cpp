@@ -6,9 +6,9 @@
 #include "core\eventSystem.h"
 #include "helper\profiler.h"
 #include "renderer\RHI\deviceD3D11.h"
-#include "world\component\camera.h"
-#include "world\world.h"
+#include "system\component\camera.h"
 #include "resource\resourceManager.h"
+#include "system\sceneSystem.h"
 
 namespace Cjing3D {
 
@@ -58,7 +58,7 @@ void Renderer::Initialize()
 
 	// initialize camera
 	mCamera = std::make_shared<CameraComponent>();
-	mCamera->SetupPerspective(mScreenSize[0], mScreenSize[1], 0.1f, 1000.0f);
+	mCamera->SetupPerspective((F32)mScreenSize[0], (F32)mScreenSize[1], 0.1f, 1000.0f);
 
 	// initialize states
 	mStateManager = std::make_unique<StateManager>(*mGraphicsDevice);
@@ -236,8 +236,7 @@ ShaderInfoState Renderer::GetShaderInfoState(MaterialComponent & material)
 
 Scene & Renderer::GetMainScene()
 {
-	auto& world = GetGameContext().GetSubSystem<World>();
-	return world.GetMainScene();
+	return Scene::GetScene();
 }
 
 void Renderer::InitializePasses()
@@ -398,8 +397,7 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, ShaderType shaderType, Re
 // 更新场景，并更新FrameCullings
 void Renderer::UpdateRenderingScene()
 {
-	auto& world = GetGameContext().GetSubSystem<World>();
-	auto& scene = world.GetMainScene();
+	auto& scene = GetMainScene();
 
 	for (auto& kvp : mFrameCullings) {
 		auto& frameCulling = kvp.second;

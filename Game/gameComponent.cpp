@@ -2,7 +2,9 @@
 #include "resource\modelImporter.h"
 #include "scripts\luaContext.h"
 #include "renderer\renderer.h"
-#include "world\component\camera.h"
+#include "system\component\camera.h"
+#include "core\InputSystem.h"
+#include "helper\logger.h"
 
 namespace Cjing3D
 {
@@ -38,6 +40,12 @@ namespace Cjing3D
 
 	void TestGame::Update(EngineTime time)
 	{
+		float moveSpeed = 10.0f;
+
+		auto systemContext = GetGameContext();
+		auto& renderer = systemContext->GetSubSystem<Renderer>();
+		auto camera = renderer.GetCamera();
+
 	}
 
 	void TestGame::Uninitialize()

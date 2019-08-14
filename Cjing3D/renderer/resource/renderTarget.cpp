@@ -77,8 +77,8 @@ namespace Cjing3D
 
 		mRenderTargets.push_back(newTexture);
 
-		mViewPort.mWidth = width;
-		mViewPort.mHeight = height;
+		mViewPort.mWidth = (F32)width;
+		mViewPort.mHeight = (F32)height;
 		mViewPort.mMinDepth = 0.0f;
 		mViewPort.mMaxDepth = 1.0f;
 

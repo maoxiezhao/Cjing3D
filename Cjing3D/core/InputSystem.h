@@ -58,6 +58,8 @@ public:
 	bool IsKeyDown(const KeyCode key)const;
 	bool IsKeyUp(const KeyCode key)const;
 	bool IsKeyHold(const KeyCode key)const;
+
+	I32x2 GetMousePos()const;
 };
 
 }

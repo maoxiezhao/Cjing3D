@@ -1,7 +1,7 @@
 #include "resource\modelImporter.h"
 #include "core\systemContext.hpp"
 #include "resource\resourceManager.h"
-#include "world\world.h"
+#include "system\sceneSystem.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "utils\tinyObjLoader.h"
@@ -19,7 +19,6 @@ namespace ModelImporter
 		auto& renderer = systemContext.GetSubSystem<Renderer>();
 		auto& device = renderer.GetDevice();
 		auto& resourceManager = systemContext.GetSubSystem<ResourceManager>();
-		auto& world = systemContext.GetSubSystem<World>();
 
 		tinyobj::attrib_t objAttrib;
 		std::vector <tinyobj::shape_t> objShapes;
@@ -135,14 +134,14 @@ namespace ModelImporter
 						mesh->mSubsets.push_back(subset);
 					}
 
-					U32 hashes[] = {
+					I32 hashes[] = {
 						std::hash<int>{}(index.vertex_index),
 						std::hash<int>{}(index.normal_index),
 						std::hash<int>{}(index.texcoord_index),
 						std::hash<int>{}(materialIndex),
 					};
 					// a ^ (b << 1) 必定根据a,b的不同有4种结果
-					U32 hashValue = (((hashes[0] ^ (hashes[1] << 1) >> 1) ^ (hashes[2] << 1)) >> 1) ^ (hashes[3] << 1);
+					I32 hashValue = (((hashes[0] ^ (hashes[1] << 1) >> 1) ^ (hashes[2] << 1)) >> 1) ^ (hashes[3] << 1);
 					if (verticesSet.count(hashValue) == 0)
 					{
 						verticesSet[hashValue] = (U32)mesh->mVertexPositions.size();
@@ -159,7 +158,7 @@ namespace ModelImporter
 			mesh->SetupRenderData(device);
 		}
 
-		world.GetMainScene().Merge(newScene);
+		Scene::GetScene().Merge(newScene);
 	}
 }
 }

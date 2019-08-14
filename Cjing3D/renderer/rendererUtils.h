@@ -2,7 +2,7 @@
 
 #include "renderer\RHI\rhiPipeline.h"
 #include "renderer\components\mesh.h"
-#include "world\ecsSystem.h"
+#include "system\ecsSystem.h"
 
 namespace Cjing3D
 {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common\common.h"
-#include "world\ecsSystem.h"
+#include "system\ecsSystem.h"
 
 namespace Cjing3D{
 

@@ -8,10 +8,10 @@ namespace Cjing3D
 	{
 	}
 
-	void Scene::Update()
+	void Scene::Update(F32 deltaTime)
 	{
-		UpdateSceneTransform();
-		UpdateSceneObject();
+		UpdateSceneTransformSystem();
+		UpdateSceneObjectSystem();
 	}
 
 	void Scene::Merge(Scene & scene)
@@ -108,7 +108,7 @@ namespace Cjing3D
 		}
 	}
 
-	void Scene::UpdateSceneTransform()
+	void Scene::UpdateSceneTransformSystem()
 	{
 		for (size_t index = 0; index < mTransforms.GetCount(); index++)
 		{
@@ -117,7 +117,7 @@ namespace Cjing3D
 		}
 	}
 
-	void Scene::UpdateSceneObject()
+	void Scene::UpdateSceneObjectSystem()
 	{
 		AABB sceneAABB;
 

@@ -5,19 +5,29 @@ namespace Cjing3D
 namespace {
 	class DirectInput
 	{
-	public:
+	private:
 		IDirectInputDevice8 * mKeyBoard = nullptr;
 		IDirectInputDevice8 * mMouse = nullptr;
 		IDirectInput8*  mDirectInput = nullptr;
+
+		DIMOUSESTATE mMouseState;
+		I32x2 mMousePos = I32x2(0, 0);
+		F32x2 mMouseDelta = F32x2(0.0f, 0.0f);
+		F32x2 mMouseWheelDelta = 0;
 
 		unsigned char   mKeyboardState[256];
 		std::array<bool, 99> mCurrentKeyStatus;
 		std::array<bool, 99> mPreviousKeyStatus;
 
+		HWND mCurrentWindowHwne;
+
+	public:
 		DirectInput(){}
 
 		void Initialize(HWND windowHwnd, HINSTANCE windowInstance)
 		{
+			mCurrentWindowHwne = windowHwnd;
+
 			SetForegroundWindow(windowHwnd);
 			SetFocus(windowHwnd);
 
@@ -176,6 +186,45 @@ namespace {
 					mCurrentKeyStatus[i] = false;
 				}
 			}
+
+			if (ReadMouseState() == true)
+			{
+				int mouseStartIndex = Click_Left;
+				mCurrentKeyStatus[mouseStartIndex] = mMouseState.rgbButtons[0] & 0x80;
+				mCurrentKeyStatus[mouseStartIndex + 1] = mMouseState.rgbButtons[3] & 0x80;
+				mCurrentKeyStatus[mouseStartIndex + 2] = mMouseState.rgbButtons[1] & 0x80;
+
+				mMouseDelta[0] = static_cast<F32>(mMouseState.lX);
+				mMouseDelta[1] = static_cast<F32>(mMouseState.lY);
+				mMouseWheelDelta = static_cast<F32>(mMouseState.lZ);
+			
+				POINT mouseScreenPos;
+				if (GetCursorPos(&mouseScreenPos))
+				{
+					HWND focusedHwnd = GetActiveWindow();
+					if (focusedHwnd == mCurrentWindowHwne)
+					{
+						POINT mouseClientPos = mouseScreenPos;
+						ScreenToClient(focusedHwnd, &mouseClientPos);
+
+						mMousePos[0] = mouseClientPos.x;
+						mMousePos[1] = mouseClientPos.y;
+					}
+				}
+			}
+			else
+			{
+				int mouseStartIndex = Click_Left;
+				mCurrentKeyStatus[mouseStartIndex] = false;
+				mCurrentKeyStatus[mouseStartIndex + 1] = false;
+				mCurrentKeyStatus[mouseStartIndex + 2] = false;
+
+				mMouseDelta[0] = 0.0f;
+				mMouseDelta[1] = 0.0f;
+				mMouseWheelDelta = 0.0f;
+				mMousePos[0] = 0;
+				mMousePos[1] = 0;
+			}
 		}
 
 		bool ReadKeyboardStates()
@@ -188,6 +237,20 @@ namespace {
 			else if (result == DIERR_INPUTLOST || result == DIERR_NOTACQUIRED)
 			{
 				mKeyBoard->Acquire();
+			}
+			return false;
+		}
+
+		bool ReadMouseState()
+		{
+			auto result = mMouse->GetDeviceState(sizeof(DIMOUSESTATE), (LPVOID)(&mMouseState));
+			if (SUCCEEDED(result))
+			{
+				return true;
+			}
+			else if (result == DIERR_INPUTLOST || result == DIERR_NOTACQUIRED)
+			{
+				mMouse->Acquire();
 			}
 			return false;
 		}
@@ -205,6 +268,11 @@ namespace {
 		bool IsKeyHold(const KeyCode key)const
 		{
 			return mCurrentKeyStatus[key];
+		}
+
+		I32x2 GetMousePos() const 
+		{
+			return mMousePos;
 		}
 	};
 	std::unique_ptr<DirectInput> mDirectInput = nullptr;
@@ -260,6 +328,14 @@ bool InputManager::IsKeyHold(const KeyCode key) const
 		return mDirectInput->IsKeyHold(key);
 	}
 	return false;
+}
+
+I32x2 InputManager::GetMousePos() const
+{
+	if (mDirectInput != nullptr) {
+		return mDirectInput->GetMousePos();
+	}
+	return I32x2();
 }
 
 }

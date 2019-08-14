@@ -1,11 +1,11 @@
 #pragma once
 
 #include "common\common.h"
-#include "world\component\transform.h"
-#include "world\component\camera.h"
-#include "world\component\mesh.h"
-#include "world\component\object.h"
-#include "world\component\material.h"
+#include "system\component\transform.h"
+#include "system\component\camera.h"
+#include "system\component\mesh.h"
+#include "system\component\object.h"
+#include "system\component\material.h"
 
 #include <map>
 
@@ -16,7 +16,7 @@ namespace Cjing3D {
 	public:
 		Scene();
 
-		void Update();
+		void Update(F32 deltaTime);
 		void Merge(Scene& scene);
 		void Clear();
 
@@ -61,8 +61,8 @@ namespace Cjing3D {
 		ECS::ComponentManager<ComponentT>& GetComponentManager();
 
 	private:
-		void UpdateSceneTransform();
-		void UpdateSceneObject();
+		void UpdateSceneTransformSystem();
+		void UpdateSceneObjectSystem();
 
 	public:
 		std::map<StringID, ECS::Entity> mNameEntityMap;
@@ -75,6 +75,12 @@ namespace Cjing3D {
 		ECS::ComponentManager<TransformComponent> mTransforms;
 
 		AABB mSceneAABB;
+
+		static Scene& GetScene()
+		{
+			static Scene scene;
+			return scene;
+		}
 	};
 
 	template<>

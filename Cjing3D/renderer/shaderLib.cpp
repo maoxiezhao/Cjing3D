@@ -2,7 +2,7 @@
 #include "renderer.h"
 #include "resource\resourceManager.h"
 #include "renderer\RHI\rhiShader.h"
-#include "core\sceneSystem.h"
+#include "system\sceneSystem.h"
 
 namespace Cjing3D
 {

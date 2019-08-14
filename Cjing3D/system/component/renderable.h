@@ -1,6 +1,6 @@
 #pragma once
 
-#include "world\component\component.h"
+#include "system\component\component.h"
 
 namespace Cjing3D{
 

@@ -6,7 +6,6 @@
 #include "core\InputSystem.h"
 #include "resource\resourceManager.h"
 #include "renderer\renderer.h"
-#include "world\world.h"
 #include "scripts\luaContext.h"
 
 namespace Cjing3D
@@ -38,6 +37,7 @@ void Engine::Initialize()
 	Debug::SetDebugConsoleEnable(true);
 	Debug::InitializeDebugConsole();
 #endif
+	Logger::PrintConsoleHeader();
 
 	// initialize engine time
 	mTimer.Start();
@@ -72,11 +72,6 @@ void Engine::Initialize()
 	mSystemContext->RegisterSubSystem(renderer);
 	renderer->Initialize();
 
-	// initialize world
-	auto world = new World(*mSystemContext);
-	mSystemContext->RegisterSubSystem(world);
-	world->Initialize();
-
 	// initialize lua context
 	auto luaContext = new LuaContext(*mSystemContext);
 	mSystemContext->RegisterSubSystem(luaContext);
@@ -107,12 +102,11 @@ void Engine::Tick()
 #endif
 
 	auto& renderer = mSystemContext->GetSubSystem<Renderer>();
-	auto& world = mSystemContext->GetSubSystem<World>();
 	auto& luaContext = mSystemContext->GetSubSystem<LuaContext>();
 
 	profiler.BeginBlock("Update");
 	FIRE_EVENT(EventType::EVENT_TICK);
-	world.Update();
+	mGameComponent->Update(mTime);
 	renderer.Update();
 	luaContext.Update();
 	profiler.EndBlock();
@@ -141,7 +135,6 @@ void Engine::Uninitialize()
 	mGameComponent->Uninitialize();
 
 	mSystemContext->GetSubSystem<LuaContext>().Uninitialize();
-	mSystemContext->GetSubSystem<World>().Uninitialize();
 	mSystemContext->GetSubSystem<Renderer>().Uninitialize();
 	mSystemContext->GetSubSystem<ResourceManager>().Uninitialize();
 	mSystemContext->GetSubSystem<InputManager>().Uninitialize();

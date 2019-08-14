@@ -1,7 +1,7 @@
 #pragma once
 
-#include "world\ecsSystem.h"
-#include "world\component\component.h"
+#include "system\ecsSystem.h"
+#include "system\component\component.h"
 #include "renderer\renderableCommon.h"
 #include "renderer\RHI\rhiDefinition.h"
 #include "renderer\RHI\rhiBuffer.h"
