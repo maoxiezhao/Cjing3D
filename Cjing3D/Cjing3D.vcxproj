@@ -321,12 +321,16 @@
     <ClCompile Include="system\component\material.cpp" />
     <ClCompile Include="system\component\mesh.cpp" />
     <ClCompile Include="system\component\transform.cpp" />
+    <ClCompile Include="system\sceneObjectSystem.cpp" />
     <ClCompile Include="system\sceneSystem.cpp" />
+    <ClCompile Include="system\sceneTransformSystem.cpp" />
     <ClCompile Include="utils\intersectable.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="renderer\RHI\rhiFactory.inl" />
     <None Include="resource\resourceManager.inl" />
+    <None Include="scripts\luaContext.inl" />
+    <None Include="system\sceneSystem.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

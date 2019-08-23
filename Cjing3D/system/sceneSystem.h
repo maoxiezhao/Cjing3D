@@ -60,10 +60,6 @@ namespace Cjing3D {
 		template<typename ComponentT>
 		ECS::ComponentManager<ComponentT>& GetComponentManager();
 
-	private:
-		void UpdateSceneTransformSystem();
-		void UpdateSceneObjectSystem();
-
 	public:
 		std::map<StringID, ECS::Entity> mNameEntityMap;
 
@@ -83,34 +79,10 @@ namespace Cjing3D {
 		}
 	};
 
-	template<>
-	inline ECS::ComponentManager<MeshComponent>& Scene::GetComponentManager()
-	{
-		return mMeshes;
-	}
+	#include "system\sceneSystem.inl"
 
-	template<>
-	inline ECS::ComponentManager<MaterialComponent>& Scene::GetComponentManager()
-	{
-		return mMaterials;
-	}
-
-	template<>
-	inline ECS::ComponentManager<ObjectComponent>& Scene::GetComponentManager()
-	{
-		return mObjects;
-	}
-
-	template<>
-	inline ECS::ComponentManager<AABB>& Scene::GetComponentManager()
-	{
-		return mObjectAABBs;
-	}
-
-	template<>
-	inline ECS::ComponentManager<TransformComponent>& Scene::GetComponentManager()
-	{
-		return mTransforms;
-	}
+	//  Scene System Update
+	void UpdateSceneTransformSystem(Scene& scene);
+	void UpdateSceneObjectSystem(Scene& scene);
 }
 	

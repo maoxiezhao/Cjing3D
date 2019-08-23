@@ -10,8 +10,8 @@ namespace Cjing3D
 
 	void Scene::Update(F32 deltaTime)
 	{
-		UpdateSceneTransformSystem();
-		UpdateSceneObjectSystem();
+		UpdateSceneTransformSystem(*this);
+		UpdateSceneObjectSystem(*this);
 	}
 
 	void Scene::Merge(Scene & scene)
@@ -107,67 +107,4 @@ namespace Cjing3D
 			mNames.Remove(entity);
 		}
 	}
-
-	void Scene::UpdateSceneTransformSystem()
-	{
-		for (size_t index = 0; index < mTransforms.GetCount(); index++)
-		{
-			auto transform = mTransforms[index];
-			transform->Update();
-		}
-	}
-
-	void Scene::UpdateSceneObjectSystem()
-	{
-		AABB sceneAABB;
-
-		for (size_t i = 0; i < mObjects.GetCount(); i++)
-		{
-			std::shared_ptr<ObjectComponent> object = mObjects[i];
-			std::shared_ptr<AABB> aabb = mObjectAABBs[i];
-
-			if (object == nullptr || aabb == nullptr) {
-				continue;
-			}
-
-			// 遍历所有的object根据对应的transform，来更新AABB, 更新object的位置
-
-			if (object->mMeshID != ECS::INVALID_ENTITY)
-			{
-				Entity entity = mObjects.GetEntityByIndex(i);
-				std::shared_ptr<MeshComponent> mesh = mMeshes.GetComponent(object->mMeshID);
-
-				const auto transformIndex = mTransforms.GetEntityIndex(entity);
-				const auto transform = mTransforms[transformIndex];
-				if (mesh != nullptr)
-				{
-					XMFLOAT4X4 worldMatrix = transform->GetWorldTransform();
-					auto meshAABB = mesh->mAABB.GetByTransforming(worldMatrix);
-					aabb->CopyFromOther(meshAABB);
-
-					XMFLOAT4X4 boxMatrix;
-					XMStoreFloat4x4(&boxMatrix, aabb->GetBoxMatrix());
-
-					// update center pos
-					XMFLOAT3 centerPos = *((XMFLOAT3*)&boxMatrix._41);
-					object->mCenter = XMStore<F32x3>(XMLoadFloat3(&centerPos));
-
-					for (auto& subset : mesh->mSubsets)
-					{
-						auto material = mMaterials.GetComponent(subset.mMaterialID);
-						if (material != nullptr)
-						{
-							object->SetCastingShadow(material->IsCastingShadow());
-						}
-					}
-
-					sceneAABB = AABB::Union(sceneAABB, *aabb);
-				}
-			}
-		}
-
-		mSceneAABB.CopyFromOther(sceneAABB);
-	}
-
-	
 }

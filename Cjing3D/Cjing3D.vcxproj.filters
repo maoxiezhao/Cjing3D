@@ -35,9 +35,6 @@
     <Filter Include="scripts">
       <UniqueIdentifier>{bda65b4b-b51e-4eb6-aaa6-764b457d2ed2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="scripts\Lua">
-      <UniqueIdentifier>{f255507f-089f-4c6f-8bb2-704143db939f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="gui">
       <UniqueIdentifier>{289f993e-822d-49f7-b59f-511fe9b2fc6c}</UniqueIdentifier>
     </Filter>
@@ -46,6 +43,18 @@
     </Filter>
     <Filter Include="system\component">
       <UniqueIdentifier>{4f8d85c3-1f5e-4e1c-95eb-16f9a7960f52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="system\systems">
+      <UniqueIdentifier>{fac0c28b-8333-46a1-8f10-9a623abc1d1b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scripts\binder">
+      <UniqueIdentifier>{4662fa22-88b1-4c96-8480-2d829b5c4d1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scripts\lua">
+      <UniqueIdentifier>{f255507f-089f-4c6f-8bb2-704143db939f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scripts\registers">
+      <UniqueIdentifier>{d8003627-7d0e-42bd-a16a-08332589c07c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -149,131 +158,113 @@
     <ClCompile Include="renderer\renderImage.cpp">
       <Filter>renderer</Filter>
     </ClCompile>
-    <ClCompile Include="scripts\luaBinder.cpp">
-      <Filter>scripts</Filter>
-    </ClCompile>
     <ClCompile Include="scripts\luaContext.cpp">
       <Filter>scripts</Filter>
     </ClCompile>
-    <ClCompile Include="scripts\luaException.cpp">
-      <Filter>scripts</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\luaInvoke.cpp">
-      <Filter>scripts</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\luaObject.cpp">
-      <Filter>scripts</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\luaRef.cpp">
-      <Filter>scripts</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\luaTools.cpp">
-      <Filter>scripts</Filter>
-    </ClCompile>
     <ClCompile Include="scripts\lua\lapi.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\lauxlib.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\lbaselib.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\lbitlib.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\lcode.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\lcorolib.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\lctype.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\ldblib.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\ldebug.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\ldo.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\ldump.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\lfunc.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\lgc.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\linit.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\liolib.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\llex.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\lmathlib.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\lmem.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\loadlib.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\lobject.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\lopcodes.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\loslib.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\lparser.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\lstate.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\lstring.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\lstrlib.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\ltable.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\ltablib.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\ltm.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\lua.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\luac.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\lundump.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\lutf8lib.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\lvm.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\lzio.c">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClCompile>
     <ClCompile Include="core\InputSystem.h">
       <Filter>core</Filter>
@@ -298,6 +289,30 @@
     </ClCompile>
     <ClCompile Include="system\sceneSystem.cpp">
       <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="system\sceneObjectSystem.cpp">
+      <Filter>system\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="system\sceneTransformSystem.cpp">
+      <Filter>system\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\luaBinder.cpp">
+      <Filter>scripts\binder</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\luaException.cpp">
+      <Filter>scripts\binder</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\luaInvoke.cpp">
+      <Filter>scripts\binder</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\luaObject.cpp">
+      <Filter>scripts\binder</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\luaRef.cpp">
+      <Filter>scripts\binder</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\luaTools.cpp">
+      <Filter>scripts\binder</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -467,116 +482,86 @@
     <ClInclude Include="renderer\renderImage.h">
       <Filter>renderer</Filter>
     </ClInclude>
-    <ClInclude Include="scripts\luaArg.h">
-      <Filter>scripts</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaBinder.h">
-      <Filter>scripts</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaBinder_impl.h">
-      <Filter>scripts</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaCommon.h">
-      <Filter>scripts</Filter>
-    </ClInclude>
     <ClInclude Include="scripts\luaContext.h">
       <Filter>scripts</Filter>
     </ClInclude>
-    <ClInclude Include="scripts\luaException.h">
-      <Filter>scripts</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaInvoke.h">
-      <Filter>scripts</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaObject.h">
-      <Filter>scripts</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaRef.h">
-      <Filter>scripts</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaTools.h">
-      <Filter>scripts</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaTypeMapping.h">
-      <Filter>scripts</Filter>
-    </ClInclude>
     <ClInclude Include="scripts\lua\lapi.h">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClInclude>
     <ClInclude Include="scripts\lua\lauxlib.h">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClInclude>
     <ClInclude Include="scripts\lua\lcode.h">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClInclude>
     <ClInclude Include="scripts\lua\lctype.h">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClInclude>
     <ClInclude Include="scripts\lua\ldebug.h">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClInclude>
     <ClInclude Include="scripts\lua\ldo.h">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClInclude>
     <ClInclude Include="scripts\lua\lfunc.h">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClInclude>
     <ClInclude Include="scripts\lua\lgc.h">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClInclude>
     <ClInclude Include="scripts\lua\llex.h">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClInclude>
     <ClInclude Include="scripts\lua\llimits.h">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClInclude>
     <ClInclude Include="scripts\lua\lmem.h">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClInclude>
     <ClInclude Include="scripts\lua\lobject.h">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClInclude>
     <ClInclude Include="scripts\lua\lopcodes.h">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClInclude>
     <ClInclude Include="scripts\lua\lparser.h">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClInclude>
     <ClInclude Include="scripts\lua\lprefix.h">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClInclude>
     <ClInclude Include="scripts\lua\lstate.h">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClInclude>
     <ClInclude Include="scripts\lua\lstring.h">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClInclude>
     <ClInclude Include="scripts\lua\ltable.h">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClInclude>
     <ClInclude Include="scripts\lua\ltm.h">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClInclude>
     <ClInclude Include="scripts\lua\lua.h">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClInclude>
     <ClInclude Include="scripts\lua\lua.hpp">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClInclude>
     <ClInclude Include="scripts\lua\luaconf.h">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClInclude>
     <ClInclude Include="scripts\lua\lualib.h">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClInclude>
     <ClInclude Include="scripts\lua\lundump.h">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClInclude>
     <ClInclude Include="scripts\lua\lvm.h">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClInclude>
     <ClInclude Include="scripts\lua\lzio.h">
-      <Filter>scripts\Lua</Filter>
+      <Filter>scripts\lua</Filter>
     </ClInclude>
     <ClInclude Include="note.h" />
     <ClInclude Include="system\component\camera.h">
@@ -606,6 +591,36 @@
     <ClInclude Include="system\sceneSystem.h">
       <Filter>system</Filter>
     </ClInclude>
+    <ClInclude Include="scripts\luaArg.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\luaBinder.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\luaBinder_impl.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\luaCommon.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\luaException.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\luaInvoke.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\luaObject.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\luaRef.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\luaTools.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\luaTypeMapping.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="renderer\RHI\rhiFactory.inl">
@@ -613,6 +628,12 @@
     </None>
     <None Include="resource\resourceManager.inl">
       <Filter>resource</Filter>
+    </None>
+    <None Include="system\sceneSystem.inl">
+      <Filter>system</Filter>
+    </None>
+    <None Include="scripts\luaContext.inl">
+      <Filter>scripts</Filter>
     </None>
   </ItemGroup>
 </Project>

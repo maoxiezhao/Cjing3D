@@ -55,8 +55,6 @@ private:
 	void InitializePasses();
 	void UpdateRenderData();
 	void ProcessRenderQueue(RenderQueue& queue, ShaderType shaderType, RenderableType renderableType);
-	void UpdateRenderingScene();
-
 	void BindConstanceBuffer(SHADERSTAGES stage);
 
 	// Pass function

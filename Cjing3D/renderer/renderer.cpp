@@ -80,6 +80,17 @@ void Renderer::Initialize()
 	mIsInitialized = true;
 }
 
+void Renderer::Uninitialize()
+{
+	if (mIsInitialized == false) {
+		return;
+	}
+
+	mGraphicsDevice->Uninitialize();
+
+	mIsInitialized = false;
+}
+
 void Renderer::Update()
 {
 	mPendingUpdateMaterials.clear();
@@ -99,22 +110,10 @@ void Renderer::Update()
 	}
 }
 
-void Renderer::Uninitialize()
-{
-	if (mIsInitialized == false) {
-		return;
-	}
-
-	mGraphicsDevice->Uninitialize();
-
-	mIsInitialized = false;
-}
-
 // do it before rendering
 void Renderer::SetupRenderFrame()
 {
 	UpdateRenderData();
-	UpdateRenderingScene();
 }
 
 void Renderer::Render()
@@ -263,6 +262,33 @@ void Renderer::UpdateRenderData()
 
 		mGraphicsDevice->UpdateBuffer(material->GetConstantBuffer(), &cb, sizeof(cb));
 	}
+
+	// update render scene
+	auto& scene = GetMainScene();
+	for (auto& kvp : mFrameCullings) {
+		auto& frameCulling = kvp.second;
+		frameCulling.Clear();
+
+		CameraPtr camera = kvp.first;
+		if (camera == nullptr) {
+			continue;
+		}
+
+		camera->Update();
+		auto currentFrustum = camera->GetFrustum();
+		frameCulling.mFrustum = currentFrustum;
+
+		// 遍历场景所有物体的aabb,如果在相机范围内，则添加物体的index
+		auto& objectAABBs = scene.mObjectAABBs;
+		for (size_t i = 0; i < objectAABBs.GetCount(); i++)
+		{
+			auto aabb = objectAABBs[i];
+			if (aabb != nullptr && currentFrustum.Overlaps(*aabb) == true)
+			{
+				frameCulling.mRenderingObjects.push_back((U32)i);
+			}
+		}
+	}
 }
 
 void Renderer::ProcessRenderQueue(RenderQueue & queue, ShaderType shaderType, RenderableType renderableType)
@@ -392,37 +418,6 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, ShaderType shaderType, Re
 	}
 
 	mFrameAllocator->Free(instancedBatchCount * sizeof(RenderBatchInstance));
-}
-
-// 更新场景，并更新FrameCullings
-void Renderer::UpdateRenderingScene()
-{
-	auto& scene = GetMainScene();
-
-	for (auto& kvp : mFrameCullings) {
-		auto& frameCulling = kvp.second;
-		frameCulling.Clear();
-
-		CameraPtr camera = kvp.first;
-		if (camera == nullptr) {
-			continue;
-		}
-
-		camera->Update();
-		auto currentFrustum = camera->GetFrustum();
-		frameCulling.mFrustum = currentFrustum;
-
-		// 遍历场景所有物体的aabb,如果在相机范围内，则添加物体的index
-		auto& objectAABBs = scene.mObjectAABBs;
-		for (size_t i = 0; i < objectAABBs.GetCount(); i++)
-		{
-			auto aabb = objectAABBs[i];
-			if (aabb != nullptr && currentFrustum.Overlaps(*aabb) == true)
-			{
-				frameCulling.mRenderingObjects.push_back((U32)i);
-			}
-		}
-	}
 }
 
 void Renderer::BindConstanceBuffer(SHADERSTAGES stage)
