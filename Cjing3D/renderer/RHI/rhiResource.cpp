@@ -3,5 +3,14 @@
 
 Cjing3D::GPUResource::~GPUResource()
 {
-	mDevice.DestoryGPUResource(*this);
+	if (mDevice != nullptr) {
+		mDevice->DestroyGPUResource(*this);
+	}
+}
+
+Cjing3D::RhiTexture2D::~RhiTexture2D()
+{
+	if (mDevice != nullptr) {
+		mDevice->DestroyTexture2D(*this);
+	}
 }

@@ -5,7 +5,6 @@
 
 namespace Cjing3D
 {
-
 	// 着色器结构
 	template<typename D3D11ShaderType>
 	class Shader : public Resource
@@ -54,7 +53,7 @@ namespace Cjing3D
 	{
 	public:
 		GraphicsDevice* mDevice = nullptr;
-		void SetGraphicsDevice(GraphicsDevice* device) { mDevice = device; }
+		void RegisterGraphicsDevice(GraphicsDevice* device) { mDevice = device; }
 	};
 
 

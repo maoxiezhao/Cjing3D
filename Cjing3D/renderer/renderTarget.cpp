@@ -23,7 +23,7 @@ namespace Cjing3D
 		desc.mFormat = FORMAT_R32G8X24_TYPELESS;	// ????
 		desc.mBindFlags = BIND_DEPTH_STENCIL | BIND_SHADER_RESOURCE;
 
-		mTexture = std::make_shared<RhiTexture2D>(mRenderer.GetDevice());
+		mTexture = std::make_shared<RhiTexture2D>();
 		mTexture->SetDesc(desc);
 
 		const auto result = mRenderer.GetDevice().CreateTexture2D(&desc, nullptr, *mTexture);
@@ -63,7 +63,7 @@ namespace Cjing3D
 		desc.mFormat = format;
 		desc.mBindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
 		
-		RhiTexture2DPtr newTexture = std::make_shared<RhiTexture2D>(mRenderer.GetDevice());
+		RhiTexture2DPtr newTexture = std::make_shared<RhiTexture2D>();
 		newTexture->SetDesc(desc);
 
 		// Éú³Émipmap

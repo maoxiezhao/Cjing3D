@@ -15,9 +15,17 @@
     <Filter Include="entity">
       <UniqueIdentifier>{fb277a15-6b57-43a0-8792-dd24c36ebd11}</UniqueIdentifier>
     </Filter>
+    <Filter Include="scripts">
+      <UniqueIdentifier>{9c723403-b9c4-41a2-9982-dd81e044b2eb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="window.h" />
     <ClInclude Include="gameComponent.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Assets\Scripts\main.lua">
+      <Filter>scripts</Filter>
+    </None>
   </ItemGroup>
 </Project>

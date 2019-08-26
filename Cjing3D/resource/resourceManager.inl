@@ -94,18 +94,17 @@ Cjing3D::ResourceManager::GetOrCreate(const StringID & name, VertexLayoutDesc* d
 
 template<typename ResourceT>
 inline std::enable_if_t<std::is_same<ResourceT, RhiTexture2D>::value, std::shared_ptr<RhiTexture2D>>
-ResourceManager::GetOrCreate(const StringID & filePath, GraphicsDevice& device)
+ResourceManager::GetOrCreate(const StringID & filePath)
 {
 	PoolType<RhiTexture2D>& texturePool = GetPool< RhiTexture2D >();
 
 	bool isExists = texturePool.Contains(filePath);
-	auto texture = texturePool.GetOrCreate(filePath, device);
+	auto texture = texturePool.GetOrCreate(filePath);
 	if (isExists == false) {
 		// load Image
 	}
 	return texture;
 }
-
 
 template <typename ResourceT>
 inline std::enable_if_t<std::is_same<ResourceT, PixelShader>::value, std::shared_ptr<PixelShader> >

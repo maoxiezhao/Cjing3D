@@ -3,7 +3,7 @@
 #include "helper\profiler.h"
 #include "core\jobSystem.h"
 #include "core\eventSystem.h"
-#include "core\InputSystem.h"
+#include "input\InputSystem.h"
 #include "resource\resourceManager.h"
 #include "renderer\renderer.h"
 #include "scripts\luaContext.h"
@@ -92,8 +92,9 @@ void Engine::Tick()
 	mTime = mTimer.GetTime();
 	mSystemContext->SetEngineTime(mTime);
 
+	F32 deltaTime = F32(mTime.deltaTime.count());
 	auto& inputManager = mSystemContext->GetSubSystem<InputManager>();
-	inputManager.Update();
+	inputManager.Update(deltaTime);
 
 #ifdef CJING_DEBUG
 	if (inputManager.IsKeyDown(KeyCode::Esc)) {
@@ -107,8 +108,8 @@ void Engine::Tick()
 	profiler.BeginBlock("Update");
 	FIRE_EVENT(EventType::EVENT_TICK);
 	mGameComponent->Update(mTime);
-	renderer.Update();
-	luaContext.Update();
+	renderer.Update(deltaTime);
+	luaContext.Update(deltaTime);
 	profiler.EndBlock();
 
 	profiler.BeginBlock("Render");

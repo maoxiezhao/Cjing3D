@@ -30,8 +30,8 @@ public:
 		mPixelShaderPool() {}
 	~ResourceManager() = default;
 
-	virtual void Initialize();
-	virtual void Uninitialize() {};
+	void Initialize();
+	void Uninitialize();
 	
 	void AddStandardResourceDirectory(Resource_Type type, const std::string& path);
 	const std::string& GetStandardResourceDirectory(Resource_Type type)const;
@@ -88,7 +88,7 @@ public:
 
 	template<typename ResourceT>
 	std::enable_if_t<std::is_same<ResourceT, RhiTexture2D>::value, std::shared_ptr<RhiTexture2D>>
-		GetOrCreate(const StringID & filePath, GraphicsDevice& device);
+		GetOrCreate(const StringID & filePath);
 
 private:
 	template <typename ResourceT>

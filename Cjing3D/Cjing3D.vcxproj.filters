@@ -53,8 +53,14 @@
     <Filter Include="scripts\lua">
       <UniqueIdentifier>{f255507f-089f-4c6f-8bb2-704143db939f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="scripts\registers">
+    <Filter Include="scripts\api">
       <UniqueIdentifier>{d8003627-7d0e-42bd-a16a-08332589c07c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui\widgets">
+      <UniqueIdentifier>{1acc2562-54cc-4735-b9e0-6b825389cab9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="input">
+      <UniqueIdentifier>{00e7fb44-e761-460f-9b71-649a19a15b07}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -125,20 +131,11 @@
     <ClCompile Include="renderer\RHI\deviceD3D11.cpp">
       <Filter>renderer\rhi\d3d11</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\RHI\rhiBuffer.cpp">
-      <Filter>renderer\rhi</Filter>
-    </ClCompile>
     <ClCompile Include="renderer\RHI\rhiFactory.cpp">
-      <Filter>renderer\rhi</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\RHI\rhiPipeline.cpp">
       <Filter>renderer\rhi</Filter>
     </ClCompile>
     <ClCompile Include="utils\intersectable.cpp">
       <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\RHI\rhiTexture.cpp">
-      <Filter>renderer\rhi</Filter>
     </ClCompile>
     <ClCompile Include="renderer\rendererUtils.cpp">
       <Filter>renderer</Filter>
@@ -151,9 +148,6 @@
     </ClCompile>
     <ClCompile Include="renderer\RHI\rhiResource.cpp">
       <Filter>renderer\rhi</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\resource\renderTarget.cpp">
-      <Filter>renderer</Filter>
     </ClCompile>
     <ClCompile Include="renderer\renderImage.cpp">
       <Filter>renderer</Filter>
@@ -266,12 +260,6 @@
     <ClCompile Include="scripts\lua\lzio.c">
       <Filter>scripts\lua</Filter>
     </ClCompile>
-    <ClCompile Include="core\InputSystem.h">
-      <Filter>core</Filter>
-    </ClCompile>
-    <ClCompile Include="core\InputSystem.cpp">
-      <Filter>core</Filter>
-    </ClCompile>
     <ClCompile Include="system\component\camera.cpp">
       <Filter>system\component</Filter>
     </ClCompile>
@@ -313,6 +301,33 @@
     </ClCompile>
     <ClCompile Include="scripts\luaTools.cpp">
       <Filter>scripts\binder</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\api\gameComponentApi.cpp">
+      <Filter>scripts\api</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\api\luaApi.cpp">
+      <Filter>scripts\api</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\api\sceneSystemApi.cpp">
+      <Filter>scripts\api</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\api\inputManagerApi.cpp">
+      <Filter>scripts\api</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\gui.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\mainStage.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="input\InputSystem.cpp">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="input\directInput.cpp">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\renderTarget.cpp">
+      <Filter>renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -428,17 +443,11 @@
     <ClInclude Include="utils\threadSafeBuffer.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="renderer\RHI\rhiPipeline.h">
-      <Filter>renderer\rhi</Filter>
-    </ClInclude>
     <ClInclude Include="renderer\includeD3D11.h">
       <Filter>renderer\rhi\d3d11</Filter>
     </ClInclude>
     <ClInclude Include="renderer\RHI\deviceD3D11.h">
       <Filter>renderer\rhi\d3d11</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\RHI\rhiBuffer.h">
-      <Filter>renderer\rhi</Filter>
     </ClInclude>
     <ClInclude Include="renderer\RHI\rhiFactory.h">
       <Filter>renderer\rhi</Filter>
@@ -448,9 +457,6 @@
     </ClInclude>
     <ClInclude Include="utils\intersectable.h">
       <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\RHI\rhiTexture.h">
-      <Filter>renderer\rhi</Filter>
     </ClInclude>
     <ClInclude Include="utils\stb_image.h">
       <Filter>utils</Filter>
@@ -475,9 +481,6 @@
     </ClInclude>
     <ClInclude Include="utils\tinyObjLoader.h">
       <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\resource\renderTarget.h">
-      <Filter>renderer</Filter>
     </ClInclude>
     <ClInclude Include="renderer\renderImage.h">
       <Filter>renderer</Filter>
@@ -621,11 +624,26 @@
     <ClInclude Include="scripts\luaTypeMapping.h">
       <Filter>scripts\binder</Filter>
     </ClInclude>
+    <ClInclude Include="scripts\api\luaApi.h">
+      <Filter>scripts\api</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\gui.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\mainStage.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="input\InputSystem.h">
+      <Filter>input</Filter>
+    </ClInclude>
+    <ClInclude Include="input\directInput.h">
+      <Filter>input</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\renderTarget.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="renderer\RHI\rhiFactory.inl">
-      <Filter>renderer\rhi</Filter>
-    </None>
     <None Include="resource\resourceManager.inl">
       <Filter>resource</Filter>
     </None>
@@ -634,6 +652,9 @@
     </None>
     <None Include="scripts\luaContext.inl">
       <Filter>scripts</Filter>
+    </None>
+    <None Include="renderer\RHI\rhiFactory.inl">
+      <Filter>renderer\rhi</Filter>
     </None>
   </ItemGroup>
 </Project>

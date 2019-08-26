@@ -17,8 +17,8 @@ class JobSystem : public SubSystem
 public:
 	JobSystem(SystemContext& context, bool multThread = true);
 
-	virtual void Initialize();
-	virtual void Uninitialize();
+	void Initialize();
+	void Uninitialize();
 
 	void Execute(const TaskJob& task);
 

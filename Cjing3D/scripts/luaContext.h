@@ -1,8 +1,10 @@
 #pragma once
 
+#include "core\subSystem.hpp"
+
 #include "scripts\luaRef.h"
 #include "scripts\luaTools.h"
-#include "core\subSystem.hpp"
+#include "scripts\api\luaApi.h"
 
 #include <string>
 
@@ -14,9 +16,9 @@ public:
 	LuaContext(SystemContext& systemContext);
 	~LuaContext();
 
-	virtual void Initialize();
-	virtual void Uninitialize();
-	void Update();
+	void Initialize();
+	void Uninitialize();
+	void Update(F32 deltaTime);
 
 	using FunctionExportToLua = int(lua_State* l);
 	static FunctionExportToLua

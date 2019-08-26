@@ -73,7 +73,7 @@ void ShaderLib::LoadBuffers()
 	// init all constant buffer
 	auto& device = mRenderer.GetDevice();
 	for (size_t i = 0; i < ConstantBufferType_Count; i++) {
-		mConstantBuffer[i] = std::make_shared<GPUBuffer>(device);
+		mConstantBuffer[i] = std::make_shared<GPUBuffer>();
 	}
 
 	// TODO create by rhiFactory
@@ -119,7 +119,7 @@ std::shared_ptr<GPUBuffer> ShaderLib::GetConstantBuffer(ConstantBufferType buffe
 ShaderInfoState ShaderLib::GetShaderInfoState(ShaderType shaderType, MaterialComponent & material)
 {
 	ShaderInfoState infoState;
-	infoState.SetGraphicsDevice(&mRenderer.GetDevice());
+	infoState.RegisterGraphicsDevice(&mRenderer.GetDevice());
 
 	if (shaderType == ShaderType_Forward)
 	{
@@ -135,7 +135,7 @@ ShaderInfoState ShaderLib::GetShaderInfoState(ShaderType shaderType, MaterialCom
 ShaderInfoState ShaderLib::GetImageShaderInfoState()
 {
 	ShaderInfoState infoState;
-	infoState.SetGraphicsDevice(&mRenderer.GetDevice());
+	infoState.RegisterGraphicsDevice(&mRenderer.GetDevice());
 
 	infoState.mVertexShader = GetVertexShader(VertexShaderType_FullScreen);
 	infoState.mPixelShader = GetPixelShader(PixelShaderType_FullScreen);

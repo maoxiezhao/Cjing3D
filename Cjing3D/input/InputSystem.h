@@ -3,11 +3,6 @@
 #include "common\common.h"
 #include "core\subSystem.hpp"
 
-#define DIRECTINPUT_VERSION 0x0800
-#include <dinput.h>
-#include <Xinput.h>
-#pragma comment(lib,"dinput8.lib")
-
 namespace Cjing3D
 {
 
@@ -51,9 +46,9 @@ public:
 	InputManager(SystemContext& systemContext);
 	~InputManager();
 
-	virtual void Initialize(HWND windowHwnd, HINSTANCE windowInstance);
-	virtual void Uninitialize();
-	void Update();
+	void Initialize(HWND windowHwnd, HINSTANCE windowInstance);
+	void Uninitialize();
+	virtual void Update(F32 deltaTime);
 
 	bool IsKeyDown(const KeyCode key)const;
 	bool IsKeyUp(const KeyCode key)const;

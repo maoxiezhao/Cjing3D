@@ -10,6 +10,10 @@ void ResourceManager::Initialize()
 
 }
 
+void ResourceManager::Uninitialize()
+{
+}
+
 void ResourceManager::AddStandardResourceDirectory(Resource_Type type, const std::string & path)
 {
 	mResourceDirectories[type] = path;

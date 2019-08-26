@@ -1061,6 +1061,11 @@ HRESULT GraphicsDeviceD3D11::CreatePixelShader(const void * bytecode, size_t len
 
 HRESULT GraphicsDeviceD3D11::CreateBuffer(const GPUBufferDesc * desc, GPUBuffer & buffer, const SubresourceData* initialData)
 {
+	DestroyGPUResource(buffer);
+
+	buffer.mCurrType = GPU_RESOURCE_TYPE::BUFFER;
+	buffer.RegisterGraphicsDevice(this);
+
 	D3D11_BUFFER_DESC bufferDesc = {};
 	bufferDesc.ByteWidth = desc->mByteWidth;
 	bufferDesc.Usage = _ConvertUsage(desc->mUsage);
@@ -1248,6 +1253,12 @@ void GraphicsDeviceD3D11::BindSamplerState(SHADERSTAGES stage, SamplerState & st
 // ´´½¨2DÎÆÀí
 HRESULT GraphicsDeviceD3D11::CreateTexture2D(const TextureDesc * desc, const SubresourceData * data, RhiTexture2D & texture2D)
 {
+	DestroyTexture2D(texture2D);
+	DestroyGPUResource(texture2D);
+
+	texture2D.mCurrType = GPU_RESOURCE_TYPE::TEXTURE_2D;
+	texture2D.RegisterGraphicsDevice(this);
+
 	D3D11_TEXTURE2D_DESC tex2D_desc = _ConvertTexture2DDesc(desc);
 
 	// texture initial data
@@ -1277,19 +1288,34 @@ HRESULT GraphicsDeviceD3D11::CreateTexture2D(const TextureDesc * desc, const Sub
 	return result;
 }
 
+void GraphicsDeviceD3D11::DestroyTexture2D(RhiTexture2D & texture2D)
+{
+	if (texture2D.mRTV != CPU_NULL_HANDLE)
+	{
+		texture2D.GetRenderTargetView()->Release();
+		texture2D.mRTV = CPU_NULL_HANDLE;
+	}
+
+	if (texture2D.mDSV != CPU_NULL_HANDLE)
+	{
+		texture2D.GetRenderTargetView()->Release();
+		texture2D.mDSV = CPU_NULL_HANDLE;
+	}
+}
+
 void GraphicsDeviceD3D11::BindRenderTarget(UINT numView, RhiTexture2D* const *texture2D, RhiTexture2D* depthStencilTexture)
 {
 	// get renderTargetView
 	ID3D11RenderTargetView* renderTargetViews[8] = {};
 	UINT curNum = std::min((int)numView, 8);
 	for (int i = 0; i < curNum; i++) {
-		renderTargetViews[i] = &texture2D[i]->GetRenderTargetView();
+		renderTargetViews[i] = texture2D[i]->GetRenderTargetView();
 	}
 
 	// get depthStencilView
 	ID3D11DepthStencilView* depthStencilView = nullptr;
 	if (depthStencilView != nullptr) {
-		depthStencilView = &depthStencilTexture->GetDepthStencilView();
+		depthStencilView = depthStencilTexture->GetDepthStencilView();
 	}
 
 	GetDeviceContext(GraphicsThread_IMMEDIATE).OMSetRenderTargets(curNum, renderTargetViews, depthStencilView);
@@ -1298,7 +1324,7 @@ void GraphicsDeviceD3D11::BindRenderTarget(UINT numView, RhiTexture2D* const *te
 HRESULT GraphicsDeviceD3D11::CreateRenderTargetView(RhiTexture2D & texture)
 {
 	HRESULT result = E_FAIL;
-	if (texture.GetRenderTargetViewPtr() != nullptr) {
+	if (texture.GetRenderTargetView() != nullptr) {
 		return result;
 	}
 
@@ -1322,8 +1348,8 @@ HRESULT GraphicsDeviceD3D11::CreateRenderTargetView(RhiTexture2D & texture)
 			if (arraySize > 0 && arraySize <= 1)
 			{
 				auto& texture2DPtr = texture.GetGPUResource();
-				auto& rtvPtr = texture.GetRenderTargetViewPtr();
-				result = mDevice->CreateRenderTargetView((ID3D11Resource*)texture2DPtr, &renderTargetViewDesc, rtvPtr.ReleaseAndGetAddressOf());
+				ID3D11RenderTargetView* rtvPtr = texture.GetRenderTargetView();
+				result = mDevice->CreateRenderTargetView((ID3D11Resource*)texture2DPtr, &renderTargetViewDesc, &rtvPtr);
 			}
 		}
 	}
@@ -1396,9 +1422,9 @@ HRESULT GraphicsDeviceD3D11::CreateDepthStencilView(RhiTexture2D & texture)
 			depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 			depthStencilViewDesc.Texture2D.MipSlice = 0;
 
-			auto& dsv = texture.GetDepthStencilViewPtr();
+			ID3D11DepthStencilView* dsv = texture.GetDepthStencilView();
 			auto texture2DPtr = texture.GetGPUResource();
-			result = mDevice->CreateDepthStencilView((ID3D11Resource*)texture2DPtr, &depthStencilViewDesc, dsv.ReleaseAndGetAddressOf());
+			result = mDevice->CreateDepthStencilView((ID3D11Resource*)texture2DPtr, &depthStencilViewDesc, &dsv);
 		}
 	}
 
@@ -1407,14 +1433,14 @@ HRESULT GraphicsDeviceD3D11::CreateDepthStencilView(RhiTexture2D & texture)
 
 void GraphicsDeviceD3D11::ClearRenderTarget(RhiTexture2D & texture, F32x4 color)
 {
-	auto renderTarget = &texture.GetRenderTargetView();
-	GetDeviceContext(GraphicsThread_IMMEDIATE).ClearRenderTargetView(&texture.GetRenderTargetView(), color.data());
+	auto renderTarget = texture.GetRenderTargetView();
+	GetDeviceContext(GraphicsThread_IMMEDIATE).ClearRenderTargetView(texture.GetRenderTargetView(), color.data());
 }
 
 void GraphicsDeviceD3D11::ClearDepthStencil(RhiTexture2D & texture, UINT clearFlag, F32 depth, U8 stencil)
 {
 	UINT flag = _ConvertClearFlag(clearFlag);
-	GetDeviceContext(GraphicsThread_IMMEDIATE).ClearDepthStencilView(&texture.GetDepthStencilView(), flag, depth, stencil);
+	GetDeviceContext(GraphicsThread_IMMEDIATE).ClearDepthStencilView(texture.GetDepthStencilView(), flag, depth, stencil);
 }
 
 void GraphicsDeviceD3D11::BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot)
@@ -1464,7 +1490,7 @@ void GraphicsDeviceD3D11::BindGPUResources(SHADERSTAGES stage, GPUResource * con
 	}
 }
 
-void GraphicsDeviceD3D11::DestoryGPUResource(GPUResource & resource)
+void GraphicsDeviceD3D11::DestroyGPUResource(GPUResource & resource)
 {
 	if (resource.GetGPUResource() != CPU_NULL_HANDLE)
 	{

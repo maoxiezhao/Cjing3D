@@ -5,7 +5,6 @@
 // need to refactor
 #include "renderer\RHI\rhiResource.h"
 #include "renderer\RHI\rhiShader.h"
-#include "renderer\RHI\rhiBuffer.h"
 #include "renderer\RHI\rhiTexture.h"
 
 namespace Cjing3D

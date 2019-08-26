@@ -10,9 +10,9 @@ namespace Cjing3D
 
 	void MeshComponent::SetupRenderData(GraphicsDevice& device)
 	{
-		mVertexBufferPos = std::make_unique<GPUBuffer>(device);
-		mVertexBufferTex = std::make_unique<GPUBuffer>(device);
-		mIndexBuffer = std::make_unique<GPUBuffer>(device);
+		mVertexBufferPos = std::make_unique<GPUBuffer>();
+		mVertexBufferTex = std::make_unique<GPUBuffer>();
+		mIndexBuffer = std::make_unique<GPUBuffer>();
 
 		// setup index buffer
 		{

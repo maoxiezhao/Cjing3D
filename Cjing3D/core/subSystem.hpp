@@ -17,10 +17,9 @@ public:
 	SubSystem(SystemContext& gameContext) :
 		mGameContext(gameContext)
 	{}
+	virtual ~SubSystem() = default;
 
-	virtual void Initialize() {};
-	virtual void Uninitialize() {};
-
+	virtual void Update(F32 deltaTime) {};
 	SystemContext& GetGameContext() { return mGameContext; }
 
 protected:

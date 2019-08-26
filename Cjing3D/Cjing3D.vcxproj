@@ -144,6 +144,8 @@
     <ClInclude Include="core\subSystem.hpp" />
     <ClInclude Include="core\threadSafeSystem.h" />
     <ClInclude Include="engine.h" />
+    <ClInclude Include="gui\gui.h" />
+    <ClInclude Include="gui\mainStage.h" />
     <ClInclude Include="helper\debug.h" />
     <ClInclude Include="helper\fileSystem.h" />
     <ClInclude Include="helper\helper.h" />
@@ -155,6 +157,8 @@
     <ClInclude Include="helper\systemTime.h" />
     <ClInclude Include="helper\timer.h" />
     <ClInclude Include="helper\variant.h" />
+    <ClInclude Include="input\directInput.h" />
+    <ClInclude Include="input\InputSystem.h" />
     <ClInclude Include="note.h" />
     <ClInclude Include="renderer\pass\forwardPass.h" />
     <ClInclude Include="renderer\includeD3D11.h" />
@@ -163,13 +167,10 @@
     <ClInclude Include="renderer\rendererUtils.h" />
     <ClInclude Include="renderer\mappingDefine.h" />
     <ClInclude Include="renderer\renderImage.h" />
-    <ClInclude Include="renderer\resource\renderTarget.h" />
-    <ClInclude Include="renderer\RHI\rhiBuffer.h" />
+    <ClInclude Include="renderer\renderTarget.h" />
     <ClInclude Include="renderer\RHI\rhiFactory.h" />
-    <ClInclude Include="renderer\RHI\rhiPipeline.h" />
     <ClInclude Include="renderer\RHI\rhiResource.h" />
     <ClInclude Include="renderer\RHI\rhiShader.h" />
-    <ClInclude Include="renderer\RHI\rhiTexture.h" />
     <ClInclude Include="renderer\shaderLib.h" />
     <ClInclude Include="renderer\RHI\device.h" />
     <ClInclude Include="renderer\RHI\deviceD3D11.h" />
@@ -182,6 +183,7 @@
     <ClInclude Include="resource\resource.h" />
     <ClInclude Include="resource\resourceManager.h" />
     <ClInclude Include="resource\resourcePool.hpp" />
+    <ClInclude Include="scripts\api\luaApi.h" />
     <ClInclude Include="scripts\luaArg.h" />
     <ClInclude Include="scripts\luaBinder.h" />
     <ClInclude Include="scripts\luaBinder_impl.h" />
@@ -241,11 +243,11 @@
   <ItemGroup>
     <ClCompile Include="core\eventSystem.cpp" />
     <ClCompile Include="core\gameComponent.cpp" />
-    <ClCompile Include="core\InputSystem.cpp" />
-    <ClCompile Include="core\InputSystem.h" />
     <ClCompile Include="core\jobSystem.cpp" />
     <ClCompile Include="core\threadSafeSystem.cpp" />
     <ClCompile Include="engine.cpp" />
+    <ClCompile Include="gui\gui.cpp" />
+    <ClCompile Include="gui\mainStage.cpp" />
     <ClCompile Include="helper\debug.cpp" />
     <ClCompile Include="helper\fileSystem.cpp" />
     <ClCompile Include="helper\IDGenerator.cpp" />
@@ -255,16 +257,15 @@
     <ClCompile Include="helper\stringID.cpp" />
     <ClCompile Include="helper\systemTime.cpp" />
     <ClCompile Include="helper\timer.cpp" />
+    <ClCompile Include="input\directInput.cpp" />
+    <ClCompile Include="input\InputSystem.cpp" />
     <ClCompile Include="renderer\pass\forwardPass.cpp" />
     <ClCompile Include="renderer\renderer.cpp" />
     <ClCompile Include="renderer\rendererUtils.cpp" />
     <ClCompile Include="renderer\renderImage.cpp" />
-    <ClCompile Include="renderer\resource\renderTarget.cpp" />
-    <ClCompile Include="renderer\RHI\rhiBuffer.cpp" />
+    <ClCompile Include="renderer\renderTarget.cpp" />
     <ClCompile Include="renderer\RHI\rhiFactory.cpp" />
-    <ClCompile Include="renderer\RHI\rhiPipeline.cpp" />
     <ClCompile Include="renderer\RHI\rhiResource.cpp" />
-    <ClCompile Include="renderer\RHI\rhiTexture.cpp" />
     <ClCompile Include="renderer\shaderLib.cpp" />
     <ClCompile Include="renderer\RHI\device.cpp" />
     <ClCompile Include="renderer\RHI\deviceD3D11.cpp" />
@@ -274,6 +275,10 @@
     <ClCompile Include="resource\modelImporter\modelImporterObj.cpp" />
     <ClCompile Include="resource\resource.cpp" />
     <ClCompile Include="resource\resourceManager.cpp" />
+    <ClCompile Include="scripts\api\gameComponentApi.cpp" />
+    <ClCompile Include="scripts\api\inputManagerApi.cpp" />
+    <ClCompile Include="scripts\api\luaApi.cpp" />
+    <ClCompile Include="scripts\api\sceneSystemApi.cpp" />
     <ClCompile Include="scripts\luaBinder.cpp" />
     <ClCompile Include="scripts\luaContext.cpp" />
     <ClCompile Include="scripts\luaException.cpp" />

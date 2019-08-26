@@ -91,7 +91,7 @@ void Renderer::Uninitialize()
 	mIsInitialized = false;
 }
 
-void Renderer::Update()
+void Renderer::Update(F32 deltaTime)
 {
 	mPendingUpdateMaterials.clear();
 
@@ -145,11 +145,6 @@ GraphicsDevice & Renderer::GetDevice()
 ResourceManager & Renderer::GetResourceManager()
 {
 	return mGameContext.GetSubSystem<ResourceManager>();
-}
-
-Pipeline & Renderer::GetPipeline()
-{
-	return *mPipeline;
 }
 
 DeferredMIPGenerator & Renderer::GetDeferredMIPGenerator()

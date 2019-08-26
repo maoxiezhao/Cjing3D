@@ -1,7 +1,6 @@
 #pragma once
 
 #include "renderer\renderableCommon.h"
-#include "renderer\RHI\rhiPipeline.h"
 #include "renderer\pass\forwardPass.h"
 #include "renderer\rendererUtils.h"
 #include "core\subSystem.hpp"
@@ -26,8 +25,9 @@ public:
 	Renderer(SystemContext& gameContext, RenderingDeviceType deviceType, HWND window);
 	~Renderer();
 
+	virtual void Update(F32 deltaTime);
+
 	void Initialize();
-	void Update();
 	void Uninitialize();
 	void SetupRenderFrame();
 	void Render();
@@ -36,7 +36,6 @@ public:
 	
 	GraphicsDevice& GetDevice();
 	ResourceManager& GetResourceManager();
-	Pipeline& GetPipeline();
 	DeferredMIPGenerator& GetDeferredMIPGenerator();
 	std::shared_ptr<CameraComponent> GetCamera();
 	ShaderLib& GetShaderLib();
@@ -80,7 +79,6 @@ private:
 	std::unique_ptr<GraphicsDevice> mGraphicsDevice;
 	std::unique_ptr<ShaderLib> mShaderLib;
 	std::unique_ptr<StateManager> mStateManager;
-	std::unique_ptr<Pipeline> mPipeline;
 	std::unique_ptr<DeferredMIPGenerator> mDeferredMIPGenerator;
 	std::unique_ptr<LinearAllocator> mFrameAllocator;
 	

@@ -5,7 +5,6 @@
 #include "renderer\RHI\rhiDefinition.h"
 #include "renderer\RHI\rhiStructure.h"
 #include "renderer\RHI\rhiShader.h"
-#include "renderer\RHI\rhiBuffer.h"
 #include "renderer\RHI\rhiTexture.h"
 
 namespace Cjing3D
@@ -42,6 +41,7 @@ namespace Cjing3D
 		virtual void BindSamplerState(SHADERSTAGES stage, SamplerState& state, U32 slot) = 0;
 
 		virtual HRESULT CreateTexture2D(const TextureDesc* desc, const SubresourceData* data, RhiTexture2D& texture2D) = 0;
+		virtual void DestroyTexture2D(RhiTexture2D& texture2D) = 0;
 
 		virtual void BindRenderTarget(UINT numView, RhiTexture2D* const *texture2D, RhiTexture2D* depthStencilTexture) = 0;
 
@@ -54,7 +54,7 @@ namespace Cjing3D
 
 		virtual void BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot) = 0;
 		virtual void BindGPUResources(SHADERSTAGES stage, GPUResource* const* resource, U32 slot, U32 count) = 0;
-		virtual void DestoryGPUResource(GPUResource& resource) = 0;
+		virtual void DestroyGPUResource(GPUResource& resource) = 0;
 
 		virtual void BindShaderInfoState(ShaderInfoState state) = 0;
 

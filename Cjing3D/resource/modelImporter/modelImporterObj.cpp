@@ -53,15 +53,15 @@ namespace ModelImporter
 
 			if (material->mBaseColorMapName.empty() == false)
 			{
-				material->mBaseColorMap = resourceManager.GetOrCreate<RhiTexture2D>(StringID(material->mBaseColorMapName), device);
+				material->mBaseColorMap = resourceManager.GetOrCreate<RhiTexture2D>(StringID(material->mBaseColorMapName));
 			}
 			if (material->mNormalMapName.empty() == false)
 			{
-				material->mNormalMap = resourceManager.GetOrCreate<RhiTexture2D>(StringID(material->mNormalMapName), device);
+				material->mNormalMap = resourceManager.GetOrCreate<RhiTexture2D>(StringID(material->mNormalMapName));
 			}
 			if (material->mSurfaceMapName.empty() == false)
 			{
-				material->mSurfaceMap = resourceManager.GetOrCreate<RhiTexture2D>(StringID(material->mSurfaceMapName), device);
+				material->mSurfaceMap = resourceManager.GetOrCreate<RhiTexture2D>(StringID(material->mSurfaceMapName));
 			}
 
 			materialArray.push_back(materialEntity);

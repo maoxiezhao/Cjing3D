@@ -11,7 +11,7 @@ void Cjing3D::MaterialComponent::SetupConstantBuffer(GraphicsDevice& device)
 {
 	if (mConstantBuffer == nullptr)
 	{
-		mConstantBuffer = std::make_unique<GPUBuffer>(device);
+		mConstantBuffer = std::make_unique<GPUBuffer>();
 
 		const auto result = CreateDefaultConstantBuffer(device, *mConstantBuffer, sizeof(MaterialCB));
 		Debug::ThrowIfFailed(result, "Failed to create material constant buffer:%08x", result);

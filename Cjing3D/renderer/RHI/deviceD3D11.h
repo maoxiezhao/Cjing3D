@@ -42,6 +42,7 @@ public:
 	virtual void BindSamplerState(SHADERSTAGES stage, SamplerState& state, U32 slot);
 
 	virtual HRESULT CreateTexture2D(const TextureDesc* desc, const SubresourceData* data, RhiTexture2D& texture2D);
+	virtual void DestroyTexture2D(RhiTexture2D& texture2D);
 
 	virtual void BindRenderTarget(UINT numView, RhiTexture2D* const *texture2D, RhiTexture2D* depthStencilTexture);
 
@@ -54,7 +55,7 @@ public:
 
 	virtual void BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot);
 	virtual void BindGPUResources(SHADERSTAGES stage, GPUResource* const* resource, U32 slot, U32 count);
-	virtual void DestoryGPUResource(GPUResource& resource);
+	virtual void DestroyGPUResource(GPUResource& resource);
 
 	virtual void BindShaderInfoState(ShaderInfoState state);
 

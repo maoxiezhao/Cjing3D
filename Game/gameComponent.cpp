@@ -3,7 +3,7 @@
 #include "scripts\luaContext.h"
 #include "renderer\renderer.h"
 #include "system\component\camera.h"
-#include "core\InputSystem.h"
+#include "input\InputSystem.h"
 #include "helper\logger.h"
 
 namespace Cjing3D

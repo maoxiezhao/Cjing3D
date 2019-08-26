@@ -18,9 +18,11 @@ void LuaContext::Initialize()
 	mLuaState = luaL_newstate();
 	lua_atpanic(mLuaState, api_panic);
 	luaL_openlibs(mLuaState);
+
+	LuaApi::BindAllModules(mLuaState);
 }
 
-void LuaContext::Update()
+void LuaContext::Update(F32 deltaTime)
 {
 }
 
