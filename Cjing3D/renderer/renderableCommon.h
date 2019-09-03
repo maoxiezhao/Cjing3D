@@ -11,6 +11,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <list>
 
 #include "hf\shaderInterop.h"
 #include "hf\shaderInteropRender.h"

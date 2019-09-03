@@ -14,8 +14,11 @@ namespace Cjing3D
 	{
 	public:
 		GraphicsDeviceChild() = default;
-		inline void Register(GraphicsDevice* device) { mDevice = device; }
+
 		inline bool IsValid()const { return mDevice != nullptr; }
+
+		virtual void Register(GraphicsDevice* device) { mDevice = device; }
+		virtual void UnRegister() { mDevice = nullptr; }
 
 		GraphicsDevice * mDevice = nullptr;
 	};
@@ -37,6 +40,9 @@ namespace Cjing3D
 	public:
 		GPUResource() = default;
 		virtual ~GPUResource();
+
+		virtual void Register(GraphicsDevice* device);
+		virtual void UnRegister();
 
 		CPUHandle& GetGPUResource() { return mResource; }
 		CPUHandle& GetShaderResourceView() { return mSRV; }
@@ -68,7 +74,8 @@ namespace Cjing3D
 		const TextureDesc& GetDesc()const { return mDesc; }
 		void SetDesc(TextureDesc& desc) { mDesc = desc; }
 
-		ID3D11RenderTargetView* GetRenderTargetView() {return *((ID3D11RenderTargetView**)&mRTV);}
+		ID3D11RenderTargetView* GetRenderTargetView() {return ((ID3D11RenderTargetView*)mRTV);}
+		ID3D11RenderTargetView** GetRenderTargetViewPtr() { return ((ID3D11RenderTargetView**)&mRTV); }
 	};
 
 	class RhiTexture2D : public RhiTexture
@@ -77,7 +84,10 @@ namespace Cjing3D
 		CPUHandle mDSV = CPU_NULL_HANDLE;
 		~RhiTexture2D();
 
-		ID3D11DepthStencilView* GetDepthStencilView() { return *((ID3D11DepthStencilView**)&mRTV); }
+		virtual void UnRegister();
+
+		ID3D11DepthStencilView* GetDepthStencilView() { return *((ID3D11DepthStencilView**)&mDSV); }
+		ID3D11DepthStencilView** GetDepthStencilViewPtr() { return ((ID3D11DepthStencilView**)&mDSV); }
 	};
 	using RhiTexture2DPtr = std::shared_ptr<RhiTexture2D>;
 

@@ -8,9 +8,33 @@ Cjing3D::GPUResource::~GPUResource()
 	}
 }
 
+void Cjing3D::GPUResource::Register(GraphicsDevice * device)
+{
+	mDevice = device;
+	mDevice->AddGPUResource(this);
+}
+
+void Cjing3D::GPUResource::UnRegister()
+{
+	if (mDevice != nullptr) {
+		mDevice->DestroyGPUResource(*this);
+	}
+
+	GraphicsDeviceChild::UnRegister();
+}
+
 Cjing3D::RhiTexture2D::~RhiTexture2D()
 {
 	if (mDevice != nullptr) {
 		mDevice->DestroyTexture2D(*this);
 	}
+}
+
+void Cjing3D::RhiTexture2D::UnRegister()
+{
+	if (mDevice != nullptr) {
+		mDevice->DestroyTexture2D(*this);
+	}
+
+	GPUResource::UnRegister();
 }

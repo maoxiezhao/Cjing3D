@@ -891,7 +891,8 @@ void GraphicsDeviceD3D11::Initialize()
 	mViewport.mMaxDepth = 0.0f;
 
 	// ≥ı ºªØgpu allocator
-	mGPUAllocator.buffer = std::make_unique<GPUBuffer>(*this);
+	mGPUAllocator.buffer = std::make_unique<GPUBuffer>();
+	mGPUAllocator.buffer->Register(this);
 
 	mGPUAllocatorDesc.mByteWidth = 4 * 1024 * 1024;
 	mGPUAllocatorDesc.mBindFlags = BIND_SHADER_RESOURCE | BIND_INDEX_BUFFER | BIND_VERTEX_BUFFER;
@@ -903,6 +904,8 @@ void GraphicsDeviceD3D11::Initialize()
 
 void GraphicsDeviceD3D11::Uninitialize()
 {
+	GraphicsDevice::Uninitialize();
+
 	mSwapChain.reset();
 
 	for (int i = 0; i < GraphicsThread_COUNT; i++) {
@@ -1064,7 +1067,7 @@ HRESULT GraphicsDeviceD3D11::CreateBuffer(const GPUBufferDesc * desc, GPUBuffer 
 	DestroyGPUResource(buffer);
 
 	buffer.mCurrType = GPU_RESOURCE_TYPE::BUFFER;
-	buffer.RegisterGraphicsDevice(this);
+	buffer.Register(this);
 
 	D3D11_BUFFER_DESC bufferDesc = {};
 	bufferDesc.ByteWidth = desc->mByteWidth;
@@ -1257,7 +1260,7 @@ HRESULT GraphicsDeviceD3D11::CreateTexture2D(const TextureDesc * desc, const Sub
 	DestroyGPUResource(texture2D);
 
 	texture2D.mCurrType = GPU_RESOURCE_TYPE::TEXTURE_2D;
-	texture2D.RegisterGraphicsDevice(this);
+	texture2D.Register(this);
 
 	D3D11_TEXTURE2D_DESC tex2D_desc = _ConvertTexture2DDesc(desc);
 
@@ -1298,7 +1301,7 @@ void GraphicsDeviceD3D11::DestroyTexture2D(RhiTexture2D & texture2D)
 
 	if (texture2D.mDSV != CPU_NULL_HANDLE)
 	{
-		texture2D.GetRenderTargetView()->Release();
+		texture2D.GetDepthStencilView()->Release();
 		texture2D.mDSV = CPU_NULL_HANDLE;
 	}
 }
@@ -1348,8 +1351,8 @@ HRESULT GraphicsDeviceD3D11::CreateRenderTargetView(RhiTexture2D & texture)
 			if (arraySize > 0 && arraySize <= 1)
 			{
 				auto& texture2DPtr = texture.GetGPUResource();
-				ID3D11RenderTargetView* rtvPtr = texture.GetRenderTargetView();
-				result = mDevice->CreateRenderTargetView((ID3D11Resource*)texture2DPtr, &renderTargetViewDesc, &rtvPtr);
+				ID3D11RenderTargetView** rtvPtr = texture.GetRenderTargetViewPtr();
+				result = mDevice->CreateRenderTargetView((ID3D11Resource*)texture2DPtr, &renderTargetViewDesc, rtvPtr);
 			}
 		}
 	}
@@ -1422,9 +1425,9 @@ HRESULT GraphicsDeviceD3D11::CreateDepthStencilView(RhiTexture2D & texture)
 			depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 			depthStencilViewDesc.Texture2D.MipSlice = 0;
 
-			ID3D11DepthStencilView* dsv = texture.GetDepthStencilView();
+			ID3D11DepthStencilView** dsv = texture.GetDepthStencilViewPtr();
 			auto texture2DPtr = texture.GetGPUResource();
-			result = mDevice->CreateDepthStencilView((ID3D11Resource*)texture2DPtr, &depthStencilViewDesc, &dsv);
+			result = mDevice->CreateDepthStencilView((ID3D11Resource*)texture2DPtr, &depthStencilViewDesc, dsv);
 		}
 	}
 
@@ -1589,7 +1592,7 @@ GraphicsDevice::GPUAllocation GraphicsDeviceD3D11::AllocateGPU(size_t dataSize)
 	mGPUAllocator.dirty = true;
 
 	result.buffer = mGPUAllocator.buffer.get();
-	result.offset = position;
+	result.offset = (U32)position;
 	result.data = (void*)((size_t)mappedResource.pData + position);
 
 	return result;

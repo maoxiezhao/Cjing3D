@@ -86,13 +86,18 @@ namespace Cjing3D
 		};
 		virtual GPUAllocation AllocateGPU(size_t dataSize) = 0;
 
+		void AddGPUResource(GPUResource* resource);
+		void RemoveGPUResource(GPUResource* resource);
+
 	protected:
 		bool mIsFullScreen;
 		FORMAT mBackBufferFormat;
 		U32x2 mScreenSize;
-		bool mIsMultithreadedRendering;
-		bool mIsVsync;						/** 是否垂直同步 */
+		bool mIsMultithreadedRendering;                 // 启用多线程渲染
+		bool mIsVsync;									// 是否垂直同步 
 		ViewPort mViewport;
 		uint64_t mCurrentFrameCount = 0;
+
+		std::list<GPUResource*> mGPUResource;  // 记录所有注册的GPUResource
 	};
 }

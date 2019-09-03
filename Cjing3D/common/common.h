@@ -13,7 +13,7 @@
 #undef max
 
 #ifdef _MSC_VER
-#pragma warning( disable :4005 4018 4522 4715 4800 4996)
+#pragma warning( disable :4005 4018 4522 4715 4800 4996 4267)
 #endif
 
 #define SAFE_DELETE(p) if(p!= nullptr) {delete (p); p=nullptr;}

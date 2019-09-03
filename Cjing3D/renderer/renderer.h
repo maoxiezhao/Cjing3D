@@ -47,7 +47,6 @@ public:
 	// const buffer function
 	void UpdateCameraCB(CameraComponent& camera);
 
-	ShaderInfoState GetShaderInfoState(MaterialComponent& material);
 	Scene& GetMainScene();
 
 private:

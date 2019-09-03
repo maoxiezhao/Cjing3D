@@ -49,14 +49,6 @@ namespace Cjing3D
 	template <>
 	struct is_shader<PixelShader> : public std::true_type {};
 
-	class GraphicsDeviceChild
-	{
-	public:
-		GraphicsDevice* mDevice = nullptr;
-		void RegisterGraphicsDevice(GraphicsDevice* device) { mDevice = device; }
-	};
-
-
 	// shader info state
 	class ShaderInfoState : public GraphicsDeviceChild
 	{

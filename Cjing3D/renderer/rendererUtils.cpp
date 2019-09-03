@@ -15,7 +15,7 @@ namespace Cjing3D
 	void DeferredMIPGenerator::UpdateMipGenerating()
 	{
 		// 处理每个mip生成任务
-		for (auto& texture : mMipGenDeferredArray) {
+		for (auto texture : mMipGenDeferredArray) {
 			GenerateMaipChain(*texture, MIPGENFILTER::MIPGENFILTER_LINEAR);
 		}
 		mMipGenDeferredArray.clear();

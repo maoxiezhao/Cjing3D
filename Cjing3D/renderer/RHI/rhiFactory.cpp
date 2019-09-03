@@ -6,7 +6,7 @@ namespace Cjing3D
 	{
 		// CPU可写的Constant Buffer
 		GPUBufferDesc desc = {};
-		desc.mByteWidth = dataSize;
+		desc.mByteWidth = (U32)dataSize;
 		desc.mUsage = USAGE_DYNAMIC;
 		desc.mBindFlags = BIND_CONSTANT_BUFFER;
 		desc.mCPUAccessFlags = CPU_ACCESS_WRITE;
@@ -20,7 +20,7 @@ namespace Cjing3D
 	{
 		// 仅GPU可读写
 		GPUBufferDesc desc = {};
-		desc.mByteWidth = dataSize;
+		desc.mByteWidth = (U32)dataSize;
 		desc.mUsage = USAGE_DEFAULT;
 		desc.mBindFlags = BIND_CONSTANT_BUFFER;
 

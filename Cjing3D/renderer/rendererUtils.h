@@ -1,6 +1,7 @@
 #pragma once
 
 #include "system\ecsSystem.h"
+#include "renderer\RHI\rhiResource.h"
 
 namespace Cjing3D
 {

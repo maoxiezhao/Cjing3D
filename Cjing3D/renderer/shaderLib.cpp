@@ -119,7 +119,7 @@ std::shared_ptr<GPUBuffer> ShaderLib::GetConstantBuffer(ConstantBufferType buffe
 ShaderInfoState ShaderLib::GetShaderInfoState(ShaderType shaderType, MaterialComponent & material)
 {
 	ShaderInfoState infoState;
-	infoState.RegisterGraphicsDevice(&mRenderer.GetDevice());
+	infoState.Register(&mRenderer.GetDevice());
 
 	if (shaderType == ShaderType_Forward)
 	{
@@ -135,7 +135,7 @@ ShaderInfoState ShaderLib::GetShaderInfoState(ShaderType shaderType, MaterialCom
 ShaderInfoState ShaderLib::GetImageShaderInfoState()
 {
 	ShaderInfoState infoState;
-	infoState.RegisterGraphicsDevice(&mRenderer.GetDevice());
+	infoState.Register(&mRenderer.GetDevice());
 
 	infoState.mVertexShader = GetVertexShader(VertexShaderType_FullScreen);
 	infoState.mPixelShader = GetPixelShader(PixelShaderType_FullScreen);

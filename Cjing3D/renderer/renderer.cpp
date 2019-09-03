@@ -86,6 +86,8 @@ void Renderer::Uninitialize()
 		return;
 	}
 
+	mForwardPass->Uninitialize();
+
 	mGraphicsDevice->Uninitialize();
 
 	mIsInitialized = false;
@@ -221,11 +223,6 @@ void Renderer::UpdateCameraCB(CameraComponent & camera)
 
 	auto cameraBuffer = mShaderLib->GetConstantBuffer(ConstantBufferType_Camera);
 	GetDevice().UpdateBuffer(*cameraBuffer, &cb, sizeof(CameraCB));
-}
-
-ShaderInfoState Renderer::GetShaderInfoState(MaterialComponent & material)
-{
-	return ShaderInfoState();
 }
 
 Scene & Renderer::GetMainScene()

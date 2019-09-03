@@ -8,6 +8,13 @@ namespace Cjing3D
 	{
 	}
 
+	MeshComponent::~MeshComponent()
+	{
+		mVertexBufferPos.reset();
+		mVertexBufferTex.reset();
+		mIndexBuffer.reset();
+	}
+
 	void MeshComponent::SetupRenderData(GraphicsDevice& device)
 	{
 		mVertexBufferPos = std::make_unique<GPUBuffer>();

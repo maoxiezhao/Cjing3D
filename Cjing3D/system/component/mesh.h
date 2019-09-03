@@ -8,6 +8,7 @@ namespace Cjing3D {
 	{
 	public:
 		MeshComponent();
+		virtual ~MeshComponent();
 
 		std::vector<F32x3> mVertexPositions;
 		std::vector<F32x3> mVertexNormals;
