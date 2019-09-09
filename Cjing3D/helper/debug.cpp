@@ -54,15 +54,22 @@ namespace Cjing3D
 				}
 				{
 					FILE* stream;
-					bool result = freopen_s(&stream, "conin$", "r+t", stdin);
-					Debug::ThrowIfFailed(result == 0, "stdin redirection failed.");
+					int result = freopen_s(&stream, "CONOUT$", "w+t", stdout);
+					Debug::ThrowIfFailed(result == 0, "stdout redirection failed.");
+
+					std::cout.clear();
 				}
 				{
 					FILE* stream;
-					bool result = freopen_s(&stream, "conout$", "w+t", stdout);
-					Debug::ThrowIfFailed(result == 0, "stdout redirection failed.");
+					int result = freopen_s(&stream, "CONIN$", "r+t", stdin);
+					Debug::ThrowIfFailed(result == 0, "stdin redirection failed.");
 				}
 			}
+		}
+
+		void UninitializeDebugConsolse()
+		{
+			FreeConsole();
 		}
 
 		void SetDebugConsoleEnable(bool t)

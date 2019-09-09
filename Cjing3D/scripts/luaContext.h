@@ -10,6 +10,13 @@
 
 namespace Cjing3D
 {
+
+enum SystemFunctionIndex {
+	CLIENT_LUA_MAIN_START = 1,
+	CLIENT_LUA_MAIN_UPDATE,
+	CLIENT_LUA_MAIN_STOP,
+};
+
 class LuaContext : public SubSystem
 {
 public:
@@ -24,14 +31,28 @@ public:
 	static FunctionExportToLua
 		api_panic;
 
-	bool DoFileIfExists(const std::string& name);
+	static bool DoLuaString(lua_State*l, const std::string& luaString);
 	static bool DoFileIfExists(lua_State*l, const std::string& name);
 	static bool LoadFile(lua_State*l, const std::string& name);
 
 	lua_State* GetLuaState() { return mLuaState; }
 
+	// main function 
+	void OnMainInitialize();
+	void OnMainUpdate();
+	void OnMainUninitialize();
+
+	// system lua ref
+	static LuaRef mSystemExports;
+	static LuaRef mSystemEnumRef;
+
+	bool DoLuaSystemFunctionWithIndex(SystemFunctionIndex index);
+
 private:
+	void InitializeEnv(lua_State* l);
 
 	lua_State* mLuaState = nullptr;
 };
+
+#include "luaContext.inl"
 }

@@ -5,6 +5,7 @@ Cjing3D::GPUResource::~GPUResource()
 {
 	if (mDevice != nullptr) {
 		mDevice->DestroyGPUResource(*this);
+		mDevice->RemoveGPUResource(this);
 	}
 }
 

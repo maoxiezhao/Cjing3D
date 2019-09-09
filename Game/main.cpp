@@ -62,7 +62,6 @@ int WINAPI WinMain(HINSTANCE instance,
 	// uninitialize
 	mainEngine->Uninitialize();
 	mainEngine.reset();
-
 	mainWindow.reset();
 
 	return 0;
@@ -70,7 +69,6 @@ int WINAPI WinMain(HINSTANCE instance,
 
 int Run()
 {
-	// message loop
 	MSG msg;
 	SecureZeroMemory(&msg, sizeof(msg));
 	while (msg.message != WM_QUIT && !mainEngine->GetIsExiting())
@@ -83,6 +81,5 @@ int Run()
 	
 		mainEngine->Tick();
 	}
-	
 	return static_cast<int> (msg.wParam);
 }

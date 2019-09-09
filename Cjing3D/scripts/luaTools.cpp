@@ -84,5 +84,20 @@ namespace LuaTools
 		for (; lua_getstack(l, depth + 1, &info) != 0; depth++);
 		return depth;
 	}
+
+	bool CallFunction(lua_State * l, int arguments, int results, const std::string & functionName)
+	{
+		if (lua_pcall(l, arguments, results, 0) != 0)
+		{
+			std::string errMsg = std::string("In ") + functionName + ": " + lua_tostring(l, -1) + "\n";
+			luaL_traceback(l, l, NULL, 1);
+			errMsg += lua_tostring(l, -1);
+			Debug::Error(errMsg);
+			lua_pop(l, 2);
+			return false;
+		}
+
+		return true;
+	}
 }
 }

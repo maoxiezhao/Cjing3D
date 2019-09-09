@@ -38,6 +38,7 @@ void Engine::Initialize()
 	Debug::InitializeDebugConsole();
 #endif
 	Logger::PrintConsoleHeader();
+	Logger::Info("Initialize engine modules");
 
 	// initialize engine time
 	mTimer.Start();
@@ -144,6 +145,10 @@ void Engine::Uninitialize()
 	FileData::CloseData();
 
 	mTimer.Stop();
+
+#ifdef CJING_DEBUG
+	Debug::UninitializeDebugConsolse();
+#endif
 
 	mIsInitialized = false;
 }

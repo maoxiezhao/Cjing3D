@@ -16,6 +16,7 @@ namespace LuaTools
 	void PrintLuaStack(lua_State*l);
 	void PrintInIndex(lua_State*l, int index);
 	int GetCallDepth(lua_State*l);
+	bool CallFunction(lua_State*l, int arguments, int results, const std::string& functionName);
 
 	template<typename T>
 	inline void Push(lua_State*l, const T& v)

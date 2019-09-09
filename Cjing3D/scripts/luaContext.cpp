@@ -4,6 +4,8 @@
 
 namespace Cjing3D {
 
+LuaRef LuaContext::mSystemExports;
+
 LuaContext::LuaContext(SystemContext& systemContext) :
 	SubSystem(systemContext)
 {
@@ -20,21 +22,47 @@ void LuaContext::Initialize()
 	luaL_openlibs(mLuaState);
 
 	LuaApi::BindAllModules(mLuaState);
+
+	InitializeEnv(mLuaState);
+
+	DoFileIfExists(mLuaState, "Scripts/main");
+	OnMainInitialize();
+}
+
+void LuaContext::InitializeEnv(lua_State * l)
+{
+	if (!DoLuaString(l, globalLuaString))
+	{
+		Debug::Error("Failed to load lua initialzed scripts.");
+		return;
+	}
+
+	lua_getglobal(l, "SystemExports");
+	Debug::CheckAssertion(!lua_isnil(l, 1), "Lua env initialized failed.");
+	mSystemExports = LuaRef::CreateRef(l);
 }
 
 void LuaContext::Update(F32 deltaTime)
 {
+	OnMainUpdate();
 }
 
 void LuaContext::Uninitialize()
 {
+	OnMainUninitialize();
+
+	mSystemExports.Clear();
+
 	lua_close(mLuaState);
 	mLuaState = nullptr;
 }
 
-bool LuaContext::DoFileIfExists(const std::string & name)
+bool LuaContext::DoLuaString(lua_State * l, const std::string & luaString)
 {
-	return LuaContext::DoFileIfExists(mLuaState, name);
+	if (luaL_loadstring(l, luaString.c_str()) == 0) {
+		return LuaTools::CallFunction(l, 0, 0, "Load Lua String.");
+	}
+	return false;
 }
 
 bool LuaContext::DoFileIfExists(lua_State* l, const std::string& name)
@@ -78,6 +106,36 @@ bool LuaContext::LoadFile(lua_State * l, const std::string & name)
 		lua_pop(l, 1);
 		return false;
 	}
+	return true;
+}
+
+void LuaContext::OnMainInitialize()
+{
+	DoLuaSystemFunctionWithIndex(CLIENT_LUA_MAIN_START);
+}
+
+void LuaContext::OnMainUpdate()
+{
+	DoLuaSystemFunctionWithIndex(CLIENT_LUA_MAIN_UPDATE);
+}
+
+void LuaContext::OnMainUninitialize()
+{
+	DoLuaSystemFunctionWithIndex(CLIENT_LUA_MAIN_STOP);
+}
+
+bool LuaContext::DoLuaSystemFunctionWithIndex(SystemFunctionIndex index)
+{
+	mSystemExports.Push();
+
+	lua_rawgeti(mLuaState, -1, static_cast<int>(index));
+	if (!LuaTools::CallFunction(mLuaState, 0, 0, ""))
+	{
+		lua_pop(mLuaState, 1);
+		return false;
+	}
+
+	lua_pop(mLuaState, 1);
 	return true;
 }
 

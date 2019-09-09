@@ -1,1 +1,1 @@
-print("Hello Lua!!!!")
+print("[LUA] Load main file success.")

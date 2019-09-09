@@ -119,6 +119,8 @@ namespace Cjing3D
 			return LuaBindClass<T, LuaBinder>::BindClass(mLuaState, mCurrentMeta, name);
 		}
 
+		void AddEnum(const std::string& name, int value);
+
 	private:
 		lua_State * mLuaState = nullptr;
 		LuaRef mCurrentMeta = LuaRef::NULL_REF;

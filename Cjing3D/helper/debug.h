@@ -24,6 +24,7 @@ namespace Cjing3D {
 	{
 		void SetDebugConsoleEnable(bool t);
 		void InitializeDebugConsole();
+		void UninitializeDebugConsolse();
 
 		void SetDieOnError(bool t);
 		void SetPopBoxOnDie(bool t);

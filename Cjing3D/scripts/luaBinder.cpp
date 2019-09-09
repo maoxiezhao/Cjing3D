@@ -52,4 +52,8 @@ void LuaBindClassBase::RegisterMethod(const std::string & name, LuaRef func)
 	metaClass.RawSet(name, func);
 }
 
+void LuaBinder::AddEnum(const std::string & name, int value)
+{
+}
+
 }
