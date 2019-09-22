@@ -9,14 +9,6 @@ namespace Cjing3D
 {
 	class LuaObject;
 
-	// 为了支持在编译期，通过AddConstructor中传入参数的不同，来
-	// 实现LuaObjectConstructor::Call时通过typenam...Args来解析各个参数，
-	// AddConstructor 将传入一个函数指针，参数为AddConstructor传入的参数，
-	// 定义为__args(*)(__VA_ARGS__)
-	struct _lua_args {};
-
-	#define _LUA_ARGS_TYPE(...) _lua_args(*)(__VA_ARGS__) 
-	#define  _LUA_ARGS_(...) static_cast<_LUA_ARGS_TYPE(__VA_ARGS__)>(nullptr)
 	template<typename T, typename ARGS>
 	struct LuaObjectConstructor;
 

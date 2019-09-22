@@ -28,7 +28,7 @@ namespace Cjing3D
 				std::string(lua_typename(l, lua_type(l, 1))));
 			return 1;
 		}
-		
+
 		// find in metatalbe first
 		lua_getmetatable(l, 1);
 		lua_pushvalue(l, 2); // push key
@@ -54,7 +54,7 @@ namespace Cjing3D
 		index = LuaTools::GetPositiveIndex(l, index);
 		if (!lua_isuserdata(l, index))
 		{
-			LuaException::Error(l, "Except userdata, got ." + 
+			LuaException::Error(l, "Except userdata, got ." +
 				std::string(lua_typename(l, lua_type(l, index))));
 			return nullptr;
 		}
@@ -77,7 +77,7 @@ namespace Cjing3D
 
 		// except_meta crrent_meta
 		bool is_valid = false;
-		while(!lua_isnil(l, -1))
+		while (!lua_isnil(l, -1))
 		{
 			if (lua_rawequal(l, -1, -2))
 			{
@@ -102,7 +102,7 @@ namespace Cjing3D
 		}
 		else
 		{
-			return nullptr;			
+			return nullptr;
 		}
 	}
 }

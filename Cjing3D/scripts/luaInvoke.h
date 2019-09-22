@@ -17,9 +17,10 @@ namespace Cjing3D
 		}
 	};
 	// Class Constructor
-	template<typename T, typename... Args>
+	template<typename T>
 	struct ClassStructorCaller
 	{
+		template<typename... Args>
 		static void Call(void* mem, std::tuple<Args...>& args)
 		{
 			ClassStructorDispatchCaller<T, std::tuple<Args...>, sizeof...(Args)>::Call(mem, args);
@@ -72,7 +73,7 @@ namespace Cjing3D
 			return func(std::get<INDEX>(args).Get()...);
 		}
 	};
-	
+
 	template<typename FUNC, typename R, typename... Args>
 	struct StaticFunctionCaller
 	{
@@ -92,5 +93,5 @@ namespace Cjing3D
 			return 0;
 		}
 	};
-	
+
 }

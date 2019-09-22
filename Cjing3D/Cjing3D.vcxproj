@@ -280,9 +280,9 @@
     <ClCompile Include="scripts\api\luaApi.cpp" />
     <ClCompile Include="scripts\api\sceneSystemApi.cpp" />
     <ClCompile Include="scripts\luaBinder.cpp" />
+    <ClCompile Include="scripts\luaBinder_impl.cpp" />
     <ClCompile Include="scripts\luaContext.cpp" />
     <ClCompile Include="scripts\luaException.cpp" />
-    <ClCompile Include="scripts\luaInvoke.cpp" />
     <ClCompile Include="scripts\luaObject.cpp" />
     <ClCompile Include="scripts\luaRef.cpp" />
     <ClCompile Include="scripts\luaTools.cpp" />

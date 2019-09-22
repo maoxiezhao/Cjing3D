@@ -12,6 +12,7 @@ namespace Cjing3D
 		luaL_traceback(l, l, NULL, 1);
 		msg += lua_tostring(l, -1);
 
+		std::cout << msg << std::endl;
 		throw LuaException(l, msg);
 	}
 

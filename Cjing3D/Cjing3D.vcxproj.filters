@@ -290,13 +290,7 @@
     <ClCompile Include="scripts\luaException.cpp">
       <Filter>scripts\binder</Filter>
     </ClCompile>
-    <ClCompile Include="scripts\luaInvoke.cpp">
-      <Filter>scripts\binder</Filter>
-    </ClCompile>
     <ClCompile Include="scripts\luaObject.cpp">
-      <Filter>scripts\binder</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\luaRef.cpp">
       <Filter>scripts\binder</Filter>
     </ClCompile>
     <ClCompile Include="scripts\luaTools.cpp">
@@ -328,6 +322,12 @@
     </ClCompile>
     <ClCompile Include="renderer\renderTarget.cpp">
       <Filter>renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\luaRef.cpp">
+      <Filter>scripts\binder</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\luaBinder_impl.cpp">
+      <Filter>scripts\binder</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

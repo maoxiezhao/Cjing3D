@@ -4,6 +4,10 @@
 
 #include <string>
 
+#define LUA_BINDER_REGISTER_CLASS 
+#define LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
+#define LUA_BINDER_REGISTER_CLASS_STATIC_FUNCTION
+
 namespace Cjing3D
 {
 	// LuaBindClass在bindClass时会创建一个StaticMeta和一个ClassMeta,后者在创建userdata时会setmetatable
@@ -41,7 +45,7 @@ namespace Cjing3D
 			{
 				currentMeta.RawGet("__CLASS").RawSet("__gc", &LuaObjectDestructor<T>::Call);
 			}
-			
+
 			return LuaBindClass<T, ParentT>(l, currentMeta);
 		}
 
@@ -52,7 +56,7 @@ namespace Cjing3D
 			// 2. local obj = CLAZZ:new(...);
 
 			mCurrentMeta.RawSet("__call", LuaObjectConstructor<T, ARGS>::Call);
-			mCurrentMeta.RawSet("new",	  LuaObjectConstructor<T, ARGS>::Call);
+			mCurrentMeta.RawSet("new", LuaObjectConstructor<T, ARGS>::Call);
 
 			Logger::Info("AddConstructor");
 			return *this;
@@ -99,9 +103,99 @@ namespace Cjing3D
 		}
 
 	private:
-		LuaBindClass(lua_State* l, LuaRef& meta) : 
+		LuaBindClass(lua_State* l, LuaRef& meta) :
 			LuaBindClassBase(l, meta)
 		{}
+	};
+
+	// Binding Module
+	class LuaBindModuleBase
+	{
+	public:
+		LuaBindModuleBase(LuaRef& meta) :
+			mCurrentMeta(meta)
+		{}
+
+		LuaBindModuleBase(LuaRef& meta, const std::string& name);
+
+		static int ReadOnlyError(lua_State* l);
+		lua_State* GetLuaState() { return mCurrentMeta.GetLuaState(); }
+
+	protected:
+		void SetGetter(const std::string& name, const LuaRef& getter);
+		void SetSetter(const std::string& name, const LuaRef& setter);
+		void SetReadOnly(const std::string& name);
+
+		LuaRef mCurrentMeta = LuaRef::NULL_REF;
+		std::string mName;
+	};
+
+	template<typename ParentT>
+	class LuaBindModule : public LuaBindModuleBase
+	{
+	public:
+		LuaBindModule(LuaRef& meta, const std::string& name) :
+			LuaBindModuleBase(meta, name),
+			mName(name)
+		{}
+
+		LuaBindModule<ParentT>& AddEnum(const std::string& name, int value)
+		{
+			return AddConstant(name, value);
+		}
+
+		template<typename V>
+		LuaBindModule<ParentT>& AddConstant(const std::string& name, const V& value)
+		{
+			lua_State* l = GetLuaState();
+			LuaRef ref = LuaRef::CreateRefFromValue(l, value);
+			if (ref.IsFunction()) {
+				// TODO
+			}
+
+			SetGetter(name, ref);
+			SetReadOnly(name);
+			return *this;
+		}
+
+		template<typename V>
+		LuaBindModule<ParentT>& AddVariable(const std::string& name, const V& value)
+		{
+			lua_State* l = GetLuaState();
+			SetSetter(name, LuaRef::CreateFuncWithPtr(l, &BindVariableMethod<V>::Setter, &value));
+			SetGetter(name, LuaRef::CreateFuncWithPtr(l, &BindVariableMethod<V>::Getter, &value));
+			return *this;
+		}
+
+		template<typename FUNC>
+		LuaBindModule<ParentT>& AddFunction(const std::string& name, const FUNC& func)
+		{
+			using FunctionCaller = BindClassStaticFunc<FUNC>;
+			LuaRef funcRef = LuaRef::CreateFunc(GetLuaState(), &FunctionCaller::Caller, FunctionCaller::ConvertToFunction(func));
+			mCurrentMeta.RawSet(name, funcRef);
+
+			return *this;
+		}
+
+		template<typename T>
+		LuaBindClass<T, LuaBindModule<ParentT>> BeginClass(const std::string& name)
+		{
+			return LuaBindClass<T, LuaBindModule<ParentT>>::BindClass(GetLuaState(), mCurrentMeta, name);
+		}
+
+		LuaBindModule<LuaBindModule<ParentT>> BeginModule(const std::string& name)
+		{
+			return LuaBindModule<LuaBindModule<ParentT>>(GetLuaState(), mCurrentMeta, name);
+		}
+
+		ParentT EndModule()
+		{
+			Logger::Info("EndModule");
+			return ParentT(mCurrentMeta.GetLuaState());
+		}
+
+	protected:
+		std::string mName;
 	};
 
 	class LuaBinder
@@ -119,11 +213,35 @@ namespace Cjing3D
 			return LuaBindClass<T, LuaBinder>::BindClass(mLuaState, mCurrentMeta, name);
 		}
 
-		void AddEnum(const std::string& name, int value);
+		LuaBindModule<LuaBinder> BeginModule(const std::string& name)
+		{
+			return LuaBindModule<LuaBinder>(mCurrentMeta, name);
+		}
 
 	private:
 		lua_State * mLuaState = nullptr;
 		LuaRef mCurrentMeta = LuaRef::NULL_REF;
 	};
 
+	class AutoLuaBindFunctions
+	{
+	public:
+		static AutoLuaBindFunctions& GetInstance()
+		{
+			static AutoLuaBindFunctions funcs;
+			return funcs;
+		}
+
+		void PushAutoBindFunction(std::function<void(lua_State* l)> func);
+		void DoAutoBindFunctions(lua_State* l);
+
+		std::vector<std::function<void(lua_State* l)>> mfuncs;
+	};
+
+#define LUA_FUNCTION_AUTO_BINDER(LuaName, function) \
+	class AutoBinder##LuaName{				\
+		public:AutoBinder##LuaName(){		\
+			AutoLuaBindFunctions::GetInstance().PushAutoBindFunction(function); }	\
+		static AutoBinder##LuaName instance;};	\
+	 AutoBinder##LuaName  AutoBinder##LuaName::instance;
 }

@@ -40,6 +40,8 @@ void LuaContext::InitializeEnv(lua_State * l)
 	lua_getglobal(l, "SystemExports");
 	Debug::CheckAssertion(!lua_isnil(l, 1), "Lua env initialized failed.");
 	mSystemExports = LuaRef::CreateRef(l);
+
+	AutoLuaBindFunctions::GetInstance().DoAutoBindFunctions(mLuaState);
 }
 
 void LuaContext::Update(F32 deltaTime)

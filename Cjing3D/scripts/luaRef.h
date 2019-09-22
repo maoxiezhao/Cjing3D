@@ -1,14 +1,12 @@
-
-
-
 #pragma once
 
 #include "scripts\luaCommon.h"
 #include "scripts\luaTools.h"
+#include "scripts\luaArg.h"
 
 #include <string>
 
-namespace Cjing3D 
+namespace Cjing3D
 {
 	class LuaRef
 	{
@@ -31,9 +29,53 @@ namespace Cjing3D
 		static LuaRef CreateRefFromPtr(lua_State*l, void* ptr);
 
 		template<typename T>
+		static LuaRef CreateRefFromValue(lua_State*l, const T& value)
+		{
+			LuaTools::Push(l, value);
+			return CreateRef(l);
+		}
+
+		template<typename... Args>
+		static LuaRef CreateFunctionWithArgs(lua_State*l, lua_CFunction func, Args&&... args)
+		{
+			LuaPushArgs<Args...>::Push(l, std::forward<Args>(args)...);
+			//LuaTools::PushArgs(l, std::forward<Args>(args)...);
+			lua_pushcclosure(l, func, sizeof...(args));
+			return CreateRef(l);
+		}
+
+		template<typename T>
 		static LuaRef CreateFuncWithUserdata(lua_State*l, lua_CFunction func, const T& userdata)
 		{
 			LuaTools::BindingUserData::PushUserdata<T>(l, userdata);
+			lua_pushcclosure(l, func, 1);
+			return CreateRef(l);
+		}
+
+		template<typename T>
+		static std::enable_if_t<std::is_function<T>::value, LuaRef>
+			CreateFunc(lua_State*l, lua_CFunction func, const T& userdata)
+		{
+			// 将函数指针作为userdata压栈
+			LuaTools::BindingUserData::PushUserdata<T*>(l, &userdata);
+			lua_pushcclosure(l, func, 1);
+			return CreateRef(l);
+		}
+
+		template<typename T>
+		static std::enable_if_t<!std::is_function<T>::value, LuaRef>
+			CreateFunc(lua_State*l, lua_CFunction func, const T& userdata)
+		{
+			// 将函数指针作为userdata压栈
+			LuaTools::BindingUserData::PushUserdata<T>(l, userdata);
+			lua_pushcclosure(l, func, 1);
+			return CreateRef(l);
+		}
+
+		template<typename T>
+		static LuaRef CreateFuncWithPtr(lua_State*l, lua_CFunction func, T* p)
+		{
+			lua_pushlightuserdata(l, p);
 			lua_pushcclosure(l, func, 1);
 			return CreateRef(l);
 		}
@@ -42,6 +84,7 @@ namespace Cjing3D
 		int  GetRef()const;
 		void Push()const;
 		void Clear();
+		bool IsFunction()const;
 		lua_State* GetLuaState()const;
 
 		template<typename V, typename K>
