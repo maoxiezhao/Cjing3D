@@ -642,6 +642,9 @@
     <ClInclude Include="renderer\renderTarget.h">
       <Filter>renderer</Filter>
     </ClInclude>
+    <ClInclude Include="helper\enumInfo.h">
+      <Filter>helper</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resource\resourceManager.inl">
@@ -655,6 +658,9 @@
     </None>
     <None Include="renderer\RHI\rhiFactory.inl">
       <Filter>renderer\rhi</Filter>
+    </None>
+    <None Include="helper\enumInfo.inl">
+      <Filter>helper</Filter>
     </None>
   </ItemGroup>
 </Project>

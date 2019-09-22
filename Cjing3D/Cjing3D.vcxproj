@@ -147,6 +147,7 @@
     <ClInclude Include="gui\gui.h" />
     <ClInclude Include="gui\mainStage.h" />
     <ClInclude Include="helper\debug.h" />
+    <ClInclude Include="helper\enumInfo.h" />
     <ClInclude Include="helper\fileSystem.h" />
     <ClInclude Include="helper\helper.h" />
     <ClInclude Include="helper\IDGenerator.h" />
@@ -332,6 +333,7 @@
     <ClCompile Include="utils\intersectable.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="helper\enumInfo.inl" />
     <None Include="renderer\RHI\rhiFactory.inl" />
     <None Include="resource\resourceManager.inl" />
     <None Include="scripts\luaContext.inl" />

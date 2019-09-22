@@ -8,6 +8,9 @@
 #include "renderer\renderer.h"
 #include "scripts\luaContext.h"
 
+// TEST
+#include "helper\enumInfo.h"
+
 namespace Cjing3D
 {
 

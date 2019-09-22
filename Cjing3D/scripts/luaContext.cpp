@@ -1,10 +1,17 @@
 #include "luaContext.h"
 #include "helper\debug.h"
 #include "helper\fileSystem.h"
+#include "helper\enumInfo.h"
 
 namespace Cjing3D {
 
 LuaRef LuaContext::mSystemExports;
+
+ENUM_TRAITS_REGISTER_ENUM_BEGIN(SystemFunctionIndex)
+ENUM_TRAITS_REGISTER_ENUM_DEFINE(CLIENT_LUA_MAIN_START)
+ENUM_TRAITS_REGISTER_ENUM_DEFINE(CLIENT_LUA_MAIN_UPDATE)
+ENUM_TRAITS_REGISTER_ENUM_DEFINE(CLIENT_LUA_MAIN_STOP)
+ENUM_TRAITS_REGISTER_ENUM_END(SystemFunctionIndex)
 
 LuaContext::LuaContext(SystemContext& systemContext) :
 	SubSystem(systemContext)
@@ -42,6 +49,12 @@ void LuaContext::InitializeEnv(lua_State * l)
 	mSystemExports = LuaRef::CreateRef(l);
 
 	AutoLuaBindFunctions::GetInstance().DoAutoBindFunctions(mLuaState);
+
+	// bind systme enum
+	auto systemEnumBinder = LuaBinder(l).BeginModule("SystemFunctionIndex");
+	systemEnumBinder.AddEnum(EnumToString(CLIENT_LUA_MAIN_START),  CLIENT_LUA_MAIN_START);
+	systemEnumBinder.AddEnum(EnumToString(CLIENT_LUA_MAIN_UPDATE), CLIENT_LUA_MAIN_UPDATE);
+	systemEnumBinder.AddEnum(EnumToString(CLIENT_LUA_MAIN_STOP),   CLIENT_LUA_MAIN_STOP);
 }
 
 void LuaContext::Update(F32 deltaTime)
