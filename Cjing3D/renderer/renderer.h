@@ -1,7 +1,7 @@
 #pragma once
 
 #include "renderer\renderableCommon.h"
-#include "renderer\pass\forwardPass.h"
+#include "renderer\paths\renderPath_forward.h"
 #include "renderer\rendererUtils.h"
 #include "core\subSystem.hpp"
 #include "utils\allocator.h"
@@ -50,7 +50,7 @@ public:
 	Scene& GetMainScene();
 
 private:
-	void InitializePasses();
+	void InitializeRenderPaths();
 	void UpdateRenderData();
 	void ProcessRenderQueue(RenderQueue& queue, ShaderType shaderType, RenderableType renderableType);
 	void BindConstanceBuffer(SHADERSTAGES stage);
@@ -83,7 +83,7 @@ private:
 	
 	std::vector<int> mPendingUpdateMaterials;
 
-	std::unique_ptr<ForwardPass> mForwardPass;
+	std::unique_ptr<RenderPathForward> mRenderPathForward;
 };
 
 }

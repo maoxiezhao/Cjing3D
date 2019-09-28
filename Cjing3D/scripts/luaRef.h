@@ -106,6 +106,16 @@ namespace Cjing3D
 			lua_pop(l, 1);
 		}
 
+		template<typename V = LuaRef>
+		V RawGetp(void* key)
+		{
+			Push();
+			lua_rawgetp(l, -1, key);
+			V v = LuaTools::Get<V>(l, -1);
+			lua_pop(l, 2);
+			return v;
+		}
+
 		template<typename V = LuaRef, typename K>
 		V RawGet(const K& key)
 		{

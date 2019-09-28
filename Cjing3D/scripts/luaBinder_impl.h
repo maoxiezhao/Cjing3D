@@ -164,4 +164,45 @@ namespace Cjing3D
 			});
 		}
 	};
+
+	// bind variable setter/getter
+	// class member pointer: V T::*
+	template<typename T, typename V>
+	struct BindClassMemberMethod
+	{
+		static int Getter(lua_State*l)
+		{
+			return LuaTools::ExceptionBoundary(l, [&] {
+				LuaTools::CheckAssertion(l, lua_isuserdata(l, lua_upvalueindex(1)),
+					"BindClassMemberMethod::Getter upvalue must is lightuserdata.");
+
+				// get class member pointer
+				auto p = static_cast<V T::**>(lua_touserdata(l, lua_upvalueindex(1)));
+
+				T* obj = LuaObject::GetObject<T>(l, 1);
+				auto& value = (obj->**p);
+
+				LuaTools::Push<V>(l, value);
+				return 1;
+			});
+		}
+
+		static int Setter(lua_State*l)
+		{
+			return LuaTools::ExceptionBoundary(l, [&] {
+				LuaTools::CheckAssertion(l, lua_isuserdata(l, lua_upvalueindex(1)),
+					"BindClassMemberMethod::Setter upvalue must is lightuserdata.");
+
+				// get class member pointer
+				auto p = static_cast<V T::**>(lua_touserdata(l, lua_upvalueindex(1)));
+
+				T* obj = LuaObject::GetObject<T>(l, 1);
+				auto value = LuaTools::Get<V>(l, 2);
+
+				(obj->**p) = value;
+
+				return 0;
+			});
+		}
+	};
 }

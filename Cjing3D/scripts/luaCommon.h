@@ -18,3 +18,5 @@ public:
 		return &id;
 	}
 };
+
+using FunctionExportToLua = int(lua_State* l);

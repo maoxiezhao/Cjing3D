@@ -21,11 +21,20 @@ namespace Cjing3D
 			mCurrentMeta(meta)
 		{}
 
+		lua_State* GetLuaState() { return mCurrentMeta.GetLuaState(); }
+
 	protected:
 		static bool BindClassMeta(LuaRef& currentMeta, LuaRef& parentMeta, const std::string& name, void* currentClassID);
+		static bool BindExtendClassMeta(LuaRef& currentMeta, LuaRef& parentMeta, const std::string& name, void* currentClassID, void* superClassID);
 
 		void RegisterStaticFunction(const std::string& name, LuaRef func);
 		void RegisterMethod(const std::string& name, LuaRef func);
+
+		void SetMemberGetter(const std::string& name, const LuaRef& getter);
+		void SetMemberSetter(const std::string& name, const LuaRef& setter);
+		void SetMemberReadOnly(const std::string& name);
+
+		static int ReadOnlyError(lua_State* l);
 
 		lua_State * mLuaState = nullptr;
 		LuaRef mCurrentMeta = LuaRef::NULL_REF;
@@ -49,6 +58,19 @@ namespace Cjing3D
 			return LuaBindClass<T, ParentT>(l, currentMeta);
 		}
 
+		template<typename SUPER>
+		static LuaBindClass<T, ParentT> BindExtendClass(lua_State* l, LuaRef& parentMeta, const std::string& name)
+		{
+			Logger::Info("BindClass");
+			LuaRef currentMeta;
+			if (BindExtendClassMeta(currentMeta, parentMeta, name, ObjectIDGenerator<T>::GetID(), ObjectIDGenerator<SUPER>::GetID()))
+			{
+				currentMeta.RawGet("__CLASS").RawSet("__gc", &LuaObjectDestructor<T>::Call);
+			}
+
+			return LuaBindClass<T, ParentT>(l, currentMeta);
+		}
+
 		template<typename ARGS>
 		LuaBindClass<T, ParentT>& AddConstructor(ARGS)
 		{
@@ -62,9 +84,11 @@ namespace Cjing3D
 			return *this;
 		}
 
-		LuaBindClass<T, ParentT>& AddMetaFunction()
+		LuaBindClass<T, ParentT>& AddMetaFunction(const std::string& name, FunctionExportToLua function)
 		{
 			Logger::Info("AddMetaFunction");
+			currentMeta.RawGet("__CLASS").RawSet(name, function);
+
 			return *this;
 		}
 
@@ -90,9 +114,25 @@ namespace Cjing3D
 			return *this;
 		}
 
-		LuaBindClass<T, ParentT>& AddMember()
+		template<typename V>
+		LuaBindClass<T, ParentT>& AddMember(const std::string& name, V T::* pointer)
 		{
 			Logger::Info("AddMember");
+			lua_State* l = GetLuaState();
+			SetMemberGetter(name, LuaRef::CreateFunc(l, &BindClassMemberMethod<T, V>::Getter, pointer));
+			SetMemberSetter(name, LuaRef::CreateFunc(l, &BindClassMemberMethod<T, V>::Setter, pointer));
+
+			return *this;
+		}
+
+		template<typename V>
+		LuaBindClass<T, ParentT>& AddConstMember(const std::string& name, V T::* pointer)
+		{
+			Logger::Info("AddConstMember");
+			lua_State* l = GetLuaState();
+			SetMemberGetter(name, LuaRef::CreateFunc(l, &BindClassMemberMethod<T, V>::Getter, &pointer));
+			SetMemberReadOnly(name);
+
 			return *this;
 		}
 
@@ -198,6 +238,7 @@ namespace Cjing3D
 		std::string mName;
 	};
 
+	// Lua binder main class
 	class LuaBinder
 	{
 	public:
@@ -211,6 +252,12 @@ namespace Cjing3D
 		LuaBindClass<T, LuaBinder> BeginClass(const std::string& name)
 		{
 			return LuaBindClass<T, LuaBinder>::BindClass(mLuaState, mCurrentMeta, name);
+		}
+
+		template<typename T, typename SUPER>
+		LuaBindClass<T, LuaBinder> BeginExtendClass(const std::string& name)
+		{
+			return LuaBindClass<T, LuaBinder>::BindExtendClass<SUPER>(mLuaState, mCurrentMeta, name);
 		}
 
 		LuaBindModule<LuaBinder> BeginModule(const std::string& name)

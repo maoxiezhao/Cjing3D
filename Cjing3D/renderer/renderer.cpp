@@ -75,7 +75,7 @@ void Renderer::Initialize()
 	mFrameAllocator = std::make_unique<LinearAllocator>();
 	mFrameAllocator->Reserve(MAX_FRAME_ALLOCATOR_SIZE);
 
-	InitializePasses();
+	InitializeRenderPaths();
 
 	mIsInitialized = true;
 }
@@ -86,7 +86,7 @@ void Renderer::Uninitialize()
 		return;
 	}
 
-	mForwardPass->Uninitialize();
+	mRenderPathForward->Uninitialize();
 
 	mGraphicsDevice->Uninitialize();
 
@@ -129,7 +129,7 @@ void Renderer::Render()
 
 void Renderer::Compose()
 {
-	mForwardPass->Compose();
+	mRenderPathForward->Compose();
 }
 
 void Renderer::Present()
@@ -230,9 +230,10 @@ Scene & Renderer::GetMainScene()
 	return Scene::GetScene();
 }
 
-void Renderer::InitializePasses()
+void Renderer::InitializeRenderPaths()
 {
-	mForwardPass = std::make_unique<ForwardPass>(mGameContext, *this);
+	mRenderPathForward = std::make_unique<RenderPathForward>(*this);
+	mRenderPathForward->Initialize();
 }
 
 // 更新渲染数据
@@ -421,7 +422,7 @@ void Renderer::BindConstanceBuffer(SHADERSTAGES stage)
 
 void Renderer::ForwardRender()
 {
-	mForwardPass->Render();
+	mRenderPathForward->Render();
 }
 
 void Renderer::FrameCullings::Clear()

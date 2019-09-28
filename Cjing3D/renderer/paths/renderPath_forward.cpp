@@ -1,26 +1,22 @@
-#include "forwardPass.h"
+#include "renderPath_forward.h"
 #include "renderer\renderer.h"
 #include "renderer\RHI\device.h"
-#include "renderer\renderImage.h"
+#include "renderer\paths\renderImage.h"
 
 namespace Cjing3D {
 
-	ForwardPass::ForwardPass(SystemContext& context, Renderer& renderer) :
-		mContext(context),
-		mRenderer(renderer),
-		mIsInitialized(false),
+	RenderPathForward::RenderPathForward(Renderer& renderer) :
+		RenderPath(renderer),
 		mRTMain(nullptr),
 		mRTFinal(nullptr)
 	{
-		Initialize();
 	}
 
-	ForwardPass::~ForwardPass()
+	RenderPathForward::~RenderPathForward()
 	{
-		Uninitialize();
 	}
 
-	void ForwardPass::Initialize()
+	void RenderPathForward::Initialize()
 	{
 		if (mIsInitialized == true) {
 			return;
@@ -36,13 +32,13 @@ namespace Cjing3D {
 		mIsInitialized = true;
 	}
 
-	void ForwardPass::Render()
+	void RenderPathForward::Render()
 	{
 		RenderScene();
 		RenderComposition();
 	}
 
-	void ForwardPass::Uninitialize()
+	void RenderPathForward::Uninitialize()
 	{
 		if (mIsInitialized == false) {
 			return;
@@ -57,22 +53,22 @@ namespace Cjing3D {
 		mIsInitialized = false;
 	}
 
-	void ForwardPass::Compose()
+	void RenderPathForward::Compose()
 	{
 		RenderImage::Render(mRTMain->GetTexture(), mRenderer);
 	}
 
-	void ForwardPass::RenderComposition()
+	void RenderPathForward::RenderComposition()
 	{
 		mRTFinal->Bind();
 	}
 
-	void ForwardPass::SetupFixedState()
+	void RenderPathForward::SetupFixedState()
 	{
 		mRenderer.SetupRenderFrame();
 	}
 
-	void ForwardPass::RenderScene()
+	void RenderPathForward::RenderScene()
 	{
 		auto camera = mRenderer.GetCamera();
 		if (camera == nullptr) {

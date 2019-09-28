@@ -19,7 +19,7 @@ namespace Cjing3D
 		void PrintInIndex(lua_State*l, int index);
 		int GetCallDepth(lua_State*l);
 
-		void CheckAssertion(lua_State*l, bool assertion, std::string& msg);
+		void CheckAssertion(lua_State*l, bool assertion, const std::string& msg);
 
 		template<typename T>
 		inline void Push(lua_State*l, const T& v)

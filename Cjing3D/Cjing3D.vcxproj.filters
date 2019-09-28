@@ -17,9 +17,6 @@
     <Filter Include="helper">
       <UniqueIdentifier>{ebce1040-5acf-412f-878a-2a6ac2d4b492}</UniqueIdentifier>
     </Filter>
-    <Filter Include="renderer\pass">
-      <UniqueIdentifier>{85d86095-fd43-455c-829c-50f748036545}</UniqueIdentifier>
-    </Filter>
     <Filter Include="renderer\rhi">
       <UniqueIdentifier>{804ea12d-9833-4ca4-81b0-5949f085ae4b}</UniqueIdentifier>
     </Filter>
@@ -61,6 +58,9 @@
     </Filter>
     <Filter Include="input">
       <UniqueIdentifier>{00e7fb44-e761-460f-9b71-649a19a15b07}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\paths">
+      <UniqueIdentifier>{85d86095-fd43-455c-829c-50f748036545}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -122,9 +122,6 @@
     <ClCompile Include="core\eventSystem.cpp">
       <Filter>core</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\pass\forwardPass.cpp">
-      <Filter>renderer\pass</Filter>
-    </ClCompile>
     <ClCompile Include="core\jobSystem.cpp">
       <Filter>core</Filter>
     </ClCompile>
@@ -148,9 +145,6 @@
     </ClCompile>
     <ClCompile Include="renderer\RHI\rhiResource.cpp">
       <Filter>renderer\rhi</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\renderImage.cpp">
-      <Filter>renderer</Filter>
     </ClCompile>
     <ClCompile Include="scripts\luaContext.cpp">
       <Filter>scripts</Filter>
@@ -329,6 +323,15 @@
     <ClCompile Include="scripts\luaBinder_impl.cpp">
       <Filter>scripts\binder</Filter>
     </ClCompile>
+    <ClCompile Include="renderer\paths\renderImage.cpp">
+      <Filter>renderer\paths</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\paths\renderPath.cpp">
+      <Filter>renderer\paths</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\paths\renderPath_forward.cpp">
+      <Filter>renderer\paths</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -394,9 +397,6 @@
     </ClInclude>
     <ClInclude Include="renderer\stateManager.h">
       <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\pass\forwardPass.h">
-      <Filter>renderer\pass</Filter>
     </ClInclude>
     <ClInclude Include="renderer\RHI\rhiResource.h">
       <Filter>renderer\rhi</Filter>
@@ -481,9 +481,6 @@
     </ClInclude>
     <ClInclude Include="utils\tinyObjLoader.h">
       <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\renderImage.h">
-      <Filter>renderer</Filter>
     </ClInclude>
     <ClInclude Include="scripts\luaContext.h">
       <Filter>scripts</Filter>
@@ -644,6 +641,15 @@
     </ClInclude>
     <ClInclude Include="helper\enumInfo.h">
       <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\paths\renderPath.h">
+      <Filter>renderer\paths</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\paths\renderImage.h">
+      <Filter>renderer\paths</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\paths\renderPath_forward.h">
+      <Filter>renderer\paths</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

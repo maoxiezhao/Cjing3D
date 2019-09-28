@@ -1,7 +1,9 @@
 #include "luaBinder.h"
+#include "helper\debug.h"
 
 namespace Cjing3D {
 
+	// TODO: refactor
 	bool LuaBindClassBase::BindClassMeta(LuaRef & currentMeta, LuaRef & parentMeta, const std::string & name, void * currentClassID)
 	{
 		LuaRef ref = parentMeta.RawGet(name);
@@ -21,6 +23,9 @@ namespace Cjing3D {
 		classTable.SetMetatable(classTable);
 		classTable.RawSet("__index", &LuaObject::MetaFuncIndex);
 		classTable.RawSet("__newindex", &LuaObject::MetaFuncNewIndex);
+		classTable.RawSet("___getters", LuaRef::CreateTable(l));
+		classTable.RawSet("___setters", LuaRef::CreateTable(l));
+		classTable.RawSet("___type", name);
 		classTable.RawSetp(ObjectIDGenerator<LuaObject>::GetID(), classIDRef);
 
 		LuaRef staticClassTable = LuaRef::CreateTable(l);
@@ -30,15 +35,34 @@ namespace Cjing3D {
 		LuaRef registry = LuaRef::CreateRef(l, LUA_REGISTRYINDEX);
 		registry.RawSet(classIDRef, classTable);
 
-		// no use now.
+		// no use now. ////////////////////////////////////////////
 		LuaRef constClassTable = LuaRef::CreateTable(l);
 		constClassTable.SetMetatable(constClassTable);
 		staticClassTable.RawSet("__CONST", constClassTable);
+		///////////////////////////////////////////////////////////
 
 		parentMeta.RawSet(name, staticClassTable);
 		currentMeta = staticClassTable;
 
 		return true;
+	}
+
+	bool LuaBindClassBase::BindExtendClassMeta(LuaRef & currentMeta, LuaRef & parentMeta, const std::string & name, void * currentClassID, void * superClassID)
+	{
+		if (BindClassMeta(currentMeta, parentMeta, name, currentClassID))
+		{
+			lua_State* l = parentMeta.GetLuaState();
+			LuaRef registry = LuaRef::CreateRef(l, LUA_REGISTRYINDEX);
+			LuaRef superClass = registry.RawGetp(superClassID);
+
+			if (superClass.IsEmpty()) {
+				Debug::Error("The super class dosen't registered:" + name);
+			}
+
+			currentMeta.RawGet("__CLASS").RawSet("__SUPER", superClass);
+		}
+
+		return false;
 	}
 
 	void LuaBindClassBase::RegisterStaticFunction(const std::string & name, LuaRef func)
@@ -52,6 +76,29 @@ namespace Cjing3D {
 		metaClass.RawSet(name, func);
 	}
 
+	void LuaBindClassBase::SetMemberGetter(const std::string& name, const LuaRef& getter)
+	{
+		mCurrentMeta.RawGet("__CLASS").RawGet("___getters").RawSet(name, getter);
+	}
+
+	void LuaBindClassBase::SetMemberSetter(const std::string& name, const LuaRef& setter)
+	{
+		mCurrentMeta.RawGet("__CLASS").RawGet("___setters").RawSet(name, setter);
+	}
+
+	void LuaBindClassBase::SetMemberReadOnly(const std::string& name)
+	{
+		std::string fullName = mCurrentMeta.RawGet("__CLASS").RawGet<std::string>("___type") + "." + name;
+		SetMemberSetter(name, LuaRef::CreateFunctionWithArgs(mCurrentMeta.GetLuaState(), LuaBindClassBase::ReadOnlyError, fullName));
+	}
+
+	int LuaBindClassBase::ReadOnlyError(lua_State* l)
+	{
+		const std::string name = lua_tostring(l, lua_upvalueindex(1));
+		LuaException::Error(l, "The variable " + name + " is read only.\n");
+		return 0;
+	}
+
 	LuaBindModuleBase::LuaBindModuleBase(LuaRef & meta, const std::string & name)
 	{
 		LuaRef ref = meta.RawGet(name);
@@ -62,6 +109,9 @@ namespace Cjing3D {
 		}
 
 		lua_State* l = meta.GetLuaState();
+
+		// create module metatable 
+		// module的所有成员根据write/read权限分别存在___getters和__setters中
 
 		std::string typeName = "<Module " + name + ">";
 		LuaRef moduleTable = LuaRef::CreateTable(l);
