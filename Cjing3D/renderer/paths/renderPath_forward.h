@@ -1,30 +1,21 @@
 #pragma once
 
-#include "renderPath.h"
+#include "renderPath3D.h"
 
 namespace Cjing3D {
 
-class Renderer;
-class World;
-
-class RenderPathForward : public RenderPath
+class RenderPathForward : public RenderPath3D
 {
 public:
 	RenderPathForward(Renderer& renderer);
 	~RenderPathForward();
 
-	virtual void Initialize();
-	virtual void Uninitialize();
-	virtual void Compose();
+	virtual void ResizeBuffers();
 	virtual void Render();
 
 private:
-	void SetupFixedState();
-	void RenderScene();
-	void RenderComposition();
-
-	std::unique_ptr<RenderTarget> mRTMain;
-	std::unique_ptr<RenderTarget> mRTFinal;
+	Texture2D mRTMain;
+	Texture2D mRTFinal;
 };
 
 }

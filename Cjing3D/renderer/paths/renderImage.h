@@ -1,7 +1,7 @@
 #pragma once
 
 #include "renderer\renderableCommon.h"
-#include "renderer\RHI\rhiTexture.h"
+#include "renderer\RHI\rhiResource.h"
 
 namespace Cjing3D
 {

@@ -314,9 +314,6 @@
     <ClCompile Include="input\directInput.cpp">
       <Filter>input</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\renderTarget.cpp">
-      <Filter>renderer</Filter>
-    </ClCompile>
     <ClCompile Include="scripts\luaRef.cpp">
       <Filter>scripts\binder</Filter>
     </ClCompile>
@@ -330,6 +327,12 @@
       <Filter>renderer\paths</Filter>
     </ClCompile>
     <ClCompile Include="renderer\paths\renderPath_forward.cpp">
+      <Filter>renderer\paths</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\paths\renderPath2D.cpp">
+      <Filter>renderer\paths</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\paths\renderPath3D.cpp">
       <Filter>renderer\paths</Filter>
     </ClCompile>
   </ItemGroup>
@@ -636,9 +639,6 @@
     <ClInclude Include="input\directInput.h">
       <Filter>input</Filter>
     </ClInclude>
-    <ClInclude Include="renderer\renderTarget.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
     <ClInclude Include="helper\enumInfo.h">
       <Filter>helper</Filter>
     </ClInclude>
@@ -651,6 +651,12 @@
     <ClInclude Include="renderer\paths\renderPath_forward.h">
       <Filter>renderer\paths</Filter>
     </ClInclude>
+    <ClInclude Include="renderer\paths\renderPath2D.h">
+      <Filter>renderer\paths</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\paths\renderPath3D.h">
+      <Filter>renderer\paths</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resource\resourceManager.inl">
@@ -661,9 +667,6 @@
     </None>
     <None Include="scripts\luaContext.inl">
       <Filter>scripts</Filter>
-    </None>
-    <None Include="renderer\RHI\rhiFactory.inl">
-      <Filter>renderer\rhi</Filter>
     </None>
     <None Include="helper\enumInfo.inl">
       <Filter>helper</Filter>

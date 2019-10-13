@@ -5,12 +5,19 @@
 namespace Cjing3D {
 
 	RenderPath::RenderPath(Renderer& renderer) :
-		mRenderer(renderer),
-		mIsInitialized(false)
+		mRenderer(renderer)
 	{
 	}
 
 	RenderPath::~RenderPath()
 	{
+	}
+
+	void RenderPath::Update(F32 dt)
+	{
+		if (mIsBufferInitialized == false) {
+			ResizeBuffers();
+			mIsBufferInitialized = true;
+		}
 	}
 }

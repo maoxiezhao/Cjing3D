@@ -5,7 +5,6 @@
 #include "renderer\RHI\rhiDefinition.h"
 #include "renderer\RHI\rhiStructure.h"
 #include "renderer\RHI\rhiShader.h"
-#include "renderer\RHI\rhiTexture.h"
 
 namespace Cjing3D
 {

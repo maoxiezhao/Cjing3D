@@ -1,6 +1,6 @@
 #pragma once
 
-#include "renderer\RHI\rhiTexture.h"
+#include "renderer\RHI\rhiResource.h"
 
 namespace Cjing3D
 {

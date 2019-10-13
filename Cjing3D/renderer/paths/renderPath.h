@@ -1,7 +1,8 @@
 #pragma once
 
 #include "renderer\renderableCommon.h"
-#include "renderer\renderTarget.h"
+#include "renderer\RHI\device.h"
+#include "renderer\RHI\rhiResource.h"
 #include "core\systemContext.hpp"
 
 namespace Cjing3D {
@@ -19,13 +20,16 @@ namespace Cjing3D {
 
 		virtual void Start() {};
 		virtual void Stop() {};
-		virtual void Update(F32 dt) {};
+		virtual void Update(F32 dt);
 		virtual void Render() {};
 		virtual void Compose() {};
+		virtual void ResizeBuffers() {}
 
 	protected:
 		Renderer& mRenderer;
-		bool mIsInitialized;
+
+	private:
+		bool mIsBufferInitialized = false;
 	};
 
 }

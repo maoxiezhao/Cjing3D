@@ -162,6 +162,8 @@
     <ClInclude Include="input\InputSystem.h" />
     <ClInclude Include="note.h" />
     <ClInclude Include="renderer\includeD3D11.h" />
+    <ClInclude Include="renderer\paths\renderPath2D.h" />
+    <ClInclude Include="renderer\paths\renderPath3D.h" />
     <ClInclude Include="renderer\paths\renderPath_forward.h" />
     <ClInclude Include="renderer\paths\renderImage.h" />
     <ClInclude Include="renderer\paths\renderPath.h" />
@@ -169,7 +171,6 @@
     <ClInclude Include="renderer\renderer.h" />
     <ClInclude Include="renderer\rendererUtils.h" />
     <ClInclude Include="renderer\mappingDefine.h" />
-    <ClInclude Include="renderer\renderTarget.h" />
     <ClInclude Include="renderer\RHI\rhiFactory.h" />
     <ClInclude Include="renderer\RHI\rhiResource.h" />
     <ClInclude Include="renderer\RHI\rhiShader.h" />
@@ -261,12 +262,13 @@
     <ClCompile Include="helper\timer.cpp" />
     <ClCompile Include="input\directInput.cpp" />
     <ClCompile Include="input\InputSystem.cpp" />
+    <ClCompile Include="renderer\paths\renderPath2D.cpp" />
+    <ClCompile Include="renderer\paths\renderPath3D.cpp" />
     <ClCompile Include="renderer\paths\renderPath_forward.cpp" />
     <ClCompile Include="renderer\paths\renderImage.cpp" />
     <ClCompile Include="renderer\paths\renderPath.cpp" />
     <ClCompile Include="renderer\renderer.cpp" />
     <ClCompile Include="renderer\rendererUtils.cpp" />
-    <ClCompile Include="renderer\renderTarget.cpp" />
     <ClCompile Include="renderer\RHI\rhiFactory.cpp" />
     <ClCompile Include="renderer\RHI\rhiResource.cpp" />
     <ClCompile Include="renderer\shaderLib.cpp" />
@@ -336,7 +338,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="helper\enumInfo.inl" />
-    <None Include="renderer\RHI\rhiFactory.inl" />
     <None Include="resource\resourceManager.inl" />
     <None Include="scripts\luaContext.inl" />
     <None Include="system\sceneSystem.inl" />

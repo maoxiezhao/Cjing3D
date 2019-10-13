@@ -4,7 +4,6 @@
 #include "renderer\RHI\device.h"
 #include "renderer\RHI\swapChainD3D11.h"
 #include "renderer\RHI\rhiShader.h"
-#include "renderer\RHI\rhiTexture.h"
 
 namespace Cjing3D
 {

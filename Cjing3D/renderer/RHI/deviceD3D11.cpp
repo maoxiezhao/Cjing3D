@@ -888,7 +888,7 @@ void GraphicsDeviceD3D11::Initialize()
 	mViewport.mTopLeftX = 0.0f;
 	mViewport.mTopLeftY = 0.0f;
 	mViewport.mMinDepth = 0.0f;
-	mViewport.mMaxDepth = 0.0f;
+	mViewport.mMaxDepth = 1.0f;
 
 	// ≥ı ºªØgpu allocator
 	mGPUAllocator.buffer = std::make_unique<GPUBuffer>();
@@ -915,8 +915,9 @@ void GraphicsDeviceD3D11::Uninitialize()
 
 void GraphicsDeviceD3D11::PresentBegin()
 {
-	ID3D11RenderTargetView* renderTargetView = &mSwapChain->GetRenderTargetView();
+	BindViewports(&mViewport, 1, GraphicsThread_IMMEDIATE);
 
+	ID3D11RenderTargetView* renderTargetView = &mSwapChain->GetRenderTargetView();
 	float clearColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 	auto& deviceContext = GetDeviceContext(GraphicsThread_IMMEDIATE);
 	deviceContext.OMSetRenderTargets(1, &renderTargetView, 0);
@@ -1260,6 +1261,7 @@ HRESULT GraphicsDeviceD3D11::CreateTexture2D(const TextureDesc * desc, const Sub
 	DestroyGPUResource(texture2D);
 
 	texture2D.mCurrType = GPU_RESOURCE_TYPE::TEXTURE_2D;
+	texture2D.mDesc = *desc;
 	texture2D.Register(this);
 
 	D3D11_TEXTURE2D_DESC tex2D_desc = _ConvertTexture2DDesc(desc);

@@ -1,14 +1,11 @@
 #include "renderPath_forward.h"
 #include "renderer\renderer.h"
-#include "renderer\RHI\device.h"
 #include "renderer\paths\renderImage.h"
 
 namespace Cjing3D {
 
 	RenderPathForward::RenderPathForward(Renderer& renderer) :
-		RenderPath(renderer),
-		mRTMain(nullptr),
-		mRTFinal(nullptr)
+		RenderPath3D(renderer)
 	{
 	}
 
@@ -16,74 +13,55 @@ namespace Cjing3D {
 	{
 	}
 
-	void RenderPathForward::Initialize()
+	void RenderPathForward::ResizeBuffers()
 	{
-		if (mIsInitialized == true) {
-			return;
-		}
+		RenderPath3D::ResizeBuffers();
 
 		const auto screenSize = mRenderer.GetDevice().GetScreenSize();
-		mRTMain = std::make_unique<RenderTarget>(mRenderer);
-		mRTMain->Setup(screenSize[0], screenSize[1], FORMAT_R16G16B16A16_FLOAT, 1, true);
-
-		mRTFinal = std::make_unique<RenderTarget>(mRenderer);
-		mRTFinal->Setup(screenSize[0], screenSize[1], FORMAT_R16G16B16A16_FLOAT, 1, false);
-
-		mIsInitialized = true;
+		TextureDesc desc = {};
+		desc.mWidth = screenSize[0];
+		desc.mHeight = screenSize[1];
+		desc.mFormat = RenderPath3D::RenderTargetFormatHDR;
+		desc.mBindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
+		{
+			const auto result = mRenderer.GetDevice().CreateTexture2D(&desc, nullptr, mRTMain);
+			Debug::ThrowIfFailed(result, "Failed to create render target:%08x", result);
+		}
+		{
+			const auto result = mRenderer.GetDevice().CreateTexture2D(&desc, nullptr, mRTFinal);
+			Debug::ThrowIfFailed(result, "Failed to create render target:%08x", result);
+		}
 	}
 
 	void RenderPathForward::Render()
 	{
-		RenderScene();
-		RenderComposition();
-	}
-
-	void RenderPathForward::Uninitialize()
-	{
-		if (mIsInitialized == false) {
-			return;
-		}
-
-		mRTMain->Clear();
-		mRTMain = nullptr;
-
-		mRTFinal->Clear();
-		mRTFinal = nullptr;
-
-		mIsInitialized = false;
-	}
-
-	void RenderPathForward::Compose()
-	{
-		RenderImage::Render(mRTMain->GetTexture(), mRenderer);
-	}
-
-	void RenderPathForward::RenderComposition()
-	{
-		mRTFinal->Bind();
-	}
-
-	void RenderPathForward::SetupFixedState()
-	{
-		mRenderer.SetupRenderFrame();
-	}
-
-	void RenderPathForward::RenderScene()
-	{
+		GraphicsDevice& device = mRenderer.GetDevice();
 		auto camera = mRenderer.GetCamera();
 		if (camera == nullptr) {
 			return;
 		}
 
-		SetupFixedState();
-
+		mRenderer.SetupRenderFrame();
 		mRenderer.UpdateCameraCB(*camera);
 
-		mRTMain->BindAndClear(0, 0, 0, 0);
+		// opaque scene
+		Texture2D& depthBuffer = GetDepthBuffer();
+		Texture2D* rts[] = { &mRTMain };
 		{
+			device.BindRenderTarget(1, rts, &depthBuffer);
+			device.ClearRenderTarget(mRTMain, { 0.0f, 0.0f, 0.0f, 0.0f });
+
+			ViewPort vp;
+			vp.mWidth = (F32)mRTMain.GetDesc().mWidth;
+			vp.mWidth = (F32)mRTMain.GetDesc().mHeight;
+			device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
+
 			mRenderer.RenderSceneOpaque(camera, ShaderType_Forward);
 		}
-		mRTMain->UnBind();
-	}
 
+		// postprocess
+		RenderPostprocess(mRTFinal);
+
+		RenderPath2D::Render();
+	}
 }

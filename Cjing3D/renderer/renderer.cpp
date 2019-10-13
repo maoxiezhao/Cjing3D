@@ -87,6 +87,7 @@ void Renderer::Uninitialize()
 	}
 
 	mRenderPathForward->Uninitialize();
+	mRenderPathForward.reset();
 
 	mGraphicsDevice->Uninitialize();
 
@@ -110,6 +111,8 @@ void Renderer::Update(F32 deltaTime)
 			mPendingUpdateMaterials.push_back(index);
 		}
 	}
+
+	mRenderPathForward->Update(deltaTime);
 }
 
 // do it before rendering
