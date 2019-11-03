@@ -75,7 +75,7 @@
     <IncludePath>$(SolutionDir)\Cjing3D\;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)\build\$(Configuration)\</OutDir>
     <IntDir>$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <IncludePath>$(SolutionDir)\Cjing3D\;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
@@ -102,6 +102,12 @@
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)\lib;</AdditionalLibraryDirectories>
     </Lib>
+    <PreBuildEvent>
+      <Command>$(SolutionDir)Cjing3D\precompile.bat</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>start to generate lua binding cods</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -280,10 +286,7 @@
     <ClCompile Include="resource\modelImporter\modelImporterObj.cpp" />
     <ClCompile Include="resource\resource.cpp" />
     <ClCompile Include="resource\resourceManager.cpp" />
-    <ClCompile Include="scripts\api\gameComponentApi.cpp" />
-    <ClCompile Include="scripts\api\inputManagerApi.cpp" />
     <ClCompile Include="scripts\api\luaApi.cpp" />
-    <ClCompile Include="scripts\api\sceneSystemApi.cpp" />
     <ClCompile Include="scripts\luaBinder.cpp" />
     <ClCompile Include="scripts\luaBinder_impl.cpp" />
     <ClCompile Include="scripts\luaContext.cpp" />
@@ -338,9 +341,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="helper\enumInfo.inl" />
+    <None Include="precompile.bat" />
     <None Include="resource\resourceManager.inl" />
     <None Include="scripts\luaContext.inl" />
     <None Include="system\sceneSystem.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.vcxproj">
+      <Project>{90d41522-cb41-46d0-a1c3-174fb87ee0e9}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

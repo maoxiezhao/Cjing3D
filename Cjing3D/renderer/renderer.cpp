@@ -174,6 +174,8 @@ StateManager & Renderer::GetStateManager()
 
 void Renderer::RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, ShaderType shaderType)
 {
+	mGraphicsDevice->BeginEvent("RenderSceneOpaque");
+
 	// bind constant buffer
 	BindConstanceBuffer(SHADERSTAGES_VS);
 	BindConstanceBuffer(SHADERSTAGES_PS);
@@ -208,10 +210,29 @@ void Renderer::RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, Shader
 
 		mFrameAllocator->Free(renderQueue.GetBatchCount() * sizeof(RenderBatch));
 	}
+
+	mGraphicsDevice->EndEvent();
 }
 
 void Renderer::RenderSceneTransparent(std::shared_ptr<CameraComponent> camera, ShaderType renderingType)
 {
+	mGraphicsDevice->BeginEvent("RenderSceneTransparent");
+
+
+	mGraphicsDevice->EndEvent();
+}
+
+void Renderer::RenderPostprocess(Texture2D & input, Texture2D & output)
+{
+	mGraphicsDevice->BeginEvent("Postprocess");
+
+
+	mGraphicsDevice->EndEvent();
+}
+
+void Renderer::BindCommonResource()
+{
+
 }
 
 void Renderer::UpdateCameraCB(CameraComponent & camera)

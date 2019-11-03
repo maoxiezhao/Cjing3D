@@ -5,6 +5,7 @@
 #include <string>
 
 #define LUA_BINDER_REGISTER_CLASS 
+#define LUA_BINDER_REGISTER_CLASS_CONSTRUCTOR
 #define LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
 #define LUA_BINDER_REGISTER_CLASS_STATIC_FUNCTION
 
@@ -87,7 +88,7 @@ namespace Cjing3D
 		LuaBindClass<T, ParentT>& AddMetaFunction(const std::string& name, FunctionExportToLua function)
 		{
 			Logger::Info("AddMetaFunction");
-			currentMeta.RawGet("__CLASS").RawSet(name, function);
+			mCurrentMeta.RawGet("__CLASS").RawSet(name, function);
 
 			return *this;
 		}
@@ -257,7 +258,7 @@ namespace Cjing3D
 		template<typename T, typename SUPER>
 		LuaBindClass<T, LuaBinder> BeginExtendClass(const std::string& name)
 		{
-			return LuaBindClass<T, LuaBinder>::BindExtendClass<SUPER>(mLuaState, mCurrentMeta, name);
+			return LuaBindClass<T, LuaBinder>::template BindExtendClass<SUPER>(mLuaState, mCurrentMeta, name);
 		}
 
 		LuaBindModule<LuaBinder> BeginModule(const std::string& name)

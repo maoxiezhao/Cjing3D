@@ -40,14 +40,18 @@ public:
 	std::shared_ptr<CameraComponent> GetCamera();
 	ShaderLib& GetShaderLib();
 	StateManager& GetStateManager();
+	Scene& GetMainScene();
 
+	// Render Method
 	void RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, ShaderType shaderType);
 	void RenderSceneTransparent(std::shared_ptr<CameraComponent> camera, ShaderType renderingType);
+	void RenderPostprocess(Texture2D& input, Texture2D& output);
+
+	// Binding Method
+	void BindCommonResource();
 
 	// const buffer function
 	void UpdateCameraCB(CameraComponent& camera);
-
-	Scene& GetMainScene();
 
 private:
 	void InitializeRenderPaths();

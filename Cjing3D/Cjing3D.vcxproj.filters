@@ -62,6 +62,9 @@
     <Filter Include="renderer\paths">
       <UniqueIdentifier>{85d86095-fd43-455c-829c-50f748036545}</UniqueIdentifier>
     </Filter>
+    <Filter Include="generates">
+      <UniqueIdentifier>{95837ed7-6ef3-4928-afec-2cf455dcd6b3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine.cpp" />
@@ -290,16 +293,7 @@
     <ClCompile Include="scripts\luaTools.cpp">
       <Filter>scripts\binder</Filter>
     </ClCompile>
-    <ClCompile Include="scripts\api\gameComponentApi.cpp">
-      <Filter>scripts\api</Filter>
-    </ClCompile>
     <ClCompile Include="scripts\api\luaApi.cpp">
-      <Filter>scripts\api</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\api\sceneSystemApi.cpp">
-      <Filter>scripts\api</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\api\inputManagerApi.cpp">
       <Filter>scripts\api</Filter>
     </ClCompile>
     <ClCompile Include="gui\gui.cpp">
@@ -671,5 +665,6 @@
     <None Include="helper\enumInfo.inl">
       <Filter>helper</Filter>
     </None>
+    <None Include="precompile.bat" />
   </ItemGroup>
 </Project>

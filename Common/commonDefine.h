@@ -1,0 +1,3 @@
+#pragma once
+
+#define __ENABLE_GENERATE_LUA_BINDING_CODES__

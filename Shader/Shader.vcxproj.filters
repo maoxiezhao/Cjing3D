@@ -15,6 +15,9 @@
     <Filter Include="GPUMapping">
       <UniqueIdentifier>{d01c5e4d-7bdf-482d-96e7-91ca5f45835c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="cs">
+      <UniqueIdentifier>{6368279f-f2de-4593-9047-3876ef1675b7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="objectVS.hlsl">

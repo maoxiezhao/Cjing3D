@@ -19,6 +19,9 @@ namespace Cjing3D
 		virtual void PresentBegin() = 0;
 		virtual void PresentEnd() = 0;
 
+		virtual void BeginEvent(const std::string& name) = 0;
+		virtual void EndEvent() = 0;
+
 		virtual void BindViewports(const ViewPort* viewports, U32 numViewports, GraphicsThread threadID) = 0;
 
 		virtual HRESULT CreateDepthStencilState(const DepthStencilStateDesc& desc, DepthStencilState& state) = 0;
@@ -41,6 +44,7 @@ namespace Cjing3D
 
 		virtual HRESULT CreateTexture2D(const TextureDesc* desc, const SubresourceData* data, RhiTexture2D& texture2D) = 0;
 		virtual void DestroyTexture2D(RhiTexture2D& texture2D) = 0;
+		virtual void CopyTexture2D(RhiTexture2D* texDst, RhiTexture2D* texSrc) = 0;
 
 		virtual void BindRenderTarget(UINT numView, RhiTexture2D* const *texture2D, RhiTexture2D* depthStencilTexture) = 0;
 
@@ -53,6 +57,7 @@ namespace Cjing3D
 
 		virtual void BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot) = 0;
 		virtual void BindGPUResources(SHADERSTAGES stage, GPUResource* const* resource, U32 slot, U32 count) = 0;
+		virtual void UnbindGPUResources(U32 slot, U32 count) = 0;
 		virtual void DestroyGPUResource(GPUResource& resource) = 0;
 
 		virtual void BindShaderInfoState(ShaderInfoState state) = 0;

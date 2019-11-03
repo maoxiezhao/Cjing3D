@@ -63,6 +63,11 @@ std::shared_ptr<SamplerState> StateManager::GetSamplerState(SamplerStateID id)
 	return mSamplerStates[static_cast<U32>(id)];
 }
 
+std::vector<std::shared_ptr<SamplerState>> StateManager::GetCommonSampleStates()
+{
+	return std::vector<std::shared_ptr<SamplerState>>();
+}
+
 void StateManager::SetupDepthStencilStates()
 {
 	{

@@ -48,6 +48,8 @@ namespace Cjing3D
 		std::shared_ptr<RasterizerState> GetRasterizerState(RasterizerStateID id);
 		std::shared_ptr<SamplerState> GetSamplerState(SamplerStateID id);
 
+		std::vector<std::shared_ptr<SamplerState> > GetCommonSampleStates();
+
 	private:
 		void SetupDepthStencilStates();
 		void SetupBlendStates();

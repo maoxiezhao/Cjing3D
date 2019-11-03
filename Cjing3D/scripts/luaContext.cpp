@@ -1,4 +1,5 @@
 #include "luaContext.h"
+#include "luaBinder.h"
 #include "helper\debug.h"
 #include "helper\fileSystem.h"
 #include "helper\enumInfo.h"
@@ -13,7 +14,7 @@ ENUM_TRAITS_REGISTER_ENUM_DEFINE(CLIENT_LUA_MAIN_UPDATE)
 ENUM_TRAITS_REGISTER_ENUM_DEFINE(CLIENT_LUA_MAIN_STOP)
 ENUM_TRAITS_REGISTER_ENUM_END(SystemFunctionIndex)
 
-LuaContext::LuaContext(SystemContext& systemContext) :
+LuaContext::LuaContext(SystemContext & systemContext) :
 	SubSystem(systemContext)
 {
 }
@@ -55,6 +56,8 @@ void LuaContext::InitializeEnv(lua_State * l)
 	systemEnumBinder.AddEnum(EnumToString(CLIENT_LUA_MAIN_START),  CLIENT_LUA_MAIN_START);
 	systemEnumBinder.AddEnum(EnumToString(CLIENT_LUA_MAIN_UPDATE), CLIENT_LUA_MAIN_UPDATE);
 	systemEnumBinder.AddEnum(EnumToString(CLIENT_LUA_MAIN_STOP),   CLIENT_LUA_MAIN_STOP);
+
+	AutoLuaBindFunctions::GetInstance().DoAutoBindFunctions(mLuaState);
 }
 
 void LuaContext::Update(F32 deltaTime)

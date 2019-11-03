@@ -7,43 +7,6 @@
 
 namespace Cjing3D
 {
-	class LuaObject;
-
-	template<typename T, typename ARGS>
-	struct LuaObjectConstructor;
-
-	template<typename T, typename...Args>
-	struct LuaObjectConstructor<T, _lua_args(*)(Args...)>
-	{
-		static int Call(lua_State*l)
-		{
-			return LuaTools::ExceptionBoundary(l, [&] {
-				LuaArgValueTuple<Args...> args;
-				LuaInputArgs<Args...>::Get(l, 2, args);
-				LuaHandleObject<T>::Push(l, args);
-
-				return 1;
-			});
-		}
-	};
-
-	template<typename T>
-	struct LuaObjectDestructor
-	{
-		static int Call(lua_State*l)
-		{
-			return LuaTools::ExceptionBoundary(l, [&] {
-				LuaObject* obj = LuaObject::GetLuaObject<T>(l, 1);
-				if (obj != nullptr) {
-					obj->~LuaObject();
-				}
-
-				return 0;
-			});
-		}
-	};
-
-	///////////////////////////////////////////////////////////////////////////
 	// lua base object
 	class LuaObject
 	{
@@ -144,7 +107,7 @@ namespace Cjing3D
 	{
 	public:
 		LuaObjectPtr(T& obj) :
-			mObjectPtr(&ojb)
+			mObjectPtr(&obj)
 		{
 		}
 
@@ -198,7 +161,7 @@ namespace Cjing3D
 
 		static T& Get(lua_State*l, int index)
 		{
-			LuaObject* ojb = LuaObject::GetLuaObject<T>(l, index);
+			LuaObject* obj = LuaObject::GetLuaObject<T>(l, index);
 			return *static_cast<T*>(obj->GetObjectPtr());
 		}
 	};
@@ -214,6 +177,42 @@ namespace Cjing3D
 		static T& Get(lua_State*l, int index)
 		{
 			return LuaObjectHandler<T, IsRef>::Get(l, index);
+		}
+	};
+
+	///////////////////////////////////////////////////////////////////////////
+
+	template<typename T, typename ARGS>
+	struct LuaObjectConstructor;
+
+	template<typename T, typename...Args>
+	struct LuaObjectConstructor<T, _lua_args(*)(Args...)>
+	{
+		static int Call(lua_State*l)
+		{
+			return LuaTools::ExceptionBoundary(l, [&] {
+				LuaArgValueTuple<Args...> args;
+				LuaInputArgs<Args...>::Get(l, 2, args);
+				LuaHandleObject<T>::Push(l, args);
+
+				return 1;
+			});
+		}
+	};
+
+	template<typename T>
+	struct LuaObjectDestructor
+	{
+		static int Call(lua_State*l)
+		{
+			return LuaTools::ExceptionBoundary(l, [&] {
+				LuaObject* obj = LuaObject::GetLuaObject<T>(l, 1);
+				if (obj != nullptr) {
+					obj->~LuaObject();
+				}
+
+				return 0;
+			});
 		}
 	};
 }

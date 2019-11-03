@@ -13,7 +13,7 @@ namespace Cjing3D {
 			string dataPath_ = "";
 			string dataWriteDir_ = "";
 			string appWriteDir_ = "Cjing3D";
-			string buildWriteDir_ = "build/generating";
+			string buildWriteDir_ = "generates";
 
 			// 设置app的写文件路径，一般设置在userdata/Documents路径下
 			void SetAppWriteDir(const string& appWriteDir)
@@ -82,9 +82,9 @@ namespace Cjing3D {
 			if (!dataWriteDir_.empty()) {
 				PHYSFS_removeFromSearchPath(PHYSFS_getWriteDir());
 			}
-
+	
 			dataWriteDir_ = writeDir;
-
+	
 			if (!PHYSFS_setWriteDir(writeDir.c_str()))
 			{
 				Debug::Die("Failed to set Write dir:" + dataWriteDir_ + " Error:" + PHYSFS_getLastError());
@@ -108,7 +108,7 @@ namespace Cjing3D {
 		{
 			std::vector<std::string> result;
 			char **rc = PHYSFS_enumerateFiles(path.c_str());
-
+			
 			for (char **i = rc; *i != NULL; i++)
 				result.push_back(*i);
 

@@ -5,9 +5,7 @@ namespace LuaApi {
 
 	void BindAllModules(lua_State * l)
 	{
-		BindMainComponent(l);
-		BindInputManager(l);
-		BindSceneSystem(l);
+
 	}
 }
 }

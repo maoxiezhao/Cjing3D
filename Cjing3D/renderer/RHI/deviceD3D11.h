@@ -19,6 +19,9 @@ public:
 	virtual void PresentBegin();
 	virtual void PresentEnd();
 
+	virtual void BeginEvent(const std::string& name);
+	virtual void EndEvent();
+
 	virtual void BindViewports(const ViewPort* viewports, U32 numViewports, GraphicsThread threadID);
 
 	/** Creating function */
@@ -42,6 +45,7 @@ public:
 
 	virtual HRESULT CreateTexture2D(const TextureDesc* desc, const SubresourceData* data, RhiTexture2D& texture2D);
 	virtual void DestroyTexture2D(RhiTexture2D& texture2D);
+	virtual void CopyTexture2D(RhiTexture2D* texDst, RhiTexture2D* texSrc);
 
 	virtual void BindRenderTarget(UINT numView, RhiTexture2D* const *texture2D, RhiTexture2D* depthStencilTexture);
 
@@ -54,6 +58,7 @@ public:
 
 	virtual void BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot);
 	virtual void BindGPUResources(SHADERSTAGES stage, GPUResource* const* resource, U32 slot, U32 count);
+	virtual void UnbindGPUResources(U32 slot, U32 count);
 	virtual void DestroyGPUResource(GPUResource& resource);
 
 	virtual void BindShaderInfoState(ShaderInfoState state);
@@ -66,6 +71,10 @@ public:
 
 	ID3D11DeviceContext& GetDeviceContext(GraphicsThread type) {
 		return *mDeviceContext[static_cast<U32>(type)].Get();
+	}
+
+	ID3DUserDefinedAnnotation& GetUserDefineAnnotation(GraphicsThread type) {
+		return *mUserDefinedAnnotations[static_cast<U32>(type)];
 	}
 
 	void SetViewport(ViewPort viewport);

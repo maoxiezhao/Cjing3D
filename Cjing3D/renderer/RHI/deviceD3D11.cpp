@@ -808,6 +808,8 @@ namespace {
 			result |= D3D11_CLEAR_STENCIL;
 		return result;
 	}
+
+	const void* const NULL_BLOB[128] = {};
 }
 
 GraphicsDeviceD3D11::GraphicsDeviceD3D11(HWND window, bool fullScreen, bool debugLayer):
@@ -936,6 +938,18 @@ void GraphicsDeviceD3D11::PresentEnd()
 	ClearPrevStates();
 
 	mCurrentFrameCount++;
+}
+
+void GraphicsDeviceD3D11::BeginEvent(const std::string & name)
+{
+	GetUserDefineAnnotation(GraphicsThread_IMMEDIATE).BeginEvent(
+		std::wstring(name.begin(), name.end()).c_str()
+	);
+}
+
+void GraphicsDeviceD3D11::EndEvent()
+{
+	GetUserDefineAnnotation(GraphicsThread_IMMEDIATE).EndEvent();
 }
 
 // °ó¶¨ÊÓ¿Ú
@@ -1308,6 +1322,13 @@ void GraphicsDeviceD3D11::DestroyTexture2D(RhiTexture2D & texture2D)
 	}
 }
 
+void GraphicsDeviceD3D11::CopyTexture2D(RhiTexture2D * texDst, RhiTexture2D * texSrc)
+{
+	ID3D11Resource* dstResource = (ID3D11Resource*)&texDst->GetGPUResource();
+	ID3D11Resource* srcResource = (ID3D11Resource*)&texSrc->GetGPUResource();
+	GetDeviceContext(GraphicsThread_IMMEDIATE).CopyResource(dstResource, srcResource);
+}
+
 void GraphicsDeviceD3D11::BindRenderTarget(UINT numView, RhiTexture2D* const *texture2D, RhiTexture2D* depthStencilTexture)
 {
 	// get renderTargetView
@@ -1493,6 +1514,14 @@ void GraphicsDeviceD3D11::BindGPUResources(SHADERSTAGES stage, GPUResource * con
 	default:
 		break;
 	}
+}
+
+void GraphicsDeviceD3D11::UnbindGPUResources(U32 slot, U32 count)
+{
+	GetDeviceContext(GraphicsThread_IMMEDIATE).VSSetShaderResources(slot, count, (ID3D11ShaderResourceView**)NULL_BLOB);
+	GetDeviceContext(GraphicsThread_IMMEDIATE).GSSetShaderResources(slot, count, (ID3D11ShaderResourceView**)NULL_BLOB);
+	GetDeviceContext(GraphicsThread_IMMEDIATE).PSSetShaderResources(slot, count, (ID3D11ShaderResourceView**)NULL_BLOB);
+	GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetShaderResources(slot, count, (ID3D11ShaderResourceView**)NULL_BLOB);
 }
 
 void GraphicsDeviceD3D11::DestroyGPUResource(GPUResource & resource)

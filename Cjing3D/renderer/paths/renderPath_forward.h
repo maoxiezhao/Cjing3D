@@ -12,6 +12,7 @@ public:
 
 	virtual void ResizeBuffers();
 	virtual void Render();
+	virtual void Compose();
 
 private:
 	Texture2D mRTMain;

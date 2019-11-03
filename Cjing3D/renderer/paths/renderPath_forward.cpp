@@ -59,9 +59,18 @@ namespace Cjing3D {
 			mRenderer.RenderSceneOpaque(camera, ShaderType_Forward);
 		}
 
+		mRenderer.BindCommonResource();
+
 		// postprocess
 		RenderPostprocess(mRTFinal);
 
 		RenderPath2D::Render();
+	}
+
+	void RenderPathForward::Compose()
+	{
+		RenderImage::Render(mRTFinal, mRenderer);
+
+		RenderPath2D::Compose();
 	}
 }

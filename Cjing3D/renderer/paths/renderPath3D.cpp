@@ -52,6 +52,9 @@ namespace Cjing3D
 
 	void RenderPath3D::RenderPostprocess(Texture2D & rtScreen)
 	{
-		//mRTPostprocess = rtScreen;
+		Texture2D* rtRead = &rtScreen;
+		Texture2D* rtWrite = &GetLastPostprocessRT();
+
+		// do nothing now
 	}
 }
