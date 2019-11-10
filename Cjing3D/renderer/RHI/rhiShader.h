@@ -50,12 +50,17 @@ namespace Cjing3D
 	struct is_shader<PixelShader> : public std::true_type {};
 
 	// shader info state
-	class ShaderInfoState : public GraphicsDeviceChild
+	class PipelineStateInfo : public GraphicsDeviceChild
 	{
 	public:
 		VertexShaderPtr mVertexShader = nullptr;
-		InputLayoutPtr mInputLayout = nullptr;
 		PixelShaderPtr mPixelShader = nullptr;
+
+		std::shared_ptr<DepthStencilState> mDepthStencilState = nullptr;
+		std::shared_ptr<BlendState> mBlendState = nullptr;
+		std::shared_ptr<RasterizerState> mRasterizerState = nullptr;
+
+		InputLayoutPtr mInputLayout = nullptr;
 		PRIMITIVE_TOPOLOGY mPrimitiveTopology = UNDEFINED_TOPOLOGY;
 
 		void Clear() 
@@ -63,13 +68,20 @@ namespace Cjing3D
 			mVertexShader = nullptr;
 			mInputLayout = nullptr;
 			mPixelShader = nullptr;
+			mDepthStencilState = nullptr;
+			mBlendState = nullptr;
+			mRasterizerState = nullptr;
+			mPrimitiveTopology = UNDEFINED_TOPOLOGY;
 		}
 
 		bool IsEmpty()
 		{
 			return mVertexShader == nullptr ||
 				mPixelShader == nullptr ||
-				mInputLayout == nullptr;
+				mInputLayout == nullptr ||
+				mBlendState == nullptr  ||
+				mDepthStencilState == nullptr ||
+				mRasterizerState == nullptr;
 		}
 	};
 }

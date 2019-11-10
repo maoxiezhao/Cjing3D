@@ -32,13 +32,13 @@ namespace Cjing3D
 		StencilOp mStencilFailOp;
 		StencilOp mStencilDepthFailOp;
 		StencilOp mStencilPassOp;
-		ComparisonFunc mDepthFunc;
+		ComparisonFunc mStencilFunc;
 
 		DepthStencilOpDesc() :
 			mStencilFailOp(StencilOp::STENCIL_OP_KEEP),
 			mStencilDepthFailOp(StencilOp::STENCIL_OP_KEEP),
 			mStencilPassOp(StencilOp::STENCIL_OP_KEEP),
-			mDepthFunc(ComparisonFunc::COMPARISON_NEVER)
+			mStencilFunc(ComparisonFunc::COMPARISON_NEVER)
 		{}
 	};
 
@@ -233,5 +233,10 @@ namespace Cjing3D
 			mSysMemPitch(0),
 			mSysMemSlicePitch(0)
 		{}
+	};
+
+	struct PipelineStateDesc
+	{
+
 	};
 }

@@ -26,7 +26,6 @@ void ShaderLib::LoadShader()
 {
 	LoadVertexShaders();
 	LoadPixelShaders();
-	LoadShaderInfoState();
 }
 
 void ShaderLib::LoadVertexShaders()
@@ -88,11 +87,6 @@ void ShaderLib::LoadBuffers()
 	Debug::ThrowIfFailed(result, "failed to create camera constant buffer:%08x", result);
 }
 
-void ShaderLib::LoadShaderInfoState()
-{
-	// TEMP: 在getShaderInfoState时直接创建
-}
-
 std::shared_ptr<VertexShader> ShaderLib::GetVertexShader(VetextShaderType shaderType)
 {
 	Debug::CheckAssertion(shaderType < VetextShaderType::VertexShaderType_Count);
@@ -114,34 +108,6 @@ std::shared_ptr<GPUBuffer> ShaderLib::GetConstantBuffer(ConstantBufferType buffe
 {
 	Debug::CheckAssertion(bufferType < ConstantBufferType::ConstantBufferType_Count);
 	return mConstantBuffer[static_cast<U32>(bufferType)];
-}
-
-ShaderInfoState ShaderLib::GetShaderInfoState(ShaderType shaderType, MaterialComponent & material)
-{
-	ShaderInfoState infoState;
-	infoState.Register(&mRenderer.GetDevice());
-
-	if (shaderType == ShaderType_Forward)
-	{
-		infoState.mVertexShader = GetVertexShader(VertexShaderType_Transform);
-		infoState.mInputLayout = GetVertexLayout(InputLayoutType_Transform);
-		infoState.mPixelShader = GetPixelShader(PixelShaderType_Forward);
-		infoState.mPrimitiveTopology = TRIANGLELIST;
-	}
-
-	return infoState;
-}
-
-ShaderInfoState ShaderLib::GetImageShaderInfoState()
-{
-	ShaderInfoState infoState;
-	infoState.Register(&mRenderer.GetDevice());
-
-	infoState.mVertexShader = GetVertexShader(VertexShaderType_FullScreen);
-	infoState.mPixelShader = GetPixelShader(PixelShaderType_FullScreen);
-	infoState.mPrimitiveTopology = TRIANGLELIST;
-
-	return infoState;
 }
 
 }

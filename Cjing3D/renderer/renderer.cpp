@@ -1,6 +1,7 @@
 #include "renderer.h"
 #include "shaderLib.h"
 #include "stateManager.h"
+#include "pipelineStateInfoManager.h"
 #include "renderer\RHI\device.h"
 #include "core\systemContext.hpp"
 #include "core\eventSystem.h"
@@ -33,6 +34,7 @@ Renderer::Renderer(SystemContext& gameContext, RenderingDeviceType deviceType, H
 	mGraphicsDevice(nullptr),
 	mShaderLib(nullptr),
 	mStateManager(nullptr),
+	mPipelineStateInfoManager(nullptr),
 	mIsInitialized(false),
 	mIsRendering(false),
 	mCamera(nullptr),
@@ -68,6 +70,10 @@ void Renderer::Initialize()
 	mShaderLib = std::make_unique<ShaderLib>(*this);
 	mShaderLib->Initialize();
 
+	// initialize pipelineStateInfos
+	mPipelineStateInfoManager = std::make_unique<PipelineStateInfoManager>(*this);
+	mPipelineStateInfoManager->SetupPipelineStateInfos();
+
 	// initialize mip generator
 	mDeferredMIPGenerator = std::make_unique<DeferredMIPGenerator>(*mGraphicsDevice);
 
@@ -88,6 +94,8 @@ void Renderer::Uninitialize()
 
 	mRenderPathForward->Uninitialize();
 	mRenderPathForward.reset();
+
+	mPipelineStateInfoManager.reset();
 
 	mGraphicsDevice->Uninitialize();
 
@@ -239,10 +247,10 @@ void Renderer::UpdateCameraCB(CameraComponent & camera)
 {
 	CameraCB cb;
 
-	// ÔÚshaderÖÐÊÇÓÒ³Ë
-	DirectX::XMStoreFloat4x4(&cb.gCameraVP,   XMMatrixTranspose(camera.GetViewProjectionMatrix()));
-	DirectX::XMStoreFloat4x4(&cb.gCameraView, XMMatrixTranspose(camera.GetViewProjectionMatrix()));
-	DirectX::XMStoreFloat4x4(&cb.gCameraProj, XMMatrixTranspose(camera.GetViewProjectionMatrix()));
+	DirectX::XMStoreFloat4x4(&cb.gCameraVP,   camera.GetViewProjectionMatrix());
+	DirectX::XMStoreFloat4x4(&cb.gCameraView, camera.GetViewMatrix());
+	DirectX::XMStoreFloat4x4(&cb.gCameraProj, camera.GetProjectionMatrix());
+
 	cb.gCameraPos = XMConvert(camera.GetCameraPos());
 
 	auto cameraBuffer = mShaderLib->GetConstantBuffer(ConstantBufferType_Camera);
@@ -252,6 +260,11 @@ void Renderer::UpdateCameraCB(CameraComponent & camera)
 Scene & Renderer::GetMainScene()
 {
 	return Scene::GetScene();
+}
+
+PipelineStateInfoManager & Renderer::GetPipelineStateInfoManager()
+{
+	return *mPipelineStateInfoManager;
 }
 
 void Renderer::InitializeRenderPaths()
@@ -375,7 +388,7 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, ShaderType shaderType, Re
 				continue;
 			}
 
-			ShaderInfoState state = mShaderLib->GetShaderInfoState(shaderType, *material);  // TODO
+			PipelineStateInfo state = mPipelineStateInfoManager->GetPipelineStateInfo(shaderType, *material);  // TODO
 			if (state.IsEmpty()) {
 				continue;
 			}

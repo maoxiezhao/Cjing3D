@@ -934,7 +934,7 @@ void GraphicsDeviceD3D11::PresentEnd()
 	deviceContext.OMSetRenderTargets(0, nullptr, nullptr);
 	deviceContext.ClearState();
 
-	BindShaderInfoState(ShaderInfoState());
+	BindShaderInfoState(PipelineStateInfo());
 	ClearPrevStates();
 
 	mCurrentFrameCount++;
@@ -981,18 +981,18 @@ HRESULT GraphicsDeviceD3D11::CreateDepthStencilState(const DepthStencilStateDesc
 	depthDesc.StencilReadMask	= desc.mStencilReadMask;
 	depthDesc.StencilWriteMask	= desc.mStencilWriteMask;
 
-	depthDesc.FrontFace.StencilFunc			 = _ConvertComparisonFunc(desc.mFrontFace.mDepthFunc);
+	depthDesc.FrontFace.StencilFunc			 = _ConvertComparisonFunc(desc.mFrontFace.mStencilFunc);
 	depthDesc.FrontFace.StencilPassOp		 = _ConvertStencilOp(desc.mFrontFace.mStencilPassOp);
 	depthDesc.FrontFace.StencilFailOp		 = _ConvertStencilOp(desc.mFrontFace.mStencilFailOp);
 	depthDesc.FrontFace.StencilDepthFailOp   = _ConvertStencilOp(desc.mFrontFace.mStencilDepthFailOp);
 
-	depthDesc.BackFace.StencilFunc			 = _ConvertComparisonFunc(desc.mBackFace.mDepthFunc);
+	depthDesc.BackFace.StencilFunc			 = _ConvertComparisonFunc(desc.mBackFace.mStencilFunc);
 	depthDesc.BackFace.StencilPassOp		 = _ConvertStencilOp(desc.mBackFace.mStencilPassOp);
 	depthDesc.BackFace.StencilFailOp		 = _ConvertStencilOp(desc.mBackFace.mStencilFailOp);
 	depthDesc.BackFace.StencilDepthFailOp    = _ConvertStencilOp(desc.mBackFace.mStencilDepthFailOp);
 
-	auto& depthStencilState = state.GetStatePtr();
-	return mDevice->CreateDepthStencilState(&depthDesc, depthStencilState.ReleaseAndGetAddressOf());
+	ID3D11DepthStencilState** depthStencilState = state.GetDepthStencilStatePtr();
+	return mDevice->CreateDepthStencilState(&depthDesc, depthStencilState);
 }
 
 HRESULT GraphicsDeviceD3D11::CreateBlendState(const BlendStateDesc & desc, BlendState & state)
@@ -1020,6 +1020,9 @@ HRESULT GraphicsDeviceD3D11::CreateBlendState(const BlendStateDesc & desc, Blend
 
 HRESULT GraphicsDeviceD3D11::CreateRasterizerState(const RasterizerStateDesc & desc, RasterizerState & state)
 {
+	state.Register(this);
+	state.SetDesc(desc);
+
 	D3D11_RASTERIZER_DESC rasterizerDesc = {};
 
 	rasterizerDesc.FillMode = _ConvertFillMode(desc.mFillMode);
@@ -1030,13 +1033,12 @@ HRESULT GraphicsDeviceD3D11::CreateRasterizerState(const RasterizerStateDesc & d
 	rasterizerDesc.DepthBiasClamp = desc.mDepthBiasClamp;
 	rasterizerDesc.SlopeScaledDepthBias = desc.mSlopeScaleDepthBias;
 	rasterizerDesc.DepthClipEnable = desc.mDepthClipEnable;
-
-	rasterizerDesc.ScissorEnable = true;
+	rasterizerDesc.ScissorEnable = false;
 	rasterizerDesc.MultisampleEnable = desc.mMultisampleEnable;
 	rasterizerDesc.AntialiasedLineEnable = desc.mAntialiaseLineEnable;
 
-	auto& rasterizerState = state.GetStatePtr();
-	return mDevice->CreateRasterizerState(&rasterizerDesc, rasterizerState.ReleaseAndGetAddressOf());
+	ID3D11RasterizerState** rasterizerState = state.GetRasterizerStatePtr();
+	return mDevice->CreateRasterizerState(&rasterizerDesc, rasterizerState);
 }
 
 // 创建顶点着色器
@@ -1340,7 +1342,7 @@ void GraphicsDeviceD3D11::BindRenderTarget(UINT numView, RhiTexture2D* const *te
 
 	// get depthStencilView
 	ID3D11DepthStencilView* depthStencilView = nullptr;
-	if (depthStencilView != nullptr) {
+	if (depthStencilTexture != nullptr) {
 		depthStencilView = depthStencilTexture->GetDepthStencilView();
 	}
 
@@ -1537,7 +1539,13 @@ void GraphicsDeviceD3D11::DestroyGPUResource(GPUResource & resource)
 	}
 }
 
-void GraphicsDeviceD3D11::BindShaderInfoState(ShaderInfoState state)
+void GraphicsDeviceD3D11::SetResourceName(GPUResource & resource, const std::string & name)
+{
+	ID3D11Resource* d3dResource = (ID3D11Resource*)resource.GetGPUResource();
+	d3dResource->SetPrivateData(WKPDID_D3DDebugObjectName, (UINT)name.length(), name.c_str());
+}
+
+void GraphicsDeviceD3D11::BindShaderInfoState(PipelineStateInfo state)
 {
 	ID3D11VertexShader* vs = state.mVertexShader != nullptr ? state.mVertexShader->mResourceD3D11.Get() : nullptr;
 	if (vs != mPrevVertexShader)
@@ -1551,6 +1559,28 @@ void GraphicsDeviceD3D11::BindShaderInfoState(ShaderInfoState state)
 	{
 		GetDeviceContext(GraphicsThread_IMMEDIATE).PSSetShader(ps, nullptr, 0);
 		mPrevPixelShader = ps;
+	}
+
+	ID3D11BlendState* bs = state.mBlendState != nullptr ? &state.mBlendState->GetState() : nullptr;
+	if (bs != mPrevBlendState)
+	{
+		const float factor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+		GetDeviceContext(GraphicsThread_IMMEDIATE).OMSetBlendState(bs, factor, 0xFFFFFFFF);
+		mPrevBlendState = bs;
+	}
+
+	ID3D11RasterizerState* rs = state.mRasterizerState != nullptr ? state.mRasterizerState->GetRasterizerState() : nullptr;
+	if (rs != mPrevRasterizerState)
+	{
+		GetDeviceContext(GraphicsThread_IMMEDIATE).RSSetState(rs);
+		mPrevRasterizerState = rs;
+	}
+
+	ID3D11DepthStencilState* dss = state.mDepthStencilState != nullptr ? state.mDepthStencilState->GetDepthStencilState() : nullptr;
+	if (dss != mPrevDepthStencilState)
+	{
+		GetDeviceContext(GraphicsThread_IMMEDIATE).OMSetDepthStencilState(dss, 0);
+		mPrevDepthStencilState = dss;
 	}
 
 	ID3D11InputLayout* il = state.mInputLayout != nullptr ? &state.mInputLayout->GetState() : nullptr;
@@ -1634,6 +1664,10 @@ void GraphicsDeviceD3D11::ClearPrevStates()
 	mPrevVertexShader = nullptr;
 	mPrevPixelShader = nullptr;
 	mPrevInputLayout = nullptr;
+	mPrevRasterizerState = nullptr;
+	mPrevDepthStencilState = nullptr;
+	mPrevBlendState = nullptr;
+
 	mPrevPrimitiveTopology = UNDEFINED_TOPOLOGY;
 }
 

@@ -8,10 +8,10 @@ PixelInputType main(InputObjectAll input)
     VertexSurface surface = MakeVertexSurfaceFromInput(input);
 
 	// world transform
-    surface.position = mul(surface.position, worldMat);
-    surface.normal = normalize(mul(surface.normal, (float3x3)worldMat));
+    surface.position = mul(worldMat, surface.position);
+    surface.normal = normalize(mul((float3x3) worldMat, surface.normal));
 
-    Out.pos = mul(surface.position, gCameraVP);
+    Out.pos = mul(gCameraVP, surface.position);
     Out.nor = surface.normal;
     Out.tex = surface.uv;
     Out.color = surface.color;

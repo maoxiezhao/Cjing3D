@@ -11,14 +11,12 @@ namespace Cjing3D
 		mFov = XM_PI / 3.0f;
 		mWidth = 1024;
 		mHeight = 768;
-
 		mEye = { 0.0f, 0.0f, -50.0f };
 		mAt =  { 0.0f, 0.0f, 1.0f };
 		mUp =  { 0.0f, 1.0f, 0.0f };
 
 		mProjectionType = CameraProjectionType_Perspective;
 
-		ComputeProjection();
 		Update();
 	}
 
@@ -26,21 +24,13 @@ namespace Cjing3D
 	{
 	}
 
-	void CameraComponent::Initialize()
-	{
-	}
-
-	void CameraComponent::Uninitialize()
-	{
-	}
-
 	void CameraComponent::Update()
 	{
-		if (mIsDirty == true)
-		{
+		if (mIsDirty == true) {
 			mIsDirty = false;
 
-			// get view
+			XMStoreFloat4x4(&mProjection, XMMatrixPerspectiveFovLH(mFov, mWidth / mHeight, mNearPlane, mFarPlane));
+
 			XMMATRIX view = XMMatrixLookToLH(
 				XMLoad(mEye),
 				XMLoad(mAt),
@@ -84,10 +74,8 @@ namespace Cjing3D
 		mFarPlane = farPlane;
 		mFov = fov;
 		mProjectionType = CameraProjectionType_Perspective;
-
 		mIsDirty = true;
 
-		ComputeProjection();
 		Update();
 	}
 
@@ -97,11 +85,5 @@ namespace Cjing3D
 		mAt = at;
 		mUp = up;
 		mIsDirty = true;
-	}
-
-	// 仅在创建相机时计算projection
-	void CameraComponent::ComputeProjection()
-	{
-		XMStoreFloat4x4(&mProjection, XMMatrixPerspectiveFovLH(mFov, mWidth / mHeight, mNearPlane, mFarPlane));
 	}
 }

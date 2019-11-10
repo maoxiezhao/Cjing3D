@@ -97,17 +97,32 @@ namespace Cjing3D
 	// GPU States
 	//***********************************************************************
 
-	class DepthStencilState
+	class RasterizerState : public GraphicsDeviceChild
 	{
 	public:
-		DepthStencilState() : mState() {};
+		RasterizerState() {};
 
+		void SetDesc(RasterizerStateDesc desc) { mDesc = desc; }
+		RasterizerStateDesc GetDesc()const { return mDesc; }
+		ID3D11RasterizerState* GetRasterizerState() { return *(ID3D11RasterizerState**)&mHandle; }
+		ID3D11RasterizerState** GetRasterizerStatePtr() { return (ID3D11RasterizerState**)&mHandle; }
+
+		RasterizerStateDesc mDesc;
+		CPUHandle mHandle = CPU_NULL_HANDLE;
+	};
+
+	class DepthStencilState : public GraphicsDeviceChild
+	{
+	public:
+		DepthStencilState() {};
+
+		void SetDesc(DepthStencilStateDesc desc) { mDesc = desc; }
 		DepthStencilStateDesc GetDesc()const { return mDesc; }
-		ID3D11DepthStencilState& GetState() { return *mState.Get(); }
-		ComPtr<ID3D11DepthStencilState>& GetStatePtr() { return mState; }
-	private:
+		ID3D11DepthStencilState* GetDepthStencilState() { return *(ID3D11DepthStencilState**)&mHandle; }
+		ID3D11DepthStencilState** GetDepthStencilStatePtr() { return (ID3D11DepthStencilState**)&mHandle; }
+
 		DepthStencilStateDesc mDesc;
-		ComPtr<ID3D11DepthStencilState> mState;
+		CPUHandle mHandle = CPU_NULL_HANDLE;
 	};
 
 	class BlendState
@@ -121,19 +136,6 @@ namespace Cjing3D
 	private:
 		BlendStateDesc mDesc;
 		ComPtr<ID3D11BlendState> mState;
-	};
-
-	class RasterizerState
-	{
-	public:
-		RasterizerState() : mState() {};
-
-		BlendStateDesc GetDesc()const { return mDesc; }
-		ID3D11RasterizerState& GetState() { return *mState.Get(); }
-		ComPtr<ID3D11RasterizerState>& GetStatePtr() { return mState; }
-	private:
-		BlendStateDesc mDesc;
-		ComPtr<ID3D11RasterizerState> mState;
 	};
 
 	class SamplerState

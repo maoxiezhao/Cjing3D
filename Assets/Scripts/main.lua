@@ -1,7 +1,8 @@
-print("[LUA] Load main file success.")
+
+Logger.Info("Load main file success.")
 
 function OnMainInitialize()
-	print("[LUA] OnMainInitialize")
+	Logger.Info("OnMainInitialize")
 end 
 
 function OnMainUpdate()
@@ -9,7 +10,7 @@ function OnMainUpdate()
 end 
 
 function OnMainUnInitialize()
-	print("[LUA] OnMainUnInitialize")
+	Logger.Info("OnMainUnInitialize")
 end 
 
 SystemExports[SystemFunctionIndex.CLIENT_LUA_MAIN_START] = OnMainInitialize;

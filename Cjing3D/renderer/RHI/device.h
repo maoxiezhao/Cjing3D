@@ -59,8 +59,9 @@ namespace Cjing3D
 		virtual void BindGPUResources(SHADERSTAGES stage, GPUResource* const* resource, U32 slot, U32 count) = 0;
 		virtual void UnbindGPUResources(U32 slot, U32 count) = 0;
 		virtual void DestroyGPUResource(GPUResource& resource) = 0;
+		virtual void SetResourceName(GPUResource& resource, const std::string& name) = 0;
 
-		virtual void BindShaderInfoState(ShaderInfoState state) = 0;
+		virtual void BindShaderInfoState(PipelineStateInfo state) = 0;
 
 		virtual void Draw(UINT vertexCount, UINT startVertexLocation) = 0;
 		virtual void DrawIndexed(UINT indexCount, UINT startIndexLocation) = 0;

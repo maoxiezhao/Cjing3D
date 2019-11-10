@@ -12,8 +12,8 @@
 
 int main(int argc, char** argv)
 {
-#ifdef __ENABLE_GENERATE_LUA_BINDING_CODES__
-	return;
+#ifndef __ENABLE_GENERATE_LUA_BINDING_CODES__
+	return 0;
 #endif
 
 #ifndef __BINDER_DEBUG__

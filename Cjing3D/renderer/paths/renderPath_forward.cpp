@@ -22,14 +22,13 @@ namespace Cjing3D {
 		desc.mWidth = screenSize[0];
 		desc.mHeight = screenSize[1];
 		desc.mFormat = RenderPath3D::RenderTargetFormatHDR;
-		desc.mBindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
+		desc.mSampleDesc.mCount = 1;
+		desc.mBindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE | BIND_UNORDERED_ACCESS;
 		{
 			const auto result = mRenderer.GetDevice().CreateTexture2D(&desc, nullptr, mRTMain);
 			Debug::ThrowIfFailed(result, "Failed to create render target:%08x", result);
-		}
-		{
-			const auto result = mRenderer.GetDevice().CreateTexture2D(&desc, nullptr, mRTFinal);
-			Debug::ThrowIfFailed(result, "Failed to create render target:%08x", result);
+
+			mRenderer.GetDevice().SetResourceName(mRTMain, "RTMain");
 		}
 	}
 
@@ -49,11 +48,14 @@ namespace Cjing3D {
 		Texture2D* rts[] = { &mRTMain };
 		{
 			device.BindRenderTarget(1, rts, &depthBuffer);
-			device.ClearRenderTarget(mRTMain, { 0.0f, 0.0f, 0.0f, 0.0f });
+			device.ClearRenderTarget(mRTMain, { 0.0f, 0.0f, 0.0f, 1.0f });
+			device.ClearDepthStencil(depthBuffer, CLEAR_DEPTH | CLEAR_STENCIL, 0, 0);
 
 			ViewPort vp;
 			vp.mWidth = (F32)mRTMain.GetDesc().mWidth;
-			vp.mWidth = (F32)mRTMain.GetDesc().mHeight;
+			vp.mHeight = (F32)mRTMain.GetDesc().mHeight;
+			vp.mMinDepth = 0.0f;
+			vp.mMaxDepth = 1.0f;
 			device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
 
 			mRenderer.RenderSceneOpaque(camera, ShaderType_Forward);
@@ -62,15 +64,20 @@ namespace Cjing3D {
 		mRenderer.BindCommonResource();
 
 		// postprocess
-		RenderPostprocess(mRTFinal);
+		RenderPostprocess(mRTMain);
 
 		RenderPath2D::Render();
 	}
 
 	void RenderPathForward::Compose()
 	{
-		RenderImage::Render(mRTFinal, mRenderer);
+		GraphicsDevice& device = mRenderer.GetDevice();
+		device.BeginEvent("Composition");
+
+		RenderImage::Render(mRTMain, mRenderer);
 
 		RenderPath2D::Compose();
+
+		device.EndEvent();
 	}
 }

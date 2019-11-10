@@ -18,8 +18,6 @@ namespace Cjing3D {
 		CameraComponent();
 		virtual ~CameraComponent();
 
-		virtual void Initialize();
-		virtual void Uninitialize();
 		virtual void Update();
 
 		void TransformCamera(const TransformComponent& transform);
@@ -37,9 +35,6 @@ namespace Cjing3D {
 		void SetCameraStatus(F32x3 eye, F32x3 at, F32x3 up = { 0.0f, 1.0f, 0.0f });
 		void SetDirty(bool isDirty) { mIsDirty = isDirty; }
 		bool IsDirty()const { return mIsDirty; }
-
-	private:
-		void ComputeProjection();
 
 	private:
 		CameraProjectionType mProjectionType;

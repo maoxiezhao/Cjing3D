@@ -218,6 +218,13 @@ namespace Cjing3D
 			return *this;
 		}
 
+		LuaBindModule<ParentT>& AddLuaCFunction(const std::string& name, lua_CFunction function)
+		{
+			mCurrentMeta.RawSet(name, function);
+
+			return *this;
+		}
+
 		template<typename T>
 		LuaBindClass<T, LuaBindModule<ParentT>> BeginClass(const std::string& name)
 		{

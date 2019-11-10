@@ -4,6 +4,7 @@
 #include "renderer\RHI\device.h"
 #include "renderer\RHI\swapChainD3D11.h"
 #include "renderer\RHI\rhiShader.h"
+#include "renderer\RHI\rhiResource.h"
 
 namespace Cjing3D
 {
@@ -60,8 +61,9 @@ public:
 	virtual void BindGPUResources(SHADERSTAGES stage, GPUResource* const* resource, U32 slot, U32 count);
 	virtual void UnbindGPUResources(U32 slot, U32 count);
 	virtual void DestroyGPUResource(GPUResource& resource);
+	virtual void SetResourceName(GPUResource& resource, const std::string& name);
 
-	virtual void BindShaderInfoState(ShaderInfoState state);
+	virtual void BindShaderInfoState(PipelineStateInfo state);
 
 	void ClearPrevStates();
 
@@ -109,9 +111,14 @@ private:
 	D3D_FEATURE_LEVEL mFeatureLevel;
 	std::unique_ptr< SwapChainD3D11> mSwapChain;
 
-	// prev state
+	// prev pipeline state
 	ID3D11VertexShader* mPrevVertexShader = nullptr;
 	ID3D11PixelShader* mPrevPixelShader = nullptr;
+
+	ID3D11DepthStencilState* mPrevDepthStencilState = nullptr;
+	ID3D11BlendState* mPrevBlendState = nullptr;
+	ID3D11RasterizerState* mPrevRasterizerState = nullptr;
+
 	ID3D11InputLayout* mPrevInputLayout = nullptr;
 	PRIMITIVE_TOPOLOGY mPrevPrimitiveTopology = UNDEFINED_TOPOLOGY;
 };

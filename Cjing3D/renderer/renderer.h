@@ -18,6 +18,7 @@ class ResourceManager;
 class CameraComponent;
 class Scene;
 class MaterialComponent;
+class PipelineStateInfoManager;
 
 class Renderer : public SubSystem
 {
@@ -41,6 +42,7 @@ public:
 	ShaderLib& GetShaderLib();
 	StateManager& GetStateManager();
 	Scene& GetMainScene();
+	PipelineStateInfoManager& GetPipelineStateInfoManager();
 
 	// Render Method
 	void RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, ShaderType shaderType);
@@ -84,7 +86,8 @@ private:
 	std::unique_ptr<StateManager> mStateManager;
 	std::unique_ptr<DeferredMIPGenerator> mDeferredMIPGenerator;
 	std::unique_ptr<LinearAllocator> mFrameAllocator;
-	
+	std::unique_ptr<PipelineStateInfoManager> mPipelineStateInfoManager;
+
 	std::vector<int> mPendingUpdateMaterials;
 
 	std::unique_ptr<RenderPathForward> mRenderPathForward;

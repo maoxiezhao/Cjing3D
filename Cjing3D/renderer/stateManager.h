@@ -10,6 +10,7 @@ namespace Cjing3D
 	enum DepthStencilStateID {
 		DepthStencilStateID_DepthNone = 0,
 		DepthStencilStateID_GreaterEqualReadWrite,
+		DepthStencilStateID_DepthReadEqual,
 		DepthStencilStateID_Count
 	};
 

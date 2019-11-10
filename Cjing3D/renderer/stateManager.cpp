@@ -77,25 +77,40 @@ void StateManager::SetupDepthStencilStates()
 		const auto result = mDevice.CreateDepthStencilState(desc, *mDepthStencilStates[DepthStencilStateID::DepthStencilStateID_DepthNone]);
 		Debug::ThrowIfFailed(result, "Failed to create none depthStencilState", result);
 	}
+
+	DepthStencilStateDesc desc;
+	desc.mDepthEnable = true;
+	desc.mDepthWriteMask = DEPTH_WRITE_MASK_ALL;
+	desc.mDepthFunc = COMPARISON_GREATER_EQUAL;
+	desc.mStencilEnable = false;
+	desc.mStencilReadMask = 0xFF;
+	desc.mStencilWriteMask = 0xFF;
+
+	desc.mFrontFace.mStencilFunc = COMPARISON_GREATER_EQUAL;
+	desc.mFrontFace.mStencilPassOp = STENCIL_OP_KEEP;
+	desc.mFrontFace.mStencilFailOp = STENCIL_OP_KEEP;
+	desc.mFrontFace.mStencilDepthFailOp = STENCIL_OP_KEEP;
+
+	desc.mBackFace.mStencilFunc = COMPARISON_GREATER_EQUAL;
+	desc.mBackFace.mStencilPassOp = STENCIL_OP_KEEP;
+	desc.mBackFace.mStencilFailOp = STENCIL_OP_KEEP;
+	desc.mBackFace.mStencilDepthFailOp = STENCIL_OP_KEEP;
+
 	{
-		DepthStencilStateDesc desc;
 		desc.mDepthEnable = true;
 		desc.mDepthWriteMask = DEPTH_WRITE_MASK_ALL;
 		desc.mDepthFunc = COMPARISON_GREATER_EQUAL;
 
-		desc.mStencilEnable = true;
-		desc.mStencilReadMask = 0xFF;
-		desc.mStencilWriteMask = 0xFF;
-		desc.mFrontFace.mDepthFunc = COMPARISON_ALWAYS;
-		desc.mFrontFace.mStencilPassOp = STENCIL_OP_REPLACE;
-		desc.mFrontFace.mStencilFailOp = STENCIL_OP_KEEP;
-		desc.mFrontFace.mStencilDepthFailOp = STENCIL_OP_KEEP;
-		desc.mBackFace.mDepthFunc = COMPARISON_ALWAYS;
-		desc.mBackFace.mStencilPassOp = STENCIL_OP_REPLACE;
-		desc.mBackFace.mStencilFailOp = STENCIL_OP_KEEP;
-		desc.mBackFace.mStencilDepthFailOp = STENCIL_OP_KEEP;
-
 		const auto result = mDevice.CreateDepthStencilState(desc, *mDepthStencilStates[DepthStencilStateID::DepthStencilStateID_GreaterEqualReadWrite]);
+		Debug::ThrowIfFailed(result, "Failed to create greater equal depthStencilState", result);
+	}
+
+	{
+		desc.mDepthEnable = true;
+		desc.mDepthWriteMask = DEPTH_WRITE_MASK_ZERO;
+		desc.mDepthFunc = COMPARISON_EQUAL;
+
+		const auto result = mDevice.CreateDepthStencilState(desc, *mDepthStencilStates[DepthStencilStateID::DepthStencilStateID_DepthReadEqual]);
 		Debug::ThrowIfFailed(result, "Failed to create greater equal depthStencilState", result);
 	}
 }
@@ -107,13 +122,13 @@ void StateManager::SetupBlendStates()
 		desc.mAlphaToCoverageEnable = false;
 		desc.mIndependentBlendEnable = false;
 		desc.mRenderTarget[0].mBlendEnable = false;
+		desc.mRenderTarget[0].mRenderTargetWriteMask = COLOR_WRITE_ENABLE_ALL;
 		desc.mRenderTarget[0].mSrcBlend = BLEND_SRC_ALPHA;
 		desc.mRenderTarget[0].mDstBlend = BLEND_INV_SRC_ALPHA;
 		desc.mRenderTarget[0].mBlendOp = BLEND_OP_MAX;
 		desc.mRenderTarget[0].mSrcBlendAlpha = BLEND_ONE;
 		desc.mRenderTarget[0].mDstBlendAlpha = BLEND_ZERO;
 		desc.mRenderTarget[0].mBlendOpAlpha = BLEND_OP_ADD;
-		desc.mRenderTarget[0].mRenderTargetWriteMask = COLOR_WRITE_ENABLE_ALL;
 		const auto result = mDevice.CreateBlendState(desc, *mBlendStates[BlendStateID::BlendStateID_Opaque]);
 		Debug::ThrowIfFailed(result, "Failed to create opaque blendState", result);
 	}
