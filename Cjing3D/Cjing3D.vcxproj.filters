@@ -332,6 +332,12 @@
     <ClCompile Include="renderer\pipelineStateInfoManager.cpp">
       <Filter>renderer</Filter>
     </ClCompile>
+    <ClCompile Include="scripts\api\systemApi.cpp">
+      <Filter>scripts\api</Filter>
+    </ClCompile>
+    <ClCompile Include="generates\luabind_registers.cpp">
+      <Filter>generates</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />

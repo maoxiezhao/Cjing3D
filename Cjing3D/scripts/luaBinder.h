@@ -4,10 +4,6 @@
 
 #include <string>
 
-#define LUA_BINDER_REGISTER_CLASS 
-#define LUA_BINDER_REGISTER_CLASS_CONSTRUCTOR
-#define LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
-#define LUA_BINDER_REGISTER_CLASS_STATIC_FUNCTION
 
 namespace Cjing3D
 {
@@ -273,6 +269,12 @@ namespace Cjing3D
 			return LuaBindModule<LuaBinder>(mCurrentMeta, name);
 		}
 
+		LuaBinder& AddGlobalCFunction(const std::string& name, lua_CFunction function)
+		{
+			mCurrentMeta.RawSet(name, function);
+			return *this;
+		}
+
 	private:
 		lua_State * mLuaState = nullptr;
 		LuaRef mCurrentMeta = LuaRef::NULL_REF;
@@ -291,6 +293,8 @@ namespace Cjing3D
 		void DoAutoBindFunctions(lua_State* l);
 
 		std::vector<std::function<void(lua_State* l)>> mfuncs;
+
+		static int REGISTER_AUTO_BINDING_FUNC();
 	};
 
 #define LUA_FUNCTION_AUTO_BINDER(LuaName, function) \

@@ -18,6 +18,9 @@
     <Filter Include="scripts">
       <UniqueIdentifier>{9c723403-b9c4-41a2-9982-dd81e044b2eb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="scripts\common">
+      <UniqueIdentifier>{e02e7709-d7f2-49b0-8447-4de5408431a7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="window.h" />
@@ -26,6 +29,9 @@
   <ItemGroup>
     <None Include="..\Assets\Scripts\main.lua">
       <Filter>scripts</Filter>
+    </None>
+    <None Include="..\Assets\Scripts\common\common.lua">
+      <Filter>scripts\common</Filter>
     </None>
   </ItemGroup>
 </Project>

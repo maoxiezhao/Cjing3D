@@ -6,6 +6,10 @@ function OnMainInitialize()
 end 
 
 function OnMainUpdate()
+	local input_manager = System.GetInputManager();
+	if input_manager:IsKeyDown(KeyCode.Space) == true then 
+		print("Space key down!");
+	end 
 
 end 
 

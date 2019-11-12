@@ -2,7 +2,7 @@
 #include "luaBinder.h"
 #include "helper\debug.h"
 #include "helper\fileSystem.h"
-#include "helper\enumInfo.h"
+#include "input\InputSystem.h"
 
 namespace Cjing3D {
 
@@ -49,15 +49,27 @@ void LuaContext::InitializeEnv(lua_State * l)
 	Debug::CheckAssertion(!lua_isnil(l, 1), "Lua env initialized failed.");
 	mSystemExports = LuaRef::CreateRef(l);
 
-	AutoLuaBindFunctions::GetInstance().DoAutoBindFunctions(mLuaState);
+	InitializeEnum(l);
 
+	AutoLuaBindFunctions::REGISTER_AUTO_BINDING_FUNC();
+	AutoLuaBindFunctions::GetInstance().DoAutoBindFunctions(mLuaState);
+}
+
+void LuaContext::InitializeEnum(lua_State * l)
+{
 	// bind systme enum
 	auto systemEnumBinder = LuaBinder(l).BeginModule("SystemFunctionIndex");
-	systemEnumBinder.AddEnum(EnumToString(CLIENT_LUA_MAIN_START),  CLIENT_LUA_MAIN_START);
+	systemEnumBinder.AddEnum(EnumToString(CLIENT_LUA_MAIN_START), CLIENT_LUA_MAIN_START);
 	systemEnumBinder.AddEnum(EnumToString(CLIENT_LUA_MAIN_UPDATE), CLIENT_LUA_MAIN_UPDATE);
-	systemEnumBinder.AddEnum(EnumToString(CLIENT_LUA_MAIN_STOP),   CLIENT_LUA_MAIN_STOP);
+	systemEnumBinder.AddEnum(EnumToString(CLIENT_LUA_MAIN_STOP), CLIENT_LUA_MAIN_STOP);
 
-	AutoLuaBindFunctions::GetInstance().DoAutoBindFunctions(mLuaState);
+	// bind input enum
+	auto keyEnumBinder = LuaBinder(l).BeginModule("KeyCode");
+	for (int index = 0; index < (int)(KeyCode::key_count); index++)
+	{
+		KeyCode keyCode = static_cast<KeyCode>(index);
+		keyEnumBinder.AddEnum(EnumToString(keyCode), keyCode);
+	}
 }
 
 void LuaContext::Update(F32 deltaTime)
@@ -161,5 +173,4 @@ int LuaContext::api_panic(lua_State*l)
 {
 	return 0;
 }
-
 }

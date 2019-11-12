@@ -38,7 +38,7 @@ namespace Cjing3D
 		Timer mTimer;
 		EngineTime mTime;
 
-		std::unique_ptr<SystemContext> mSystemContext;
+		SystemContext* mSystemContext;
 		std::unique_ptr<GameComponent> mGameComponent;
 
 		RenderingDeviceType mRenderingDeviceType;

@@ -256,6 +256,7 @@
     <ClCompile Include="core\jobSystem.cpp" />
     <ClCompile Include="core\threadSafeSystem.cpp" />
     <ClCompile Include="engine.cpp" />
+    <ClCompile Include="generates\luabind_registers.cpp" />
     <ClCompile Include="gui\gui.cpp" />
     <ClCompile Include="gui\mainStage.cpp" />
     <ClCompile Include="helper\debug.cpp" />
@@ -289,6 +290,7 @@
     <ClCompile Include="resource\resource.cpp" />
     <ClCompile Include="resource\resourceManager.cpp" />
     <ClCompile Include="scripts\api\luaApi.cpp" />
+    <ClCompile Include="scripts\api\systemApi.cpp" />
     <ClCompile Include="scripts\luaBinder.cpp" />
     <ClCompile Include="scripts\luaBinder_impl.cpp" />
     <ClCompile Include="scripts\luaContext.cpp" />

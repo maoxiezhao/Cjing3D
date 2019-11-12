@@ -21,6 +21,7 @@ const std::string generateStringPrefix = R"(
 #include "scripts\luaBinder.h"
 
 using namespace Cjing3D;
+int AutoLuaBindFunctions::REGISTER_AUTO_BINDING_FUNC(){return 0;}
 
 )";
 
@@ -443,7 +444,13 @@ void LuaBindingsGenerator::ParseHeader(const std::string & path, const std::stri
 #endif
 
 	if (isHeaderDependent) {
-		mDependentHeaders.push_back(path);
+		std::string realPath = path;
+		size_t pos = realPath.find("/");
+		if (pos != std::string::npos) {
+			realPath = realPath.substr(pos + 1);
+		}
+
+		mDependentHeaders.push_back(realPath);
 	}
 }
 

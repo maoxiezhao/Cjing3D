@@ -30,11 +30,13 @@ namespace Cjing3D {
 	E StringToEnum(const std::string& name, E defaultValue);
 
 
-#define ENUM_TRAITS_REGISTER_ENUM_BEGIN(ENUM_TYPE)   \
+#define ENUM_TRAITS_REGISTER_ENUM_HEADER(ENUM_TYPE)   \
 	template<>										\
 	struct EnumInfoTraits<ENUM_TYPE>{		        \
 		static const std::string enumName;       \
-		static const EnumInfo<ENUM_TYPE>::EnumType enumInfos;}; \
+		static const EnumInfo<ENUM_TYPE>::EnumType enumInfos;};
+
+#define ENUM_TRAITS_REGISTER_ENUM_BEGIN(ENUM_TYPE)   \
     const std::string EnumInfoTraits<ENUM_TYPE>::enumName = #ENUM_TYPE;\
 	const EnumInfo<ENUM_TYPE>::EnumType EnumInfoTraits<ENUM_TYPE>::enumInfos = {
 

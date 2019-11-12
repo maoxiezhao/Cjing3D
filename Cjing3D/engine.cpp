@@ -20,10 +20,10 @@ Engine::Engine(GameComponent* gameConponent):
 	mWindowHinstance(nullptr),
 	mRenderingDeviceType(RenderingDeviceType_D3D11)
 {
-	mSystemContext = std::make_unique<SystemContext>();
+	mSystemContext = &SystemContext::GetSystemContext();
 
 	mGameComponent = std::unique_ptr<GameComponent>(gameConponent);
-	mGameComponent->SetGameContext(mSystemContext.get());
+	mGameComponent->SetGameContext(mSystemContext);
 }
 
 Engine::~Engine()

@@ -76,12 +76,13 @@ namespace Cjing3D
 
 		bool IsEmpty()
 		{
-			return mVertexShader == nullptr ||
-				mPixelShader == nullptr ||
-				mInputLayout == nullptr ||
-				mBlendState == nullptr  ||
-				mDepthStencilState == nullptr ||
-				mRasterizerState == nullptr;
+			return false;
+			//return mVertexShader == nullptr ||
+			//	mPixelShader == nullptr ||
+			//	mInputLayout == nullptr ||
+			//	mBlendState == nullptr  ||
+			//	mDepthStencilState == nullptr ||
+			//	mRasterizerState == nullptr;
 		}
 	};
 }

@@ -18,7 +18,7 @@ namespace Cjing3D
 
 	//----------------------------------base define----------------------------------------
 
-	template<typename T>
+	template<typename T, typename ENABLED = void>
 	struct LuaTypeNormalMapping;
 
 	template<typename T, bool IsRef>
@@ -100,9 +100,9 @@ namespace Cjing3D
 		}
 	};
 
-	template<> struct LuaTypeNormalMapping<short> : LuaTypeNumberMapping<short> {};
-	template<> struct LuaTypeNormalMapping<int> : LuaTypeNumberMapping<int> {};
-	template<> struct LuaTypeNormalMapping<long> : LuaTypeNumberMapping<long> {};
+	template<> struct LuaTypeNormalMapping<short> : LuaTypeIntegerMapping<short> {};
+	template<> struct LuaTypeNormalMapping<int> : LuaTypeIntegerMapping<int> {};
+	template<> struct LuaTypeNormalMapping<long> : LuaTypeIntegerMapping<long> {};
 
 	template<>
 	struct LuaTypeNormalMapping<bool>
@@ -185,4 +185,9 @@ namespace Cjing3D
 			return lua_tocfunction(l, index);
 		}
 	};
+
+	// enum类型以Integer类型来处理
+	template<typename T>
+	struct LuaTypeNormalMapping<T, typename std::enable_if<std::is_enum<T>::value, void>::type> :
+		LuaTypeIntegerMapping<T> {};
 }

@@ -5,6 +5,7 @@
 #include "scripts\luaRef.h"
 #include "scripts\luaTools.h"
 #include "scripts\api\luaApi.h"
+#include "helper\enumInfo.h"
 
 #include <string>
 
@@ -50,9 +51,13 @@ public:
 
 private:
 	void InitializeEnv(lua_State* l);
+	void InitializeEnum(lua_State* l);
 
 	lua_State* mLuaState = nullptr;
 };
 
+ENUM_TRAITS_REGISTER_ENUM_HEADER(SystemFunctionIndex)
+
 #include "luaContext.inl"
+
 }

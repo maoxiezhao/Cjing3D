@@ -2,6 +2,7 @@
 
 #include "common\common.h"
 #include "core\subSystem.hpp"
+#include "helper\enumInfo.h"
 
 namespace Cjing3D
 {
@@ -37,12 +38,15 @@ enum KeyCode
 	// Mouse
 	Click_Left,
 	Click_Middle,
-	Click_Right
+	Click_Right,
+	key_count
 };
 
+LUA_BINDER_REGISTER_CLASS
 class InputManager : public SubSystem
 {
 public:
+	LUA_BINDER_REGISTER_CLASS_CONSTRUCTOR
 	InputManager(SystemContext& systemContext);
 	~InputManager();
 
@@ -50,11 +54,18 @@ public:
 	void Uninitialize();
 	virtual void Update(F32 deltaTime);
 
+    LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
 	bool IsKeyDown(const KeyCode key)const;
+
+	LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
 	bool IsKeyUp(const KeyCode key)const;
+
+	LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
 	bool IsKeyHold(const KeyCode key)const;
 
 	I32x2 GetMousePos()const;
 };
+
+ENUM_TRAITS_REGISTER_ENUM_HEADER(KeyCode)
 
 }

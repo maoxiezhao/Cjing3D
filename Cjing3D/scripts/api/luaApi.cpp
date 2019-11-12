@@ -6,6 +6,7 @@ namespace LuaApi {
 
 	void BindAllModules(lua_State * l)
 	{
+		BindSystemModules(l);
 		BindLoggerModules(l);
 	}
 

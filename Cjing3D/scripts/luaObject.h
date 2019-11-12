@@ -102,17 +102,18 @@ namespace Cjing3D
 	};
 
 	// 指针对象必须在C++创建，生命周期由C++来管理，当GC时会调用对象的析构函数
+	// 当对象以引用的方式传到Lua端时，强制为void指针保存
 	template<typename T>
 	class LuaObjectPtr : public LuaObject
 	{
 	public:
-		LuaObjectPtr(T& obj) :
-			mObjectPtr(&obj)
+		explicit LuaObjectPtr(void* obj) :
+			mObjectPtr(obj)
 		{
 		}
 
 		// 指针对象不会创建新的实例，而只是创建一个新的LuaObjectPtr指向对象
-		static void Push(lua_State* l, const T& obj)
+		static void Push(lua_State* l,  T* obj)
 		{
 			void* classID = ObjectIDGenerator<T>::GetID();
 			void *mem = Allocate<LuaObjectPtr<T>>(l, classID);
@@ -156,7 +157,7 @@ namespace Cjing3D
 	{
 		static void Push(lua_State*l, const T&value)
 		{
-			LuaObjectPtr<T>::Push(l, value);
+			LuaObjectPtr<T>::Push(l, const_cast<T*>(&value));
 		}
 
 		static T& Get(lua_State*l, int index)

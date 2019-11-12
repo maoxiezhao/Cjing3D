@@ -16,11 +16,15 @@ private:
 	std::vector<GameSystemPtr> mSystems;
 	EngineTime mTime;
 
-public:
 	SystemContext() = default;
-	~SystemContext()
+
+public:
+	~SystemContext() { mSystems.clear();}
+
+	static SystemContext& GetSystemContext()
 	{
-		mSystems.clear();
+		static SystemContext instance;
+		return instance;
 	}
 
 	void RegisterSubSystem(SubSystem* gameSystem)
