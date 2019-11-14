@@ -12,15 +12,18 @@ namespace Cjing3D {
 		CameraProjectionType_Orthographic
 	};
 
+	LUA_BINDER_REGISTER_CLASS
 	class CameraComponent : public Component
 	{
 	public:
 		CameraComponent();
 		virtual ~CameraComponent();
 
+		LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
 		virtual void Update();
 
-		void TransformCamera(const TransformComponent& transform);
+		LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
+		void Transform(const TransformComponent& transform);
 
 		inline XMMATRIX GetViewMatrix() { return XMLoadFloat4x4(&mView); };
 		inline XMMATRIX GetProjectionMatrix() { return XMLoadFloat4x4(&mProjection); };

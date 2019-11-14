@@ -45,7 +45,6 @@ namespace Cjing3D
 	public:
 		static LuaBindClass<T, ParentT> BindClass(lua_State* l, LuaRef& parentMeta, const std::string& name)
 		{
-			Logger::Info("BindClass");
 			LuaRef currentMeta;
 			if (BindClassMeta(currentMeta, parentMeta, name, ObjectIDGenerator<T>::GetID()))
 			{
@@ -58,7 +57,6 @@ namespace Cjing3D
 		template<typename SUPER>
 		static LuaBindClass<T, ParentT> BindExtendClass(lua_State* l, LuaRef& parentMeta, const std::string& name)
 		{
-			Logger::Info("BindClass");
 			LuaRef currentMeta;
 			if (BindExtendClassMeta(currentMeta, parentMeta, name, ObjectIDGenerator<T>::GetID(), ObjectIDGenerator<SUPER>::GetID()))
 			{
@@ -77,13 +75,22 @@ namespace Cjing3D
 			mCurrentMeta.RawSet("__call", LuaObjectConstructor<T, ARGS>::Call);
 			mCurrentMeta.RawSet("new", LuaObjectConstructor<T, ARGS>::Call);
 
-			Logger::Info("AddConstructor");
+			return *this;
+		}
+
+		LuaBindClass<T, ParentT>& AddCFunctionConstructor(FunctionExportToLua function)
+		{
+			// 1. local obj = CLAZZ(...);
+			// 2. local obj = CLAZZ:new(...);
+
+			mCurrentMeta.RawSet("__call", function);
+			mCurrentMeta.RawSet("new", function);
+
 			return *this;
 		}
 
 		LuaBindClass<T, ParentT>& AddMetaFunction(const std::string& name, FunctionExportToLua function)
 		{
-			Logger::Info("AddMetaFunction");
 			mCurrentMeta.RawGet("__CLASS").RawSet(name, function);
 
 			return *this;
@@ -92,7 +99,6 @@ namespace Cjing3D
 		template<typename FUNC>
 		LuaBindClass<T, ParentT>& AddFunction(const std::string& name, const FUNC& func)
 		{
-			Logger::Info("AddFunction");
 			using FunctionCaller = BindClassStaticFunc<FUNC>;
 			LuaRef funcRef = LuaRef::CreateFuncWithUserdata(mLuaState, &FunctionCaller::Caller, func);
 			RegisterStaticFunction(name, funcRef);
@@ -103,7 +109,6 @@ namespace Cjing3D
 		template<typename FUNC>
 		LuaBindClass<T, ParentT>& AddMethod(const std::string& name, const FUNC& func)
 		{
-			Logger::Info("AddMethod");
 			using MethodCaller = BindClassMethodFunc<T, FUNC>;
 			LuaRef funcRef = LuaRef::CreateFuncWithUserdata(mLuaState, &MethodCaller::Caller, func);
 			RegisterMethod(name, funcRef);
@@ -114,7 +119,6 @@ namespace Cjing3D
 		template<typename V>
 		LuaBindClass<T, ParentT>& AddMember(const std::string& name, V T::* pointer)
 		{
-			Logger::Info("AddMember");
 			lua_State* l = GetLuaState();
 			SetMemberGetter(name, LuaRef::CreateFunc(l, &BindClassMemberMethod<T, V>::Getter, pointer));
 			SetMemberSetter(name, LuaRef::CreateFunc(l, &BindClassMemberMethod<T, V>::Setter, pointer));
@@ -125,7 +129,6 @@ namespace Cjing3D
 		template<typename V>
 		LuaBindClass<T, ParentT>& AddConstMember(const std::string& name, V T::* pointer)
 		{
-			Logger::Info("AddConstMember");
 			lua_State* l = GetLuaState();
 			SetMemberGetter(name, LuaRef::CreateFunc(l, &BindClassMemberMethod<T, V>::Getter, &pointer));
 			SetMemberReadOnly(name);
@@ -135,7 +138,6 @@ namespace Cjing3D
 
 		ParentT EndClass()
 		{
-			Logger::Info("EndClass");
 			return ParentT(mLuaState);
 		}
 
@@ -234,7 +236,6 @@ namespace Cjing3D
 
 		ParentT EndModule()
 		{
-			Logger::Info("EndModule");
 			return ParentT(mCurrentMeta.GetLuaState());
 		}
 

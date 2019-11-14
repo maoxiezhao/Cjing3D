@@ -194,6 +194,7 @@
     <ClInclude Include="resource\resourceManager.h" />
     <ClInclude Include="resource\resourcePool.hpp" />
     <ClInclude Include="scripts\api\luaApi.h" />
+    <ClInclude Include="scripts\api\utilsApi.h" />
     <ClInclude Include="scripts\luaArg.h" />
     <ClInclude Include="scripts\luaBinder.h" />
     <ClInclude Include="scripts\luaBinder_impl.h" />
@@ -290,7 +291,9 @@
     <ClCompile Include="resource\resource.cpp" />
     <ClCompile Include="resource\resourceManager.cpp" />
     <ClCompile Include="scripts\api\luaApi.cpp" />
+    <ClCompile Include="scripts\api\rendererApi.cpp" />
     <ClCompile Include="scripts\api\systemApi.cpp" />
+    <ClCompile Include="scripts\api\utilsApi.cpp" />
     <ClCompile Include="scripts\luaBinder.cpp" />
     <ClCompile Include="scripts\luaBinder_impl.cpp" />
     <ClCompile Include="scripts\luaContext.cpp" />

@@ -40,7 +40,7 @@ private:
 	std::vector<MethodMetaInfo> mMethodMetaInfos;
 	std::vector<MemberMetaInfo> mMemberMetaInfos;
 	std::string mClassName;
-
+	std::string mCustomClassName;
 public:
 	ClassMetaInfo() = default;
 
@@ -49,8 +49,10 @@ public:
 
 	std::vector<std::string> GetParentClass()const { return mParentClass; }
 	std::string GetName() const { return mClassName; }
+	std::string GetCustomName() const { return mCustomClassName; }
 
 	void SetClassName(const std::string& className) { mClassName = className; }
+	void SetCustomClassName(const std::string& className) { mCustomClassName = className; }
 	void PushParentClassName(const std::string& className) { mParentClass.push_back(className); }
 	void SetConstructorMetaInfo(const ConstructorMetainfo& info) { mConstructorMeta = info; }
 	void PushMethodMetaInfo(const MethodMetaInfo& info) { mMethodMetaInfos.push_back(info); }

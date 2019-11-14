@@ -155,7 +155,7 @@ void StateManager::SetupRasterizerStates()
 		RasterizerStateDesc desc = {};
 		desc.mFillMode = FILL_SOLID;
 		desc.mCullMode = CULL_BACK;
-		desc.mFrontCounterClockwise = true;
+		desc.mFrontCounterClockwise = false;
 		desc.mDepthBias = 0;
 		desc.mDepthBiasClamp = 0;
 		desc.mSlopeScaleDepthBias = 0;

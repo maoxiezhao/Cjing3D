@@ -45,7 +45,7 @@ namespace Cjing3D
 		}
 	}
 
-	void CameraComponent::TransformCamera(const TransformComponent & transform)
+	void CameraComponent::Transform(const TransformComponent & transform)
 	{
 		auto worldTransform = transform.GetWorldTransform();
 		XMVECTOR scale, rotation, translate;

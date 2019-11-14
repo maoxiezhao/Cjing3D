@@ -338,6 +338,12 @@
     <ClCompile Include="generates\luabind_registers.cpp">
       <Filter>generates</Filter>
     </ClCompile>
+    <ClCompile Include="scripts\api\rendererApi.cpp">
+      <Filter>scripts\api</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\api\utilsApi.cpp">
+      <Filter>scripts\api</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -662,6 +668,9 @@
     </ClInclude>
     <ClInclude Include="renderer\pipelineStateInfoManager.h">
       <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\api\utilsApi.h">
+      <Filter>scripts\api</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -12,14 +12,13 @@ namespace Cjing3D
 	namespace LuaTools
 	{
 		bool CallFunction(lua_State*l, int arguments, int results, const std::string& functionName);
-
 		void CheckType(lua_State*l, int index, int exceptedType);
 		int  GetPositiveIndex(lua_State*l, int index);
 		void PrintLuaStack(lua_State*l);
 		void PrintInIndex(lua_State*l, int index);
 		int GetCallDepth(lua_State*l);
-
 		void CheckAssertion(lua_State*l, bool assertion, const std::string& msg);
+		int GetArgCount(lua_State* l);
 
 		template<typename T>
 		inline void Push(lua_State*l, const T& v)

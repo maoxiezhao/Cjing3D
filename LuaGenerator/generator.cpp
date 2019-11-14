@@ -9,10 +9,13 @@ namespace Cjing3D {
 
 // TODO use config file
 std::map<std::string, bool>	LuaBindingsGenerator::ignoreFiles = {
+	{ "x64",           true },
 	{ "generates",     true },
 	{ "renderer",      true },
 	{ "scripts",       true },
 };
+
+const int MAX_CLASS_NAME_LENGTH = 20;
 
 namespace {
 
@@ -234,6 +237,10 @@ MethodMetaInfo MethodMetaInfo::Parse(const std::string & srcBuffer)
 		token = GetNextToken(currentLine);
 	}
 
+	if (token == "virtual") {
+		token = GetNextToken(currentLine);
+	}
+
 	auto nameToken = GetNextToken(currentLine);
 	metaInfo.mFunctionName = nameToken;
 
@@ -354,7 +361,14 @@ ClassMetaInfo ClassMetaInfo::Parse(const std::string & srcBuffer)
 const std::string ClassMetaInfo::GenerateRegisterCode() const
 {
 	std::string registerCode = "LuaBinder(l)\n";
-	registerCode += ".BeginClass<" + mClassName + ">(\"" + mClassName + "\")\n";
+	registerCode += ".BeginClass<" + mClassName + ">(\"";
+	if (mCustomClassName != "") {
+		registerCode = registerCode + mCustomClassName + "\")\n";
+	}
+	else {
+		registerCode = registerCode + mClassName + "\")\n";
+	}
+
 	registerCode += mConstructorMeta.GenerateRegisterCode();
 
 	for (auto& methodMetaInfo : mMethodMetaInfos) {
@@ -385,7 +399,7 @@ void LuaBindingsGenerator::ParseAllHeader(const std::string & path)
 			}
 			ParseHeader(fullPath, file);
 		}
-		else if (FileData::IsDirectory(file))
+		else if (FileData::IsDirectory(path + "/" + file))
 		{
 			ParseAllHeader(path + "/" + file);
 		}
@@ -410,6 +424,10 @@ void LuaBindingsGenerator::ParseHeader(const std::string & path, const std::stri
 			currentLine = GetCurrentLine(srcBuffer);
 		} 
 		while (currentLine == "\r" || currentLine == "\n");
+		
+		if (compactCurrentLine.length() > 1 && compactCurrentLine[0] == '/' && compactCurrentLine[1] == '/') {
+			continue;
+		}
 	
 		if (compactCurrentLine == "LUA_BINDER_REGISTER_CLASS")
 		{
@@ -438,6 +456,22 @@ void LuaBindingsGenerator::ParseHeader(const std::string & path, const std::stri
 				MethodMetaInfo metaInfo = MethodMetaInfo::Parse(srcBuffer);
 				metaInfo.mClassName = mCurrentClassMetaInfo->GetName();
 				mCurrentClassMetaInfo->PushMethodMetaInfo(metaInfo);
+			}
+		}
+
+		int lineLength = compactCurrentLine.length();
+		if (lineLength > strlen("LUA_BINDER_REGISTER_CLASS_SET_NAME") &&
+			lineLength < strlen("LUA_BINDER_REGISTER_CLASS_SET_NAME") + MAX_CLASS_NAME_LENGTH)
+		{
+			std::string flagString = compactCurrentLine.substr(0, strlen("LUA_BINDER_REGISTER_CLASS_SET_NAME"));
+			if (flagString == "LUA_BINDER_REGISTER_CLASS_SET_NAME")
+			{
+				std::string nameString = compactCurrentLine.substr(strlen("LUA_BINDER_REGISTER_CLASS_SET_NAME") + 1);
+				if (nameString != "")
+				{
+					nameString.pop_back();
+					mCurrentClassMetaInfo->SetCustomClassName(nameString);
+				}
 			}
 		}
 	}
@@ -475,7 +509,7 @@ bool LuaBindingsGenerator::GenerateSource(const std::string & path)
 	std::string dependentHeadersString = "";
 	for (auto& dependent : mDependentHeaders)
 	{
-		dependentHeadersString = dependentHeadersString + "#include \"" + dependent + "\"";
+		dependentHeadersString = dependentHeadersString + "#include \"" + dependent + "\"\n";
 	}
 
 	std::string stringBuffer = dependentHeadersString + generateStringPrefix;

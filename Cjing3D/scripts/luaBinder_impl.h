@@ -51,7 +51,7 @@ namespace Cjing3D
 				LuaArgValueTuple<Args...> args;
 				LuaInputArgs<Args...>::Get(l, 2, args);
 
-				int resultCount = ClassMethodCaller<T, F, R, LuaArgHolder<Args>...>::Call(l, obj, func, args);
+				int resultCount = ClassMethodCaller<T, F, R, typename LuaArgs<Args>::LuaArgHolderType...>::Call(l, obj, func, args);
 				return resultCount;
 			});
 		}

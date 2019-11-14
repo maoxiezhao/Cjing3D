@@ -190,4 +190,5 @@ namespace Cjing3D
 	template<typename T>
 	struct LuaTypeNormalMapping<T, typename std::enable_if<std::is_enum<T>::value, void>::type> :
 		LuaTypeIntegerMapping<T> {};
+
 }

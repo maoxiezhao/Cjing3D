@@ -92,6 +92,11 @@ namespace Cjing3D
 			}
 		}
 
+		int GetArgCount(lua_State * l)
+		{
+			return lua_gettop(l);
+		}
+
 		bool CallFunction(lua_State * l, int arguments, int results, const std::string & functionName)
 		{
 			if (lua_pcall(l, arguments, results, 0) != 0)
