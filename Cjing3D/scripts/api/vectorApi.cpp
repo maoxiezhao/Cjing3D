@@ -1,5 +1,5 @@
 #include "luaApi.h"
-#include "utilsApi.h"
+#include "vectorApi.h"
 
 namespace Cjing3D {
 namespace LuaApi {
@@ -17,6 +17,10 @@ namespace LuaApi {
 			.AddMethod("GetY", &BindLuaVector::GetY)
 			.AddMethod("GetZ", &BindLuaVector::GetZ)
 			.AddMethod("GetW", &BindLuaVector::GetW)
+			.AddMethod("Normalize", &BindLuaVector::Normalize)
+			.AddMethod("Length", &BindLuaVector::Length)
+            .AddFunction("Multiply", &BindLuaVector::Multiply)
+			.AddFunction("MultiplyWithNumber", &BindLuaVector::MultiplyWithNumber)
 			.EndClass();
 		
 	}
@@ -47,5 +51,16 @@ namespace LuaApi {
 		LuaTools::Push<BindLuaVector>(l, vector);
 		return 1;
 	}
+
+	BindLuaVector BindLuaVector::Multiply(const BindLuaVector & v1, const BindLuaVector & v2)
+	{
+		return BindLuaVector(XMVectorMultiply(v1.mValue, v2.mValue));
+	}
+
+	BindLuaVector BindLuaVector::MultiplyWithNumber(const BindLuaVector & v, const F32 & number)
+	{
+		return BindLuaVector(v.mValue * number);
+	}
+
 }
 }

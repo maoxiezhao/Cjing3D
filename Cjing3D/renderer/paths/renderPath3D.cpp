@@ -13,6 +13,13 @@ namespace Cjing3D
 	{
 	}
 
+	void RenderPath3D::Update(F32 dt)
+	{
+		RenderPath2D::Update(dt);
+
+		mRenderer.UpdateRenderFrameData(dt);
+	}
+
 	void RenderPath3D::ResizeBuffers()
 	{
 		FORMAT backBufferFormat = mRenderer.GetDevice().GetBackBufferFormat();

@@ -30,7 +30,7 @@ public:
 
 	void Initialize();
 	void Uninitialize();
-	void SetupRenderFrame();
+	void UpdateRenderFrameData(F32 deltaTime);
 	void Render();
 	void Compose();
 	void Present();
@@ -57,7 +57,6 @@ public:
 
 private:
 	void InitializeRenderPaths();
-	void UpdateRenderData();
 	void ProcessRenderQueue(RenderQueue& queue, ShaderType shaderType, RenderableType renderableType);
 	void BindConstanceBuffer(SHADERSTAGES stage);
 

@@ -124,9 +124,53 @@ void Renderer::Update(F32 deltaTime)
 }
 
 // do it before rendering
-void Renderer::SetupRenderFrame()
+void Renderer::UpdateRenderFrameData(F32 deltaTime)
 {
-	UpdateRenderData();
+	// 处理延时生成的mipmap
+	if (mDeferredMIPGenerator != nullptr) {
+		mDeferredMIPGenerator->UpdateMipGenerating();
+	}
+
+	auto& mainScene = GetMainScene();
+	mainScene.Update(deltaTime);
+
+	// 处理更新material data 
+	for (int materialIndex : mPendingUpdateMaterials)
+	{
+		auto material = mainScene.mMaterials[materialIndex];
+
+		MaterialCB cb;
+		cb.gMaterialBaseColor = XMConvert(material->mBaseColor);
+
+		mGraphicsDevice->UpdateBuffer(material->GetConstantBuffer(), &cb, sizeof(cb));
+	}
+
+	// update render scene
+	auto& scene = GetMainScene();
+	for (auto& kvp : mFrameCullings) {
+		auto& frameCulling = kvp.second;
+		frameCulling.Clear();
+
+		CameraPtr camera = kvp.first;
+		if (camera == nullptr) {
+			continue;
+		}
+
+		camera->Update();
+		auto currentFrustum = camera->GetFrustum();
+		frameCulling.mFrustum = currentFrustum;
+
+		// 遍历场景所有物体的aabb,如果在相机范围内，则添加物体的index
+		auto& objectAABBs = scene.mObjectAABBs;
+		for (size_t i = 0; i < objectAABBs.GetCount(); i++)
+		{
+			auto aabb = objectAABBs[i];
+			if (aabb != nullptr && currentFrustum.Overlaps(*aabb) == true)
+			{
+				frameCulling.mRenderingObjects.push_back((U32)i);
+			}
+		}
+	}
 }
 
 void Renderer::Render()
@@ -271,54 +315,6 @@ void Renderer::InitializeRenderPaths()
 {
 	mRenderPathForward = std::make_unique<RenderPathForward>(*this);
 	mRenderPathForward->Initialize();
-}
-
-// 更新渲染数据
-void Renderer::UpdateRenderData()
-{
-	// 处理延时生成的mipmap
-	if (mDeferredMIPGenerator != nullptr) {
-		mDeferredMIPGenerator->UpdateMipGenerating();
-	}
-
-	auto& mainScene = GetMainScene();
-	// 处理更新material data 
-	for (int materialIndex : mPendingUpdateMaterials)
-	{
-		auto material = mainScene.mMaterials[materialIndex];
-
-		MaterialCB cb;
-		cb.gMaterialBaseColor = XMConvert(material->mBaseColor);
-
-		mGraphicsDevice->UpdateBuffer(material->GetConstantBuffer(), &cb, sizeof(cb));
-	}
-
-	// update render scene
-	auto& scene = GetMainScene();
-	for (auto& kvp : mFrameCullings) {
-		auto& frameCulling = kvp.second;
-		frameCulling.Clear();
-
-		CameraPtr camera = kvp.first;
-		if (camera == nullptr) {
-			continue;
-		}
-
-		camera->Update();
-		auto currentFrustum = camera->GetFrustum();
-		frameCulling.mFrustum = currentFrustum;
-
-		// 遍历场景所有物体的aabb,如果在相机范围内，则添加物体的index
-		auto& objectAABBs = scene.mObjectAABBs;
-		for (size_t i = 0; i < objectAABBs.GetCount(); i++)
-		{
-			auto aabb = objectAABBs[i];
-			if (aabb != nullptr && currentFrustum.Overlaps(*aabb) == true)
-			{
-				frameCulling.mRenderingObjects.push_back((U32)i);
-			}
-		}
-	}
 }
 
 void Renderer::ProcessRenderQueue(RenderQueue & queue, ShaderType shaderType, RenderableType renderableType)

@@ -28,6 +28,9 @@ namespace Cjing3D {
 
 		void Rotate(const XMFLOAT4& quaternion);
 
+		LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
+		XMFLOAT4 GetRotationLocal()const { return mRotationLocal; }
+
 		inline void SetDirty(bool isDirty) { mIsDirty = isDirty; }
 		inline bool IsDirty()const { return mIsDirty; }
 		inline XMFLOAT4X4 GetWorldTransform() const { return mWorldTransform; }

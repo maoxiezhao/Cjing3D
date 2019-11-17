@@ -8,13 +8,13 @@ namespace Cjing3D {
 	{
 	public:
 		static const FORMAT RenderTargetFormatHDR = FORMAT_R16G16B16A16_FLOAT;
-		
 		static const FORMAT DepthStencilFormat = FORMAT_D32_FLOAT_S8X24_UINT;
 		static const FORMAT DepthStencilFormatAlias = FORMAT_R32G8X24_TYPELESS;
 
 		RenderPath3D(Renderer& renderer);
 		~RenderPath3D();
 
+		virtual void Update(F32 dt);
 		virtual void ResizeBuffers();
 		virtual void Compose();
 

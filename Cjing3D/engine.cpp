@@ -96,7 +96,7 @@ void Engine::Tick()
 	mTime = mTimer.GetTime();
 	mSystemContext->SetEngineTime(mTime);
 
-	F32 deltaTime = F32(mTime.deltaTime.count());
+	F32 deltaTime = F32(mTime.deltaTime / 1000.0f);
 	auto& inputManager = mSystemContext->GetSubSystem<InputManager>();
 	inputManager.Update(deltaTime);
 

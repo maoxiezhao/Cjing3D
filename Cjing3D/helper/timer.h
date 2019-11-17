@@ -1,7 +1,7 @@
 #pragma once
 
 #include "systemTime.h"
-#define __CHRONO_TIMER__
+//#define __CHRONO_TIMER__
 
 namespace Cjing3D {
 
@@ -40,12 +40,15 @@ namespace Cjing3D {
 
 	private:
 		void UpdateDeltaTime()const;
+		TimeStamp GetTotalTime()const;
 
 		CoreClock mClock;
-
 		mutable TimeStamp mTimeStamp;
 		mutable TimeInterval mDeltaTime;
 		mutable TimeInterval mTotalDeltaTime;
+
+		static double mFrequency;
+		static U64 mCounterStart;
 
 		bool mIsRunning;
 	};

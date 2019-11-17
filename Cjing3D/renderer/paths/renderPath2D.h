@@ -13,6 +13,7 @@ namespace Cjing3D {
 
 		virtual void Initialize();
 		virtual void Uninitialize();
+		virtual void Update(F32 dt);
 		virtual void Render();
 		virtual void Compose();
 		virtual void ResizeBuffers();

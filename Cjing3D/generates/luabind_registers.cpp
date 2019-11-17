@@ -33,6 +33,7 @@ LuaBinder(l)
 .AddMethod("Translate", &TransformComponent::Translate)
 .AddMethod("RotateRollPitchYaw", &TransformComponent::RotateRollPitchYaw)
 .AddMethod("Scale", &TransformComponent::Scale)
+.AddMethod("GetRotationLocal", &TransformComponent::GetRotationLocal)
 .EndClass();
 
 	

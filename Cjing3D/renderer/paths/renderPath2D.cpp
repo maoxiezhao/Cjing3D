@@ -19,6 +19,11 @@ namespace Cjing3D
 	{
 	}
 
+	void RenderPath2D::Update(F32 dt)
+	{
+		RenderPath::Update(dt);
+	}
+
 	void RenderPath2D::Render()
 	{
 	}

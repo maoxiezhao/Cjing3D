@@ -341,7 +341,7 @@
     <ClCompile Include="scripts\api\rendererApi.cpp">
       <Filter>scripts\api</Filter>
     </ClCompile>
-    <ClCompile Include="scripts\api\utilsApi.cpp">
+    <ClCompile Include="scripts\api\vectorApi.cpp">
       <Filter>scripts\api</Filter>
     </ClCompile>
   </ItemGroup>
@@ -669,7 +669,7 @@
     <ClInclude Include="renderer\pipelineStateInfoManager.h">
       <Filter>renderer</Filter>
     </ClInclude>
-    <ClInclude Include="scripts\api\utilsApi.h">
+    <ClInclude Include="scripts\api\vectorApi.h">
       <Filter>scripts\api</Filter>
     </ClInclude>
   </ItemGroup>

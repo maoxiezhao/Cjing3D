@@ -40,7 +40,6 @@ namespace Cjing3D {
 			return;
 		}
 
-		mRenderer.SetupRenderFrame();
 		mRenderer.UpdateCameraCB(*camera);
 
 		// opaque scene

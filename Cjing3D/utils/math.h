@@ -39,6 +39,13 @@ namespace Cjing3D {
 	/*********************************************************
 	*	\brief VertorType To XMVector
 	*********************************************************/
+	inline const XMVECTOR XM_CALLCONV XMLoad(const I32x2& src) {
+		XMVECTOR result;
+		XMVectorSetX(result, (float)src[0]);
+		XMVectorSetX(result, (float)src[1]);
+		return result;
+	}
+
 	inline const XMVECTOR XM_CALLCONV XMLoad(const F32x3& src) {
 		return XMLoadFloat3(reinterpret_cast<const XMFLOAT3*>(&src));
 	}
@@ -120,5 +127,12 @@ namespace Cjing3D {
 	inline F32x3 F32x3Normalize(F32x3 n)
 	{
 		return XMStore<F32x3>(XMVector3Normalize(XMLoad(n)));
+	}
+
+	template<typename T>
+	inline void HashCombine(U32& seed, const T& value)
+	{
+		std::hash<T> hasher;
+		seed ^= hasher(value) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 	}
 }

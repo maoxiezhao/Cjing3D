@@ -1,7 +1,13 @@
 #include "timer.h"
+#include "helper\debug.h"
 
 namespace Cjing3D {
 
+	double Timer::mFrequency = 0;
+	U64 Timer::mCounterStart = 0;
+
+
+#ifdef __CHRONO_TIMER__
 	Timer::Timer() :
 		mClock(),
 		mTimeStamp(TimeStamp::min()),
@@ -23,6 +29,51 @@ namespace Cjing3D {
 
 		mIsRunning = true;
 	}
+
+	void Timer::UpdateDeltaTime() const
+	{
+		const auto curTimeStamp = mClock.now();
+		mDeltaTime = curTimeStamp - mTimeStamp;
+		mTotalDeltaTime += mDeltaTime;
+		mTimeStamp = curTimeStamp;
+	}
+
+#else
+	Timer::Timer() :
+		mTimeStamp(0),
+		mDeltaTime(0),
+		mTotalDeltaTime(0),
+		mIsRunning(false)
+	{
+	}
+
+	void Timer::Start()
+	{
+		if (mIsRunning) {
+			return;
+		}
+
+		LARGE_INTEGER li;
+		if (!QueryPerformanceFrequency(&li)) {
+			Debug::Error("QueryPerformanceFrequency failed!");
+		}
+		mFrequency = double(li.QuadPart) / 1000.0f;
+
+		QueryPerformanceCounter(&li);
+		mCounterStart = li.QuadPart;
+
+		mIsRunning = true;
+	}
+
+	void Timer::UpdateDeltaTime() const
+	{
+		TimeStamp curTimeStamp = GetTotalTime();
+
+		mDeltaTime = curTimeStamp - mTimeStamp;
+		mTotalDeltaTime += mDeltaTime;
+		mTimeStamp = curTimeStamp;
+	}
+#endif
 
 	void Timer::Stop()
 	{
@@ -64,12 +115,11 @@ namespace Cjing3D {
 		return { mDeltaTime, mTotalDeltaTime };
 	}
 
-	void Timer::UpdateDeltaTime() const
+	TimeStamp Timer::GetTotalTime() const
 	{
-		const auto curTimeStamp = mClock.now();
-		mDeltaTime = curTimeStamp - mTimeStamp;
-		mTotalDeltaTime += mDeltaTime;
-		mTimeStamp = curTimeStamp;
+		LARGE_INTEGER li;
+		QueryPerformanceCounter(&li);
+		return TimeStamp(li.QuadPart - mCounterStart) / mFrequency;
 	}
 }
 

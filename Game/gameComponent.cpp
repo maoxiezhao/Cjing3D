@@ -24,12 +24,12 @@ namespace Cjing3D
 	void TestGame::Initialize()
 	{
 		auto systemContext = GetGameContext();
-		ModelImporter::ImportModelObj("..\\Assets\\Models\\cornell_box.obj", *systemContext);
+		ModelImporter::ImportModelObj("..\\Assets\\Models\\cube.obj", *systemContext);
 
 		auto& renderer = systemContext->GetSubSystem<Renderer>();
 		auto camera = renderer.GetCamera();
 		camera->SetCameraStatus(
-			{ 0.0f, 0.0f, -250.0f },
+			{ 0.0f, 0.0f, -10.0f },
 			{ 0.0f, 0.0f, 1.0f },
 			{ 0.0f, 1.0f, 0.0f }
 		);

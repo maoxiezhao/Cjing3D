@@ -116,8 +116,8 @@ namespace ModelImporter
 					if (objAttrib.texcoords.empty() == false)
 					{
 						tex = {
-							objAttrib.texcoords[index.texcoord_index * 3 + 0],
-							objAttrib.texcoords[index.texcoord_index * 3 + 1]
+							objAttrib.texcoords[index.texcoord_index * 2 + 0],
+							objAttrib.texcoords[index.texcoord_index * 2 + 1]
 						};
 					}
 
@@ -134,14 +134,12 @@ namespace ModelImporter
 						mesh->mSubsets.push_back(subset);
 					}
 
-					I32 hashes[] = {
-						std::hash<int>{}(index.vertex_index),
-						std::hash<int>{}(index.normal_index),
-						std::hash<int>{}(index.texcoord_index),
-						std::hash<int>{}(materialIndex),
-					};
-					// a ^ (b << 1) 必定根据a,b的不同有4种结果
-					I32 hashValue = (((hashes[0] ^ (hashes[1] << 1) >> 1) ^ (hashes[2] << 1)) >> 1) ^ (hashes[3] << 1);
+					U32 hashValue = 0;
+					HashCombine(hashValue, index.vertex_index);
+					HashCombine(hashValue, index.normal_index);
+					HashCombine(hashValue, index.texcoord_index);
+					HashCombine(hashValue, materialIndex);
+
 					if (verticesSet.count(hashValue) == 0)
 					{
 						verticesSet[hashValue] = (U32)mesh->mVertexPositions.size();
