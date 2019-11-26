@@ -344,6 +344,9 @@
     <ClCompile Include="scripts\api\vectorApi.cpp">
       <Filter>scripts\api</Filter>
     </ClCompile>
+    <ClCompile Include="scripts\api\matrixApi.cpp">
+      <Filter>scripts\api</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -670,6 +673,9 @@
       <Filter>renderer</Filter>
     </ClInclude>
     <ClInclude Include="scripts\api\vectorApi.h">
+      <Filter>scripts\api</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\api\matrixApi.h">
       <Filter>scripts\api</Filter>
     </ClInclude>
   </ItemGroup>

@@ -27,6 +27,7 @@ public:
 	void Initialize();
 	void Uninitialize();
 	void Update(F32 deltaTime);
+	void GC();
 
 	using FunctionExportToLua = int(lua_State* l);
 	static FunctionExportToLua

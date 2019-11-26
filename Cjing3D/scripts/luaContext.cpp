@@ -2,6 +2,7 @@
 #include "luaBinder.h"
 #include "helper\debug.h"
 #include "helper\fileSystem.h"
+#include "helper\profiler.h"
 #include "input\InputSystem.h"
 
 namespace Cjing3D {
@@ -74,7 +75,20 @@ void LuaContext::InitializeEnum(lua_State * l)
 
 void LuaContext::Update(F32 deltaTime)
 {
+	auto& profiler = Profiler::GetInstance();
+	profiler.BeginBlock("LuaUpdate");
 	OnMainUpdate();
+	profiler.EndBlock();
+
+	profiler.BeginBlock("LuaGC");
+	GC();
+	profiler.EndBlock();
+}
+
+void LuaContext::GC()
+{
+	// TEMP:暂时在每一帧结束后执行一次step gc
+	lua_gc(mLuaState, LUA_GCSTEP, 200);
 }
 
 void LuaContext::Uninitialize()

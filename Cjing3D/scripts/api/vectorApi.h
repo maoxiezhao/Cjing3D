@@ -8,11 +8,16 @@ namespace Cjing3D
 {
 namespace LuaApi
 {
+	class BindLuaMatrix;
+
+	void BindLuaVectorApi(lua_State* l);
+
 	// bind lua vector, manual binding
 	class BindLuaVector
 	{
 	public:
 		BindLuaVector(const XMVECTOR& value) :mValue(value) {}
+		~BindLuaVector();
 		static int Create(lua_State* l);
 
 		F32 GetX() { return XMVectorGetX(mValue); };
@@ -24,12 +29,20 @@ namespace LuaApi
 		void SetY(F32 x) { mValue = XMVectorSetY(mValue, x); }
 		void SetZ(F32 x) { mValue = XMVectorSetZ(mValue, x); }
 		void SetW(F32 x) { mValue = XMVectorSetW(mValue, x); }
+		void SetXYZ(F32 x, F32 y, F32 z) {
+			mValue = XMVectorSetX(mValue, x);
+			mValue = XMVectorSetY(mValue, y);
+			mValue = XMVectorSetZ(mValue, z);
+		}
 
 		void Normalize() { mValue = XMVector3Normalize(mValue); }
 		F32 Length() { return (F32)XMVectorGetX(XMVector3Length(mValue)); }
 
 		static BindLuaVector Multiply(const BindLuaVector& v1, const BindLuaVector& v2);
 		static BindLuaVector MultiplyWithNumber(const BindLuaVector& v, const F32& number);
+
+		static BindLuaVector Transform(const BindLuaVector& vec, const BindLuaMatrix& mat);
+		static BindLuaVector TransformNormal(const BindLuaVector& vec, const BindLuaMatrix& mat);
 
 		XMVECTOR mValue;
 	};

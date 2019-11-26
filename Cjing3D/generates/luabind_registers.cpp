@@ -23,6 +23,7 @@ LuaBinder(l)
 .AddMethod("IsKeyDown", &InputManager::IsKeyDown)
 .AddMethod("IsKeyUp", &InputManager::IsKeyUp)
 .AddMethod("IsKeyHold", &InputManager::IsKeyHold)
+.AddMethod("GetMousePos", &InputManager::GetMousePos)
 .EndClass();
 
 LuaBinder(l)

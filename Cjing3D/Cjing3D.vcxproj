@@ -194,6 +194,7 @@
     <ClInclude Include="resource\resourceManager.h" />
     <ClInclude Include="resource\resourcePool.hpp" />
     <ClInclude Include="scripts\api\luaApi.h" />
+    <ClInclude Include="scripts\api\matrixApi.h" />
     <ClInclude Include="scripts\api\vectorApi.h" />
     <ClInclude Include="scripts\luaArg.h" />
     <ClInclude Include="scripts\luaBinder.h" />
@@ -291,6 +292,7 @@
     <ClCompile Include="resource\resource.cpp" />
     <ClCompile Include="resource\resourceManager.cpp" />
     <ClCompile Include="scripts\api\luaApi.cpp" />
+    <ClCompile Include="scripts\api\matrixApi.cpp" />
     <ClCompile Include="scripts\api\rendererApi.cpp" />
     <ClCompile Include="scripts\api\systemApi.cpp" />
     <ClCompile Include="scripts\api\vectorApi.cpp" />

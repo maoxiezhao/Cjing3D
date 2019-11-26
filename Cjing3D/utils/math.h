@@ -40,9 +40,9 @@ namespace Cjing3D {
 	*	\brief VertorType To XMVector
 	*********************************************************/
 	inline const XMVECTOR XM_CALLCONV XMLoad(const I32x2& src) {
-		XMVECTOR result;
-		XMVectorSetX(result, (float)src[0]);
-		XMVectorSetX(result, (float)src[1]);
+		XMVECTOR result = XMVectorZero();
+		result = XMVectorSetX(result, (float)src[0]);
+		result = XMVectorSetY(result, (float)src[1]);
 		return result;
 	}
 

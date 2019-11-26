@@ -63,6 +63,7 @@ public:
 	LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
 	bool IsKeyHold(const KeyCode key)const;
 
+	LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
 	I32x2 GetMousePos()const;
 };
 

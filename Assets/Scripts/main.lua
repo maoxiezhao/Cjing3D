@@ -16,7 +16,7 @@ function MainInstance:onMainInitialize()
 	Logger.Info("OnMainInitialize")
 
 	collectgarbage('setpause', 200)
-	collectgarbage('setstepmul', 200)
+	collectgarbage('setstepmul', 400)
 
 	local main_camera = Render.GetMainCamera();
 	self.m_fps_camera:setCamera(main_camera);
@@ -33,7 +33,13 @@ function MainInstance:onMainUpdate()
 
 	local deltaTime = System.GetDeltaTime();
 	-- tick begin
+
+	print();
+	--collectgarbage("collect")
+	print("COUNT_1:", collectgarbage("count"))
 	self:updateCamera(deltaTime);
+	print("COUNT_2:", collectgarbage("count"))
+	--collectgarbage("collect")
 end 
 
 function MainInstance:onMainUnInitialize()

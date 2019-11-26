@@ -3,12 +3,17 @@ require("common.common")
 FPSCamera = ClassDefine(FPSCamera);
 function FPSCamera:ctor()
     self.m_is_mouse_move = false;
+    self.m_last_mouse_pos = nil;
     self.m_rotate_x_delta = 0.0;
     self.m_rotate_y_delta = 0.0;
+
     self.m_move_delta = Vector:new(0, 0, 0);
-    self.m_move_speed = 10.0;
+
 	self.m_camera_transform = Transform:new();
     self.m_camera_inst = nil;
+
+    self.m_move_speed = 10.0;
+    self.m_rotation_speed = 0.0005;
 end 
 
 function FPSCamera:reset(camera_pos)
@@ -29,32 +34,39 @@ function FPSCamera:setMoveSpeed(speed)
     self.m_move_speed = speed;
 end 
 
-function FPSCamera:setMoveDelta(move_delta)
-    self.m_move_delta = move_delta;
-end 
-
 function FPSCamera:notifyInput()
 	local input_manager = global_context.m_input_manager;
 
-    local move_delta = Vector:new(0, 0, 0); 
+    local x, y, z = 0, 0, 0;
 	if input_manager:IsKeyHold(KeyCode.W) == true then 
-		move_delta:SetZ(move_delta:GetZ() + 1);
+		z = z + 1;
 	end 
 	if input_manager:IsKeyHold(KeyCode.A) == true then 
-		move_delta:SetX(move_delta:GetX() - 1);
+		x = x - 1; 
 	end 
 	if input_manager:IsKeyHold(KeyCode.S) == true then 
-		move_delta:SetZ(move_delta:GetZ() - 1);
+		z = z - 1;
 	end 
 	if input_manager:IsKeyHold(KeyCode.D) == true then 
-		move_delta:SetX(move_delta:GetX() + 1);
+        x = x + 1; 
     end 
-    
-    self:setMoveDelta(move_delta);
+    self.m_move_delta:SetXYZ(x, y, z);
 
-    local orginMouse = nil;
+    ---------------------------------------------------------------------------------------
     if self.m_is_mouse_move == false then 
-    
+        self.m_last_mouse_pos = input_manager:GetMousePos();
+    end 
+
+    local current_mouse = input_manager:GetMousePos();
+    if input_manager:IsKeyHold(KeyCode.Click_Right) == true then 
+        self.m_is_mouse_move = true;
+        self.m_rotate_x_delta = current_mouse:GetX() - self.m_last_mouse_pos:GetX();
+        self.m_rotate_y_delta = current_mouse:GetY() - self.m_last_mouse_pos:GetY();
+
+        self.m_rotate_x_delta = self.m_rotate_x_delta * (1.0 / 60.0);
+        self.m_rotate_y_delta = self.m_rotate_y_delta * (1.0 / 60.0);
+    else
+        self.m_is_mouse_move = false;
     end 
 end 
 
@@ -69,6 +81,9 @@ function FPSCamera:update(deltaTime)
     local speed = self.m_move_speed * deltaTime;
     move_delta = Vector.MultiplyWithNumber(move_delta, speed);
 
+    self.m_rotate_x_delta = self.m_rotate_x_delta * self.m_rotation_speed;
+    self.m_rotate_y_delta = self.m_rotate_y_delta * self.m_rotation_speed;
+
     local move_length = move_delta:Length();
     if move_length <= 0.00001 and 
        (math.abs(self.m_rotate_x_delta) + math.abs(self.m_rotate_y_delta)) <= 0 then 
@@ -77,6 +92,10 @@ function FPSCamera:update(deltaTime)
     end 
 
     local move_vec = move_delta;
+
+    local cam_rotation = Matrix:new();
+    cam_rotation:RotationQuaternion(self.m_camera_transform:GetRotationLocal());
+    move_vec = Vector.TransformNormal(move_vec, cam_rotation);
 
     self.m_camera_transform:Translate(move_vec);
     self.m_camera_transform:RotateRollPitchYaw(Vector:new(
