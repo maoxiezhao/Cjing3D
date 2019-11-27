@@ -15,9 +15,8 @@ namespace Cjing3D {
 		RenderPath(Renderer& renderer);
 		virtual ~RenderPath();
 
-		virtual void Initialize() = 0;
-		virtual void Uninitialize() = 0;
-
+		virtual void Initialize() {};
+		virtual void Uninitialize() {};
 		virtual void Start() {};
 		virtual void Stop() {};
 		virtual void Update(F32 dt);

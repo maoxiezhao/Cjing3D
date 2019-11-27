@@ -22,6 +22,8 @@ namespace Cjing3D
 
 	void RenderPath3D::ResizeBuffers()
 	{
+		RenderPath2D::ResizeBuffers();
+
 		FORMAT backBufferFormat = mRenderer.GetDevice().GetBackBufferFormat();
 		const auto screenSize = mRenderer.GetDevice().GetScreenSize();
 
@@ -52,7 +54,10 @@ namespace Cjing3D
 
 	void RenderPath3D::Compose()
 	{
-		RenderImage::Render(GetLastPostprocessRT(), mRenderer);
+		RenderImage::ImageParams params;
+		params.mBlendType = BlendType_Opaque;
+
+		RenderImage::Render(*GetLastPostprocessRT(), params, mRenderer);
 
 		RenderPath2D::Compose();
 	}
@@ -60,7 +65,7 @@ namespace Cjing3D
 	void RenderPath3D::RenderPostprocess(Texture2D & rtScreen)
 	{
 		Texture2D* rtRead = &rtScreen;
-		Texture2D* rtWrite = &GetLastPostprocessRT();
+		Texture2D* rtWrite = GetLastPostprocessRT();
 
 		// do nothing now
 	}

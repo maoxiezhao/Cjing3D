@@ -39,7 +39,7 @@ PipelineStateInfo PipelineStateInfoManager::GetPipelineStateInfo(ShaderType shad
 	return infoState;
 }
 
-PipelineStateInfo PipelineStateInfoManager::GetImagePipelineStateInfo()
+PipelineStateInfo PipelineStateInfoManager::GetImagePipelineStateInfo(RenderImage::ImageParams params)
 {
 	ShaderLib& shaderLib = mRenderer.GetShaderLib();
 	StateManager& stateManager = mRenderer.GetStateManager();
@@ -50,6 +50,14 @@ PipelineStateInfo PipelineStateInfoManager::GetImagePipelineStateInfo()
 	infoState.mVertexShader = shaderLib.GetVertexShader(VertexShaderType_FullScreen);
 	infoState.mPixelShader = shaderLib.GetPixelShader(PixelShaderType_FullScreen);
 	infoState.mPrimitiveTopology = TRIANGLELIST;
+
+	if (params.mBlendType == BlendType_Opaque) {
+		infoState.mBlendState = stateManager.GetBlendState(BlendStateID_Opaque);
+	}
+	else {
+		infoState.mBlendState = stateManager.GetBlendState(BlendStateID_PreMultiplied);
+	}
+
 
 	return infoState;
 }

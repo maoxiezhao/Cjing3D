@@ -19,6 +19,12 @@
 template<typename T>
 using ComPtr = Microsoft::WRL::ComPtr<T>;
 
+enum BlendType
+{
+	BlendType_Opaque,
+	BlendType_PreMultiplied
+};
+
 enum RenderingDeviceType
 {
 	RenderingDeviceType_D3D11,

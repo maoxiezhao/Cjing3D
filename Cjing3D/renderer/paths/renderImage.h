@@ -10,6 +10,11 @@ class Renderer;
 	
 namespace RenderImage
 {
-	void Render(RhiTexture2D& texture, Renderer& renderer);
+	struct ImageParams
+	{
+		BlendType mBlendType = BlendType_Opaque;
+	};
+
+	void Render(RhiTexture2D & texture, ImageParams params, Renderer& renderer);
 }
 }

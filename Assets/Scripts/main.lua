@@ -2,7 +2,6 @@ package.path = package.path .. ";../Assets/Scripts/?.lua"
 
 require("common.common")
 require("common.global")
-
 require("camera")
 
 Logger.Info("Load main file success.")
@@ -28,18 +27,9 @@ function MainInstance:updateCamera(deltaTime)
 end 
 
 function MainInstance:onMainUpdate()
-	-- 处理引用mem leak
-	-- local input_manager = System.GetInputManager();
-
 	local deltaTime = System.GetDeltaTime();
-	-- tick begin
 
-	print();
-	--collectgarbage("collect")
-	print("COUNT_1:", collectgarbage("count"))
 	self:updateCamera(deltaTime);
-	print("COUNT_2:", collectgarbage("count"))
-	--collectgarbage("collect")
 end 
 
 function MainInstance:onMainUnInitialize()

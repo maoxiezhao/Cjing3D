@@ -43,7 +43,7 @@ namespace Cjing3D {
 		mRenderer.UpdateCameraCB(*camera);
 
 		// opaque scene
-		Texture2D& depthBuffer = GetDepthBuffer();
+		Texture2D& depthBuffer = *GetDepthBuffer();
 		Texture2D* rts[] = { &mRTMain };
 		{
 			device.BindRenderTarget(1, rts, &depthBuffer);
@@ -73,7 +73,10 @@ namespace Cjing3D {
 		GraphicsDevice& device = mRenderer.GetDevice();
 		device.BeginEvent("Composition");
 
-		RenderImage::Render(mRTMain, mRenderer);
+		RenderImage::ImageParams params;
+		params.mBlendType = BlendType_Opaque;
+
+		RenderImage::Render(mRTMain, params, mRenderer);
 
 		RenderPath2D::Compose();
 

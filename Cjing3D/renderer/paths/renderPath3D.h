@@ -22,12 +22,12 @@ namespace Cjing3D {
 		virtual void RenderPostprocess(Texture2D& rtScreen);
 
 	protected:
-		Texture2D & GetLastPostprocessRT() {
-			return mRTPostprocess;
+		Texture2D* GetLastPostprocessRT() {
+			return &mRTPostprocess;
 		}
 
-		Texture2D & GetDepthBuffer() {
-			return mDepthBuffer;
+		virtual Texture2D* GetDepthBuffer() {
+			return &mDepthBuffer;
 		}
 
 		Texture2D mDepthBuffer;

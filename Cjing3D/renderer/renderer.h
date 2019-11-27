@@ -1,7 +1,7 @@
 #pragma once
 
 #include "renderer\renderableCommon.h"
-#include "renderer\paths\renderPath_forward.h"
+#include "renderer\paths\renderPath.h"
 #include "renderer\rendererUtils.h"
 #include "core\subSystem.hpp"
 #include "utils\allocator.h"
@@ -19,6 +19,7 @@ class CameraComponent;
 class Scene;
 class MaterialComponent;
 class PipelineStateInfoManager;
+class Renderer2D;
 
 class Renderer : public SubSystem
 {
@@ -43,6 +44,7 @@ public:
 	StateManager& GetStateManager();
 	Scene& GetMainScene();
 	PipelineStateInfoManager& GetPipelineStateInfoManager();
+	Renderer2D& GetRenderer2D();
 
 	// Render Method
 	void RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, ShaderType shaderType);
@@ -55,13 +57,12 @@ public:
 	// const buffer function
 	void UpdateCameraCB(CameraComponent& camera);
 
+	// render path method
+	void SetCurrentRenderPath(RenderPath* renderPath);
+
 private:
-	void InitializeRenderPaths();
 	void ProcessRenderQueue(RenderQueue& queue, ShaderType shaderType, RenderableType renderableType);
 	void BindConstanceBuffer(SHADERSTAGES stage);
-
-	// Pass function
-	void ForwardRender();
 
 	// 当前帧的裁剪后的数据
 	struct FrameCullings
@@ -79,6 +80,8 @@ private:
 	U32 mFrameNum = 0;
 	U32x2 mScreenSize;
 
+	std::vector<int> mPendingUpdateMaterials;
+
 	std::shared_ptr<CameraComponent> mCamera;
 	std::unique_ptr<GraphicsDevice> mGraphicsDevice;
 	std::unique_ptr<ShaderLib> mShaderLib;
@@ -86,10 +89,9 @@ private:
 	std::unique_ptr<DeferredMIPGenerator> mDeferredMIPGenerator;
 	std::unique_ptr<LinearAllocator> mFrameAllocator;
 	std::unique_ptr<PipelineStateInfoManager> mPipelineStateInfoManager;
+	std::unique_ptr<Renderer2D> mRenderer2D;
 
-	std::vector<int> mPendingUpdateMaterials;
-
-	std::unique_ptr<RenderPathForward> mRenderPathForward;
+	std::unique_ptr<RenderPath> mCurrentRenderPath;
 };
 
 }

@@ -2,9 +2,11 @@
 #include "resource\modelImporter.h"
 #include "scripts\luaContext.h"
 #include "renderer\renderer.h"
+#include "renderer\renderer2D.h"
 #include "system\component\camera.h"
 #include "input\InputSystem.h"
 #include "helper\logger.h"
+#include "renderer\paths\renderPath_forward.h"
 
 namespace Cjing3D
 {
@@ -18,7 +20,6 @@ namespace Cjing3D
 
 	void TestGame::Setup()
 	{
-
 	}
 
 	void TestGame::Initialize()
@@ -33,6 +34,11 @@ namespace Cjing3D
 			{ 0.0f, 0.0f, 1.0f },
 			{ 0.0f, 1.0f, 0.0f }
 		);
+		RenderPathForward* path = new RenderPathForward(renderer);
+		renderer.SetCurrentRenderPath(path);
+
+		Renderer2D& renderer2D = renderer.GetRenderer2D();
+		renderer2D.SetCurrentRenderPath(path);
 
 		auto& luaContext = systemContext->GetSubSystem<LuaContext>();
 	}

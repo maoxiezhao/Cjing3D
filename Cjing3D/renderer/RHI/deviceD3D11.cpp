@@ -997,6 +997,9 @@ HRESULT GraphicsDeviceD3D11::CreateDepthStencilState(const DepthStencilStateDesc
 
 HRESULT GraphicsDeviceD3D11::CreateBlendState(const BlendStateDesc & desc, BlendState & state)
 {
+	state.Register(this);
+	state.SetDesc(desc);
+
 	D3D11_BLEND_DESC blendDesc = {};
 	blendDesc.AlphaToCoverageEnable = desc.mAlphaToCoverageEnable;
 	blendDesc.IndependentBlendEnable = desc.mIndependentBlendEnable;
@@ -1014,8 +1017,8 @@ HRESULT GraphicsDeviceD3D11::CreateBlendState(const BlendStateDesc & desc, Blend
 		blendDesc.RenderTarget[i].RenderTargetWriteMask = _ParseColorWriteMask(desc.mRenderTarget[i].mRenderTargetWriteMask);
 	}
 
-	auto& blendState = state.GetStatePtr();
-	return mDevice->CreateBlendState(&blendDesc, blendState.ReleaseAndGetAddressOf());
+	ID3D11BlendState** blendState = state.GetBlendStatePtr();
+	return mDevice->CreateBlendState(&blendDesc, blendState);
 }
 
 HRESULT GraphicsDeviceD3D11::CreateRasterizerState(const RasterizerStateDesc & desc, RasterizerState & state)
@@ -1561,7 +1564,7 @@ void GraphicsDeviceD3D11::BindShaderInfoState(PipelineStateInfo state)
 		mPrevPixelShader = ps;
 	}
 
-	ID3D11BlendState* bs = state.mBlendState != nullptr ? &state.mBlendState->GetState() : nullptr;
+	ID3D11BlendState* bs = state.mBlendState != nullptr ? state.mBlendState->GetBlendState() : nullptr;
 	if (bs != mPrevBlendState)
 	{
 		const float factor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };

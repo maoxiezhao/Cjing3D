@@ -176,6 +176,7 @@
     <ClInclude Include="renderer\pipelineStateInfoManager.h" />
     <ClInclude Include="renderer\renderableCommon.h" />
     <ClInclude Include="renderer\renderer.h" />
+    <ClInclude Include="renderer\renderer2D.h" />
     <ClInclude Include="renderer\rendererUtils.h" />
     <ClInclude Include="renderer\mappingDefine.h" />
     <ClInclude Include="renderer\RHI\rhiFactory.h" />
@@ -279,6 +280,7 @@
     <ClCompile Include="renderer\paths\renderPath.cpp" />
     <ClCompile Include="renderer\pipelineStateInfoManager.cpp" />
     <ClCompile Include="renderer\renderer.cpp" />
+    <ClCompile Include="renderer\renderer2D.cpp" />
     <ClCompile Include="renderer\rendererUtils.cpp" />
     <ClCompile Include="renderer\RHI\rhiFactory.cpp" />
     <ClCompile Include="renderer\RHI\rhiResource.cpp" />

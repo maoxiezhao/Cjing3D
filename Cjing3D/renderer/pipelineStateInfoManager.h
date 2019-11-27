@@ -4,6 +4,7 @@
 #include "renderer\renderer.h"
 #include "renderer\RHI\rhiResource.h"
 #include "renderer\RHI\rhiShader.h"
+#include "renderer\paths\renderImage.h"
 
 namespace Cjing3D {
 
@@ -14,7 +15,7 @@ public:
 	~PipelineStateInfoManager();
 
 	PipelineStateInfo GetPipelineStateInfo(ShaderType shaderType, MaterialComponent& material);
-	PipelineStateInfo GetImagePipelineStateInfo();
+	PipelineStateInfo GetImagePipelineStateInfo(RenderImage::ImageParams params);
 
 	void SetupPipelineStateInfos();
 

@@ -2,6 +2,7 @@
 #include "shaderLib.h"
 #include "stateManager.h"
 #include "pipelineStateInfoManager.h"
+#include "renderer2D.h"
 #include "renderer\RHI\device.h"
 #include "core\systemContext.hpp"
 #include "core\eventSystem.h"
@@ -38,6 +39,7 @@ Renderer::Renderer(SystemContext& gameContext, RenderingDeviceType deviceType, H
 	mIsInitialized(false),
 	mIsRendering(false),
 	mCamera(nullptr),
+	mCurrentRenderPath(nullptr),
 	mFrameNum(0)
 {
 	mGraphicsDevice = std::unique_ptr<GraphicsDevice>(CreateGraphicsDeviceByType(deviceType, window));
@@ -81,7 +83,9 @@ void Renderer::Initialize()
 	mFrameAllocator = std::make_unique<LinearAllocator>();
 	mFrameAllocator->Reserve(MAX_FRAME_ALLOCATOR_SIZE);
 
-	InitializeRenderPaths();
+	// initialize 2d renderer
+	mRenderer2D = std::make_unique<Renderer2D>(*this);
+	mRenderer2D->Initialize();
 
 	mIsInitialized = true;
 }
@@ -92,10 +96,23 @@ void Renderer::Uninitialize()
 		return;
 	}
 
-	mRenderPathForward->Uninitialize();
-	mRenderPathForward.reset();
+	if (mCurrentRenderPath != nullptr)
+	{
+		mCurrentRenderPath->Uninitialize();
+		mCurrentRenderPath.reset();
+	}
+
+	mRenderer2D->Uninitialize();
+	mRenderer2D.reset();
+
+	mFrameAllocator.reset();
 
 	mPipelineStateInfoManager.reset();
+
+	mShaderLib->Uninitialize();
+	mShaderLib.reset();
+
+	mStateManager.reset();
 
 	mGraphicsDevice->Uninitialize();
 
@@ -120,7 +137,9 @@ void Renderer::Update(F32 deltaTime)
 		}
 	}
 
-	mRenderPathForward->Update(deltaTime);
+	if (mCurrentRenderPath != nullptr) {
+		mCurrentRenderPath->Update(deltaTime);
+	}
 }
 
 // do it before rendering
@@ -177,14 +196,20 @@ void Renderer::Render()
 {
 	mIsRendering = true;
 
-	ForwardRender();
+	mRenderer2D->Render();
+
+	if (mCurrentRenderPath != nullptr) {
+		mCurrentRenderPath->Render();
+	}
 
 	mIsRendering = false;
 }
 
 void Renderer::Compose()
 {
-	mRenderPathForward->Compose();
+	if (mCurrentRenderPath != nullptr) {
+		mCurrentRenderPath->Compose();
+	}
 }
 
 void Renderer::Present()
@@ -311,10 +336,26 @@ PipelineStateInfoManager & Renderer::GetPipelineStateInfoManager()
 	return *mPipelineStateInfoManager;
 }
 
-void Renderer::InitializeRenderPaths()
+Renderer2D & Renderer::GetRenderer2D()
 {
-	mRenderPathForward = std::make_unique<RenderPathForward>(*this);
-	mRenderPathForward->Initialize();
+	return *mRenderer2D;
+}
+
+void Renderer::SetCurrentRenderPath(RenderPath * renderPath)
+{
+	if (mCurrentRenderPath != nullptr)
+	{
+		mCurrentRenderPath->Stop();
+		mCurrentRenderPath->Uninitialize();
+	}
+
+	mCurrentRenderPath = std::unique_ptr<RenderPath>(renderPath);
+
+	if (mCurrentRenderPath != nullptr)
+	{
+		mCurrentRenderPath->Initialize();
+		mCurrentRenderPath->Start();
+	}
 }
 
 void Renderer::ProcessRenderQueue(RenderQueue & queue, ShaderType shaderType, RenderableType renderableType)
@@ -451,11 +492,6 @@ void Renderer::BindConstanceBuffer(SHADERSTAGES stage)
 	auto& cameraBuffer = *mShaderLib->GetConstantBuffer(ConstantBufferType_Camera);
 
 	mGraphicsDevice->BindConstantBuffer(stage, cameraBuffer, CB_GETSLOT_NAME(CameraCB));
-}
-
-void Renderer::ForwardRender()
-{
-	mRenderPathForward->Render();
 }
 
 void Renderer::FrameCullings::Clear()

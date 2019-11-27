@@ -125,17 +125,18 @@ namespace Cjing3D
 		CPUHandle mHandle = CPU_NULL_HANDLE;
 	};
 
-	class BlendState
+	class BlendState : public GraphicsDeviceChild
 	{
 	public:
-		BlendState() : mState() {};
+		BlendState() {};
 
+		void SetDesc(BlendStateDesc desc) { mDesc = desc; }
 		BlendStateDesc GetDesc()const { return mDesc; }
-		ID3D11BlendState& GetState() { return *mState.Get(); }
-		ComPtr<ID3D11BlendState>& GetStatePtr() { return mState; }
-	private:
+		ID3D11BlendState* GetBlendState() { return *(ID3D11BlendState**)&mHandle; }
+		ID3D11BlendState** GetBlendStatePtr() { return (ID3D11BlendState**)&mHandle; }
+
 		BlendStateDesc mDesc;
-		ComPtr<ID3D11BlendState> mState;
+		CPUHandle mHandle = CPU_NULL_HANDLE;
 	};
 
 	class SamplerState

@@ -18,6 +18,7 @@ namespace Cjing3D
 	enum BlendStateID {
 		BlendStateID_Opaque = 0,
 		BlendStateID_Transpranent,
+		BlendStateID_PreMultiplied,
 		BlendStateID_Count
 	};
 
