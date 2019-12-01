@@ -4,7 +4,7 @@
 #include "system\sceneSystem.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
-#include "utils\tinyObjLoader.h"
+#include "utils\tinyobjloader.h"
 
 #include <filesystem>
 

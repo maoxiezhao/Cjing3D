@@ -10,6 +10,7 @@ namespace Cjing3D {
 LuaRef LuaContext::mSystemExports;
 
 ENUM_TRAITS_REGISTER_ENUM_BEGIN(SystemFunctionIndex)
+ENUM_TRAITS_REGISTER_ENUM_DEFINE(CLIENT_LUA_MAIN_INITIALIZE)
 ENUM_TRAITS_REGISTER_ENUM_DEFINE(CLIENT_LUA_MAIN_START)
 ENUM_TRAITS_REGISTER_ENUM_DEFINE(CLIENT_LUA_MAIN_UPDATE)
 ENUM_TRAITS_REGISTER_ENUM_DEFINE(CLIENT_LUA_MAIN_STOP)
@@ -60,6 +61,7 @@ void LuaContext::InitializeEnum(lua_State * l)
 {
 	// bind systme enum
 	auto systemEnumBinder = LuaBinder(l).BeginModule("SystemFunctionIndex");
+	systemEnumBinder.AddEnum(EnumToString(CLIENT_LUA_MAIN_INITIALIZE), CLIENT_LUA_MAIN_INITIALIZE);
 	systemEnumBinder.AddEnum(EnumToString(CLIENT_LUA_MAIN_START), CLIENT_LUA_MAIN_START);
 	systemEnumBinder.AddEnum(EnumToString(CLIENT_LUA_MAIN_UPDATE), CLIENT_LUA_MAIN_UPDATE);
 	systemEnumBinder.AddEnum(EnumToString(CLIENT_LUA_MAIN_STOP), CLIENT_LUA_MAIN_STOP);
@@ -154,6 +156,11 @@ bool LuaContext::LoadFile(lua_State * l, const std::string & name)
 }
 
 void LuaContext::OnMainInitialize()
+{
+	DoLuaSystemFunctionWithIndex(CLIENT_LUA_MAIN_INITIALIZE);
+}
+
+void LuaContext::OnMainStart()
 {
 	DoLuaSystemFunctionWithIndex(CLIENT_LUA_MAIN_START);
 }

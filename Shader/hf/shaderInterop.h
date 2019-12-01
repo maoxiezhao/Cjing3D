@@ -30,6 +30,7 @@ typedef XMINT4 int4;
 #define CBUFFER(name, slot) cbuffer name : register(b ## slot)
 #define TEXTURE2D(name, slot) Texture2D name : register(t ## slot);
 #define SAMPLERSTATE(name, slot) SamplerState name :register(s ## slot);
+#define STRUCTREDBUFFER(name, type, slot) StructuredBuffer<type> name :register(t ## slot);
 
 #endif
 

@@ -132,7 +132,7 @@ namespace Cjing3D {
 		*	\param data 数据buffer
 		*	\return 返回文件的长度
 		*/
-		char* ReadFileBytes(const string & name, size_t& length)
+		unsigned char* ReadFileBytes(const string & name, size_t& length)
 		{
 			// 确保文件存在
 			Debug::CheckAssertion(PHYSFS_exists(name.c_str()),
@@ -143,7 +143,7 @@ namespace Cjing3D {
 				string("the file:") + name + " loaded failed.");
 
 			size_t size = static_cast<size_t>(PHYSFS_fileLength(file));
-			char* buffer = new char[size];
+			unsigned char* buffer = new unsigned char[size];
 			length = size;
 
 			PHYSFS_read(file, buffer, 1, (PHYSFS_uint32)size);

@@ -11,6 +11,8 @@
 #include "renderer\RHI\rhiShader.h"
 #include "core\systemContext.hpp"
 
+#include <filesystem>
+
 namespace Cjing3D
 {
 /**
@@ -97,6 +99,8 @@ private:
 	template <typename ResourceT>
 	const PoolType<ResourceT>& GetPool()const;
 
+	void LoadTextrueFromFilePath(const std::filesystem::path& filePath, RhiTexture2D& texture);
+
 private:
 	std::map<Resource_Type, std::string> mResourceDirectories;
 
@@ -106,6 +110,5 @@ private:
 };
 
 #include "resource\resourceManager.inl"
-
 
 }

@@ -158,10 +158,8 @@ void Renderer::UpdateRenderFrameData(F32 deltaTime)
 	{
 		auto material = mainScene.mMaterials[materialIndex];
 
-		MaterialCB cb;
-		cb.gMaterialBaseColor = XMConvert(material->mBaseColor);
-
-		mGraphicsDevice->UpdateBuffer(material->GetConstantBuffer(), &cb, sizeof(cb));
+		ShaderMaterial sm = material->CreateMaterialCB();
+		mGraphicsDevice->UpdateBuffer(material->GetConstantBuffer(), &sm, sizeof(sm));
 	}
 
 	// update render scene
@@ -309,7 +307,13 @@ void Renderer::RenderPostprocess(Texture2D & input, Texture2D & output)
 
 void Renderer::BindCommonResource()
 {
+	SamplerState& linearClampGreater = *mStateManager->GetSamplerState(SamplerStateID_LinearClampGreater);
 
+	for (int stageIndex = 0; stageIndex < SHADERSTAGES_COUNT; stageIndex++)
+	{
+		SHADERSTAGES stage = static_cast<SHADERSTAGES>(stageIndex);
+		mGraphicsDevice->BindSamplerState(stage, linearClampGreater, SAMPLER_LINEAR_CLAMP_SLOT);
+	}
 }
 
 void Renderer::UpdateCameraCB(CameraComponent & camera)

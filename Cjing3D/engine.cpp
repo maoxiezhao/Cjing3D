@@ -82,6 +82,7 @@ void Engine::Initialize()
 	luaContext->Initialize();
 
 	mGameComponent->Initialize();
+	luaContext->OnMainStart();
 
 	Profiler::GetInstance().BeginFrame();
 	mIsInitialized = true;

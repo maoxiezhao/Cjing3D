@@ -80,8 +80,8 @@ void StateManager::SetupDepthStencilStates()
 
 	DepthStencilStateDesc desc;
 	desc.mDepthEnable = true;
-	desc.mDepthWriteMask = DEPTH_WRITE_MASK_ALL;
-	desc.mDepthFunc = COMPARISON_GREATER_EQUAL;
+	desc.mDepthWriteMask = DEPTH_WRITE_MASK_ZERO;
+	desc.mDepthFunc = COMPARISON_EQUAL;
 	desc.mStencilEnable = false;
 	desc.mStencilReadMask = 0xFF;
 	desc.mStencilWriteMask = 0xFF;
@@ -98,7 +98,7 @@ void StateManager::SetupDepthStencilStates()
 
 	{
 		desc.mDepthEnable = true;
-		desc.mDepthWriteMask = DEPTH_WRITE_MASK_ALL;
+		desc.mDepthWriteMask = DEPTH_WRITE_MASK_ZERO;
 		desc.mDepthFunc = COMPARISON_GREATER_EQUAL;
 
 		const auto result = mDevice.CreateDepthStencilState(desc, *mDepthStencilStates[DepthStencilStateID::DepthStencilStateID_GreaterEqualReadWrite]);

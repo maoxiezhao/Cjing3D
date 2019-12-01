@@ -17,9 +17,41 @@ CBUFFER(CameraCB, CBSLOT_RENDERER_CAMERA)
 	float    gPadding;
 };
 
+struct ShaderMaterial
+{
+	float4 baseColor;
+	int haveBaseColorMap;
+};
+
 CBUFFER(MaterialCB, CBSLOT_RENDERER_MATERIAL)
 {
-	float4 gMaterialBaseColor;
+	ShaderMaterial gMaterial;
+};
+
+struct ShaderLight
+{
+	float3 position;
+	uint type;
+	float3 direction;
+	uint range;
+	float3 worldPosition;
+	uint energy;
+	float4 color;
+
+	inline uint GetLightType()
+	{
+		return type;
+	}
+
+	inline void SetLightType(uint t)
+	{
+		type = t;
+	}
+
+	inline bool IsCastingShadow()
+	{
+		return false;
+	}
 };
 
 #endif

@@ -1307,8 +1307,6 @@ HRESULT GraphicsDeviceD3D11::CreateTexture2D(const TextureDesc * desc, const Sub
 	CreateShaderResourceView(texture2D);
 	CreateDepthStencilView(texture2D);
 
-	SAFE_DELETE_ARRAY(data);
-
 	return result;
 }
 

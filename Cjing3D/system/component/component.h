@@ -15,6 +15,7 @@ enum ComponentType
 	ComponentType_Mesh,
 	ComponentType_Material,
 	ComponentType_Transform,
+	ComponentType_Light
 };
 
 class Component

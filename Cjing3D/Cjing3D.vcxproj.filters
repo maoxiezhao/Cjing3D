@@ -350,6 +350,9 @@
     <ClCompile Include="renderer\renderer2D.cpp">
       <Filter>renderer</Filter>
     </ClCompile>
+    <ClCompile Include="system\component\light.cpp">
+      <Filter>system\component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -496,9 +499,6 @@
     </ClInclude>
     <ClInclude Include="helper\random.h">
       <Filter>helper</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\tinyObjLoader.h">
-      <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="scripts\luaContext.h">
       <Filter>scripts</Filter>
@@ -683,6 +683,15 @@
     </ClInclude>
     <ClInclude Include="renderer\renderer2D.h">
       <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tinyddsloader.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tinyobjloader.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="system\component\light.h">
+      <Filter>system\component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

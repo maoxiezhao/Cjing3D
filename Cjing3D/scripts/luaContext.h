@@ -13,7 +13,8 @@ namespace Cjing3D
 {
 
 enum SystemFunctionIndex {
-	CLIENT_LUA_MAIN_START = 1,
+	CLIENT_LUA_MAIN_INITIALIZE = 1,
+	CLIENT_LUA_MAIN_START,
 	CLIENT_LUA_MAIN_UPDATE,
 	CLIENT_LUA_MAIN_STOP,
 };
@@ -41,6 +42,7 @@ public:
 
 	// main function 
 	void OnMainInitialize();
+	void OnMainStart();
 	void OnMainUpdate();
 	void OnMainUninitialize();
 

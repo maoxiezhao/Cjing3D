@@ -41,6 +41,7 @@ namespace Cjing3D {
 		}
 
 		mRenderer.UpdateCameraCB(*camera);
+		mRenderer.BindCommonResource();
 
 		// opaque scene
 		Texture2D& depthBuffer = *GetDepthBuffer();
@@ -59,8 +60,6 @@ namespace Cjing3D {
 
 			mRenderer.RenderSceneOpaque(camera, ShaderType_Forward);
 		}
-
-		mRenderer.BindCommonResource();
 
 		// postprocess
 		RenderPostprocess(mRTMain);

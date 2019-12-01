@@ -49,6 +49,9 @@
     <None Include="hf\global.hlsli">
       <Filter>hf</Filter>
     </None>
+    <None Include="lightingHF.hlsli">
+      <Filter>hf</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="hf\shaderInterop.h">

@@ -19,7 +19,7 @@ namespace Cjing3D {
 
 		// files
 		bool IsFileExists(const std::string& name);
-		char* ReadFileBytes(const std::string& name, size_t& length);
+		unsigned char* ReadFileBytes(const std::string& name, size_t& length);
 		std::string ReadFile(const std::string& name);
 		bool SaveFile(const std::string& name, const std::string&buffer);
 		bool DeleteFile(const std::string& name);

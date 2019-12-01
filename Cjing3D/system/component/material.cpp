@@ -7,6 +7,15 @@ Cjing3D::MaterialComponent::MaterialComponent():
 {
 }
 
+ShaderMaterial Cjing3D::MaterialComponent::CreateMaterialCB()
+{
+	ShaderMaterial sm;
+	sm.baseColor = XMConvert(mBaseColor);
+	sm.haveBaseColorMap = mBaseColorMap != nullptr ? 1 : 0;
+
+	return sm;
+}
+
 void Cjing3D::MaterialComponent::SetupConstantBuffer(GraphicsDevice& device)
 {
 	if (mConstantBuffer == nullptr)

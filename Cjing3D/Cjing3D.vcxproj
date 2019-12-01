@@ -237,6 +237,7 @@
     <ClInclude Include="system\component\camera.h" />
     <ClInclude Include="system\component\component.h" />
     <ClInclude Include="system\component\componentInclude.h" />
+    <ClInclude Include="system\component\light.h" />
     <ClInclude Include="system\component\material.h" />
     <ClInclude Include="system\component\mesh.h" />
     <ClInclude Include="system\component\object.h" />
@@ -251,7 +252,8 @@
     <ClInclude Include="utils\stb_image.h" />
     <ClInclude Include="utils\stb_truetype.h" />
     <ClInclude Include="utils\threadSafeBuffer.h" />
-    <ClInclude Include="utils\tinyObjLoader.h" />
+    <ClInclude Include="utils\tinyddsloader.h" />
+    <ClInclude Include="utils\tinyobjloader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\eventSystem.cpp" />
@@ -342,6 +344,7 @@
     <ClCompile Include="scripts\lua\lzio.c" />
     <ClCompile Include="system\component\camera.cpp" />
     <ClCompile Include="system\component\component.cpp" />
+    <ClCompile Include="system\component\light.cpp" />
     <ClCompile Include="system\component\material.cpp" />
     <ClCompile Include="system\component\mesh.cpp" />
     <ClCompile Include="system\component\transform.cpp" />

@@ -25,6 +25,7 @@ namespace Cjing3D {
 		inline bool IsDirty()const { return mIsDirty; }
 		inline void SetIsDirty(bool isDirty) { mIsDirty = isDirty; }
 
+		ShaderMaterial CreateMaterialCB();
 		void SetupConstantBuffer(GraphicsDevice& device);
 		GPUBuffer& GetConstantBuffer() { return *mConstantBuffer; }
 	

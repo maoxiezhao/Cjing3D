@@ -92,19 +92,7 @@ Cjing3D::ResourceManager::GetOrCreate(const StringID & name, VertexLayoutDesc* d
 	return vertexShaderInfo;
 }
 
-template<typename ResourceT>
-inline std::enable_if_t<std::is_same<ResourceT, RhiTexture2D>::value, std::shared_ptr<RhiTexture2D>>
-ResourceManager::GetOrCreate(const StringID & filePath)
-{
-	PoolType<RhiTexture2D>& texturePool = GetPool< RhiTexture2D >();
 
-	bool isExists = texturePool.Contains(filePath);
-	auto texture = texturePool.GetOrCreate(filePath);
-	if (isExists == false) {
-		// load Image
-	}
-	return texture;
-}
 
 template <typename ResourceT>
 inline std::enable_if_t<std::is_same<ResourceT, PixelShader>::value, std::shared_ptr<PixelShader> >
@@ -127,4 +115,18 @@ ResourceManager::GetOrCreate(const StringID& name)
 	}
 
 	return pixelShader;
+}
+
+template<typename ResourceT>
+inline std::enable_if_t<std::is_same<ResourceT, RhiTexture2D>::value, std::shared_ptr<RhiTexture2D>>
+ResourceManager::GetOrCreate(const StringID & filePath)
+{
+	PoolType<RhiTexture2D>& texturePool = GetPool< RhiTexture2D >();
+
+	bool isExists = texturePool.Contains(filePath);
+	auto texture = texturePool.GetOrCreate(filePath);
+	if (isExists == false) {
+		LoadTextrueFromFilePath(filePath.GetString(), *texture);
+	}
+	return texture;
 }

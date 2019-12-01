@@ -148,6 +148,7 @@
     <None Include="hf\global.hlsli" />
     <None Include="hf\objectHF.hlsli" />
     <None Include="hf\objectInput.hlsli" />
+    <None Include="lightingHF.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="hf\shaderDefine.h" />
