@@ -41,7 +41,8 @@ namespace Cjing3D
 			XMMATRIX vp = XMMatrixMultiply(view, XMLoadFloat4x4(&mProjection));
 			XMStoreFloat4x4(&mViewProjection, vp);
 
-			mFrustum.SetupFrustum(mView, mProjection, mFarPlane);
+			//mFrustum.SetupFrustum(mView, mProjection, mFarPlane);
+			mFrustum.SetupFrustum(vp);
 		}
 	}
 

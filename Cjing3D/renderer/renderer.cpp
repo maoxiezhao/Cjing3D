@@ -2,6 +2,7 @@
 #include "shaderLib.h"
 #include "stateManager.h"
 #include "pipelineStateInfoManager.h"
+#include "bufferManager.h"
 #include "renderer2D.h"
 #include "renderer\RHI\device.h"
 #include "core\systemContext.hpp"
@@ -28,6 +29,10 @@ namespace {
 	}
 
 	const size_t MAX_FRAME_ALLOCATOR_SIZE = 4 * 1024 * 1024;
+}
+
+void RenderFrameData::Clear()
+{
 }
 
 Renderer::Renderer(SystemContext& gameContext, RenderingDeviceType deviceType, HWND window) :
@@ -72,6 +77,10 @@ void Renderer::Initialize()
 	mShaderLib = std::make_unique<ShaderLib>(*this);
 	mShaderLib->Initialize();
 
+	// initialize resource manager
+	mBufferManager = std::make_unique<BufferManager>(*this);
+	mBufferManager->Initialize();
+
 	// initialize pipelineStateInfos
 	mPipelineStateInfoManager = std::make_unique<PipelineStateInfoManager>(*this);
 	mPipelineStateInfoManager->SetupPipelineStateInfos();
@@ -87,6 +96,9 @@ void Renderer::Initialize()
 	mRenderer2D = std::make_unique<Renderer2D>(*this);
 	mRenderer2D->Initialize();
 
+	// initialize frame cullings
+	mFrameCullings[GetCamera()] = FrameCullings();
+
 	mIsInitialized = true;
 }
 
@@ -96,6 +108,8 @@ void Renderer::Uninitialize()
 		return;
 	}
 
+	GetMainScene().Clear();
+
 	if (mCurrentRenderPath != nullptr)
 	{
 		mCurrentRenderPath->Uninitialize();
@@ -104,14 +118,12 @@ void Renderer::Uninitialize()
 
 	mRenderer2D->Uninitialize();
 	mRenderer2D.reset();
-
 	mFrameAllocator.reset();
-
 	mPipelineStateInfoManager.reset();
-
+	mBufferManager->Uninitialize();
+	mBufferManager.reset();
 	mShaderLib->Uninitialize();
 	mShaderLib.reset();
-
 	mStateManager.reset();
 
 	mGraphicsDevice->Uninitialize();
@@ -121,10 +133,25 @@ void Renderer::Uninitialize()
 
 void Renderer::Update(F32 deltaTime)
 {
+	if (mCurrentRenderPath != nullptr) {
+		mCurrentRenderPath->Update(deltaTime);
+	}
+}
+
+// 在update中执行
+void Renderer::UpdatFrameData(F32 deltaTime)
+{
+	// update scene system
+	auto& mainScene = GetMainScene();
+	mainScene.Update(deltaTime);
+
+	CameraPtr mainCamera = GetCamera();
+	mainCamera->Update();
+
+	// update materials
 	mPendingUpdateMaterials.clear();
 
-	auto& scene = GetMainScene();
-	auto& materials = scene.GetComponentManager<MaterialComponent>();
+	auto& materials = mainScene.GetComponentManager<MaterialComponent>();
 	for (int index = 0; index < materials.GetCount(); index++)
 	{
 		auto material = materials[index];
@@ -137,43 +164,18 @@ void Renderer::Update(F32 deltaTime)
 		}
 	}
 
-	if (mCurrentRenderPath != nullptr) {
-		mCurrentRenderPath->Update(deltaTime);
-	}
-}
-
-// do it before rendering
-void Renderer::UpdateRenderFrameData(F32 deltaTime)
-{
-	// 处理延时生成的mipmap
-	if (mDeferredMIPGenerator != nullptr) {
-		mDeferredMIPGenerator->UpdateMipGenerating();
-	}
-
-	auto& mainScene = GetMainScene();
-	mainScene.Update(deltaTime);
-
-	// 处理更新material data 
-	for (int materialIndex : mPendingUpdateMaterials)
-	{
-		auto material = mainScene.mMaterials[materialIndex];
-
-		ShaderMaterial sm = material->CreateMaterialCB();
-		mGraphicsDevice->UpdateBuffer(material->GetConstantBuffer(), &sm, sizeof(sm));
-	}
-
-	// update render scene
+	// culling and get available entity
 	auto& scene = GetMainScene();
 	for (auto& kvp : mFrameCullings) {
 		auto& frameCulling = kvp.second;
 		frameCulling.Clear();
 
+		// 只处理当前主相机的culling
 		CameraPtr camera = kvp.first;
-		if (camera == nullptr) {
+		if (camera == nullptr && camera != mainCamera) {
 			continue;
 		}
 
-		camera->Update();
 		auto currentFrustum = camera->GetFrustum();
 		frameCulling.mFrustum = currentFrustum;
 
@@ -184,10 +186,79 @@ void Renderer::UpdateRenderFrameData(F32 deltaTime)
 			auto aabb = objectAABBs[i];
 			if (aabb != nullptr && currentFrustum.Overlaps(*aabb) == true)
 			{
-				frameCulling.mRenderingObjects.push_back((U32)i);
+				frameCulling.mCulledObjects.push_back((U32)i);
+			}
+		}
+
+		// 遍历场景的light aabbs
+		auto& lightAABBs = scene.mLightAABBs;
+		for (size_t i = 0; i < lightAABBs.GetCount(); i++)
+		{
+			auto aabb = lightAABBs[i];
+			if (aabb != nullptr && currentFrustum.Overlaps(*aabb) == true)
+			{
+				frameCulling.mCulledLights.push_back((U32)i);
 			}
 		}
 	}
+}
+
+// 在render阶段render前执行
+void Renderer::UpdateRenderData()
+{
+	auto& mainScene = GetMainScene();
+
+	// 处理延时生成的mipmap
+	if (mDeferredMIPGenerator != nullptr) {
+		mDeferredMIPGenerator->UpdateMipGenerating();
+	}
+
+	CameraPtr mainCamera = GetCamera();
+	if (mainCamera == nullptr) {
+		return;
+	}
+
+	// 处理更新material data 
+	for (int materialIndex : mPendingUpdateMaterials)
+	{
+		auto material = mainScene.mMaterials[materialIndex];
+
+		ShaderMaterial sm = material->CreateMaterialCB();
+		mGraphicsDevice->UpdateBuffer(material->GetConstantBuffer(), &sm, sizeof(sm));
+	}
+
+	// 更新shaderLightArray buffer
+	ShaderLight* shaderLights = (ShaderLight*)mFrameAllocator->Allocate(sizeof(ShaderLight) * SHADER_LIGHT_COUNT);
+
+	XMMATRIX viewMatrix = mainCamera->GetViewMatrix();
+	FrameCullings& frameCulling = mFrameCullings.at(mainCamera);
+	U32 lightCount = 0;
+	auto& lights = frameCulling.mCulledLights;
+	for (const auto& lightIndex : lights)
+	{
+		if (lightCount >= SHADER_LIGHT_COUNT) {
+			Debug::Warning("Invalid light count" + std::to_string(lightCount) + " " + std::to_string(SHADER_LIGHT_COUNT));
+			break;
+		}
+
+		std::shared_ptr<LightComponent> light = mainScene.GetComponentByIndex<LightComponent>(lightIndex);
+		if (light == nullptr) {
+			continue;
+		}
+
+		ShaderLight shaderLight = light->CreateShaderLight(viewMatrix);
+		shaderLights[lightCount] = shaderLight;
+
+		lightCount++;
+	}
+
+	GPUBuffer& lightsBuffer = mBufferManager->GetResourceBuffer(ResourceBufferType_ShaderLight);
+	mGraphicsDevice->UpdateBuffer(lightsBuffer, shaderLights, sizeof(ShaderLight) * lightCount);
+
+	mFrameAllocator->Free(sizeof(ShaderLight) * SHADER_LIGHT_COUNT);
+
+	// 更新每一帧的基本信息
+	UpdateFrameCB();
 }
 
 void Renderer::Render()
@@ -259,7 +330,7 @@ void Renderer::RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, Shader
 
 	RenderQueue renderQueue;
 	FrameCullings& frameCulling = mFrameCullings[camera];
-	auto& objects = frameCulling.mRenderingObjects;
+	auto& objects = frameCulling.mCulledObjects;
 	for (const auto& objectIndex : objects)
 	{
 		auto objectEntity = scene.GetEntityByIndex<ObjectComponent>(objectIndex);
@@ -314,6 +385,12 @@ void Renderer::BindCommonResource()
 		SHADERSTAGES stage = static_cast<SHADERSTAGES>(stageIndex);
 		mGraphicsDevice->BindSamplerState(stage, linearClampGreater, SAMPLER_LINEAR_CLAMP_SLOT);
 	}
+
+	// bind shader light resource
+	GPUResource* resources[] = {
+		&mBufferManager->GetResourceBuffer(ResourceBufferType_ShaderLight)
+	};
+	mGraphicsDevice->BindGPUResources(SHADERSTAGES_PS, resources, SHADER_LIGHT_ARRAY_SLOT, 1);
 }
 
 void Renderer::UpdateCameraCB(CameraComponent & camera)
@@ -326,8 +403,18 @@ void Renderer::UpdateCameraCB(CameraComponent & camera)
 
 	cb.gCameraPos = XMConvert(camera.GetCameraPos());
 
-	auto cameraBuffer = mShaderLib->GetConstantBuffer(ConstantBufferType_Camera);
-	GetDevice().UpdateBuffer(*cameraBuffer, &cb, sizeof(CameraCB));
+	GPUBuffer& cameraBuffer = mBufferManager->GetConstantBuffer(ConstantBufferType_Camera);
+	GetDevice().UpdateBuffer(cameraBuffer, &cb, sizeof(CameraCB));
+}
+
+void Renderer::UpdateFrameCB()
+{
+	FrameCB frameCB;
+
+	// TODO..........
+
+	GPUBuffer& frameBuffer = mBufferManager->GetConstantBuffer(ConstantBufferType_Frame);
+	mGraphicsDevice->UpdateBuffer(frameBuffer, &frameCB, sizeof(FrameCB));
 }
 
 Scene & Renderer::GetMainScene()
@@ -406,6 +493,7 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, ShaderType shaderType, Re
 		const auto transform = scene.GetComponent<TransformComponent>(objectEntity);
 
 		// 保存每个batch（包含一个object）的worldMatrix
+		// 用于在shader中计算顶点的世界坐标
 		const XMFLOAT4X4 worldMatrix = transform->GetWorldTransform();
 		const XMFLOAT4 color = XMConvert(object->mColor) ;
 		((RenderInstance*)instances.data)[index].Setup(worldMatrix, color);
@@ -493,14 +581,15 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, ShaderType shaderType, Re
 
 void Renderer::BindConstanceBuffer(SHADERSTAGES stage)
 {
-	auto& cameraBuffer = *mShaderLib->GetConstantBuffer(ConstantBufferType_Camera);
-
+	GPUBuffer& cameraBuffer = mBufferManager->GetConstantBuffer(ConstantBufferType_Camera);
 	mGraphicsDevice->BindConstantBuffer(stage, cameraBuffer, CB_GETSLOT_NAME(CameraCB));
 }
 
 void Renderer::FrameCullings::Clear()
 {
-	mRenderingObjects.clear();
+	mCulledObjects.clear();
+	mCulledLights.clear();
 }
+
 
 }

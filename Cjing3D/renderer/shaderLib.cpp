@@ -69,22 +69,7 @@ void ShaderLib::LoadPixelShaders()
 
 void ShaderLib::LoadBuffers()
 {
-	// init all constant buffer
-	auto& device = mRenderer.GetDevice();
-	for (size_t i = 0; i < ConstantBufferType_Count; i++) {
-		mConstantBuffer[i] = std::make_shared<GPUBuffer>();
-	}
 
-	// TODO create by rhiFactory
-	// Camera buffer
-	GPUBufferDesc desc = {};
-	desc.mUsage = USAGE_DYNAMIC;	// camera buffer ¸üÐÂÆµ·±
-	desc.mCPUAccessFlags = CPU_ACCESS_WRITE;
-	desc.mBindFlags = BIND_CONSTANT_BUFFER;
-	desc.mByteWidth = sizeof(CameraCB);
-
-	const auto result = device.CreateBuffer(&desc, *mConstantBuffer[ConstantBufferType_Camera], nullptr);
-	Debug::ThrowIfFailed(result, "failed to create camera constant buffer:%08x", result);
 }
 
 std::shared_ptr<VertexShader> ShaderLib::GetVertexShader(VetextShaderType shaderType)
@@ -102,12 +87,6 @@ std::shared_ptr<PixelShader> ShaderLib::GetPixelShader(PixelShaderType shaderTyp
 {
 	Debug::CheckAssertion(shaderType < PixelShaderType::PixelShaderType_Count);
 	return mPixelShader[static_cast<U32>(shaderType)];
-}
-
-std::shared_ptr<GPUBuffer> ShaderLib::GetConstantBuffer(ConstantBufferType bufferType)
-{
-	Debug::CheckAssertion(bufferType < ConstantBufferType::ConstantBufferType_Count);
-	return mConstantBuffer[static_cast<U32>(bufferType)];
 }
 
 }

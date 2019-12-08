@@ -6,6 +6,7 @@
 #include "system\component\mesh.h"
 #include "system\component\object.h"
 #include "system\component\material.h"
+#include "system\component\light.h"
 
 #include <map>
 
@@ -24,9 +25,15 @@ namespace Cjing3D {
 		ECS::Entity CreateEntityMaterial(const std::string& name);
 		ECS::Entity CreateEntityMesh(const std::string& name);
 		ECS::Entity CreateEntityObject(const std::string& name);
+		ECS::Entity CreateEntityLight(const std::string& name, 
+			const F32x3& pos = { 0.0f, 0.0f, 0.0f }, 
+			const F32x3& color = {1.0f, 1.0f, 1.0f},
+			F32 energy = 1.0f,
+			F32 range = 10.0f
+		);
 
 		ECS::Entity CreateEntityByName(const std::string& name);
-		ECS::Entity GetEntityByName(StringID name);
+		ECS::Entity GetEntityByName(const StringID& name);
 
 		void RemoveEntity(ECS::Entity entity);
 
@@ -69,6 +76,8 @@ namespace Cjing3D {
 		ECS::ComponentManager<ObjectComponent> mObjects;
 		ECS::ComponentManager<AABB> mObjectAABBs;
 		ECS::ComponentManager<TransformComponent> mTransforms;
+		ECS::ComponentManager<LightComponent> mLights;
+		ECS::ComponentManager<AABB> mLightAABBs;
 
 		AABB mSceneAABB;
 
@@ -84,5 +93,6 @@ namespace Cjing3D {
 	//  Scene System Update
 	void UpdateSceneTransformSystem(Scene& scene);
 	void UpdateSceneObjectSystem(Scene& scene);
+	void UpdateSceneLightSystem(Scene& scene);
 }
 	

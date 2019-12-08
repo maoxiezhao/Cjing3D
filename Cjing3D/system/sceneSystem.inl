@@ -29,3 +29,9 @@ inline ECS::ComponentManager<TransformComponent>& Scene::GetComponentManager()
 {
 	return mTransforms;
 }
+
+template<>
+inline ECS::ComponentManager<LightComponent>& Scene::GetComponentManager()
+{
+	return mLights;
+}

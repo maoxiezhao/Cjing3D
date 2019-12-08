@@ -11,6 +11,7 @@ namespace Cjing3D
 	void Scene::Update(F32 deltaTime)
 	{
 		UpdateSceneTransformSystem(*this);
+		UpdateSceneLightSystem(*this);
 		UpdateSceneObjectSystem(*this);
 	}
 
@@ -22,6 +23,8 @@ namespace Cjing3D
 		mObjects.Merge(scene.mObjects);
 		mObjectAABBs.Merge(scene.mObjectAABBs);
 		mTransforms.Merge(scene.mTransforms);
+		mLightAABBs.Merge(scene.mLightAABBs);
+		mLights.Merge(scene.mLights);
 	}
 
 	void Scene::Clear()
@@ -33,6 +36,8 @@ namespace Cjing3D
 		mObjects.Clear();
 		mObjectAABBs.Clear();
 		mTransforms.Clear();
+		mLightAABBs.Clear();
+		mLights.Clear();
 	}
 
 	ECS::Entity Scene::CreateEntityMaterial(const std::string & name)
@@ -61,6 +66,25 @@ namespace Cjing3D
 		return entity;
 	}
 
+	ECS::Entity Scene::CreateEntityLight(const std::string & name, const F32x3 & pos, const F32x3 & color, F32 energy, F32 range)
+	{
+		auto entity = CreateEntityByName(name);
+		TransformComponent& transform = *mTransforms.Create(entity);
+		transform.Translate(XMConvert(pos));
+		transform.Update();
+
+		mLightAABBs.Create(entity);
+
+		LightComponent& light = *mLights.Create(entity);
+		light.mColor = color;
+		light.mPosition = pos;
+		light.mEnergy = energy;
+		light.mRange = range;
+		light.SetLightType(LightComponent::LightType_Point);
+
+		return entity;
+	}
+
 	ECS::Entity Scene::CreateEntityByName(const std::string & name)
 	{
 		// 目前不支持名字重名，后一个将无法添加
@@ -79,7 +103,7 @@ namespace Cjing3D
 		return entity;
 	}
 
-	Entity Scene::GetEntityByName(StringID name)
+	Entity Scene::GetEntityByName(const StringID& name)
 	{
 		auto it = mNameEntityMap.find(name);
 		if (it != mNameEntityMap.end())

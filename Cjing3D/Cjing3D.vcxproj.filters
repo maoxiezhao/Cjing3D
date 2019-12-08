@@ -353,6 +353,12 @@
     <ClCompile Include="system\component\light.cpp">
       <Filter>system\component</Filter>
     </ClCompile>
+    <ClCompile Include="system\sceneLightSystem.cpp">
+      <Filter>system\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\bufferManager.cpp">
+      <Filter>renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -490,9 +496,6 @@
     </ClInclude>
     <ClInclude Include="utils\allocator.h">
       <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\mappingDefine.h">
-      <Filter>renderer</Filter>
     </ClInclude>
     <ClInclude Include="helper\helper.h">
       <Filter>helper</Filter>
@@ -692,6 +695,12 @@
     </ClInclude>
     <ClInclude Include="system\component\light.h">
       <Filter>system\component</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\bufferManager.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\renderNote.h">
+      <Filter>renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

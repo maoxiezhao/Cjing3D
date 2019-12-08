@@ -49,7 +49,7 @@
     <None Include="hf\global.hlsli">
       <Filter>hf</Filter>
     </None>
-    <None Include="lightingHF.hlsli">
+    <None Include="hf\lightingHF.hlsli">
       <Filter>hf</Filter>
     </None>
   </ItemGroup>

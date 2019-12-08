@@ -6,6 +6,10 @@
 CBUFFER(FrameCB, CBSLOT_RENDERER_FRAME)
 {
 	float2 gFrameScreenSize;
+	
+	// light
+	uint gShaderLightArrayCount;
+	float3 gFrameAmbient;
 };
 
 CBUFFER(CameraCB, CBSLOT_RENDERER_CAMERA)
@@ -28,9 +32,11 @@ CBUFFER(MaterialCB, CBSLOT_RENDERER_MATERIAL)
 	ShaderMaterial gMaterial;
 };
 
+///////////////////////////////////////////////////////////////////////////////////////////
+
 struct ShaderLight
 {
-	float3 position;
+	float3 viewPosition;
 	uint type;
 	float3 direction;
 	uint range;
@@ -53,5 +59,12 @@ struct ShaderLight
 		return false;
 	}
 };
+
+static const uint SHADER_LIGHT_TYPE_DIRECTIONAL = 0;
+static const uint SHADER_LIGHT_TYPE_POINT = 1;
+static const uint SHADER_LIGHT_TYPE_SPOT = 2;
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
 
 #endif

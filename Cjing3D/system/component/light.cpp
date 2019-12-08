@@ -6,4 +6,35 @@ namespace Cjing3D
 		Component(ComponentType_Light)
 	{
 	}
+
+	ShaderLight LightComponent::CreateShaderLight(XMMATRIX viewMatrix) const
+	{
+		ShaderLight shaderLight;
+		shaderLight.worldPosition = XMConvert(mPosition);
+		shaderLight.type = static_cast<uint>(mLightType);
+		shaderLight.range = mRange;
+		shaderLight.energy = mEnergy;
+		shaderLight.color = XMConvert(F32x4(mColor, 1.0f));
+
+		XMFLOAT3 viewPosition;
+		XMStoreFloat3(&viewPosition, XMVector3TransformCoord(XMLoadFloat3(&shaderLight.worldPosition), viewMatrix));
+		shaderLight.viewPosition = viewPosition;
+
+		switch (mLightType)
+		{
+		case Cjing3D::LightComponent::LightType_Directional:
+			shaderLight.direction = XMConvert(mDirection);
+			break;
+		case Cjing3D::LightComponent::LightType_Point:
+			break;
+		case Cjing3D::LightComponent::LightType_Spot:
+			break;
+		case Cjing3D::LightComponent::LightType_Count:
+			break;
+		default:
+			break;
+		}
+
+		return shaderLight;
+	}
 }

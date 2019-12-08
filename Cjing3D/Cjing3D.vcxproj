@@ -167,6 +167,7 @@
     <ClInclude Include="input\directInput.h" />
     <ClInclude Include="input\InputSystem.h" />
     <ClInclude Include="note.h" />
+    <ClInclude Include="renderer\bufferManager.h" />
     <ClInclude Include="renderer\includeD3D11.h" />
     <ClInclude Include="renderer\paths\renderPath2D.h" />
     <ClInclude Include="renderer\paths\renderPath3D.h" />
@@ -178,7 +179,7 @@
     <ClInclude Include="renderer\renderer.h" />
     <ClInclude Include="renderer\renderer2D.h" />
     <ClInclude Include="renderer\rendererUtils.h" />
-    <ClInclude Include="renderer\mappingDefine.h" />
+    <ClInclude Include="renderer\renderNote.h" />
     <ClInclude Include="renderer\RHI\rhiFactory.h" />
     <ClInclude Include="renderer\RHI\rhiResource.h" />
     <ClInclude Include="renderer\RHI\rhiShader.h" />
@@ -275,6 +276,7 @@
     <ClCompile Include="helper\timer.cpp" />
     <ClCompile Include="input\directInput.cpp" />
     <ClCompile Include="input\InputSystem.cpp" />
+    <ClCompile Include="renderer\bufferManager.cpp" />
     <ClCompile Include="renderer\paths\renderPath2D.cpp" />
     <ClCompile Include="renderer\paths\renderPath3D.cpp" />
     <ClCompile Include="renderer\paths\renderPath_forward.cpp" />
@@ -348,6 +350,7 @@
     <ClCompile Include="system\component\material.cpp" />
     <ClCompile Include="system\component\mesh.cpp" />
     <ClCompile Include="system\component\transform.cpp" />
+    <ClCompile Include="system\sceneLightSystem.cpp" />
     <ClCompile Include="system\sceneObjectSystem.cpp" />
     <ClCompile Include="system\sceneSystem.cpp" />
     <ClCompile Include="system\sceneTransformSystem.cpp" />

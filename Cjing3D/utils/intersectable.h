@@ -12,6 +12,7 @@ namespace Cjing3D
 		XMVECTOR mMin;
 		XMVECTOR mMax;
 
+	public:
 		AABB() : AABB(g_XMInfinity, -g_XMInfinity) {};
 		AABB(FXMVECTOR p) : mMin(p), mMax(p) {};
 		AABB(XMVECTOR min, XMVECTOR max) : mMin(min), mMax(max) {};
@@ -21,6 +22,13 @@ namespace Cjing3D
 
 		AABB& operator= (const AABB& aabb) = default;
 		AABB& operator= (AABB&& aabb) = default;
+
+		static AABB CreateFromHalfWidth(FXMVECTOR position, FXMVECTOR range)
+		{
+			XMVECTOR minVec = position - range;
+			XMVECTOR maxVec = position + range;
+			return AABB(minVec, maxVec);
+		}
 
 		const XMVECTOR XM_CALLCONV GetMin()const {
 			return mMin;
@@ -93,6 +101,15 @@ namespace Cjing3D
 			}
 			assert(0);
 			return XMVECTOR();
+		}
+
+		inline void SetFromHalfWidth(XMFLOAT3 center, XMFLOAT3 range)
+		{
+			XMFLOAT3 _min = XMFLOAT3(center.x - range.x, center.y - range.y, center.z - range.z);
+			XMFLOAT3 _max = XMFLOAT3(center.x + range.x, center.y + range.y, center.z + range.z);
+
+			mMin = XMLoadFloat3(&_min);
+			mMax = XMLoadFloat3(&_max);
 		}
 	};
 

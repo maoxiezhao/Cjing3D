@@ -13,6 +13,6 @@ TEXTURE2D(texture_2, TEXTURE_SLOT_2);
 SAMPLERSTATE(sampler_linear_clamp, SAMPLER_LINEAR_CLAMP_SLOT);
 
 // common structred buffer
-STRUCTREDBUFFER(LightArray, ShaderLight, LIGHTARRAY_SLOT);
+STRUCTREDBUFFER(LightArray, ShaderLight, SHADER_LIGHT_ARRAY_SLOT);
 
 #endif

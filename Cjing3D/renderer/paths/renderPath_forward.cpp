@@ -40,6 +40,7 @@ namespace Cjing3D {
 			return;
 		}
 
+		mRenderer.UpdateRenderData();
 		mRenderer.UpdateCameraCB(*camera);
 		mRenderer.BindCommonResource();
 

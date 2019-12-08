@@ -3,6 +3,7 @@
 #include "scripts\luaContext.h"
 #include "renderer\renderer.h"
 #include "renderer\renderer2D.h"
+#include "system\sceneSystem.h"
 #include "system\component\camera.h"
 #include "input\InputSystem.h"
 #include "helper\logger.h"
@@ -34,7 +35,11 @@ namespace Cjing3D
 		Renderer2D& renderer2D = renderer.GetRenderer2D();
 		renderer2D.SetCurrentRenderPath(path);
 
-		auto& luaContext = systemContext->GetSubSystem<LuaContext>();
+		auto& mainScene = renderer.GetMainScene();
+		mainScene.CreateEntityLight(
+			"TestLight",
+			{300.0f, 200.0f, -100.0f}
+		);
 	}
 
 	void TestGame::Update(EngineTime time)

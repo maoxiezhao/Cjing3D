@@ -17,7 +17,7 @@ namespace Cjing3D
 	{
 		RenderPath2D::Update(dt);
 
-		mRenderer.UpdateRenderFrameData(dt);
+		mRenderer.UpdatFrameData(dt);
 	}
 
 	void RenderPath3D::ResizeBuffers()
