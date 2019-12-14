@@ -46,12 +46,25 @@ namespace Cjing3D {
 		return result;
 	}
 
+	inline const XMVECTOR XM_CALLCONV XMLoad(const F32x2& src) {
+		XMVECTOR result = XMVectorZero();
+		result = XMVectorSetX(result, src[0]);
+		result = XMVectorSetY(result, src[1]);
+		return result;
+	}
+
 	inline const XMVECTOR XM_CALLCONV XMLoad(const F32x3& src) {
 		return XMLoadFloat3(reinterpret_cast<const XMFLOAT3*>(&src));
 	}
 
 	inline const XMVECTOR XM_CALLCONV XMLoad(const F32x4& src) {
 		return XMLoadFloat4(reinterpret_cast<const XMFLOAT4*>(&src));
+	}
+
+	inline const XMFLOAT2 XM_CALLCONV XMConvert(const F32x2& src) {
+		XMFLOAT2 result;
+		XMStoreFloat2(&result, XMLoad(src));
+		return result;
 	}
 
 	inline const XMFLOAT4 XM_CALLCONV XMConvert(const F32x4& src){

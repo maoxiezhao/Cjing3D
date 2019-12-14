@@ -26,7 +26,7 @@ namespace Cjing3D
 	void TestGame::Initialize()
 	{
 		auto systemContext = GetGameContext();
-		ModelImporter::ImportModelObj("..\\Assets\\Models\\cornell_box.obj", *systemContext);
+		ModelImporter::ImportModelObj("..\\Assets\\Models\\cornellbox.obj", *systemContext);
 
 		auto& renderer = systemContext->GetSubSystem<Renderer>();
 		RenderPathForward* path = new RenderPathForward(renderer);
@@ -38,7 +38,7 @@ namespace Cjing3D
 		auto& mainScene = renderer.GetMainScene();
 		mainScene.CreateEntityLight(
 			"TestLight",
-			{300.0f, 200.0f, -100.0f}
+			{0.0f, 10.0f, -18.0f}
 		);
 	}
 

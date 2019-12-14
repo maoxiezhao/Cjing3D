@@ -64,6 +64,7 @@ namespace Cjing3D
 				mMaxPos = F32x3Max(mMaxPos, pos);
 			}
 
+			mVertexBufferPos.reset(new GPUBuffer);
 			const auto result = CreateBABVertexBuffer(device, *mVertexBufferPos, vertices);
 			Debug::ThrowIfFailed(result, "Failed to create vertex buffer:%08x", result);
 		}
@@ -92,8 +93,8 @@ namespace Cjing3D
 		Debug::CheckAssertion(subsetIndex < 256, "Invalid subset index.");
 
 		mNormalSubsetIndex = (subsetIndex << 24);
-		mNormalSubsetIndex |= (U32)((normal[0] * 0.5f + 0.5f) * 256) << 0;
-		mNormalSubsetIndex |= (U32)((normal[1] * 0.5f + 0.5f) * 256) << 8;
-		mNormalSubsetIndex |= (U32)((normal[2] * 0.5f + 0.5f) * 256) << 16;
+		mNormalSubsetIndex |= (U32)((normal[0] * 0.5f + 0.5f) * 255.0f) << 0;
+		mNormalSubsetIndex |= (U32)((normal[1] * 0.5f + 0.5f) * 255.0f) << 8;
+		mNormalSubsetIndex |= (U32)((normal[2] * 0.5f + 0.5f) * 255.0f) << 16;
 	}
 }

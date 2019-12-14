@@ -46,7 +46,7 @@ inline VertexSurface MakeVertexSurfaceFromInput(InputObjectAll input)
     surface.position = float4(input.pos.xyz, 1.0f);
     surface.color = gMaterial.baseColor;
 
-    uint normalSubsetIndex = input.pos.w;
+    uint normalSubsetIndex = asuint(input.pos.w);
     surface.normal.x = (float) (normalSubsetIndex & 0x000000ff) / 256.0f * 2.0f - 1.0f;
     surface.normal.y = (float) ((normalSubsetIndex >> 8) & 0x000000ff) / 256.0f * 2.0f - 1.0f;
     surface.normal.z = (float) ((normalSubsetIndex >> 16) & 0x000000ff) / 256.0f * 2.0f - 1.0f;

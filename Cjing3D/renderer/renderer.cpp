@@ -33,6 +33,7 @@ namespace {
 
 void RenderFrameData::Clear()
 {
+	mShaderLightArrayCount = 0;
 }
 
 Renderer::Renderer(SystemContext& gameContext, RenderingDeviceType deviceType, HWND window) :
@@ -98,6 +99,9 @@ void Renderer::Initialize()
 
 	// initialize frame cullings
 	mFrameCullings[GetCamera()] = FrameCullings();
+
+	mFrameData.mFrameScreenSize = { (F32)mScreenSize[0], (F32)mScreenSize[1] };
+	mFrameData.mFrameAmbient = { 0.5f, 0.5f, 0.5f };
 
 	mIsInitialized = true;
 }
@@ -206,6 +210,8 @@ void Renderer::UpdatFrameData(F32 deltaTime)
 // 在render阶段render前执行
 void Renderer::UpdateRenderData()
 {
+	mFrameData.Clear();
+
 	auto& mainScene = GetMainScene();
 
 	// 处理延时生成的mipmap
@@ -251,6 +257,7 @@ void Renderer::UpdateRenderData()
 
 		lightCount++;
 	}
+	mFrameData.mShaderLightArrayCount = lightCount;
 
 	GPUBuffer& lightsBuffer = mBufferManager->GetResourceBuffer(ResourceBufferType_ShaderLight);
 	mGraphicsDevice->UpdateBuffer(lightsBuffer, shaderLights, sizeof(ShaderLight) * lightCount);
@@ -410,8 +417,9 @@ void Renderer::UpdateCameraCB(CameraComponent & camera)
 void Renderer::UpdateFrameCB()
 {
 	FrameCB frameCB;
-
-	// TODO..........
+	frameCB.gFrameScreenSize = XMConvert(mFrameData.mFrameScreenSize);
+	frameCB.gFrameAmbient = XMConvert(mFrameData.mFrameAmbient);
+	frameCB.gShaderLightArrayCount = mFrameData.mShaderLightArrayCount;
 
 	GPUBuffer& frameBuffer = mBufferManager->GetConstantBuffer(ConstantBufferType_Frame);
 	mGraphicsDevice->UpdateBuffer(frameBuffer, &frameCB, sizeof(FrameCB));
@@ -583,6 +591,9 @@ void Renderer::BindConstanceBuffer(SHADERSTAGES stage)
 {
 	GPUBuffer& cameraBuffer = mBufferManager->GetConstantBuffer(ConstantBufferType_Camera);
 	mGraphicsDevice->BindConstantBuffer(stage, cameraBuffer, CB_GETSLOT_NAME(CameraCB));
+
+	GPUBuffer& frameBuffer = mBufferManager->GetConstantBuffer(ConstantBufferType_Frame);
+	mGraphicsDevice->BindConstantBuffer(stage, frameBuffer, CB_GETSLOT_NAME(FrameCB));
 }
 
 void Renderer::FrameCullings::Clear()

@@ -25,10 +25,10 @@ float4 ForwardLighting(in Surface surface)
 
 float4 SimpleLighting(in Surface surface)
 {
-	float4 color = GetAmbientLight();
+	float3 color = GetAmbientLight().rgb;
 
 	// 简单光照下，不考虑光源的culling,直接遍历传递过来的所有光源并执行对应光照计算
-	for (uint lightIndex = 0; lightIndex < gShaderLightArrayCount - 1; lightIndex++)
+	for (uint lightIndex = 0; lightIndex < gShaderLightArrayCount; lightIndex++)
 	{
 		ShaderLight light = LightArray[lightIndex];
 		
@@ -45,7 +45,7 @@ float4 SimpleLighting(in Surface surface)
 		}
 	}
 
-	return color;
+	return float4(color.rgb, 1.0f);
 }
 
 float4 main(PixelInputType input) : SV_TARGET

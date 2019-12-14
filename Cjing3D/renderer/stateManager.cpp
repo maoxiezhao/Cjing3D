@@ -98,7 +98,7 @@ void StateManager::SetupDepthStencilStates()
 
 	{
 		desc.mDepthEnable = true;
-		desc.mDepthWriteMask = DEPTH_WRITE_MASK_ZERO;
+		desc.mDepthWriteMask = DEPTH_WRITE_MASK_ALL;
 		desc.mDepthFunc = COMPARISON_GREATER_EQUAL;
 
 		const auto result = mDevice.CreateDepthStencilState(desc, *mDepthStencilStates[DepthStencilStateID::DepthStencilStateID_GreaterEqualReadWrite]);
@@ -171,7 +171,7 @@ void StateManager::SetupRasterizerStates()
 		RasterizerStateDesc desc = {};
 		desc.mFillMode = FILL_SOLID;
 		desc.mCullMode = CULL_BACK;
-		desc.mFrontCounterClockwise = false;
+		desc.mFrontCounterClockwise = true;
 		desc.mDepthBias = 0;
 		desc.mDepthBiasClamp = 0;
 		desc.mSlopeScaleDepthBias = 0;

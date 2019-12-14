@@ -247,10 +247,10 @@ namespace Cjing3D
 
 	enum USAGE
 	{
-		USAGE_DEFAULT,
-		USAGE_IMMUTABLE,
-		USAGE_DYNAMIC,
-		USAGE_STAGING
+		USAGE_DEFAULT,		// only GPU read/write
+		USAGE_IMMUTABLE,    // GPU read
+		USAGE_DYNAMIC,      // CPU write, GPU read
+		USAGE_STAGING       // CPU read/write, GPU read/write
 	};
 
 	enum BIND_FLAG

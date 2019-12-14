@@ -23,7 +23,7 @@ function MainInstance:onMainStart()
 
 	local main_camera = Render.GetMainCamera();
 	self.m_fps_camera:setCamera(main_camera);
-	self.m_fps_camera:reset(Vector:new(300, 200, -300));
+	self.m_fps_camera:reset(Vector:new(-10, 10, -20), Vector:new(0, 0, 0));
 	self.m_fps_camera:setMoveSpeed(50);
 end
 

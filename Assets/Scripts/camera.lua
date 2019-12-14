@@ -16,11 +16,12 @@ function FPSCamera:ctor()
     self.m_rotation_speed = 0.0005;
 end 
 
-function FPSCamera:reset(camera_pos)
+function FPSCamera:reset(camera_pos, rotation)
     self.m_is_mouse_move = false;
 
     self.m_camera_transform:Clear();
     self.m_camera_transform:Translate(camera_pos);
+    self.m_camera_transform:RotateRollPitchYaw(rotation)
     self.m_camera_transform:Update();
     
     self.m_camera_inst:Transform(self.m_camera_transform);

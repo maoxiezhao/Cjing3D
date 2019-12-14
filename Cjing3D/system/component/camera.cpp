@@ -29,7 +29,8 @@ namespace Cjing3D
 		if (mIsDirty == true) {
 			mIsDirty = false;
 
-			XMStoreFloat4x4(&mProjection, XMMatrixPerspectiveFovLH(mFov, mWidth / mHeight, mNearPlane, mFarPlane));
+			// reverse zbuffer
+			XMStoreFloat4x4(&mProjection, XMMatrixPerspectiveFovLH(mFov, mWidth / mHeight, mFarPlane, mNearPlane));
 
 			XMMATRIX view = XMMatrixLookToLH(
 				XMLoad(mEye),

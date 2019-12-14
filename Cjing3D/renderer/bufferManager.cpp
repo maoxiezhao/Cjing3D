@@ -20,17 +20,30 @@ namespace Cjing3D
 	void BufferManager::LoadConstantBuffers()
 	{
 		auto& device = mRenderer.GetDevice();
-
 		// Camera buffer
-		GPUBufferDesc desc = {};
-		desc.mUsage = USAGE_DYNAMIC;	// camera buffer 更新频繁
-		desc.mCPUAccessFlags = CPU_ACCESS_WRITE;
-		desc.mBindFlags = BIND_CONSTANT_BUFFER;
-		desc.mByteWidth = sizeof(CameraCB);
+		{
+			GPUBufferDesc desc = {};
+			desc.mUsage = USAGE_DYNAMIC;	// camera buffer 更新频繁
+			desc.mCPUAccessFlags = CPU_ACCESS_WRITE;
+			desc.mBindFlags = BIND_CONSTANT_BUFFER;
+			desc.mByteWidth = sizeof(CameraCB);
 
-		const auto result = device.CreateBuffer(&desc, mConstantBuffer[ConstantBufferType_Camera], nullptr);
-		Debug::ThrowIfFailed(result, "failed to create camera constant buffer:%08x", result);
-		device.SetResourceName(mConstantBuffer[ConstantBufferType_Camera], "CamearCB");
+			const auto result = device.CreateBuffer(&desc, mConstantBuffer[ConstantBufferType_Camera], nullptr);
+			Debug::ThrowIfFailed(result, "failed to create camera constant buffer:%08x", result);
+			device.SetResourceName(mConstantBuffer[ConstantBufferType_Camera], "CamearCB");
+		}
+		// Frame buffer
+		{
+			GPUBufferDesc desc = {};
+			desc.mUsage = USAGE_DEFAULT;	
+			desc.mCPUAccessFlags = 0;
+			desc.mBindFlags = BIND_CONSTANT_BUFFER;
+			desc.mByteWidth = sizeof(FrameCB);
+
+			const auto result = device.CreateBuffer(&desc, mConstantBuffer[ConstantBufferType_Frame], nullptr);
+			Debug::ThrowIfFailed(result, "failed to create frame constant buffer:%08x", result);
+			device.SetResourceName(mConstantBuffer[ConstantBufferType_Frame], "FrameCB");
+		}
 	}
 
 	void BufferManager::LoadResourceBuffers()
@@ -38,7 +51,7 @@ namespace Cjing3D
 		auto& device = mRenderer.GetDevice();
 
 		GPUBufferDesc desc = {};
-		desc.mUsage = USAGE_DEFAULT;	// camera buffer 更新频繁
+		desc.mUsage = USAGE_DEFAULT;	
 		desc.mCPUAccessFlags = 0;
 		desc.mBindFlags = BIND_SHADER_RESOURCE;
 		desc.mMiscFlags = RESOURCE_MISC_BUFFER_STRUCTURED;

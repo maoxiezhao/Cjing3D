@@ -25,6 +25,11 @@ class Renderer2D;
 // 用于记录每一帧的基础数据
 class RenderFrameData
 {
+public:
+	F32x2 mFrameScreenSize;
+	U32 mShaderLightArrayCount;
+	F32x3 mFrameAmbient;
+
 	void Clear();
 };
 

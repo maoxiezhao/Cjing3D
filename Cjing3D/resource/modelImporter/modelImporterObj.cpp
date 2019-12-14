@@ -134,6 +134,13 @@ namespace ModelImporter
 						mesh->mSubsets.push_back(subset);
 					}
 
+					static const bool transformToLH = true;
+					if (transformToLH) 
+					{
+						pos[2] *= -1;
+						normal[2] *= -1;
+					}
+
 					U32 hashValue = 0;
 					HashCombine(hashValue, index.vertex_index);
 					HashCombine(hashValue, index.normal_index);
