@@ -4,6 +4,7 @@
 
 namespace Cjing3D {
 
+	LUA_BINDER_REGISTER_CLASS
 	class LightComponent : public Component
 	{
 	public:
@@ -26,11 +27,21 @@ namespace Cjing3D {
 	public:
 		LightComponent();
 
-		inline LightType GetLightType()const { return mLightType; }
-		inline void SetLightType(LightType lightType) { mLightType = lightType; }
-		inline bool IsCastShadow()const { return mIsCastShadow; }
-
 		ShaderLight CreateShaderLight(XMMATRIX viewMatrix) const;
+
+	public:
+		LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
+		inline LightType GetLightType()const { return mLightType; }
+		LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
+		inline void SetLightType(LightType lightType) { mLightType = lightType; }
+		LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
+		inline void SetRange(F32 range) { mRange = range; }
+		LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
+		inline void SetEnergy(F32 energy) { mEnergy = energy; }
+		LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
+		inline void SetColor(F32x3 color) { mColor = color; }
+
+		inline bool IsCastShadow()const { return mIsCastShadow; }
 	};
 
 }

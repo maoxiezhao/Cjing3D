@@ -103,6 +103,9 @@ namespace Cjing3D
 	template<> struct LuaTypeNormalMapping<short> : LuaTypeIntegerMapping<short> {};
 	template<> struct LuaTypeNormalMapping<int> : LuaTypeIntegerMapping<int> {};
 	template<> struct LuaTypeNormalMapping<long> : LuaTypeIntegerMapping<long> {};
+	template<> struct LuaTypeNormalMapping<unsigned short> : LuaTypeIntegerMapping<short> {};
+	template<> struct LuaTypeNormalMapping<unsigned int> : LuaTypeIntegerMapping<int> {};
+	template<> struct LuaTypeNormalMapping<unsigned long> : LuaTypeIntegerMapping<long> {};
 
 	template<>
 	struct LuaTypeNormalMapping<bool>

@@ -3,11 +3,15 @@
 
 inline float3 GetAmbientLight()
 {
-	return float3(0.5f, 0.5f, 0.5f);
+	return gFrameAmbient;
 }
 
 #ifdef _SIMPLE_BASE_LIGHT_
 // phong Lighting
+
+static const float pointLightAttConstant = 1.0f;
+static const float pointLightAttLinear = 0.09f;
+static const float pointLightAttQuadratic = 0.032f;
 
 inline float3 DirectionalLight(in ShaderLight light, in Surface surface)
 {
@@ -16,11 +20,35 @@ inline float3 DirectionalLight(in ShaderLight light, in Surface surface)
 
 inline float3 PointLight(in ShaderLight light, in Surface surface)
 {
-	float3 color = light.color.rgb;
-	float3 lightDir = normalize(light.worldPosition - surface.position);
-	float diff = max(dot(lightDir, surface.normal), 0.0f);
+	float3 color = float3(0.0f, 0.0f, 0.0f);
 
-	return color * diff;
+	float3 lightV = light.worldPosition - surface.position;
+	float dist2 = dot(lightV, lightV);
+	float dist = sqrt(dist2);
+
+	if (dist <= light.range)
+	{
+		float3 lightDir = normalize(lightV / dist);
+		float NdotL = dot(lightDir, surface.normal);
+		if (NdotL > 0)
+		{
+			color = light.color.rgb * light.energy;
+
+			float attenuation = 1.0f /
+				(pointLightAttConstant + pointLightAttLinear * dist + pointLightAttQuadratic * dist2);
+
+			// diffuse
+			float3 diffuseColor = color * NdotL * attenuation;
+
+			// specular
+			float spec = pow(max(dot(lightDir, surface.reflectView), 0.0f), 32);
+			float3 specularColor = color * spec * attenuation;
+
+			color = diffuseColor + specularColor;
+		}
+	}
+
+	return color;
 }
 
 #else

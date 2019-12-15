@@ -4,6 +4,8 @@
 
 namespace Cjing3D
 {
+	class IMGUIStage;
+
 	class GUIRenderer
 	{
 	public:
@@ -12,5 +14,10 @@ namespace Cjing3D
 
 		void Update(F32 dt);
 		void Render();
+
+		void SetImGuiStage(IMGUIStage* imGuiStage);
+
+	private:
+		IMGUIStage * mImGuiStage = nullptr;
 	};
 }

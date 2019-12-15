@@ -101,7 +101,7 @@ void Renderer::Initialize()
 	mFrameCullings[GetCamera()] = FrameCullings();
 
 	mFrameData.mFrameScreenSize = { (F32)mScreenSize[0], (F32)mScreenSize[1] };
-	mFrameData.mFrameAmbient = { 0.5f, 0.5f, 0.5f };
+	mFrameData.mFrameAmbient = { 0.1f, 0.1f, 0.1f };
 
 	mIsInitialized = true;
 }

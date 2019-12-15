@@ -8,10 +8,16 @@
 
 namespace Cjing3D
 {
+	enum GraphicsDeviceType
+	{
+		GraphicsDeviceType_unknown,
+		GraphicsDeviceType_directx11
+	};
+
 	class GraphicsDevice
 	{
 	public:
-		GraphicsDevice();
+		GraphicsDevice(GraphicsDeviceType type);
 
 		virtual void Initialize();
 		virtual void Uninitialize();
@@ -94,7 +100,10 @@ namespace Cjing3D
 		void AddGPUResource(GPUResource* resource);
 		void RemoveGPUResource(GPUResource* resource);
 
+		GraphicsDeviceType GetGraphicsDeviceType()const { return mGraphicsDeviceType; }
+
 	protected:
+		GraphicsDeviceType mGraphicsDeviceType = GraphicsDeviceType_unknown;
 		bool mIsFullScreen;
 		FORMAT mBackBufferFormat;
 		U32x2 mScreenSize;

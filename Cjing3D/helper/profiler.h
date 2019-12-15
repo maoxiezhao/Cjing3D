@@ -44,4 +44,9 @@ private:
 	std::unordered_map<std::string, Block> mBlock;
 };
 
+#define PROFILER_BEGIN_FRAME() Profiler::GetInstance().BeginFrame();
+#define PROFILER_END_FRAME() Profiler::GetInstance().EndFrame();
+#define PROFILER_BEGIN_BLOCK(name) Profiler::GetInstance().BeginBlock(name);
+#define PROFILER_END_BLOCK() Profiler::GetInstance().EndBlock();
+
 }

@@ -265,3 +265,5 @@ __pycache__/
 /Cjing3D/scripts/lua
 /Cjing3D/note.h
 /Cjing3D/renderer/renderNote.h
+/ThirdParty/imgui
+/Game/imgui.ini

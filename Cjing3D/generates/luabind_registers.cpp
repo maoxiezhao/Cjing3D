@@ -1,5 +1,6 @@
 #include "input/InputSystem.h"
 #include "system/component/camera.h"
+#include "system/component/light.h"
 #include "system/component/transform.h"
 
 #include "scripts\luaContext.h"
@@ -24,6 +25,16 @@ LuaBinder(l)
 .AddMethod("IsKeyUp", &InputManager::IsKeyUp)
 .AddMethod("IsKeyHold", &InputManager::IsKeyHold)
 .AddMethod("GetMousePos", &InputManager::GetMousePos)
+.EndClass();
+
+LuaBinder(l)
+.BeginClass<LightComponent>("LightComponent")
+.AddConstructor(_LUA_ARGS_())
+.AddMethod("GetLightType", &LightComponent::GetLightType)
+.AddMethod("SetLightType", &LightComponent::SetLightType)
+.AddMethod("SetRange", &LightComponent::SetRange)
+.AddMethod("SetEnergy", &LightComponent::SetEnergy)
+.AddMethod("SetColor", &LightComponent::SetColor)
 .EndClass();
 
 LuaBinder(l)

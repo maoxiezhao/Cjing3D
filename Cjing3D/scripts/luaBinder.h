@@ -96,6 +96,13 @@ namespace Cjing3D
 			return *this;
 		}
 
+		LuaBindClass<T, ParentT>& AddCFunction(const std::string& name, FunctionExportToLua function)
+		{
+			mCurrentMeta.RawSet(name, function);
+
+			return *this;
+		}
+
 		template<typename FUNC>
 		LuaBindClass<T, ParentT>& AddFunction(const std::string& name, const FUNC& func)
 		{

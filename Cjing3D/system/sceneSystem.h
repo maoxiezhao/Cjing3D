@@ -32,6 +32,10 @@ namespace Cjing3D {
 			F32 range = 10.0f
 		);
 
+		// create by entity
+		TransformComponent& GetOrCreateTransformByEntity(ECS::Entity entity);
+		LightComponent& GetOrCreateLightByEntity(ECS::Entity entity);
+
 		ECS::Entity CreateEntityByName(const std::string& name);
 		ECS::Entity GetEntityByName(const StringID& name);
 

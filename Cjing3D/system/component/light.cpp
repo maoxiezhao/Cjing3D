@@ -1,4 +1,5 @@
 #include "light.h"
+#include "helper\enumInfo.h"
 
 namespace Cjing3D
 {

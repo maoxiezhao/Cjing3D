@@ -85,6 +85,32 @@ namespace Cjing3D
 		return entity;
 	}
 
+	TransformComponent & Scene::GetOrCreateTransformByEntity(ECS::Entity entity)
+	{
+		auto transformPtr = mTransforms.GetComponent(entity);
+		if (transformPtr != nullptr) {
+			return *transformPtr;
+		}
+
+		TransformComponent& transform = *mTransforms.Create(entity);
+		return transform;
+	}
+
+	// 仅创建light相关component，不包含transform
+	LightComponent & Scene::GetOrCreateLightByEntity(ECS::Entity entity)
+	{
+		auto lightPtr = mLights.GetComponent(entity);
+		if (lightPtr != nullptr) {
+			return *lightPtr;
+		}
+
+		mLightAABBs.Create(entity);
+		LightComponent& light = *mLights.Create(entity);
+		light.SetLightType(LightComponent::LightType_Point);
+
+		return light;
+	}
+
 	ECS::Entity Scene::CreateEntityByName(const std::string & name)
 	{
 		// 目前不支持名字重名，后一个将无法添加

@@ -1,15 +1,14 @@
 #include "engine.h"
 #include "helper\fileSystem.h"
 #include "helper\profiler.h"
+#include "helper\enumInfo.h"
 #include "core\jobSystem.h"
 #include "core\eventSystem.h"
 #include "input\InputSystem.h"
 #include "resource\resourceManager.h"
 #include "renderer\renderer.h"
 #include "scripts\luaContext.h"
-
-// TEST
-#include "helper\enumInfo.h"
+#include "gui\guiStage.h"
 
 namespace Cjing3D
 {
@@ -47,6 +46,7 @@ void Engine::Initialize()
 	mTimer.Start();
 	mTime = mTimer.GetTime();
 	mSystemContext->SetEngineTime(mTime);
+	mSystemContext->SetEngine(this);
 
 	// initialize file data
 	std::string dataPath = "./../Assets";
@@ -75,6 +75,11 @@ void Engine::Initialize()
 	auto renderer = new Renderer(*mSystemContext, mRenderingDeviceType, (HWND)mWindowHwnd);
 	mSystemContext->RegisterSubSystem(renderer);
 	renderer->Initialize();
+
+	// initialize gui stage
+	auto guiStage = new GUIStage(*mSystemContext);
+	mSystemContext->RegisterSubSystem(guiStage);
+	guiStage->Initialize();
 
 	// initialize lua context
 	auto luaContext = new LuaContext(*mSystemContext);
@@ -109,16 +114,21 @@ void Engine::Tick()
 
 	auto& renderer = mSystemContext->GetSubSystem<Renderer>();
 	auto& luaContext = mSystemContext->GetSubSystem<LuaContext>();
+	auto& guiStage = mSystemContext->GetSubSystem<GUIStage>();
 
+	// update
 	profiler.BeginBlock("Update");
 	FIRE_EVENT(EventType::EVENT_TICK);
 	mGameComponent->Update(mTime);
 	renderer.Update(deltaTime);
 	luaContext.Update(deltaTime);
+	guiStage.Update(deltaTime);
 	profiler.EndBlock();
 
+	// render
 	profiler.BeginBlock("Render");
 	FIRE_EVENT(EventType::EVENT_RENDER);
+	guiStage.Render();
 	renderer.Render();
 	profiler.EndBlock();
 
@@ -141,6 +151,7 @@ void Engine::Uninitialize()
 	mGameComponent->Uninitialize();
 
 	mSystemContext->GetSubSystem<LuaContext>().Uninitialize();
+	mSystemContext->GetSubSystem<GUIStage>().Uninitialize();
 	mSystemContext->GetSubSystem<Renderer>().Uninitialize();
 	mSystemContext->GetSubSystem<ResourceManager>().Uninitialize();
 	mSystemContext->GetSubSystem<InputManager>().Uninitialize();

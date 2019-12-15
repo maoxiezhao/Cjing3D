@@ -232,6 +232,10 @@ MethodMetaInfo MethodMetaInfo::Parse(const std::string & srcBuffer)
 		metaInfo.mIsStatic = true;
 		token = GetNextToken(currentLine);
 	}
+
+	if (token == "inline") {
+		token = GetNextToken(currentLine);
+	}
 	
 	if (token == "const") {
 		token = GetNextToken(currentLine);

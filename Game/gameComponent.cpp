@@ -34,12 +34,6 @@ namespace Cjing3D
 
 		Renderer2D& renderer2D = renderer.GetRenderer2D();
 		renderer2D.SetCurrentRenderPath(path);
-
-		auto& mainScene = renderer.GetMainScene();
-		mainScene.CreateEntityLight(
-			"TestLight",
-			{0.0f, 10.0f, -18.0f}
-		);
 	}
 
 	void TestGame::Update(EngineTime time)

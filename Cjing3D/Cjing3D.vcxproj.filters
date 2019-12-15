@@ -65,6 +65,9 @@
     <Filter Include="generates">
       <UniqueIdentifier>{95837ed7-6ef3-4928-afec-2cf455dcd6b3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="gui\imgui">
+      <UniqueIdentifier>{89cc6ab1-2726-48b0-b20d-221e6e4329a9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine.cpp" />
@@ -296,12 +299,6 @@
     <ClCompile Include="scripts\api\luaApi.cpp">
       <Filter>scripts\api</Filter>
     </ClCompile>
-    <ClCompile Include="gui\gui.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="gui\mainStage.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
     <ClCompile Include="input\InputSystem.cpp">
       <Filter>input</Filter>
     </ClCompile>
@@ -358,6 +355,39 @@
     </ClCompile>
     <ClCompile Include="renderer\bufferManager.cpp">
       <Filter>renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\api\sceneApi.cpp">
+      <Filter>scripts\api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\imgui\imgui.cpp">
+      <Filter>gui\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\imgui\imgui_demo.cpp">
+      <Filter>gui\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\imgui\imgui_draw.cpp">
+      <Filter>gui\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\imgui\imgui_widgets.cpp">
+      <Filter>gui\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\imguiStage.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiStage.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiRenderer.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\imgui\imgui_impl_dx11.cpp">
+      <Filter>gui\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\imgui\imgui_impl_win32.cpp">
+      <Filter>gui\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\baseWindow.cpp">
+      <Filter>utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -645,12 +675,6 @@
     <ClInclude Include="scripts\api\luaApi.h">
       <Filter>scripts\api</Filter>
     </ClInclude>
-    <ClInclude Include="gui\gui.h">
-      <Filter>gui</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\mainStage.h">
-      <Filter>gui</Filter>
-    </ClInclude>
     <ClInclude Include="input\InputSystem.h">
       <Filter>input</Filter>
     </ClInclude>
@@ -701,6 +725,36 @@
     </ClInclude>
     <ClInclude Include="renderer\renderNote.h">
       <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\api\sceneApi.h">
+      <Filter>scripts\api</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\imgui\imconfig.h">
+      <Filter>gui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\imgui\imgui.h">
+      <Filter>gui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\imgui\imgui_internal.h">
+      <Filter>gui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\imguiStage.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiStage.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiRenderer.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\imgui\imgui_impl_dx11.h">
+      <Filter>gui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\imgui\imgui_impl_win32.h">
+      <Filter>gui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\baseWindow.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

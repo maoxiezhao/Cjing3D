@@ -43,17 +43,6 @@ namespace Cjing3D {
 		return false;
 	}
 
-	void Window::AddMessageHandler(WindowMessageHandlerPtr handler)
-	{
-		mHandlers.push_back(handler);
-	}
-
-	void Window::RemoveHandler(WindowMessageHandlerPtr handler)
-	{
-		mHandlers.erase(std::remove(mHandlers.begin(), mHandlers.end(), handler), mHandlers.end());
-	}
-
-
 	bool Window::InitializeWindows(const std::string& name, int w, int h, DWORD style)
 	{
 		Logger::Info("[Video] Initialize Window Size:" + std::to_string(w) + " " + std::to_string(h));

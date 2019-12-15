@@ -813,7 +813,7 @@ namespace {
 }
 
 GraphicsDeviceD3D11::GraphicsDeviceD3D11(HWND window, bool fullScreen, bool debugLayer):
-	GraphicsDevice(),
+	GraphicsDevice(GraphicsDeviceType_directx11),
 	mWindow(window),
 	mDebugLayer(debugLayer),
 	mDevice(),

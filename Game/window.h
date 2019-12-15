@@ -6,19 +6,11 @@
 #include <functional>
 
 #include "common\common.h"
+#include "utils\baseWindow.h"
 
 namespace Cjing3D {
 
-	class WindowMessageHandler {
-	public:
-		WindowMessageHandler() = default;
-		virtual ~WindowMessageHandler() = default;
-
-		virtual bool HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam, LRESULT& result) = 0;
-	};
-	using WindowMessageHandlerPtr = std::shared_ptr<WindowMessageHandler>;
-
-	class Window
+	class Window : public BaseWindow
 	{
 	public:
 		static constexpr DWORD DefaultWindowStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
@@ -31,9 +23,6 @@ namespace Cjing3D {
 		bool Show();
 		void ShutDown();
 		bool HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam, LRESULT&result);
-
-		void AddMessageHandler(WindowMessageHandlerPtr handler);
-		void RemoveHandler(WindowMessageHandlerPtr handler);
 
 		HINSTANCE GetInstance()const { return mHinstance; }
 		HWND GetHwnd()const { return mHwnd; }
@@ -55,8 +44,6 @@ namespace Cjing3D {
 
 		HINSTANCE mHinstance;
 		HWND mHwnd;
-
-		std::vector<WindowMessageHandlerPtr> mHandlers;
 	};
 
 

@@ -1,6 +1,5 @@
 #include "luaApi.h"
 #include "renderer\renderer.h"
-#include "system\sceneSystem.h"
 #include "system\component\camera.h"
 #include "core\systemContext.hpp"
 

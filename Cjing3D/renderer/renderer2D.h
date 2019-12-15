@@ -15,6 +15,7 @@ namespace Cjing3D
 		void Uninitialize();
 		void Render();
 		void SetCurrentRenderPath(RenderPath2D* path) { mRenderPath = path; }
+		RenderPath2D* GetCurrentRenderPath() { return mRenderPath; }
 
 	private:
 		Renderer & mRenderer;

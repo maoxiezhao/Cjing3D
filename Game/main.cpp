@@ -55,6 +55,7 @@ int WINAPI WinMain(HINSTANCE instance,
 
 	mainEngine = std::make_unique<Engine>(new TestGame());
 	mainEngine->SetHandles(mainWindow->GetHwnd(), mainWindow->GetInstance());
+	mainEngine->SetWindow(mainWindow.get());
 	mainEngine->Initialize();
 
 	Run();

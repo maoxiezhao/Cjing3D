@@ -9,12 +9,16 @@
 namespace Cjing3D
 {
 
+class Engine;
+
 class SystemContext
 {
 private:
 	using GameSystemPtr = std::unique_ptr<SubSystem>;
 	std::vector<GameSystemPtr> mSystems;
+	
 	EngineTime mTime;
+	Engine* mEngine;
 
 	SystemContext() = default;
 
@@ -56,6 +60,16 @@ public:
 	EngineTime GetEngineTime()
 	{
 		return mTime;
+	}
+
+	void SetEngine(Engine* engine)
+	{
+		mEngine = engine;
+	}
+
+	Engine* GetEngine()
+	{
+		return mEngine;
 	}
 };
 

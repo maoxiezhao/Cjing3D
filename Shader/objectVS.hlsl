@@ -12,6 +12,7 @@ PixelInputType main(InputObjectAll input)
     surface.normal = normalize(mul((float3x3) worldMat, surface.normal));
 
     Out.pos = mul(gCameraVP, surface.position);
+	Out.pos3D = surface.position;
     Out.nor = surface.normal;
     Out.tex = surface.uv;
     Out.color = surface.color;

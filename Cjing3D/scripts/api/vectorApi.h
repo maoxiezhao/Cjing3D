@@ -87,6 +87,23 @@ namespace LuaApi
 	};
 
 	template<>
+	struct LuaTypeNormalMapping<F32x3>
+	{
+		static void Push(lua_State*l, const F32x3& value)
+		{
+			LuaApi::BindLuaVector vector(XMLoad(value));
+			LuaTools::Push<LuaApi::BindLuaVector>(l, vector);
+		}
+
+		static F32x3 Get(lua_State*l, int index)
+		{
+			LuaApi::BindLuaVector vector = LuaTools::Get<LuaApi::BindLuaVector>(l, index);
+			F32x3 result = XMStore<F32x3>(vector.mValue);
+			return result;
+		}
+	};
+
+	template<>
 	struct LuaTypeNormalMapping<DirectX::XMFLOAT4>
 	{
 		static void Push(lua_State*l, const XMFLOAT4& value)
@@ -100,6 +117,23 @@ namespace LuaApi
 			XMFLOAT4 result;
 			LuaApi::BindLuaVector vector = LuaTools::Get<LuaApi::BindLuaVector>(l, index);
 			XMStoreFloat4(&result, vector.mValue);
+			return result;
+		}
+	};
+
+	template<>
+	struct LuaTypeNormalMapping<F32x4>
+	{
+		static void Push(lua_State*l, const F32x4& value)
+		{
+			LuaApi::BindLuaVector vector(XMLoad(value));
+			LuaTools::Push<LuaApi::BindLuaVector>(l, vector);
+		}
+
+		static F32x4 Get(lua_State*l, int index)
+		{
+			LuaApi::BindLuaVector vector = LuaTools::Get<LuaApi::BindLuaVector>(l, index);
+			F32x4 result = XMStore<F32x4>(vector.mValue);
 			return result;
 		}
 	};

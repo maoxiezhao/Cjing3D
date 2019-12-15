@@ -140,6 +140,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\ThirdParty\imgui\imconfig.h" />
+    <ClInclude Include="..\ThirdParty\imgui\imgui.h" />
+    <ClInclude Include="..\ThirdParty\imgui\imgui_impl_dx11.h" />
+    <ClInclude Include="..\ThirdParty\imgui\imgui_impl_win32.h" />
+    <ClInclude Include="..\ThirdParty\imgui\imgui_internal.h" />
     <ClInclude Include="common\about.h" />
     <ClInclude Include="common\common.h" />
     <ClInclude Include="core\eventDefine.h" />
@@ -150,8 +155,9 @@
     <ClInclude Include="core\subSystem.hpp" />
     <ClInclude Include="core\threadSafeSystem.h" />
     <ClInclude Include="engine.h" />
-    <ClInclude Include="gui\gui.h" />
-    <ClInclude Include="gui\mainStage.h" />
+    <ClInclude Include="gui\guiRenderer.h" />
+    <ClInclude Include="gui\imguiStage.h" />
+    <ClInclude Include="gui\guiStage.h" />
     <ClInclude Include="helper\debug.h" />
     <ClInclude Include="helper\enumInfo.h" />
     <ClInclude Include="helper\fileSystem.h" />
@@ -197,6 +203,7 @@
     <ClInclude Include="resource\resourcePool.hpp" />
     <ClInclude Include="scripts\api\luaApi.h" />
     <ClInclude Include="scripts\api\matrixApi.h" />
+    <ClInclude Include="scripts\api\sceneApi.h" />
     <ClInclude Include="scripts\api\vectorApi.h" />
     <ClInclude Include="scripts\luaArg.h" />
     <ClInclude Include="scripts\luaBinder.h" />
@@ -247,6 +254,7 @@
     <ClInclude Include="system\sceneSystem.h" />
     <ClInclude Include="utils\allocator.h" />
     <ClInclude Include="utils\array.h" />
+    <ClInclude Include="utils\baseWindow.h" />
     <ClInclude Include="utils\geometry.h" />
     <ClInclude Include="utils\intersectable.h" />
     <ClInclude Include="utils\math.h" />
@@ -257,14 +265,21 @@
     <ClInclude Include="utils\tinyobjloader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\ThirdParty\imgui\imgui.cpp" />
+    <ClCompile Include="..\ThirdParty\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\ThirdParty\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\ThirdParty\imgui\imgui_impl_dx11.cpp" />
+    <ClCompile Include="..\ThirdParty\imgui\imgui_impl_win32.cpp" />
+    <ClCompile Include="..\ThirdParty\imgui\imgui_widgets.cpp" />
     <ClCompile Include="core\eventSystem.cpp" />
     <ClCompile Include="core\gameComponent.cpp" />
     <ClCompile Include="core\jobSystem.cpp" />
     <ClCompile Include="core\threadSafeSystem.cpp" />
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="generates\luabind_registers.cpp" />
-    <ClCompile Include="gui\gui.cpp" />
-    <ClCompile Include="gui\mainStage.cpp" />
+    <ClCompile Include="gui\guiRenderer.cpp" />
+    <ClCompile Include="gui\imguiStage.cpp" />
+    <ClCompile Include="gui\guiStage.cpp" />
     <ClCompile Include="helper\debug.cpp" />
     <ClCompile Include="helper\fileSystem.cpp" />
     <ClCompile Include="helper\IDGenerator.cpp" />
@@ -300,6 +315,7 @@
     <ClCompile Include="scripts\api\luaApi.cpp" />
     <ClCompile Include="scripts\api\matrixApi.cpp" />
     <ClCompile Include="scripts\api\rendererApi.cpp" />
+    <ClCompile Include="scripts\api\sceneApi.cpp" />
     <ClCompile Include="scripts\api\systemApi.cpp" />
     <ClCompile Include="scripts\api\vectorApi.cpp" />
     <ClCompile Include="scripts\luaBinder.cpp" />
@@ -354,6 +370,7 @@
     <ClCompile Include="system\sceneObjectSystem.cpp" />
     <ClCompile Include="system\sceneSystem.cpp" />
     <ClCompile Include="system\sceneTransformSystem.cpp" />
+    <ClCompile Include="utils\baseWindow.cpp" />
     <ClCompile Include="utils\intersectable.cpp" />
   </ItemGroup>
   <ItemGroup>

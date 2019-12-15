@@ -6,7 +6,7 @@
 CBUFFER(FrameCB, CBSLOT_RENDERER_FRAME)
 {
 	float2 gFrameScreenSize;
-	
+	float2 gFramePadding;
 	// light
 	uint gShaderLightArrayCount;
 	float3 gFrameAmbient;

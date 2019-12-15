@@ -71,6 +71,9 @@ public:
 	virtual void DrawIndexed(UINT indexCount, UINT startIndexLocation) ;
 	virtual void DrawIndexedInstances(U32 indexCount, U32 instanceCount, U32 startIndexLocation, U32 baseVertexLocation, U32 startInstanceLocation);
 
+	inline HWND GetHwnd() { return mWindow; }
+	inline ID3D11Device& GetDevice() { return *mDevice.Get(); }
+
 	ID3D11DeviceContext& GetDeviceContext(GraphicsThread type) {
 		return *mDeviceContext[static_cast<U32>(type)].Get();
 	}
@@ -82,6 +85,8 @@ public:
 	void SetViewport(ViewPort viewport);
 
 	virtual GPUAllocation AllocateGPU(size_t dataSize);
+
+
 
 private:
 	void InitializeDevice();

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "renderPath.h"
-#include "gui\gui.h"
+#include "gui\guiRenderer.h"
 
 namespace Cjing3D {
 

@@ -2,13 +2,13 @@ package.path = package.path .. ";../Assets/Scripts/?.lua"
 
 require("common.common")
 require("common.global")
-require("camera")
+require("scene")
 
 Logger.Info("Load main file success.")
 
 local MainInstance = ClassDefine(MainInstance);
 function MainInstance:ctor()
-	self.m_fps_camera = FPSCamera:new();
+	self.m_main_scene = MainScene:new();
 end 
 
 function MainInstance:onMainInitialize()
@@ -16,25 +16,26 @@ function MainInstance:onMainInitialize()
 
 	collectgarbage('setpause', 200)
 	collectgarbage('setstepmul', 400)
+
+	self.m_main_scene:initialize();
 end 
 
 function MainInstance:onMainStart()
 	Logger.Info("onMainStart")
 
-	local main_camera = Render.GetMainCamera();
-	self.m_fps_camera:setCamera(main_camera);
-	self.m_fps_camera:reset(Vector:new(-10, 10, -20), Vector:new(0, 0, 0));
-	self.m_fps_camera:setMoveSpeed(50);
+	self.m_main_scene:onStart();
 end
 
 function MainInstance:onMainUpdate()
 	local deltaTime = System.GetDeltaTime();
 
-	self.m_fps_camera:update(deltaTime);
+	self.m_main_scene:update(deltaTime);
 end 
 
 function MainInstance:onMainUnInitialize()
 	Logger.Info("OnMainUnInitialize")
+
+	self.m_main_scene:uninitialize();
 end 
 
 local mainInstance = MainInstance:new();

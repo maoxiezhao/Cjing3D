@@ -9,6 +9,7 @@ struct Surface
 	float3 normal;
 	float3 view;
 	float4 color;
+	float3 reflectView;
 };
 
 inline Surface CreateSurface(
@@ -23,6 +24,7 @@ inline Surface CreateSurface(
 	surface.normal = normal;
 	surface.view = view;
 	surface.color = color;
+	surface.reflectView = -reflect(view, normal);
 	
 	return surface;
 }

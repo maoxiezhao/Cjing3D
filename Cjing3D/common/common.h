@@ -20,6 +20,7 @@
 #define SAFE_DELETE_ARRAY(p) if(p!= nullptr) {delete[](p); p=nullptr;}
 
 #define CJING_DEBUG
+#define CJING_IMGUI_ENABLE
 
 // lua binding
 #define LUA_BINDER_REGISTER_CLASS 

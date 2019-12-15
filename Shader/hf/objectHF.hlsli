@@ -8,10 +8,11 @@
 
 struct PixelInputType
 {
-	float4 pos : SV_POSITION;
-	float2 tex : TEXCOORD0;
-	float3 nor : NORMAL;
-    float4 color : COLOR;
+	float4 pos		: SV_POSITION;
+	float4 pos3D	: WORLDPOSITION;
+	float2 tex		: TEXCOORD0;
+	float3 nor		: NORMAL;
+    float4 color	: COLOR;
 };
 
 TEXTURE2D(texture_basecolormap, TEXTURE_BASECOLOR_MAP);
@@ -62,7 +63,7 @@ float4 main(PixelInputType input) : SV_TARGET
 
 	color *= input.color;
 
-	float3 pos3D = input.pos.xyz;
+	float3 pos3D = input.pos3D.xyz;
 	float3 view = gCameraPos - pos3D;
 	float dist = length(view);
 
