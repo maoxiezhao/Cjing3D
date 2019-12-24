@@ -112,30 +112,18 @@ namespace Cjing3D
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
-		bool show_demo_window = true;
-		ImGui::ShowDemoWindow(&show_demo_window);
+		UpdateImpl(deltaTime);
 	}
 
-	void IMGUIStage::Render()
+	void IMGUIStage::Render(GUIRenderer& renderer)
 	{
 		if (mIsInitialized == false) {
 			return;
 		}
 
-		SystemContext& systemContext = SystemContext::GetSystemContext();
-		Renderer& renderer = systemContext.GetSubSystem<Renderer>();
-		Renderer2D& renderer2D = renderer.GetRenderer2D();
-
-		// todo; 目前获取GUIRenderer的方式需要设计,且渲染imgui的方式也需要设计
-		RenderPath2D* path = renderer2D.GetCurrentRenderPath();
-		if (path == nullptr) {
-			return;
-		}
-
-		GUIRenderer& guiRenderer = path->GetGUIRenderer();
-		guiRenderer.SetImGuiStage(this);
-
+		renderer.SetImGuiStage(this);
 	}
+
 	void IMGUIStage::RenderImpl()
 	{
 		SystemContext& systemContext = SystemContext::GetSystemContext();
@@ -146,5 +134,12 @@ namespace Cjing3D
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 		device.EndEvent();
+	}
+
+	void IMGUIStage::UpdateImpl(F32 deltaTime)
+	{
+		ImGui::Begin("Application info");
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", deltaTime, 1.0f / deltaTime);
+		ImGui::End();
 	}
 }

@@ -17,9 +17,10 @@ namespace Cjing3D
 		void Initialize();
 		void Uninitialize();
 		void Update(F32 deltaTime);
-		void Render();
+		void Render(GUIRenderer& renderer);
 
 	private:
+		void UpdateImpl(F32 deltaTime);
 		void RenderImpl();
 
 	private:

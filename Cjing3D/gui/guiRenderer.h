@@ -1,10 +1,13 @@
 #pragma once
 
 #include "common\common.h"
+#include "gui\widgets.h"
 
 namespace Cjing3D
 {
 	class IMGUIStage;
+
+
 
 	class GUIRenderer
 	{
@@ -14,10 +17,9 @@ namespace Cjing3D
 
 		void Update(F32 dt);
 		void Render();
-
 		void SetImGuiStage(IMGUIStage* imGuiStage);
 
 	private:
-		IMGUIStage * mImGuiStage = nullptr;
+		IMGUIStage* mImGuiStage = nullptr;
 	};
 }

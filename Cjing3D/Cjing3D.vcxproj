@@ -158,6 +158,7 @@
     <ClInclude Include="gui\guiRenderer.h" />
     <ClInclude Include="gui\imguiStage.h" />
     <ClInclude Include="gui\guiStage.h" />
+    <ClInclude Include="gui\widgets.h" />
     <ClInclude Include="helper\debug.h" />
     <ClInclude Include="helper\enumInfo.h" />
     <ClInclude Include="helper\fileSystem.h" />
@@ -263,6 +264,7 @@
     <ClInclude Include="utils\threadSafeBuffer.h" />
     <ClInclude Include="utils\tinyddsloader.h" />
     <ClInclude Include="utils\tinyobjloader.h" />
+    <ClInclude Include="utils\treeNode.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ThirdParty\imgui\imgui.cpp" />
@@ -280,6 +282,7 @@
     <ClCompile Include="gui\guiRenderer.cpp" />
     <ClCompile Include="gui\imguiStage.cpp" />
     <ClCompile Include="gui\guiStage.cpp" />
+    <ClCompile Include="gui\widgets.cpp" />
     <ClCompile Include="helper\debug.cpp" />
     <ClCompile Include="helper\fileSystem.cpp" />
     <ClCompile Include="helper\IDGenerator.cpp" />

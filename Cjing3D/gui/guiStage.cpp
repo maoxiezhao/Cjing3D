@@ -12,10 +12,11 @@ namespace Cjing3D
 	}
 
 	GUIStage::GUIStage(SystemContext & systemContext):
-		SubSystem(systemContext)
+		SubSystem(systemContext),
+		mRenderer()
 	{
-
 	}
+
 	GUIStage::~GUIStage()
 	{
 	}
@@ -39,7 +40,7 @@ namespace Cjing3D
 	void GUIStage::Render()
 	{
 #ifdef CJING_IMGUI_ENABLE
-		mImGuiStage.Render();
+		mImGuiStage.Render(mRenderer);
 #endif
 
 	}

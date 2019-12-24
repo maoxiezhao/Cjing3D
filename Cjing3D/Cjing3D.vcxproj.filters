@@ -53,9 +53,6 @@
     <Filter Include="scripts\api">
       <UniqueIdentifier>{d8003627-7d0e-42bd-a16a-08332589c07c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="gui\widgets">
-      <UniqueIdentifier>{1acc2562-54cc-4735-b9e0-6b825389cab9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="input">
       <UniqueIdentifier>{00e7fb44-e761-460f-9b71-649a19a15b07}</UniqueIdentifier>
     </Filter>
@@ -377,9 +374,6 @@
     <ClCompile Include="gui\guiStage.cpp">
       <Filter>gui</Filter>
     </ClCompile>
-    <ClCompile Include="gui\guiRenderer.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
     <ClCompile Include="..\ThirdParty\imgui\imgui_impl_dx11.cpp">
       <Filter>gui\imgui</Filter>
     </ClCompile>
@@ -388,6 +382,12 @@
     </ClCompile>
     <ClCompile Include="utils\baseWindow.cpp">
       <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiRenderer.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\widgets.cpp">
+      <Filter>gui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -744,9 +744,6 @@
     <ClInclude Include="gui\guiStage.h">
       <Filter>gui</Filter>
     </ClInclude>
-    <ClInclude Include="gui\guiRenderer.h">
-      <Filter>gui</Filter>
-    </ClInclude>
     <ClInclude Include="..\ThirdParty\imgui\imgui_impl_dx11.h">
       <Filter>gui\imgui</Filter>
     </ClInclude>
@@ -754,6 +751,15 @@
       <Filter>gui\imgui</Filter>
     </ClInclude>
     <ClInclude Include="utils\baseWindow.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiRenderer.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\widgets.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\treeNode.h">
       <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>

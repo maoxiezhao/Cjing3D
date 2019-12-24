@@ -1,6 +1,8 @@
 #include "renderPath2D.h"
 #include "renderer\renderer.h"
 #include "renderer\paths\renderImage.h"
+#include "core\systemContext.hpp"
+#include "gui\guiStage.h"
 
 namespace Cjing3D
 {
@@ -66,12 +68,19 @@ namespace Cjing3D
 			vp.mMaxDepth = 1.0f;
 			device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
 
-			mGUIRenderer.Render();
+			RenderGUI();
 		}
 
 		device.EndEvent();
 
 		RenderPath::Render();
+	}
+
+	void RenderPath2D::RenderGUI()
+	{
+		// 从guiStage中获取guiRenderer执行渲染过程
+		GUIStage& guiStage = SystemContext::GetSystemContext().GetSubSystem<GUIStage>();
+		guiStage.GetGUIRenderer().Render();
 	}
 
 	void RenderPath2D::Compose()

@@ -2,6 +2,8 @@
 
 namespace Cjing3D {
 
+	StringID StringID::EMPTY = StringID();
+
 	StringID::StringID() :
 		mValue(0),
 		mStr()

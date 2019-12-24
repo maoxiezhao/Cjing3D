@@ -43,7 +43,7 @@ namespace Cjing3D {
 		bool operator > (const StringID& rhs)const { return mValue > rhs.mValue; }
 
 		static unsigned int	CalculateHash(const char* str);
-
+		static StringID EMPTY;
 	private:
 		unsigned int mValue;
 		std::string mStr;

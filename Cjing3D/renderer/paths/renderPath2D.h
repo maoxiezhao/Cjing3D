@@ -18,8 +18,8 @@ namespace Cjing3D {
 		virtual void Compose();
 		virtual void ResizeBuffers();
 
-		GUIRenderer& GetGUIRenderer() { return mGUIRenderer; }
-		const GUIRenderer& GetGUIRenderer()const { return mGUIRenderer; }
+	private:
+		void RenderGUI();
 
 	protected:
 		virtual Texture2D* GetDepthBuffer() {
@@ -28,7 +28,6 @@ namespace Cjing3D {
 
 	private:
 		Texture2D mRTFinal;
-		GUIRenderer mGUIRenderer;
 	};
 
 }
