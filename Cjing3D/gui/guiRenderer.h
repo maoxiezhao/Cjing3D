@@ -1,18 +1,17 @@
 #pragma once
 
-#include "common\common.h"
+#include "gui\guiInclude.h"
 #include "gui\widgets.h"
 
 namespace Cjing3D
 {
+	class GUIStage;
 	class IMGUIStage;
-
-
 
 	class GUIRenderer
 	{
 	public:
-		GUIRenderer();
+		GUIRenderer(GUIStage& guiStage);
 		~GUIRenderer();
 
 		void Update(F32 dt);
@@ -20,6 +19,7 @@ namespace Cjing3D
 		void SetImGuiStage(IMGUIStage* imGuiStage);
 
 	private:
+		GUIStage& mGUIStage;
 		IMGUIStage* mImGuiStage = nullptr;
 	};
 }

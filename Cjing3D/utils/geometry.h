@@ -67,4 +67,22 @@ namespace Cjing3D {
 		constexpr Normal3(F32 x, F32 y, F32 z) : Vertex3(x, y, z) {}
 		constexpr explicit Normal3(F32x3 v) : Vertex3(std::move(v)) {}
 	};
+
+	class Rect
+	{
+	public:
+		F32 mLeft = 0.0f;
+		F32 mTop = 0.0f;
+		F32 mRight = 0.0f;
+		F32 mBottom = 0.0f;
+
+		Rect() = default;
+		Rect(F32 left, F32 top, F32 right, F32 bottom) : mLeft(left), mTop(top), mRight(right), mBottom(bottom) {}
+		Rect(F32x2 pos, F32x2 size) :mLeft(pos[0]), mTop(pos[1]), mRight(pos[0] + size[0]), mBottom(pos[1] + size[1]) {}
+
+		F32x2 GetPos()const { return { mLeft, mTop }; }
+		F32x2 GetSize()const { return { mRight - mLeft, mBottom - mTop }; }
+		bool Intersects(const Rect& rect)const;
+		bool Intersects(const F32x2& point)const;
+	};
 }

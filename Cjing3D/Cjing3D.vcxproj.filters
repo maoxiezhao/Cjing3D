@@ -389,6 +389,9 @@
     <ClCompile Include="gui\widgets.cpp">
       <Filter>gui</Filter>
     </ClCompile>
+    <ClCompile Include="utils\geometry.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -761,6 +764,12 @@
     </ClInclude>
     <ClInclude Include="utils\treeNode.h">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiFactory.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiInclude.h">
+      <Filter>gui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

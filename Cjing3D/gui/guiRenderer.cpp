@@ -1,9 +1,11 @@
 #include "guiRenderer.h"
+#include "guiStage.h"
 #include "imguiStage.h"
 
 namespace Cjing3D
 {
-	GUIRenderer::GUIRenderer()
+	GUIRenderer::GUIRenderer(GUIStage& guiStage):
+		mGUIStage(guiStage)
 	{
 	}
 
@@ -17,6 +19,8 @@ namespace Cjing3D
 
 	void GUIRenderer::Render()
 	{
+		mGUIStage.RenderImpl();
+
 		if (mImGuiStage != nullptr) {
 			mImGuiStage->RenderImpl();
 		}

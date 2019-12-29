@@ -148,4 +148,18 @@ namespace Cjing3D {
 		std::hash<T> hasher;
 		seed ^= hasher(value) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 	}
+
+	inline constexpr bool Collision2D(const F32x2& box1Pos, const F32x2& box1Size, const F32x2& box2Pos, const F32x2& box2Size)
+	{
+		if (box1Pos[0] + box1Size[0] < box2Pos[0])
+			return false;
+		else if (box1Pos[0] > box2Pos[0] + box2Size[0])
+			return false;
+		else if (box1Pos[1] + box1Size[1] < box2Pos[1])
+			return false;
+		else if (box1Pos[1] > box2Pos[1] + box2Size[1])
+			return false;
+
+		return true;
+	}
 }

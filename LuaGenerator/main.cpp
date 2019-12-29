@@ -11,7 +11,7 @@
 //#define USE_CPLUSPLUS_PARSE
 
 // 是否开启自动分析头文件生成lua绑定代码
-#define __ENABLE_GENERATE_LUA_BINDING_CODES__
+//#define __ENABLE_GENERATE_LUA_BINDING_CODES__
 
 int main(int argc, char** argv)
 {

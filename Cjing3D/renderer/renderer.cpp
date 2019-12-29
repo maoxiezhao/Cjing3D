@@ -295,6 +295,11 @@ void Renderer::Present()
 	mGraphicsDevice->PresentEnd();
 }
 
+U32x2 Renderer::GetScreenSize()
+{
+	return mScreenSize;
+}
+
 GraphicsDevice & Renderer::GetDevice()
 {
 	return *mGraphicsDevice;

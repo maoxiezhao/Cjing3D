@@ -95,9 +95,7 @@ void Engine::Initialize()
 
 void Engine::Tick()
 {
-	// begin frame
-	auto& profiler = Profiler::GetInstance();
-	profiler.BeginFrame();
+	PROFILER_BEGIN_FRAME();
 
 	mTime = mTimer.GetTime();
 	mSystemContext->SetEngineTime(mTime);
@@ -117,27 +115,26 @@ void Engine::Tick()
 	auto& guiStage = mSystemContext->GetSubSystem<GUIStage>();
 
 	// update
-	profiler.BeginBlock("Update");
+	PROFILER_BEGIN_BLOCK("Update");
 	FIRE_EVENT(EventType::EVENT_TICK);
 	mGameComponent->Update(mTime);
 	renderer.Update(deltaTime);
 	luaContext.Update(deltaTime);
 	guiStage.Update(deltaTime);
-	profiler.EndBlock();
+	PROFILER_END_BLOCK();
 
 	// render
-	profiler.BeginBlock("Render");
+	PROFILER_BEGIN_BLOCK("Render");
 	FIRE_EVENT(EventType::EVENT_RENDER);
-	guiStage.Render();
 	renderer.Render();
-	profiler.EndBlock();
+	PROFILER_END_BLOCK();
 
-	profiler.BeginBlock("Compose");
+	PROFILER_BEGIN_BLOCK("Compose");
 	renderer.Present();
-	profiler.EndBlock();
+	PROFILER_END_BLOCK();
 
 	// end frame
-	profiler.EndFrame();
+	PROFILER_END_FRAME();
 }
 
 void Engine::Uninitialize()

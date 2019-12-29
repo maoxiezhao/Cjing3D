@@ -8,6 +8,7 @@
 #include "input\InputSystem.h"
 #include "helper\logger.h"
 #include "renderer\paths\renderPath_forward.h"
+#include "gui\guiStage.h"
 
 namespace Cjing3D
 {
@@ -34,6 +35,9 @@ namespace Cjing3D
 
 		Renderer2D& renderer2D = renderer.GetRenderer2D();
 		renderer2D.SetCurrentRenderPath(path);
+
+		GUIStage& guiStage = systemContext->GetSubSystem<GUIStage>();
+		WidgetPtr root = guiStage.GetRootWidget();
 	}
 
 	void TestGame::Update(EngineTime time)

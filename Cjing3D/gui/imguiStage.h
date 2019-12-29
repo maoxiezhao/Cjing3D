@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common\common.h"
+#include "gui\guiInclude.h"
 #include "guiRenderer.h"
 
 namespace Cjing3D

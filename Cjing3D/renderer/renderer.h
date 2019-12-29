@@ -50,6 +50,8 @@ public:
 	void Compose();
 	void Present();
 	
+	U32x2 GetScreenSize();
+
 	GraphicsDevice& GetDevice();
 	ResourceManager& GetResourceManager();
 	DeferredMIPGenerator& GetDeferredMIPGenerator();
