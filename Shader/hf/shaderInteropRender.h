@@ -3,6 +3,7 @@
 
 #include "shaderInterop.h"
 
+
 CBUFFER(FrameCB, CBSLOT_RENDERER_FRAME)
 {
 	float2 gFrameScreenSize;
@@ -30,6 +31,12 @@ struct ShaderMaterial
 CBUFFER(MaterialCB, CBSLOT_RENDERER_MATERIAL)
 {
 	ShaderMaterial gMaterial;
+};
+
+CBUFFER(ImageCB, CBSLOT_IMAGE)
+{
+	float4 gImageCorners[4];
+	float4 gImageColor;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////

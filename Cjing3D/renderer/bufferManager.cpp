@@ -44,6 +44,18 @@ namespace Cjing3D
 			Debug::ThrowIfFailed(result, "failed to create frame constant buffer:%08x", result);
 			device.SetResourceName(mConstantBuffer[ConstantBufferType_Frame], "FrameCB");
 		}
+		// image buffer
+		{
+			GPUBufferDesc desc = {};
+			desc.mUsage = USAGE_DYNAMIC;
+			desc.mCPUAccessFlags = CPU_ACCESS_WRITE;
+			desc.mBindFlags = BIND_CONSTANT_BUFFER;
+			desc.mByteWidth = sizeof(FrameCB);
+
+			const auto result = device.CreateBuffer(&desc, mConstantBuffer[ConstantBufferType_Image], nullptr);
+			Debug::ThrowIfFailed(result, "failed to create frame constant buffer:%08x", result);
+			device.SetResourceName(mConstantBuffer[ConstantBufferType_Image], "ImageCB");
+		}
 	}
 
 	void BufferManager::LoadResourceBuffers()

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "gui\guiInclude.h"
-#include "system\component\transform.h"
 #include "utils\treeNode.h"
 #include "utils\geometry.h"
 
@@ -9,7 +8,7 @@ namespace Cjing3D
 {
 	class GUIStage;
 
-	class Widget : public TransformComponent, public TreeNode<Widget>
+	class Widget : public TreeNode<Widget>
 	{
 	public:
 		enum WidgetState
@@ -24,14 +23,13 @@ namespace Cjing3D
 		~Widget();
 
 		virtual void Update(F32 dt);
-		virtual void Render();
-		virtual void RenderChilds();
+		virtual void Render(const F32x2& offset);
 
 		F32x2 TransfromToLocalCoord(const F32x2 point)const;
 		bool HistTest(const F32x2& point)const;
 
 		void SetArea(const Rect& rect);
-
+		Rect GetArea()const { return mArea; }
 		void SetEnabled(bool enabled) { mIsEnabled = enabled; }
 		bool IsEnabled()const { return mIsEnabled; }
 		void SetVisible(bool visible) { mIsVisible = visible; }
@@ -43,8 +41,7 @@ namespace Cjing3D
 		GUIStage& GetGUIStage();
 
 	private:
-		virtual void RenderImpl() {};
-		virtual void RenderChildsImpl() {};
+		virtual void RenderImpl(const Rect& destRect);
 
 	protected:
 		virtual void onParentChanged(Widget* old_parent);
@@ -58,10 +55,10 @@ namespace Cjing3D
 		bool mIsVisible = false;
 		bool mIsIgnoreInputEvent = false;
 
-		F32x3 mPostition;
-		F32x3 mSize;
 		Rect mArea;
+
 		WidgetType mType = WidgetType::WidgetType_BaseWidget;
+		Color4 mDebugColor;
 	};
 	using WidgetPtr = std::shared_ptr<Widget>;
 }

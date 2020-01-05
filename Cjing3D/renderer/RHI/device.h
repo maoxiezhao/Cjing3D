@@ -73,12 +73,18 @@ namespace Cjing3D
 		virtual void DrawIndexed(UINT indexCount, UINT startIndexLocation) = 0;
 		virtual void DrawIndexedInstances(U32 indexCount, U32 instanceCount, U32 startIndexLocation, U32 baseVertexLocation, U32 startInstanceLocation) = 0;
 
+		U32 GetFormatStride(FORMAT value) const;
+
 		FORMAT GetBackBufferFormat()const {
 			return mBackBufferFormat;
 		}
 
 		U32x2 GetScreenSize()const {
 			return mScreenSize;
+		}
+
+		inline XMMATRIX GetScreenProjection()const {
+			return XMMatrixOrthographicOffCenterLH(0, (F32)mScreenSize[0], (F32)mScreenSize[1], 0, -1, 1);
 		}
 
 		bool IsMultithreadedRendering()const {

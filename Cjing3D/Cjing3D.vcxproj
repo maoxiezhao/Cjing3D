@@ -160,6 +160,7 @@
     <ClInclude Include="gui\guiRenderer.h" />
     <ClInclude Include="gui\imguiStage.h" />
     <ClInclude Include="gui\guiStage.h" />
+    <ClInclude Include="gui\widgetManager.h" />
     <ClInclude Include="gui\widgets.h" />
     <ClInclude Include="helper\debug.h" />
     <ClInclude Include="helper\enumInfo.h" />
@@ -200,6 +201,7 @@
     <ClInclude Include="renderer\RHI\rhiStructure.h" />
     <ClInclude Include="renderer\RHI\swapChainD3D11.h" />
     <ClInclude Include="renderer\stateManager.h" />
+    <ClInclude Include="renderer\textureHelper.h" />
     <ClInclude Include="resource\modelImporter.h" />
     <ClInclude Include="resource\resource.h" />
     <ClInclude Include="resource\resourceManager.h" />
@@ -258,6 +260,7 @@
     <ClInclude Include="utils\allocator.h" />
     <ClInclude Include="utils\array.h" />
     <ClInclude Include="utils\baseWindow.h" />
+    <ClInclude Include="utils\color.h" />
     <ClInclude Include="utils\geometry.h" />
     <ClInclude Include="utils\intersectable.h" />
     <ClInclude Include="utils\math.h" />
@@ -284,6 +287,7 @@
     <ClCompile Include="gui\guiRenderer.cpp" />
     <ClCompile Include="gui\imguiStage.cpp" />
     <ClCompile Include="gui\guiStage.cpp" />
+    <ClCompile Include="gui\widgetManager.cpp" />
     <ClCompile Include="gui\widgets.cpp" />
     <ClCompile Include="helper\debug.cpp" />
     <ClCompile Include="helper\fileSystem.cpp" />
@@ -314,6 +318,7 @@
     <ClCompile Include="renderer\RHI\pipelineD3D11.cpp" />
     <ClCompile Include="renderer\RHI\swapChainD3D11.cpp" />
     <ClCompile Include="renderer\stateManager.cpp" />
+    <ClCompile Include="renderer\textureHelper.cpp" />
     <ClCompile Include="resource\modelImporter\modelImporterObj.cpp" />
     <ClCompile Include="resource\resource.cpp" />
     <ClCompile Include="resource\resourceManager.cpp" />

@@ -3,6 +3,7 @@
 #include "common\common.h"
 #include "core\subSystem.hpp"
 #include "helper\stringID.h"
+#include "utils\color.h"
 
 namespace Cjing3D
 {
@@ -12,3 +13,5 @@ namespace Cjing3D
 		WidgetType_BaseWidget,
 	};
 }
+
+#define CJING_GUI_DEBUG

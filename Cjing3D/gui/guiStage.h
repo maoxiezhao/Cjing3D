@@ -3,6 +3,7 @@
 #include "gui\guiInclude.h"
 #include "gui\guiRenderer.h"
 #include "gui\widgets.h"
+#include "gui\widgetManager.h"
 #include "input\InputSystem.h"
 
 #include <queue>
@@ -47,6 +48,7 @@ namespace Cjing3D
 		WidgetPtr GetRootWidget() { return mRootWidget; }
 		GUIRenderer& GetGUIRenderer() { return *mRenderer; }
 		const GUIRenderer& GetGUIRenderer()const { return *mRenderer; }
+		WidgetManager& GetWidgetManager() { return *mWidgetManager; }
 
 	private:
 		void LoadRegisteredKeys();
@@ -62,6 +64,8 @@ namespace Cjing3D
 		// GUI Renderer
 		// 在renderPath2D的render阶段会调用GUIRenderer的render
 		std::unique_ptr<GUIRenderer> mRenderer;
+		std::unique_ptr<WidgetManager> mWidgetManager;
+
 		WidgetPtr mRootWidget = nullptr;
 
 		I32x2 mPrevMousePos;

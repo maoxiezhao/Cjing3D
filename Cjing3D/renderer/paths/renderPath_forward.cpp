@@ -74,6 +74,7 @@ namespace Cjing3D {
 		device.BeginEvent("Composition");
 
 		RenderImage::ImageParams params;
+		params.EnableFullScreen();
 		params.mBlendType = BlendType_Opaque;
 
 		RenderImage::Render(mRTMain, params, mRenderer);

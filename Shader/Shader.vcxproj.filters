@@ -32,6 +32,12 @@
     <FxCompile Include="screenPS.hlsl">
       <Filter>ps</Filter>
     </FxCompile>
+    <FxCompile Include="imagePS.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
+    <FxCompile Include="imageVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="hf\objectInput.hlsli">
@@ -50,6 +56,9 @@
       <Filter>hf</Filter>
     </None>
     <None Include="hf\lightingHF.hlsli">
+      <Filter>hf</Filter>
+    </None>
+    <None Include="hf\imageHF.hlsli">
       <Filter>hf</Filter>
     </None>
   </ItemGroup>

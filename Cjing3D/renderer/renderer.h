@@ -58,6 +58,7 @@ public:
 	std::shared_ptr<CameraComponent> GetCamera();
 	ShaderLib& GetShaderLib();
 	StateManager& GetStateManager();
+	BufferManager& GetBufferManager();
 	Scene& GetMainScene();
 	PipelineStateInfoManager& GetPipelineStateInfoManager();
 	Renderer2D& GetRenderer2D();

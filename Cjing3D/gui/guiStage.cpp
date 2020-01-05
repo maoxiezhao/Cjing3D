@@ -29,11 +29,14 @@ namespace Cjing3D
 	{
 		mRenderer = std::make_unique<GUIRenderer>(*this);
 
+		mWidgetManager = std::make_unique<WidgetManager>(*this);
+		mWidgetManager->Initialize();
+
 #ifdef CJING_IMGUI_ENABLE
 		mImGuiStage.Initialize();
 		mRenderer->SetImGuiStage(&mImGuiStage);
 #endif
-	
+
 		SystemContext& systemContext = SystemContext::GetSystemContext();
 		Renderer& renderer = systemContext.GetSubSystem<Renderer>();
 		U32x2 screenSize = renderer.GetScreenSize();
@@ -59,8 +62,10 @@ namespace Cjing3D
 #ifdef CJING_IMGUI_ENABLE
 		mImGuiStage.Uninitialize();
 #endif
+		mWidgetManager->Uninitialize();
+		mWidgetManager.reset();
+
 		mRootWidget.reset();
-		mRootWidget = nullptr;
 
 		Logger::Info("GUI Stage uninitialized");
 	}
@@ -180,6 +185,6 @@ namespace Cjing3D
 	// 仅由GUIRenderer调用
 	void GUIStage::RenderImpl()
 	{
-		mRootWidget->Render();
+		mRootWidget->Render({0.0f, 0.0f});
 	}
 }

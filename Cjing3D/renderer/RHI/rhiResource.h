@@ -90,8 +90,10 @@ namespace Cjing3D
 		ID3D11DepthStencilView** GetDepthStencilViewPtr() { return ((ID3D11DepthStencilView**)&mDSV); }
 	};
 	using RhiTexture2DPtr = std::shared_ptr<RhiTexture2D>;
+
 	using Texture1D = RhiTexture;
 	using Texture2D = RhiTexture2D;
+	using Texture2DPtr = RhiTexture2DPtr;
 
 	//***********************************************************************
 	// GPU States

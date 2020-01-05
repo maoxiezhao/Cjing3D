@@ -18,6 +18,7 @@ enum ConstantBufferType
 {
 	ConstantBufferType_Camera = 0,
 	ConstantBufferType_Frame = 1,
+	ConstantBufferType_Image,
 	ConstantBufferType_Count,
 };
 

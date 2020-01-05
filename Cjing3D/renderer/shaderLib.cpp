@@ -48,10 +48,13 @@ void ShaderLib::LoadVertexShaders()
 		mVertexShader[VertexShaderType_Transform] = vsinfo->mVertexShader;
 		mInputLayout[InputLayoutType_Transform] = vsinfo->mInputLayout;
 	
-	
 		// full screen vs
 		auto fullScreenVSInfo = resourceManager.GetOrCreate<VertexShaderInfo>(shaderPath + "screenVS.cso", nullptr, 0);
 		mVertexShader[VertexShaderType_FullScreen] = fullScreenVSInfo->mVertexShader;
+
+		// image vs
+		auto fullScreenVSInfo = resourceManager.GetOrCreate<VertexShaderInfo>(shaderPath + "imageVS.cso", nullptr, 0);
+		mVertexShader[VertexShaderType_Image] = fullScreenVSInfo->mVertexShader;
 	}
 }
 
@@ -64,6 +67,9 @@ void ShaderLib::LoadPixelShaders()
 
 		// full screen ps
 		mPixelShader[PixelShaderType_FullScreen] = resourceManager.GetOrCreate<PixelShader>(shaderPath + "screenPS.cso");
+
+		// image ps
+		mPixelShader[PixelShaderType_Image] = resourceManager.GetOrCreate<PixelShader>(shaderPath + "imagePS.cso");
 	}
 }
 

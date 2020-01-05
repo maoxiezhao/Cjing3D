@@ -14,6 +14,7 @@ enum VetextShaderType
 {
 	VertexShaderType_Transform = 0,
 	VertexShaderType_FullScreen,
+	VertexShaderType_Image,
 	VertexShaderType_Count,
 };
 
@@ -27,6 +28,7 @@ enum PixelShaderType
 {
 	PixelShaderType_Forward = 0,
 	PixelShaderType_FullScreen,
+	PixelShaderType_Image,
 	PixelShaderType_Count,
 };
 

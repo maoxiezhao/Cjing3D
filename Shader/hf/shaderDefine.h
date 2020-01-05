@@ -5,6 +5,7 @@
 #define CBSLOT_RENDERER_FRAME   0
 #define CBSLOT_RENDERER_CAMERA  1
 #define CBSLOT_RENDERER_MATERIAL 2
+#define CBSLOT_IMAGE 3
 
 // TEXTURE SLOT (register t##slot)
 #define TEXTURE_SLOT_0 0

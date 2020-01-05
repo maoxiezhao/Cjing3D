@@ -55,6 +55,7 @@ namespace Cjing3D
 	void RenderPath3D::Compose()
 	{
 		RenderImage::ImageParams params;
+		params.EnableFullScreen();
 		params.mBlendType = BlendType_Opaque;
 
 		RenderImage::Render(*GetLastPostprocessRT(), params, mRenderer);

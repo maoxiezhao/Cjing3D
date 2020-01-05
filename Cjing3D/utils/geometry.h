@@ -84,5 +84,7 @@ namespace Cjing3D {
 		F32x2 GetSize()const { return { mRight - mLeft, mBottom - mTop }; }
 		bool Intersects(const Rect& rect)const;
 		bool Intersects(const F32x2& point)const;
+
+		Rect& Offset(const F32x2& offset);
 	};
 }

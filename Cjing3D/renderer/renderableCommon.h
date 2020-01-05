@@ -4,6 +4,7 @@
 #include "helper\IDGenerator.h"
 #include "utils\geometry.h"
 #include "utils\intersectable.h"
+#include "utils\color.h"
 #include "helper\stringID.h"
 
 #include <wrl.h>
@@ -21,6 +22,7 @@ using ComPtr = Microsoft::WRL::ComPtr<T>;
 enum BlendType
 {
 	BlendType_Opaque,
+	BlendType_Alpha,
 	BlendType_PreMultiplied
 };
 

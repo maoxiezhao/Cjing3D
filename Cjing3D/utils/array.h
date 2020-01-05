@@ -91,17 +91,57 @@ namespace Cjing3D {
 				std::array<T, N>(EnlargeArray<T, N>(other)) {}
 
 
-			// 当传入的array的FromN小于N时, 且存在额外参数,总参数个数等于N时,先
-			// 转换为tuple连接后再转换为array
-			template< size_t FromN, typename... Args,
-				typename = std::enable_if_t< (FromN < N && (FromN + sizeof...(Args) == N)) > >
-				constexpr Array(const Array<T, FromN, AlignT>& other, Args&&... args) noexcept :
-				std::array<T, N>(TupleToArray(std::tuple_cat(ArrayToTuple(other),
-					std::make_tuple(std::forward<Args>(args)...)))) {}
+		// 当传入的array的FromN小于N时, 且存在额外参数,总参数个数等于N时,先
+		// 转换为tuple连接后再转换为array
+		template< size_t FromN, typename... Args,
+			typename = std::enable_if_t< (FromN < N && (FromN + sizeof...(Args) == N)) > >
+			constexpr Array(const Array<T, FromN, AlignT>& other, Args&&... args) noexcept :
+			std::array<T, N>(TupleToArray(std::tuple_cat(ArrayToTuple(other),
+				std::make_tuple(std::forward<Args>(args)...)))) {}
 
 			~Array() = default;
 
+		// not fast, only use in simple case.
+		template<typename T, size_t N>
+		std::enable_if_t<std::is_integral<T>::value || std::is_floating_point<T>::value, Array<T, N>> 
+			operator+(const Array<T, N>& lhs)const
+		{
+			Array<T, N> result;
+			for (int i = 0; i < N; i++) {
+				result[i] = lhs[i] + this->at(i);
+			}
+			return result;
+		}
+		template<typename T, size_t N>
+		std::enable_if_t<std::is_integral<T>::value || std::is_floating_point<T>::value, Array<T, N>> 
+			operator-(const Array<T, N>& lhs)const
+		{
+			Array<T, N> result;
+			for (int i = 0; i < N; i++) {
+				result[i] = this->at(i) - lhs[i];
+			}
+			return result;
+		}
+		template<typename T, size_t N>
+		std::enable_if_t<std::is_integral<T>::value || std::is_floating_point<T>::value, Array<T, N>>& 
+			operator+=(const Array<T, N>& lhs)
+		{
+			for (int i = 0; i < N; i++) {
+				this->_Elems[i] += lhs[i];
+			}
+			return *this;
+		}
+		template<typename T, size_t N>
+		std::enable_if_t<std::is_integral<T>::value || std::is_floating_point<T>::value, Array<T, N>>& 
+			operator-=(const Array<T, N>& lhs)
+		{
+			for (int i = 0; i < N; i++) {
+				this->_Elems[i] -= lhs[i];
+			}
+			return *this;
+		}
 	};
+
 }
 
 // 用于支持结构体绑定声明

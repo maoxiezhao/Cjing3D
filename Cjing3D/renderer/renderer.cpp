@@ -4,6 +4,7 @@
 #include "pipelineStateInfoManager.h"
 #include "bufferManager.h"
 #include "renderer2D.h"
+#include "textureHelper.h"
 #include "renderer\RHI\device.h"
 #include "core\systemContext.hpp"
 #include "core\eventSystem.h"
@@ -97,6 +98,9 @@ void Renderer::Initialize()
 	mRenderer2D = std::make_unique<Renderer2D>(*this);
 	mRenderer2D->Initialize();
 
+	// initialize texture helper
+	TextureHelper::Initialize();
+
 	// initialize frame cullings
 	mFrameCullings[GetCamera()] = FrameCullings();
 
@@ -119,6 +123,8 @@ void Renderer::Uninitialize()
 		mCurrentRenderPath->Uninitialize();
 		mCurrentRenderPath.reset();
 	}
+
+	TextureHelper::Uninitialize();
 
 	mRenderer2D->Uninitialize();
 	mRenderer2D.reset();
@@ -328,6 +334,11 @@ ShaderLib & Renderer::GetShaderLib()
 StateManager & Renderer::GetStateManager()
 {
 	return *mStateManager;
+}
+
+BufferManager& Renderer::GetBufferManager()
+{
+	return *mBufferManager;
 }
 
 void Renderer::RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, ShaderType shaderType)

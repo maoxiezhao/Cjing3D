@@ -47,17 +47,28 @@ PipelineStateInfo PipelineStateInfoManager::GetImagePipelineStateInfo(RenderImag
 	PipelineStateInfo infoState;
 	infoState.Register(&mRenderer.GetDevice());
 
-	infoState.mVertexShader = shaderLib.GetVertexShader(VertexShaderType_FullScreen);
-	infoState.mPixelShader = shaderLib.GetPixelShader(PixelShaderType_FullScreen);
 	infoState.mPrimitiveTopology = TRIANGLELIST;
+
+	if (params.IsFullScreenEnabled())
+	{
+		infoState.mVertexShader = shaderLib.GetVertexShader(VertexShaderType_FullScreen);
+		infoState.mPixelShader = shaderLib.GetPixelShader(PixelShaderType_FullScreen);
+	}
+	else
+	{
+		infoState.mVertexShader = shaderLib.GetVertexShader(VertexShaderType_Image);
+		infoState.mPixelShader = shaderLib.GetPixelShader(PixelShaderType_Image);
+	}
 
 	if (params.mBlendType == BlendType_Opaque) {
 		infoState.mBlendState = stateManager.GetBlendState(BlendStateID_Opaque);
 	}
+	else if (params.mBlendType == BlendType_Alpha) {
+		infoState.mBlendState = stateManager.GetBlendState(BlendStateID_Transpranent);
+	}
 	else {
 		infoState.mBlendState = stateManager.GetBlendState(BlendStateID_PreMultiplied);
 	}
-
 
 	return infoState;
 }

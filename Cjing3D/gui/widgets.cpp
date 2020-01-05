@@ -1,5 +1,10 @@
 #include "widgets.h"
 #include "gui\guiStage.h"
+#include "renderer\paths\renderImage.h"
+#include "renderer\textureHelper.h"
+#include "renderer\renderer.h"
+#include "core\systemContext.hpp"
+#include "helper\random.h"
 
 namespace Cjing3D
 {
@@ -7,6 +12,12 @@ namespace Cjing3D
 		TreeNode<Widget>(name),
 		mStage(stage)
 	{
+#ifdef CJING_GUI_DEBUG
+		mDebugColor.SetA(255);
+		mDebugColor.SetR(Random::GetRandomInt(255));
+		mDebugColor.SetG(Random::GetRandomInt(255));
+		mDebugColor.SetB(Random::GetRandomInt(255));
+#endif
 	}
 
 	Widget::~Widget()
@@ -15,14 +26,26 @@ namespace Cjing3D
 
 	void Widget::Update(F32 dt)
 	{
+		if (!IsVisible()) {
+			return;
+		}
 	}
 
-	void Widget::Render()
+	void Widget::Render(const F32x2& offset)
 	{
-	}
+		if (!IsVisible() || mArea.GetSize()[0] <= 0.0f) {
+			return;
+		}
 
-	void Widget::RenderChilds()
-	{
+		Rect destRect(mArea);
+		destRect.Offset(offset);
+
+		RenderImpl(destRect);
+	
+		F32x2 childOffset = destRect.GetPos();
+		for (auto& child : mChildren){
+			child->Render(offset);
+		}
 	}
 
 	F32x2 Widget::TransfromToLocalCoord(const F32x2 point) const
@@ -30,7 +53,8 @@ namespace Cjing3D
 		F32x2 result = point;
 		if (mParent != nullptr)
 		{
-
+			result -= mParent->GetArea().GetPos();
+			result = mParent->TransfromToLocalCoord(result);
 		}
 
 		return result;
@@ -56,15 +80,30 @@ namespace Cjing3D
 		return mStage;
 	}
 
+	void Widget::RenderImpl(const Rect& destRect)
+	{
+		SystemContext& systemContext = SystemContext::GetSystemContext();
+		Renderer& renderer = systemContext.GetSubSystem<Renderer>();
+
+#ifdef CJING_GUI_DEBUG
+		F32x2 pos = destRect.GetPos();
+		F32x2 size = destRect.GetSize();
+
+		RenderImage::ImageParams params(pos[0], pos[1], size[0], size[1], mDebugColor.ToFloat4());
+		RenderImage::Render(*TextureHelper::GetWhite(), params, renderer);
+#endif
+
+	}
+
 	void Widget::onParentChanged(Widget* old_parent)
 	{
 	}
 
-	void Widget::onChildAdded(WidgetPtr& node)
+	void Widget::onChildAdded(std::shared_ptr<Widget>& node)
 	{
 	}
 
-	void Widget::onChildRemoved(WidgetPtr& node)
+	void Widget::onChildRemoved(std::shared_ptr<Widget>& node)
 	{
 	}
 }
