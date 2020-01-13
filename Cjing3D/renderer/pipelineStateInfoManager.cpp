@@ -47,7 +47,7 @@ PipelineStateInfo PipelineStateInfoManager::GetImagePipelineStateInfo(RenderImag
 	PipelineStateInfo infoState;
 	infoState.Register(&mRenderer.GetDevice());
 
-	infoState.mPrimitiveTopology = TRIANGLELIST;
+	infoState.mPrimitiveTopology = TRIANGLESTRIP;
 
 	if (params.IsFullScreenEnabled())
 	{
@@ -58,6 +58,8 @@ PipelineStateInfo PipelineStateInfoManager::GetImagePipelineStateInfo(RenderImag
 	{
 		infoState.mVertexShader = shaderLib.GetVertexShader(VertexShaderType_Image);
 		infoState.mPixelShader = shaderLib.GetPixelShader(PixelShaderType_Image);
+		infoState.mDepthStencilState = stateManager.GetDepthStencilState(DepthStencilStateID_DepthNone);
+		infoState.mRasterizerState = stateManager.GetRasterizerState(RasterizerStateID_Image);
 	}
 
 	if (params.mBlendType == BlendType_Opaque) {

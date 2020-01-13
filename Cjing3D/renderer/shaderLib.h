@@ -45,10 +45,8 @@ public:
 	std::shared_ptr<PixelShader> GetPixelShader(PixelShaderType shaderType);
 
 private:
-	void LoadShader();
 	void LoadVertexShaders();
 	void LoadPixelShaders();
-	void LoadBuffers();
 
 private:
 	Renderer & mRenderer;

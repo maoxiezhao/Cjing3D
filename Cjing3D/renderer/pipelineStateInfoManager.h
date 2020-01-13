@@ -8,6 +8,8 @@
 
 namespace Cjing3D {
 
+// TODO:应将bufferManager、ShaderLib等与PipelineStateInfo整合，以Image和Render来区分
+
 class PipelineStateInfoManager
 {
 public:

@@ -14,18 +14,12 @@ ShaderLib::ShaderLib(Renderer & renderer) :
 
 void ShaderLib::Initialize()
 {
-	LoadBuffers();
-	LoadShader();
+	LoadVertexShaders();
+	LoadPixelShaders();
 }
 
 void ShaderLib::Uninitialize()
 {
-}
-
-void ShaderLib::LoadShader()
-{
-	LoadVertexShaders();
-	LoadPixelShaders();
 }
 
 void ShaderLib::LoadVertexShaders()
@@ -53,8 +47,8 @@ void ShaderLib::LoadVertexShaders()
 		mVertexShader[VertexShaderType_FullScreen] = fullScreenVSInfo->mVertexShader;
 
 		// image vs
-		auto fullScreenVSInfo = resourceManager.GetOrCreate<VertexShaderInfo>(shaderPath + "imageVS.cso", nullptr, 0);
-		mVertexShader[VertexShaderType_Image] = fullScreenVSInfo->mVertexShader;
+		auto imageVSInfo = resourceManager.GetOrCreate<VertexShaderInfo>(shaderPath + "imageVS.cso", nullptr, 0);
+		mVertexShader[VertexShaderType_Image] = imageVSInfo->mVertexShader;
 	}
 }
 
@@ -71,11 +65,6 @@ void ShaderLib::LoadPixelShaders()
 		// image ps
 		mPixelShader[PixelShaderType_Image] = resourceManager.GetOrCreate<PixelShader>(shaderPath + "imagePS.cso");
 	}
-}
-
-void ShaderLib::LoadBuffers()
-{
-
 }
 
 std::shared_ptr<VertexShader> ShaderLib::GetVertexShader(VetextShaderType shaderType)

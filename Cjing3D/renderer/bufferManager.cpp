@@ -50,7 +50,7 @@ namespace Cjing3D
 			desc.mUsage = USAGE_DYNAMIC;
 			desc.mCPUAccessFlags = CPU_ACCESS_WRITE;
 			desc.mBindFlags = BIND_CONSTANT_BUFFER;
-			desc.mByteWidth = sizeof(FrameCB);
+			desc.mByteWidth = sizeof(ImageCB);
 
 			const auto result = device.CreateBuffer(&desc, mConstantBuffer[ConstantBufferType_Image], nullptr);
 			Debug::ThrowIfFailed(result, "failed to create frame constant buffer:%08x", result);

@@ -25,6 +25,7 @@ namespace Cjing3D
 	// Rasterizer State
 	enum RasterizerStateID {
 		RasterizerStateID_Front = 0,
+		RasterizerStateID_Image,
 		RasterizerStateID_Count
 	};
 

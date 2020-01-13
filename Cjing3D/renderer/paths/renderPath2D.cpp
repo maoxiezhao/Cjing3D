@@ -78,9 +78,14 @@ namespace Cjing3D
 
 	void RenderPath2D::RenderGUI()
 	{
+		GraphicsDevice& device = mRenderer.GetDevice();
+		device.BeginEvent("RenderGUI");
+
 		// 从guiStage中获取guiRenderer执行渲染过程
 		GUIStage& guiStage = SystemContext::GetSystemContext().GetSubSystem<GUIStage>();
 		guiStage.GetGUIRenderer().Render();
+	
+		device.EndEvent();
 	}
 
 	void RenderPath2D::Compose()
