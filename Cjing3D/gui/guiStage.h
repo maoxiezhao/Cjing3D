@@ -3,13 +3,14 @@
 #include "gui\guiInclude.h"
 #include "gui\guiRenderer.h"
 #include "gui\widgets.h"
-#include "gui\widgetManager.h"
 #include "input\InputSystem.h"
 
 #include <queue>
 
 namespace Cjing3D
 {
+	class WidgetManager;
+
 	enum GUI_EVENT_TYPE
 	{
 		GUI_EVENT_TYPE_UNKNOW,
@@ -49,6 +50,9 @@ namespace Cjing3D
 		GUIRenderer& GetGUIRenderer() { return *mRenderer; }
 		const GUIRenderer& GetGUIRenderer()const { return *mRenderer; }
 		WidgetManager& GetWidgetManager() { return *mWidgetManager; }
+
+		WidgetPtr LoadWidgetFromXML(const std::string& name);
+		WidgetPtr LoadWidgetFromXML(Widget& parent, const std::string& name);
 
 	private:
 		void LoadRegisteredKeys();

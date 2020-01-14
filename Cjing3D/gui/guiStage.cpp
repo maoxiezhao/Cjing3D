@@ -1,6 +1,7 @@
 #include "guiStage.h"
 #include "guiRenderer.h"
 #include "imguiStage.h"
+#include "widgetManager.h"
 #include "engine.h"
 #include "core\systemContext.hpp"
 #include "renderer\renderer.h"
@@ -80,6 +81,29 @@ namespace Cjing3D
 
 		// update all widgets
 		mRootWidget->Update(deltaTime);
+	}
+
+	WidgetPtr GUIStage::LoadWidgetFromXML(const std::string& name)
+	{
+		Logger::Info("GUI Stage Load widget from xml:" + name);
+		WidgetPtr widget = mWidgetManager->CreateWidgetFromXML(name);
+		if (widget == nullptr) {
+			Logger::Warning("GUI Stage Load widget from xml failed:" + name);
+		}
+
+		return widget;
+	}
+
+	WidgetPtr GUIStage::LoadWidgetFromXML(Widget& parent, const std::string& name)
+	{
+		WidgetPtr widget = LoadWidgetFromXML(name);
+		if (widget == nullptr) {
+			return nullptr;
+		}
+
+		parent.Add(widget);
+	
+		return widget;
 	}
 
 	void GUIStage::LoadRegisteredKeys()

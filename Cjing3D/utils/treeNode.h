@@ -34,7 +34,7 @@ namespace Cjing3D
 				return;
 			}
 
-			StringID name = node->getName();
+			StringID name = node->GetName();
 			if (name != StringID::EMPTY) {
 				mChildrenNameMap[name] = node;
 			}
@@ -42,7 +42,7 @@ namespace Cjing3D
 			mChildren.push_back(node);
 
 			node->resetParent();
-			node->SetParent(this);
+			node->SetParent((T*)this);
 			onChildAdded(node);
 		}
 
@@ -53,7 +53,7 @@ namespace Cjing3D
 				return;
 			}
 
-			StringID name = node->getName();
+			StringID name = node->GetName();
 			mChildrenNameMap.erase(name);
 			mChildren.erase(node);
 
@@ -67,12 +67,15 @@ namespace Cjing3D
 				return;
 			}
 
-			StringID name = node->getName();
+			StringID name = node->GetName();
 			if (name != StringID::EMPTY) {
 				mChildrenNameMap.erase(name);
 			}
 
-			mChildren.erase(node);
+			auto iter = std::find(mChildren.begin(), mChildren.end(), node);
+			if (iter != mChildren.end()) {
+				mChildren.erase(iter);
+			}
 
 			onChildRemoved(node);
 			node->SetParent(nullptr);
@@ -80,18 +83,18 @@ namespace Cjing3D
 
 		bool HaveChild(NodePtr node)const
 		{
-			StringID name = node->getName();
+			StringID name = node->GetName();
 			if (name != StringID::EMPTY) {
 				return HaveChild(name);
 			}
 
-			ChildrenIter iter = std::find(mChildren.begin(), mChildren.end(), node);
+			auto iter = std::find(mChildren.begin(), mChildren.end(), node);
 			return iter != mChildren.end();
 		}
 
 		bool HaveChild(const StringID& name)const
 		{
-			return mChildrenNameMap.find(name);
+			return mChildrenNameMap.find(name) != mChildrenNameMap.end();
 		}
 
 		NodePtr Find(const StringID& name)

@@ -269,6 +269,7 @@
     <ClInclude Include="utils\threadSafeBuffer.h" />
     <ClInclude Include="utils\tinyddsloader.h" />
     <ClInclude Include="utils\tinyobjloader.h" />
+    <ClInclude Include="utils\tinyxml2\tinyxml2.h" />
     <ClInclude Include="utils\treeNode.h" />
   </ItemGroup>
   <ItemGroup>
@@ -284,6 +285,7 @@
     <ClCompile Include="core\threadSafeSystem.cpp" />
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="generates\luabind_registers.cpp" />
+    <ClCompile Include="gui\guiFactory.cpp" />
     <ClCompile Include="gui\guiRenderer.cpp" />
     <ClCompile Include="gui\imguiStage.cpp" />
     <ClCompile Include="gui\guiStage.cpp" />
@@ -383,6 +385,7 @@
     <ClCompile Include="utils\baseWindow.cpp" />
     <ClCompile Include="utils\geometry.cpp" />
     <ClCompile Include="utils\intersectable.cpp" />
+    <ClCompile Include="utils\tinyxml2\tinyxml2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="helper\enumInfo.inl" />

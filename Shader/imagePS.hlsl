@@ -2,5 +2,5 @@
 
 float4 main(ImageVertexToPixel input) : SV_TARGET
 {
-	return float4(1.0f, 1.0f, 1.0f, 1.0f);
+    return texture_base.SampleLevel(sampler_linear_clamp, input.uv, 0.0f) * gImageColor;
 }

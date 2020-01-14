@@ -8,6 +8,12 @@
 
 namespace Cjing3D
 {
+	const std::string EnumInfoTraits<WidgetType>::enumName = "widget_type";
+	const EnumInfo<WidgetType>::EnumType EnumInfoTraits<WidgetType>::enumInfos =
+	{
+		{WidgetType::WidgetType_BaseWidget, "BaseWidget"},
+	};
+
 	Widget::Widget(GUIStage& stage, const StringID& name) :
 		TreeNode<Widget>(name),
 		mStage(stage)

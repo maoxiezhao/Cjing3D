@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<root>
+ 	<Children>
+        <FrameWindow name="TestWindow" file="guitest\testfr.xml" >
+        <Children>
+            <Panel name="TestSubWindow">
+            </Panel>
+        </Children>
+        </FrameWindow>
+	</Children>
+</root>

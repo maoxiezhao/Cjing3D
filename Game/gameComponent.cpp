@@ -37,11 +37,7 @@ namespace Cjing3D
 		renderer2D.SetCurrentRenderPath(path);
 
 		GUIStage& guiStage = systemContext->GetSubSystem<GUIStage>();
-
-
-		WidgetPtr root = guiStage.GetRootWidget();
-		WidgetManager& widgetManager = guiStage.GetWidgetManager();
-
+		guiStage.LoadWidgetFromXML("..\\Assets\\UI\\test.xml");
 	}
 
 	void TestGame::Update(EngineTime time)

@@ -1,8 +1,71 @@
 #pragma once
 
-#include "common\common.h"
+#include "gui\guiInclude.h"
+#include "gui\widgets.h"
+
+#include <map>
+#include <set>
 
 namespace Cjing3D
 {
+	class GUIStage;
 
+	class BaseWidgetCreator
+	{
+	public:
+		BaseWidgetCreator(GUIStage& guiStage, const StringID& typeName) : 
+			mGUIStage(guiStage), mType(typeName) {};
+		virtual ~BaseWidgetCreator() {}
+
+		virtual WidgetPtr Create(const StringID& name) = 0;
+
+	protected:
+		StringID mType;
+		GUIStage& mGUIStage;
+	};
+	using BaseWidgetCreatorPtr = std::shared_ptr<BaseWidgetCreator>;
+
+	// 通用的widget构造器，直接创建指定对象的指针
+	template<typename T>
+	class WidgetCreator : public BaseWidgetCreator
+	{
+	public:
+		WidgetCreator(GUIStage& guiStage) : BaseWidgetCreator(guiStage, T::GetWidgetTypeStr()) {}
+
+		virtual WidgetPtr Create(const StringID& name)
+		{
+			return WidgetPtr(new T(mGUIStage, name));
+		}
+	};
+
+	// widget的工厂类，管理对应widget的构造器，同时支持注册通用widget的构造器和自定义的构造器
+	class GUIFactory
+	{
+	public:
+		GUIFactory(GUIStage& guiStage);
+		~GUIFactory();
+
+		template<typename T>
+		void RegisterWidgetType()
+		{
+			auto creatorPtr = std::make_shared<WidgetCreator<T>>(mGUIStage);
+			RegisterWidgetType(T::GetWidgetTypeStr(), creatorPtr);
+		}
+
+		void RegisterWidgetType(const StringID& typeName, BaseWidgetCreatorPtr creator);
+
+		const std::set<StringID> GetRegisteredWidgetTypes()const {
+			return mRegisteredWidgetTypes;
+		}
+
+		std::set<StringID>& GetRegisteredWidgetTypes() {
+			return mRegisteredWidgetTypes;
+		}
+
+	private:
+		GUIStage& mGUIStage;
+
+		std::set<StringID> mRegisteredWidgetTypes;
+		std::map<StringID, BaseWidgetCreatorPtr> mRegisteredWidgetCreators;
+	};
 }

@@ -3,6 +3,7 @@
 #include "gui\guiInclude.h"
 #include "utils\treeNode.h"
 #include "utils\geometry.h"
+#include "helper\enumInfo.h"
 
 namespace Cjing3D
 {
@@ -34,11 +35,23 @@ namespace Cjing3D
 		bool IsEnabled()const { return mIsEnabled; }
 		void SetVisible(bool visible) { mIsVisible = visible; }
 		bool IsVisible()const { return mIsVisible; }
-		void SetWidgetType(WidgetType type) { mType = type; }
-		WidgetType GetWidgetType()const { return mType; }
-		WidgetState GetStage()const { return mState; }
 
+		WidgetState GetStage()const { return mState; }
 		GUIStage& GetGUIStage();
+
+		static WidgetType GetWidgetType() { 
+			return WidgetType::WidgetType_BaseWidget; 
+		}
+
+		static const StringID GetWidgetTypeStr() {
+			WidgetType widgetType = GetWidgetType();
+			const std::string widgetTypeStr = EnumToString(widgetType);
+			if (widgetTypeStr.empty()) {
+				return StringID::EMPTY;
+			}
+
+			return StringID(widgetTypeStr);
+		}
 
 	private:
 		virtual void RenderImpl(const Rect& destRect);
@@ -57,8 +70,15 @@ namespace Cjing3D
 
 		Rect mArea;
 
-		WidgetType mType = WidgetType::WidgetType_BaseWidget;
 		Color4 mDebugColor;
 	};
 	using WidgetPtr = std::shared_ptr<Widget>;
+
+	// register enum infos
+	template<>
+	struct EnumInfoTraits<WidgetType>
+	{
+		static const std::string enumName;
+		static const EnumInfo<WidgetType>::EnumType enumInfos;
+	};
 }

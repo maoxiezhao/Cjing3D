@@ -65,6 +65,9 @@
     <Filter Include="gui\imgui">
       <UniqueIdentifier>{89cc6ab1-2726-48b0-b20d-221e6e4329a9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="utils\tinyxml2">
+      <UniqueIdentifier>{316d6612-6111-4237-9446-725bb86d82a6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine.cpp" />
@@ -397,6 +400,12 @@
     </ClCompile>
     <ClCompile Include="renderer\textureHelper.cpp">
       <Filter>renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\tinyxml2\tinyxml2.cpp">
+      <Filter>utils\tinyxml2</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiFactory.cpp">
+      <Filter>gui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -785,6 +794,9 @@
     </ClInclude>
     <ClInclude Include="renderer\textureHelper.h">
       <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tinyxml2\tinyxml2.h">
+      <Filter>utils\tinyxml2</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
