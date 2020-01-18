@@ -2,6 +2,8 @@
 
 #include "common\common.h"
 
+#include <map>
+
 namespace Cjing3D {
 
 	/**
@@ -20,8 +22,8 @@ namespace Cjing3D {
 		StringID& operator= (const StringID& rhs);
 		StringID& operator= (StringID&& rhs);
 
-		unsigned int HashValue()const { return mValue; }
-		std::string GetString()const { return mStr; }
+		inline unsigned int HashValue()const { return mValue; }
+		std::string GetString()const;
 		void SetString(const std::string& str);
 
 		operator bool()const { return mValue != 0; }
@@ -44,9 +46,10 @@ namespace Cjing3D {
 
 		static unsigned int	CalculateHash(const char* str);
 		static StringID EMPTY;
+		static std::map<unsigned int, std::string> mHashStringMap;
+
 	private:
 		unsigned int mValue;
-		std::string mStr;
 	};
 
 #define STRING_ID(key) StringID(#key)

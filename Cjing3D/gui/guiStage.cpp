@@ -86,7 +86,7 @@ namespace Cjing3D
 	WidgetPtr GUIStage::LoadWidgetFromXML(const std::string& name)
 	{
 		Logger::Info("GUI Stage Load widget from xml:" + name);
-		WidgetPtr widget = mWidgetManager->CreateWidgetFromXML(name);
+		WidgetPtr widget = mWidgetManager->CreateWidgetFromXMLFile(name);
 		if (widget == nullptr) {
 			Logger::Warning("GUI Stage Load widget from xml failed:" + name);
 		}

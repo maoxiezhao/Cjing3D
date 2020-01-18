@@ -5,6 +5,8 @@
 #include "utils\geometry.h"
 #include "helper\enumInfo.h"
 
+#include "utils\tinyxml2\tinyxml2.h"
+
 namespace Cjing3D
 {
 	class GUIStage;
@@ -23,6 +25,7 @@ namespace Cjing3D
 		Widget(GUIStage& stage, const StringID& name = StringID::EMPTY);
 		~Widget();
 
+		virtual void InitProperties(tinyxml2::XMLElement& element);
 		virtual void Update(F32 dt);
 		virtual void Render(const F32x2& offset);
 
@@ -45,6 +48,7 @@ namespace Cjing3D
 
 		static const StringID GetWidgetTypeStr() {
 			WidgetType widgetType = GetWidgetType();
+
 			const std::string widgetTypeStr = EnumToString(widgetType);
 			if (widgetTypeStr.empty()) {
 				return StringID::EMPTY;

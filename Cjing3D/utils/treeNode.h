@@ -99,7 +99,11 @@ namespace Cjing3D
 
 		NodePtr Find(const StringID& name)
 		{
-			return mChildrenNameMap.find(name);
+			auto it = mChildrenNameMap.find(name);
+			if (it == mChildrenNameMap.end()) {
+				return nullptr;
+			}
+			return it->second;
 		}
 
 		StringID GetName()const { return mName; }

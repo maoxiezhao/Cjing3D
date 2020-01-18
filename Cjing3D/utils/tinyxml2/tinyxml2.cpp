@@ -1572,6 +1572,16 @@ const char* XMLElement::Attribute( const char* name, const char* value ) const
     return 0;
 }
 
+const std::string XMLElement::StringAttribute(const char* name, const std::string defaultValue)
+{
+	const XMLAttribute* a = FindAttribute(name);
+	if (!a) {
+		return defaultValue;
+	}
+	
+	return a->Value();
+}
+
 int XMLElement::IntAttribute(const char* name, int defaultValue) const
 {
 	int i = defaultValue;

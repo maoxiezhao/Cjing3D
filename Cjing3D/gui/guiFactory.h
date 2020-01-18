@@ -23,7 +23,7 @@ namespace Cjing3D
 		StringID mType;
 		GUIStage& mGUIStage;
 	};
-	using BaseWidgetCreatorPtr = std::shared_ptr<BaseWidgetCreator>;
+	using WidgetCreatorPtr = std::shared_ptr<BaseWidgetCreator>;
 
 	// 通用的widget构造器，直接创建指定对象的指针
 	template<typename T>
@@ -36,6 +36,13 @@ namespace Cjing3D
 		{
 			return WidgetPtr(new T(mGUIStage, name));
 		}
+	};
+
+	class DefaultWidgetCreator : public BaseWidgetCreator
+	{
+	public:
+		DefaultWidgetCreator(GUIStage& guiStage) : BaseWidgetCreator(guiStage, Widget::GetWidgetTypeStr()) {}
+		virtual WidgetPtr Create(const StringID& name);
 	};
 
 	// widget的工厂类，管理对应widget的构造器，同时支持注册通用widget的构造器和自定义的构造器
@@ -52,7 +59,7 @@ namespace Cjing3D
 			RegisterWidgetType(T::GetWidgetTypeStr(), creatorPtr);
 		}
 
-		void RegisterWidgetType(const StringID& typeName, BaseWidgetCreatorPtr creator);
+		void RegisterWidgetType(const StringID& typeName, WidgetCreatorPtr creator);
 
 		const std::set<StringID> GetRegisteredWidgetTypes()const {
 			return mRegisteredWidgetTypes;
@@ -62,10 +69,12 @@ namespace Cjing3D
 			return mRegisteredWidgetTypes;
 		}
 
+		WidgetPtr CreateWidget(const StringID& type, const StringID& name);
+
 	private:
 		GUIStage& mGUIStage;
 
 		std::set<StringID> mRegisteredWidgetTypes;
-		std::map<StringID, BaseWidgetCreatorPtr> mRegisteredWidgetCreators;
+		std::map<StringID, WidgetCreatorPtr> mRegisteredWidgetCreators;
 	};
 }

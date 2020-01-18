@@ -39,6 +39,7 @@ distribution.
 #   include <cstdio>
 #   include <cstdlib>
 #   include <cstring>
+#   include <string>
 #endif
 #include <stdint.h>
 
@@ -1300,6 +1301,8 @@ public:
     	@endverbatim
     */
     const char* Attribute( const char* name, const char* value=0 ) const;
+
+	const std::string StringAttribute(const char* name, const std::string defaultValue = "");
 
     /** Given an attribute name, IntAttribute() returns the value
     	of the attribute interpreted as an integer. The default

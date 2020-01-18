@@ -6,6 +6,7 @@
 #include "core\systemContext.hpp"
 #include "helper\random.h"
 
+
 namespace Cjing3D
 {
 	const std::string EnumInfoTraits<WidgetType>::enumName = "widget_type";
@@ -27,6 +28,10 @@ namespace Cjing3D
 	}
 
 	Widget::~Widget()
+	{
+	}
+
+	void Widget::InitProperties(tinyxml2::XMLElement& element)
 	{
 	}
 
