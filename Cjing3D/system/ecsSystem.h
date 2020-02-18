@@ -2,6 +2,7 @@
 
 #include "common\common.h"
 #include "helper\IDGenerator.h"
+#include "helper\archive.h"
 
 #include <unordered_map>
 #include <vector>
@@ -17,6 +18,26 @@ namespace ECS
 	inline Entity CreateEntity()
 	{
 		return GENERATE_RANDOM_ID;
+	}
+
+	inline Entity DistrubuteEntity(Entity entity, U32 seed)
+	{
+		// 序列化后的entity可能会和已有entity重复，使用新种子^重新扰乱
+		// entity,事先左移一位保证entity的符号位为正
+
+		if (entity != INVALID_ENTITY && seed > 0) {
+			entity = ((entity << 1) ^ seed) >> 1;
+		}
+
+		return entity;
+	}
+
+	inline Entity SerializeEntity(Archive& archive, U32 seed)
+	{
+		Entity entity = INVALID_ENTITY;
+		archive >> entity;
+
+		return DistrubuteEntity(entity, seed);
 	}
 
 	// Component 管理器，提供entity对Component映射
@@ -78,6 +99,59 @@ namespace ECS
 			}
 		}
 
+		inline void RemoveAndKeepSorted(Entity entity)
+		{
+			auto it = mLookup.find(entity);
+			if (it != mLookup.end())
+			{
+				const auto index = it->second;
+				const Entity entity = mEntities[index];
+
+				// 如果删除的不是最后的元素，则将后面的元素往前移
+				if (index < mComponents.size() - 1)
+				{
+					for (int i = index + 1; i < mComponents.size(); i++){
+						mComponents[i - 1] = std::move(mComponents[i]);
+					}
+
+					for (int i = index + 1; i < mEntities.size(); i++) {
+						mEntities[i - 1] = mEntities[i];
+						mLookup[mEntities[i - 1]] = i - 1;
+					}
+				}
+
+				mComponents.pop_back();
+				mEntities.pop_back();
+				mLookup.erase(entity);
+			}
+		}
+
+		inline void MoveLastInto(U32 index)
+		{
+			// 将末尾的对象插入到指定位置
+			
+			if (index == GetCount() - 1 || GetCount() < 2) {
+				return;
+			}
+
+			auto targetComponent = std::move(mComponents.back());
+			auto targetEntity = mEntities.back();
+
+			// 将拆入位置的元素往后移
+			for (int i = mComponents.size() - 1; i > index; i--) {
+				mComponents[i] = std::move(mComponents[i - 1]);
+			}
+
+			for (int i = mEntities.size() - 1; i > index; i--) {
+				mEntities[i] = mEntities[i - 1];
+				mLookup[mEntities[i]] = i;
+			}
+
+			mComponents[index] = std::move(targetComponent);
+			mEntities[index] = targetEntity;
+			mLookup[targetEntity] = index;
+		}
+
 		inline void Merge(ComponentManager<ComponentT>& other)
 		{
 			const auto newSize = GetCount() + other.GetCount();
@@ -104,6 +178,15 @@ namespace ECS
 		inline bool Contains(Entity entity)
 		{
 			return mLookup.find(entity) != mLookup.end();
+		}
+
+		inline ComponentTPtr GetOrCreateComponent(Entity entity)
+		{
+			auto ret = GetComponent(entity);
+			if (ret != nullptr) {
+				return ret;
+			}
+			return Create(entity);
 		}
 
 		inline ComponentTPtr GetComponent(Entity entity)
@@ -150,6 +233,11 @@ namespace ECS
 			return INVALID_ENTITY;
 		}
 
+		inline std::vector<Entity>& GetEntities()
+		{
+			return mEntities;
+		}
+
 		template< typename ActionT>
 		inline void ForEachComponent(ActionT&& action)
 		{
@@ -169,6 +257,44 @@ namespace ECS
 		inline const ComponentTPtr operator[](size_t index) const
 		{
 			return mComponents[index];
+		}
+
+		void Serialize(Archive& archive, U32 seed = 0)
+		{
+			// 序列化时需要将原始数据清空
+			Clear();
+
+			// 数据结构为：entityCount components entities
+			U32 count = 0;
+			archive >> count;
+			if (count <= 0) {
+				return;
+			}
+
+			mComponents.resize(count);
+			mEntities.resize(count);
+
+			for (int i = 0; i < count; i++){
+				mComponents[i] = std::make_shared<ComponentT>();
+				mComponents[i]->Serialize(archive, seed);
+			}
+			for (int i = 0; i < count; i++) {
+				Entity entity = SerializeEntity(archive, seed);
+				mEntities[i] = entity;
+				mLookup[entity] = i;
+			}
+		}
+
+		void Unserialize(Archive& archive)const
+		{
+			archive << GetCount();
+		
+			for (auto& component : mComponents) {
+				component->Unserialize(archive);
+			}
+			for (const auto& entity : mEntities) {
+				archive << entity;
+			}
 		}
 
 	private:

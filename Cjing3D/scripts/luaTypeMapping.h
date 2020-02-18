@@ -173,6 +173,16 @@ namespace Cjing3D
 		{
 			lua_pushstring(l, value);
 		}
+
+		static const char* Get(lua_State* l, int index)
+		{
+			index = GetPositiveIndex(l, index);
+			if (!lua_isstring(l, index))
+				LuaException::ArgError(l, index, std::string("Excepted:char*, got ") + luaL_typename(l, index));
+
+			return lua_tostring(l, index);
+		}
+
 	};
 
 	template<>

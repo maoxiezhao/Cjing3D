@@ -80,10 +80,22 @@ namespace Cjing3D {
 		Rect(F32 left, F32 top, F32 right, F32 bottom) : mLeft(left), mTop(top), mRight(right), mBottom(bottom) {}
 		Rect(F32x2 pos, F32x2 size) :mLeft(pos[0]), mTop(pos[1]), mRight(pos[0] + size[0]), mBottom(pos[1] + size[1]) {}
 
+		void SetSize(F32x2 size) { mRight = mLeft + size[0]; mBottom = mTop + size[1]; }
+		void SetPos(F32x2 pos) { F32x2 offset = pos - GetPos(); Offset(offset); }
+
 		F32x2 GetPos()const { return { mLeft, mTop }; }
 		F32x2 GetSize()const { return { mRight - mLeft, mBottom - mTop }; }
+		
 		bool Intersects(const Rect& rect)const;
 		bool Intersects(const F32x2& point)const;
+
+	    inline void Union(const Rect& rect)
+		{
+			mLeft = std::min(mLeft, rect.mLeft);
+			mTop = std::min(mTop, rect.mTop);
+			mRight = std::max(mRight, rect.mRight);
+			mBottom = std::max(mBottom, rect.mBottom);
+		}
 
 		Rect& Offset(const F32x2& offset);
 	};

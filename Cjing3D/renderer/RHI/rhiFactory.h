@@ -78,7 +78,7 @@ namespace Cjing3D
 	/**************************************************************
 	*	\brief State Creating Method
 	**************************************************************/
-	HRESULT CreateDefaultSamplerState(GraphicsDevice& device, SamplerState& state, FILTER filter, TEXTURE_ADDRESS_MODE mode, ComparisonFunc func);
+	HRESULT CreateDefaultSamplerState(GraphicsDevice& device, SamplerState& state, FILTER filter, TEXTURE_ADDRESS_MODE mode, ComparisonFunc func, U32 maxAnisotropy = 0);
 
 	/**************************************************************
 	*	\brief Texture Creating Method

@@ -59,28 +59,12 @@ namespace Cjing3D {
 			vp.mMaxDepth = 1.0f;
 			device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
 
-			mRenderer.RenderSceneOpaque(camera, ShaderType_Forward);
+			mRenderer.RenderSceneOpaque(camera, RenderPassType_Forward);
 		}
 
 		// postprocess
 		RenderPostprocess(mRTMain);
 
 		RenderPath2D::Render();
-	}
-
-	void RenderPathForward::Compose()
-	{
-		GraphicsDevice& device = mRenderer.GetDevice();
-		device.BeginEvent("Composition");
-
-		RenderImage::ImageParams params;
-		params.EnableFullScreen();
-		params.mBlendType = BlendType_Opaque;
-
-		RenderImage::Render(mRTMain, params, mRenderer);
-
-		RenderPath2D::Compose();
-
-		device.EndEvent();
 	}
 }

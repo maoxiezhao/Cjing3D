@@ -341,7 +341,7 @@ BufferManager& Renderer::GetBufferManager()
 	return *mBufferManager;
 }
 
-void Renderer::RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, ShaderType shaderType)
+void Renderer::RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, RenderPassType renderPassType)
 {
 	mGraphicsDevice->BeginEvent("RenderSceneOpaque");
 
@@ -375,7 +375,7 @@ void Renderer::RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, Shader
 	if (renderQueue.IsEmpty() == false)
 	{
 		renderQueue.Sort();
-		ProcessRenderQueue(renderQueue, shaderType, RenderableType_Opaque);
+		ProcessRenderQueue(renderQueue, renderPassType, RenderableType_Opaque);
 
 		mFrameAllocator->Free(renderQueue.GetBatchCount() * sizeof(RenderBatch));
 	}
@@ -383,7 +383,7 @@ void Renderer::RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, Shader
 	mGraphicsDevice->EndEvent();
 }
 
-void Renderer::RenderSceneTransparent(std::shared_ptr<CameraComponent> camera, ShaderType renderingType)
+void Renderer::RenderSceneTransparent(std::shared_ptr<CameraComponent> camera, RenderPassType renderPassTypee)
 {
 	mGraphicsDevice->BeginEvent("RenderSceneTransparent");
 
@@ -391,10 +391,21 @@ void Renderer::RenderSceneTransparent(std::shared_ptr<CameraComponent> camera, S
 	mGraphicsDevice->EndEvent();
 }
 
-void Renderer::RenderPostprocess(Texture2D & input, Texture2D & output)
+void Renderer::PostprocessTonemap(Texture2D& input, Texture2D& output)
 {
-	mGraphicsDevice->BeginEvent("Postprocess");
+	mGraphicsDevice->BeginEvent("Postprocess_Tonemap");
+	mGraphicsDevice->BindRenderTarget(0, nullptr, nullptr);
 
+	// bind input texture
+	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, input, TEXTURE_SLOT_0);
+
+	// bind postprocess buffer
+
+	// bind output texture
+	GPUResource* uavs[] = { &output };
+	mGraphicsDevice->BindUAVs(uavs, 0, 1);
+
+	mGraphicsDevice->UnBindUAVs(0, 1);
 
 	mGraphicsDevice->EndEvent();
 }
@@ -402,11 +413,13 @@ void Renderer::RenderPostprocess(Texture2D & input, Texture2D & output)
 void Renderer::BindCommonResource()
 {
 	SamplerState& linearClampGreater = *mStateManager->GetSamplerState(SamplerStateID_LinearClampGreater);
+	SamplerState& anisotropicSampler = *mStateManager->GetSamplerState(SamplerStateID_ANISOTROPIC);
 
 	for (int stageIndex = 0; stageIndex < SHADERSTAGES_COUNT; stageIndex++)
 	{
 		SHADERSTAGES stage = static_cast<SHADERSTAGES>(stageIndex);
 		mGraphicsDevice->BindSamplerState(stage, linearClampGreater, SAMPLER_LINEAR_CLAMP_SLOT);
+		mGraphicsDevice->BindSamplerState(stage, anisotropicSampler, SAMPLER_ANISOTROPIC_SLOT);
 	}
 
 	// bind shader light resource
@@ -436,6 +449,7 @@ void Renderer::UpdateFrameCB()
 	frameCB.gFrameScreenSize = XMConvert(mFrameData.mFrameScreenSize);
 	frameCB.gFrameAmbient = XMConvert(mFrameData.mFrameAmbient);
 	frameCB.gShaderLightArrayCount = mFrameData.mShaderLightArrayCount;
+	frameCB.gFrameGamma = GetGamma();
 
 	GPUBuffer& frameBuffer = mBufferManager->GetConstantBuffer(ConstantBufferType_Frame);
 	mGraphicsDevice->UpdateBuffer(frameBuffer, &frameCB, sizeof(FrameCB));
@@ -473,7 +487,7 @@ void Renderer::SetCurrentRenderPath(RenderPath * renderPath)
 	}
 }
 
-void Renderer::ProcessRenderQueue(RenderQueue & queue, ShaderType shaderType, RenderableType renderableType)
+void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPassType, RenderableType renderableType)
 {
 	if (queue.IsEmpty() == true) {
 		return;
@@ -541,7 +555,7 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, ShaderType shaderType, Re
 				continue;
 			}
 
-			PipelineStateInfo state = mPipelineStateInfoManager->GetPipelineStateInfo(shaderType, *material);  // TODO
+			PipelineStateInfo state = mPipelineStateInfoManager->GetPipelineStateInfo(renderPassType, *material);  // TODO
 			if (state.IsEmpty()) {
 				continue;
 			}
@@ -590,8 +604,8 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, ShaderType shaderType, Re
 			// bind material texture
 			GPUResource* resources[] = {
 				material->mBaseColorMap.get(),
-				material->mSurfaceMap.get(),
 				material->mNormalMap.get(),
+				material->mSurfaceMap.get(),
 			};
 			mGraphicsDevice->BindGPUResources(SHADERSTAGES_PS, resources, TEXTURE_SLOT_0, 3);
 

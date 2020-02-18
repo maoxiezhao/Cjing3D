@@ -59,7 +59,7 @@ void ResourceManager::LoadTextrueFromFilePath(const std::filesystem::path & file
 	{
 		const std::string path = filePath.generic_string();
 		size_t length = 0;
-		unsigned char* data = FileData::ReadFileBytes(path, length);
+		unsigned char* data = (unsigned char* )FileData::ReadFileBytes(path, length);
 
 		const int channelCount = 4;
 		int width, height, bpp;

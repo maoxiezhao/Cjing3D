@@ -46,8 +46,8 @@ int WINAPI WinMain(HINSTANCE instance,
 {
 	// initialize
 	mainWindow = std::make_unique<Window>(
-		"Cjing3D",
-		I32x2(1024, 768),
+		"Cjing3D dev v0.0.1",
+		I32x2(1440, 800),
 		false);
 	mAppHandler = std::make_shared<ApplicationMessageHandler>();
 	mainWindow->AddMessageHandler(mAppHandler);

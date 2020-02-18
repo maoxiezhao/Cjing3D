@@ -29,9 +29,6 @@ namespace Cjing3D {
 		bool SaveFile(const std::string& name, const std::string&buffer);
 		bool DeleteFile(const std::string& name);
 
-		// string parsing
-		std::wstring StringToWString(const std::string& str);
-
 		std::string GetExtensionFromFilePath(const std::string& filePath);
 	}
 }

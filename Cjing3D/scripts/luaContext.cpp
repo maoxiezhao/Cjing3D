@@ -95,18 +95,22 @@ void LuaContext::GC()
 
 void LuaContext::Uninitialize()
 {
-	OnMainUninitialize();
-
 	mSystemExports.Clear();
 
 	lua_close(mLuaState);
 	mLuaState = nullptr;
 }
 
-bool LuaContext::DoLuaString(lua_State * l, const std::string & luaString)
+bool LuaContext::DoLuaString(lua_State * l, const std::string & luaString, int arguments, int results)
 {
 	if (luaL_loadstring(l, luaString.c_str()) == 0) {
-		return LuaTools::CallFunction(l, 0, 0, "Load Lua String.");
+		if (arguments > 0) {
+			// stack: arg1 arg2 func
+			lua_insert(l, -(arguments + 1));
+			// func stack: arg1 arg2
+		}
+
+		return LuaTools::CallFunction(l, arguments, results, "Load Lua String.");
 	}
 	return false;
 }

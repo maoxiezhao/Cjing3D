@@ -84,6 +84,10 @@ std::string GetNextToken(std::string& buffer)
 		pos = 1;
 		result = "T_RBRACE";
 		break;
+	case '=':
+		pos = 1;
+		result = "T_EQUAL";
+		break;
 	default:
 		for (pos = 0; pos < buffer.length(); pos++)
 		{
@@ -275,7 +279,9 @@ ConstructorMetainfo ConstructorMetainfo::Parse(const std::string & srcBuffer)
 	metaInfo.mFunctionName = nameToken;
 
 	//ex: Gun(const std::string& name)
+	//ex: Gun(const std::string& name = "afdsfc", int depth);
 
+	// TODO;use state machine to refactor
 	auto token = GetNextToken(currentLine);
 	if (token == "T_LPAREN")
 	{
@@ -292,6 +298,10 @@ ConstructorMetainfo ConstructorMetainfo::Parse(const std::string & srcBuffer)
 			token = GetNextToken(currentLine);
 
 			if (token == "T_COMMA") {
+				token = GetNextToken(currentLine);
+			}
+			else if (token == "T_EQUAL") {
+				token = GetNextToken(currentLine);
 				token = GetNextToken(currentLine);
 			}
 		}
@@ -416,6 +426,10 @@ void LuaBindingsGenerator::ParseHeader(const std::string & path, const std::stri
 	Logger::Info(("Generating lua binding file:" + path).c_str());
 
 	bool isHeaderDependent = false;
+
+	//if (path == "/gui/widgets.h") {
+	//	isHeaderDependent = false;
+	//}
 
 #ifndef USE_CPLUSPLUS_PARSE
 	auto srcBuffer = FileData::ReadFile(path);

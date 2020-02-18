@@ -19,11 +19,20 @@ namespace Cjing3D
 		void Update(F32 deltaTime);
 		void Render(GUIRenderer& renderer);
 
+		void ShowBasicInfo(bool show) { mShowBasicInfo = show; }
+		void ShowDetailInfo(bool show) { mShowDetailInfo = show; }
+		bool IsShowBasicInfo()const { return mShowBasicInfo; }
+		bool IsShowDetailInfo()const { return mShowDetailInfo; }
+
 	private:
+		void InitializeImpl();
 		void UpdateImpl(F32 deltaTime);
 		void RenderImpl();
 
 	private:
-		bool mIsInitialized;
+		bool mIsInitialized = false;
+		bool mShowBasicInfo = true;
+		bool mShowDetailInfo = true;
+
 	};
 }

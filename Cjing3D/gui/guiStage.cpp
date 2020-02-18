@@ -16,6 +16,8 @@ namespace Cjing3D
 #endif
 	}
 
+	using namespace Gui;
+
 	GUIStage::GUIStage(SystemContext & systemContext):
 		SubSystem(systemContext),
 		mRenderer(nullptr)
@@ -73,37 +75,68 @@ namespace Cjing3D
 
 	void GUIStage::Update(F32 deltaTime)
 	{
+		PROFILER_BEGIN_BLOCK("GUI_UPDATE");
+
 #ifdef CJING_IMGUI_ENABLE
 		mImGuiStage.Update(deltaTime);
 #endif
 		// notify input
 		NotifyInput();
 
+		// handle events
+		HandleInputEvents();
+
 		// update all widgets
 		mRootWidget->Update(deltaTime);
+
+		PROFILER_END_BLOCK();
 	}
 
-	WidgetPtr GUIStage::LoadWidgetFromXML(const std::string& name)
+	WidgetPtr GUIStage::LoadWidgetFromXML(const StringID& name, const std::string& filePath, LuaRef scriptHandler)
 	{
-		Logger::Info("GUI Stage Load widget from xml:" + name);
-		WidgetPtr widget = mWidgetManager->CreateWidgetFromXMLFile(name);
+		return LoadWidgetFromXML(mRootWidget, name, filePath, scriptHandler);
+	}
+
+	WidgetPtr GUIStage::LoadWidgetFromXML(WidgetPtr parent, const StringID& name, const std::string& filePath, LuaRef scriptHandler)
+	{
+		Logger::Info("GUI Stage Load widget from xml, name:" + name.GetString() + ", path:" + filePath);
+		WidgetPtr widget = mWidgetManager->CreateWidgetFromXMLFile(filePath, scriptHandler);
 		if (widget == nullptr) {
-			Logger::Warning("GUI Stage Load widget from xml failed:" + name);
+			Logger::Warning("GUI Stage Load widget from xml failed, name:" + name.GetString() + ", path:" + filePath);
+		}
+
+		widget->SetName(name);
+
+		if (parent != nullptr) {
+			parent->Add(widget);
 		}
 
 		return widget;
 	}
 
-	WidgetPtr GUIStage::LoadWidgetFromXML(Widget& parent, const std::string& name)
+	void GUIStage::AddRegisterKeyBoardKey(KeyCode key)
 	{
-		WidgetPtr widget = LoadWidgetFromXML(name);
-		if (widget == nullptr) {
-			return nullptr;
-		}
+		mRegisteredKeyBoardKeys.push_back(key);
+	}
 
-		parent.Add(widget);
-	
-		return widget;
+	void GUIStage::ShowImGUIBasicInfo(bool show)
+	{
+		mImGuiStage.ShowBasicInfo(show);
+	}
+
+	void GUIStage::ShowImGUIDetailInfo(bool show)
+	{
+		mImGuiStage.ShowDetailInfo(show);
+	}
+
+	bool GUIStage::IsShowImGUIBasicInfo() const
+	{
+		return mImGuiStage.IsShowBasicInfo();
+	}
+
+	bool GUIStage::IsShowImGUIDetailInfo() const
+	{
+		return mImGuiStage.IsShowDetailInfo();
 	}
 
 	void GUIStage::LoadRegisteredKeys()
@@ -123,14 +156,14 @@ namespace Cjing3D
 		for (auto keyCode : mRegisteredMouseKeys)
 		{
 			if (inputManager.IsKeyDown(keyCode)) {
-				GUIEvent e = {};
-				e.type = GUI_EVENT_TYPE_MOUSE_BUTTONDOWN;
+				GUIInputEvent e = {};
+				e.type = GUI_INPUT_EVENT_TYPE_MOUSE_BUTTONDOWN;
 				e.key = keyCode;
 				mInputEventQueue.push(e);
 			}
 			else if (inputManager.IsKeyUp(keyCode)) {
-				GUIEvent e = {};
-				e.type = GUI_EVENT_TYPE_MOUSE_BUTTONUP;
+				GUIInputEvent e = {};
+				e.type = GUI_INPUT_EVENT_TYPE_MOUSE_BUTTONUP;
 				e.key = keyCode;
 				mInputEventQueue.push(e);
 			}
@@ -140,8 +173,8 @@ namespace Cjing3D
 		if (mousePos != mPrevMousePos)
 		{
 			mPrevMousePos = mousePos;
-			GUIEvent e = {};
-			e.type = GUI_EVENT_TYPE_MOUSE_MOTION;
+			GUIInputEvent e = {};
+			e.type = GUI_INPUT_EVENT_TYPE_MOUSE_MOTION;
 			e.pos = mousePos;
 			mInputEventQueue.push(e);
 		}
@@ -150,43 +183,46 @@ namespace Cjing3D
 		for (auto keyCode : mRegisteredKeyBoardKeys)
 		{
 			if (inputManager.IsKeyDown(keyCode)) {
-				GUIEvent e = {};
-				e.type = GUI_EVENT_TYPE_KEYBOARD_KEYDOWN;
+				GUIInputEvent e = {};
+				e.type = GUI_INPUT_EVENT_TYPE_KEYBOARD_KEYDOWN;
 				e.key = keyCode;
 				mInputEventQueue.push(e);
 			}
 			else if (inputManager.IsKeyUp(keyCode)) {
-				GUIEvent e = {};
-				e.type = GUI_EVENT_TYPE_KEYBOARD_KEYUP;
+				GUIInputEvent e = {};
+				e.type = GUI_INPUT_EVENT_TYPE_KEYBOARD_KEYUP;
 				e.key = keyCode;
 				mInputEventQueue.push(e);
 			}
 		}
+
+		// notify viewport size changed
+
 	} 
 
 	void GUIStage::HandleInputEvents()
 	{
 		while (!mInputEventQueue.empty())
 		{
-			GUIEvent e = mInputEventQueue.front();
+			GUIInputEvent e = mInputEventQueue.front();
 			mInputEventQueue.pop();
 
 			switch (e.type)
 			{
-			case GUI_EVENT_TYPE_KEYBOARD_KEYDOWN:
-				HandldKeyboardButton(e.key, GUI_KEY_STATE_KEYDOWN);
+			case GUI_INPUT_EVENT_TYPE_KEYBOARD_KEYDOWN:
+				HandldKeyboardButton(e.key, GUI_INPUT_KEY_STATE_KEYDOWN);
 				break;
-			case GUI_EVENT_TYPE_KEYBOARD_KEYUP:
-				HandldKeyboardButton(e.key, GUI_KEY_STATE_KEYUP);
+			case GUI_INPUT_EVENT_TYPE_KEYBOARD_KEYUP:
+				HandldKeyboardButton(e.key, GUI_INPUT_KEY_STATE_KEYUP);
 				break;
-			case GUI_EVENT_TYPE_MOUSE_MOTION:
+			case GUI_INPUT_EVENT_TYPE_MOUSE_MOTION:
 				HandleMouseMove(e.pos);
 				break;
-			case GUI_EVENT_TYPE_MOUSE_BUTTONDOWN:
-				HandleMouseButton(e.key, GUI_KEY_STATE_KEYDOWN);
+			case GUI_INPUT_EVENT_TYPE_MOUSE_BUTTONDOWN:
+				HandleMouseButton(e.key, GUI_INPUT_KEY_STATE_KEYDOWN);
 				break;
-			case GUI_EVENT_TYPE_MOUSE_BUTTONUP:
-				HandleMouseButton(e.key, GUI_KEY_STATE_KEYUP);
+			case GUI_INPUT_EVENT_TYPE_MOUSE_BUTTONUP:
+				HandleMouseButton(e.key, GUI_INPUT_KEY_STATE_KEYUP);
 				break;
 			default:
 				break;
@@ -194,19 +230,117 @@ namespace Cjing3D
 		}
 	}
 
-	void GUIStage::HandldKeyboardButton(KeyCode key, GUI_KEY_STATE state)
+	void GUIStage::HandldKeyboardButton(KeyCode key, GUI_INPUT_KEY_STATE state)
 	{
+		if (mCaptureWidget != nullptr) {
+			HandleKeyboardButtonEvent(*mRootWidget, mCaptureWidget, key, state);
+			return;
+		}
+
+		if (mRootWidget == nullptr) {
+			return;
+		}
+
+		WidgetPtr targetWidget = mMouseFocusWidget;
+		if (targetWidget == nullptr) {
+			targetWidget = mRootWidget;
+		}
+
+		HandleKeyboardButtonEvent(*mRootWidget, targetWidget, key, state);
 	}
 
-	void GUIStage::HandleMouseButton(KeyCode key, GUI_KEY_STATE state)
+	void GUIStage::HandleMouseButton(KeyCode key, GUI_INPUT_KEY_STATE state)
 	{
+		if (mCaptureWidget != nullptr) {
+			HandleMouseButtonEvent(*mRootWidget, mCaptureWidget, key, state);
+			return;
+		}
+
+		if (mRootWidget == nullptr) {
+			return;
+		}
+
+		WidgetPtr targetWidget = mMouseFocusWidget;
+		if (targetWidget == nullptr) {
+			targetWidget = mRootWidget;
+		}
+
+		HandleMouseButtonEvent(*mRootWidget, targetWidget, key, state);
+
+		mLastClickWidget = targetWidget;
+		mLastClickTime;
 	}
 
 	void GUIStage::HandleMouseMove(I32x2 mousePos)
 	{
+		if (mCaptureWidget != nullptr) {
+			mCaptureWidget->Fire(UI_EVENT_TYPE::UI_EVENT_MOUSE_MOTION, mMouseFocusWidget.get(), VariantArray());
+			return;
+		}
+
+		if (mRootWidget == nullptr) {
+			return;
+		}
+
+		F32x2 fMousePos = { (F32)mousePos[0], (F32)mousePos[1] };
+		WidgetPtr targetWidget = mRootWidget->GetChildWidgetByGlobalCoords(fMousePos);
+		if (targetWidget != mMouseFocusWidget)
+		{
+			if (mMouseFocusWidget != nullptr) {
+				mRootWidget->Fire(UI_EVENT_TYPE::UI_EVENT_MOUSE_LEAVE, mMouseFocusWidget.get(), VariantArray());
+			}
+
+			mMouseFocusWidget = targetWidget;
+				
+			if (mMouseFocusWidget != nullptr){
+				mRootWidget->Fire(UI_EVENT_TYPE::UI_EVENT_MOUSE_ENTER, mMouseFocusWidget.get(), VariantArray());
+			}
+		}
+
+		if (targetWidget == nullptr) {
+			targetWidget = mRootWidget;
+		}
+
+		mRootWidget->Fire(UI_EVENT_TYPE::UI_EVENT_MOUSE_MOTION, mMouseFocusWidget.get(), VariantArray());
 	}
 
-	// 仅由GUIRenderer调用
+	void GUIStage::HandleKeyboardButtonEvent(Widget& dispatcher, WidgetPtr targetWidget, KeyCode key, GUI_INPUT_KEY_STATE state)
+	{
+		if (state == GUI_INPUT_KEY_STATE_KEYDOWN)
+		{
+			VariantArray variants;
+			variants.push_back(Variant(static_cast<U32>(key)));
+
+			dispatcher.Fire(UI_EVENT_TYPE::UI_EVENT_KEYBOARD_KEYDOWN, targetWidget.get(), variants);
+		}
+		else
+		{
+			VariantArray variants;
+			variants.push_back(Variant(static_cast<U32>(key)));
+
+			dispatcher.Fire(UI_EVENT_TYPE::UI_EVENT_KEYBOARD_KEYUP, targetWidget.get(), variants);
+		}
+	}
+
+	void GUIStage::HandleMouseButtonEvent(Widget& dispatcher, WidgetPtr targetWidget, KeyCode key, GUI_INPUT_KEY_STATE state)
+	{
+		if (state == GUI_INPUT_KEY_STATE_KEYDOWN)
+		{
+			VariantArray variants;
+			variants.push_back(Variant(static_cast<U32>(key - KeyCode::Click_Left)));
+
+			dispatcher.Fire(UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_DOWN, targetWidget.get(), variants);
+		}
+		else
+		{
+			VariantArray variants;
+			variants.push_back(Variant(static_cast<U32>(key - KeyCode::Click_Left)));
+
+			dispatcher.Fire(UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_UP, targetWidget.get(), variants);
+		}
+	}
+
+	// 仅由GUIRenderer调用 
 	void GUIStage::RenderImpl()
 	{
 		mRootWidget->Render({0.0f, 0.0f});

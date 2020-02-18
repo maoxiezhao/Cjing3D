@@ -18,17 +18,20 @@ namespace Cjing3D
 	}
 
 	LuaRef::LuaRef(const LuaRef& other) :
-		l(nullptr),
+		l(other.l),
 		mRef(LUA_REFNIL)
 	{
-		*this = other;
+		if (l != nullptr && !other.IsEmpty())
+		{
+			lua_rawgeti(l, LUA_REGISTRYINDEX, other.mRef);
+			mRef = luaL_ref(l, LUA_REGISTRYINDEX);
+		}
 	}
 
 	LuaRef::LuaRef(LuaRef && other) :
 		l(other.l),
 		mRef(other.mRef)
 	{
-		other.l = nullptr;
 		other.mRef = LUA_REFNIL;
 	}
 
@@ -39,15 +42,13 @@ namespace Cjing3D
 	*/
 	LuaRef & LuaRef::operator=(const LuaRef& other)
 	{
-		Clear();
-		l = other.l;
-		if (l != nullptr)
+		if (this != &other) 
 		{
-			if (other.mRef == LUA_REFNIL || other.mRef == LUA_NOREF)
-			{
-				mRef = other.mRef;
-			}
-			else
+			Clear();
+
+			l = other.l;
+
+			if (l != nullptr)
 			{
 				lua_rawgeti(l, LUA_REGISTRYINDEX, other.mRef);
 				mRef = luaL_ref(l, LUA_REGISTRYINDEX);
@@ -57,14 +58,10 @@ namespace Cjing3D
 		return *this;
 	}
 
-	LuaRef & LuaRef::operator=(LuaRef & other)
+	LuaRef & LuaRef::operator=(LuaRef&& other)
 	{
-		Clear();
-
-		l = other.l;
-		mRef = other.mRef;
-		other.l = nullptr;
-		other.mRef = LUA_REFNIL;
+		std::swap(l, other.l);
+		std::swap(mRef, other.mRef);
 
 		return *this;
 	}
@@ -76,6 +73,14 @@ namespace Cjing3D
 
 	bool LuaRef::operator==(const LuaRef & ref) const
 	{
+		if (GetRef() == ref.GetRef()) {
+			return true;
+		}
+
+		if (IsEmpty() || ref.IsEmpty()) {
+			return false;
+		}
+
 		Push();
 		ref.Push();
 		bool result = lua_compare(l, -1, -2, LUA_OPEQ) != 0;
@@ -122,6 +127,20 @@ namespace Cjing3D
 		return l == nullptr || (mRef == LUA_REFNIL || mRef == LUA_NOREF);
 	}
 
+	bool LuaRef::IsRefEmpty() const
+	{
+		if (IsEmpty()) {
+			return true;
+		}
+
+		bool ret = true;
+		lua_rawgeti(l, LUA_REGISTRYINDEX, mRef);
+		ret = lua_isnil(l, -1);
+		lua_pop(l, 1);
+
+		return ret;
+	}
+
 	int LuaRef::GetRef() const
 	{
 		return mRef;
@@ -134,8 +153,9 @@ namespace Cjing3D
 
 	void LuaRef::Clear()
 	{
-		if (l != nullptr)
+		if (l != nullptr && mRef != LUA_REFNIL && mRef != LUA_NOREF) {
 			luaL_unref(l, LUA_REGISTRYINDEX, mRef);
+		}
 
 		l = nullptr;
 		mRef = LUA_REFNIL;

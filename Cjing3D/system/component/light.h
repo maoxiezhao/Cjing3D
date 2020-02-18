@@ -42,6 +42,9 @@ namespace Cjing3D {
 		inline void SetColor(F32x3 color) { mColor = color; }
 
 		inline bool IsCastShadow()const { return mIsCastShadow; }
+
+		virtual void Serialize(Archive& archive, U32 seed = 0);
+		virtual void Unserialize(Archive& archive)const;
 	};
 
 }

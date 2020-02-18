@@ -8,9 +8,40 @@
 #include "system\component\material.h"
 #include "system\component\light.h"
 
+#include "helper\archive.h"
+
 #include <map>
+#include <tuple>
 
 namespace Cjing3D {
+
+	//  Hierarchy用于组织Transform之间的层级关系
+	class HierarchyComponent : public Component
+	{
+	public:
+		HierarchyComponent() : Component(ComponentType_HierarchyComponent) {}
+
+		// parent entity
+		ECS::Entity mParent = ECS::INVALID_ENTITY;
+		// parent inverse world matrix
+		XMMATRIX mParentBindInverseWorld = XMMatrixIdentity();
+
+		virtual void Serialize(Archive& archive, U32 seed = 0);
+		virtual void Unserialize(Archive& archive)const;
+	};
+
+	// TODO
+	using ComponentManagerTypesConst = std::tuple<
+		const ECS::ComponentManager<StringID>*,
+		const ECS::ComponentManager<TransformComponent>*,
+		const ECS::ComponentManager<HierarchyComponent>*,
+		const ECS::ComponentManager<MaterialComponent>*,
+		const ECS::ComponentManager<MeshComponent>*,
+		const ECS::ComponentManager<ObjectComponent>*,
+		const ECS::ComponentManager<AABB>*,
+		const ECS::ComponentManager<LightComponent>*,
+		const ECS::ComponentManager<AABB>*
+	>;
 
 	class Scene
 	{
@@ -41,6 +72,10 @@ namespace Cjing3D {
 
 		void RemoveEntity(ECS::Entity entity);
 
+		// entity间的层级结构基于 hierarchy component
+		void AttachEntity(ECS::Entity entity, ECS::Entity parent);
+		void DetachEntity(ECS::Entity entity);
+
 		template<typename ComponentT>
 		std::shared_ptr<ComponentT> GetComponent(ECS::Entity entity)
 		{
@@ -70,16 +105,29 @@ namespace Cjing3D {
 
 		template<typename ComponentT>
 		ECS::ComponentManager<ComponentT>& GetComponentManager();
+		template<typename ComponentT>
+		const ECS::ComponentManager<ComponentT>& GetComponentManager()const;
+		ComponentManagerTypesConst GetAllComponentManagers()const;
+
+		U32 GetEntityCount()const;
+
+		ECS::Entity LoadSceneFromArchive(const std::string& path);
+		void SaveSceneToArchive(const std::string& path);
+
+		void Serialize(Archive& archive);
+		void Unserialize(Archive& archive)const;
 
 	public:
 		std::map<StringID, ECS::Entity> mNameEntityMap;
 
+		// TODO: componentManager集合的维护非常繁琐，后续会重新设计结构或者用宏封装一层
 		ECS::ComponentManager<StringID> mNames;
-		ECS::ComponentManager<MeshComponent> mMeshes;
+		ECS::ComponentManager<TransformComponent> mTransforms;
+		ECS::ComponentManager<HierarchyComponent> mHierarchies;
 		ECS::ComponentManager<MaterialComponent> mMaterials;
+		ECS::ComponentManager<MeshComponent> mMeshes;
 		ECS::ComponentManager<ObjectComponent> mObjects;
 		ECS::ComponentManager<AABB> mObjectAABBs;
-		ECS::ComponentManager<TransformComponent> mTransforms;
 		ECS::ComponentManager<LightComponent> mLights;
 		ECS::ComponentManager<AABB> mLightAABBs;
 
@@ -95,6 +143,7 @@ namespace Cjing3D {
 	#include "system\sceneSystem.inl"
 
 	//  Scene System Update
+	void UpdateHierarchySystem(Scene& scene);
 	void UpdateSceneTransformSystem(Scene& scene);
 	void UpdateSceneObjectSystem(Scene& scene);
 	void UpdateSceneLightSystem(Scene& scene);

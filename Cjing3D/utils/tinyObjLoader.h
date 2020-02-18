@@ -49,6 +49,10 @@ THE SOFTWARE.
 #include <string>
 #include <vector>
 
+
+// use cjing3d filesystem, just in cjing3d engine case.
+#include "helper\fileSystem.h"
+
 namespace tinyobj {
 
 #ifdef __clang__
@@ -306,6 +310,19 @@ namespace tinyobj {
 		std::string m_mtlBaseDir;
 	};
 
+	class MaterialCjing3DFileReader : public MaterialReader {
+	public:
+		explicit MaterialCjing3DFileReader(const std::string& mtl_basedir)
+			: m_mtlBaseDir(mtl_basedir) {}
+		virtual ~MaterialCjing3DFileReader() {}
+		virtual bool operator()(const std::string& matId,
+			std::vector<material_t>* materials,
+			std::map<std::string, int>* matMap, std::string* err);
+
+	private:
+		std::string m_mtlBaseDir;
+	};
+
 	class MaterialStreamReader : public MaterialReader {
 	public:
 		explicit MaterialStreamReader(std::istream &inStream)
@@ -332,6 +349,13 @@ namespace tinyobj {
 	bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
 		std::vector<material_t> *materials, std::string *err,
 		const char *filename, const char *mtl_basedir = NULL,
+		bool triangulate = true);
+
+	/// Loads .obj from a file and it's cjing3d version
+	/// Just to see LoadOjb()
+	bool LoadObjCjing3D(attrib_t* attrib, std::vector<shape_t>* shapes,
+		std::vector<material_t>* materials, std::string* err,
+		const char* filename, const char* mtl_basedir = NULL,
 		bool triangulate = true);
 
 	/// Loads .obj from a file with custom user callback.
@@ -1681,6 +1705,46 @@ namespace tinyobj {
 		return true;
 	}
 
+	inline bool MaterialCjing3DFileReader::operator()(const std::string& matId, 
+		std::vector<material_t>* materials, 
+		std::map<std::string, int>* matMap, 
+		std::string* err) {
+
+		std::string filepath;
+
+		if (!m_mtlBaseDir.empty()) {
+			filepath = std::string(m_mtlBaseDir) + matId;
+		}
+		else {
+			filepath = matId;
+		}
+
+		if (!Cjing3D::FileData::IsFileExists(filepath))
+		{
+			std::stringstream ss;
+			ss << "WARN: Material file [ " << filepath << " ] not found." << std::endl;
+			if (err) {
+				(*err) += ss.str();
+			}
+			return false;
+		}
+
+		std::string buffer = Cjing3D::FileData::ReadFile(filepath);
+		std::istringstream matIStream(buffer);
+
+		std::string warning;
+		LoadMtl(matMap, materials, &matIStream, &warning);
+
+		if (!warning.empty()) {
+			if (err) {
+				(*err) += warning;
+			}
+		}
+
+		return true;
+	}
+
+
 	inline bool MaterialStreamReader::operator()(const std::string &matId,
 		std::vector<material_t> *materials,
 		std::map<std::string, int> *matMap,
@@ -1717,7 +1781,6 @@ namespace tinyobj {
 		shapes->clear();
 
 		std::stringstream errss;
-
 		std::ifstream ifs(filename);
 		if (!ifs) {
 			errss << "Cannot open file [" << filename << "]" << std::endl;
@@ -1734,6 +1797,39 @@ namespace tinyobj {
 		MaterialFileReader matFileReader(baseDir);
 
 		return LoadObj(attrib, shapes, materials, err, &ifs, &matFileReader,
+			trianglulate);
+	}
+
+	inline bool LoadObjCjing3D(attrib_t* attrib, std::vector<shape_t>* shapes,
+		std::vector<material_t>* materials, std::string* err,
+		const char* filename, const char* mtl_basedir, bool trianglulate) {
+		attrib->vertices.clear();
+		attrib->normals.clear();
+		attrib->texcoords.clear();
+		attrib->colors.clear();
+		shapes->clear();
+
+		std::stringstream errss;
+
+		if (!Cjing3D::FileData::IsFileExists(filename))
+		{
+			errss << "Cannot open file [" << filename << "]" << std::endl;
+			if (err) {
+				(*err) = errss.str();
+			}
+			return false;
+		}
+
+		std::string buffer = Cjing3D::FileData::ReadFile(filename);
+		std::istringstream isBuffer(buffer);
+
+		std::string baseDir;
+		if (mtl_basedir) {
+			baseDir = mtl_basedir;
+		}
+		MaterialCjing3DFileReader matFileReader(baseDir);
+
+		return LoadObj(attrib, shapes, materials, err, &isBuffer, &matFileReader,
 			trianglulate);
 	}
 

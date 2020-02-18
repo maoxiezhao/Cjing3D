@@ -1546,6 +1546,20 @@ void GraphicsDeviceD3D11::SetResourceName(GPUResource & resource, const std::str
 	d3dResource->SetPrivateData(WKPDID_D3DDebugObjectName, (UINT)name.length(), name.c_str());
 }
 
+
+void GraphicsDeviceD3D11::Dispatch(U32 threadGroupCountX, U32 threadGroupCountY, U32 threadGroupCountZ)
+{
+	GetDeviceContext(GraphicsThread_IMMEDIATE).Dispatch(threadGroupCountX, threadGroupCountY, threadGroupCountZ);
+}
+
+void GraphicsDeviceD3D11::UnBindUAVs(U32 slot, U32 count)
+{
+}
+
+void GraphicsDeviceD3D11::BindUAVs(GPUResource* const* resource, U32 slot, U32 count)
+{
+}
+
 void GraphicsDeviceD3D11::BindShaderInfoState(PipelineStateInfo state)
 {
 	ID3D11VertexShader* vs = state.mVertexShader != nullptr ? state.mVertexShader->mResourceD3D11.Get() : nullptr;

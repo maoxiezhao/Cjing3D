@@ -1,3 +1,6 @@
+#include "gui/guiStage.h"
+#include "gui/widgets.h"
+#include "helper/stringID.h"
 #include "input/InputSystem.h"
 #include "system/component/camera.h"
 #include "system/component/light.h"
@@ -16,6 +19,11 @@ LuaBinder(l)
 .AddConstructor(_LUA_ARGS_())
 .AddMethod("Update", &CameraComponent::Update)
 .AddMethod("Transform", &CameraComponent::Transform)
+.EndClass();
+
+LuaBinder(l)
+.BeginClass<GUIStage>("GUIStage")
+.AddConstructor(_LUA_ARGS_(SystemContext&))
 .EndClass();
 
 LuaBinder(l)
@@ -38,6 +46,11 @@ LuaBinder(l)
 .EndClass();
 
 LuaBinder(l)
+.BeginClass<StringID>("StringID")
+.AddConstructor(_LUA_ARGS_(std::string&))
+.EndClass();
+
+LuaBinder(l)
 .BeginClass<TransformComponent>("Transform")
 .AddConstructor(_LUA_ARGS_())
 .AddMethod("Update", &TransformComponent::Update)
@@ -46,6 +59,14 @@ LuaBinder(l)
 .AddMethod("RotateRollPitchYaw", &TransformComponent::RotateRollPitchYaw)
 .AddMethod("Scale", &TransformComponent::Scale)
 .AddMethod("GetRotationLocal", &TransformComponent::GetRotationLocal)
+.EndClass();
+
+LuaBinder(l)
+.BeginClass<Widget>("Widget")
+.AddConstructor(_LUA_ARGS_(GUIStage&, StringID&))
+.AddMethod("SetVisible", &Widget::SetVisible)
+.AddMethod("IsVisible", &Widget::IsVisible)
+.AddMethod("ClearSelf", &Widget::ClearSelf)
 .EndClass();
 
 	

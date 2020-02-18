@@ -33,6 +33,7 @@ public:
 	void Clear();
 };
 
+// TODO: change to renderer namesapce
 class Renderer : public SubSystem
 {
 public:
@@ -63,10 +64,16 @@ public:
 	PipelineStateInfoManager& GetPipelineStateInfoManager();
 	Renderer2D& GetRenderer2D();
 
+	// base status
+	void SetGamma(F32 gamma) { mGamma = gamma; }
+	F32 GetGamma()const { return mGamma; }
+
 	// Render Method
-	void RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, ShaderType shaderType);
-	void RenderSceneTransparent(std::shared_ptr<CameraComponent> camera, ShaderType renderingType);
-	void RenderPostprocess(Texture2D& input, Texture2D& output);
+	void RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, RenderPassType renderPassType);
+	void RenderSceneTransparent(std::shared_ptr<CameraComponent> camera, RenderPassType renderPassType);
+
+	// postprocess
+	void PostprocessTonemap(Texture2D& input, Texture2D& output);
 
 	// Binding Method
 	void BindCommonResource();
@@ -79,7 +86,7 @@ public:
 	void SetCurrentRenderPath(RenderPath* renderPath);
 
 private:
-	void ProcessRenderQueue(RenderQueue& queue, ShaderType shaderType, RenderableType renderableType);
+	void ProcessRenderQueue(RenderQueue& queue, RenderPassType renderPassType, RenderableType renderableType);
 	void BindConstanceBuffer(SHADERSTAGES stage);
 
 	// 当前帧的裁剪后的数据
@@ -98,6 +105,7 @@ private:
 	bool mIsRendering;
 	U32 mFrameNum = 0;
 	U32x2 mScreenSize;
+	F32 mGamma = 2.2f;
 
 	RenderFrameData mFrameData;
 

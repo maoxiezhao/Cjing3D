@@ -17,7 +17,7 @@ void PipelineStateInfoManager::SetupPipelineStateInfos()
 {
 }
 
-PipelineStateInfo PipelineStateInfoManager::GetPipelineStateInfo(ShaderType shaderType, MaterialComponent & material)
+PipelineStateInfo PipelineStateInfoManager::GetPipelineStateInfo(RenderPassType renderPassType, MaterialComponent & material)
 {
 	ShaderLib& shaderLib = mRenderer.GetShaderLib();
 	StateManager& stateManager = mRenderer.GetStateManager();
@@ -25,7 +25,7 @@ PipelineStateInfo PipelineStateInfoManager::GetPipelineStateInfo(ShaderType shad
 	PipelineStateInfo infoState;
 	infoState.Register(&mRenderer.GetDevice());
 
-	if (shaderType == ShaderType_Forward)
+	if (renderPassType == RenderPassType_Forward)
 	{
 		infoState.mVertexShader = shaderLib.GetVertexShader(VertexShaderType_Transform);
 		infoState.mPixelShader = shaderLib.GetPixelShader(PixelShaderType_Forward);

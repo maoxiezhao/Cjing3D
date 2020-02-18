@@ -38,4 +38,24 @@ namespace Cjing3D
 
 		return shaderLight;
 	}
+
+	void LightComponent::Serialize(Archive& archive, U32 seed)
+	{
+		archive >> mLightType;
+		archive >> mPosition;
+		archive >> mDirection;
+		archive >> mColor;
+		archive >> mEnergy;
+		archive >> mRange;
+	}
+
+	void LightComponent::Unserialize(Archive& archive) const
+	{
+		archive << mLightType;
+		archive << mPosition;
+		archive << mDirection;
+		archive << mColor;
+		archive << mEnergy;
+		archive << mRange;
+	}
 }

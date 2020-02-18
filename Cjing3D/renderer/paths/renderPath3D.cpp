@@ -54,6 +54,9 @@ namespace Cjing3D
 
 	void RenderPath3D::Compose()
 	{
+		GraphicsDevice& device = mRenderer.GetDevice();
+		device.BeginEvent("Composition");
+
 		RenderImage::ImageParams params;
 		params.EnableFullScreen();
 		params.mBlendType = BlendType_Opaque;
@@ -61,6 +64,14 @@ namespace Cjing3D
 		RenderImage::Render(*GetLastPostprocessRT(), params, mRenderer);
 
 		RenderPath2D::Compose();
+
+		device.EndEvent();
+
+	}
+
+	void RenderPath3D::RenderTransparents(Texture2D& rtMain, RenderPassType renderType)
+	{
+		// render transparent
 	}
 
 	void RenderPath3D::RenderPostprocess(Texture2D & rtScreen)
@@ -68,6 +79,7 @@ namespace Cjing3D
 		Texture2D* rtRead = &rtScreen;
 		Texture2D* rtWrite = GetLastPostprocessRT();
 
-		// do nothing now
+		// HDR-> LDR
+		mRenderer.PostprocessTonemap(*rtRead, *rtWrite);
 	}
 }

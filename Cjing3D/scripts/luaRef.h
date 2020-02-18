@@ -16,7 +16,7 @@ namespace Cjing3D
 		LuaRef(const LuaRef& other);
 		LuaRef(LuaRef&& other);
 		LuaRef& operator=(const LuaRef&other);
-		LuaRef& operator=(LuaRef& other);
+		LuaRef& operator=(LuaRef&& other);
 		~LuaRef();
 
 		bool operator ==(const LuaRef& ref)const;
@@ -81,6 +81,7 @@ namespace Cjing3D
 		}
 
 		bool IsEmpty()const;
+		bool IsRefEmpty()const;
 		int  GetRef()const;
 		void Push()const;
 		void Clear();

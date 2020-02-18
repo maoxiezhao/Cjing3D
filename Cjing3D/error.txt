@@ -1,0 +1,2 @@
+16:27:14     [Fatal]  Failed to set Write dir:./../LuaBinder Error:File not found
+16:27:14     [Error]  Failed to set Write dir:./../LuaBinder Error:File not found

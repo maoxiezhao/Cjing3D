@@ -23,6 +23,6 @@
 
 // SAMPLER SLOT (register s##slot)
 #define SAMPLER_LINEAR_CLAMP_SLOT 0
-
+#define SAMPLER_ANISOTROPIC_SLOT 1
 
 #endif

@@ -1,19 +1,26 @@
 #pragma once
 
-#include "common\common.h"
+#include "common\definitions.h"
 
+#include <algorithm>
+#include <string>
 #include <map>
 
 namespace Cjing3D {
 
+	class Archive;
+
 	/**
 	*	\brief 32bit hash String
 	*/
+	LUA_BINDER_REGISTER_CLASS
 	class StringID final
 	{
 	public:
 		StringID();
 		StringID(const char* str);
+
+		LUA_BINDER_REGISTER_CLASS_CONSTRUCTOR
 		StringID(const std::string& str);
 		StringID(const StringID& rhs);
 		StringID(StringID&& rhs);
@@ -47,6 +54,9 @@ namespace Cjing3D {
 		static unsigned int	CalculateHash(const char* str);
 		static StringID EMPTY;
 		static std::map<unsigned int, std::string> mHashStringMap;
+
+		virtual void Serialize(Archive& archive, uint32_t seed = 0);
+		virtual void Unserialize(Archive& archive)const;
 
 	private:
 		unsigned int mValue;

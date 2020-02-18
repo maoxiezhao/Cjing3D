@@ -33,10 +33,10 @@ enum RenderingDeviceType
 	RenderingDeviceType_Vulkan
 };
 
-enum ShaderType
+enum RenderPassType
 {
-	ShaderType_Forward,
-	ShaderType_Deferred
+	RenderPassType_Forward,
+	RenderPassType_Deferred
 };
 
 enum RenderableType

@@ -18,6 +18,9 @@
     <Filter Include="scripts\common">
       <UniqueIdentifier>{e02e7709-d7f2-49b0-8447-4de5408431a7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="editor">
+      <UniqueIdentifier>{761866ae-6fe1-4e40-94af-0863f455b545}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="window.h" />

@@ -68,6 +68,12 @@
     <Filter Include="utils\tinyxml2">
       <UniqueIdentifier>{316d6612-6111-4237-9446-725bb86d82a6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="gui\guiCore">
+      <UniqueIdentifier>{e62d1fda-9321-4229-a617-84af1c9c05cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui\guiWidgets">
+      <UniqueIdentifier>{bc7a284d-7f86-48ae-ae01-8734129f031b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine.cpp" />
@@ -406,6 +412,30 @@
     </ClCompile>
     <ClCompile Include="gui\guiFactory.cpp">
       <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="helper\archive.cpp">
+      <Filter>helper</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\Panel.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiCore\guiDispatcher.cpp">
+      <Filter>gui\guiCore</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\widget_properties.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="system\component\object.cpp">
+      <Filter>system\component</Filter>
+    </ClCompile>
+    <ClCompile Include="system\sceneSerializers.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\api\uiApi.cpp">
+      <Filter>scripts\api</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\api\utilsApi.cpp">
+      <Filter>scripts\api</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -797,6 +827,33 @@
     </ClInclude>
     <ClInclude Include="utils\tinyxml2\tinyxml2.h">
       <Filter>utils\tinyxml2</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\archive.h">
+      <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="common\definitions.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\Panel.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiCore\guiDispatcher.h">
+      <Filter>gui\guiCore</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiCore\guiDispatcher_impl.h">
+      <Filter>gui\guiCore</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiCore\guiEvents.h">
+      <Filter>gui\guiCore</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\widget_properties.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\api\uiApi.h">
+      <Filter>scripts\api</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\api\utilsApi.h">
+      <Filter>scripts\api</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

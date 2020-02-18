@@ -2,9 +2,15 @@
 #include "debug.h"
 #include "physfs\physfs.h"
 
+#include <fstream>
+#include <sstream>
 #include <vector>
+#include <algorithm>
+#include <filesystem>
 
 using std::string;
+
+// 考虑使用std::filesystem来构建engine filesystem
 
 namespace Cjing3D {
 	namespace FileData {
@@ -42,6 +48,68 @@ namespace Cjing3D {
 			{
 				return !dataPath_.empty();
 			}
+
+			char* ReadFileBytesBySystemIO(const std::string& name, size_t& length)
+			{
+				char* ret = nullptr;
+
+				std::ifstream file(name, std::ios::binary | std::ios::ate);
+				if (file.is_open())
+				{
+					length = (size_t)file.tellg();
+					file.seekg(0, file.beg);
+					ret = new char[length];
+					file.read((char*)ret, length);
+					file.close();
+				}
+
+				return ret;
+			}
+
+			bool SaveFileBySystemIO(const std::string& name, const char* buffer, size_t length)
+			{
+				std::ofstream file(name, std::ios::binary | std::ios::trunc);
+				if (file.is_open())
+				{
+					file.write((char*)buffer, (std::streamsize)length);
+					file.close();
+					return true;
+				}
+				return false;
+			}
+
+			char* ReadFileBytesByPhysfs(const string& name, size_t& length)
+			{
+				// 确保文件存在
+				Debug::CheckAssertion(PHYSFS_exists(name.c_str()),
+					string("the file:") + name + " isn't exits.");
+
+				PHYSFS_file* file = PHYSFS_openRead(name.c_str());
+				Debug::CheckAssertion(file != nullptr,
+					string("the file:") + name + " loaded failed.");
+
+				size_t size = static_cast<size_t>(PHYSFS_fileLength(file));
+				char* buffer = new char[size];
+				length = size;
+
+				PHYSFS_read(file, buffer, 1, (PHYSFS_uint32)size);
+				PHYSFS_close(file);
+
+				return buffer;
+			}
+
+			bool SaveFileByPhysfs(const std::string& name, const char* buffer, size_t length)
+			{
+				PHYSFS_File* file = PHYSFS_openWrite(name.c_str());
+				if (file == nullptr)
+					Debug::Die(string("the file:") + name + " created failed.");
+
+				if (!PHYSFS_write(file, buffer, (PHYSFS_uint32)length, 1))
+					Debug::Die(string("the file:") + name + "writed failed.");
+
+				PHYSFS_close(file);
+				return true;
+			}
 		}
 
 		// 打开对应资源目录，设置对应的搜寻路径，设置在user dir下的写路径
@@ -60,7 +128,9 @@ namespace Cjing3D {
 
 			const string&baseDir = PHYSFS_getBaseDir();
 			PHYSFS_addToSearchPath(dirDataPath.c_str(), 1);
-			PHYSFS_addToSearchPath((baseDir + dirDataPath).c_str(), 1);
+			PHYSFS_addToSearchPath((baseDir + "\\" + dirDataPath).c_str(), 1);
+
+			PHYSFS_permitSymbolicLinks(1);
 
 			// 设置数据文档路径
 			//SetAppWriteDir(DEFAULT_APP_WRITE_DIR);
@@ -124,7 +194,7 @@ namespace Cjing3D {
 
 		bool IsFileExists(const string& name)
 		{
-			return PHYSFS_exists(name.c_str());
+			return (PHYSFS_exists(name.c_str()) != 0);
 		}
 
 		/**
@@ -132,57 +202,42 @@ namespace Cjing3D {
 		*	\param data 数据buffer
 		*	\return 返回文件的长度
 		*/
-		unsigned char* ReadFileBytes(const string & name, size_t& length)
+		char* ReadFileBytes(const string & name, size_t& length)
 		{
-			// 确保文件存在
-			Debug::CheckAssertion(PHYSFS_exists(name.c_str()),
-				string("the file:") + name + " isn't exits.");
-
-			PHYSFS_file* file = PHYSFS_openRead(name.c_str());
-			Debug::CheckAssertion(file != nullptr,
-				string("the file:") + name + " loaded failed.");
-
-			size_t size = static_cast<size_t>(PHYSFS_fileLength(file));
-			unsigned char* buffer = new unsigned char[size];
-			length = size;
-
-			PHYSFS_read(file, buffer, 1, (PHYSFS_uint32)size);
-			PHYSFS_close(file);
-
-			return buffer;
+			if (IsAbsolutePath(name)) {
+				return ReadFileBytesBySystemIO(name, length);
+			}
+			else {
+				return ReadFileBytesByPhysfs(name, length);
+			}
 		}
-
 
 		string ReadFile(const string& name)
 		{
-			// 确保文件存在
-			Debug::CheckAssertion(PHYSFS_exists(name.c_str()),
-				string("The file:") + name + " isn't exits.");
-
-			PHYSFS_file* file = PHYSFS_openRead(name.c_str());
-			Debug::CheckAssertion(file != nullptr,
-				string("The file:") + name + " loaded failed.");
-
-			size_t size = static_cast<size_t>(PHYSFS_fileLength(file));
-			std::vector<char> buffer(size);
-
-			PHYSFS_read(file, buffer.data(), 1, (PHYSFS_uint32)size);
-			PHYSFS_close(file);
-
-			return string(buffer.data(), size);
+			if (IsAbsolutePath(name)) {
+				size_t length = 0;
+				char* buffer = ReadFileBytesBySystemIO(name, length);
+				return string(buffer, length);
+			}
+			else {
+				size_t length = 0;
+				char* buffer = ReadFileBytesByPhysfs(name, length);
+				return string(buffer, length);
+			}
 		}
 
 		bool SaveFile(const string& name, const string&buffer)
 		{
-			PHYSFS_File* file = PHYSFS_openWrite(name.c_str());
-			if (file == nullptr)
-				Debug::Die(string("the file:") + name + " created failed.");
+			return SaveFile(name, buffer.data(), buffer.length());
+		}
 
-			if (!PHYSFS_write(file, buffer.data(), (PHYSFS_uint32)buffer.size(), 1))
-				Debug::Die(string("the file:") + name + "writed failed.");
-
-			PHYSFS_close(file);
-			return true;
+		bool SaveFile(const std::string& name, const char* buffer, size_t length)
+		{
+			if (IsAbsolutePath(name)) {
+				return SaveFileBySystemIO(name, buffer, length);
+			}else {
+				return SaveFileByPhysfs(name, buffer, length);
+			}
 		}
 
 		bool DeleteFile(const string& name)
@@ -204,6 +259,26 @@ namespace Cjing3D {
 				return filePath.substr(lastIndex, filePath.length());
 			}
 			return NOT_ASSIGNED;
+		}
+
+		std::string GetParentPath(const std::string& filePath)
+		{
+			std::filesystem::path path(filePath);
+			return path.parent_path().generic_string();
+		}
+
+		bool IsAbsolutePath(const std::string& path)
+		{
+			std::filesystem::path availablePath(path);
+			return availablePath.is_absolute();
+		}
+
+		std::string ConvertToAvailablePath(const std::string& path)
+		{
+			std::filesystem::path availablePath(path);
+			availablePath = availablePath.lexically_normal();
+
+			return availablePath.generic_string();
 		}
 
 		/**

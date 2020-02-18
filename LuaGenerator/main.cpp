@@ -8,6 +8,7 @@
 #include <Windows.h>
 
 //#define __BINDER_DEBUG__
+//#define __BINDER_DEBUG_SYSTEM_PAUSE__
 //#define USE_CPLUSPLUS_PARSE
 
 // 是否开启自动分析头文件生成lua绑定代码
@@ -17,6 +18,10 @@ int main(int argc, char** argv)
 {
 #ifndef __ENABLE_GENERATE_LUA_BINDING_CODES__
 	return 0;
+#endif
+
+#ifdef __BINDER_DEBUG_SYSTEM_PAUSE__
+	system("Pause");
 #endif
 
 #ifndef __BINDER_DEBUG__
@@ -65,10 +70,6 @@ int main(int argc, char** argv)
 	Cjing3D::LuaBindingsGenerator generator;
 	generator.ParseAllHeader("");
 	generator.GenerateSource("luabind_registers");
-
-#ifdef __BINDER_DEBUG__
-	system("Pause");
-#endif
 
 	return 0;
 }

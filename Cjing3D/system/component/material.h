@@ -7,8 +7,6 @@ namespace Cjing3D {
 	class MaterialComponent : public Component
 	{
 	public:
-		MaterialComponent();
-
 		F32x4 mBaseColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 		F32 mRoughness = 0.2f;
 		F32 mMetalness = 0.0f;
@@ -21,6 +19,9 @@ namespace Cjing3D {
 		RhiTexture2DPtr mSurfaceMap = nullptr;
 		RhiTexture2DPtr mNormalMap = nullptr;
 
+	public:
+		MaterialComponent();
+
 		inline bool IsCastingShadow()const { return mIsCastingShadow; }
 		inline bool IsDirty()const { return mIsDirty; }
 		inline void SetIsDirty(bool isDirty) { mIsDirty = isDirty; }
@@ -29,6 +30,9 @@ namespace Cjing3D {
 		void SetupConstantBuffer(GraphicsDevice& device);
 		GPUBuffer& GetConstantBuffer() { return *mConstantBuffer; }
 	
+		virtual void Serialize(Archive& archive, U32 seed = 0);
+		virtual void Unserialize(Archive& archive)const;
+
 	private:
 		std::unique_ptr<GPUBuffer> mConstantBuffer = nullptr;
 

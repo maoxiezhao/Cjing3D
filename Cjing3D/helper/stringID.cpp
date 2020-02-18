@@ -1,4 +1,6 @@
 #include "stringID.h"
+#include "utils\math.h"
+#include "helper\archive.h"
 
 namespace Cjing3D {
 
@@ -62,6 +64,21 @@ namespace Cjing3D {
 		}
 
 		return hashValue;
+	}
+
+	void StringID::Serialize(Archive& archive, uint32_t seed)
+	{
+		// 直接序列化hash value，但会导致GetString失效
+		std::string string;
+		archive >> string;
+
+		SetString(string);
+	}
+
+	void StringID::Unserialize(Archive& archive) const
+	{
+		auto string = GetString();
+		archive << string;
 	}
 
 }

@@ -22,7 +22,7 @@ namespace Cjing3D {
 	using I64 = __int64;
 
 	using F32 = float;
-	using F63 = double;
+	using F64 = double;
 
 	using U32x2 = Array<U32, 2>;
 	using U32x3 = Array<U32, 3>;
@@ -161,5 +161,14 @@ namespace Cjing3D {
 			return false;
 
 		return true;
+	}
+
+	inline XMFLOAT3 QuaternionToRollPitchYaw(const XMFLOAT4& quaternion)
+	{
+		F32 roll  = atan2f(2 * quaternion.x * quaternion.w - 2 * quaternion.y * quaternion.z, 1 - 2 * quaternion.x * quaternion.x - 2 * quaternion.z * quaternion.z);
+		F32 pitch = atan2f(2 * quaternion.y * quaternion.w - 2 * quaternion.x * quaternion.z, 1 - 2 * quaternion.y * quaternion.y - 2 * quaternion.z * quaternion.z);
+		F32 yaw   = asinf(2 * quaternion.x * quaternion.y + 2 * quaternion.z * quaternion.w);
+
+		return XMFLOAT3(roll, pitch, yaw);
 	}
 }

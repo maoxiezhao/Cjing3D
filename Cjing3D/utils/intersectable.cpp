@@ -1,4 +1,5 @@
 #include "intersectable.h"
+#include "helper\archive.h"
 
 namespace Cjing3D
 {
@@ -112,5 +113,29 @@ namespace Cjing3D
 	{
 		mMin = aabb.mMin;
 		mMax = aabb.mMax;
+	}
+
+	void AABB::Serialize(Archive& archive, U32 seed)
+	{
+		XMFLOAT3 _min;
+		XMFLOAT3 _max;
+
+		archive >> _min;
+		archive >> _max;
+
+		mMin = XMLoadFloat3(&_min);
+		mMax = XMLoadFloat3(&_max);
+	}
+
+	void AABB::Unserialize(Archive& archive) const
+	{
+		XMFLOAT3 _min;
+		XMFLOAT3 _max;
+
+		XMStoreFloat3(&_min, mMin);
+		XMStoreFloat3(&_max, mMax);
+
+		archive << _min;
+		archive << _max;
 	}
 }

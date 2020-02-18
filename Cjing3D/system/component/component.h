@@ -14,6 +14,7 @@ enum ComponentType
 	ComponentType_Ojbect,
 	ComponentType_Mesh,
 	ComponentType_Material,
+	ComponentType_HierarchyComponent,
 	ComponentType_Transform,
 	ComponentType_Light
 };
@@ -31,6 +32,9 @@ public:
 
 	template<typename T>
 	static ComponentType DeduceComponentType();
+
+	virtual void Serialize(Archive& archive, U32 seed = 0) {}
+	virtual void Unserialize(Archive& archive)const {};
 
 private:
 	Entity mCurrentEntity = INVALID_ENTITY;

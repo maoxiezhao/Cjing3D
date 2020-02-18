@@ -11,6 +11,7 @@ namespace Cjing3D
 {
 	class GUIStage;
 
+	// WidgetManager 负责Widget的实例创建，包括从定义中创建和从xml文件中创建
 	class WidgetManager
 	{
 	public:
@@ -22,9 +23,10 @@ namespace Cjing3D
 		void Initialize();
 		void Uninitialize();
 
-		WidgetPtr CreateWidgetFromXMLFile(const std::string& name);
+		WidgetPtr CreateWidgetFromXMLFile(const std::string& name, LuaRef scriptHandler = LuaRef::NULL_REF);
 		WidgetPtr CreateWidget(const StringID& type, const StringID& name);
-		WidgetPtr CreateWidgetFromDefinition(const StringID& definition);
+		WidgetPtr CreateWidgetFromDefinition(const StringID& definition, std::vector<WidgetPtr>* newWidgets = nullptr);
+		WidgetPtr CreateWidgetFromXMLElement(WidgetPtr parent, tinyxml2::XMLElement& element, std::vector<WidgetPtr>* newWidgets = nullptr);
 
 		bool IsAvailableWidget(const std::string& name) const;
 
@@ -34,8 +36,8 @@ namespace Cjing3D
 		void LoadDefinition(tinyxml2::XMLElement& element);
 		void UnloadDefinition(tinyxml2::XMLElement& element);
 
-		WidgetPtr CreateWidgetFromXMLElement(WidgetPtr parent, tinyxml2::XMLElement& element);
 		void LoadWidgetProperties(Widget& widget, tinyxml2::XMLElement& element);
+		void ParseWidgetEventHandlers(Widget& widget, tinyxml2::XMLElement& element);
 
 	private:
 		GUIStage& mGUIStage;

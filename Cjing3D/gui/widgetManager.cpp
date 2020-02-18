@@ -2,12 +2,18 @@
 #include "guiStage.h"
 #include "helper\fileSystem.h"
 
+#include "guiWidgets\Panel.h"
+
 namespace Cjing3D
 {
-	const std::string xmlDataType = "data";
-	const std::string xmlRootType = "root";
-	const std::string xmlDefinitionsType = "definitions";
-	const std::string xmlChildrenType = "children";
+	using namespace Gui;
+
+	const std::string xmlDataType = "Data";
+	const std::string xmlRootType = "Root";
+	const std::string xmlDefinitionsType = "Definitions";
+	const std::string xmlPropertiesType = "Properties";
+	const std::string xmlEventHandlers = "Events";
+	const std::string xmlChildrenType = "Children";
 
 	WidgetManager::WidgetManager(GUIStage& guiStage):
 		mGUIStage(guiStage),
@@ -23,8 +29,9 @@ namespace Cjing3D
 	{
 		mGUIFactory = std::make_unique<GUIFactory>(mGUIStage);
 
-		mGUIFactory->RegisterWidgetType(StringID("root"), WidgetCreatorPtr(new DefaultWidgetCreator(mGUIStage)) );
+		mGUIFactory->RegisterWidgetType(StringID("Root"), WidgetCreatorPtr(new DefaultWidgetCreator(mGUIStage)) );
 		mGUIFactory->RegisterWidgetType<Widget>();
+		mGUIFactory->RegisterWidgetType<Panel>();
 	}
 
 	void WidgetManager::Uninitialize()
@@ -33,7 +40,7 @@ namespace Cjing3D
 		mDefinitionMap.clear();
 	}
 
-	WidgetPtr WidgetManager::CreateWidgetFromXMLFile(const std::string& name)
+	WidgetPtr WidgetManager::CreateWidgetFromXMLFile(const std::string& name, LuaRef scriptHandler)
 	{
 		std::shared_ptr<tinyxml2::XMLDocument> xmlPtr = LoadCachedXML(name);
 		if (xmlPtr == nullptr) {
@@ -59,17 +66,29 @@ namespace Cjing3D
 			}
 		}
 
+		std::vector<WidgetPtr> newWidgets;
+
 		// 然后尝试从<root>创建widget
 		WidgetPtr newWidget = nullptr;
 		auto rootNode = dataNode->FirstChildElement(xmlRootType.c_str());
 		if (rootNode != nullptr) {
-			newWidget = CreateWidgetFromXMLElement(nullptr, *rootNode);
+			newWidget = CreateWidgetFromXMLElement(nullptr, *rootNode, &newWidgets);
 		}
-		 
+		
+		// 事先设置script handler, 仅设置root节点
+		if (newWidget != nullptr && scriptHandler != LuaRef::NULL_REF) {
+			newWidget->SetScriptHandler(scriptHandler);
+		}
+
+		// 根据创建顺序反向初始化
+		for (auto it = newWidgets.rbegin(); it != newWidgets.rend(); it++) {
+			(*it)->OnLoaded();
+		}
+
 		return newWidget;
 	}
 
-	WidgetPtr WidgetManager::CreateWidgetFromXMLElement(WidgetPtr parent, tinyxml2::XMLElement& element)
+	WidgetPtr WidgetManager::CreateWidgetFromXMLElement(WidgetPtr parent, tinyxml2::XMLElement& element, std::vector<WidgetPtr>* newWidgets)
 	{
 		// 分析element node, 创建对应类型的widget，可以通过use_definition来使用定义
 		std::string type = element.Name();
@@ -84,7 +103,7 @@ namespace Cjing3D
 		{
 			WidgetPtr widget = nullptr;
 			if (!useDef.empty()) {
-				widget = CreateWidgetFromDefinition(StringID(useDef));
+				widget = CreateWidgetFromDefinition(StringID(useDef), newWidgets);
 
 				// 仅当definition有效，才会直接返回，不然按默认widget创建
 				if (widget != nullptr) {
@@ -121,8 +140,12 @@ namespace Cjing3D
 		}
 
 		newWidget->SetName(name);
+		newWidget->SetIsRoot(type == xmlRootType);
 
 		LoadWidgetProperties(*newWidget, element);
+		ParseWidgetEventHandlers(*newWidget, element);
+
+		newWidgets->push_back(newWidget);
 
 		// create widget children
 		auto  childrenNodes = element.FirstChildElement(xmlChildrenType.c_str());
@@ -131,7 +154,7 @@ namespace Cjing3D
 			auto childNode = childrenNodes->FirstChildElement();
 			while (childNode != nullptr)
 			{
-				CreateWidgetFromXMLElement(newWidget, *childNode);
+				CreateWidgetFromXMLElement(newWidget, *childNode, newWidgets);
 				childNode = childNode->NextSiblingElement();
 			}
 		}
@@ -141,7 +164,18 @@ namespace Cjing3D
 
 	void WidgetManager::LoadWidgetProperties(Widget& widget, tinyxml2::XMLElement& element)
 	{
+		auto propertiesElement = element.FirstChildElement(xmlPropertiesType.c_str());
+		if (propertiesElement != nullptr) {
+			widget.InitProperties(*propertiesElement);
+		}
+	}
 
+	void WidgetManager::ParseWidgetEventHandlers(Widget& widget, tinyxml2::XMLElement& element)
+	{
+		auto propertiesElement = element.FirstChildElement(xmlEventHandlers.c_str());
+		if (propertiesElement != nullptr) {
+			widget.ParseEventHandlers(*propertiesElement);
+		}
 	}
 
 	WidgetPtr WidgetManager::CreateWidget(const StringID& type, const StringID& name)
@@ -149,7 +183,7 @@ namespace Cjing3D
 		return mGUIFactory->CreateWidget(type, name);
 	}
 
-	WidgetPtr WidgetManager::CreateWidgetFromDefinition(const StringID& definition)
+	WidgetPtr WidgetManager::CreateWidgetFromDefinition(const StringID& definition, std::vector<WidgetPtr>* newWidgets)
 	{
 		auto it = mDefinitionMap.find(definition);
 		if (it == mDefinitionMap.end())
@@ -158,7 +192,7 @@ namespace Cjing3D
 			return nullptr;
 		}
 
-		return CreateWidgetFromXMLElement(nullptr, *it->second);
+		return CreateWidgetFromXMLElement(nullptr, *it->second, newWidgets);
 	}
 
 	bool WidgetManager::IsAvailableWidget(const std::string& name) const

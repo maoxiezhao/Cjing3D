@@ -29,11 +29,28 @@ namespace Cjing3D {
 		void Rotate(const XMFLOAT4& quaternion);
 
 		LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
-		XMFLOAT4 GetRotationLocal()const { return mRotationLocal; }
+		inline XMFLOAT4 GetRotationLocal()const { return mRotationLocal; }
+
+		LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
+		inline XMFLOAT3 GetTranslationLocal()const { return mTranslationLocal; }
+
+		LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
+		inline XMFLOAT3 GetScaleLocal()const { return mScaleLocal; }
+
+		void SetRotateFromRollPitchYaw(const XMFLOAT3& value);
+		void SetRotationLocal(const XMFLOAT4& value);
+		void SetTranslationLocal(const XMFLOAT3& value);
+		void SetScaleLocal(const XMFLOAT3& value);
+
+		void ApplyTransform();
+		void UpdateFromParent(TransformComponent& parent, const XMMATRIX& parentBindInverseWorld);
 
 		inline void SetDirty(bool isDirty) { mIsDirty = isDirty; }
 		inline bool IsDirty()const { return mIsDirty; }
 		inline XMFLOAT4X4 GetWorldTransform() const { return mWorldTransform; }
+
+		virtual void Serialize(Archive& archive, U32 seed = 0);
+		virtual void Unserialize(Archive& archive)const;
 
 	private:
 		XMFLOAT3 mTranslationLocal = XMFLOAT3(0.0f, 0.0f, 0.0f);

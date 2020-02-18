@@ -36,9 +36,11 @@ namespace Cjing3D {
 		GPUBuffer& GetVertexBufferPos() { return *mVertexBufferPos; }
 		GPUBuffer& GetVertexBufferTex() { return *mVertexBufferTex; }
 
-
 		IndexFormat GetIndexFormat()const { return IndexFormat::INDEX_FORMAT_32BIT; }
 		std::vector<MeshSubset>& GetSubsets() { return mSubsets; }
+
+		virtual void Serialize(Archive& archive, U32 seed = 0);
+		virtual void Unserialize(Archive& archive)const;
 
 	public:
 

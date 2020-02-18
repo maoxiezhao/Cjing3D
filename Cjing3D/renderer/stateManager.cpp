@@ -239,6 +239,12 @@ void StateManager::SetupSamplerStates()
 			FILTER_MIN_MAG_LINEAR_MIP_POINT, TEXTURE_ADDRESS_WRAP, COMPARISON_GREATER_EQUAL);
 		Debug::ThrowIfFailed(result, "Failed to create pointClampAlways samplerState", result);
 	}
+
+	{
+		const auto result = CreateDefaultSamplerState(mDevice, *mSamplerStates[SamplerStateID_ANISOTROPIC],
+			FILTER_ANISOTROPIC, TEXTURE_ADDRESS_WRAP, COMPARISON_NEVER, 16);
+		Debug::ThrowIfFailed(result, "Failed to create SamplerStateID_ANISOTROPIC samplerState", result);
+	}
 }
 
 }

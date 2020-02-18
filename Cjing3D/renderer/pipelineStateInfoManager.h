@@ -16,7 +16,7 @@ public:
 	PipelineStateInfoManager(Renderer& renderer);
 	~PipelineStateInfoManager();
 
-	PipelineStateInfo GetPipelineStateInfo(ShaderType shaderType, MaterialComponent& material);
+	PipelineStateInfo GetPipelineStateInfo(RenderPassType renderPassType, MaterialComponent& material);
 	PipelineStateInfo GetImagePipelineStateInfo(RenderImage::ImageParams params);
 
 	void SetupPipelineStateInfos();

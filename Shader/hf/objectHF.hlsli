@@ -54,32 +54,52 @@ float4 main(PixelInputType input) : SV_TARGET
 	float4 color;
 
 	if (gMaterial.haveBaseColorMap > 0) {
-		color = texture_basecolormap.Sample(sampler_linear_clamp, input.tex);
-	}
-	else
-	{
+		color = texture_basecolormap.Sample(sampler_anisotropic, input.tex);
+        color.rgb = DeGammaCorrect(color.rgb);
+    } else {
 		color = float4(1.0, 1.0, 1.0, 1.0);
 	}
-
 	color *= input.color;
 
 	float3 pos3D = input.pos3D.xyz;
 	float3 view = gCameraPos - pos3D;
 	float dist = length(view);
 
-	Surface surface = CreateSurface(
-		pos3D,
-		normalize(input.nor),
-		normalize(view / dist),
-		input.color
+	Surface surface;
+	surface.position = pos3D;
+	surface.normal = normalize(input.nor);
+	surface.view = normalize(view / dist);
+
+	// 如果存在法线贴图，则根据法线贴图修改法线
+	if (gMaterial.haveNormalMap > 0)
+	{
+		float3x3 TBN = ComputeTangateTransform(surface.normal, surface.position, input.tex);
+		float3 nor = texture_normalmap.Sample(sampler_anisotropic, input.tex).rgb;
+        nor = nor.rgb * 2 - 1;
+        surface.normal = normalize(mul(nor, TBN));
+    }
+	
+	// 处理反射贴图
+    float3 spcularIntensity = float3(1.0f, 1.0f, 1.0f);
+    if (gMaterial.haveSurfaceMap > 0) {
+        spcularIntensity = texture_surfacemap.Sample(sampler_anisotropic, input.tex).rgb;
+    }
+	
+    surface = CreateSurface(
+		surface.position,
+		surface.normal,
+		surface.view,
+		input.color,
+	    spcularIntensity
 	);
 
 #ifndef _SIMPLE_BASE_LIGHT_
-	color *= ForwardLighting(surface);
+    color *= ForwardLighting(surface);
 #else
 	color *= SimpleLighting(surface);
 #endif
-
+		
+    color.rgb = GammaCorrect(color.rgb);
 	return color;
 }
 

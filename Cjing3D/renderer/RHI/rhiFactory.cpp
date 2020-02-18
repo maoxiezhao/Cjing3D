@@ -29,7 +29,7 @@ namespace Cjing3D
 		return device.CreateBuffer(&desc, buffer, nullptr);
 	}
 
-	HRESULT CreateDefaultSamplerState(GraphicsDevice & device, SamplerState & state, FILTER filter, TEXTURE_ADDRESS_MODE mode, ComparisonFunc func)
+	HRESULT CreateDefaultSamplerState(GraphicsDevice & device, SamplerState & state, FILTER filter, TEXTURE_ADDRESS_MODE mode, ComparisonFunc func, U32 maxAnisotropy)
 	{
 		SamplerDesc desc = {};
 		// 过波方式
@@ -40,6 +40,9 @@ namespace Cjing3D
 		desc.mAddressW = mode;
 		// ??
 		desc.mComparisonFunc = func;
+
+		// 各向异性采样数量
+		desc.mMaxAnisotropy = maxAnisotropy;
 
 		return device.CreateSamplerState(&desc, state);
 	}

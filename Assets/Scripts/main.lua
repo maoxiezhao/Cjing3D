@@ -6,7 +6,7 @@ require("scene")
 
 Logger.Info("Load main file success.")
 
-local MainInstance = ClassDefine(MainInstance);
+MainInstance = ClassDefinition(MainInstance);
 function MainInstance:ctor()
 	self.m_main_scene = MainScene:new();
 end 
@@ -16,6 +16,9 @@ function MainInstance:onMainInitialize()
 
 	collectgarbage('setpause', 200)
 	collectgarbage('setstepmul', 400)
+
+	-- initialize modules
+	global_context.m_addon_manager:initialize();
 
 	self.m_main_scene:initialize();
 end 
@@ -36,9 +39,12 @@ function MainInstance:onMainUnInitialize()
 	Logger.Info("OnMainUnInitialize")
 
 	self.m_main_scene:uninitialize();
+
+	-- uninitiaize modules
+	global_context.m_addon_manager:uninitialize();
 end 
 
-local mainInstance = MainInstance:new();
+mainInstance = MainInstance:new();
 function clinet_main_initialize() mainInstance:onMainInitialize(); end 
 function clinet_main_start() mainInstance:onMainStart(); end 
 function client_main_tick() mainInstance:onMainUpdate(); end 

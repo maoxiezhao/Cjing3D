@@ -5,6 +5,8 @@
 
 namespace Cjing3D
 {
+	class Archive;
+
 	// 轴对称包围盒
 	class AABB final
 	{
@@ -111,6 +113,9 @@ namespace Cjing3D
 			mMin = XMLoadFloat3(&_min);
 			mMax = XMLoadFloat3(&_max);
 		}
+
+		virtual void Serialize(Archive& archive, U32 seed = 0);
+		virtual void Unserialize(Archive& archive)const;
 	};
 
 	// 视锥体

@@ -37,6 +37,7 @@ void Engine::Initialize()
 
 #ifdef CJING_DEBUG
 	Debug::SetDebugConsoleEnable(true);
+	Debug::SetDieOnError(true);
 	Debug::InitializeDebugConsole();
 #endif
 	Logger::PrintConsoleHeader();
@@ -49,7 +50,7 @@ void Engine::Initialize()
 	mSystemContext->SetEngine(this);
 
 	// initialize file data
-	std::string dataPath = "./../Assets";
+	std::string dataPath = ".\\..\\Assets";
 	if (!FileData::OpenData("", dataPath))
 		Debug::Die("No data file was found int the direcion:" + dataPath);
 	
@@ -104,12 +105,6 @@ void Engine::Tick()
 	auto& inputManager = mSystemContext->GetSubSystem<InputManager>();
 	inputManager.Update(deltaTime);
 
-#ifdef CJING_DEBUG
-	if (inputManager.IsKeyDown(KeyCode::Esc)) {
-		SetIsExiting(true);
-	}
-#endif
-
 	auto& renderer = mSystemContext->GetSubSystem<Renderer>();
 	auto& luaContext = mSystemContext->GetSubSystem<LuaContext>();
 	auto& guiStage = mSystemContext->GetSubSystem<GUIStage>();
@@ -145,10 +140,12 @@ void Engine::Uninitialize()
 
 	Profiler::GetInstance().EndFrame();
 
+	mSystemContext->GetSubSystem<LuaContext>().OnMainUninitialize();
+
 	mGameComponent->Uninitialize();
 
-	mSystemContext->GetSubSystem<LuaContext>().Uninitialize();
 	mSystemContext->GetSubSystem<GUIStage>().Uninitialize();
+	mSystemContext->GetSubSystem<LuaContext>().Uninitialize();
 	mSystemContext->GetSubSystem<Renderer>().Uninitialize();
 	mSystemContext->GetSubSystem<ResourceManager>().Uninitialize();
 	mSystemContext->GetSubSystem<InputManager>().Uninitialize();

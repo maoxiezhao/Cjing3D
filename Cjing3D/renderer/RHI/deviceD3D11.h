@@ -63,6 +63,11 @@ public:
 	virtual void DestroyGPUResource(GPUResource& resource);
 	virtual void SetResourceName(GPUResource& resource, const std::string& name);
 
+	// compute
+	virtual void Dispatch(U32 threadGroupCountX, U32 threadGroupCountY, U32 threadGroupCountZ);
+	virtual void BindUAVs(GPUResource* const* resource, U32 slot, U32 count);
+	virtual void UnBindUAVs(U32 slot, U32 count);
+
 	virtual void BindShaderInfoState(PipelineStateInfo state);
 
 	void ClearPrevStates();

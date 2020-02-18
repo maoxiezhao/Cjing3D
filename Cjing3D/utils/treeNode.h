@@ -27,6 +27,14 @@ namespace Cjing3D
 
 	public:
 		TreeNode(const StringID& name) : mName(name) {};
+		~TreeNode() 
+		{
+			for (auto& child : mChildren) {
+				child->SetParent(nullptr);
+			}
+			mChildren.clear();
+			mChildrenNameMap.clear();
+		}
 
 		void Add(NodePtr node)
 		{
@@ -43,7 +51,7 @@ namespace Cjing3D
 
 			node->resetParent();
 			node->SetParent((T*)this);
-			onChildAdded(node);
+			OnChildAdded(node);
 		}
 
 		void Remove(const StringID& name)
@@ -53,11 +61,14 @@ namespace Cjing3D
 				return;
 			}
 
-			StringID name = node->GetName();
 			mChildrenNameMap.erase(name);
-			mChildren.erase(node);
 
-			onChildRemoved(node);
+			auto iter = std::find(mChildren.begin(), mChildren.end(), node);
+			if (iter != mChildren.end()) {
+				mChildren.erase(iter);
+			}
+
+			OnChildRemoved(node);
 			node->SetParent(nullptr);
 		}
 
@@ -77,8 +88,18 @@ namespace Cjing3D
 				mChildren.erase(iter);
 			}
 
-			onChildRemoved(node);
+			OnChildRemoved(node);
 			node->SetParent(nullptr);
+		}
+
+		void ClearChildren()
+		{
+			for (auto& child : mChildren) {
+				child->SetParent(nullptr);
+			}
+
+			mChildren.clear();
+			mChildrenNameMap.clear();
 		}
 
 		bool HaveChild(NodePtr node)const
@@ -123,12 +144,12 @@ namespace Cjing3D
 		{
 			T* oldParent = mParent;
 			mParent = node;
-			onParentChanged(oldParent);
+			OnParentChanged(oldParent);
 		}
 
 	protected:
-		virtual void onParentChanged(T* old_parent) {}
-		virtual void onChildAdded(NodePtr& node) {}
-		virtual void onChildRemoved(NodePtr& node) {}
+		virtual void OnParentChanged(T* old_parent) {}
+		virtual void OnChildAdded(NodePtr& node) {}
+		virtual void OnChildRemoved(NodePtr& node) {}
 	};
 }

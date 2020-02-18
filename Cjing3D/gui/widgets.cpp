@@ -1,10 +1,14 @@
 #include "widgets.h"
-#include "gui\guiStage.h"
+#include "guiStage.h"
+#include "widget_properties.h"
+
 #include "renderer\paths\renderImage.h"
 #include "renderer\textureHelper.h"
 #include "renderer\renderer.h"
 #include "core\systemContext.hpp"
 #include "helper\random.h"
+#include "widget_properties.h"
+#include "Scripts\api\utilsApi.h"
 
 
 namespace Cjing3D
@@ -13,10 +17,20 @@ namespace Cjing3D
 	const EnumInfo<WidgetType>::EnumType EnumInfoTraits<WidgetType>::enumInfos =
 	{
 		{WidgetType::WidgetType_BaseWidget, "BaseWidget"},
+		{WidgetType::WidgetType_Panel, "Panel"},
+	};
+
+	const StringID GUIScriptEventHandlers::OnLoaded = STRING_ID(OnLoaded);
+	const StringID GUIScriptEventHandlers::OnUnloaded = STRING_ID(OnUnloaded);
+
+	std::set<StringID> GUIScriptEventHandlers::registeredScriptEventHandlers = {
+		GUIScriptEventHandlers::OnLoaded,
+		GUIScriptEventHandlers::OnUnloaded
 	};
 
 	Widget::Widget(GUIStage& stage, const StringID& name) :
 		TreeNode<Widget>(name),
+		Dispatcher(),
 		mStage(stage)
 	{
 #ifdef CJING_GUI_DEBUG
@@ -33,6 +47,12 @@ namespace Cjing3D
 
 	void Widget::InitProperties(tinyxml2::XMLElement& element)
 	{
+		WidgetPropertiesInitializer().InitProperties(*this, element);
+	}
+
+	void Widget::ParseEventHandlers(tinyxml2::XMLElement& element)
+	{
+		WidgetPropertiesInitializer().ParseEventHandlers(*this, element);
 	}
 
 	void Widget::Update(F32 dt)
@@ -44,7 +64,7 @@ namespace Cjing3D
 
 	void Widget::Render(const F32x2& offset)
 	{
-		if (!IsVisible() || mArea.GetSize()[0] <= 0.0f) {
+		if (!IsVisible()) {
 			return;
 		}
 
@@ -55,7 +75,7 @@ namespace Cjing3D
 	
 		F32x2 childOffset = destRect.GetPos();
 		for (auto& child : mChildren){
-			child->Render(offset);
+			child->Render(childOffset);
 		}
 	}
 
@@ -72,7 +92,7 @@ namespace Cjing3D
 	}
 
 	// simple version. just check rect.
-	bool Widget::HistTest(const F32x2& point) const
+	bool Widget::HitTest(const F32x2& point) const
 	{
 		if (mIsVisible == false || mIsIgnoreInputEvent) {
 			return false;
@@ -81,9 +101,147 @@ namespace Cjing3D
 		return mArea.Intersects(TransfromToLocalCoord(point));
 	}
 
+	void Widget::SetPos(const F32x2 pos)
+	{
+		mArea.SetPos(pos);
+	}
+
+	F32x2 Widget::GetPos() const
+	{
+		return mArea.GetPos();
+	}
+
+	void Widget::SetSize(const F32x2 size)
+	{
+		mArea.SetSize(size);
+	}
+
+	F32x2 Widget::GetSize() const
+	{
+		return mArea.GetSize();
+	}
+
 	void Widget::SetArea(const Rect& rect)
 	{
 		mArea = rect;
+	}
+
+	std::shared_ptr<Widget> Widget::FindChildByName(const StringID& name)
+	{
+		return Find(name)->GetNodePtr();
+	}
+
+	WidgetPtr Widget::GetChildWidgetByGlobalCoords(F32x2 pos)
+	{
+		WidgetPtr result = nullptr;
+		for (auto& child : mChildren)
+		{
+			if (child->HitTest(pos) == false) {
+				continue;
+			}
+
+			result = child->GetChildWidgetByGlobalCoords(pos);
+			if (result != nullptr) {
+				break;
+			}
+		}
+
+		if (result == nullptr) {
+			result = GetNodePtr();
+		}
+
+		return result;
+	}
+
+	void Widget::RemoveChildByName(const StringID& name)
+	{
+		Remove(name);
+	}
+
+	void Widget::ClearSelf()
+	{
+		ClearChildren();
+
+		if (mParent != nullptr) {
+			mParent->Remove(GetName());
+		}
+	}
+
+	LuaRef Widget::GetScriptHandler()
+	{
+		if (mScriptHandler != LuaRef::NULL_REF) {
+			return mScriptHandler;
+		}
+
+		return mParent != nullptr ? mParent->GetScriptHandler() : LuaRef::NULL_REF;
+	}
+
+	void Widget::SetScriptHandler(LuaRef handler)
+	{
+		// strong ref?
+		mScriptHandler = handler;
+	}
+
+	void Widget::AddScriptEventHandler(const StringID& eventName, const std::string& handler)
+	{
+		if (eventName == StringID::EMPTY || handler.empty()) {
+			return;
+		}
+
+		mScriptEventHandlers[eventName] = handler;
+	}
+
+	void Widget::CallScriptEventHandlerWithVariants(const StringID& eventName, VariantArray variants)
+	{
+		LuaRef scriptHandler = GetScriptHandler();
+		if (scriptHandler.IsRefEmpty()) {
+			return;
+		}
+
+		auto it = mScriptEventHandlers.find(eventName);
+		if (it == mScriptEventHandlers.end()) {
+			return;
+		}
+
+		std::string eventHandler = it->second;
+		if (eventHandler.empty()) {
+			return;
+		}
+
+		LuaApi::BindLuaVariantArray luaVariantArray;
+		for (auto& variant : variants) {
+			luaVariantArray.EmplaceBack(variant);
+		}
+
+		lua_State* l = scriptHandler.GetLuaState();
+		scriptHandler.Push();
+		LuaTools::Push<Widget>(l, *this);
+		LuaTools::Push<LuaApi::BindLuaVariantArray>(l, luaVariantArray);
+
+		LuaContext::DoLuaString(l, eventHandler, 2, 0);
+	}
+
+	void Widget::CallScriptEventHandler(const StringID& eventName)
+	{
+		LuaRef scriptHandler = GetScriptHandler();
+		if (scriptHandler.IsRefEmpty()) {
+			return;
+		}
+
+		auto it = mScriptEventHandlers.find(eventName);
+		if (it == mScriptEventHandlers.end()) {
+			return;
+		}
+
+		std::string eventHandler = it->second;
+		if (eventHandler.empty()) {
+			return;
+		}		
+
+		lua_State* l = scriptHandler.GetLuaState();
+		scriptHandler.Push();
+		LuaTools::Push<Widget>(l, *this);
+		LuaContext::DoLuaString(l, eventHandler, 2, 0);
 	}
 
 	GUIStage& Widget::GetGUIStage()
@@ -93,6 +251,11 @@ namespace Cjing3D
 
 	void Widget::RenderImpl(const Rect& destRect)
 	{
+		F32x2 rectSize = destRect.GetSize();
+		if (rectSize[0] <= 0 || rectSize[1] <= 0) {
+			return;
+		}
+
 		SystemContext& systemContext = SystemContext::GetSystemContext();
 		Renderer& renderer = systemContext.GetSubSystem<Renderer>();
 
@@ -106,15 +269,42 @@ namespace Cjing3D
 
 	}
 
-	void Widget::onParentChanged(Widget* old_parent)
+	void Widget::OnParentChanged(Widget* old_parent)
 	{
 	}
 
-	void Widget::onChildAdded(std::shared_ptr<Widget>& node)
+	void Widget::OnChildAdded(std::shared_ptr<Widget>& node)
 	{
 	}
 
-	void Widget::onChildRemoved(std::shared_ptr<Widget>& node)
+	void Widget::OnChildRemoved(std::shared_ptr<Widget>& node)
 	{
+	}
+
+	void Widget::OnLoaded()
+	{
+		// 在lua中执行初始化，需要传入properties，可能有自定义的属性
+		CallScriptEventHandler(GUIScriptEventHandlers::OnLoaded);
+
+		// 重新根据位置和大小刷新布局
+		RefreshPlacement();
+	}
+
+	void Widget::OnUnloaded()
+	{
+		CallScriptEventHandler(GUIScriptEventHandlers::OnUnloaded);
+	}
+
+	void Widget::RefreshPlacement()
+	{
+		// 暂时不处理mask
+		Rect rect = GetArea();
+		for (auto& child : mChildren) {
+			child->RefreshPlacement();
+
+			rect.Union(child->GetArea());
+		}
+
+		mArea = rect;
 	}
 }

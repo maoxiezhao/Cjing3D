@@ -45,6 +45,8 @@ namespace Cjing3D
 
 		inline void Setup(const XMFLOAT4X4& mat, const XMFLOAT4 color = XMFLOAT4(1, 1, 1, 1))
 		{
+			// 在C++端矩阵存储方式为行为主，而在HLSL端则以列为主，且右乘矩阵
+			// 所以在传递给HLSL端之前，这里直接将存储方式转换
 			mat0.x = mat._11;
 			mat0.y = mat._21;
 			mat0.z = mat._31;

@@ -10,6 +10,15 @@ namespace Cjing3D
 {
 	class GUIStage;
 
+	inline StringID ConvertToWidgetTypeStrByWidgetType(WidgetType widgetType) {
+		const std::string widgetTypeStr = EnumToString(widgetType, "");
+		if (widgetTypeStr.empty()) {
+			return StringID::EMPTY;
+		}
+
+		return StringID(widgetTypeStr);
+	}
+
 	class BaseWidgetCreator
 	{
 	public:
@@ -30,7 +39,7 @@ namespace Cjing3D
 	class WidgetCreator : public BaseWidgetCreator
 	{
 	public:
-		WidgetCreator(GUIStage& guiStage) : BaseWidgetCreator(guiStage, T::GetWidgetTypeStr()) {}
+		WidgetCreator(GUIStage& guiStage) : BaseWidgetCreator(guiStage, ConvertToWidgetTypeStrByWidgetType(T::GetWidgetType()) ) {}
 
 		virtual WidgetPtr Create(const StringID& name)
 		{
@@ -41,7 +50,7 @@ namespace Cjing3D
 	class DefaultWidgetCreator : public BaseWidgetCreator
 	{
 	public:
-		DefaultWidgetCreator(GUIStage& guiStage) : BaseWidgetCreator(guiStage, Widget::GetWidgetTypeStr()) {}
+		DefaultWidgetCreator(GUIStage& guiStage) : BaseWidgetCreator(guiStage, ConvertToWidgetTypeStrByWidgetType(Widget::GetWidgetType())) {}
 		virtual WidgetPtr Create(const StringID& name);
 	};
 
@@ -56,7 +65,8 @@ namespace Cjing3D
 		void RegisterWidgetType()
 		{
 			auto creatorPtr = std::make_shared<WidgetCreator<T>>(mGUIStage);
-			RegisterWidgetType(T::GetWidgetTypeStr(), creatorPtr);
+			StringID typeStringID = ConvertToWidgetTypeStrByWidgetType(T::GetWidgetType());
+			RegisterWidgetType(typeStringID, creatorPtr);
 		}
 
 		void RegisterWidgetType(const StringID& typeName, WidgetCreatorPtr creator);

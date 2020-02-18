@@ -2,6 +2,8 @@
 #include "matrixApi.h"
 #include "vectorApi.h"
 #include "sceneApi.h"
+#include "uiApi.h"
+#include "utilsApi.h"
 #include "helper\logger.h"
 
 namespace Cjing3D {
@@ -9,6 +11,7 @@ namespace LuaApi {
 
 	void BindAllModules(lua_State * l)
 	{
+		BindUtilsModules(l);
 		BindLuaMatrixApi(l);
 		BindLuaVectorApi(l);
 
@@ -16,6 +19,7 @@ namespace LuaApi {
 		BindRenderModules(l);
 		BindSceneModules(l);
 		BindLoggerModules(l);
+		BindGUIModules(l);
 	}
 
 	int LuaLoggerInfo(lua_State* l)

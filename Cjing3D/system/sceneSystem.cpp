@@ -11,6 +11,8 @@ namespace Cjing3D
 	void Scene::Update(F32 deltaTime)
 	{
 		UpdateSceneTransformSystem(*this);
+		UpdateHierarchySystem(*this);     // must update after transform
+
 		UpdateSceneLightSystem(*this);
 		UpdateSceneObjectSystem(*this);
 	}
@@ -25,6 +27,7 @@ namespace Cjing3D
 		mTransforms.Merge(scene.mTransforms);
 		mLightAABBs.Merge(scene.mLightAABBs);
 		mLights.Merge(scene.mLights);
+		mHierarchies.Merge(scene.mHierarchies);
 	}
 
 	void Scene::Clear()
@@ -38,6 +41,7 @@ namespace Cjing3D
 		mTransforms.Clear();
 		mLightAABBs.Clear();
 		mLights.Clear();
+		mHierarchies.Clear();
 	}
 
 	ECS::Entity Scene::CreateEntityMaterial(const std::string & name)
@@ -146,6 +150,9 @@ namespace Cjing3D
 		mObjects.Remove(entity);
 		mObjectAABBs.Remove(entity);
 		mTransforms.Remove(entity);
+		mLightAABBs.Remove(entity);
+		mLights.Remove(entity);
+		mHierarchies.RemoveAndKeepSorted(entity);
 
 		if (mNames.Contains(entity))
 		{
@@ -155,6 +162,139 @@ namespace Cjing3D
 				mNameEntityMap.erase(*nameComponent);
 			}
 			mNames.Remove(entity);
+		}
+	}
+
+	void Scene::AttachEntity(ECS::Entity entity, ECS::Entity parent)
+	{
+		if (mHierarchies.Contains(entity)) {
+			DetachEntity(entity);
+		}
+
+		// handle transform
+		auto parentTransform = mTransforms.GetOrCreateComponent(parent);
+		auto childTransform = mTransforms.GetOrCreateComponent(entity);
+
+		auto hierarchy = mHierarchies.Create(entity);
+		hierarchy->mParent = parent;
+		hierarchy->mParentBindInverseWorld = XMMatrixInverse(nullptr, XMLoadFloat4x4(&parentTransform->GetWorldTransform()));
+
+		childTransform->UpdateFromParent(*parentTransform, hierarchy->mParentBindInverseWorld);
+	
+		// keep parent before child
+		for (int i = 0; i < mHierarchies.GetCount(); i++)
+		{
+			auto currentHierachy = mHierarchies[i];
+			if (currentHierachy->mParent == entity) {
+				mHierarchies.MoveLastInto(i);
+				break;
+			}
+		}
+	}
+
+	void Scene::DetachEntity(ECS::Entity entity)
+	{
+		auto hierarchy = mHierarchies.GetComponent(entity);
+		if (hierarchy != nullptr)
+		{
+			auto transform = mTransforms.GetComponent(entity);
+			if (transform != nullptr) {
+				transform->ApplyTransform();
+			}
+
+			mHierarchies.RemoveAndKeepSorted(entity);
+		}
+	}
+
+	ComponentManagerTypesConst Scene::GetAllComponentManagers()const
+	{
+		ComponentManagerTypesConst t = std::make_tuple(
+			&mNames,
+			&mTransforms,
+			&mHierarchies,
+			&mMaterials,
+			&mMeshes,
+			&mObjects,
+			&mObjectAABBs,
+			&mLights,
+			&mLightAABBs
+		);
+
+		return t;
+	}
+
+	U32 Scene::GetEntityCount()const
+	{
+		U32 entityCount = 0;
+
+		// use std::apply and fold expression, and it needs c++17
+		auto allComponentManagers = GetAllComponentManagers();
+		entityCount = std::apply([](auto&&... componentManager) {
+			return (componentManager->GetCount() + ...); },
+			allComponentManagers
+		);
+
+		return entityCount;
+	}
+
+	ECS::Entity Scene::LoadSceneFromArchive(const std::string& path)
+	{
+		Scene newScene;
+		ECS::Entity root = ECS::INVALID_ENTITY;
+
+		// 从目标文件中序列化场景
+		// 场景为一系列entity集合，以transform树结构为层级结构
+		Archive archive(path, ArchiveMode::ArchiveMode_Read);
+		if (archive.IsOpen())
+		{
+			archive >> newScene;
+
+			root = CreateEntity();
+			newScene.mTransforms.Create(root);
+
+			// 每一个没有父级结构transform指向root
+			for (auto& entity : newScene.mTransforms.GetEntities())
+			{
+				if (!newScene.mHierarchies.Contains(entity)) {
+					newScene.AttachEntity(entity, root);
+				}
+			}
+
+			newScene.Update(0);
+		}
+
+		if (root != ECS::INVALID_ENTITY) {
+			GetScene().Merge(newScene);
+		}
+		return root;
+	}
+
+	void Scene::SaveSceneToArchive(const std::string& path)
+	{
+		Archive archive(path, ArchiveMode::ArchiveMode_Write);
+		if (archive.IsOpen()) {
+			archive << (*this);
+		}
+	}
+
+	void UpdateHierarchySystem(Scene& scene)
+	{
+		// UpdateFromParent必须保证parent比child先执行
+		// 所以mHierarchies中的排序必须保证parent在child前面
+
+		for (size_t index = 0; index < scene.mHierarchies.GetCount(); index++)
+		{
+			auto hierarchy = scene.mHierarchies[index];
+			auto entity = scene.mHierarchies.GetEntityByIndex(index);
+
+			auto parentTransform = scene.mTransforms.GetComponent(hierarchy->mParent);
+			auto childTransform = scene.mTransforms.GetComponent(entity);
+			
+			if (parentTransform == nullptr || childTransform == nullptr) {
+				continue;
+			}
+
+			childTransform->UpdateFromParent(*parentTransform, hierarchy->mParentBindInverseWorld);
 		}
 	}
 }

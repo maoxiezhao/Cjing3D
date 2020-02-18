@@ -9,8 +9,9 @@ CBUFFER(FrameCB, CBSLOT_RENDERER_FRAME)
 	float2 gFrameScreenSize;
 	float2 gFramePadding;
 	// light
-	uint gShaderLightArrayCount;
+	uint   gShaderLightArrayCount;
 	float3 gFrameAmbient;
+	float  gFrameGamma;
 };
 
 CBUFFER(CameraCB, CBSLOT_RENDERER_CAMERA)
@@ -26,6 +27,8 @@ struct ShaderMaterial
 {
 	float4 baseColor;
 	int haveBaseColorMap;
+	int haveNormalMap;
+	int haveSurfaceMap;
 };
 
 CBUFFER(MaterialCB, CBSLOT_RENDERER_MATERIAL)

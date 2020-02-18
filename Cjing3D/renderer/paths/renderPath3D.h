@@ -19,6 +19,7 @@ namespace Cjing3D {
 		virtual void Compose();
 
 		// render method
+		virtual void RenderTransparents(Texture2D& rtMain, RenderPassType renderType);
 		virtual void RenderPostprocess(Texture2D& rtScreen);
 
 	protected:

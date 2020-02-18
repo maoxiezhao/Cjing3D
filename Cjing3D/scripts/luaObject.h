@@ -44,6 +44,8 @@ namespace Cjing3D
 			return mem;
 		}
 
+		virtual bool IsSharedPtr()const { return false; }
+
 		// __index and __newindex
 		static bool CheckLuaObjectMetatableValid(lua_State* l, int index);
 		static int MetaFuncIndex(lua_State* l);
@@ -93,6 +95,8 @@ namespace Cjing3D
 			return &mData[0];
 		}
 
+		virtual bool IsSharedPtr()const { return false; }
+
 	private:
 		// 还需要考虑到对象在内存中对齐模式
 		// 当大于alignof（void*)时，必定是指针，当小于时可能是基础类型（或部分包含基础类型的结构体）
@@ -125,19 +129,68 @@ namespace Cjing3D
 			return mObjectPtr;
 		}
 
+		virtual bool IsSharedPtr()const { return false; }
+
 	private:
 		void* mObjectPtr = nullptr;
+	};
+
+
+	// 指针在C++创建，由lua和C++同时以shared_ptr方式引用
+	template<typename SP, typename T>
+	class LuaObjectSharedPtr : public LuaObject
+	{
+	public:
+		explicit LuaObjectSharedPtr(T* obj) :
+			mSharedPtr(obj)
+		{
+		}
+
+		explicit LuaObjectSharedPtr(const SP& sp) :
+			mSharedPtr(sp)
+		{
+		}
+
+		// 指针对象不会创建新的实例，而只是创建一个新的LuaObjectPtr指向对象
+		static void Push(lua_State* l, T* obj)
+		{
+			void* classID = ObjectIDGenerator<T>::GetID();
+			void* mem = Allocate<LuaObjectSharedPtr<SP, T>>(l, classID);
+			new(mem) LuaObjectSharedPtr<SP, T>(obj);
+		}
+
+		static void Push(lua_State* l, const SP& sp)
+		{
+			void* classID = ObjectIDGenerator<T>::GetID();
+			void* mem = Allocate<LuaObjectSharedPtr<SP, T>>(l, classID);
+			new(mem) LuaObjectSharedPtr<SP, T>(sp);
+		}
+
+		virtual void* GetObjectPtr()
+		{
+			return (T*)(&(*mSharedPtr));
+		}
+
+		SP& GetSharedPtr()
+		{
+			return mSharedPtr;
+		}
+
+		virtual bool IsSharedPtr()const { return true; }
+
+	private:
+		SP mSharedPtr;
 	};
 
 	///////////////////////////////////////////////////////////////////////////
 
 	// 对压栈的对象需要判断对象是否是ref
-	template<typename T, bool IsRef>
+	template<typename SP, typename T, bool IsRef, bool IsShared>
 	struct LuaObjectHandler {};
 
 	// 非ref对象，则直接拷贝构造一个新的实例
 	template<typename T>
-	struct LuaObjectHandler<T, false>
+	struct LuaObjectHandler<T, T, false, false>
 	{
 		static void Push(lua_State*l, const T&value)
 		{
@@ -153,7 +206,7 @@ namespace Cjing3D
 
 	// ref对象，则创建一个LuaPtrObject对象压栈
 	template<typename T>
-	struct LuaObjectHandler<T, true>
+	struct LuaObjectHandler<T, T, true, false>
 	{
 		static void Push(lua_State*l, const T&value)
 		{
@@ -167,17 +220,58 @@ namespace Cjing3D
 		}
 	};
 
-	template<typename T, bool IsRef>
+	// shared对象，则创建一个LuaObjectSharedPtr对象压栈
+	template<typename SP, typename T>
+	struct LuaObjectHandler<SP, T, true, true>
+	{
+		static void Push(lua_State* l, const SP& value)
+		{
+			LuaObjectSharedPtr<SP, T>::Push(l, value);
+		}
+
+		static SP& Get(lua_State* l, int index)
+		{
+			LuaObject* obj = LuaObject::GetLuaObject<T>(l, index);
+			if (obj == nullptr || obj->IsSharedPtr() == false) {
+				LuaException::Error(l, "Failed to get object and is not shared ptr.");
+				return SP();
+			}
+			return static_cast<LuaObjectSharedPtr<SP, T>*>(obj)->GetSharedPtr();
+		}
+	};
+
+	///////////////////////////////////////////////////////////////////////////
+
+	template<typename T>
+	struct LuaTypeClassTraits
+	{
+		using ObjectType = T;
+		static constexpr bool IsShared = false;
+	};
+
+	template<typename T>
+	struct LuaTypeClassTraits<std::shared_ptr<T>>
+	{
+		using ObjectType = std::remove_cv_t<T>;
+
+		static constexpr bool IsShared = true;
+	};
+
+	template<typename T, bool IS_REF>
 	struct LuaTypeClassMapping
 	{
+		using ObjectType = typename LuaTypeClassTraits<T>::ObjectType;
+		static constexpr bool IsShared = LuaTypeClassTraits<T>::IsShared;
+		static constexpr bool IsRef = IsShared ? true : IS_REF;
+
 		static void Push(lua_State*l, const T&value)
 		{
-			LuaObjectHandler<T, IsRef>::Push(l, value);
+			LuaObjectHandler<T, ObjectType, IsRef, IsShared>::Push(l, value);
 		}
 
 		static T& Get(lua_State*l, int index)
 		{
-			return LuaObjectHandler<T, IsRef>::Get(l, index);
+			return LuaObjectHandler<T, ObjectType, IsRef, IsShared>::Get(l, index);
 		}
 	};
 

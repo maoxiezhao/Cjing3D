@@ -1,4 +1,5 @@
 #include "mesh.h"
+#include "renderer\renderer.h"
 #include "renderer\RHI\rhiFactory.h"
 
 namespace Cjing3D
@@ -80,6 +81,48 @@ namespace Cjing3D
 
 	}
 
+	void MeshComponent::Serialize(Archive& archive, U32 seed)
+	{
+		archive >> mVertexPositions;
+		archive >> mVertexNormals;
+		archive >> mVertexTexcoords;
+		archive >> mIndices;
+
+		U32 subsetSize = 0;
+		archive >> subsetSize;
+		if (subsetSize > 0)
+		{
+			mSubsets.resize(subsetSize);
+			for (int i = 0; i < subsetSize; i++)
+			{
+				mSubsets[i].mMaterialID = SerializeEntity(archive, seed);
+
+				archive >> mSubsets[i].mIndexCount;
+				archive >> mSubsets[i].mIndexOffset;
+			}
+		}
+
+		SystemContext& systemContext = SystemContext::GetSystemContext();
+		Renderer& renderer = systemContext.GetSubSystem<Renderer>();
+		SetupRenderData(renderer.GetDevice());
+	}
+
+	void MeshComponent::Unserialize(Archive& archive) const
+	{
+		archive << mVertexPositions;
+		archive << mVertexNormals;
+		archive << mVertexTexcoords;
+		archive << mIndices;
+
+		archive << mSubsets.size();
+		for (const auto& subset : mSubsets)
+		{
+			archive << subset.mMaterialID;
+			archive << subset.mIndexCount;
+			archive << subset.mIndexOffset;
+		}
+	}
+
 	void MeshComponent::VertexPosNormalSubset::Setup(F32x3 pos, F32x3 normal, U32 subsetIndex)
 	{
 		mPos = pos;
@@ -92,9 +135,10 @@ namespace Cjing3D
 		// 一个32位依次存储 subsetindex, normal_z, normal_y, normal_x
 		Debug::CheckAssertion(subsetIndex < 256, "Invalid subset index.");
 
-		mNormalSubsetIndex = (subsetIndex << 24);
+		mNormalSubsetIndex = 0;
 		mNormalSubsetIndex |= (U32)((normal[0] * 0.5f + 0.5f) * 255.0f) << 0;
 		mNormalSubsetIndex |= (U32)((normal[1] * 0.5f + 0.5f) * 255.0f) << 8;
 		mNormalSubsetIndex |= (U32)((normal[2] * 0.5f + 0.5f) * 255.0f) << 16;
+		mNormalSubsetIndex |= ((subsetIndex && 0x000000FF) << 24);
 	}
 }

@@ -1,14 +1,29 @@
 <?xml version="1.0" ?>
-<data>
-    <definitions>
-    </definitions>
+<Data>
+    <Definitions>
+    </Definitions>
 
-    <root>
-        <FrameWindow name="TestWindow" file="test_base.xml" >
-            <Children>
-                <Panel name="TestSubWindow">
-                </Panel>
-            </Children>
-        </FrameWindow>
-    </root>
-</data>
+    <Root>
+     	<Children>
+            <Panel name="TestWindow">
+                <Properties>
+                    <Area>100 100 400 400</Area>
+                    <Visible>true</Visible>
+                </Properties>
+
+                <Events>
+                      <OnLoaded>TestAddon.onLoaded(...)</OnLoaded>
+                </Events>
+
+                <Children>
+                    <Panel name="TestSubWindow">
+                        <Properties>
+                            <Area>50 10 200 100</Area>
+                            <Visible>true</Visible>
+                        </Properties>
+                    </Panel>
+                </Children>
+            </Panel>
+        </Children>
+    </Root>
+</Data>

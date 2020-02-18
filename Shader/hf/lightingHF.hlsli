@@ -6,6 +6,8 @@ inline float3 GetAmbientLight()
 	return gFrameAmbient;
 }
 
+#define _SIMPLE_BASE_LIGHT_
+
 #ifdef _SIMPLE_BASE_LIGHT_
 
 // Blinn-Phong Lighting
@@ -43,9 +45,8 @@ inline float3 PointLight(in ShaderLight light, in Surface surface)
 
 			// specular
 			float3 H = normalize(lightDir + surface.view);
-			//float spec = pow(max(dot(lightDir, surface.reflectView), 0.0f), 32);
 			float spec = pow(max(dot(lightDir, surface.normal), 0.0f), 32);
-			float3 specularColor = lightColor * spec * attenuation;
+            float3 specularColor = lightColor * spec * attenuation * surface.spcularIntensity;
 
 			color = diffuseColor + specularColor;
 		}

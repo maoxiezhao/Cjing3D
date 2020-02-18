@@ -1,5 +1,7 @@
 #pragma once
 
+#include "common\common.h"
+
 #include <string>
 
 namespace Cjing3D {
@@ -19,14 +21,16 @@ namespace Cjing3D {
 
 		// files
 		bool IsFileExists(const std::string& name);
-		unsigned char* ReadFileBytes(const std::string& name, size_t& length);
+		char* ReadFileBytes(const std::string& name, size_t& length);
 		std::string ReadFile(const std::string& name);
 		bool SaveFile(const std::string& name, const std::string&buffer);
+		bool SaveFile(const std::string& name, const char* buffer, size_t length);
 		bool DeleteFile(const std::string& name);
 
-		// string parsing
-		std::wstring StringToWString(const std::string& str);
-
+		// path
 		std::string GetExtensionFromFilePath(const std::string& filePath);
+		std::string GetParentPath(const std::string& filePath);
+		bool IsAbsolutePath(const std::string& path);
+		std::string ConvertToAvailablePath(const std::string& path);
 	}
 }

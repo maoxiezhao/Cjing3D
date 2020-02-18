@@ -20,6 +20,7 @@ class Actor;
 	bool,							\
 	float,							\
 	double,							\
+    std::string,                    \
 	void*											
 
 	using VariantType = std::variant<_VARIANT_TYPES>;

@@ -34,7 +34,7 @@ public:
 	static FunctionExportToLua
 		api_panic;
 
-	static bool DoLuaString(lua_State*l, const std::string& luaString);
+	static bool DoLuaString(lua_State*l, const std::string& luaString, int arguments = 0, int results = 0);
 	static bool DoFileIfExists(lua_State*l, const std::string& name);
 	static bool LoadFile(lua_State*l, const std::string& name);
 

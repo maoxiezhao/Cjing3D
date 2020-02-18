@@ -26,8 +26,8 @@ namespace ModelImporter
 		std::string obj_errors;
 
 		Logger::Info("Load obj model, model name:" + path.string() + " model path:" + path.parent_path().string());
-		std::string parentPath = std::string(path.parent_path().string().c_str()) + "\\";
-		bool success = tinyobj::LoadObj(&objAttrib, &objShapes, &objMaterials, &obj_errors, path.string().c_str(), parentPath.c_str(), true);
+		std::string parentPath = std::string(path.parent_path().string().c_str()) + "/";
+		bool success = tinyobj::LoadObjCjing3D(&objAttrib, &objShapes, &objMaterials, &obj_errors, path.string().c_str(), parentPath.c_str(), true);
 		if (success == false) {
 			Debug::Warning("Failed to open model'" + path.string() + "', " + obj_errors);
 			return;
@@ -51,17 +51,24 @@ namespace ModelImporter
 			material->mNormalMapName = objMaterial.normal_texname;
 			material->mSurfaceMapName = objMaterial.specular_texname;
 
+			if (material->mNormalMapName.empty()) {
+				material->mNormalMapName = objMaterial.bump_texname;
+			}
+
 			if (material->mBaseColorMapName.empty() == false)
 			{
-				material->mBaseColorMap = resourceManager.GetOrCreate<RhiTexture2D>(StringID(material->mBaseColorMapName));
+				auto texPath = FileData::ConvertToAvailablePath(parentPath + material->mBaseColorMapName);
+				material->mBaseColorMap = resourceManager.GetOrCreate<RhiTexture2D>(StringID(texPath));
 			}
 			if (material->mNormalMapName.empty() == false)
 			{
-				material->mNormalMap = resourceManager.GetOrCreate<RhiTexture2D>(StringID(material->mNormalMapName));
+				auto texPath = FileData::ConvertToAvailablePath(parentPath + material->mNormalMapName);
+				material->mNormalMap = resourceManager.GetOrCreate<RhiTexture2D>(StringID(texPath));
 			}
 			if (material->mSurfaceMapName.empty() == false)
 			{
-				material->mSurfaceMap = resourceManager.GetOrCreate<RhiTexture2D>(StringID(material->mSurfaceMapName));
+				auto texPath = FileData::ConvertToAvailablePath(parentPath + material->mSurfaceMapName);
+				material->mSurfaceMap = resourceManager.GetOrCreate<RhiTexture2D>(StringID(texPath));
 			}
 
 			materialArray.push_back(materialEntity);
@@ -117,7 +124,7 @@ namespace ModelImporter
 					{
 						tex = {
 							objAttrib.texcoords[index.texcoord_index * 2 + 0],
-							objAttrib.texcoords[index.texcoord_index * 2 + 1]
+							1 - objAttrib.texcoords[index.texcoord_index * 2 + 1]
 						};
 					}
 

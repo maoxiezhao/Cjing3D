@@ -35,6 +35,7 @@ namespace Cjing3D
 		SamplerStateID_PointClampGreater,
 		SamplerStateID_LinearClampGreater,
 		SamplerStateID_LinearWrapGreater,
+		SamplerStateID_ANISOTROPIC,
 		SamplerStateID_Count
 	};
 

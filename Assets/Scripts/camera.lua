@@ -1,6 +1,6 @@
 require("common.common")
 
-FPSCamera = ClassDefine(FPSCamera);
+FPSCamera = ClassDefinition(FPSCamera);
 function FPSCamera:ctor()
     self.m_is_mouse_move = false;
     self.m_last_mouse_pos = nil;
@@ -34,6 +34,10 @@ end
 function FPSCamera:setMoveSpeed(speed)
     self.m_move_speed = speed;
 end 
+
+function FPSCamera:setRotateSpeed(speed)
+    self.m_rotation_speed = speed;
+end
 
 function FPSCamera:notifyInput()
 	local input_manager = global_context.m_input_manager;

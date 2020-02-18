@@ -67,6 +67,11 @@ namespace Cjing3D
 		virtual void DestroyGPUResource(GPUResource& resource) = 0;
 		virtual void SetResourceName(GPUResource& resource, const std::string& name) = 0;
 
+		// compute
+		virtual void Dispatch(U32 threadGroupCountX, U32 threadGroupCountY, U32 threadGroupCountZ) = 0;
+		virtual void BindUAVs(GPUResource* const* resource, U32 slot, U32 count) = 0;
+		virtual void UnBindUAVs(U32 slot, U32 count) = 0;
+
 		virtual void BindShaderInfoState(PipelineStateInfo state) = 0;
 
 		virtual void Draw(UINT vertexCount, UINT startVertexLocation) = 0;
