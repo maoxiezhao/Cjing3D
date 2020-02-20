@@ -32,6 +32,12 @@ enum PixelShaderType
 	PixelShaderType_Count,
 };
 
+enum ComputeShaderType
+{
+	ComputeShaderType_Tonemapping = 0,
+	ComputeShaderType_Count
+};
+
 class ShaderLib
 {
 public:
@@ -43,10 +49,12 @@ public:
 	std::shared_ptr<VertexShader> GetVertexShader(VetextShaderType shaderType);
 	std::shared_ptr<InputLayout> GetVertexLayout(InputLayoutType layoutType);
 	std::shared_ptr<PixelShader> GetPixelShader(PixelShaderType shaderType);
+	std::shared_ptr<ComputeShader> GetComputeShader(ComputeShaderType shaderType);
 
 private:
 	void LoadVertexShaders();
 	void LoadPixelShaders();
+	void LoadComputeShaders();
 
 private:
 	Renderer & mRenderer;
@@ -54,6 +62,7 @@ private:
 	std::shared_ptr<VertexShader> mVertexShader[VertexShaderType_Count];
 	std::shared_ptr<InputLayout> mInputLayout[InputLayoutType_Count];
 	std::shared_ptr<PixelShader> mPixelShader[PixelShaderType_Count];
+	std::shared_ptr<ComputeShader> mComputeShader[ComputeShaderType_Count];
 };
 
 class CustomShaderLib : public ShaderLib

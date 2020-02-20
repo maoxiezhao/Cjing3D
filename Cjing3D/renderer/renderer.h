@@ -73,7 +73,7 @@ public:
 	void RenderSceneTransparent(std::shared_ptr<CameraComponent> camera, RenderPassType renderPassType);
 
 	// postprocess
-	void PostprocessTonemap(Texture2D& input, Texture2D& output);
+	void PostprocessTonemap(Texture2D& input, Texture2D& output, F32 exposure);
 
 	// Binding Method
 	void BindCommonResource();

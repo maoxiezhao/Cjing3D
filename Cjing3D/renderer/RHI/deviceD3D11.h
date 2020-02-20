@@ -33,6 +33,7 @@ public:
 	virtual HRESULT CreateVertexShader(const void* bytecode, size_t length, VertexShader& vertexShader);
 	virtual HRESULT CreateInputLayout(VertexLayoutDesc* desc, U32 numElements, const void* shaderBytecode, size_t shaderLength, InputLayout& inputLayout);
 	virtual HRESULT CreatePixelShader(const void* bytecode, size_t length, PixelShader &pixelShader);
+	virtual HRESULT CreateComputeShader(const void* bytecode, size_t length, ComputeShader& computeShader);
 
 	virtual HRESULT CreateBuffer(const GPUBufferDesc* desc, GPUBuffer& buffer, const SubresourceData* initialData);
 	virtual void UpdateBuffer(GPUBuffer& buffer, const void* data, U32 dataSize);
@@ -53,6 +54,7 @@ public:
 	virtual HRESULT CreateRenderTargetView(RhiTexture2D& texture);
 	virtual HRESULT CreateShaderResourceView(RhiTexture2D& texture);
 	virtual HRESULT CreateDepthStencilView(RhiTexture2D& texture);
+	virtual HRESULT CreateUnordereddAccessView(RhiTexture2D& texture);
 
 	virtual void ClearRenderTarget(RhiTexture2D& texture, F32x4 color);
 	virtual void ClearDepthStencil(RhiTexture2D& texture, UINT clearFlag, F32 depth, U8 stencil);
@@ -64,6 +66,7 @@ public:
 	virtual void SetResourceName(GPUResource& resource, const std::string& name);
 
 	// compute
+	virtual void BindComputeShader(ComputeShaderPtr computeShader);
 	virtual void Dispatch(U32 threadGroupCountX, U32 threadGroupCountY, U32 threadGroupCountZ);
 	virtual void BindUAVs(GPUResource* const* resource, U32 slot, U32 count);
 	virtual void UnBindUAVs(U32 slot, U32 count);
@@ -124,6 +127,7 @@ private:
 	// prev pipeline state
 	ID3D11VertexShader* mPrevVertexShader = nullptr;
 	ID3D11PixelShader* mPrevPixelShader = nullptr;
+	ID3D11ComputeShader* mPrevComputeShader = nullptr;
 
 	ID3D11DepthStencilState* mPrevDepthStencilState = nullptr;
 	ID3D11BlendState* mPrevBlendState = nullptr;

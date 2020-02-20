@@ -76,5 +76,14 @@ static const uint SHADER_LIGHT_TYPE_SPOT = 2;
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
+// postprocess
+static const uint SHADER_POSTPROCESS_BLOCKSIZE = 8;
+
+CBUFFER(PostprocessCB, CBSLOT_POSTPROCESS)
+{
+	uint2 gPPResolution;
+	float2 gPPInverseResolution;
+	float gPPParam1;
+};
 
 #endif

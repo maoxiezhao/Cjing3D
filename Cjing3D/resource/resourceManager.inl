@@ -58,6 +58,13 @@ ResourceManager::GetPool<RhiTexture2D>()const
 	return mTexture2DPool;
 }
 
+template <>
+inline const ResourceManager::PoolType<ComputeShader>&
+ResourceManager::GetPool<ComputeShader>()const
+{
+	return mComputeShaderPool;
+}
+
 // 创建VertexShader着色器
 template<typename ResourceT>
 inline std::enable_if_t<std::is_same<ResourceT, VertexShaderInfo>::value, std::shared_ptr<VertexShaderInfo>>

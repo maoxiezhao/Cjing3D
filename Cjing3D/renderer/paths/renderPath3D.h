@@ -22,9 +22,12 @@ namespace Cjing3D {
 		virtual void RenderTransparents(Texture2D& rtMain, RenderPassType renderType);
 		virtual void RenderPostprocess(Texture2D& rtScreen);
 
+		void SetExposure(F32 exposure) { mExposure = exposure; }
+		F32 GetExposure()const { return mExposure; }
+
 	protected:
 		Texture2D* GetLastPostprocessRT() {
-			return &mRTPostprocess;
+			return &mRTPostprocessLDR;
 		}
 
 		virtual Texture2D* GetDepthBuffer() {
@@ -32,7 +35,9 @@ namespace Cjing3D {
 		}
 
 		Texture2D mDepthBuffer;
-		Texture2D mRTPostprocess;
+		Texture2D mRTPostprocessLDR;
+
+		F32 mExposure = 1.0f;
 	};
 
 }

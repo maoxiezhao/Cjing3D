@@ -5,6 +5,9 @@ namespace Cjing3D {
 
 namespace {
 
+	// 空指针对象，用于设置nullptr时传递为参数
+	const void* const nullptrBlob[128] = { nullptr };
+
 	inline DXGI_FORMAT _ConvertFormat(FORMAT format)
 	{
 		switch (format)
@@ -808,8 +811,6 @@ namespace {
 			result |= D3D11_CLEAR_STENCIL;
 		return result;
 	}
-
-	const void* const NULL_BLOB[128] = {};
 }
 
 GraphicsDeviceD3D11::GraphicsDeviceD3D11(HWND window, bool fullScreen, bool debugLayer):
@@ -1082,6 +1083,15 @@ HRESULT GraphicsDeviceD3D11::CreatePixelShader(const void * bytecode, size_t len
 	return mDevice->CreatePixelShader(bytecode, length, nullptr, pixelShader.mResourceD3D11.ReleaseAndGetAddressOf());
 }
 
+HRESULT GraphicsDeviceD3D11::CreateComputeShader(const void* bytecode, size_t length, ComputeShader& computeShader)
+{
+	computeShader.mByteCode.mByteLength = length;
+	computeShader.mByteCode.mByteData = new BYTE[length];
+	memcpy(computeShader.mByteCode.mByteData, bytecode, length);
+
+	return mDevice->CreateComputeShader(bytecode, length, nullptr, computeShader.mResourceD3D11.ReleaseAndGetAddressOf());
+}
+
 HRESULT GraphicsDeviceD3D11::CreateBuffer(const GPUBufferDesc * desc, GPUBuffer & buffer, const SubresourceData* initialData)
 {
 	DestroyGPUResource(buffer);
@@ -1306,6 +1316,7 @@ HRESULT GraphicsDeviceD3D11::CreateTexture2D(const TextureDesc * desc, const Sub
 	CreateRenderTargetView(texture2D);
 	CreateShaderResourceView(texture2D);
 	CreateDepthStencilView(texture2D);
+	CreateUnordereddAccessView(texture2D);
 
 	return result;
 }
@@ -1460,6 +1471,41 @@ HRESULT GraphicsDeviceD3D11::CreateDepthStencilView(RhiTexture2D & texture)
 	return result;
 }
 
+HRESULT GraphicsDeviceD3D11::CreateUnordereddAccessView(RhiTexture2D& texture)
+{
+	HRESULT result = E_FAIL;
+
+	const auto& desc = texture.GetDesc();
+	if (desc.mBindFlags & BIND_UNORDERED_ACCESS)
+	{
+		U32 arraySize = desc.mArraySize;
+
+		D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+		switch (desc.mFormat)
+		{
+		case FORMAT_R32G8X24_TYPELESS:
+			uavDesc.Format = DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
+			break;
+		default:
+			uavDesc.Format = _ConvertFormat(desc.mFormat);
+			break;
+		}
+
+		// 目前不处理texture2DArray
+		if (arraySize > 0 && arraySize <= 1)
+		{
+			uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+			uavDesc.Texture2D.MipSlice = 0;
+
+			auto& uav = texture.GetUnorderedAccessView();
+			auto& texture2DPtr = texture.GetGPUResource();
+			result = mDevice->CreateUnorderedAccessView((ID3D11Resource*)texture2DPtr, &uavDesc, (ID3D11UnorderedAccessView**)&uav);
+		}
+	}
+
+	return result;
+}
+
 void GraphicsDeviceD3D11::ClearRenderTarget(RhiTexture2D & texture, F32x4 color)
 {
 	auto renderTarget = texture.GetRenderTargetView();
@@ -1521,10 +1567,10 @@ void GraphicsDeviceD3D11::BindGPUResources(SHADERSTAGES stage, GPUResource * con
 
 void GraphicsDeviceD3D11::UnbindGPUResources(U32 slot, U32 count)
 {
-	GetDeviceContext(GraphicsThread_IMMEDIATE).VSSetShaderResources(slot, count, (ID3D11ShaderResourceView**)NULL_BLOB);
-	GetDeviceContext(GraphicsThread_IMMEDIATE).GSSetShaderResources(slot, count, (ID3D11ShaderResourceView**)NULL_BLOB);
-	GetDeviceContext(GraphicsThread_IMMEDIATE).PSSetShaderResources(slot, count, (ID3D11ShaderResourceView**)NULL_BLOB);
-	GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetShaderResources(slot, count, (ID3D11ShaderResourceView**)NULL_BLOB);
+	GetDeviceContext(GraphicsThread_IMMEDIATE).VSSetShaderResources(slot, count, (ID3D11ShaderResourceView**)nullptrBlob);
+	GetDeviceContext(GraphicsThread_IMMEDIATE).GSSetShaderResources(slot, count, (ID3D11ShaderResourceView**)nullptrBlob);
+	GetDeviceContext(GraphicsThread_IMMEDIATE).PSSetShaderResources(slot, count, (ID3D11ShaderResourceView**)nullptrBlob);
+	GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetShaderResources(slot, count, (ID3D11ShaderResourceView**)nullptrBlob);
 }
 
 void GraphicsDeviceD3D11::DestroyGPUResource(GPUResource & resource)
@@ -1546,6 +1592,15 @@ void GraphicsDeviceD3D11::SetResourceName(GPUResource & resource, const std::str
 	d3dResource->SetPrivateData(WKPDID_D3DDebugObjectName, (UINT)name.length(), name.c_str());
 }
 
+void GraphicsDeviceD3D11::BindComputeShader(ComputeShaderPtr computeShader)
+{
+	ID3D11ComputeShader* cs = computeShader != nullptr ? computeShader->mResourceD3D11.Get() : nullptr;
+	if (cs != mPrevComputeShader)
+	{
+		GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetShader(cs, nullptr, 0);
+		mPrevComputeShader = cs;
+	}
+}
 
 void GraphicsDeviceD3D11::Dispatch(U32 threadGroupCountX, U32 threadGroupCountY, U32 threadGroupCountZ)
 {
@@ -1554,10 +1609,21 @@ void GraphicsDeviceD3D11::Dispatch(U32 threadGroupCountX, U32 threadGroupCountY,
 
 void GraphicsDeviceD3D11::UnBindUAVs(U32 slot, U32 count)
 {
+	Debug::CheckAssertion(count <= ARRAYSIZE(nullptrBlob), "GraphicsDeviceD3D11::UnBindUAVs: Invalid count.");
+	GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetUnorderedAccessViews(slot, count, (ID3D11UnorderedAccessView**)nullptrBlob, nullptr);
 }
 
 void GraphicsDeviceD3D11::BindUAVs(GPUResource* const* resource, U32 slot, U32 count)
 {
+	ID3D11UnorderedAccessView* uavs[8];
+	for (int i = 0; i < count; i++)
+	{
+		if (i >= 8) break;
+		uavs[i] = resource[i] != nullptr ? 
+			(ID3D11UnorderedAccessView*)(resource[i]->GetUnorderedAccessView()) : nullptr;
+	}
+
+	GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetUnorderedAccessViews(slot, count, uavs, nullptr);
 }
 
 void GraphicsDeviceD3D11::BindShaderInfoState(PipelineStateInfo state)
@@ -1678,6 +1744,7 @@ void GraphicsDeviceD3D11::ClearPrevStates()
 {
 	mPrevVertexShader = nullptr;
 	mPrevPixelShader = nullptr;
+	mPrevComputeShader = nullptr;
 	mPrevInputLayout = nullptr;
 	mPrevRasterizerState = nullptr;
 	mPrevDepthStencilState = nullptr;

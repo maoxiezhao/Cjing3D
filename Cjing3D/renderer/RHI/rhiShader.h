@@ -28,9 +28,11 @@ namespace Cjing3D
 
 	using VertexShader = Shader<ID3D11VertexShader>;
 	using PixelShader = Shader<ID3D11PixelShader>;
+	using ComputeShader = Shader<ID3D11ComputeShader>;
 
 	using VertexShaderPtr = std::shared_ptr<VertexShader>;
 	using PixelShaderPtr = std::shared_ptr<PixelShader>;
+	using ComputeShaderPtr = std::shared_ptr<ComputeShader>;
 
 	// 顶点着色器信息
 	class VertexShaderInfo : public Resource

@@ -12,6 +12,7 @@ namespace Cjing3D
 		Resource_Unknown,
 		Resrouce_VertexShader,
 		Resrouce_PixelShader,
+		Resource_ComputeShader,
 		Resource_Texture,
 		Resource_Model
 

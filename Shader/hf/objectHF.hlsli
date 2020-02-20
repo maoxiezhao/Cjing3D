@@ -99,7 +99,6 @@ float4 main(PixelInputType input) : SV_TARGET
 	color *= SimpleLighting(surface);
 #endif
 		
-    color.rgb = GammaCorrect(color.rgb);
 	return color;
 }
 

@@ -16,6 +16,7 @@ void ResourceManager::Initialize()
 {
 	AddStandardResourceDirectory(Resrouce_VertexShader, "Shaders/");
 	AddStandardResourceDirectory(Resrouce_PixelShader, "Shaders/");
+	AddStandardResourceDirectory(Resource_ComputeShader, "Shaders/");
 	AddStandardResourceDirectory(Resource_Model, "Models/");
 
 }

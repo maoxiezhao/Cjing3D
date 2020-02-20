@@ -16,10 +16,20 @@ void ShaderLib::Initialize()
 {
 	LoadVertexShaders();
 	LoadPixelShaders();
+	LoadComputeShaders();
 }
 
 void ShaderLib::Uninitialize()
 {
+	for (int i = 0; i < VertexShaderType_Count; i++) {
+		mVertexShader[i] = nullptr;
+	}
+	for (int i = 0; i < PixelShaderType_Count; i++) {
+		mPixelShader[i] = nullptr;
+	}
+	for (int i = 0; i < ComputeShaderType_Count; i++) {
+		mComputeShader[i] = nullptr;
+	}
 }
 
 void ShaderLib::LoadVertexShaders()
@@ -67,6 +77,15 @@ void ShaderLib::LoadPixelShaders()
 	}
 }
 
+void ShaderLib::LoadComputeShaders()
+{
+	auto& resourceManager = mRenderer.GetResourceManager();
+	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_ComputeShader);
+	{
+		mComputeShader[ComputeShaderType_Tonemapping] = resourceManager.GetOrCreate<ComputeShader>(shaderPath + "toneMapping.cso");
+	}
+}
+
 std::shared_ptr<VertexShader> ShaderLib::GetVertexShader(VetextShaderType shaderType)
 {
 	Debug::CheckAssertion(shaderType < VetextShaderType::VertexShaderType_Count);
@@ -82,6 +101,12 @@ std::shared_ptr<PixelShader> ShaderLib::GetPixelShader(PixelShaderType shaderTyp
 {
 	Debug::CheckAssertion(shaderType < PixelShaderType::PixelShaderType_Count);
 	return mPixelShader[static_cast<U32>(shaderType)];
+}
+
+std::shared_ptr<ComputeShader> ShaderLib::GetComputeShader(ComputeShaderType shaderType)
+{
+	Debug::CheckAssertion(shaderType < ComputeShaderType::ComputeShaderType_Count);
+	return mComputeShader[static_cast<U32>(shaderType)];
 }
 
 }

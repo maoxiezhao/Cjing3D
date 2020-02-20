@@ -37,6 +37,7 @@ namespace Cjing3D
 		virtual HRESULT CreateVertexShader(const void* bytecode, size_t length, VertexShader& vertexShader) = 0;
 		virtual HRESULT CreateInputLayout(VertexLayoutDesc* desc, U32 numElements, const void* shaderBytecode, size_t shaderLength, InputLayout& inputLayout) = 0;
 		virtual HRESULT CreatePixelShader(const void* bytecode, size_t length, PixelShader &pixelShader) = 0;
+		virtual HRESULT CreateComputeShader(const void* bytecode, size_t length, ComputeShader& computeShader) = 0;
 
 		virtual HRESULT CreateBuffer(const GPUBufferDesc* desc, GPUBuffer& buffer, const SubresourceData* initialData) = 0;
 		virtual void UpdateBuffer(GPUBuffer& buffer, const void* data, U32 dataSize) = 0;
@@ -57,6 +58,7 @@ namespace Cjing3D
 		virtual HRESULT CreateRenderTargetView(RhiTexture2D& texture) = 0;
 		virtual HRESULT CreateShaderResourceView(RhiTexture2D& texture) = 0;
 		virtual HRESULT CreateDepthStencilView(RhiTexture2D& texture) = 0;
+		virtual HRESULT CreateUnordereddAccessView(RhiTexture2D& texture) = 0;
 
 		virtual void ClearRenderTarget(RhiTexture2D& texture, F32x4 color) = 0;
 		virtual void ClearDepthStencil(RhiTexture2D& texture, UINT clearFlag, F32 depth, U8 stencil) = 0;
@@ -68,6 +70,7 @@ namespace Cjing3D
 		virtual void SetResourceName(GPUResource& resource, const std::string& name) = 0;
 
 		// compute
+		virtual void BindComputeShader(ComputeShaderPtr computeShader) = 0;
 		virtual void Dispatch(U32 threadGroupCountX, U32 threadGroupCountY, U32 threadGroupCountZ) = 0;
 		virtual void BindUAVs(GPUResource* const* resource, U32 slot, U32 count) = 0;
 		virtual void UnBindUAVs(U32 slot, U32 count) = 0;

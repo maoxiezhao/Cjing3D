@@ -46,13 +46,16 @@ namespace Cjing3D
 
 		CPUHandle& GetGPUResource() { return mResource; }
 		CPUHandle& GetShaderResourceView() { return mSRV; }
+		CPUHandle& GetUnorderedAccessView() { return mUAV; }
 
 		inline bool IsBuffer()const { return mCurrType == GPU_RESOURCE_TYPE::BUFFER; }
 		inline bool IsTexture()const { return mCurrType == GPU_RESOURCE_TYPE::TEXTURE_1D || mCurrType == GPU_RESOURCE_TYPE::TEXTURE_2D; }
 
 		GPU_RESOURCE_TYPE mCurrType = GPU_RESOURCE_TYPE::UNKNOWN_TYPE;
-		CPUHandle mSRV = CPU_NULL_HANDLE;
 		CPUHandle mResource = CPU_NULL_HANDLE;
+
+		CPUHandle mSRV = CPU_NULL_HANDLE;
+		CPUHandle mUAV = CPU_NULL_HANDLE;
 	};
 
 	class GPUBuffer : public GPUResource

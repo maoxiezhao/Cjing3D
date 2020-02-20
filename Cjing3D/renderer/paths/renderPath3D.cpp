@@ -47,8 +47,10 @@ namespace Cjing3D
 			desc.mFormat = backBufferFormat;
 			desc.mBindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE | BIND_UNORDERED_ACCESS;
 
-			const auto result = mRenderer.GetDevice().CreateTexture2D(&desc, nullptr, mRTPostprocess);
+			const auto result = mRenderer.GetDevice().CreateTexture2D(&desc, nullptr, mRTPostprocessLDR);
 			Debug::ThrowIfFailed(result, "Failed to create postprocess render target:%08x", result);
+		
+			mRenderer.GetDevice().SetResourceName(mRTPostprocessLDR, "RTPostprocessLDR");
 		}
 	}
 
@@ -80,6 +82,6 @@ namespace Cjing3D
 		Texture2D* rtWrite = GetLastPostprocessRT();
 
 		// HDR-> LDR
-		mRenderer.PostprocessTonemap(*rtRead, *rtWrite);
+		mRenderer.PostprocessTonemap(*rtRead, *rtWrite, GetExposure());
 	}
 }

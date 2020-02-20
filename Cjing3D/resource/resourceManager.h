@@ -88,6 +88,10 @@ public:
 	std::enable_if_t<std::is_same<ResourceT, PixelShader>::value, std::shared_ptr<PixelShader> >
 		GetOrCreate(const StringID& name);
 
+	template <typename ResourceT>
+	std::enable_if_t<std::is_same<ResourceT, ComputeShader>::value, std::shared_ptr<ComputeShader> >
+		GetOrCreate(const StringID& name);
+
 	template<typename ResourceT>
 	std::enable_if_t<std::is_same<ResourceT, RhiTexture2D>::value, std::shared_ptr<RhiTexture2D>>
 		GetOrCreate(const StringID & filePath);
@@ -106,8 +110,33 @@ private:
 
 	PoolType<VertexShaderInfo> mVertexShaderPool;
 	PoolType<PixelShader> mPixelShaderPool;
+	PoolType<ComputeShader> mComputeShaderPool;
 	PoolType<RhiTexture2D> mTexture2DPool;
 };
+
+template <typename ResourceT>
+inline std::enable_if_t<std::is_same<ResourceT, ComputeShader>::value, std::shared_ptr<ComputeShader> >
+ResourceManager::GetOrCreate(const StringID& name)
+{
+	std::shared_ptr<ComputeShader> computeShader = nullptr;
+	const std::string byteData = FileData::ReadFile(name.GetString());
+	if (byteData.empty() == false)
+	{
+		PoolType<ComputeShader>& shaderPool = GetPool< ComputeShader >();
+		computeShader = shaderPool.GetOrCreate(name);
+
+		auto& renderer = mGameContext.GetSubSystem<Renderer>();
+		auto& device = renderer.GetDevice();
+		{
+			const HRESULT result = device.CreateComputeShader(static_cast<const void*>(
+				byteData.data()), byteData.size(), *computeShader);
+			Debug::ThrowIfFailed(result, "Failed to create compute shader: %08X", result);
+		}
+	}
+
+	return computeShader;
+}
+
 
 #include "resource\resourceManager.inl"
 

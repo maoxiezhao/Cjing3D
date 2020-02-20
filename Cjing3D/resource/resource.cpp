@@ -16,6 +16,7 @@ Resource_Type Resource::DeduceResourceType()
 ADDTORESOURCETYPE(VertexShaderInfo, Resrouce_VertexShader)
 ADDTORESOURCETYPE(VertexShader, Resrouce_VertexShader)
 ADDTORESOURCETYPE(PixelShader, Resrouce_PixelShader)
+ADDTORESOURCETYPE(ComputeShader, Resource_ComputeShader);
 
 Resource::Resource(Resource_Type type) :
 	mType(type),

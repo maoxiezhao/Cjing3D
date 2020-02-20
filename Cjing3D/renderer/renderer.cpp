@@ -391,20 +391,39 @@ void Renderer::RenderSceneTransparent(std::shared_ptr<CameraComponent> camera, R
 	mGraphicsDevice->EndEvent();
 }
 
-void Renderer::PostprocessTonemap(Texture2D& input, Texture2D& output)
+void Renderer::PostprocessTonemap(Texture2D& input, Texture2D& output, F32 exposure)
 {
 	mGraphicsDevice->BeginEvent("Postprocess_Tonemap");
+
+	BindConstanceBuffer(SHADERSTAGES_CS);
+
 	mGraphicsDevice->BindRenderTarget(0, nullptr, nullptr);
+	mGraphicsDevice->BindComputeShader(mShaderLib->GetComputeShader(ComputeShaderType_Tonemapping));
 
 	// bind input texture
 	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, input, TEXTURE_SLOT_0);
 
-	// bind postprocess buffer
+	// bind post process buffer
+	const TextureDesc desc = output.GetDesc();
+	PostprocessCB cb;
+	cb.gPPResolution.x = desc.mWidth;
+	cb.gPPResolution.y = desc.mHeight;
+	cb.gPPInverseResolution.x = (1.0f / desc.mWidth);
+	cb.gPPInverseResolution.y = (1.0f / desc.mHeight);
+	cb.gPPParam1 = exposure;
+
+	GPUBuffer& postprocessBuffer = mBufferManager->GetConstantBuffer(ConstantBufferType_Postprocess);
+	mGraphicsDevice->UpdateBuffer(postprocessBuffer, &cb, sizeof(PostprocessCB));
+	mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, postprocessBuffer, CB_GETSLOT_NAME(PostprocessCB));
 
 	// bind output texture
 	GPUResource* uavs[] = { &output };
 	mGraphicsDevice->BindUAVs(uavs, 0, 1);
-
+	mGraphicsDevice->Dispatch(
+		(U32)((desc.mWidth + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
+		(U32)((desc.mHeight + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
+		1
+	);
 	mGraphicsDevice->UnBindUAVs(0, 1);
 
 	mGraphicsDevice->EndEvent();
