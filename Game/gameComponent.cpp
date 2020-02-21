@@ -32,7 +32,7 @@ namespace Cjing3D
 	void TestGame::Initialize()
 	{
 		auto systemContext = GetGameContext();
-		//ModelImporter::ImportModelObj("Models/mechine/mechine.obj", *systemContext);
+		//ModelImporter::ImportModelObj("Models/sandbox/sandbox.obj", *systemContext);
 
 		auto& renderer = systemContext->GetSubSystem<Renderer>();
 		RenderPathForward* path = new RenderPathForward(renderer);
@@ -42,8 +42,8 @@ namespace Cjing3D
 		renderer2D.SetCurrentRenderPath(path);
 
 		// test load scene from archive
-		const std::string filePath = "Models/mechine/machine.c3dscene";
-		renderer.GetMainScene().LoadSceneFromArchive(filePath);
+		//const std::string filePath = "Models/sandbox/sandbox.c3dscene";
+		//renderer.GetMainScene().LoadSceneFromArchive(filePath);
 	}
 
 	void TestGame::Update(EngineTime time)
@@ -112,6 +112,10 @@ namespace Cjing3D
 				}
 				renderer.GetMainScene().SaveSceneToArchive(filePath);
 			}
+		}
+		else if (inputManager.IsKeyDown(KeyCode::F7))
+		{
+			renderer.GetMainScene().Clear();
 		}
 	}
 

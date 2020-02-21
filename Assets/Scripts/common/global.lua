@@ -6,4 +6,5 @@ global_context = {
     m_addon_manager = AddonManager:new();
 };
 
+
 return global_context;

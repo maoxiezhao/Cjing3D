@@ -13,6 +13,7 @@ namespace Cjing3D
 	{
 		mVertexBufferPos.reset();
 		mVertexBufferTex.reset();
+		mVertexBufferColor.reset();
 		mIndexBuffer.reset();
 	}
 
@@ -20,6 +21,7 @@ namespace Cjing3D
 	{
 		mVertexBufferPos = std::make_unique<GPUBuffer>();
 		mVertexBufferTex = std::make_unique<GPUBuffer>();
+		mVertexBufferColor = std::make_unique<GPUBuffer>();
 		mIndexBuffer = std::make_unique<GPUBuffer>();
 
 		// setup index buffer
@@ -79,6 +81,12 @@ namespace Cjing3D
 			Debug::ThrowIfFailed(result, "Failed to create vertex texcoords buffer:%08x", result);
 		}
 
+		// vertex colors
+		if (mVertexColors.empty() == false)
+		{
+			const auto result = CreateStaticVertexBuffer(device, *mVertexBufferColor, mVertexColors, VertexColor::format);
+			Debug::ThrowIfFailed(result, "Failed to create vertex colors buffer:%08x", result);
+		}
 	}
 
 	void MeshComponent::Serialize(Archive& archive, U32 seed)
@@ -86,6 +94,7 @@ namespace Cjing3D
 		archive >> mVertexPositions;
 		archive >> mVertexNormals;
 		archive >> mVertexTexcoords;
+		archive >> mVertexColors;
 		archive >> mIndices;
 
 		U32 subsetSize = 0;
@@ -112,6 +121,7 @@ namespace Cjing3D
 		archive << mVertexPositions;
 		archive << mVertexNormals;
 		archive << mVertexTexcoords;
+		archive << mVertexColors;
 		archive << mIndices;
 
 		archive << mSubsets.size();

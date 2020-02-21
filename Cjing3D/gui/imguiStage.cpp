@@ -269,8 +269,9 @@ namespace Cjing3D
 			ImGui::Text("");
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", deltaTime, 1.0f / deltaTime);
 			ImGui::Text("");
-			ImGui::Text("F4-Show Debug; F5-save scene; F6-load scene");
-			ImGui::Text("WASD-Move camear  RB-Rotate camear");
+			ImGui::Text("F4-Show Debug; F5-Load scene;");
+			ImGui::Text("F6-Save scene; F7-Clear scene;");
+			ImGui::Text("WASD-Move camera  RB-Rotate camera");
 			ImGui::End();
 		}
 
@@ -378,10 +379,8 @@ namespace Cjing3D
 		}
 
 		// show attribute window
-		{
-			for (auto it : mRegisteredWindowFuncs) {
-				it();
-			}
+		for (auto it : mRegisteredWindowFuncs) {
+			it();
 		}
 	}
 }

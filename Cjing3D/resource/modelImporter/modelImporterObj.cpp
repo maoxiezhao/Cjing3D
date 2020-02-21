@@ -12,6 +12,10 @@ namespace Cjing3D
 {
 namespace ModelImporter 
 {
+	namespace {
+		bool loadVertexColors = false;
+	}
+
 	void ImportModelObj(const std::string& fileName, SystemContext& systemContext)
 	{
 		std::filesystem::path path(fileName);
@@ -109,6 +113,14 @@ namespace ModelImporter
 						objAttrib.vertices[index.vertex_index * 3 + 2]
 					};
 
+					Color4 color = Color4::White();
+					if (loadVertexColors && objAttrib.colors.empty() == false)
+					{
+						color.SetFloatR(objAttrib.colors[index.vertex_index * 3 + 0]);
+						color.SetFloatG(objAttrib.colors[index.vertex_index * 3 + 1]);
+						color.SetFloatB(objAttrib.colors[index.vertex_index * 3 + 2]);
+					}
+
 					F32x3 normal = { 0.0f, 0.0f, 0.0f };
 					if (objAttrib.normals.empty() == false)
 					{
@@ -160,6 +172,10 @@ namespace ModelImporter
 						mesh->mVertexPositions.push_back(pos);
 						mesh->mVertexNormals.push_back(normal);
 						mesh->mVertexTexcoords.push_back(tex);
+
+						if (loadVertexColors) {
+							mesh->mVertexColors.push_back(color.mRGBA);
+						}
 					}
 
 					mesh->mIndices.push_back(verticesSet[hashValue]);

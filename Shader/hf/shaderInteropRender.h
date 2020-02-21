@@ -29,6 +29,7 @@ struct ShaderMaterial
 	int haveBaseColorMap;
 	int haveNormalMap;
 	int haveSurfaceMap;
+	int useVertexColor;
 };
 
 CBUFFER(MaterialCB, CBSLOT_RENDERER_MATERIAL)

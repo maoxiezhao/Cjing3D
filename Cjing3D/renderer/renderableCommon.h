@@ -44,3 +44,9 @@ enum RenderableType
 	RenderableType_Opaque,
 	RenderableType_Transparent
 };
+
+enum BoundVexterBufferType
+{
+	BoundVexterBufferType_All,
+	BoundVexterBufferType_Pos_Tex,
+};

@@ -13,6 +13,7 @@ namespace Cjing3D {
 		std::vector<F32x3> mVertexPositions;
 		std::vector<F32x3> mVertexNormals;
 		std::vector<F32x2> mVertexTexcoords;
+		std::vector<U32> mVertexColors;
 		std::vector<U32> mIndices;
 
 		struct MeshSubset
@@ -25,6 +26,7 @@ namespace Cjing3D {
 
 		std::unique_ptr<GPUBuffer> mVertexBufferPos;
 		std::unique_ptr<GPUBuffer> mVertexBufferTex;
+		std::unique_ptr<GPUBuffer> mVertexBufferColor;
 		std::unique_ptr<GPUBuffer> mIndexBuffer;
 
 		AABB mAABB;
@@ -32,9 +34,10 @@ namespace Cjing3D {
 	public:
 		void SetupRenderData(GraphicsDevice& device);
 
-		GPUBuffer& GetIndexBuffer() { return *mIndexBuffer; }
-		GPUBuffer& GetVertexBufferPos() { return *mVertexBufferPos; }
-		GPUBuffer& GetVertexBufferTex() { return *mVertexBufferTex; }
+		GPUBuffer* GetIndexBuffer() { return mIndexBuffer.get(); }
+		GPUBuffer* GetVertexBufferPos() { return mVertexBufferPos.get(); }
+		GPUBuffer* GetVertexBufferTex() { return mVertexBufferTex.get(); }
+		GPUBuffer* GetVertexBufferColor() { return mVertexBufferColor.get(); }
 
 		IndexFormat GetIndexFormat()const { return IndexFormat::INDEX_FORMAT_32BIT; }
 		std::vector<MeshSubset>& GetSubsets() { return mSubsets; }
@@ -63,6 +66,12 @@ namespace Cjing3D {
 		{
 			F32x2 mTex = F32x2(0.0f, 0.0f);
 			static const FORMAT format = FORMAT::FORMAT_R32G32_FLOAT;
+		};
+
+		struct VertexColor
+		{
+			U32 mColor = 0;
+			static const FORMAT format = FORMAT::FORMAT_R8G8B8A8_UNORM;
 		};
 	};
 }

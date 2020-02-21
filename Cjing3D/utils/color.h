@@ -23,6 +23,11 @@ namespace Cjing3D {
 		constexpr void SetB(uint8_t v) { *this = Color4(GetA(), GetG(), v, GetA()); }
 		constexpr void SetA(uint8_t v) { *this = Color4(GetA(), GetG(), GetB(), v); }
 
+		constexpr void SetFloatR(F32 v) { *this = Color4(uint8_t(v * 255), GetG(), GetB(), GetA()); }
+		constexpr void SetFloatG(F32 v) { *this = Color4(GetA(), uint8_t(v * 255), GetB(), GetA()); }
+		constexpr void SetFloatB(F32 v) { *this = Color4(GetA(), GetG(), uint8_t(v * 255), GetA()); }
+		constexpr void SetFloatA(F32 v) { *this = Color4(GetA(), GetG(), GetB(), uint8_t(v * 255)); }
+
 		// convert to 0.0-1.0
 		constexpr F32x3 ToFloat3() const
 		{

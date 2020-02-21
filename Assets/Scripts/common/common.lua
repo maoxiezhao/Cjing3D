@@ -40,3 +40,5 @@ function STRING_ID(str)
 end 
 
 STRING_ID_EMPTY = STRING_ID("");
+
+NUMBER_PI = 3.141592653;

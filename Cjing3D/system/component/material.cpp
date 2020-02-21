@@ -16,6 +16,7 @@ ShaderMaterial Cjing3D::MaterialComponent::CreateMaterialCB()
 	sm.haveBaseColorMap = mBaseColorMap != nullptr ? 1 : 0;
 	sm.haveNormalMap = mNormalMap != nullptr ? 1 : 0;
 	sm.haveSurfaceMap = mSurfaceMap != nullptr ? 1 : 0;
+	sm.useVertexColor = IsUsingVertexColors() ? 1 : 0;
 
 	return sm;
 }

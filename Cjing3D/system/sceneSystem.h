@@ -43,6 +43,18 @@ namespace Cjing3D {
 		const ECS::ComponentManager<AABB>*
 	>;
 
+	using ComponentManagerTypes = std::tuple<
+		ECS::ComponentManager<StringID>*,
+		ECS::ComponentManager<TransformComponent>*,
+		ECS::ComponentManager<HierarchyComponent>*,
+		ECS::ComponentManager<MaterialComponent>*,
+		ECS::ComponentManager<MeshComponent>*,
+		ECS::ComponentManager<ObjectComponent>*,
+		ECS::ComponentManager<AABB>*,
+		ECS::ComponentManager<LightComponent>*,
+		ECS::ComponentManager<AABB>*
+	>;
+
 	class Scene
 	{
 	public:
@@ -108,6 +120,7 @@ namespace Cjing3D {
 		template<typename ComponentT>
 		const ECS::ComponentManager<ComponentT>& GetComponentManager()const;
 		ComponentManagerTypesConst GetAllComponentManagers()const;
+		ComponentManagerTypes GetAllComponentManagers();
 
 		U32 GetEntityCount()const;
 

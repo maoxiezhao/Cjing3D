@@ -32,16 +32,23 @@ namespace Cjing3D
 
 	void Scene::Clear()
 	{
-		mNameEntityMap.clear();
-		mNames.Clear();
-		mMaterials.Clear();
-		mMeshes.Clear();
-		mObjects.Clear();
-		mObjectAABBs.Clear();
-		mTransforms.Clear();
-		mLightAABBs.Clear();
-		mLights.Clear();
-		mHierarchies.Clear();
+		//mNameEntityMap.clear();
+		//mNames.Clear();
+		//mMaterials.Clear();
+		//mMeshes.Clear();
+		//mObjects.Clear();
+		//mObjectAABBs.Clear();
+		//mTransforms.Clear();
+		//mLightAABBs.Clear();
+		//mLights.Clear();
+		//mHierarchies.Clear();
+
+		// use std::apply and fold expression, and it needs c++17
+		auto allComponentManagers = GetAllComponentManagers();
+		std::apply([](auto&&... componentManager) {
+			return (componentManager->Clear(), ...); },
+			allComponentManagers
+		);
 	}
 
 	ECS::Entity Scene::CreateEntityMaterial(const std::string & name)
@@ -219,7 +226,22 @@ namespace Cjing3D
 			&mLights,
 			&mLightAABBs
 		);
+		return t;
+	}
 
+	ComponentManagerTypes Scene::GetAllComponentManagers()
+	{
+		ComponentManagerTypes t = std::make_tuple(
+			&mNames,
+			&mTransforms,
+			&mHierarchies,
+			&mMaterials,
+			&mMeshes,
+			&mObjects,
+			&mObjectAABBs,
+			&mLights,
+			&mLightAABBs
+		);
 		return t;
 	}
 

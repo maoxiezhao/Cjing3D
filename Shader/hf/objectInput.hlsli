@@ -16,7 +16,8 @@ struct InputObjectAll
 {
     float4 pos : POSITION_NORMAL_SUBSETINDEX;
     float2 tex : TEXCOORD;
-
+    float4 color : COLOR;
+    
     InputInstance instance;
 };
 
@@ -45,6 +46,10 @@ inline VertexSurface MakeVertexSurfaceFromInput(InputObjectAll input)
     VertexSurface surface;
     surface.position = float4(input.pos.xyz, 1.0f);
     surface.color = gMaterial.baseColor;
+    
+    if (gMaterial.useVertexColor) {
+        surface.color = input.color;
+    }
 
     uint normalSubsetIndex = asuint(input.pos.w);
     surface.normal.x = (float) (normalSubsetIndex & 0x000000ff) / 255.0f * 2.0f - 1.0f;

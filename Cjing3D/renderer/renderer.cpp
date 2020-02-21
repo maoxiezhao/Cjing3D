@@ -105,7 +105,7 @@ void Renderer::Initialize()
 	mFrameCullings[GetCamera()] = FrameCullings();
 
 	mFrameData.mFrameScreenSize = { (F32)mScreenSize[0], (F32)mScreenSize[1] };
-	mFrameData.mFrameAmbient = { 0.1f, 0.1f, 0.1f };
+	mFrameData.mFrameAmbient = { 0.0f, 0.0f, 0.0f };
 
 	mIsInitialized = true;
 }
@@ -564,7 +564,7 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPass
 	{
 		const auto mesh = scene.GetComponent<MeshComponent>(bathInstance->mMeshEntity);
 
-		mGraphicsDevice->BindIndexBuffer(mesh->GetIndexBuffer(), mesh->GetIndexFormat(), 0);
+		mGraphicsDevice->BindIndexBuffer(*mesh->GetIndexBuffer(), mesh->GetIndexFormat(), 0);
 
 		bool bindVertexBuffer = false;
 		for (auto& subset : mesh->GetSubsets())
@@ -590,27 +590,60 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPass
 				continue;
 			}
 		
+
+			BoundVexterBufferType boundType = BoundVexterBufferType_All;
 			// bind vertex buffer
 			if (bindVertexBuffer == false)
 			{
 				bindVertexBuffer = true;
 
-				GPUBuffer* vbs[] = {
-					&mesh->GetVertexBufferPos(),
-					&mesh->GetVertexBufferTex(),
-					instances.buffer
-				};
-				U32 strides[] = {
-					sizeof(MeshComponent::VertexPosNormalSubset),
-					sizeof(MeshComponent::VertexTex),
-					instanceSize
-				};
-				U32 offsets[] = {
-					0,
-					0,
-					bathInstance->mDataOffset	// 因为所有的batch公用一个buffer，所以提供offset
-				};
-				mGraphicsDevice->BindVertexBuffer(vbs, 0, 3, strides, offsets);
+				// 根据不同的BoundType传递不同格式的vertexBuffer
+				switch (boundType)
+				{
+				case BoundVexterBufferType_All:
+					{
+						GPUBuffer* vbs[] = {
+							mesh->GetVertexBufferPos(),
+							mesh->GetVertexBufferTex(),
+							mesh->GetVertexBufferColor(),
+							instances.buffer
+						};
+						U32 strides[] = {
+							sizeof(MeshComponent::VertexPosNormalSubset),
+							sizeof(MeshComponent::VertexTex),
+							sizeof(MeshComponent::VertexColor),
+							instanceSize
+						};
+						U32 offsets[] = {
+							0,
+							0,
+							0,
+							bathInstance->mDataOffset	// 因为所有的batch公用一个buffer，所以提供offset
+						};
+						mGraphicsDevice->BindVertexBuffer(vbs, 0, ARRAYSIZE(vbs), strides, offsets);
+					}
+					break;
+				case BoundVexterBufferType_Pos_Tex:
+					{
+						GPUBuffer* vbs[] = {
+							mesh->GetVertexBufferPos(),
+							mesh->GetVertexBufferTex(),
+							instances.buffer
+						};
+						U32 strides[] = {
+							sizeof(MeshComponent::VertexPosNormalSubset),
+							sizeof(MeshComponent::VertexTex),
+							instanceSize
+						};
+						U32 offsets[] = {
+							0,
+							0,
+							bathInstance->mDataOffset	// 因为所有的batch公用一个buffer，所以提供offset
+						};
+						mGraphicsDevice->BindVertexBuffer(vbs, 0, ARRAYSIZE(vbs), strides, offsets);
+					}
+					break;
+				}
 			}
 
 			// bind material state

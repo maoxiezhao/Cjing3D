@@ -19,6 +19,10 @@ namespace Cjing3D
 
 			size_t dataSize = 0;
 			mDataBuffer = FileData::ReadFileBytes(path, dataSize);
+			if (mDataBuffer == nullptr) {
+				return;
+			}
+
 			mDataSize = dataSize;
 
 			this->operator>>(mCurrentArchiveVersion);

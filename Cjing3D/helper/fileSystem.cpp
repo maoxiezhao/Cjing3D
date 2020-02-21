@@ -194,7 +194,12 @@ namespace Cjing3D {
 
 		bool IsFileExists(const string& name)
 		{
-			return (PHYSFS_exists(name.c_str()) != 0);
+			if (IsAbsolutePath(name)) {
+				return true;
+			}
+			else {
+				return (PHYSFS_exists(name.c_str()) != 0);
+			}
 		}
 
 		/**

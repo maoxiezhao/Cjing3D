@@ -68,7 +68,6 @@ namespace Cjing3D
 		RenderPath2D::Compose();
 
 		device.EndEvent();
-
 	}
 
 	void RenderPath3D::RenderTransparents(Texture2D& rtMain, RenderPassType renderType)

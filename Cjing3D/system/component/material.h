@@ -33,10 +33,14 @@ namespace Cjing3D {
 		virtual void Serialize(Archive& archive, U32 seed = 0);
 		virtual void Unserialize(Archive& archive)const;
 
+		bool IsUsingVertexColors()const { return mIsUsingVertexColors; }
+		void SetIsUsingVertexColors(bool useVertexColors) { mIsUsingVertexColors = useVertexColors; }
+
 	private:
 		std::unique_ptr<GPUBuffer> mConstantBuffer = nullptr;
 
 		bool mIsDirty = true;
+		bool mIsUsingVertexColors = false;
 		bool mIsCastingShadow = false;
 	};
 
