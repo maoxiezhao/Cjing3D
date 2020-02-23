@@ -2,6 +2,20 @@
 
 namespace Cjing3D
 {
+	namespace {
+		HRESULT CreateWriteDynamicConstantBuffer(GraphicsDevice&device, GPUBuffer& buffer, U32 size)
+		{
+			GPUBufferDesc desc = {};
+			desc.mUsage = USAGE_DYNAMIC;
+			desc.mCPUAccessFlags = CPU_ACCESS_WRITE;
+			desc.mBindFlags = BIND_CONSTANT_BUFFER;
+			desc.mByteWidth = size;
+
+			return device.CreateBuffer(&desc, buffer, nullptr);
+		}
+	
+	}
+
 	BufferManager::BufferManager(Renderer & renderer) :
 		mRenderer(renderer)
 	{
@@ -20,18 +34,6 @@ namespace Cjing3D
 	void BufferManager::LoadConstantBuffers()
 	{
 		auto& device = mRenderer.GetDevice();
-		// Camera buffer
-		{
-			GPUBufferDesc desc = {};
-			desc.mUsage = USAGE_DYNAMIC;	// camera buffer ¸üÐÂÆµ·±
-			desc.mCPUAccessFlags = CPU_ACCESS_WRITE;
-			desc.mBindFlags = BIND_CONSTANT_BUFFER;
-			desc.mByteWidth = sizeof(CameraCB);
-
-			const auto result = device.CreateBuffer(&desc, mConstantBuffer[ConstantBufferType_Camera], nullptr);
-			Debug::ThrowIfFailed(result, "failed to create camera constant buffer:%08x", result);
-			device.SetResourceName(mConstantBuffer[ConstantBufferType_Camera], "CamearCB");
-		}
 		// Frame buffer
 		{
 			GPUBufferDesc desc = {};
@@ -44,29 +46,33 @@ namespace Cjing3D
 			Debug::ThrowIfFailed(result, "failed to create frame constant buffer:%08x", result);
 			device.SetResourceName(mConstantBuffer[ConstantBufferType_Frame], "FrameCB");
 		}
+		// Camera buffer
+		{
+			GPUBuffer& buffer = mConstantBuffer[ConstantBufferType_Camera];
+			const HRESULT result = CreateWriteDynamicConstantBuffer(device, buffer, sizeof(CameraCB));
+			Debug::ThrowIfFailed(result, "failed to create camera constant buffer:%08x", result);
+			device.SetResourceName(buffer, "CameraCB");
+		}
 		// image buffer
 		{
-			GPUBufferDesc desc = {};
-			desc.mUsage = USAGE_DYNAMIC;
-			desc.mCPUAccessFlags = CPU_ACCESS_WRITE;
-			desc.mBindFlags = BIND_CONSTANT_BUFFER;
-			desc.mByteWidth = sizeof(ImageCB);
-
-			const auto result = device.CreateBuffer(&desc, mConstantBuffer[ConstantBufferType_Image], nullptr);
-			Debug::ThrowIfFailed(result, "failed to create frame constant buffer:%08x", result);
-			device.SetResourceName(mConstantBuffer[ConstantBufferType_Image], "ImageCB");
+			GPUBuffer& buffer = mConstantBuffer[ConstantBufferType_Image];
+			const HRESULT result = CreateWriteDynamicConstantBuffer(device, buffer, sizeof(ImageCB));
+			Debug::ThrowIfFailed(result, "failed to create image constant buffer:%08x", result);
+			device.SetResourceName(buffer, "ImageCB");
 		}
 		// postprocess buffer
 		{
-			GPUBufferDesc desc = {};
-			desc.mUsage = USAGE_DYNAMIC;
-			desc.mCPUAccessFlags = CPU_ACCESS_WRITE;
-			desc.mBindFlags = BIND_CONSTANT_BUFFER;
-			desc.mByteWidth = sizeof(PostprocessCB);
-
-			const auto result = device.CreateBuffer(&desc, mConstantBuffer[ConstantBufferType_Postprocess], nullptr);
-			Debug::ThrowIfFailed(result, "failed to create frame constant buffer:%08x", result);
-			device.SetResourceName(mConstantBuffer[ConstantBufferType_Postprocess], "PostprocessCB");
+			GPUBuffer& buffer = mConstantBuffer[ConstantBufferType_Postprocess];
+			const HRESULT result = CreateWriteDynamicConstantBuffer(device, buffer, sizeof(PostprocessCB));
+			Debug::ThrowIfFailed(result, "failed to create postprocess constant buffer:%08x", result);
+			device.SetResourceName(buffer, "PostprocessCB");
+		}
+		// mipmap generate buffer
+		{
+			GPUBuffer& buffer = mConstantBuffer[ConstantBufferType_MipmapGenerate];
+			const HRESULT result = CreateWriteDynamicConstantBuffer(device, buffer, sizeof(MipmapGenerateCB));
+			Debug::ThrowIfFailed(result, "failed to create mipmap generate constant buffer:%08x", result);
+			device.SetResourceName(buffer, "MipmapGenerateCB");
 		}
 	}
 

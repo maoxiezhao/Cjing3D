@@ -20,6 +20,7 @@ enum ConstantBufferType
 	ConstantBufferType_Frame = 1,
 	ConstantBufferType_Image,
 	ConstantBufferType_Postprocess,
+	ConstantBufferType_MipmapGenerate,
 	ConstantBufferType_Count,
 };
 

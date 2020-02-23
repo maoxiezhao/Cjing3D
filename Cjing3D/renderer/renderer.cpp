@@ -88,7 +88,7 @@ void Renderer::Initialize()
 	mPipelineStateInfoManager->SetupPipelineStateInfos();
 
 	// initialize mip generator
-	mDeferredMIPGenerator = std::make_unique<DeferredMIPGenerator>(*mGraphicsDevice);
+	mDeferredMIPGenerator = std::make_unique<DeferredMIPGenerator>(*this);
 
 	// initialize frame allocator
 	mFrameAllocator = std::make_unique<LinearAllocator>();
@@ -425,7 +425,6 @@ void Renderer::PostprocessTonemap(Texture2D& input, Texture2D& output, F32 expos
 		1
 	);
 	mGraphicsDevice->UnBindUAVs(0, 1);
-
 	mGraphicsDevice->EndEvent();
 }
 
@@ -504,6 +503,16 @@ void Renderer::SetCurrentRenderPath(RenderPath * renderPath)
 		mCurrentRenderPath->Initialize();
 		mCurrentRenderPath->Start();
 	}
+}
+
+void Renderer::AddDeferredTextureMipGen(Texture2D& texture)
+{
+	if (mDeferredMIPGenerator == nullptr) {
+		Debug::Warning("Invalid deferred texture mip generator.");
+		return;
+	}
+
+	mDeferredMIPGenerator->AddTexture(texture);
 }
 
 void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPassType, RenderableType renderableType)
@@ -633,7 +642,7 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPass
 						U32 strides[] = {
 							sizeof(MeshComponent::VertexPosNormalSubset),
 							sizeof(MeshComponent::VertexTex),
-							instanceSize
+							(U32)instanceSize
 						};
 						U32 offsets[] = {
 							0,

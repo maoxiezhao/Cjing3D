@@ -52,14 +52,14 @@ public:
 	virtual void BindRenderTarget(UINT numView, RhiTexture2D* const *texture2D, RhiTexture2D* depthStencilTexture);
 
 	virtual HRESULT CreateRenderTargetView(RhiTexture2D& texture);
-	virtual HRESULT CreateShaderResourceView(RhiTexture2D& texture);
+	virtual HRESULT CreateShaderResourceView(RhiTexture2D& texture, U32 firstMip = 0, U32 mipLevel = -1);
 	virtual HRESULT CreateDepthStencilView(RhiTexture2D& texture);
-	virtual HRESULT CreateUnordereddAccessView(RhiTexture2D& texture);
+	virtual HRESULT CreateUnordereddAccessView(RhiTexture2D& texture, U32 firstMip = 0);
 
 	virtual void ClearRenderTarget(RhiTexture2D& texture, F32x4 color);
 	virtual void ClearDepthStencil(RhiTexture2D& texture, UINT clearFlag, F32 depth, U8 stencil);
 
-	virtual void BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot);
+	virtual void BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot, I32 subresourceIndex = -1);
 	virtual void BindGPUResources(SHADERSTAGES stage, GPUResource* const* resource, U32 slot, U32 count);
 	virtual void UnbindGPUResources(U32 slot, U32 count);
 	virtual void DestroyGPUResource(GPUResource& resource);
@@ -68,6 +68,7 @@ public:
 	// compute
 	virtual void BindComputeShader(ComputeShaderPtr computeShader);
 	virtual void Dispatch(U32 threadGroupCountX, U32 threadGroupCountY, U32 threadGroupCountZ);
+	virtual void BindUAV(GPUResource* const resource, U32 slot, I32 subresourceIndex = -1);
 	virtual void BindUAVs(GPUResource* const* resource, U32 slot, U32 count);
 	virtual void UnBindUAVs(U32 slot, U32 count);
 

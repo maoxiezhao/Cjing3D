@@ -3,6 +3,8 @@
 
 #include "shaderInterop.h"
 
+///////////////////////////////////////////////////////////////////////////////////////////
+// common
 
 CBUFFER(FrameCB, CBSLOT_RENDERER_FRAME)
 {
@@ -44,6 +46,11 @@ CBUFFER(ImageCB, CBSLOT_IMAGE)
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////
+// light
+
+static const uint SHADER_LIGHT_TYPE_DIRECTIONAL = 0;
+static const uint SHADER_LIGHT_TYPE_POINT = 1;
+static const uint SHADER_LIGHT_TYPE_SPOT = 2;
 
 struct ShaderLight
 {
@@ -71,13 +78,9 @@ struct ShaderLight
 	}
 };
 
-static const uint SHADER_LIGHT_TYPE_DIRECTIONAL = 0;
-static const uint SHADER_LIGHT_TYPE_POINT = 1;
-static const uint SHADER_LIGHT_TYPE_SPOT = 2;
-
 ///////////////////////////////////////////////////////////////////////////////////////////
-
 // postprocess
+
 static const uint SHADER_POSTPROCESS_BLOCKSIZE = 8;
 
 CBUFFER(PostprocessCB, CBSLOT_POSTPROCESS)
@@ -85,6 +88,17 @@ CBUFFER(PostprocessCB, CBSLOT_POSTPROCESS)
 	uint2 gPPResolution;
 	float2 gPPInverseResolution;
 	float gPPParam1;
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////
+// mipmap generate
+
+static const uint SHADER_MIPMAPGENERATE_BLOCKSIZE = 8;
+
+CBUFFER(MipmapGenerateCB, CBSLOT_MIPMAPGENERATE)
+{
+	uint2 gMipmapGenResolution;
+	float2 gMipmapInverseResolution;
 };
 
 #endif

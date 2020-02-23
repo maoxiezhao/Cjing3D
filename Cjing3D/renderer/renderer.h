@@ -85,6 +85,9 @@ public:
 	// render path method
 	void SetCurrentRenderPath(RenderPath* renderPath);
 
+	// deferred mipmap gen
+	void AddDeferredTextureMipGen(Texture2D& texture);
+
 private:
 	void ProcessRenderQueue(RenderQueue& queue, RenderPassType renderPassType, RenderableType renderableType);
 	void BindConstanceBuffer(SHADERSTAGES stage);

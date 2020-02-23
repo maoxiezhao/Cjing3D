@@ -56,14 +56,14 @@ namespace Cjing3D
 		virtual void BindRenderTarget(UINT numView, RhiTexture2D* const *texture2D, RhiTexture2D* depthStencilTexture) = 0;
 
 		virtual HRESULT CreateRenderTargetView(RhiTexture2D& texture) = 0;
-		virtual HRESULT CreateShaderResourceView(RhiTexture2D& texture) = 0;
+		virtual HRESULT CreateShaderResourceView(RhiTexture2D& texture, U32 firstMip = 0, U32 mipLevel = -1) = 0;
 		virtual HRESULT CreateDepthStencilView(RhiTexture2D& texture) = 0;
-		virtual HRESULT CreateUnordereddAccessView(RhiTexture2D& texture) = 0;
+		virtual HRESULT CreateUnordereddAccessView(RhiTexture2D& texture, U32 firstMip = 0) = 0;
 
 		virtual void ClearRenderTarget(RhiTexture2D& texture, F32x4 color) = 0;
 		virtual void ClearDepthStencil(RhiTexture2D& texture, UINT clearFlag, F32 depth, U8 stencil) = 0;
 
-		virtual void BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot) = 0;
+		virtual void BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot, I32 subresourceIndex = -1) = 0;
 		virtual void BindGPUResources(SHADERSTAGES stage, GPUResource* const* resource, U32 slot, U32 count) = 0;
 		virtual void UnbindGPUResources(U32 slot, U32 count) = 0;
 		virtual void DestroyGPUResource(GPUResource& resource) = 0;
@@ -72,6 +72,7 @@ namespace Cjing3D
 		// compute
 		virtual void BindComputeShader(ComputeShaderPtr computeShader) = 0;
 		virtual void Dispatch(U32 threadGroupCountX, U32 threadGroupCountY, U32 threadGroupCountZ) = 0;
+		virtual void BindUAV(GPUResource* const resource, U32 slot, I32 subresourceIndex = -1) = 0;
 		virtual void BindUAVs(GPUResource* const* resource, U32 slot, U32 count) = 0;
 		virtual void UnBindUAVs(U32 slot, U32 count) = 0;
 

@@ -35,6 +35,7 @@ enum PixelShaderType
 enum ComputeShaderType
 {
 	ComputeShaderType_Tonemapping = 0,
+	ComputeShaderType_MipmapGenerate,
 	ComputeShaderType_Count
 };
 

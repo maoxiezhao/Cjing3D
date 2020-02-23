@@ -84,6 +84,7 @@ void ShaderLib::LoadComputeShaders()
 	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_ComputeShader);
 	{
 		mComputeShader[ComputeShaderType_Tonemapping] = resourceManager.GetOrCreate<ComputeShader>(shaderPath + "toneMapping.cso");
+		mComputeShader[ComputeShaderType_MipmapGenerate] = resourceManager.GetOrCreate<ComputeShader>(shaderPath + "mipmapGenerate.cso");
 	}
 }
 

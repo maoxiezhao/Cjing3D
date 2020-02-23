@@ -41,6 +41,9 @@
     <FxCompile Include="cs\toneMapping.hlsl">
       <Filter>cs</Filter>
     </FxCompile>
+    <FxCompile Include="cs\mipmapGenerate.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="hf\objectInput.hlsli">

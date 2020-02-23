@@ -1,55 +1,97 @@
 #include "rendererUtils.h"
-#include "renderer\RHI\device.h"
+#include "renderer\renderer.h"
+#include "renderer\shaderLib.h"
+#include "renderer\bufferManager.h"
+#include "renderer\stateManager.h"
 
 namespace Cjing3D
 {
-	DeferredMIPGenerator::DeferredMIPGenerator(GraphicsDevice & device):
-		mDevice(device)
+	DeferredMIPGenerator::DeferredMIPGenerator(Renderer& renderer):
+		mRenderer(renderer)
 	{
 	}
 
-	void DeferredMIPGenerator::AddTexture(RhiTexture2DPtr texture)
+	void DeferredMIPGenerator::AddTexture(RhiTexture2D& texture)
 	{
+		mMipGenDeferredArray.push_back(&texture);
 	}
 
 	void DeferredMIPGenerator::UpdateMipGenerating()
 	{
 		// 处理每个mip生成任务
 		for (auto texture : mMipGenDeferredArray) {
-			GenerateMaipChain(*texture, MIPGENFILTER::MIPGENFILTER_LINEAR);
+			GenerateMipChain(*texture, MIPGENFILTER::MIPGENFILTER_LINEAR);
 		}
 		mMipGenDeferredArray.clear();
 	}
 
-	void DeferredMIPGenerator::GenerateMaipChain(RhiTexture2D & texture, MIPGENFILTER filter)
+	void DeferredMIPGenerator::GenerateMipChain(RhiTexture2D & texture, MIPGENFILTER filter)
 	{
 		auto desc = texture.GetDesc();
+		if (desc.mMipLevels <= 1) {
+			return;
+		}
 
-		mDevice.BindRenderTarget(0, nullptr, nullptr);
+		GraphicsDevice& device = mRenderer.GetDevice();
+		BufferManager& bufferManger = mRenderer.GetBufferManager();
+		ShaderLib& shaderLib = mRenderer.GetShaderLib();
+		StateManager& stateManager = mRenderer.GetStateManager();
+
+		// generate mipmap by compute shader
+		device.BindRenderTarget(0, nullptr, nullptr);
 		switch (filter)
 		{
 		case MIPGENFILTER_POINT:
+			device.BeginEvent("GenerateMipChain-FilterPoint");
+			device.BindComputeShader(shaderLib.GetComputeShader(ComputeShaderType_MipmapGenerate));
+			device.BindSamplerState(SHADERSTAGES_CS, *stateManager.GetSamplerState(SamplerStateID_PointClampGreater), SAMPLER_SLOT_0);
+
 			break;
 		case MIPGENFILTER_LINEAR:
-			break;
-		case MIPGENFILTER_LINEAR_MAXIMUM:
-			break;
-		case MIPGENFILTER_GAUSSIAN:
+			device.BeginEvent("GenerateMipChain-FilterLinear");
+			device.BindComputeShader(shaderLib.GetComputeShader(ComputeShaderType_MipmapGenerate));
+			device.BindSamplerState(SHADERSTAGES_CS, *stateManager.GetSamplerState(SamplerStateID_LinearClampGreater), SAMPLER_SLOT_0);
+
 			break;
 		default:
-			break;
+			return;
 		}
 
-		// generate mipmap by compute shader
-		U32 width = desc.mWidth;
-		U32 height = desc.mHeight;
-		for (int i = 0; i < desc.mMipLevels; i++)
+		U32 currentWidth = desc.mWidth;
+		U32 currentHeight = desc.mHeight;
+		// 共生成miplevels-1次（不包含本身）
+		for (int mipLevel = 0; mipLevel < desc.mMipLevels - 1; mipLevel++)
 		{
-			width = std::max((U32)1, width / 2);
-			height = std::max((U32)1, height / 2);
+			currentWidth = std::max(1u, currentWidth / 2);
+			currentHeight = std::max(1u, currentHeight / 2);
 
+			// 输出绑定的是下一级的纹理,必须先绑定UAV,不然上一级的ouput无法绑定到下一级的input
+			device.BindUAV(&texture, 0, mipLevel + 1);
 
+			// bind input and output
+			// 输入绑定的是上一级的纹理
+			device.BindGPUResource(SHADERSTAGES_CS, texture, TEXTURE_SLOT_0, mipLevel);
+
+			// update constant buffer
+			MipmapGenerateCB cb;
+			cb.gMipmapGenResolution.x = currentWidth;
+			cb.gMipmapGenResolution.y = currentHeight;
+			cb.gMipmapInverseResolution.x = (1.0f / currentWidth);
+			cb.gMipmapInverseResolution.y = (1.0f / currentHeight);
+			GPUBuffer& mipgenBuffer = bufferManger.GetConstantBuffer(ConstantBufferType_MipmapGenerate);
+			device.UpdateBuffer(mipgenBuffer, &cb, sizeof(MipmapGenerateCB));
+			device.BindConstantBuffer(SHADERSTAGES_CS, mipgenBuffer, CB_GETSLOT_NAME(MipmapGenerateCB));
+
+			device.Dispatch(
+				(U32)((currentWidth + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
+				(U32)((currentHeight + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
+				1
+			);
 		}
+
+		device.UnBindUAVs(0, 1);
+		device.UnbindGPUResources(TEXTURE_SLOT_0, 1);
+		device.EndEvent();
 	}
 
 	void RenderBatch::Init(ECS::Entity objectEntity, ECS::Entity meshEntity)

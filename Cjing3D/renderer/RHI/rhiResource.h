@@ -47,6 +47,8 @@ namespace Cjing3D
 		CPUHandle& GetGPUResource() { return mResource; }
 		CPUHandle& GetShaderResourceView() { return mSRV; }
 		CPUHandle& GetUnorderedAccessView() { return mUAV; }
+		CPUHandle& GetSubShaderResourceView(U32 index) { assert(index < mSubresourceSRVs.size()); return mSubresourceSRVs[index]; }
+		CPUHandle& GetSubUnorderedAccessView(U32 index) { assert(index < mSubresourceUAVS.size()); return mSubresourceUAVS[index]; }
 
 		inline bool IsBuffer()const { return mCurrType == GPU_RESOURCE_TYPE::BUFFER; }
 		inline bool IsTexture()const { return mCurrType == GPU_RESOURCE_TYPE::TEXTURE_1D || mCurrType == GPU_RESOURCE_TYPE::TEXTURE_2D; }
@@ -56,6 +58,9 @@ namespace Cjing3D
 
 		CPUHandle mSRV = CPU_NULL_HANDLE;
 		CPUHandle mUAV = CPU_NULL_HANDLE;
+
+		std::vector<CPUHandle> mSubresourceSRVs;
+		std::vector<CPUHandle> mSubresourceUAVS;
 	};
 
 	class GPUBuffer : public GPUResource

@@ -1296,18 +1296,18 @@ HRESULT GraphicsDeviceD3D11::CreateTexture2D(const TextureDesc * desc, const Sub
 	D3D11_TEXTURE2D_DESC tex2D_desc = _ConvertTexture2DDesc(desc);
 
 	// texture initial data
-	D3D11_SUBRESOURCE_DATA* subresource_data = nullptr;
+	std::vector<D3D11_SUBRESOURCE_DATA> subresource_datas;
 	if (data != nullptr)
 	{
 		int count = std::max(1, (int)desc->mMipLevels);
-		subresource_data = new D3D11_SUBRESOURCE_DATA[count];
+		subresource_datas.resize(count);
 		for (int i = 0; i < count; i++)	{
-			subresource_data[i] = _ConvertSubresourceData(data[i]);
+			subresource_datas[i] = _ConvertSubresourceData(data[i]);
 		}
 	}
 
 	auto& texture2DPtr = texture2D.GetGPUResource();
-	const auto result = mDevice->CreateTexture2D(&tex2D_desc, subresource_data, (ID3D11Texture2D**)&texture2DPtr);
+	const auto result = mDevice->CreateTexture2D(&tex2D_desc, subresource_datas.data(), (ID3D11Texture2D**)&texture2DPtr);
 	if (FAILED(result)) {
 		return result;
 	}
@@ -1396,13 +1396,9 @@ HRESULT GraphicsDeviceD3D11::CreateRenderTargetView(RhiTexture2D & texture)
 	return result;
 }
 
-HRESULT GraphicsDeviceD3D11::CreateShaderResourceView(RhiTexture2D & texture)
+HRESULT GraphicsDeviceD3D11::CreateShaderResourceView(RhiTexture2D & texture, U32 firstMip, U32 mipLevel)
 {
 	HRESULT result = E_FAIL;
-	if (texture.GetShaderResourceView() != CPU_NULL_HANDLE)
-	{
-		return result;
-	}
 
 	const auto& desc = texture.GetDesc();
 	if (desc.mBindFlags & BIND_SHADER_RESOURCE)
@@ -1424,12 +1420,24 @@ HRESULT GraphicsDeviceD3D11::CreateShaderResourceView(RhiTexture2D & texture)
 		if (arraySize > 0 && arraySize <= 1)
 		{
 			shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-			shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-			shaderResourceViewDesc.Texture2D.MipLevels = -1;
+			shaderResourceViewDesc.Texture2D.MostDetailedMip = firstMip;   // 开始使用的miplevel
+			shaderResourceViewDesc.Texture2D.MipLevels = mipLevel;         // 使用mipLevel数量
 
-			auto& srv = texture.GetShaderResourceView();
+			ID3D11ShaderResourceView* newSRV = nullptr;
 			auto& texture2DPtr = texture.GetGPUResource();
-			result = mDevice->CreateShaderResourceView((ID3D11Resource*)texture2DPtr, &shaderResourceViewDesc, (ID3D11ShaderResourceView**)&srv);
+			result = mDevice->CreateShaderResourceView((ID3D11Resource*)texture2DPtr, &shaderResourceViewDesc, &newSRV);
+
+			if (SUCCEEDED(result))
+			{
+				auto& srv = texture.GetShaderResourceView();
+				if (srv == CPU_NULL_HANDLE) {
+					texture.mSRV = (CPUHandle)newSRV;
+				}
+				else {
+					//Debug::Warning("CreateShaderResourceView: create new subresource, count:" + std::to_string(texture.mSubresourceSRVs.size()));
+					texture.mSubresourceSRVs.push_back((CPUHandle)newSRV);
+				}
+			}
 		}
 	}
 
@@ -1471,7 +1479,7 @@ HRESULT GraphicsDeviceD3D11::CreateDepthStencilView(RhiTexture2D & texture)
 	return result;
 }
 
-HRESULT GraphicsDeviceD3D11::CreateUnordereddAccessView(RhiTexture2D& texture)
+HRESULT GraphicsDeviceD3D11::CreateUnordereddAccessView(RhiTexture2D& texture, U32 firstMip)
 {
 	HRESULT result = E_FAIL;
 
@@ -1495,11 +1503,22 @@ HRESULT GraphicsDeviceD3D11::CreateUnordereddAccessView(RhiTexture2D& texture)
 		if (arraySize > 0 && arraySize <= 1)
 		{
 			uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
-			uavDesc.Texture2D.MipSlice = 0;
+			uavDesc.Texture2D.MipSlice = firstMip;
 
-			auto& uav = texture.GetUnorderedAccessView();
+			ID3D11UnorderedAccessView* newUAV = nullptr;
 			auto& texture2DPtr = texture.GetGPUResource();
-			result = mDevice->CreateUnorderedAccessView((ID3D11Resource*)texture2DPtr, &uavDesc, (ID3D11UnorderedAccessView**)&uav);
+			result = mDevice->CreateUnorderedAccessView((ID3D11Resource*)texture2DPtr, &uavDesc, &newUAV);
+			if (SUCCEEDED(result))
+			{
+				auto& uav = texture.GetUnorderedAccessView();
+				if (uav == CPU_NULL_HANDLE) {
+					texture.mUAV = (CPUHandle)newUAV;
+				}
+				else {
+					//Debug::Warning("CreateUnordereddAccessView: create new subresource, count:" + std::to_string(texture.mSubresourceUAVS.size()));
+					texture.mSubresourceUAVS.push_back((CPUHandle)newUAV);
+				}
+			}
 		}
 	}
 
@@ -1518,9 +1537,21 @@ void GraphicsDeviceD3D11::ClearDepthStencil(RhiTexture2D & texture, UINT clearFl
 	GetDeviceContext(GraphicsThread_IMMEDIATE).ClearDepthStencilView(texture.GetDepthStencilView(), flag, depth, stencil);
 }
 
-void GraphicsDeviceD3D11::BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot)
+void GraphicsDeviceD3D11::BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot, I32 subresourceIndex)
 {
-	ID3D11ShaderResourceView* srv = (ID3D11ShaderResourceView*)resource.GetShaderResourceView();
+	ID3D11ShaderResourceView* srv = nullptr;
+	if (subresourceIndex < 0) {
+		srv = (ID3D11ShaderResourceView*)resource.GetShaderResourceView();
+	}
+	else if (subresourceIndex < resource.mSubresourceSRVs.size()) {
+		srv = (ID3D11ShaderResourceView*)resource.GetSubShaderResourceView(subresourceIndex);
+	}
+		
+	if (srv == nullptr) {
+		Debug::Warning("BindGPUResource: Invalid gpu resource");
+		return;
+	}
+		
 	switch (stage)
 	{
 	case Cjing3D::SHADERSTAGES_VS:
@@ -1575,14 +1606,28 @@ void GraphicsDeviceD3D11::UnbindGPUResources(U32 slot, U32 count)
 
 void GraphicsDeviceD3D11::DestroyGPUResource(GPUResource & resource)
 {
-	if (resource.GetGPUResource() != CPU_NULL_HANDLE)
-	{
+	if (resource.GetGPUResource() != CPU_NULL_HANDLE){
 		((ID3D11Resource*)resource.GetGPUResource())->Release();
 	}
 
-	if (resource.GetShaderResourceView() != CPU_NULL_HANDLE)
-	{
+	if (resource.GetShaderResourceView() != CPU_NULL_HANDLE){
 		((ID3D11ShaderResourceView*)resource.GetShaderResourceView())->Release();
+	}
+
+	if (resource.GetUnorderedAccessView() != CPU_NULL_HANDLE) {
+		((ID3D11UnorderedAccessView*)resource.GetUnorderedAccessView())->Release();
+	}
+
+	for (CPUHandle& handle : resource.mSubresourceSRVs){
+		if (handle != CPU_NULL_HANDLE) {
+			((ID3D11ShaderResourceView*)handle)->Release();
+		}
+	}
+
+	for (CPUHandle& handle : resource.mSubresourceUAVS){
+		if (handle != CPU_NULL_HANDLE) {
+			((ID3D11UnorderedAccessView*)handle)->Release();
+		}
 	}
 }
 
@@ -1611,6 +1656,26 @@ void GraphicsDeviceD3D11::UnBindUAVs(U32 slot, U32 count)
 {
 	Debug::CheckAssertion(count <= ARRAYSIZE(nullptrBlob), "GraphicsDeviceD3D11::UnBindUAVs: Invalid count.");
 	GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetUnorderedAccessViews(slot, count, (ID3D11UnorderedAccessView**)nullptrBlob, nullptr);
+}
+
+void GraphicsDeviceD3D11::BindUAV(GPUResource* const resource, U32 slot, I32 subresourceIndex)
+{
+	if (resource == nullptr) return;
+
+	ID3D11UnorderedAccessView* uav = nullptr;
+	if (subresourceIndex < 0) {
+		uav = (ID3D11UnorderedAccessView*)resource->GetUnorderedAccessView();
+	}
+	else if (subresourceIndex < resource->mSubresourceSRVs.size()) {
+		uav = (ID3D11UnorderedAccessView*)resource->GetSubUnorderedAccessView(subresourceIndex);
+	}
+
+	if (uav == nullptr) {
+		Debug::Warning("BindUAV: Invalid gpu resource");
+		return;
+	}
+
+	GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetUnorderedAccessViews(slot, 1, &uav, nullptr);
 }
 
 void GraphicsDeviceD3D11::BindUAVs(GPUResource* const* resource, U32 slot, U32 count)

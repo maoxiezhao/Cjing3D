@@ -76,15 +76,33 @@ void ResourceManager::LoadTextrueFromFilePath(const std::filesystem::path & file
 			desc.mHeight = height;
 			desc.mFormat = FORMAT_R8G8B8A8_UNORM;
 			desc.mBindFlags = BIND_UNORDERED_ACCESS | BIND_SHADER_RESOURCE;
+			desc.mMipLevels = static_cast<U32>(std::log2(std::max(width, height)));
 		
 			std::vector<SubresourceData> resourceData(desc.mMipLevels);
-			resourceData[0].mSysMem = rgb;
-			resourceData[0].mSysMemPitch = width * channelCount;
-			{
-				const auto result = renderer.GetDevice().CreateTexture2D(&desc, resourceData.data(), texture);
-				Debug::ThrowIfFailed(result, "Failed to create render target:%08x", result);
 
-				renderer.GetDevice().SetResourceName(texture, path.c_str());
+			// 对于非dds纹理加载，需要自建mipmap
+			U32 mipWidth = width;
+			for (int mipLevel = 0; mipLevel < desc.mMipLevels; mipLevel++)
+			{
+				resourceData[mipLevel].mSysMem = rgb;
+				resourceData[mipLevel].mSysMemPitch = mipWidth * channelCount;
+
+				mipWidth = std::max(1u, mipWidth / 2);
+			}
+
+			const auto result = renderer.GetDevice().CreateTexture2D(&desc, resourceData.data(), texture);
+			Debug::ThrowIfFailed(result, "Failed to create render target:%08x", result);
+			renderer.GetDevice().SetResourceName(texture, path.c_str());
+
+			// 创建各个subresource的srv和uav
+			for (int mipLevel = 0; mipLevel < desc.mMipLevels; mipLevel++)
+			{
+				renderer.GetDevice().CreateShaderResourceView(texture, mipLevel, 1);
+				renderer.GetDevice().CreateUnordereddAccessView(texture, mipLevel);
+			}
+
+			if (desc.mMipLevels > 1) {
+				renderer.AddDeferredTextureMipGen(texture);
 			}
 		}
 
