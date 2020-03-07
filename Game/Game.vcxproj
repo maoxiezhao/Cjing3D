@@ -73,8 +73,9 @@
     <IntDir>$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IntDir>$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
-    <OutDir>$(SolutionDir)\build\$(Configuration)\</OutDir>
+    <IntDir>Temp\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IncludePath>$(SolutionDir)\Game\;$(SolutionDir)\ThirdParty\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -95,8 +96,11 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)\lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>physfs.lib;assimp.lib;dinput8.lib;Lua_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>physfs.lib;assimp.lib;dinput8.lib;Lua_lib.lib;optick\x64\debug\OptickCore.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>$(SolutionDir)Game\postcompile.bat $(Platform) $(Configuration) $(OutDir)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -130,9 +134,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="gameComponent.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="window.cpp" />
+    <ClCompile Include="game\gameComponent.cpp" />
+    <ClCompile Include="main\main.cpp" />
+    <ClCompile Include="main\window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cjing3D\Cjing3D.vcxproj">
@@ -143,12 +147,13 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="gameComponent.h" />
-    <ClInclude Include="window.h" />
+    <ClInclude Include="game\gameComponent.h" />
+    <ClInclude Include="main\window.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Assets\Scripts\common\common.lua" />
     <None Include="..\Assets\Scripts\main.lua" />
+    <None Include="postcompile.bat" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

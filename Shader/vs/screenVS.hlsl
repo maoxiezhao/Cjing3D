@@ -1,4 +1,4 @@
-#include "hf\fullScreenHF.hlsli"
+#include "..\hf\fullScreenHF.hlsli"
 
 FullScreenPixelInput main(uint vertexID : SV_VERTEXID)
 {

@@ -1,5 +1,6 @@
 #include "InputSystem.h"
 #include "input\directInput.h"
+#include "helper\profiler.h"
 
 namespace Cjing3D
 {
@@ -122,6 +123,7 @@ void InputManager::Uninitialize()
 
 void InputManager::Update(F32 deltaTime)
 {
+	PROFILER_OPTICK_CATEGORY("Input", Optick::Category::Input);
 	if (mDirectInput != nullptr) 
 	{
 		mDirectInput->Update();

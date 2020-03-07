@@ -1,16 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="window.cpp" />
-    <ClCompile Include="gameComponent.cpp" />
+    <ClCompile Include="main\main.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="main\window.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="game\gameComponent.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="game">
       <UniqueIdentifier>{c6578c8f-fa12-4b50-8fc2-ec6683d84cad}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="entity">
-      <UniqueIdentifier>{fb277a15-6b57-43a0-8792-dd24c36ebd11}</UniqueIdentifier>
     </Filter>
     <Filter Include="scripts">
       <UniqueIdentifier>{9c723403-b9c4-41a2-9982-dd81e044b2eb}</UniqueIdentifier>
@@ -21,10 +24,17 @@
     <Filter Include="editor">
       <UniqueIdentifier>{761866ae-6fe1-4e40-94af-0863f455b545}</UniqueIdentifier>
     </Filter>
+    <Filter Include="main">
+      <UniqueIdentifier>{acfb683a-457b-42ef-ac12-9c9ceaeaf211}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="window.h" />
-    <ClInclude Include="gameComponent.h" />
+    <ClInclude Include="main\window.h">
+      <Filter>main</Filter>
+    </ClInclude>
+    <ClInclude Include="game\gameComponent.h">
+      <Filter>game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Assets\Scripts\main.lua">
@@ -33,5 +43,6 @@
     <None Include="..\Assets\Scripts\common\common.lua">
       <Filter>scripts\common</Filter>
     </None>
+    <None Include="postcompile.bat" />
   </ItemGroup>
 </Project>

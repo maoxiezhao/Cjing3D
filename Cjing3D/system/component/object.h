@@ -17,6 +17,8 @@ namespace Cjing3D {
 		inline ObjectType GetObjectType() { return mObjectType; }
 		inline RenderableType GetRenderableType() { return mRenderableType; }
 		inline void SetCastingShadow(bool isCastingShadow) { mIsCastingShadow = isCastingShadow; }
+		inline void SetIsImpostor(bool isImpostor) { mIsImpostor = isImpostor; }
+		inline bool IsImpostor()const { return mIsImpostor; }
 
 		virtual void Serialize(Archive& archive, U32 seed = 0);
 		virtual void Unserialize(Archive& archive)const;
@@ -26,7 +28,9 @@ namespace Cjing3D {
 		F32x4 mColor = F32x4(1.0f, 1.0f, 1.0f, 1.0f);
 		ObjectType mObjectType = OjbectType_Renderable;
 		RenderableType mRenderableType = RenderableType_Opaque;
+
 		bool mIsCastingShadow = false;
+		bool mIsImpostor = false;
 
 		F32x3 mCenter = F32x3(0.0f, 0.0f, 0.0f);			// assign in system'update
 	};

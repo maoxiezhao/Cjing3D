@@ -349,6 +349,10 @@ void Renderer::RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, Render
 	BindConstanceBuffer(SHADERSTAGES_VS);
 	BindConstanceBuffer(SHADERSTAGES_PS);
 
+	if (camera != nullptr) {
+		RenderImpostor(*camera, renderPassType);
+	}
+
 	auto& scene = GetMainScene();
 
 	RenderQueue renderQueue;
@@ -361,9 +365,14 @@ void Renderer::RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, Render
 
 		if (object == nullptr  ||
 			object->GetObjectType() != ObjectComponent::OjbectType_Renderable ||
-			object->GetRenderableType() != RenderableType_Opaque)
-		{
+			object->GetRenderableType() != RenderableType_Opaque) {
 			continue;
+		}
+
+		// 默认当object设置为Impostor，仅仅在RenderImpostor时渲染
+		// 未来还是会设置一个distance，超过distance时才仅仅渲染Impostor
+		if (object->IsImpostor()) {
+			continue;;
 		}
 
 		RenderBatch* renderBatch = (RenderBatch*)mFrameAllocator->Allocate(sizeof(RenderBatch));
@@ -387,6 +396,13 @@ void Renderer::RenderSceneTransparent(std::shared_ptr<CameraComponent> camera, R
 {
 	mGraphicsDevice->BeginEvent("RenderSceneTransparent");
 
+
+	mGraphicsDevice->EndEvent();
+}
+
+void Renderer::RenderImpostor(CameraComponent& camera, RenderPassType renderPassType)
+{
+	mGraphicsDevice->BeginEvent("RenderImpostor");
 
 	mGraphicsDevice->EndEvent();
 }
@@ -425,6 +441,13 @@ void Renderer::PostprocessTonemap(Texture2D& input, Texture2D& output, F32 expos
 		1
 	);
 	mGraphicsDevice->UnBindUAVs(0, 1);
+	mGraphicsDevice->EndEvent();
+}
+
+void Renderer::PostprocessFXAA(Texture2D& input, Texture2D& output)
+{
+	mGraphicsDevice->BeginEvent("Postprocess_FXAA");
+
 	mGraphicsDevice->EndEvent();
 }
 
@@ -486,6 +509,11 @@ PipelineStateInfoManager & Renderer::GetPipelineStateInfoManager()
 Renderer2D & Renderer::GetRenderer2D()
 {
 	return *mRenderer2D;
+}
+
+RenderPath* Renderer::GetRenderPath()
+{
+	return mCurrentRenderPath.get();
 }
 
 void Renderer::SetCurrentRenderPath(RenderPath * renderPath)

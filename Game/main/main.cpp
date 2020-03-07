@@ -1,6 +1,7 @@
 #include "engine.h"
 #include "window.h"
-#include "gameComponent.h"
+#include "game\gameComponent.h"
+#include "helper\profiler.h"
 
 #include <functional>
 
@@ -74,6 +75,8 @@ int Run()
 	SecureZeroMemory(&msg, sizeof(msg));
 	while (msg.message != WM_QUIT && !mainEngine->GetIsExiting())
 	{
+		PROFILER_OPTICK_FRAME("mainThread");
+
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);

@@ -34,6 +34,7 @@ public:
 };
 
 // TODO: change to renderer namesapce
+// Renderer被设计为一个仅仅提供各种渲染方法的集合（namespace)，具体的调用方式应该由renderPath决定
 class Renderer : public SubSystem
 {
 public:
@@ -51,8 +52,8 @@ public:
 	void Compose();
 	void Present();
 	
+	// getter
 	U32x2 GetScreenSize();
-
 	GraphicsDevice& GetDevice();
 	ResourceManager& GetResourceManager();
 	DeferredMIPGenerator& GetDeferredMIPGenerator();
@@ -63,6 +64,7 @@ public:
 	Scene& GetMainScene();
 	PipelineStateInfoManager& GetPipelineStateInfoManager();
 	Renderer2D& GetRenderer2D();
+	RenderPath* GetRenderPath();
 
 	// base status
 	void SetGamma(F32 gamma) { mGamma = gamma; }
@@ -71,9 +73,11 @@ public:
 	// Render Method
 	void RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, RenderPassType renderPassType);
 	void RenderSceneTransparent(std::shared_ptr<CameraComponent> camera, RenderPassType renderPassType);
+	void RenderImpostor(CameraComponent& camera, RenderPassType renderPassType);
 
 	// postprocess
 	void PostprocessTonemap(Texture2D& input, Texture2D& output, F32 exposure);
+	void PostprocessFXAA(Texture2D& input, Texture2D& output);
 
 	// Binding Method
 	void BindCommonResource();

@@ -27,6 +27,7 @@ Engine::Engine(GameComponent* gameConponent):
 
 Engine::~Engine()
 {
+	Uninitialize();
 }
 
 void Engine::Initialize()
@@ -34,6 +35,9 @@ void Engine::Initialize()
 	if (mIsInitialized == true) {
 		return;
 	}
+
+	Profiler::GetInstance().Initialize();
+	Profiler::GetInstance().SetProfileEnable(true);
 
 #ifdef CJING_DEBUG
 	Debug::SetDebugConsoleEnable(true);
@@ -90,20 +94,23 @@ void Engine::Initialize()
 	mGameComponent->Initialize();
 	luaContext->OnMainStart();
 
-	Profiler::GetInstance().BeginFrame();
 	mIsInitialized = true;
 }
 
 void Engine::Tick()
 {
 	PROFILER_BEGIN_FRAME();
+	PROFILER_OPTICK_EVENT();
 
 	mTime = mTimer.GetTime();
 	mSystemContext->SetEngineTime(mTime);
 
 	F32 deltaTime = F32(mTime.deltaTime / 1000.0f);
 	auto& inputManager = mSystemContext->GetSubSystem<InputManager>();
+
+	PROFILER_BEGIN_BLOCK("Input");
 	inputManager.Update(deltaTime);
+	PROFILER_END_BLOCK();
 
 	auto& renderer = mSystemContext->GetSubSystem<Renderer>();
 	auto& luaContext = mSystemContext->GetSubSystem<LuaContext>();
@@ -122,9 +129,6 @@ void Engine::Tick()
 	PROFILER_BEGIN_BLOCK("Render");
 	FIRE_EVENT(EventType::EVENT_RENDER);
 	renderer.Render();
-	PROFILER_END_BLOCK();
-
-	PROFILER_BEGIN_BLOCK("Compose");
 	renderer.Present();
 	PROFILER_END_BLOCK();
 
@@ -137,8 +141,6 @@ void Engine::Uninitialize()
 	if (mIsInitialized == false) {
 		return;
 	}
-
-	Profiler::GetInstance().EndFrame();
 
 	mSystemContext->GetSubSystem<LuaContext>().OnMainUninitialize();
 
@@ -158,6 +160,8 @@ void Engine::Uninitialize()
 #ifdef CJING_DEBUG
 	Debug::UninitializeDebugConsolse();
 #endif
+
+	Profiler::GetInstance().Uninitialize();
 
 	mIsInitialized = false;
 }

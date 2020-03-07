@@ -42,6 +42,8 @@ namespace Cjing3D {
 		bool mIsDirty = true;
 		bool mIsUsingVertexColors = false;
 		bool mIsCastingShadow = false;
+
+		// TODO£º support custom shader
 	};
 
 }

@@ -89,4 +89,8 @@ namespace Cjing3D
 
 	}
 
+	void TextureHelper::SwapTexture(Texture2D& texture1, Texture2D& texture2)
+	{
+	}
+
 }

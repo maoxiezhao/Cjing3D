@@ -3,4 +3,7 @@
   <ItemGroup>
     <ClInclude Include="commonDefine.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="commonDefine.cpp" />
+  </ItemGroup>
 </Project>

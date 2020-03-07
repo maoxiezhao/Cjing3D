@@ -1,4 +1,4 @@
-#include "hf\fullScreenHF.hlsli"
+#include "..\hf\fullScreenHF.hlsli"
 
 float4 main(FullScreenPixelInput input) : SV_TARGET
 {

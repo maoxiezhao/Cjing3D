@@ -1,6 +1,7 @@
 #include "renderPath3D.h"
 #include "renderer\renderer.h"
 #include "renderImage.h"
+#include "renderer\textureHelper.h"
 
 namespace Cjing3D
 {
@@ -47,10 +48,13 @@ namespace Cjing3D
 			desc.mFormat = backBufferFormat;
 			desc.mBindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE | BIND_UNORDERED_ACCESS;
 
-			const auto result = mRenderer.GetDevice().CreateTexture2D(&desc, nullptr, mRTPostprocessLDR);
+			HRESULT result = mRenderer.GetDevice().CreateTexture2D(&desc, nullptr, mRTPostprocessLDR1);
 			Debug::ThrowIfFailed(result, "Failed to create postprocess render target:%08x", result);
-		
-			mRenderer.GetDevice().SetResourceName(mRTPostprocessLDR, "RTPostprocessLDR");
+			mRenderer.GetDevice().SetResourceName(mRTPostprocessLDR1, "RTPostprocessLDR1");
+
+			result = mRenderer.GetDevice().CreateTexture2D(&desc, nullptr, mRTPostprocessLDR2);
+			Debug::ThrowIfFailed(result, "Failed to create postprocess render target:%08x", result);
+			mRenderer.GetDevice().SetResourceName(mRTPostprocessLDR2, "RTPostprocessLDR2");
 		}
 	}
 
@@ -82,5 +86,16 @@ namespace Cjing3D
 
 		// HDR-> LDR
 		mRenderer.PostprocessTonemap(*rtRead, *rtWrite, GetExposure());
+
+		// FXAA
+		if (IsEnableFXAA())
+		{
+			rtRead = &mRTPostprocessLDR2;
+			rtWrite = &mRTPostprocessLDR1;
+
+			mRenderer.PostprocessFXAA(*rtRead, *rtWrite);
+
+			TextureHelper::SwapTexture(*rtRead, *rtWrite);
+		}
 	}
 }

@@ -1,4 +1,4 @@
-#include "hf\imageHF.hlsli"
+#include "..\hf\imageHF.hlsli"
 
 ImageVertexToPixel main(uint vertexID : SV_VERTEXID)
 {

@@ -75,8 +75,8 @@
     <IncludePath>$(SolutionDir)\Cjing3D\;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)\build\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>Temp\$(Platform)\$(Configuration)\</IntDir>
     <IncludePath>$(SolutionDir)\Cjing3D\;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -93,7 +93,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\ThirdParty\;..\ThirdParty\Assimp_4.1.0\;../Shader;..\ThirdParty\lua_5.3.1\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\ThirdParty\;..\ThirdParty\Assimp_4.1.0\;../Shader;..\ThirdParty\lua_5.3.1\;..\ThirdParty\optick\</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Lib>
@@ -103,10 +103,11 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\lib;</AdditionalLibraryDirectories>
     </Lib>
     <PreBuildEvent>
-      <Command>$(SolutionDir)Cjing3D\precompile.bat</Command>
+      <Command>$(SolutionDir)Cjing3D\precompile.bat $(Platform) $(Configuration)</Command>
     </PreBuildEvent>
     <PreBuildEvent>
-      <Message>start to generate lua binding codes</Message>
+      <Message>
+      </Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -145,6 +146,8 @@
     <ClInclude Include="..\ThirdParty\imgui\imgui_impl_dx11.h" />
     <ClInclude Include="..\ThirdParty\imgui\imgui_impl_win32.h" />
     <ClInclude Include="..\ThirdParty\imgui\imgui_internal.h" />
+    <ClInclude Include="..\ThirdParty\optick\optick.config.h" />
+    <ClInclude Include="..\ThirdParty\optick\optick.h" />
     <ClInclude Include="common\about.h" />
     <ClInclude Include="common\common.h" />
     <ClInclude Include="common\definitions.h" />

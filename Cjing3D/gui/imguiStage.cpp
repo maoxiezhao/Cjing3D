@@ -4,11 +4,12 @@
 #include "imgui\imgui_impl_dx11.h"
 
 #include "engine.h"
+#include "utils\baseWindow.h"
 #include "core\systemContext.hpp"
 #include "renderer\renderer.h"
 #include "renderer\renderer2D.h"
 #include "renderer\RHI\deviceD3D11.h"
-#include "utils\baseWindow.h"
+#include "renderer\paths\renderPath3D.h"
 
 #include "system\sceneSystem.h"
 
@@ -141,6 +142,8 @@ namespace Cjing3D
 	}
 
 	/***************************************************************************************/
+	/***************************************************************************************/
+	/***************************************************************************************/
 
 	namespace {
 		void ShowTransformWindow(TransformComponent& transform)
@@ -187,15 +190,71 @@ namespace Cjing3D
 		{
 			if (currentObject == INVALID_ENTITY) return;
 
+			Scene& scene = Scene::GetScene();
+			auto object = scene.mObjects.GetComponent(currentObject);
+			if (object == nullptr) {
+				return;
+			}
+
 			ImGui::SetNextWindowPos(ImVec2(1070, 20), ImGuiCond_Always);
 			ImGui::SetNextWindowSize(ImVec2(350, 360), ImGuiCond_Always);
 			ImGui::Begin("Object attributes");
 
-			Scene& scene = Scene::GetScene();
 			// transform
 			auto transform = scene.mTransforms.GetComponent(currentObject);
 			if (transform != nullptr) {
 				ShowTransformWindow(*transform);
+			}
+
+			// mesh 
+			auto mesh = scene.mMeshes.GetComponent(object->mMeshID);
+			if (mesh != nullptr)
+			{
+				ImGui::Spacing();
+				ImGui::Text("Mesh");
+
+				Entity materialEntity = INVALID_ENTITY;
+				if (mesh->mSubsets.size() > 0) {
+					// 暂时取第一个subset的materialID
+					materialEntity = mesh->mSubsets[0].mMaterialID;
+				}
+
+				// material
+				static int materialIndex = 1;
+				std::string materialNameList = "\0";
+
+				auto materialManager = scene.GetComponentManager<MaterialComponent>();
+				for (int index = 0; index < materialManager.GetCount(); index++)
+				{
+					Entity entity = materialManager.GetEntityByIndex(index);
+					if (entity == materialEntity) {
+						materialIndex = index + 1;
+					}
+
+					std::string nodeName = "Entity ";
+					auto nameComponent = scene.mNames.GetComponent(entity);
+					if (nameComponent != nullptr) {
+						nodeName = nodeName + " " + nameComponent->GetString();
+					}
+					else {
+						nodeName = nodeName + std::to_string(entity);
+					}
+
+					materialNameList = materialNameList + nodeName + '\0';
+				}
+
+				if (ImGui::Combo("Material", &materialIndex, materialNameList.c_str(), 20))
+				{
+					Entity newMaterial = INVALID_ENTITY;
+					if (materialIndex > 0) {
+						newMaterial = materialManager.GetEntityByIndex(materialIndex - 1);
+					}
+
+					// 暂时取第一个subset的materialID
+					if (mesh->mSubsets.size() > 0) {
+						mesh->mSubsets[0].mMaterialID = newMaterial;
+					}
+				}
 			}
 
 			ImGui::End();
@@ -242,9 +301,45 @@ namespace Cjing3D
 			ImGui::End();
 		}
 
-
-		void ShowFrameAttribute()
+		Entity currentMaterial = INVALID_ENTITY;
+		void ShowMaterialAttribute()
 		{
+			if (currentMaterial == INVALID_ENTITY) return;
+
+			ImGui::SetNextWindowPos(ImVec2(1070, 20), ImGuiCond_Always);
+			ImGui::SetNextWindowSize(ImVec2(350, 360), ImGuiCond_Always);
+			ImGui::Begin("Material attributes");
+
+			ImGui::End();
+		}
+
+		bool showRenderWindow = true;
+		void ShowRenderAttribute()
+		{
+			if (showRenderWindow == false) return;
+
+			// show render window
+			ImGui::SetNextWindowPos(ImVec2(10, 570), ImGuiCond_Always);
+			ImGui::SetNextWindowSize(ImVec2(350, 160), ImGuiCond_Always);
+			ImGui::Begin("Render Window");
+
+			SystemContext& systemContext = SystemContext::GetSystemContext();
+			Renderer& renderer = systemContext.GetSubSystem<Renderer>();
+
+			RenderPath* renderPath = renderer.GetRenderPath();
+			if (renderPath == nullptr) return;
+
+			// tone mapping exposure
+			RenderPath3D* renderPath3D = dynamic_cast<RenderPath3D*>(renderPath);
+			if (renderPath3D != nullptr)
+			{
+				F32 explore = renderPath3D->GetExposure();
+				if (ImGui::DragFloat("ToneMappingExposure", &explore, 0.1f, 0.1f, 10.0f)) {
+					renderPath3D->SetExposure(explore);
+				}
+			}
+
+			ImGui::End();
 		}
 
 		StringID mCurrentAttributeWindow = STRING_ID(object);
@@ -255,34 +350,68 @@ namespace Cjing3D
 	{
 		mRegisteredWindowFuncs.push_back(ShowObjectAttribute);
 		mRegisteredWindowFuncs.push_back(ShowLightAttribute);
+		mRegisteredWindowFuncs.push_back(ShowMaterialAttribute);
+		mRegisteredWindowFuncs.push_back(ShowRenderAttribute);
 	}
 
 	void IMGUIStage::UpdateImpl(F32 deltaTime)
 	{
-		// show base window
-		if (IsShowBasicInfo())
-		{
-			ImGui::SetNextWindowPos(ImVec2(10, 20), ImGuiCond_Always);
-			ImGui::SetNextWindowSize(ImVec2(350, 150), ImGuiCond_Always);
-			ImGui::Begin("Application info");
-			ImGui::Text("Cjing3D v0.0.1");
-			ImGui::Text("");
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", deltaTime, 1.0f / deltaTime);
-			ImGui::Text("");
-			ImGui::Text("F4-Show Debug; F5-Load scene;");
-			ImGui::Text("F6-Save scene; F7-Clear scene;");
-			ImGui::Text("WASD-Move camera  RB-Rotate camera");
-			ImGui::End();
-		}
-
 		if (!IsShowDetailInfo()) {
 			return;
 		}
 
-		//bool openDemoWindow = true;
-		//ImGui::ShowDemoWindow(&openDemoWindow);
+		// show base window
+		if (IsShowBasicInfo())
 		{
-			ImGui::SetNextWindowPos(ImVec2(10, 180), ImGuiCond_Always);
+			ImGui::SetNextWindowPos(ImVec2(10, 20), ImGuiCond_Always);
+			ImGui::SetNextWindowSize(ImVec2(350, 170), ImGuiCond_Always);
+			ImGui::Begin("Application info");
+			ImGui::Text("Cjing3D v0.0.1");
+			ImGui::Text("");
+			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", deltaTime, 1.0f / deltaTime);
+			ImGui::Text("F4-Show Debug; F5-Load scene;");
+			ImGui::Text("F6-Save scene; F7-Clear scene;");
+			ImGui::Text("WASD-Move camera  RB-Rotate camera");
+
+			if (ImGui::Button("Rendering Properties")) {
+				showRenderWindow = !showRenderWindow;
+			}
+
+			ImGui::End();
+		}
+
+		// show detail window
+		{
+			static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+
+			auto ShowEntityList = [&](
+				Scene& scene, Entity entity, U32 currentIndex, I32 selectionIndex, I32& nodeClicked) -> bool {	
+				
+				std::string nodeName = "Entity ";
+				auto nameComponent = scene.mNames.GetComponent(entity);
+				if (nameComponent != nullptr) {
+					nodeName = nodeName + " " + nameComponent->GetString();
+				}
+				else {
+					nodeName = nodeName + std::to_string(entity);
+				}
+
+				// 通过mask检测是否点击到
+				ImGuiTreeNodeFlags node_flags = base_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+				const bool is_selected = (selectionIndex == currentIndex);
+				if (is_selected) {
+					node_flags |= ImGuiTreeNodeFlags_Selected;
+				}
+
+				ImGui::TreeNodeEx((void*)(intptr_t)currentIndex, node_flags, nodeName.c_str());
+				if (ImGui::IsItemClicked()) {
+					nodeClicked = currentIndex;
+				}
+
+				return is_selected;
+			};
+
+			ImGui::SetNextWindowPos(ImVec2(10, 200), ImGuiCond_Always);
 			ImGui::SetNextWindowSize(ImVec2(350, 360), ImGuiCond_Always);
 			ImGui::Begin("Entity Window");
 
@@ -290,8 +419,6 @@ namespace Cjing3D
 			ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
 			if (ImGui::BeginTabBar("EntityBar", tab_bar_flags))
 			{
-				static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
-
 				currentObject = INVALID_ENTITY;
 				currentLight = INVALID_ENTITY;
 
@@ -304,27 +431,8 @@ namespace Cjing3D
 					for (int index = 0; index < objectManager.GetCount(); index++)
 					{
 						Entity entity = objectManager.GetEntityByIndex(index);
-
-						std::string nodeName = "Entity ";
-						auto nameComponent = scene.mNames.GetComponent(entity);
-						if (nameComponent != nullptr) {
-							nodeName = nodeName + " " + nameComponent->GetString();
-						}
-						else {
-							nodeName = nodeName + std::to_string(entity);
-						}
-
-						// 通过mask检测是否点击到
-						ImGuiTreeNodeFlags node_flags = base_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-						const bool is_selected = (objectSelectionIndex  == index);
-						if (is_selected) {
-							node_flags |= ImGuiTreeNodeFlags_Selected;
+						if (ShowEntityList(scene, entity, index, objectSelectionIndex, nodeClicked)) {
 							currentObject = entity;
-						}
-						
-						ImGui::TreeNodeEx((void*)(intptr_t)index, node_flags, nodeName.c_str());
-						if (ImGui::IsItemClicked()) {
-							nodeClicked = index;
 						}
 					}
 
@@ -343,26 +451,8 @@ namespace Cjing3D
 					for (int index = 0; index < lightManager.GetCount(); index++)
 					{
 						Entity entity = lightManager.GetEntityByIndex(index);
-
-						std::string nodeName = "Entity ";
-						auto nameComponent = scene.mNames.GetComponent(entity);
-						if (nameComponent != nullptr) {
-							nodeName = nodeName + " " + nameComponent->GetString();
-						}
-						else {
-							nodeName = nodeName + std::to_string(entity);
-						}
-
-						ImGuiTreeNodeFlags node_flags = base_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-						const bool is_selected = (lightSelectionIndex == index);
-						if (is_selected) {
-							node_flags |= ImGuiTreeNodeFlags_Selected;
+						if (ShowEntityList(scene, entity, index, lightSelectionIndex, nodeClicked)) {
 							currentLight = entity;
-						}
-
-						ImGui::TreeNodeEx((void*)(intptr_t)index, node_flags, nodeName.c_str());
-						if (ImGui::IsItemClicked()) {
-							nodeClicked = index;
 						}
 					}
 
@@ -372,9 +462,30 @@ namespace Cjing3D
 
 					ImGui::EndTabItem();
 				}
+
+				// show material window
+				if (ImGui::BeginTabItem("Materials"))
+				{
+					static int materialSelectionIndex = -1;
+					int nodeClicked = -1;
+					auto materialManager = scene.GetComponentManager<MaterialComponent>();
+					for (int index = 0; index < materialManager.GetCount(); index++)
+					{
+						Entity entity = materialManager.GetEntityByIndex(index);
+						if (ShowEntityList(scene, entity, index, materialSelectionIndex, nodeClicked)) {
+							currentMaterial = entity;
+						}
+					}
+
+					if (nodeClicked != -1) {
+						materialSelectionIndex = nodeClicked;
+					}
+
+					ImGui::EndTabItem();
+				}
+
 				ImGui::EndTabBar();
 			}
-
 			ImGui::End();
 		}
 
@@ -382,5 +493,8 @@ namespace Cjing3D
 		for (auto it : mRegisteredWindowFuncs) {
 			it();
 		}
+
+		//bool openDemoWindow = true;
+		//ImGui::ShowDemoWindow(&openDemoWindow);
 	}
 }

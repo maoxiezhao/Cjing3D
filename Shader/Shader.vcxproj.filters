@@ -20,29 +20,29 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="objectVS.hlsl">
-      <Filter>vs</Filter>
-    </FxCompile>
-    <FxCompile Include="objectForwardPS.hlsl">
-      <Filter>ps</Filter>
-    </FxCompile>
-    <FxCompile Include="screenVS.hlsl">
-      <Filter>vs</Filter>
-    </FxCompile>
-    <FxCompile Include="screenPS.hlsl">
-      <Filter>ps</Filter>
-    </FxCompile>
-    <FxCompile Include="imagePS.hlsl">
-      <Filter>ps</Filter>
-    </FxCompile>
-    <FxCompile Include="imageVS.hlsl">
-      <Filter>vs</Filter>
-    </FxCompile>
     <FxCompile Include="cs\toneMapping.hlsl">
       <Filter>cs</Filter>
     </FxCompile>
     <FxCompile Include="cs\mipmapGenerate.hlsl">
       <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="vs\imageVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="vs\objectVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="vs\screenVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="ps\imagePS.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
+    <FxCompile Include="ps\objectForwardPS.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
+    <FxCompile Include="ps\screenPS.hlsl">
+      <Filter>ps</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

@@ -25,9 +25,12 @@ namespace Cjing3D {
 		void SetExposure(F32 exposure) { mExposure = exposure; }
 		F32 GetExposure()const { return mExposure; }
 
+		bool IsEnableFXAA()const { return mEnableFXAA; }
+		void SetEnableFXAA(bool enableFXAA) { mEnableFXAA = enableFXAA; }
+
 	protected:
 		Texture2D* GetLastPostprocessRT() {
-			return &mRTPostprocessLDR;
+			return &mRTPostprocessLDR2;
 		}
 
 		virtual Texture2D* GetDepthBuffer() {
@@ -35,9 +38,12 @@ namespace Cjing3D {
 		}
 
 		Texture2D mDepthBuffer;
-		Texture2D mRTPostprocessLDR;
+		Texture2D mRTPostprocessLDR1;
+		Texture2D mRTPostprocessLDR2;
 
-		F32 mExposure = 1.0f;
+		// tone mapping ÆØ¹âÏµÊý
+		F32 mExposure = 1.0f;				
+		bool mEnableFXAA = false;
 	};
 
 }
