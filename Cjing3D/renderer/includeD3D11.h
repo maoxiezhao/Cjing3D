@@ -7,3 +7,5 @@
 #pragma comment(lib,"Dxgi.lib")
 #pragma comment(lib,"dxguid.lib")
 
+// 是否在结束时打印d3d对象信息
+#define DEBUG_REPORT_LIVE_DEVICE_OBJECTS

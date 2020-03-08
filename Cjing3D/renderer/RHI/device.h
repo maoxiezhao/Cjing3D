@@ -31,8 +31,11 @@ namespace Cjing3D
 		virtual void BindViewports(const ViewPort* viewports, U32 numViewports, GraphicsThread threadID) = 0;
 
 		virtual HRESULT CreateDepthStencilState(const DepthStencilStateDesc& desc, DepthStencilState& state) = 0;
+		virtual void DestroyDepthStencilState(DepthStencilState& state) = 0;
 		virtual HRESULT CreateBlendState(const BlendStateDesc& desc, BlendState& state) = 0;
+		virtual void DestroyBlendState(BlendState& state) = 0;
 		virtual HRESULT CreateRasterizerState(const RasterizerStateDesc& desc, RasterizerState& state) = 0;
+		virtual void DestroyRasterizerState(RasterizerState& state) = 0;
 
 		virtual HRESULT CreateVertexShader(const void* bytecode, size_t length, VertexShader& vertexShader) = 0;
 		virtual HRESULT CreateInputLayout(VertexLayoutDesc* desc, U32 numElements, const void* shaderBytecode, size_t shaderLength, InputLayout& inputLayout) = 0;
@@ -47,6 +50,7 @@ namespace Cjing3D
 		virtual void BindVertexBuffer(GPUBuffer* const* buffer, U32 slot, U32 num, const U32* strides, const U32* offsets) = 0;
 
 		virtual HRESULT CreateSamplerState(const SamplerDesc* desc, SamplerState& state) = 0;
+		virtual void DestroySamplerState(SamplerState& state) = 0;
 		virtual void BindSamplerState(SHADERSTAGES stage, SamplerState& state, U32 slot) = 0;
 
 		virtual HRESULT CreateTexture2D(const TextureDesc* desc, const SubresourceData* data, RhiTexture2D& texture2D) = 0;

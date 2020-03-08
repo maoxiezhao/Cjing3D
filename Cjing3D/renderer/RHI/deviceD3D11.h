@@ -27,8 +27,11 @@ public:
 
 	/** Creating function */
 	virtual HRESULT CreateDepthStencilState(const DepthStencilStateDesc& desc, DepthStencilState& state);
+	virtual void DestroyDepthStencilState(DepthStencilState& state);
 	virtual HRESULT CreateBlendState(const BlendStateDesc& desc, BlendState& state);
+	virtual void DestroyBlendState(BlendState& state);
 	virtual HRESULT CreateRasterizerState(const RasterizerStateDesc& desc, RasterizerState& state);
+	virtual void DestroyRasterizerState(RasterizerState& state);
 
 	virtual HRESULT CreateVertexShader(const void* bytecode, size_t length, VertexShader& vertexShader);
 	virtual HRESULT CreateInputLayout(VertexLayoutDesc* desc, U32 numElements, const void* shaderBytecode, size_t shaderLength, InputLayout& inputLayout);
@@ -43,6 +46,7 @@ public:
 	virtual void BindVertexBuffer(GPUBuffer* const* buffer, U32 slot, U32 num, const U32* strides, const U32* offsets);
 
 	virtual HRESULT CreateSamplerState(const SamplerDesc* desc, SamplerState& state);
+	virtual void DestroySamplerState(SamplerState& state);
 	virtual void BindSamplerState(SHADERSTAGES stage, SamplerState& state, U32 slot);
 
 	virtual HRESULT CreateTexture2D(const TextureDesc* desc, const SubresourceData* data, RhiTexture2D& texture2D);

@@ -124,6 +124,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <FxCompile Include="cs\fxaaCS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+    </FxCompile>
     <FxCompile Include="cs\mipmapGenerate.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
@@ -169,6 +172,7 @@
     <None Include="hf\global.hlsli" />
     <None Include="hf\imageHF.hlsli" />
     <None Include="hf\lightingHF.hlsli" />
+    <None Include="hf\nvidiaFxaa.hlsli" />
     <None Include="hf\objectHF.hlsli" />
     <None Include="hf\objectInput.hlsli" />
   </ItemGroup>

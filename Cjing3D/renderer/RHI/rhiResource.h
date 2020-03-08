@@ -14,6 +14,7 @@ namespace Cjing3D
 	{
 	public:
 		GraphicsDeviceChild() = default;
+		~GraphicsDeviceChild();
 
 		inline bool IsValid()const { return mDevice != nullptr; }
 
@@ -59,8 +60,8 @@ namespace Cjing3D
 		CPUHandle mSRV = CPU_NULL_HANDLE;
 		CPUHandle mUAV = CPU_NULL_HANDLE;
 
-		std::vector<CPUHandle> mSubresourceSRVs;
-		std::vector<CPUHandle> mSubresourceUAVS;
+		std::vector<CPUHandle> mSubresourceSRVs;	// 用于存储各个mipmap的SRV
+		std::vector<CPUHandle> mSubresourceUAVS;    // 用于存储各个mipmap的UAV
 	};
 
 	class GPUBuffer : public GPUResource
@@ -111,6 +112,7 @@ namespace Cjing3D
 	{
 	public:
 		RasterizerState() {};
+		~RasterizerState();
 
 		void SetDesc(RasterizerStateDesc desc) { mDesc = desc; }
 		RasterizerStateDesc GetDesc()const { return mDesc; }
@@ -125,6 +127,7 @@ namespace Cjing3D
 	{
 	public:
 		DepthStencilState() {};
+		~DepthStencilState();
 
 		void SetDesc(DepthStencilStateDesc desc) { mDesc = desc; }
 		DepthStencilStateDesc GetDesc()const { return mDesc; }
@@ -139,6 +142,7 @@ namespace Cjing3D
 	{
 	public:
 		BlendState() {};
+		~BlendState();
 
 		void SetDesc(BlendStateDesc desc) { mDesc = desc; }
 		BlendStateDesc GetDesc()const { return mDesc; }
@@ -149,24 +153,26 @@ namespace Cjing3D
 		CPUHandle mHandle = CPU_NULL_HANDLE;
 	};
 
-	class SamplerState
+	class SamplerState : public GraphicsDeviceChild
 	{
 	public:
-		SamplerState() : mState() {};
+		SamplerState() {};
+		~SamplerState();
 
+		void SetDesc(const SamplerDesc& desc) { mDesc = desc; }
 		SamplerDesc GetDesc()const { return mDesc; }
-		ID3D11SamplerState& GetState() { return *mState.Get(); }
-		ComPtr<ID3D11SamplerState>& GetStatePtr() { return mState; }
-	private:
+		ID3D11SamplerState* GetSamplerState() { return *(ID3D11SamplerState**)&mHandle; }
+		ID3D11SamplerState** GetSamplerStatePtr() { return (ID3D11SamplerState**)&mHandle; }
+
 		SamplerDesc mDesc;
-		ComPtr<ID3D11SamplerState> mState;
+		CPUHandle mHandle = CPU_NULL_HANDLE;
 	};
 
 	class InputLayout
 	{
 	public:
 		InputLayout() {};
-		~InputLayout() {};
+		~InputLayout();
 
 		const std::vector<VertexLayoutDesc>& GetDesc()const { return mDescs; }
 		ID3D11InputLayout& GetState() { return *mResourceD3D11.Get(); }

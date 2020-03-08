@@ -110,9 +110,6 @@
     <ClCompile Include="renderer\RHI\device.cpp">
       <Filter>renderer\rhi</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\RHI\pipelineD3D11.cpp">
-      <Filter>renderer\rhi\d3d11</Filter>
-    </ClCompile>
     <ClCompile Include="renderer\RHI\swapChainD3D11.cpp">
       <Filter>renderer\rhi\d3d11</Filter>
     </ClCompile>
@@ -487,9 +484,6 @@
     </ClInclude>
     <ClInclude Include="renderer\RHI\device.h">
       <Filter>renderer\rhi</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\RHI\pipelineD3D11.h">
-      <Filter>renderer\rhi\d3d11</Filter>
     </ClInclude>
     <ClInclude Include="renderer\RHI\rhiDefinition.h">
       <Filter>renderer\rhi</Filter>

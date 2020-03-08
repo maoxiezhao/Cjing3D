@@ -334,8 +334,14 @@ namespace Cjing3D
 			if (renderPath3D != nullptr)
 			{
 				F32 explore = renderPath3D->GetExposure();
+				ImGui::SetNextItemWidth(100);
 				if (ImGui::DragFloat("ToneMappingExposure", &explore, 0.1f, 0.1f, 10.0f)) {
 					renderPath3D->SetExposure(explore);
+				}
+
+				bool fxaaEnable = renderPath3D->IsFXAAEnable();
+				if (ImGui::Checkbox("FXAA", &fxaaEnable)) {
+					renderPath3D->SetFXAAEnable(fxaaEnable);
 				}
 			}
 

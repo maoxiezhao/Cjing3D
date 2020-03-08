@@ -88,14 +88,16 @@ namespace Cjing3D
 		mRenderer.PostprocessTonemap(*rtRead, *rtWrite, GetExposure());
 
 		// FXAA
-		if (IsEnableFXAA())
+		if (IsFXAAEnable())
 		{
-			rtRead = &mRTPostprocessLDR2;
+			rtRead = rtWrite;
 			rtWrite = &mRTPostprocessLDR1;
 
 			mRenderer.PostprocessFXAA(*rtRead, *rtWrite);
+		}
 
-			TextureHelper::SwapTexture(*rtRead, *rtWrite);
+		if (rtWrite != GetLastPostprocessRT()) {
+			TextureHelper::SwapTexture(*rtWrite, *GetLastPostprocessRT());
 		}
 	}
 }

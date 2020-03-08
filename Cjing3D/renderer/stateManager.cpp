@@ -38,7 +38,7 @@ StateManager::~StateManager()
 		mRasterizerStates[static_cast<U32>(i)].reset();
 	}
 
-	for (int i = 0; i < SamplerStateID_Count; i++) {
+	for (int i = 0; i < SamplerStateID::SamplerStateID_Count; i++) {
 		mSamplerStates[static_cast<U32>(i)].reset();
 	}
 }

@@ -30,7 +30,7 @@ PipelineStateInfo PipelineStateInfoManager::GetPipelineStateInfo(RenderPassType 
 		infoState.mVertexShader = shaderLib.GetVertexShader(VertexShaderType_Transform);
 		infoState.mPixelShader = shaderLib.GetPixelShader(PixelShaderType_Forward);
 		infoState.mInputLayout = shaderLib.GetVertexLayout(InputLayoutType_Transform);
-		infoState.mPrimitiveTopology = TRIANGLELIST;
+		infoState.mPrimitiveTopology = TRIANGLELIST; 
 		infoState.mBlendState = stateManager.GetBlendState(BlendStateID_Opaque);
 		infoState.mDepthStencilState = stateManager.GetDepthStencilState(DepthStencilStateID_GreaterEqualReadWrite);
 		infoState.mRasterizerState = stateManager.GetRasterizerState(RasterizerStateID_Front);

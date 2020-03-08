@@ -96,6 +96,20 @@ public:
 	std::enable_if_t<std::is_same<ResourceT, RhiTexture2D>::value, std::shared_ptr<RhiTexture2D>>
 		GetOrCreate(const StringID & filePath);
 
+	template<typename ResourceT>
+	void ClearResource(const StringID& name)
+	{
+		PoolType<ResourceT>& pool = GetPool<ResourceT>();
+		pool.Remove(name);
+	}
+
+	template<typename ResourceT>
+	void ClearResources()
+	{
+		PoolType<ResourceT>& pool = GetPool<ResourceT>();
+		pool.RemoveAll();
+	}
+
 private:
 	template <typename ResourceT>
 	PoolType<ResourceT>& GetPool();

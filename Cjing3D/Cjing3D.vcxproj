@@ -206,7 +206,6 @@
     <ClInclude Include="renderer\shaderLib.h" />
     <ClInclude Include="renderer\RHI\device.h" />
     <ClInclude Include="renderer\RHI\deviceD3D11.h" />
-    <ClInclude Include="renderer\RHI\pipelineD3D11.h" />
     <ClInclude Include="renderer\RHI\rhiDefinition.h" />
     <ClInclude Include="renderer\RHI\rhiStructure.h" />
     <ClInclude Include="renderer\RHI\swapChainD3D11.h" />
@@ -333,7 +332,6 @@
     <ClCompile Include="renderer\shaderLib.cpp" />
     <ClCompile Include="renderer\RHI\device.cpp" />
     <ClCompile Include="renderer\RHI\deviceD3D11.cpp" />
-    <ClCompile Include="renderer\RHI\pipelineD3D11.cpp" />
     <ClCompile Include="renderer\RHI\swapChainD3D11.cpp" />
     <ClCompile Include="renderer\stateManager.cpp" />
     <ClCompile Include="renderer\textureHelper.cpp" />

@@ -21,15 +21,21 @@ void ShaderLib::Initialize()
 
 void ShaderLib::Uninitialize()
 {
+	auto& resourceManager = mRenderer.GetResourceManager();
 	for (int i = 0; i < VertexShaderType_Count; i++) {
 		mVertexShader[i] = nullptr;
 	}
+	resourceManager.ClearResources<VertexShaderInfo>();
+
 	for (int i = 0; i < PixelShaderType_Count; i++) {
 		mPixelShader[i] = nullptr;
 	}
+	resourceManager.ClearResources<PixelShader>();
+
 	for (int i = 0; i < ComputeShaderType_Count; i++) {
 		mComputeShader[i] = nullptr;
 	}
+	resourceManager.ClearResources<ComputeShader>();
 }
 
 void ShaderLib::LoadVertexShaders()
@@ -85,6 +91,7 @@ void ShaderLib::LoadComputeShaders()
 	{
 		mComputeShader[ComputeShaderType_Tonemapping] = resourceManager.GetOrCreate<ComputeShader>(shaderPath + "toneMapping.cso");
 		mComputeShader[ComputeShaderType_MipmapGenerate] = resourceManager.GetOrCreate<ComputeShader>(shaderPath + "mipmapGenerate.cso");
+		mComputeShader[ComputeShaderType_FXAA] = resourceManager.GetOrCreate<ComputeShader>(shaderPath + "fxaaCS.cso");
 	}
 }
 

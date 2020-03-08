@@ -1,5 +1,4 @@
 #include "deviceD3D11.h"
-#include "pipelineD3D11.h"
 
 namespace Cjing3D {
 
@@ -907,12 +906,31 @@ void GraphicsDeviceD3D11::Initialize()
 
 void GraphicsDeviceD3D11::Uninitialize()
 {
+	ClearPrevStates();
+
 	GraphicsDevice::Uninitialize();
 
 	mSwapChain.reset();
 
 	for (int i = 0; i < GraphicsThread_COUNT; i++) {
 		mDeviceContext[i]->ClearState();
+		mDeviceContext[i].Reset();
+	}
+
+	// debug, report live objects
+	if (mDebugLayer == true)
+	{
+#ifdef DEBUG_REPORT_LIVE_DEVICE_OBJECTS
+		ComPtr<ID3D11Debug> d3dDebug = nullptr;
+		HRESULT hr = mDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(d3dDebug.ReleaseAndGetAddressOf()));
+		if (SUCCEEDED(hr)) {
+			d3dDebug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+		}
+#endif
+	}
+
+	if (mDevice != nullptr) {
+		mDevice.Reset();
 	}
 }
 
@@ -969,11 +987,14 @@ void GraphicsDeviceD3D11::BindViewports(const ViewPort * viewports, U32 numViewp
 		d3dViewports[i].TopLeftY = viewports[i].mTopLeftY;
 	}
 
-	PipelineD3D11::RS::BindViewport(GetDeviceContext(threadID), numViewports, d3dViewports);
+	GetDeviceContext(threadID).RSSetViewports(numViewports, d3dViewports);
 }
 
 HRESULT GraphicsDeviceD3D11::CreateDepthStencilState(const DepthStencilStateDesc & desc, DepthStencilState & state)
 {
+	state.Register(this);
+	state.SetDesc(desc);
+
 	D3D11_DEPTH_STENCIL_DESC depthDesc = {};
 	depthDesc.DepthEnable		= desc.mDepthEnable;
 	depthDesc.DepthWriteMask	= _ConvertDepthWriteMask(desc.mDepthWriteMask);
@@ -994,6 +1015,17 @@ HRESULT GraphicsDeviceD3D11::CreateDepthStencilState(const DepthStencilStateDesc
 
 	ID3D11DepthStencilState** depthStencilState = state.GetDepthStencilStatePtr();
 	return mDevice->CreateDepthStencilState(&depthDesc, depthStencilState);
+}
+
+void GraphicsDeviceD3D11::DestroyDepthStencilState(DepthStencilState& state)
+{
+	state.UnRegister();
+
+	if (state.mHandle != CPU_NULL_HANDLE)
+	{
+		state.GetDepthStencilState()->Release();
+		state.mHandle = CPU_NULL_HANDLE;
+	}
 }
 
 HRESULT GraphicsDeviceD3D11::CreateBlendState(const BlendStateDesc & desc, BlendState & state)
@@ -1022,6 +1054,17 @@ HRESULT GraphicsDeviceD3D11::CreateBlendState(const BlendStateDesc & desc, Blend
 	return mDevice->CreateBlendState(&blendDesc, blendState);
 }
 
+void GraphicsDeviceD3D11::DestroyBlendState(BlendState& state)
+{
+	state.UnRegister();
+
+	if (state.mHandle != CPU_NULL_HANDLE)
+	{
+		state.GetBlendState()->Release();
+		state.mHandle = CPU_NULL_HANDLE;
+	}
+}
+
 HRESULT GraphicsDeviceD3D11::CreateRasterizerState(const RasterizerStateDesc & desc, RasterizerState & state)
 {
 	state.Register(this);
@@ -1043,6 +1086,17 @@ HRESULT GraphicsDeviceD3D11::CreateRasterizerState(const RasterizerStateDesc & d
 
 	ID3D11RasterizerState** rasterizerState = state.GetRasterizerStatePtr();
 	return mDevice->CreateRasterizerState(&rasterizerDesc, rasterizerState);
+}
+
+void GraphicsDeviceD3D11::DestroyRasterizerState(RasterizerState& state)
+{
+	state.UnRegister();
+	
+	if (state.mHandle != CPU_NULL_HANDLE)
+	{
+		state.GetRasterizerState()->Release();
+		state.mHandle = CPU_NULL_HANDLE;
+	}
 }
 
 // 创建顶点着色器
@@ -1241,6 +1295,9 @@ void GraphicsDeviceD3D11::BindVertexBuffer(GPUBuffer* const* buffer, U32 slot, U
 // 创建采样器状态
 HRESULT GraphicsDeviceD3D11::CreateSamplerState(const SamplerDesc * desc, SamplerState & state)
 {
+	state.Register(this);
+	state.SetDesc(*desc);
+
 	D3D11_SAMPLER_DESC samplerDesc = {};
 
 	samplerDesc.Filter = _ConvertFilter(desc->mFilter);
@@ -1257,13 +1314,23 @@ HRESULT GraphicsDeviceD3D11::CreateSamplerState(const SamplerDesc * desc, Sample
 	samplerDesc.MinLOD = desc->mMinLOD;
 	samplerDesc.MaxLOD = desc->mMaxLOD;
 
-	auto& statePtr = state.GetStatePtr();
-	return mDevice->CreateSamplerState(&samplerDesc, statePtr.ReleaseAndGetAddressOf());
+	ID3D11SamplerState** samplerState = state.GetSamplerStatePtr();
+	return mDevice->CreateSamplerState(&samplerDesc, samplerState);
+}
+
+void GraphicsDeviceD3D11::DestroySamplerState(SamplerState& state)
+{
+	state.UnRegister();
+	if (state.mHandle != CPU_NULL_HANDLE)
+	{
+		state.GetSamplerState()->Release();
+		state.mHandle = CPU_NULL_HANDLE;
+	}
 }
 
 void GraphicsDeviceD3D11::BindSamplerState(SHADERSTAGES stage, SamplerState & state, U32 slot)
 {
-	ID3D11SamplerState* samplerState = state.GetStatePtr().Get();
+	ID3D11SamplerState* samplerState = state.GetSamplerState();
 	switch (stage)
 	{
 	case Cjing3D::SHADERSTAGES_VS:
@@ -1608,26 +1675,37 @@ void GraphicsDeviceD3D11::DestroyGPUResource(GPUResource & resource)
 {
 	if (resource.GetGPUResource() != CPU_NULL_HANDLE){
 		((ID3D11Resource*)resource.GetGPUResource())->Release();
+		resource.mResource = CPU_NULL_HANDLE;
 	}
 
 	if (resource.GetShaderResourceView() != CPU_NULL_HANDLE){
 		((ID3D11ShaderResourceView*)resource.GetShaderResourceView())->Release();
+		resource.mSRV = CPU_NULL_HANDLE;
 	}
 
 	if (resource.GetUnorderedAccessView() != CPU_NULL_HANDLE) {
 		((ID3D11UnorderedAccessView*)resource.GetUnorderedAccessView())->Release();
+		resource.mUAV = CPU_NULL_HANDLE;
 	}
 
-	for (CPUHandle& handle : resource.mSubresourceSRVs){
-		if (handle != CPU_NULL_HANDLE) {
-			((ID3D11ShaderResourceView*)handle)->Release();
+	if (resource.mSubresourceSRVs.size() > 0)
+	{
+		for (CPUHandle& handle : resource.mSubresourceSRVs) {
+			if (handle != CPU_NULL_HANDLE) {
+				((ID3D11ShaderResourceView*)handle)->Release();
+			}
 		}
+		resource.mSubresourceSRVs.clear();
 	}
 
-	for (CPUHandle& handle : resource.mSubresourceUAVS){
-		if (handle != CPU_NULL_HANDLE) {
-			((ID3D11UnorderedAccessView*)handle)->Release();
+	if (resource.mSubresourceUAVS.size() > 0)
+	{
+		for (CPUHandle& handle : resource.mSubresourceUAVS) {
+			if (handle != CPU_NULL_HANDLE) {
+				((ID3D11UnorderedAccessView*)handle)->Release();
+			}
 		}
+		resource.mSubresourceUAVS.clear();
 	}
 }
 

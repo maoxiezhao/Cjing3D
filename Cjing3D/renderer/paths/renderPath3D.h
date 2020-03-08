@@ -25,8 +25,8 @@ namespace Cjing3D {
 		void SetExposure(F32 exposure) { mExposure = exposure; }
 		F32 GetExposure()const { return mExposure; }
 
-		bool IsEnableFXAA()const { return mEnableFXAA; }
-		void SetEnableFXAA(bool enableFXAA) { mEnableFXAA = enableFXAA; }
+		bool IsFXAAEnable()const { return mEnableFXAA; }
+		void SetFXAAEnable(bool enableFXAA) { mEnableFXAA = enableFXAA; }
 
 	protected:
 		Texture2D* GetLastPostprocessRT() {

@@ -42,8 +42,8 @@ namespace Cjing3D
 		renderer2D.SetCurrentRenderPath(path);
 
 		// test load scene from archive
-		const std::string filePath = "Models/mechine/machine.c3dscene";
-		renderer.GetMainScene().LoadSceneFromArchive(filePath);
+		//const std::string filePath = "Models/mechine/machine.c3dscene";
+		//renderer.GetMainScene().LoadSceneFromArchive(filePath);
 	}
 
 	void TestGame::Update(EngineTime time)
