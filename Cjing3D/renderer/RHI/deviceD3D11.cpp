@@ -953,7 +953,7 @@ void GraphicsDeviceD3D11::PresentEnd()
 	deviceContext.OMSetRenderTargets(0, nullptr, nullptr);
 	deviceContext.ClearState();
 
-	BindShaderInfoState(PipelineStateInfo());
+	BindShaderInfoState(PipelineState());
 	ClearPrevStates();
 
 	mCurrentFrameCount++;
@@ -1769,7 +1769,7 @@ void GraphicsDeviceD3D11::BindUAVs(GPUResource* const* resource, U32 slot, U32 c
 	GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetUnorderedAccessViews(slot, count, uavs, nullptr);
 }
 
-void GraphicsDeviceD3D11::BindShaderInfoState(PipelineStateInfo state)
+void GraphicsDeviceD3D11::BindShaderInfoState(PipelineState state)
 {
 	ID3D11VertexShader* vs = state.mVertexShader != nullptr ? state.mVertexShader->mResourceD3D11.Get() : nullptr;
 	if (vs != mPrevVertexShader)

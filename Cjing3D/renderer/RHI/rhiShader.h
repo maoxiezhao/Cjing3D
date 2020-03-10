@@ -52,7 +52,7 @@ namespace Cjing3D
 	struct is_shader<PixelShader> : public std::true_type {};
 
 	// shader info state
-	class PipelineStateInfo : public GraphicsDeviceChild
+	class PipelineState : public GraphicsDeviceChild
 	{
 	public:
 		VertexShaderPtr mVertexShader = nullptr;
@@ -85,6 +85,19 @@ namespace Cjing3D
 			//	mBlendState == nullptr  ||
 			//	mDepthStencilState == nullptr ||
 			//	mRasterizerState == nullptr;
+		}
+
+		bool operator== (const PipelineState& other)
+		{
+			return (
+				mVertexShader == other.mVertexShader &&
+				mPixelShader == other.mPixelShader &&
+				mInputLayout == other.mInputLayout &&
+				mBlendState == other.mBlendState &&
+				mDepthStencilState == other.mDepthStencilState &&
+				mRasterizerState == other.mRasterizerState &&
+				mPrimitiveTopology == other.mPrimitiveTopology
+			);
 		}
 	};
 }

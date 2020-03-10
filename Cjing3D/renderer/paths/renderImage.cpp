@@ -3,7 +3,7 @@
 #include "renderer\RHI\device.h"
 #include "renderer\stateManager.h"
 #include "renderer\shaderLib.h"
-#include "renderer\pipelineStateInfoManager.h"
+#include "renderer\pipelineStateManager.h"
 #include "renderer\bufferManager.h"
 
 namespace Cjing3D
@@ -23,14 +23,14 @@ namespace RenderImage
 		auto& device = renderer.GetDevice();
 		auto& shaderLib = renderer.GetShaderLib();
 		auto& stateManager = renderer.GetStateManager();
-		auto& pipelineStateInfoManager = renderer.GetPipelineStateInfoManager();
+		auto& pipelineStateManager = renderer.GetPipelineStateManager();
 		auto& bufferManager = renderer.GetBufferManager();
 
 		device.BindGPUResource(SHADERSTAGES_PS, texture, TEXTURE_SLOT_0);
 
 		if (params.IsFullScreenEnabled()) 
 		{
-			device.BindShaderInfoState(pipelineStateInfoManager.GetImagePipelineStateInfo(params));
+			device.BindShaderInfoState(pipelineStateManager.GetImagePipelineState(params));
 			device.Draw(3, 0);
 		}
 		else
@@ -54,7 +54,7 @@ namespace RenderImage
 			
 			device.BindConstantBuffer(SHADERSTAGES_VS, buffer, CB_GETSLOT_NAME(ImageCB));
 			device.BindConstantBuffer(SHADERSTAGES_PS, buffer, CB_GETSLOT_NAME(ImageCB));
-			device.BindShaderInfoState(pipelineStateInfoManager.GetImagePipelineStateInfo(params));
+			device.BindShaderInfoState(pipelineStateManager.GetImagePipelineState(params));
 
 			device.Draw(4, 0);
 		}

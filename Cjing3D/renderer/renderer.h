@@ -19,7 +19,7 @@ class CameraComponent;
 class BufferManager;
 class Scene;
 class MaterialComponent;
-class PipelineStateInfoManager;
+class PipelineStateManager;
 class Renderer2D;
 
 // 用于记录每一帧的基础数据
@@ -62,7 +62,7 @@ public:
 	StateManager& GetStateManager();
 	BufferManager& GetBufferManager();
 	Scene& GetMainScene();
-	PipelineStateInfoManager& GetPipelineStateInfoManager();
+	PipelineStateManager& GetPipelineStateManager();
 	Renderer2D& GetRenderer2D();
 	RenderPath* GetRenderPath();
 
@@ -125,7 +125,7 @@ private:
 	std::unique_ptr<BufferManager> mBufferManager;
 	std::unique_ptr<DeferredMIPGenerator> mDeferredMIPGenerator;
 	std::unique_ptr<LinearAllocator> mFrameAllocator;
-	std::unique_ptr<PipelineStateInfoManager> mPipelineStateInfoManager;
+	std::unique_ptr<PipelineStateManager> mPipelineStateManager;
 	std::unique_ptr<Renderer2D> mRenderer2D;
 
 	std::unique_ptr<RenderPath> mCurrentRenderPath;

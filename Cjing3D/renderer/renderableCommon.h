@@ -23,7 +23,8 @@ enum BlendType
 {
 	BlendType_Opaque,
 	BlendType_Alpha,
-	BlendType_PreMultiplied
+	BlendType_PreMultiplied,
+	BlendType_Count,
 };
 
 enum RenderingDeviceType

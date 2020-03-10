@@ -76,7 +76,7 @@ public:
 	virtual void BindUAVs(GPUResource* const* resource, U32 slot, U32 count);
 	virtual void UnBindUAVs(U32 slot, U32 count);
 
-	virtual void BindShaderInfoState(PipelineStateInfo state);
+	virtual void BindShaderInfoState(PipelineState state);
 
 	void ClearPrevStates();
 

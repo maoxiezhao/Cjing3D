@@ -26,7 +26,19 @@ StateManager::StateManager(GraphicsDevice& device) :
 
 StateManager::~StateManager()
 {
-	for (int i = 0; i < DepthStencilStateID::DepthStencilStateID_Count; i++){
+}
+
+void StateManager::Initialize()
+{
+	SetupDepthStencilStates();
+	SetupBlendStates();
+	SetupRasterizerStates();
+	SetupSamplerStates();
+}
+
+void StateManager::Uninitalize()
+{
+	for (int i = 0; i < DepthStencilStateID::DepthStencilStateID_Count; i++) {
 		mDepthStencilStates[static_cast<U32>(i)].reset();
 	}
 
@@ -41,14 +53,6 @@ StateManager::~StateManager()
 	for (int i = 0; i < SamplerStateID::SamplerStateID_Count; i++) {
 		mSamplerStates[static_cast<U32>(i)].reset();
 	}
-}
-
-void StateManager::SetupStates()
-{
-	SetupDepthStencilStates();
-	SetupBlendStates();
-	SetupRasterizerStates();
-	SetupSamplerStates();
 }
 
 std::shared_ptr<DepthStencilState> StateManager::GetDepthStencilState(DepthStencilStateID id)

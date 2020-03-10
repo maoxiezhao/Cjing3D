@@ -45,7 +45,8 @@ namespace Cjing3D
 		StateManager(GraphicsDevice& device);
 		~StateManager();
 
-		void SetupStates();
+		void Initialize();
+		void Uninitalize();
 
 		std::shared_ptr<DepthStencilState> GetDepthStencilState(DepthStencilStateID id);
 		std::shared_ptr<BlendState> GetBlendState(BlendStateID id);

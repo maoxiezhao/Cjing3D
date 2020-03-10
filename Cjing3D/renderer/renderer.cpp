@@ -1,7 +1,7 @@
 #include "renderer.h"
 #include "shaderLib.h"
 #include "stateManager.h"
-#include "pipelineStateInfoManager.h"
+#include "pipelineStateManager.h"
 #include "bufferManager.h"
 #include "renderer2D.h"
 #include "textureHelper.h"
@@ -42,7 +42,7 @@ Renderer::Renderer(SystemContext& gameContext, RenderingDeviceType deviceType, H
 	mGraphicsDevice(nullptr),
 	mShaderLib(nullptr),
 	mStateManager(nullptr),
-	mPipelineStateInfoManager(nullptr),
+	mPipelineStateManager(nullptr),
 	mIsInitialized(false),
 	mIsRendering(false),
 	mCamera(nullptr),
@@ -73,7 +73,7 @@ void Renderer::Initialize()
 
 	// initialize states
 	mStateManager = std::make_unique<StateManager>(*mGraphicsDevice);
-	mStateManager->SetupStates();
+	mStateManager->Initialize();
 
 	// initialize shader
 	mShaderLib = std::make_unique<ShaderLib>(*this);
@@ -82,10 +82,6 @@ void Renderer::Initialize()
 	// initialize resource manager
 	mBufferManager = std::make_unique<BufferManager>(*this);
 	mBufferManager->Initialize();
-
-	// initialize pipelineStateInfos
-	mPipelineStateInfoManager = std::make_unique<PipelineStateInfoManager>(*this);
-	mPipelineStateInfoManager->SetupPipelineStateInfos();
 
 	// initialize mip generator
 	mDeferredMIPGenerator = std::make_unique<DeferredMIPGenerator>(*this);
@@ -100,6 +96,10 @@ void Renderer::Initialize()
 
 	// initialize texture helper
 	TextureHelper::Initialize();
+
+	// initialize PipelineStates
+	mPipelineStateManager = std::make_unique<PipelineStateManager>(*this);
+	mPipelineStateManager->Initialize();
 
 	// initialize frame cullings
 	mFrameCullings[GetCamera()] = FrameCullings();
@@ -128,15 +128,23 @@ void Renderer::Uninitialize()
 
 	mRenderer2D->Uninitialize();
 	mRenderer2D.reset();
+
 	mFrameAllocator.reset();
-	mPipelineStateInfoManager.reset();
+
+	mPipelineStateManager->Uninitialize();
+	mPipelineStateManager.reset();
+
 	mBufferManager->Uninitialize();
 	mBufferManager.reset();
+
 	mShaderLib->Uninitialize();
 	mShaderLib.reset();
+
+	mStateManager->Uninitalize();
 	mStateManager.reset();
 
 	mGraphicsDevice->Uninitialize();
+	mGraphicsDevice = nullptr;
 
 	mIsInitialized = false;
 }
@@ -530,9 +538,9 @@ Scene & Renderer::GetMainScene()
 	return Scene::GetScene();
 }
 
-PipelineStateInfoManager & Renderer::GetPipelineStateInfoManager()
+PipelineStateManager & Renderer::GetPipelineStateManager()
 {
-	return *mPipelineStateInfoManager;
+	return *mPipelineStateManager;
 }
 
 Renderer2D & Renderer::GetRenderer2D()
@@ -640,7 +648,7 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPass
 				continue;
 			}
 
-			PipelineStateInfo state = mPipelineStateInfoManager->GetPipelineStateInfo(renderPassType, *material);  // TODO
+			PipelineState state = mPipelineStateManager->GetNormalPipelineState(renderPassType, *material);  // TODO
 			if (state.IsEmpty()) {
 				continue;
 			}
