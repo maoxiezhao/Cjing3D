@@ -15,12 +15,14 @@ enum VetextShaderType
 	VertexShaderType_Transform = 0,
 	VertexShaderType_FullScreen,
 	VertexShaderType_Image,
+	VertexShaderType_Shadow,
 	VertexShaderType_Count,
 };
 
 enum InputLayoutType
 {
 	InputLayoutType_Transform = 0,
+	InputLayoutType_Shadow,
 	InputLayoutType_Count
 };
 

@@ -83,7 +83,7 @@ namespace Cjing3D
 		const TextureDesc& GetDesc()const { return mDesc; }
 		void SetDesc(TextureDesc& desc) { mDesc = desc; }
 
-		ID3D11RenderTargetView* GetRenderTargetView() {return ((ID3D11RenderTargetView*)mRTV);}
+		ID3D11RenderTargetView* GetRenderTargetView() {return *((ID3D11RenderTargetView**)&mRTV);}
 		ID3D11RenderTargetView** GetRenderTargetViewPtr() { return ((ID3D11RenderTargetView**)&mRTV); }
 	};
 
@@ -91,12 +91,22 @@ namespace Cjing3D
 	{
 	public:
 		CPUHandle mDSV = CPU_NULL_HANDLE;
+		std::vector<CPUHandle> mSubresourceDSVs;	// ÓÃÓÚ´æ´¢textureArrayµÄDSV
+
 		~RhiTexture2D();
 
 		virtual void UnRegister();
 
 		ID3D11DepthStencilView* GetDepthStencilView() { return *((ID3D11DepthStencilView**)&mDSV); }
 		ID3D11DepthStencilView** GetDepthStencilViewPtr() { return ((ID3D11DepthStencilView**)&mDSV); }
+		ID3D11DepthStencilView* GetSubresourceDepthStencilView(U32 index) const
+		{
+			assert(index < mSubresourceDSVs.size()); return *((ID3D11DepthStencilView**)&mSubresourceDSVs[index]);
+		}
+		ID3D11DepthStencilView** GetSubresourceDepthStencilViewPtr(U32 index) const
+		{
+			assert(index < mSubresourceDSVs.size()); return ((ID3D11DepthStencilView**)&mSubresourceDSVs[index]);
+		}
 	};
 	using RhiTexture2DPtr = std::shared_ptr<RhiTexture2D>;
 

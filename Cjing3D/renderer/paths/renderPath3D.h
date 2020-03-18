@@ -19,6 +19,7 @@ namespace Cjing3D {
 		virtual void Compose();
 
 		// render method
+		virtual void RenderShadowmaps();
 		virtual void RenderTransparents(Texture2D& rtMain, RenderPassType renderType);
 		virtual void RenderPostprocess(Texture2D& rtScreen);
 
@@ -27,6 +28,8 @@ namespace Cjing3D {
 
 		bool IsFXAAEnable()const { return mEnableFXAA; }
 		void SetFXAAEnable(bool enableFXAA) { mEnableFXAA = enableFXAA; }
+		bool IsShadowEnable()const { return mEnableShadow; }
+		void SetShadowEnable(bool enableShadow) { mEnableShadow = enableShadow; }
 
 	protected:
 		Texture2D* GetLastPostprocessRT() {
@@ -44,6 +47,7 @@ namespace Cjing3D {
 		// tone mapping ÆØ¹âÏµÊý
 		F32 mExposure = 1.0f;				
 		bool mEnableFXAA = false;
+		bool mEnableShadow = true;
 	};
 
 }

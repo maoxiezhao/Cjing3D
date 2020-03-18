@@ -40,9 +40,19 @@ namespace Cjing3D {
 			return;
 		}
 
-		mRenderer.UpdateRenderData();
-		mRenderer.UpdateCameraCB(*camera);
+		// update and bind common resources
+		mRenderer.RefreshRenderData();
+
+		// bind constant buffer
 		mRenderer.BindCommonResource();
+		mRenderer.BindConstanceBuffer(SHADERSTAGES_VS);
+		mRenderer.BindConstanceBuffer(SHADERSTAGES_PS);
+
+		// shadowmaps
+		RenderShadowmaps();
+
+		// update main camera constant buffer
+		mRenderer.UpdateCameraCB(*camera);
 
 		// opaque scene
 		Texture2D& depthBuffer = *GetDepthBuffer();

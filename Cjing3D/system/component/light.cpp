@@ -16,6 +16,8 @@ namespace Cjing3D
 		shaderLight.range = mRange;
 		shaderLight.energy = mEnergy;
 		shaderLight.color = XMConvert(F32x4(mColor, 1.0f));
+		shaderLight.shadowBias = mShadowBias;
+		shaderLight.shadowData = ~0;
 
 		XMFLOAT3 viewPosition;
 		XMStoreFloat3(&viewPosition, XMVector3TransformCoord(XMLoadFloat3(&shaderLight.worldPosition), viewMatrix));
@@ -41,21 +43,31 @@ namespace Cjing3D
 
 	void LightComponent::Serialize(Archive& archive, U32 seed)
 	{
+		// base
 		archive >> mLightType;
 		archive >> mPosition;
 		archive >> mDirection;
 		archive >> mColor;
 		archive >> mEnergy;
 		archive >> mRange;
+
+		// shadow
+		archive >> mShadowBias;
+		archive >> mIsCastShadow;
 	}
 
 	void LightComponent::Unserialize(Archive& archive) const
 	{
+		// base
 		archive << mLightType;
 		archive << mPosition;
 		archive << mDirection;
 		archive << mColor;
 		archive << mEnergy;
 		archive << mRange;
+
+		// shadow
+		archive << mShadowBias;
+		archive << mIsCastShadow;
 	}
 }

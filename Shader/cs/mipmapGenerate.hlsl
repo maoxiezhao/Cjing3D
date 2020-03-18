@@ -1,6 +1,6 @@
 #include "..\hf\global.hlsli"
 
-TYPE_TEXTURE2D(texture_input, float4, TEXTURE_SLOT_0);
+TYPE_TEXTURE2D(texture_input, float4, TEXTURE_SLOT_UNIQUE_0);
 
 RWTEXTURE2D(texture_output, unorm float4, 0);
 

@@ -16,7 +16,9 @@ enum ComponentType
 	ComponentType_Material,
 	ComponentType_HierarchyComponent,
 	ComponentType_Transform,
-	ComponentType_Light
+	ComponentType_Light,
+	ComponentType_AABB,
+	ComponentType_Name,
 };
 
 class Component

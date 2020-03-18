@@ -947,6 +947,8 @@ void GraphicsDeviceD3D11::PresentBegin()
 
 void GraphicsDeviceD3D11::PresentEnd()
 {
+	GraphicsDevice::PresentEnd();
+
 	mSwapChain->Present(mIsVsync);
 
 	auto& deviceContext = GetDeviceContext(GraphicsThread_IMMEDIATE);
@@ -1076,9 +1078,11 @@ HRESULT GraphicsDeviceD3D11::CreateRasterizerState(const RasterizerStateDesc & d
 	rasterizerDesc.CullMode = _ConvertCullMode(desc.mCullMode);
 	rasterizerDesc.FrontCounterClockwise = desc.mFrontCounterClockwise;
 
+	// Bias = (float)DepthBias * r + SlopeScaledDepthBias * MaxDepthSlope;
 	rasterizerDesc.DepthBias = desc.mDepthBias;
 	rasterizerDesc.DepthBiasClamp = desc.mDepthBiasClamp;
 	rasterizerDesc.SlopeScaledDepthBias = desc.mSlopeScaleDepthBias;
+
 	rasterizerDesc.DepthClipEnable = desc.mDepthClipEnable;
 	rasterizerDesc.ScissorEnable = false;
 	rasterizerDesc.MultisampleEnable = desc.mMultisampleEnable;
@@ -1366,7 +1370,7 @@ HRESULT GraphicsDeviceD3D11::CreateTexture2D(const TextureDesc * desc, const Sub
 	std::vector<D3D11_SUBRESOURCE_DATA> subresource_datas;
 	if (data != nullptr)
 	{
-		int count = std::max(1, (int)desc->mMipLevels);
+		U32 count = std::max(1u, desc->mArraySize * desc->mMipLevels);
 		subresource_datas.resize(count);
 		for (int i = 0; i < count; i++)	{
 			subresource_datas[i] = _ConvertSubresourceData(data[i]);
@@ -1401,6 +1405,16 @@ void GraphicsDeviceD3D11::DestroyTexture2D(RhiTexture2D & texture2D)
 		texture2D.GetDepthStencilView()->Release();
 		texture2D.mDSV = CPU_NULL_HANDLE;
 	}
+
+	if (texture2D.mSubresourceDSVs.size() > 0)
+	{
+		for (CPUHandle& handle : texture2D.mSubresourceDSVs) {
+			if (handle != CPU_NULL_HANDLE) {
+				((ID3D11DepthStencilView*)handle)->Release();
+			}
+		}
+		texture2D.mSubresourceDSVs.clear();
+	}
 }
 
 void GraphicsDeviceD3D11::CopyTexture2D(RhiTexture2D * texDst, RhiTexture2D * texSrc)
@@ -1410,7 +1424,7 @@ void GraphicsDeviceD3D11::CopyTexture2D(RhiTexture2D * texDst, RhiTexture2D * te
 	GetDeviceContext(GraphicsThread_IMMEDIATE).CopyResource(dstResource, srcResource);
 }
 
-void GraphicsDeviceD3D11::BindRenderTarget(UINT numView, RhiTexture2D* const *texture2D, RhiTexture2D* depthStencilTexture)
+void GraphicsDeviceD3D11::BindRenderTarget(UINT numView, RhiTexture2D* const *texture2D, RhiTexture2D* depthStencilTexture, I32 subresourceIndex)
 {
 	// get renderTargetView
 	ID3D11RenderTargetView* renderTargetViews[8] = {};
@@ -1422,7 +1436,9 @@ void GraphicsDeviceD3D11::BindRenderTarget(UINT numView, RhiTexture2D* const *te
 	// get depthStencilView
 	ID3D11DepthStencilView* depthStencilView = nullptr;
 	if (depthStencilTexture != nullptr) {
-		depthStencilView = depthStencilTexture->GetDepthStencilView();
+		depthStencilView = (subresourceIndex < 0) ?
+			depthStencilTexture->GetDepthStencilView() :
+			depthStencilTexture->GetSubresourceDepthStencilView(subresourceIndex);
 	}
 
 	GetDeviceContext(GraphicsThread_IMMEDIATE).OMSetRenderTargets(curNum, renderTargetViews, depthStencilView);
@@ -1463,7 +1479,7 @@ HRESULT GraphicsDeviceD3D11::CreateRenderTargetView(RhiTexture2D & texture)
 	return result;
 }
 
-HRESULT GraphicsDeviceD3D11::CreateShaderResourceView(RhiTexture2D & texture, U32 firstMip, U32 mipLevel)
+HRESULT GraphicsDeviceD3D11::CreateShaderResourceView(RhiTexture2D & texture, U32 arraySlice, U32 arrayCount, U32 firstMip, U32 mipLevel)
 {
 	HRESULT result = E_FAIL;
 
@@ -1475,6 +1491,9 @@ HRESULT GraphicsDeviceD3D11::CreateShaderResourceView(RhiTexture2D & texture, U3
 		D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
 		switch (desc.mFormat)
 		{
+		case FORMAT_R16_TYPELESS:
+			shaderResourceViewDesc.Format = DXGI_FORMAT_R16_UNORM;
+			break;
 		case FORMAT_R32G8X24_TYPELESS:
 			shaderResourceViewDesc.Format = DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
 			break;
@@ -1483,27 +1502,34 @@ HRESULT GraphicsDeviceD3D11::CreateShaderResourceView(RhiTexture2D & texture, U3
 			break;
 		}
 
-		// 目前不处理texture2DArray
 		if (arraySize > 0 && arraySize <= 1)
 		{
 			shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 			shaderResourceViewDesc.Texture2D.MostDetailedMip = firstMip;   // 开始使用的miplevel
 			shaderResourceViewDesc.Texture2D.MipLevels = mipLevel;         // 使用mipLevel数量
+		}
+		else
+		{
+			shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+			shaderResourceViewDesc.Texture2DArray.FirstArraySlice = arraySlice; // 使用的texture的索引
+			shaderResourceViewDesc.Texture2DArray.ArraySize = arraySize;        // texture的数量
+			shaderResourceViewDesc.Texture2DArray.MostDetailedMip = firstMip;   // 开始使用的miplevel
+			shaderResourceViewDesc.Texture2DArray.MipLevels = mipLevel;         // 使用mipLevel数量
+		}
 
-			ID3D11ShaderResourceView* newSRV = nullptr;
-			auto& texture2DPtr = texture.GetGPUResource();
-			result = mDevice->CreateShaderResourceView((ID3D11Resource*)texture2DPtr, &shaderResourceViewDesc, &newSRV);
+		ID3D11ShaderResourceView* newSRV = nullptr;
+		auto& texture2DPtr = texture.GetGPUResource();
+		result = mDevice->CreateShaderResourceView((ID3D11Resource*)texture2DPtr, &shaderResourceViewDesc, &newSRV);
 
-			if (SUCCEEDED(result))
-			{
-				auto& srv = texture.GetShaderResourceView();
-				if (srv == CPU_NULL_HANDLE) {
-					texture.mSRV = (CPUHandle)newSRV;
-				}
-				else {
-					//Debug::Warning("CreateShaderResourceView: create new subresource, count:" + std::to_string(texture.mSubresourceSRVs.size()));
-					texture.mSubresourceSRVs.push_back((CPUHandle)newSRV);
-				}
+		if (SUCCEEDED(result))
+		{
+			auto& srv = texture.GetShaderResourceView();
+			if (srv == CPU_NULL_HANDLE) {
+				texture.mSRV = (CPUHandle)newSRV;
+			}
+			else {
+				//Debug::Warning("CreateShaderResourceView: create new subresource, count:" + std::to_string(texture.mSubresourceSRVs.size()));
+				texture.mSubresourceSRVs.push_back((CPUHandle)newSRV);
 			}
 		}
 	}
@@ -1511,7 +1537,9 @@ HRESULT GraphicsDeviceD3D11::CreateShaderResourceView(RhiTexture2D & texture, U3
 	return result;
 }
 
-HRESULT GraphicsDeviceD3D11::CreateDepthStencilView(RhiTexture2D & texture)
+// arraySlice和arrayCount仅用于当texture.ArraySize > 0时使用
+// arraySlice表示textureArray的第几部分，arrayCount表示这部分的数量
+HRESULT GraphicsDeviceD3D11::CreateDepthStencilView(RhiTexture2D & texture, U32 arraySlice, U32 arrayCount)
 {
 	HRESULT result = E_FAIL;
 
@@ -1523,6 +1551,9 @@ HRESULT GraphicsDeviceD3D11::CreateDepthStencilView(RhiTexture2D & texture)
 		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = {};
 		switch (desc.mFormat)
 		{
+		case FORMAT_R16_TYPELESS:
+			depthStencilViewDesc.Format = DXGI_FORMAT_D16_UNORM;
+			break;
 		case FORMAT_R32G8X24_TYPELESS:
 			depthStencilViewDesc.Format = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
 			break;
@@ -1531,15 +1562,30 @@ HRESULT GraphicsDeviceD3D11::CreateDepthStencilView(RhiTexture2D & texture)
 			break;
 		}
 
-		// 目前不处理texture2DArray
-		if (arraySize > 0 && arraySize <= 1)
+		if (arraySize <= 1)
 		{
 			depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 			depthStencilViewDesc.Texture2D.MipSlice = 0;
+		}
+		else
+		{
+			depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
+			depthStencilViewDesc.Texture2DArray.FirstArraySlice = arraySlice;
+			depthStencilViewDesc.Texture2DArray.ArraySize = arrayCount;
+			depthStencilViewDesc.Texture2DArray.MipSlice = 0;
+		}
 
-			ID3D11DepthStencilView** dsv = texture.GetDepthStencilViewPtr();
-			auto texture2DPtr = texture.GetGPUResource();
-			result = mDevice->CreateDepthStencilView((ID3D11Resource*)texture2DPtr, &depthStencilViewDesc, dsv);
+		ID3D11DepthStencilView* newDsv = nullptr;
+		auto texture2DPtr = texture.GetGPUResource();
+		result = mDevice->CreateDepthStencilView((ID3D11Resource*)texture2DPtr, &depthStencilViewDesc, &newDsv);
+		if (SUCCEEDED(result))
+		{
+			if (texture.mDSV == CPU_NULL_HANDLE) {
+				texture.mDSV = (CPUHandle)newDsv;
+			}
+			else {
+				texture.mSubresourceDSVs.push_back((CPUHandle)newDsv);
+			}
 		}
 	}
 
@@ -1598,10 +1644,16 @@ void GraphicsDeviceD3D11::ClearRenderTarget(RhiTexture2D & texture, F32x4 color)
 	GetDeviceContext(GraphicsThread_IMMEDIATE).ClearRenderTargetView(texture.GetRenderTargetView(), color.data());
 }
 
-void GraphicsDeviceD3D11::ClearDepthStencil(RhiTexture2D & texture, UINT clearFlag, F32 depth, U8 stencil)
+void GraphicsDeviceD3D11::ClearDepthStencil(RhiTexture2D& texture, UINT clearFlag, F32 depth, U8 stencil, I32 subresourceIndex)
 {
 	UINT flag = _ConvertClearFlag(clearFlag);
-	GetDeviceContext(GraphicsThread_IMMEDIATE).ClearDepthStencilView(texture.GetDepthStencilView(), flag, depth, stencil);
+	if (subresourceIndex < 0) {
+		GetDeviceContext(GraphicsThread_IMMEDIATE).ClearDepthStencilView(texture.GetDepthStencilView(), flag, depth, stencil);
+	}
+	else {
+		ID3D11DepthStencilView* dsv = texture.GetSubresourceDepthStencilView(subresourceIndex);
+		GetDeviceContext(GraphicsThread_IMMEDIATE).ClearDepthStencilView(dsv, flag, depth, stencil);
+	}
 }
 
 void GraphicsDeviceD3D11::BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot, I32 subresourceIndex)
@@ -1881,6 +1933,11 @@ GraphicsDevice::GPUAllocation GraphicsDeviceD3D11::AllocateGPU(size_t dataSize)
 	result.data = (void*)((size_t)mappedResource.pData + position);
 
 	return result;
+}
+
+void GraphicsDeviceD3D11::UnAllocateGPU()
+{
+	CommitAllocations();
 }
 
 void GraphicsDeviceD3D11::ClearPrevStates()

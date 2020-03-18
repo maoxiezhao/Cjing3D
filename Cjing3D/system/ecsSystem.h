@@ -68,11 +68,15 @@ namespace ECS
 			Debug::CheckAssertion(mEntities.size() == mComponents.size());
 			Debug::CheckAssertion(mLookup.size() == mComponents.size());
 
+			// 必须要保证component和entity的index一致
 			mLookup[entity] = mComponents.size();
 			mEntities.push_back(entity);
 
 			auto componentPtr = std::make_shared<ComponentT>();
 			mComponents.push_back(componentPtr);
+
+			// TEMP: 临时尝试下在component中保存entity
+			componentPtr->SetCurrentEntity(entity);
 
 			return componentPtr;
 		}
@@ -209,6 +213,17 @@ namespace ECS
 			return nullptr;
 		}
 
+		inline const ComponentTPtr GetComponentByIndex(U32 index)const
+		{
+			Debug::CheckAssertion(index >= 0 && index < mComponents.size());
+			return mComponents[index];
+		}
+
+		inline std::vector<ComponentTPtr>& GetComponents()
+		{
+			return mComponents;
+		}
+
 		inline size_t GetEntityIndex(Entity entity)
 		{
 			auto it = mLookup.find(entity);
@@ -282,6 +297,9 @@ namespace ECS
 				Entity entity = SerializeEntity(archive, seed);
 				mEntities[i] = entity;
 				mLookup[entity] = i;
+
+				// TEMP: 临时尝试下在component中保存entity
+				mComponents[i]->SetCurrentEntity(entity);
 			}
 		}
 

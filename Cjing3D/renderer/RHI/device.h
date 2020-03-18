@@ -22,8 +22,8 @@ namespace Cjing3D
 		virtual void Initialize();
 		virtual void Uninitialize();
 
-		virtual void PresentBegin() = 0;
-		virtual void PresentEnd() = 0;
+		virtual void PresentBegin();
+		virtual void PresentEnd();
 
 		virtual void BeginEvent(const std::string& name) = 0;
 		virtual void EndEvent() = 0;
@@ -57,15 +57,15 @@ namespace Cjing3D
 		virtual void DestroyTexture2D(RhiTexture2D& texture2D) = 0;
 		virtual void CopyTexture2D(RhiTexture2D* texDst, RhiTexture2D* texSrc) = 0;
 
-		virtual void BindRenderTarget(UINT numView, RhiTexture2D* const *texture2D, RhiTexture2D* depthStencilTexture) = 0;
+		virtual void BindRenderTarget(UINT numView, RhiTexture2D* const *texture2D, RhiTexture2D* depthStencilTexture, I32 subresourceIndex = -1) = 0;
 
 		virtual HRESULT CreateRenderTargetView(RhiTexture2D& texture) = 0;
-		virtual HRESULT CreateShaderResourceView(RhiTexture2D& texture, U32 firstMip = 0, U32 mipLevel = -1) = 0;
-		virtual HRESULT CreateDepthStencilView(RhiTexture2D& texture) = 0;
+		virtual HRESULT CreateShaderResourceView(RhiTexture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1, U32 firstMip = 0, U32 mipLevel = -1) = 0;
+		virtual HRESULT CreateDepthStencilView(RhiTexture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1) = 0;
 		virtual HRESULT CreateUnordereddAccessView(RhiTexture2D& texture, U32 firstMip = 0) = 0;
 
 		virtual void ClearRenderTarget(RhiTexture2D& texture, F32x4 color) = 0;
-		virtual void ClearDepthStencil(RhiTexture2D& texture, UINT clearFlag, F32 depth, U8 stencil) = 0;
+		virtual void ClearDepthStencil(RhiTexture2D& texture, UINT clearFlag, F32 depth, U8 stencil, I32 subresourceIndex = -1) = 0;
 
 		virtual void BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot, I32 subresourceIndex = -1) = 0;
 		virtual void BindGPUResources(SHADERSTAGES stage, GPUResource* const* resource, U32 slot, U32 count) = 0;
@@ -115,9 +115,11 @@ namespace Cjing3D
 			U32 offset = 0;
 		};
 		virtual GPUAllocation AllocateGPU(size_t dataSize) = 0;
+		virtual void UnAllocateGPU() = 0;
 
 		void AddGPUResource(GPUResource* resource);
 		void RemoveGPUResource(GPUResource* resource);
+		void ProcessRemovedGPUResouces();
 
 		GraphicsDeviceType GetGraphicsDeviceType()const { return mGraphicsDeviceType; }
 
@@ -132,5 +134,6 @@ namespace Cjing3D
 		uint64_t mCurrentFrameCount = 0;
 
 		std::list<GPUResource*> mGPUResource;  // 记录所有注册的GPUResource
+		std::vector<GPUResource*> mRemovedGPUResources;
 	};
 }

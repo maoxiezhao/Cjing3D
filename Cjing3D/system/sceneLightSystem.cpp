@@ -10,7 +10,7 @@ namespace Cjing3D
 		CameraPtr camera = renderer.GetCamera();
 
 		ECS::ComponentManager<LightComponent > & lights = scene.mLights;
-		ECS::ComponentManager<AABB>& lightAABBs = scene.mLightAABBs;
+		ECS::ComponentManager<AABBComponent>& lightAABBs = scene.mLightAABBs;
 		ECS::ComponentManager<TransformComponent> transforms = scene.mTransforms;
 
 		for (size_t i = 0; i < lights.GetCount(); i++)
@@ -18,7 +18,7 @@ namespace Cjing3D
 			Entity entity = lights.GetEntityByIndex(i);
 
 			std::shared_ptr<LightComponent> light = lights[i];
-			std::shared_ptr<AABB> aabb = lightAABBs[i];
+			std::shared_ptr<AABBComponent> aabb = lightAABBs[i];
 			std::shared_ptr<TransformComponent> transform = transforms.GetComponent(entity);
 
 			if (light == nullptr || aabb == nullptr || transform == nullptr) {
@@ -30,6 +30,7 @@ namespace Cjing3D
 			XMMatrixDecompose(&S, &R, &T, worldMatrix);
 
 			light->mPosition = XMStore<F32x3>(T);
+			light->mRotation = XMStore<F32x4>(R);
 			light->mDirection = XMStore<F32x3>(XMVector3TransformNormal(XMVectorSet(0, 1, 0, 0), worldMatrix));
 
 			// calculate aabb by light type
@@ -37,13 +38,13 @@ namespace Cjing3D
 			switch (lightType)
 			{
 			case Cjing3D::LightComponent::LightType_Directional:
-				aabb->SetFromHalfWidth(XMConvert(camera->GetCameraPos()), XMFLOAT3(1000.0f, 1000.0f, 1000.0f));
+				aabb->GetAABB().SetFromHalfWidth(XMConvert(camera->GetCameraPos()), XMFLOAT3(1000.0f, 1000.0f, 1000.0f));
 				break;
 			case Cjing3D::LightComponent::LightType_Point:
-				aabb->SetFromHalfWidth(XMConvert(light->mPosition), XMFLOAT3(light->mRange, light->mRange, light->mRange));
+				aabb->GetAABB().SetFromHalfWidth(XMConvert(light->mPosition), XMFLOAT3(light->mRange, light->mRange, light->mRange));
 				break;
 			case Cjing3D::LightComponent::LightType_Spot:
-				aabb->SetFromHalfWidth(XMConvert(light->mPosition), XMFLOAT3(light->mRange, light->mRange, light->mRange));
+				aabb->GetAABB().SetFromHalfWidth(XMConvert(light->mPosition), XMFLOAT3(light->mRange, light->mRange, light->mRange));
 				break;
 			default:
 				break;

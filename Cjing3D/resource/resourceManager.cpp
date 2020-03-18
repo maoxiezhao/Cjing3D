@@ -74,6 +74,7 @@ void ResourceManager::LoadTextrueFromFilePath(const std::filesystem::path & file
 			TextureDesc desc = {};
 			desc.mWidth = width;
 			desc.mHeight = height;
+			desc.mArraySize = 1;
 			desc.mFormat = FORMAT_R8G8B8A8_UNORM;
 			desc.mBindFlags = BIND_UNORDERED_ACCESS | BIND_SHADER_RESOURCE;
 			desc.mMipLevels = static_cast<U32>(std::log2(std::max(width, height)));
@@ -97,7 +98,7 @@ void ResourceManager::LoadTextrueFromFilePath(const std::filesystem::path & file
 			// 创建各个subresource的srv和uav
 			for (int mipLevel = 0; mipLevel < desc.mMipLevels; mipLevel++)
 			{
-				renderer.GetDevice().CreateShaderResourceView(texture, mipLevel, 1);
+				renderer.GetDevice().CreateShaderResourceView(texture, 0, -1, mipLevel, 1);
 				renderer.GetDevice().CreateUnordereddAccessView(texture, mipLevel);
 			}
 

@@ -129,6 +129,15 @@ void StateManager::SetupDepthStencilStates()
 		const auto result = mDevice.CreateDepthStencilState(desc, *mDepthStencilStates[DepthStencilStateID::DepthStencilStateID_DepthReadEqual]);
 		Debug::ThrowIfFailed(result, "Failed to create greater equal depthStencilState", result);
 	}
+
+	{
+		desc.mDepthEnable = true;
+		desc.mDepthWriteMask = DEPTH_WRITE_MASK_ALL;
+		desc.mDepthFunc = COMPARISON_GREATER;
+
+		const auto result = mDevice.CreateDepthStencilState(desc, *mDepthStencilStates[DepthStencilStateID::DepthStencilStateID_Shadow]);
+		Debug::ThrowIfFailed(result, "Failed to create shadow depthStencilState", result);
+	}
 }
 
 void StateManager::SetupBlendStates()
@@ -216,6 +225,23 @@ void StateManager::SetupRasterizerStates()
 		const auto result = mDevice.CreateRasterizerState(desc, *mRasterizerStates[RasterizerStateID::RasterizerStateID_Image]);
 		Debug::ThrowIfFailed(result, "Failed to create image rasterizerState", result);
 	}
+
+	{
+		RasterizerStateDesc desc = {};
+		desc.mFillMode = FILL_SOLID;
+		desc.mCullMode = CULL_BACK;
+		desc.mFrontCounterClockwise = true;
+		desc.mDepthBias = 0;
+		desc.mDepthBiasClamp = 0;
+		desc.mSlopeScaleDepthBias = -0.2;
+		desc.mDepthClipEnable = true;
+		desc.mMultisampleEnable = false;
+		desc.mAntialiaseLineEnable = false;
+		desc.mConservativeRasterizationEnable = false;
+
+		const auto result = mDevice.CreateRasterizerState(desc, *mRasterizerStates[RasterizerStateID::RasterizerStateID_Shadow]);
+		Debug::ThrowIfFailed(result, "Failed to create shadow rasterizerState", result);
+	}
 }
 
 void StateManager::SetupSamplerStates()
@@ -248,6 +274,12 @@ void StateManager::SetupSamplerStates()
 		const auto result = CreateDefaultSamplerState(mDevice, *mSamplerStates[SamplerStateID_ANISOTROPIC],
 			FILTER_ANISOTROPIC, TEXTURE_ADDRESS_WRAP, COMPARISON_NEVER, 16);
 		Debug::ThrowIfFailed(result, "Failed to create SamplerStateID_ANISOTROPIC samplerState", result);
+	}
+
+	{
+		const auto result = CreateDefaultSamplerState(mDevice, *mSamplerStates[SamplerStateID_Comparision_depth],
+			FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT, TEXTURE_ADDRESS_CLAMP, COMPARISON_GREATER_EQUAL);
+		Debug::ThrowIfFailed(result, "Failed to create SamplerStateID_Comparision_depth samplerState", result);
 	}
 }
 

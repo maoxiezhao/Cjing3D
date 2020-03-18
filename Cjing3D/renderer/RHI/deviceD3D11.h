@@ -53,15 +53,15 @@ public:
 	virtual void DestroyTexture2D(RhiTexture2D& texture2D);
 	virtual void CopyTexture2D(RhiTexture2D* texDst, RhiTexture2D* texSrc);
 
-	virtual void BindRenderTarget(UINT numView, RhiTexture2D* const *texture2D, RhiTexture2D* depthStencilTexture);
+	virtual void BindRenderTarget(UINT numView, RhiTexture2D* const *texture2D, RhiTexture2D* depthStencilTexture, I32 subresourceIndex = -1);
 
 	virtual HRESULT CreateRenderTargetView(RhiTexture2D& texture);
-	virtual HRESULT CreateShaderResourceView(RhiTexture2D& texture, U32 firstMip = 0, U32 mipLevel = -1);
-	virtual HRESULT CreateDepthStencilView(RhiTexture2D& texture);
+	virtual HRESULT CreateShaderResourceView(RhiTexture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1, U32 firstMip = 0, U32 mipLevel = -1);
+	virtual HRESULT CreateDepthStencilView(RhiTexture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1);
 	virtual HRESULT CreateUnordereddAccessView(RhiTexture2D& texture, U32 firstMip = 0);
 
 	virtual void ClearRenderTarget(RhiTexture2D& texture, F32x4 color);
-	virtual void ClearDepthStencil(RhiTexture2D& texture, UINT clearFlag, F32 depth, U8 stencil);
+	virtual void ClearDepthStencil(RhiTexture2D& texture, UINT clearFlag, F32 depth, U8 stencil, I32 subresourceIndex = -1);
 
 	virtual void BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot, I32 subresourceIndex = -1);
 	virtual void BindGPUResources(SHADERSTAGES stage, GPUResource* const* resource, U32 slot, U32 count);
@@ -98,7 +98,7 @@ public:
 	void SetViewport(ViewPort viewport);
 
 	virtual GPUAllocation AllocateGPU(size_t dataSize);
-
+	virtual void UnAllocateGPU();
 
 
 private:

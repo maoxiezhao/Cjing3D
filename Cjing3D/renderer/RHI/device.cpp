@@ -17,14 +17,37 @@ void GraphicsDevice::Initialize()
 
 void GraphicsDevice::Uninitialize()
 {
+	ProcessRemovedGPUResouces();
+
 	for (GPUResource* resource : mGPUResource){
-		resource->UnRegister();
+		if (resource != nullptr) {
+			resource->UnRegister();
+		}
 	}
+
 	mGPUResource.clear();
+	mRemovedGPUResources.clear();
+}
+
+void GraphicsDevice::PresentBegin()
+{
+}
+
+void GraphicsDevice::PresentEnd()
+{
+	ProcessRemovedGPUResouces();
 }
 
 void GraphicsDevice::AddGPUResource(GPUResource * resource)
 {
+	// 如果添加的Resouce正好在删除队列中，则直接将队列中的移除即可
+	auto it = std::find(mRemovedGPUResources.begin(), mRemovedGPUResources.end(), resource);
+	if (it != mRemovedGPUResources.end())
+	{
+		mRemovedGPUResources.erase(it);
+		return;
+	}
+
 	if (std::find(mGPUResource.begin(), mGPUResource.end(), resource) == mGPUResource.end())
 	{
 		mGPUResource.push_back(resource);
@@ -33,10 +56,22 @@ void GraphicsDevice::AddGPUResource(GPUResource * resource)
 
 void GraphicsDevice::RemoveGPUResource(GPUResource * resource)
 {
-	if (std::find(mGPUResource.begin(), mGPUResource.end(), resource) != mGPUResource.end())
+	if (std::find(mRemovedGPUResources.begin(), mRemovedGPUResources.end(), resource) == mRemovedGPUResources.end())
 	{
+		mRemovedGPUResources.push_back(resource);
+	}
+}
+
+void GraphicsDevice::ProcessRemovedGPUResouces()
+{
+	if (mRemovedGPUResources.empty()) {
+		return;
+	}
+
+	for (GPUResource* resource : mRemovedGPUResources) {
 		mGPUResource.remove(resource);
 	}
+	mRemovedGPUResources.clear();
 }
 
 U32 GraphicsDevice::GetFormatStride(FORMAT value) const

@@ -23,6 +23,7 @@ namespace Cjing3D {
 		MaterialComponent();
 
 		inline bool IsCastingShadow()const { return mIsCastingShadow; }
+		inline void SetCastShadow(bool castingShadow) { mIsCastingShadow = castingShadow; }
 		inline bool IsDirty()const { return mIsDirty; }
 		inline void SetIsDirty(bool isDirty) { mIsDirty = isDirty; }
 

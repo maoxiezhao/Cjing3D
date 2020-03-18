@@ -37,7 +37,8 @@ enum RenderingDeviceType
 enum RenderPassType
 {
 	RenderPassType_Forward,
-	RenderPassType_Deferred
+	RenderPassType_Deferred,
+	RenderPassType_Shadow,
 };
 
 enum RenderableType
@@ -48,6 +49,8 @@ enum RenderableType
 
 enum BoundVexterBufferType
 {
+	BoundVexterBufferType_Nothing,
 	BoundVexterBufferType_All,
+	BoundVexterBufferType_Pos,
 	BoundVexterBufferType_Pos_Tex,
 };

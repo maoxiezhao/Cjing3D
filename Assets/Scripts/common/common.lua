@@ -1,6 +1,7 @@
 
 require("common.classType")
 require("common.container")
+require("common.definitions")
 
 local _xpcall = xpcall
 local _debug_traceback = debug.traceback
@@ -40,5 +41,3 @@ function STRING_ID(str)
 end 
 
 STRING_ID_EMPTY = STRING_ID("");
-
-NUMBER_PI = 3.141592653;

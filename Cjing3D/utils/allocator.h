@@ -59,6 +59,11 @@ namespace Cjing3D
 			mOffset = 0;
 		}
 
+		inline size_t GetCapacity() const 
+		{
+			return mCapacity;
+		}
+
 	private:
 		uint8_t* mBuffer = nullptr;
 		size_t mCapacity = 0;

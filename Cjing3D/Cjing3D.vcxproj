@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -259,6 +259,7 @@
     <ClInclude Include="scripts\lua\lvm.h" />
     <ClInclude Include="scripts\lua\lzio.h" />
     <ClInclude Include="system\component\camera.h" />
+    <ClInclude Include="system\component\genericType.h" />
     <ClInclude Include="system\component\component.h" />
     <ClInclude Include="system\component\componentInclude.h" />
     <ClInclude Include="system\component\light.h" />
@@ -390,6 +391,7 @@
     <ClCompile Include="scripts\lua\lzio.c" />
     <ClCompile Include="system\component\camera.cpp" />
     <ClCompile Include="system\component\component.cpp" />
+    <ClCompile Include="system\component\genericType.cpp" />
     <ClCompile Include="system\component\light.cpp" />
     <ClCompile Include="system\component\material.cpp" />
     <ClCompile Include="system\component\mesh.cpp" />

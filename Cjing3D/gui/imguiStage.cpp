@@ -146,6 +146,7 @@ namespace Cjing3D
 	/***************************************************************************************/
 
 	namespace {
+
 		void ShowTransformWindow(TransformComponent& transform)
 		{
 			ImGui::Text("Transform");
@@ -228,7 +229,7 @@ namespace Cjing3D
 				{
 					Entity entity = materialManager.GetEntityByIndex(index);
 					if (entity == materialEntity) {
-						materialIndex = index + 1;
+						materialIndex = index;
 					}
 
 					std::string nodeName = "Entity ";
@@ -246,8 +247,8 @@ namespace Cjing3D
 				if (ImGui::Combo("Material", &materialIndex, materialNameList.c_str(), 20))
 				{
 					Entity newMaterial = INVALID_ENTITY;
-					if (materialIndex > 0) {
-						newMaterial = materialManager.GetEntityByIndex(materialIndex - 1);
+					if (materialIndex >= 0) {
+						newMaterial = materialManager.GetEntityByIndex(materialIndex);
 					}
 
 					// 暂时取第一个subset的materialID
@@ -296,6 +297,17 @@ namespace Cjing3D
 				{
 					light->mEnergy = energy;
 				}
+
+				bool castingShadow = light->IsCastShadow();
+				if (ImGui::Checkbox("castShadow", &castingShadow)) {
+					light->SetCastShadow(castingShadow);
+				}
+
+				F32 shadowBias = light->mShadowBias;
+				if (ImGui::DragFloat("shadowBias", &shadowBias, 0.0001f, 0.0f, 1.0f))
+				{
+					light->mShadowBias = shadowBias;
+				}
 			}
 
 			ImGui::End();
@@ -309,6 +321,30 @@ namespace Cjing3D
 			ImGui::SetNextWindowPos(ImVec2(1070, 20), ImGuiCond_Always);
 			ImGui::SetNextWindowSize(ImVec2(350, 360), ImGuiCond_Always);
 			ImGui::Begin("Material attributes");
+
+			Scene& scene = Scene::GetScene();
+			auto material = scene.mMaterials.GetComponent(currentMaterial);
+			if (material != nullptr) {
+				ImGui::Text("BaseColor");
+
+				F32 color[4] = { material->mBaseColor[0], material->mBaseColor[1], material->mBaseColor[2], material->mBaseColor[3] };
+				if (ImGui::ColorEdit4("color", color))
+				{
+					material->mBaseColor[0] = color[0];
+					material->mBaseColor[1] = color[1];
+					material->mBaseColor[2] = color[2];
+					material->mBaseColor[3] = color[3];
+
+					material->SetIsDirty(true);
+				}
+
+				bool castingShadow = material->IsCastingShadow();
+				if (ImGui::Checkbox("castShadow", &castingShadow)) {
+					material->SetCastShadow(castingShadow);
+
+					material->SetIsDirty(true);
+				}
+			}
 
 			ImGui::End();
 		}
@@ -343,6 +379,14 @@ namespace Cjing3D
 				if (ImGui::Checkbox("FXAA", &fxaaEnable)) {
 					renderPath3D->SetFXAAEnable(fxaaEnable);
 				}
+			}
+
+			// ambient light
+			F32x3 ambientColor = renderer.GetAmbientColor();
+			F32* ambientColors = ambientColor.data();
+			if (ImGui::ColorEdit3("color", ambientColors))
+			{
+				renderer.SetAmbientColor(ambientColor);
 			}
 
 			ImGui::End();

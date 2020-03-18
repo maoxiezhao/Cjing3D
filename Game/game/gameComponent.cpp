@@ -9,8 +9,10 @@
 #include "system\component\camera.h"
 #include "input\InputSystem.h"
 #include "helper\logger.h"
+#include "helper\fileSystem.h"
 #include "renderer\paths\renderPath_forward.h"
 #include "gui\guiStage.h"
+
 
 #include <thread>
 #include <Windows.h>
@@ -32,7 +34,7 @@ namespace Cjing3D
 	void TestGame::Initialize()
 	{
 		auto systemContext = GetGameContext();
-		//ModelImporter::ImportModelObj("Models/mechine/mechine.obj", *systemContext);
+		//ModelImporter::ImportModelObj("Models/sandbox/sandbox.obj", *systemContext);
 
 		auto& renderer = systemContext->GetSubSystem<Renderer>();
 		RenderPathForward* path = new RenderPathForward(renderer);
@@ -42,8 +44,8 @@ namespace Cjing3D
 		renderer2D.SetCurrentRenderPath(path);
 
 		// test load scene from archive
-		const std::string filePath = "Models/mechine/machine.c3dscene";
-		renderer.GetMainScene().LoadSceneFromArchive(filePath);
+		//const std::string filePath = "Models/sandbox/sandbox.c3dscene";
+		//renderer.GetMainScene().LoadSceneFromArchive(filePath);
 	}
 
 	void TestGame::Update(EngineTime time)
@@ -74,7 +76,7 @@ namespace Cjing3D
 			ofn.hwndOwner = nullptr;
 			ofn.lpstrFile = szFile;
 			ofn.nMaxFile = sizeof(szFile);
-			ofn.lpstrFilter = "Scene file\0*.c3dscene\0";
+			ofn.lpstrFilter = "Scene file(Model file)\0*.c3dscene;*.obj\0";
 			ofn.nFilterIndex = 1;
 			ofn.lpstrFileTitle = nullptr;
 			ofn.nMaxFileTitle = 0;
@@ -84,7 +86,14 @@ namespace Cjing3D
 			if (GetOpenFileNameA(&ofn))
 			{
 				std::string filePath = ofn.lpstrFile;
-				renderer.GetMainScene().LoadSceneFromArchive(filePath);
+				std::string extension = FileData::GetExtensionFromFilePath(filePath);
+				if (extension == ".c3dscene") {
+					renderer.GetMainScene().LoadSceneFromArchive(filePath);
+				}
+				else if (extension == ".obj") {
+					ModelImporter::ImportModelObj(filePath, *systemContext);
+				}
+		
 			}
 		}
 		else if (inputManager.IsKeyDown(KeyCode::F6)) 
@@ -111,6 +120,7 @@ namespace Cjing3D
 					filePath = filePath + ".c3dscene";
 				}
 				renderer.GetMainScene().SaveSceneToArchive(filePath);
+				MessageBoxA(NULL, TEXT("Scene saved successfully"), TEXT("Info"), MB_OK);
 			}
 		}
 		else if (inputManager.IsKeyDown(KeyCode::F7))

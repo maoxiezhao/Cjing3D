@@ -115,27 +115,27 @@ namespace Cjing3D
 		mMax = aabb.mMax;
 	}
 
+	bool AABB::Intersects(const AABB& other) const
+	{
+		if ((mMax.x < other.mMin.x || mMin.x > other.mMax.x) ||
+			(mMax.y < other.mMin.y || mMin.y > other.mMax.y) ||
+			(mMax.z < other.mMin.z || mMin.z > other.mMax.z)) {
+		
+			return false;
+		}
+
+		return true;
+	}
+
 	void AABB::Serialize(Archive& archive, U32 seed)
 	{
-		XMFLOAT3 _min;
-		XMFLOAT3 _max;
-
-		archive >> _min;
-		archive >> _max;
-
-		mMin = XMLoadFloat3(&_min);
-		mMax = XMLoadFloat3(&_max);
+		archive >> mMin;
+		archive >> mMax;
 	}
 
 	void AABB::Unserialize(Archive& archive) const
 	{
-		XMFLOAT3 _min;
-		XMFLOAT3 _max;
-
-		XMStoreFloat3(&_min, mMin);
-		XMStoreFloat3(&_max, mMax);
-
-		archive << _min;
-		archive << _max;
+		archive << mMin;
+		archive << mMax;
 	}
 }

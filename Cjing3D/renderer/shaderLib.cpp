@@ -50,12 +50,12 @@ void ShaderLib::LoadVertexShaders()
 			{ "COLOR", 0u, MeshComponent::VertexColor::format, 2u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
 
 			// instance
-			{ "MAIT", 0u, FORMAT_R32G32B32A32_FLOAT, 3u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-			{ "MAIT", 1u, FORMAT_R32G32B32A32_FLOAT, 3u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-			{ "MAIT", 2u, FORMAT_R32G32B32A32_FLOAT, 3u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-			{ "COLOR",0u, FORMAT_R32G32B32A32_FLOAT, 3u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u }
+			{ "INSTANCEMAT", 0u, FORMAT_R32G32B32A32_FLOAT, 3u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
+			{ "INSTANCEMAT", 1u, FORMAT_R32G32B32A32_FLOAT, 3u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
+			{ "INSTANCEMAT", 2u, FORMAT_R32G32B32A32_FLOAT, 3u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
+			{ "INSTANCECOLOR",0u, FORMAT_R32G32B32A32_FLOAT, 3u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u }
 		};
-		auto vsinfo = resourceManager.GetOrCreate<VertexShaderInfo>(shaderPath + "objectVS.cso", layout, 6);
+		auto vsinfo = resourceManager.GetOrCreate<VertexShaderInfo>(shaderPath + "objectVS.cso", layout, ARRAYSIZE(layout));
 		mVertexShader[VertexShaderType_Transform] = vsinfo->mVertexShader;
 		mInputLayout[InputLayoutType_Transform] = vsinfo->mInputLayout;
 	
@@ -66,6 +66,21 @@ void ShaderLib::LoadVertexShaders()
 		// image vs
 		auto imageVSInfo = resourceManager.GetOrCreate<VertexShaderInfo>(shaderPath + "imageVS.cso", nullptr, 0);
 		mVertexShader[VertexShaderType_Image] = imageVSInfo->mVertexShader;
+
+		// shadow vs
+		VertexLayoutDesc shadowLayout[] =
+		{
+			{ "POSITION_NORMAL_SUBSETINDEX", 0u, MeshComponent::VertexPosNormalSubset::format, 0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
+
+			// instance
+			{ "INSTANCEMAT", 0u, FORMAT_R32G32B32A32_FLOAT,  1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
+			{ "INSTANCEMAT", 1u, FORMAT_R32G32B32A32_FLOAT,  1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
+			{ "INSTANCEMAT", 2u, FORMAT_R32G32B32A32_FLOAT,  1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
+			{ "INSTANCECOLOR",0u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u }
+		};
+		auto shadowVSInfo = resourceManager.GetOrCreate<VertexShaderInfo>(shaderPath + "shadowVS.cso", shadowLayout, ARRAYSIZE(shadowLayout));
+		mVertexShader[VertexShaderType_Shadow] = shadowVSInfo->mVertexShader;
+		mInputLayout[InputLayoutType_Shadow] = shadowVSInfo->mInputLayout;
 	}
 }
 

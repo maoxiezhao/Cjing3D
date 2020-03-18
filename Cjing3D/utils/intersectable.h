@@ -11,13 +11,15 @@ namespace Cjing3D
 	class AABB final
 	{
 	public:
-		XMVECTOR mMin;
-		XMVECTOR mMax;
+		XMFLOAT3 mMin;
+		XMFLOAT3 mMax;
 
 	public:
 		AABB() : AABB(g_XMInfinity, -g_XMInfinity) {};
-		AABB(FXMVECTOR p) : mMin(p), mMax(p) {};
-		AABB(XMVECTOR min, XMVECTOR max) : mMin(min), mMax(max) {};
+		AABB(XMVECTOR p) { XMStoreFloat3(&mMin, p); XMStoreFloat3(&mMax, p); };
+		AABB(XMVECTOR min, XMVECTOR max) { XMStoreFloat3(&mMin, min); XMStoreFloat3(&mMax, max); };
+		AABB(XMFLOAT3 p) : mMin(p), mMax(p) {};
+		AABB(XMFLOAT3 min, XMFLOAT3 max) : mMin(min), mMax(max) {};
 		AABB(const AABB& aabb) = default;
 		AABB(AABB&& aabb) = default;
 		~AABB() = default;
@@ -33,16 +35,17 @@ namespace Cjing3D
 		}
 
 		const XMVECTOR XM_CALLCONV GetMin()const {
-			return mMin;
+			return XMLoadFloat3(&mMin);
 		}
 		const XMVECTOR XM_CALLCONV GetMax()const {
-			return mMax;
+			return XMLoadFloat3(&mMax);
 		}
 		const XMVECTOR XM_CALLCONV GetCenter()const {
-			return 0.5f * (mMin + mMax);
+
+			return 0.5f * (GetMin() + GetMax());
 		}
 		const XMVECTOR XM_CALLCONV GetDiagonal()const {
-			return (mMax - mMin);
+			return (GetMax() - GetMin());
 		}
 		const XMVECTOR XM_CALLCONV GetRadius()const {
 			return 0.5f * GetDiagonal();
@@ -66,8 +69,8 @@ namespace Cjing3D
 
 		static const AABB XM_CALLCONV Union(const AABB& aabb1, const AABB& aabb2)
 		{
-			const auto pMin = XMVectorMin(aabb1.mMax, aabb2.mMin);
-			const auto pMax = XMVectorMax(aabb1.mMax, aabb2.mMax);
+			const auto pMin = XMVectorMin(aabb1.GetMin(), aabb2.GetMin());
+			const auto pMax = XMVectorMax(aabb1.GetMax(), aabb2.GetMax());
 			return AABB(pMin, pMax);
 		}
 
@@ -77,19 +80,20 @@ namespace Cjing3D
 			// if n.x > 0 => control.x = 0xFFFFFFF otherwise control.x = 0x0
 			const auto control = XMVectorGreaterOrEqual(n, DirectX::XMVectorZero());
 			// ret.x = (control.x = 0xffffff)? mMax.x : mMin.x
-			return XMVectorSelect(mMin, mMax, control);
+			return XMVectorSelect(GetMin(), GetMax(), control);
 		}
 
 		AABB GetByTransforming(const XMMATRIX& mat)const;
 		AABB GetByTransforming(const XMFLOAT4X4& mat)const;
 		XMMATRIX GetBoxMatrix()const;
 		void CopyFromOther(const AABB& aabb);
+		bool Intersects(const AABB& other)const;
 
 		inline XMVECTOR corner(int index) const
 		{
 			F32x3(1.0f, 1.0f, 1.0f);
-			auto _min = XMStore<F32x3>(mMin);
-			auto _max = XMStore<F32x3>(mMax);
+			auto _min = XMStore<F32x3>(GetMin());
+			auto _max = XMStore<F32x3>(GetMax());
 			switch (index)
 			{
 			case 0: return XMLoad(_min);
@@ -107,11 +111,8 @@ namespace Cjing3D
 
 		inline void SetFromHalfWidth(XMFLOAT3 center, XMFLOAT3 range)
 		{
-			XMFLOAT3 _min = XMFLOAT3(center.x - range.x, center.y - range.y, center.z - range.z);
-			XMFLOAT3 _max = XMFLOAT3(center.x + range.x, center.y + range.y, center.z + range.z);
-
-			mMin = XMLoadFloat3(&_min);
-			mMax = XMLoadFloat3(&_max);
+			mMin = XMFLOAT3(center.x - range.x, center.y - range.y, center.z - range.z);
+			mMax = XMFLOAT3(center.x + range.x, center.y + range.y, center.z + range.z);
 		}
 
 		virtual void Serialize(Archive& archive, U32 seed = 0);

@@ -8,13 +8,16 @@
 TEXTURE2D(texture_0, TEXTURE_SLOT_0);
 TEXTURE2D(texture_1, TEXTURE_SLOT_1);
 TEXTURE2D(texture_2, TEXTURE_SLOT_2);
+TEXTURE2DARRAY(texture_shadowmap_array, float, TEXTURE_SLOT_SHADOW_ARRAY_2D);
 
 // common sampler states
 SAMPLERSTATE(sampler_linear_clamp, SAMPLER_LINEAR_CLAMP_SLOT);
 SAMPLERSTATE(sampler_anisotropic, SAMPLER_ANISOTROPIC_SLOT);
+SAMPLERCOMPARISONSTATE(sampler_comparison_depth, SAMPLER_COMPARISON_SLOT);
 
 // common structred buffer
-STRUCTREDBUFFER(LightArray, ShaderLight, SHADER_LIGHT_ARRAY_SLOT);
+STRUCTUREDBUFFER(LightArray, ShaderLight, SBSLOT_SHADER_LIGHT_ARRAY);
+STRUCTUREDBUFFER(MatrixArray, float4x4, SBSLOT_MATRIX_ARRAY);
 
 // 计算法线切线空间变换矩阵
 inline float3x3 ComputeTangateTransform(float3 N, float3 P, float2 UV)
@@ -32,6 +35,17 @@ inline float3x3 ComputeTangateTransform(float3 N, float3 P, float2 UV)
 	float3 T = normalize(mul(float2(dUV1.x, dUV2.x), inverseM));
 	float3 B = normalize(mul(float2(dUV1.y, dUV2.y), inverseM));
 	return float3x3(T, B, N);
+}
+
+// 判断v是否在[0, 1]
+inline bool IsSaturated(float v)
+{
+    return v == saturate(v);
+}
+
+inline bool IsSaturated(float3 v)
+{
+    return IsSaturated(v.x) && IsSaturated(v.y) && IsSaturated(v.z);
 }
 
 // gamma correction

@@ -8,10 +8,11 @@
 namespace Cjing3D
 {
 
-enum ResourceBufferType
+enum StructuredBufferType
 {
-	ResourceBufferType_ShaderLight = 0,
-	ResourceBufferType_Count,
+	StructuredBufferType_ShaderLight = 0,
+	StructuredBufferType_MatrixArray,
+	StructuredBufferType_Count,
 };
 
 enum ConstantBufferType
@@ -36,18 +37,18 @@ public:
 		return mConstantBuffer[static_cast<int>(bufferType)];
 	}
 
-	inline GPUBuffer& GetResourceBuffer(ResourceBufferType bufferType){
-		return mResourceBuffer[static_cast<int>(bufferType)];
+	inline GPUBuffer& GetStructuredBuffer(StructuredBufferType bufferType){
+		return mStructuredBuffer[static_cast<int>(bufferType)];
 	}
 
 private:
 	void LoadConstantBuffers();
-	void LoadResourceBuffers();
+	void LoadStructuredBuffers();
 
 	Renderer & mRenderer;
 
 	GPUBuffer mConstantBuffer[ConstantBufferType_Count];
-	GPUBuffer mResourceBuffer[ResourceBufferType_Count];
+	GPUBuffer mStructuredBuffer[StructuredBufferType_Count];
 };
 
 }

@@ -15,8 +15,11 @@ namespace Cjing3D {
 		ObjectComponent() : Component(ComponentType_Ojbect) {}
 
 		inline ObjectType GetObjectType() { return mObjectType; }
-		inline RenderableType GetRenderableType() { return mRenderableType; }
-		inline void SetCastingShadow(bool isCastingShadow) { mIsCastingShadow = isCastingShadow; }
+		inline RenderableType GetRenderableType()const { return mRenderableType; }
+		inline bool IsRenderable()const { return  GetRenderableType() == OjbectType_Renderable;}
+
+		inline void SetCastShadow(bool isCastShadow) { mIsCastShadow = isCastShadow; }
+		inline bool IsCastShadow()const { return mIsCastShadow; }
 		inline void SetIsImpostor(bool isImpostor) { mIsImpostor = isImpostor; }
 		inline bool IsImpostor()const { return mIsImpostor; }
 
@@ -29,7 +32,7 @@ namespace Cjing3D {
 		ObjectType mObjectType = OjbectType_Renderable;
 		RenderableType mRenderableType = RenderableType_Opaque;
 
-		bool mIsCastingShadow = false;
+		bool mIsCastShadow = false;
 		bool mIsImpostor = false;
 
 		F32x3 mCenter = F32x3(0.0f, 0.0f, 0.0f);			// assign in system'update

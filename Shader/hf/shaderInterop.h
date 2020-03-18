@@ -29,9 +29,11 @@ typedef XMINT4 int4;
 
 #define CBUFFER(name, slot) cbuffer name : register(b ## slot)
 #define TEXTURE2D(name, slot) Texture2D name : register(t ## slot);
+#define TEXTURE2DARRAY(name, type, slot) Texture2DArray<type> name : register(t ## slot);
 #define TYPE_TEXTURE2D(name, type, slot) Texture2D<type> name : register(t ## slot);
 #define SAMPLERSTATE(name, slot) SamplerState name :register(s ## slot);
-#define STRUCTREDBUFFER(name, type, slot) StructuredBuffer<type> name :register(t ## slot);
+#define SAMPLERCOMPARISONSTATE(name, slot) SamplerComparisonState name :register(s ## slot);
+#define STRUCTUREDBUFFER(name, type, slot) StructuredBuffer<type> name :register(t ## slot);
 
 #define RWTEXTURE2D(name, type, slot) RWTexture2D<type> name : register(u ## slot);
 

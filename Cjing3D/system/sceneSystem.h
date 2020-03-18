@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common\common.h"
+#include "system\component\genericType.h"
 #include "system\component\transform.h"
 #include "system\component\camera.h"
 #include "system\component\mesh.h"
@@ -15,44 +16,29 @@
 
 namespace Cjing3D {
 
-	//  Hierarchy用于组织Transform之间的层级关系
-	class HierarchyComponent : public Component
-	{
-	public:
-		HierarchyComponent() : Component(ComponentType_HierarchyComponent) {}
-
-		// parent entity
-		ECS::Entity mParent = ECS::INVALID_ENTITY;
-		// parent inverse world matrix
-		XMMATRIX mParentBindInverseWorld = XMMatrixIdentity();
-
-		virtual void Serialize(Archive& archive, U32 seed = 0);
-		virtual void Unserialize(Archive& archive)const;
-	};
-
 	// TODO
 	using ComponentManagerTypesConst = std::tuple<
-		const ECS::ComponentManager<StringID>*,
+		const ECS::ComponentManager<NameComponent>*,
 		const ECS::ComponentManager<TransformComponent>*,
 		const ECS::ComponentManager<HierarchyComponent>*,
 		const ECS::ComponentManager<MaterialComponent>*,
 		const ECS::ComponentManager<MeshComponent>*,
 		const ECS::ComponentManager<ObjectComponent>*,
-		const ECS::ComponentManager<AABB>*,
+		const ECS::ComponentManager<AABBComponent>*,
 		const ECS::ComponentManager<LightComponent>*,
-		const ECS::ComponentManager<AABB>*
+		const ECS::ComponentManager<AABBComponent>*
 	>;
 
 	using ComponentManagerTypes = std::tuple<
-		ECS::ComponentManager<StringID>*,
+		ECS::ComponentManager<NameComponent>*,
 		ECS::ComponentManager<TransformComponent>*,
 		ECS::ComponentManager<HierarchyComponent>*,
 		ECS::ComponentManager<MaterialComponent>*,
 		ECS::ComponentManager<MeshComponent>*,
 		ECS::ComponentManager<ObjectComponent>*,
-		ECS::ComponentManager<AABB>*,
+		ECS::ComponentManager<AABBComponent>*,
 		ECS::ComponentManager<LightComponent>*,
-		ECS::ComponentManager<AABB>*
+		ECS::ComponentManager<AABBComponent>*
 	>;
 
 	class Scene
@@ -76,6 +62,7 @@ namespace Cjing3D {
 		);
 
 		// create by entity
+		NameComponent& GetOrCreateNameByEntity(ECS::Entity entity);
 		TransformComponent& GetOrCreateTransformByEntity(ECS::Entity entity);
 		LightComponent& GetOrCreateLightByEntity(ECS::Entity entity);
 
@@ -134,15 +121,15 @@ namespace Cjing3D {
 		std::map<StringID, ECS::Entity> mNameEntityMap;
 
 		// TODO: componentManager集合的维护非常繁琐，后续会重新设计结构或者用宏封装一层
-		ECS::ComponentManager<StringID> mNames;
+		ECS::ComponentManager<NameComponent> mNames;
 		ECS::ComponentManager<TransformComponent> mTransforms;
 		ECS::ComponentManager<HierarchyComponent> mHierarchies;
 		ECS::ComponentManager<MaterialComponent> mMaterials;
 		ECS::ComponentManager<MeshComponent> mMeshes;
 		ECS::ComponentManager<ObjectComponent> mObjects;
-		ECS::ComponentManager<AABB> mObjectAABBs;
+		ECS::ComponentManager<AABBComponent> mObjectAABBs;
 		ECS::ComponentManager<LightComponent> mLights;
-		ECS::ComponentManager<AABB> mLightAABBs;
+		ECS::ComponentManager<AABBComponent> mLightAABBs;
 
 		AABB mSceneAABB;
 

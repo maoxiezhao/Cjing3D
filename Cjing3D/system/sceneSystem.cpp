@@ -12,7 +12,6 @@ namespace Cjing3D
 	{
 		UpdateSceneTransformSystem(*this);
 		UpdateHierarchySystem(*this);     // must update after transform
-
 		UpdateSceneLightSystem(*this);
 		UpdateSceneObjectSystem(*this);
 	}
@@ -96,6 +95,17 @@ namespace Cjing3D
 		return entity;
 	}
 
+	NameComponent& Scene::GetOrCreateNameByEntity(ECS::Entity entity)
+	{
+		auto nameComponentPtr = mNames.GetComponent(entity);
+		if (nameComponentPtr != nullptr) {
+			return *nameComponentPtr;
+		}
+
+		NameComponent& nameComponent = *mNames.Create(entity);
+		return nameComponent;
+	}
+
 	TransformComponent & Scene::GetOrCreateTransformByEntity(ECS::Entity entity)
 	{
 		auto transformPtr = mTransforms.GetComponent(entity);
@@ -107,7 +117,7 @@ namespace Cjing3D
 		return transform;
 	}
 
-	// 仅创建light相关component，不包含transform
+	// 仅创建light相关component
 	LightComponent & Scene::GetOrCreateLightByEntity(ECS::Entity entity)
 	{
 		auto lightPtr = mLights.GetComponent(entity);
@@ -118,6 +128,8 @@ namespace Cjing3D
 		mLightAABBs.Create(entity);
 		LightComponent& light = *mLights.Create(entity);
 		light.SetLightType(LightComponent::LightType_Point);
+
+		GetOrCreateTransformByEntity(entity);
 
 		return light;
 	}
@@ -134,7 +146,7 @@ namespace Cjing3D
 		}
 
 		Entity entity = CreateEntity();
-		mNames.Create(entity)->SetString(name);
+		mNames.Create(entity)->SetName(name);
 		mNameEntityMap[nameID] = entity;
 
 		return entity;
@@ -166,7 +178,7 @@ namespace Cjing3D
 			auto nameComponent = mNames.GetComponent(entity);
 			if (nameComponent != nullptr)
 			{
-				mNameEntityMap.erase(*nameComponent);
+				mNameEntityMap.erase(nameComponent->GetName());
 			}
 			mNames.Remove(entity);
 		}
@@ -261,6 +273,8 @@ namespace Cjing3D
 
 	ECS::Entity Scene::LoadSceneFromArchive(const std::string& path)
 	{
+		Logger::Info("LoadSceneFromArchive, path" + path);
+
 		Scene newScene;
 		ECS::Entity root = ECS::INVALID_ENTITY;
 

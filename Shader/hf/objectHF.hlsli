@@ -54,7 +54,7 @@ float4 main(PixelInputType input) : SV_TARGET
 	float4 color;
 
 	if (gMaterial.haveBaseColorMap > 0) {
-		color = texture_basecolormap.Sample(sampler_anisotropic, input.tex);
+        color = texture_basecolormap.Sample(sampler_linear_clamp, input.tex);
         color.rgb = DeGammaCorrect(color.rgb);
     } else {
 		color = float4(1.0, 1.0, 1.0, 1.0);
@@ -74,7 +74,7 @@ float4 main(PixelInputType input) : SV_TARGET
 	if (gMaterial.haveNormalMap > 0)
 	{
 		float3x3 TBN = ComputeTangateTransform(surface.normal, surface.position, input.tex);
-		float3 nor = texture_normalmap.Sample(sampler_anisotropic, input.tex).rgb;
+        float3 nor = texture_normalmap.Sample(sampler_linear_clamp, input.tex).rgb;
         nor = nor.rgb * 2 - 1;
         surface.normal = normalize(mul(nor, TBN));
     }
@@ -82,7 +82,7 @@ float4 main(PixelInputType input) : SV_TARGET
 	// ´¦Àí·´ÉäÌùÍ¼
     float3 spcularIntensity = float3(1.0f, 1.0f, 1.0f);
     if (gMaterial.haveSurfaceMap > 0) {
-        spcularIntensity = texture_surfacemap.Sample(sampler_anisotropic, input.tex).rgb;
+        spcularIntensity = texture_surfacemap.Sample(sampler_linear_clamp, input.tex).rgb;
     }
 	
     surface = CreateSurface(

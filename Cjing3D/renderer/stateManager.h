@@ -11,6 +11,7 @@ namespace Cjing3D
 		DepthStencilStateID_DepthNone = 0,
 		DepthStencilStateID_GreaterEqualReadWrite,
 		DepthStencilStateID_DepthReadEqual,
+		DepthStencilStateID_Shadow,
 		DepthStencilStateID_Count
 	};
 
@@ -26,6 +27,7 @@ namespace Cjing3D
 	enum RasterizerStateID {
 		RasterizerStateID_Front = 0,
 		RasterizerStateID_Image,
+		RasterizerStateID_Shadow,
 		RasterizerStateID_Count
 	};
 
@@ -36,6 +38,7 @@ namespace Cjing3D
 		SamplerStateID_LinearClampGreater,
 		SamplerStateID_LinearWrapGreater,
 		SamplerStateID_ANISOTROPIC,
+		SamplerStateID_Comparision_depth,
 		SamplerStateID_Count
 	};
 

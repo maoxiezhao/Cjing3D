@@ -10,7 +10,7 @@
 // Use NVIDIA FXAA.
 // Algorithm: http://blog.simonrodriguez.fr/articles/30-07-2016_implementing_fxaa.html
 
-TYPE_TEXTURE2D(texture_input, float4, TEXTURE_SLOT_0);
+TYPE_TEXTURE2D(texture_input, float4, TEXTURE_SLOT_UNIQUE_0);
 RWTEXTURE2D(texture_output, unorm float4, 0);
 
 static const float fxaaSubpix = 0.75;

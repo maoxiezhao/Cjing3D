@@ -24,11 +24,17 @@ namespace Cjing3D
 	void BufferManager::Initialize()
 	{
 		LoadConstantBuffers();
-		LoadResourceBuffers();
+		LoadStructuredBuffers();
 	}
 
 	void BufferManager::Uninitialize()
 	{
+		for (U32 i = 0; i < ConstantBufferType_Count; i++) {
+			mConstantBuffer[i].UnRegister();
+		}
+		for (U32 i = 0; i < StructuredBufferType_Count; i++) {
+			mStructuredBuffer[i].UnRegister();
+		}
 	}
 
 	void BufferManager::LoadConstantBuffers()
@@ -76,20 +82,37 @@ namespace Cjing3D
 		}
 	}
 
-	void BufferManager::LoadResourceBuffers()
+	void BufferManager::LoadStructuredBuffers()
 	{
 		auto& device = mRenderer.GetDevice();
 
-		GPUBufferDesc desc = {};
-		desc.mUsage = USAGE_DEFAULT;	
-		desc.mCPUAccessFlags = 0;
-		desc.mBindFlags = BIND_SHADER_RESOURCE;
-		desc.mMiscFlags = RESOURCE_MISC_BUFFER_STRUCTURED;
-		desc.mByteWidth = sizeof(ShaderLight) * SHADER_LIGHT_COUNT;
-		desc.mStructureByteStride = sizeof(ShaderLight);
+		// shader light array
+		{
+			GPUBufferDesc desc = {};
+			desc.mUsage = USAGE_DEFAULT;
+			desc.mCPUAccessFlags = 0;
+			desc.mBindFlags = BIND_SHADER_RESOURCE;
+			desc.mMiscFlags = RESOURCE_MISC_BUFFER_STRUCTURED;
+			desc.mByteWidth = sizeof(ShaderLight) * SHADER_LIGHT_COUNT;
+			desc.mStructureByteStride = sizeof(ShaderLight);
 
-		const auto result = device.CreateBuffer(&desc, mResourceBuffer[ResourceBufferType_ShaderLight], nullptr);
-		Debug::ThrowIfFailed(result, "failed to create shader light buffer:%08x", result);
-		device.SetResourceName(mResourceBuffer[ResourceBufferType_ShaderLight], "ShaderLightArray");
+			const auto result = device.CreateBuffer(&desc, mStructuredBuffer[StructuredBufferType_ShaderLight], nullptr);
+			Debug::ThrowIfFailed(result, "failed to create shader light buffer:%08x", result);
+			device.SetResourceName(mStructuredBuffer[StructuredBufferType_ShaderLight], "ShaderLightArray");
+		}
+		// shader matrix array
+		{
+			GPUBufferDesc desc = {};
+			desc.mUsage = USAGE_DEFAULT;
+			desc.mCPUAccessFlags = 0;
+			desc.mBindFlags = BIND_SHADER_RESOURCE;
+			desc.mMiscFlags = RESOURCE_MISC_BUFFER_STRUCTURED;
+			desc.mByteWidth = sizeof(XMMATRIX) * SHADER_MATRIX_COUNT;
+			desc.mStructureByteStride = sizeof(XMMATRIX);
+
+			const auto result = device.CreateBuffer(&desc, mStructuredBuffer[StructuredBufferType_MatrixArray], nullptr);
+			Debug::ThrowIfFailed(result, "failed to create shader matrix array buffer:%08x", result);
+			device.SetResourceName(mStructuredBuffer[StructuredBufferType_MatrixArray], "ShaderMatrixArray");
+		}
 	}
 }

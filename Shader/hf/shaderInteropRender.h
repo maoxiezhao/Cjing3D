@@ -14,6 +14,7 @@ CBUFFER(FrameCB, CBSLOT_RENDERER_FRAME)
 	uint   gShaderLightArrayCount;
 	float3 gFrameAmbient;
 	float  gFrameGamma;
+	uint   gFrameShadowCascadeCount;
 };
 
 CBUFFER(CameraCB, CBSLOT_RENDERER_CAMERA)
@@ -57,10 +58,12 @@ struct ShaderLight
 	float3 viewPosition;
 	uint type;
 	float3 direction;
-	uint range;
+	float range;
 	float3 worldPosition;
-	uint energy;
+	float energy;
 	float4 color;
+	float shadowBias;
+	uint shadowData;	// 前16位表示光照矩阵索引，后16位表示阴影贴图索引
 
 	inline uint GetLightType()
 	{
@@ -74,7 +77,23 @@ struct ShaderLight
 
 	inline bool IsCastingShadow()
 	{
-		return false;
+		return shadowData != (~0);
+	}
+
+	inline void SetShadowData(uint matrixIndex, uint shadowMapIndex)
+	{
+		shadowData = matrixIndex & 0xffff;
+		shadowData |= (shadowMapIndex & 0xffff) << 16;
+	}
+
+	inline uint GetShadowMatrixIndex()
+	{
+		return shadowData & 0xffff;
+	}
+
+	inline uint GetShadowMapIndex()
+	{
+		return (shadowData >> 16) & 0xffff;
 	}
 };
 

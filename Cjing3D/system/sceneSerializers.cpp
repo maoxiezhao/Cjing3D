@@ -31,7 +31,7 @@ namespace Cjing3D
 		for (auto entity : mNames.GetEntities())
 		{
 			auto entityName = mNames.GetComponent(entity);
-			mNameEntityMap[*entityName] = entity;
+			mNameEntityMap[entityName->GetName()] = entity;
 		}
 	}
 
@@ -53,24 +53,5 @@ namespace Cjing3D
 		mObjectAABBs.Unserialize(archive);
 		mLights.Unserialize(archive);
 		mLightAABBs.Unserialize(archive);
-	}
-
-	void HierarchyComponent::Serialize(Archive& archive, U32 seed)
-	{
-		mParent = SerializeEntity(archive, seed);
-
-		XMFLOAT4X4 parentBindInverseWorld;
-		archive >> parentBindInverseWorld;
-
-		mParentBindInverseWorld = XMLoadFloat4x4(&parentBindInverseWorld);
-	}
-
-	void HierarchyComponent::Unserialize(Archive& archive) const
-	{
-		archive << mParent;
-
-		XMFLOAT4X4 parentBindInverseWorld;
-		XMStoreFloat4x4(&parentBindInverseWorld, mParentBindInverseWorld);
-		archive << parentBindInverseWorld;
 	}
 }

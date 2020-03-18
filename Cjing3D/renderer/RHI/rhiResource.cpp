@@ -24,6 +24,7 @@ void Cjing3D::GPUResource::UnRegister()
 {
 	if (mDevice != nullptr) {
 		mDevice->DestroyGPUResource(*this);
+		mDevice->RemoveGPUResource(this);	// TODO: bad performance
 	}
 
 	GraphicsDeviceChild::UnRegister();

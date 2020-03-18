@@ -171,4 +171,10 @@ namespace Cjing3D {
 
 		return XMFLOAT3(roll, pitch, yaw);
 	}
+
+	inline F32 DistanceEstimated(F32x3 v1, F32x3 v2)
+	{
+		XMVECTOR sub = XMLoad(v1 - v2);
+		return XMStore<F32>(XMVector3LengthEst(sub));
+	}
 }

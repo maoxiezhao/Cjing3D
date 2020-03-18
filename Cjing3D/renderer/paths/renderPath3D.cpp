@@ -18,7 +18,7 @@ namespace Cjing3D
 	{
 		RenderPath2D::Update(dt);
 
-		mRenderer.UpdatFrameData(dt);
+		mRenderer.UpdatePerFrameData(dt);
 	}
 
 	void RenderPath3D::ResizeBuffers()
@@ -72,6 +72,15 @@ namespace Cjing3D
 		RenderPath2D::Compose();
 
 		device.EndEvent();
+	}
+
+	void RenderPath3D::RenderShadowmaps()
+	{
+		if (!IsShadowEnable()) {
+			return;
+		}
+
+		mRenderer.RenderShadowmaps(mRenderer.GetCamera());
 	}
 
 	void RenderPath3D::RenderTransparents(Texture2D& rtMain, RenderPassType renderType)

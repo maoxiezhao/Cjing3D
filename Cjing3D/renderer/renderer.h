@@ -16,6 +16,7 @@ class ShaderLib;
 class StateManager;
 class ResourceManager;
 class CameraComponent;
+class LightComponent;
 class BufferManager;
 class Scene;
 class MaterialComponent;
@@ -43,8 +44,8 @@ public:
 
 	virtual void Update(F32 deltaTime);
 
-	void UpdatFrameData(F32 deltaTime);
-	void UpdateRenderData();
+	void UpdatePerFrameData(F32 deltaTime);
+	void RefreshRenderData();
 
 	void Initialize();
 	void Uninitialize();
@@ -56,7 +57,6 @@ public:
 	U32x2 GetScreenSize();
 	GraphicsDevice& GetDevice();
 	ResourceManager& GetResourceManager();
-	DeferredMIPGenerator& GetDeferredMIPGenerator();
 	std::shared_ptr<CameraComponent> GetCamera();
 	ShaderLib& GetShaderLib();
 	StateManager& GetStateManager();
@@ -69,8 +69,13 @@ public:
 	// base status
 	void SetGamma(F32 gamma) { mGamma = gamma; }
 	F32 GetGamma()const { return mGamma; }
+	U32 GetShadowCascadeCount()const;
+	U32 GetShadowRes2DResolution()const;
+	F32x3 GetAmbientColor()const;
+	void SetAmbientColor(F32x3 color);
 
 	// Render Method
+	void RenderShadowmaps(std::shared_ptr<CameraComponent> camera);
 	void RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, RenderPassType renderPassType);
 	void RenderSceneTransparent(std::shared_ptr<CameraComponent> camera, RenderPassType renderPassType);
 	void RenderImpostor(CameraComponent& camera, RenderPassType renderPassType);
@@ -81,6 +86,8 @@ public:
 
 	// Binding Method
 	void BindCommonResource();
+	void BindConstanceBuffer(SHADERSTAGES stage);
+	void BindShadowMaps(SHADERSTAGES stage);
 
 	// const buffer function
 	void UpdateCameraCB(CameraComponent& camera);
@@ -93,8 +100,9 @@ public:
 	void AddDeferredTextureMipGen(Texture2D& texture);
 
 private:
+	GraphicsDevice* CreateGraphicsDeviceByType(RenderingDeviceType deviceType, HWND window);
 	void ProcessRenderQueue(RenderQueue& queue, RenderPassType renderPassType, RenderableType renderableType);
-	void BindConstanceBuffer(SHADERSTAGES stage);
+	void RenderDirLightShadowmap(LightComponent& light, CameraComponent& camera);
 
 	// 当前帧的裁剪后的数据
 	struct FrameCullings
@@ -107,6 +115,16 @@ private:
 	};
 	std::unordered_map<std::shared_ptr<CameraComponent>, FrameCullings> mFrameCullings;
 
+	// 每帧所用的线性分配器
+	enum FrameAllocatorType
+	{
+		FrameAllocatorType_Update = 0,
+		FrameAllocatorType_Render,
+		FrameAllocatorType_Count
+	};
+	LinearAllocator& GetFrameAllocator(FrameAllocatorType type);
+	LinearAllocator mFrameAllocator[FrameAllocatorType_Count];
+
 private:
 	bool mIsInitialized;
 	bool mIsRendering;
@@ -115,7 +133,6 @@ private:
 	F32 mGamma = 2.2f;
 
 	RenderFrameData mFrameData;
-
 	std::vector<int> mPendingUpdateMaterials;
 
 	std::shared_ptr<CameraComponent> mCamera;
@@ -124,10 +141,8 @@ private:
 	std::unique_ptr<StateManager> mStateManager;
 	std::unique_ptr<BufferManager> mBufferManager;
 	std::unique_ptr<DeferredMIPGenerator> mDeferredMIPGenerator;
-	std::unique_ptr<LinearAllocator> mFrameAllocator;
 	std::unique_ptr<PipelineStateManager> mPipelineStateManager;
 	std::unique_ptr<Renderer2D> mRenderer2D;
-
 	std::unique_ptr<RenderPath> mCurrentRenderPath;
 };
 

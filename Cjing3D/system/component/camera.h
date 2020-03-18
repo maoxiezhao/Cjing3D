@@ -28,6 +28,7 @@ namespace Cjing3D {
 		inline XMMATRIX GetViewMatrix() { return XMLoadFloat4x4(&mView); };
 		inline XMMATRIX GetProjectionMatrix() { return XMLoadFloat4x4(&mProjection); };
 		inline XMMATRIX GetViewProjectionMatrix() { return XMLoadFloat4x4(&mViewProjection); };
+		inline XMMATRIX GetInvViewProjectionMatrix() { return XMLoadFloat4x4(&mInvViewProjection); }
 
 		F32 GetNearPlane() { return mNearPlane; }
 		F32 GetFarPlane() { return mFarPlane; }
@@ -51,7 +52,10 @@ namespace Cjing3D {
 		F32 mHeight = 0.0f;
 
 		F32x3 mEye, mAt, mUp;
-		XMFLOAT4X4 mView, mProjection, mViewProjection;
+		XMFLOAT4X4 mView;
+		XMFLOAT4X4 mProjection;
+		XMFLOAT4X4 mViewProjection;
+		XMFLOAT4X4 mInvViewProjection;
 	};
 
 	using CameraPtr = std::shared_ptr<CameraComponent>;

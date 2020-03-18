@@ -42,6 +42,8 @@ void Cjing3D::MaterialComponent::Serialize(Archive& archive, U32 seed)
 	archive >> mSurfaceMapName;
 	archive >> mNormalMapName;
 
+	archive >> mIsCastingShadow;
+
 	SystemContext& systemContext = SystemContext::GetSystemContext();
 	Renderer& renderer = systemContext.GetSubSystem<Renderer>();
 	ResourceManager& resourceManager = renderer.GetResourceManager();
@@ -77,4 +79,6 @@ void Cjing3D::MaterialComponent::Unserialize(Archive& archive) const
 	archive << mBaseColorMapName;
 	archive << mSurfaceMapName;
 	archive << mNormalMapName;
+
+	archive << mIsCastingShadow;
 }

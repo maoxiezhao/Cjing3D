@@ -35,12 +35,13 @@ void PipelineStateManager::SetupPipelineStates()
 	ShaderLib& shaderLib = mRenderer.GetShaderLib();
 	StateManager& stateManager = mRenderer.GetStateManager();
 	NormalRenderParams params = {};
+
+	// base object rendering
 	{
 		params.renderPassType = RenderPassType_Forward;
 
 		PipelineState infoState;
 		infoState.Register(&mRenderer.GetDevice());
-
 		infoState.mVertexShader = shaderLib.GetVertexShader(VertexShaderType_Transform);
 		infoState.mPixelShader = shaderLib.GetPixelShader(PixelShaderType_Forward);
 		infoState.mInputLayout = shaderLib.GetVertexLayout(InputLayoutType_Transform);
@@ -48,6 +49,23 @@ void PipelineStateManager::SetupPipelineStates()
 		infoState.mBlendState = stateManager.GetBlendState(BlendStateID_Opaque);
 		infoState.mDepthStencilState = stateManager.GetDepthStencilState(DepthStencilStateID_GreaterEqualReadWrite);
 		infoState.mRasterizerState = stateManager.GetRasterizerState(RasterizerStateID_Front);
+
+		RegisterPipelineState(params, infoState);
+	}
+
+	// directional light shadow map
+	{
+		params.renderPassType = RenderPassType_Shadow;
+
+		PipelineState infoState;
+		infoState.Register(&mRenderer.GetDevice());
+		infoState.mVertexShader = shaderLib.GetVertexShader(VertexShaderType_Shadow);
+		infoState.mPixelShader = nullptr;  // only write depth
+		infoState.mInputLayout = shaderLib.GetVertexLayout(InputLayoutType_Shadow);
+		infoState.mPrimitiveTopology = TRIANGLELIST;
+		infoState.mBlendState = stateManager.GetBlendState(BlendStateID_Opaque);
+		infoState.mDepthStencilState = stateManager.GetDepthStencilState(DepthStencilStateID_Shadow);
+		infoState.mRasterizerState = stateManager.GetRasterizerState( RasterizerStateID_Shadow);
 
 		RegisterPipelineState(params, infoState);
 	}
