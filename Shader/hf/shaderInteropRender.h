@@ -64,6 +64,7 @@ struct ShaderLight
 	float4 color;
 	float shadowBias;
 	uint shadowData;	// 前16位表示光照矩阵索引，后16位表示阴影贴图索引
+	float shadowKernel;
 
 	inline uint GetLightType()
 	{

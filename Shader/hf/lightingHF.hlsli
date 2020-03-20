@@ -4,12 +4,27 @@
 #include "global.hlsli"
 #include "brdf.hlsli"
 
+// switch definitions
+// 使用blin-phong光照
+#define _SIMPLE_BASE_LIGHT_
+// 开启软阴影
+#define ENABLE_SOFT_SHADOW
+// 开启cascade shadow调试
+//#define _SHOW_DEBUG_SHADOW_CASCADE 
+
+#ifdef _SHOW_DEBUG_SHADOW_CASCADE
+static const float3 debugCascadeColor[3] =
+{
+    float3(1.0f, 0.0f, 0.0f),
+    float3(0.0f, 1.0f, 0.0f),
+    float3(0.0f, 0.0f, 1.0f)
+};
+#endif
+
 inline float3 GetAmbientLight()
 {
 	return gFrameAmbient;
 }
-
-#define _SIMPLE_BASE_LIGHT_
 
 #ifdef _SIMPLE_BASE_LIGHT_
 
@@ -18,15 +33,33 @@ static const float pointLightAttConstant = 1.0f;
 static const float pointLightAttLinear = 0.09f;
 static const float pointLightAttQuadratic = 0.032f;
 
-inline float cascadeShadow(float3 shadowPos, float2 shadowTex, float bias, float slice)
+static const float softShadowSamplerRange = 1.5f;
+static const float defaultMaxShadowBias = 0.002;
+inline float cascadeShadow(float3 shadowPos, float2 shadowTex, float bias, float slice, float NdotL, float shadowKernel)
 {
+    bias = max(defaultMaxShadowBias * (1.0f - NdotL), bias);
+    
     // depth [0. -1]
     float currentDepth = shadowPos.z + bias;
-    float shadow = 1.0f;
+    float shadow = 0.0f;
     
+#ifdef ENABLE_SOFT_SHADOW
+    uint samplerCount = 0;
+    for (float x = -softShadowSamplerRange; x <= softShadowSamplerRange; x++)
+    {
+        for (float y = -softShadowSamplerRange; y <= softShadowSamplerRange; y++)
+        {
+            float2 currentTex = saturate(shadowTex + float2(x, y) * shadowKernel);
+            shadow += texture_shadowmap_array.SampleCmpLevelZero(sampler_comparison_depth, float3(currentTex, slice), currentDepth).r;
+            samplerCount++;
+        }
+    }
+    shadow = shadow / (float)samplerCount;
+#else
     // 如果采样的深度大于当前深度，则返回1，相反则返回0
     shadow = texture_shadowmap_array.SampleCmpLevelZero(sampler_comparison_depth, float3(shadowTex, slice), currentDepth).r;
-    
+#endif 
+
     return shadow;
 }
 
@@ -55,26 +88,32 @@ inline float3 DirectionalLight(in ShaderLight light, in Surface surface)
                 
                 if (IsSaturated(shTex))
                 {
-                    float currentShadow = cascadeShadow(shPos, shTex.xy, light.shadowBias, shadowMapIndex + cascade);
+                    float currentShadow = cascadeShadow(shPos, shTex.xy, light.shadowBias, shadowMapIndex + cascade, NdotL, light.shadowKernel);
 
                     // 计算当前等级的阴影值后，判断一下当前位置是否大于0.8，并获取一个factor[0, 1]，
 					// 和下一级的shadowvalue做一个线性混合
-                    //float3 cascadePosFactor = saturate(saturate(abs(shPos)) - 0.8) * 0.5f;
-                    //float cascadeFactor = max(cascadePosFactor.x, max(cascadePosFactor.y, cascadePosFactor.z));
-                    //if (cascadeFactor > 0 && cascade < (gFrameShadowCascadeCount - 1))
-                    //{
-                    //    uint nextCascade = cascade + 1;
+                    float3 cascadePosFactor = saturate(saturate(abs(shPos)) - 0.8f) * 5.0f; //[0, 0.2] => [0, 1]
+                    float cascadeFactor = max(cascadePosFactor.x, max(cascadePosFactor.y, cascadePosFactor.z));
+                    if (cascadeFactor > 0 && cascade < (gFrameShadowCascadeCount - 1))
+                    {
+                        uint nextCascade = cascade + 1;
 
-                    //    shPos = mul(MatrixArray[matrixIndex + nextCascade], float4(surface.position, 1.0f)).xyz;
-                    //    shTex = shPos * float3(0.5f, -0.5f, 0.5f) + 0.5f; 
-                    //    float nextShadow = cascadeShadow(shPos, shTex.xy, 0.0f, shadowMapIndex + cascade);
+                        shPos = mul(MatrixArray[matrixIndex + nextCascade], float4(surface.position, 1.0f)).xyz;
+                        shTex = shPos * float3(0.5f, -0.5f, 0.5f) + 0.5f;
+                        float nextShadow = cascadeShadow(shPos, shTex.xy, light.shadowBias, shadowMapIndex + nextCascade, NdotL, light.shadowKernel);
                         
-                    //    shadow = lerp(currentShadow, nextShadow, cascadeFactor);
-                    //}
-                    //else
-                    //{
+                        shadow = lerp(currentShadow, nextShadow, cascadeFactor);
+                    }
+                    else
+                    {
                         shadow = currentShadow;
-                    //}
+                    }
+                    
+                #ifdef _SHOW_DEBUG_SHADOW_CASCADE
+                    color = debugCascadeColor[cascade];
+                    return color;
+                #endif
+                    
                     break;
                 }
             }

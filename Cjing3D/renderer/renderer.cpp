@@ -32,7 +32,12 @@ namespace {
 	F32 shadowCascadeCoefficient = 0.75;
 	U32 shadowRes2DResolution = 1024;
 	U32 shadowMap2DCount = 8;
-	std::vector<F32> currentCascadeSplits;
+	std::vector<F32> currentCascadeSplits = {
+		0.0f,
+		0.01f,
+		0.1f,
+		1.0f
+	};
 
 	Texture2D shadowMapArray2D;
 
@@ -505,6 +510,7 @@ void Renderer::RefreshRenderData()
 		// shader viewProjection MatrixºÍshaderMapIndex
 		if (light->IsCastShadow() && light->GetShadowMapIndex() >= 0)
 		{
+			shaderLight.shadowKernel = (1.0f / shadowRes2DResolution);
 			shaderLight.SetShadowData(currentMatrixIndex, light->GetShadowMapIndex());
 			switch (light->GetLightType())
 			{
