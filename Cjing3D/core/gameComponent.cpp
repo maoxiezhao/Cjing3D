@@ -20,6 +20,10 @@ void GameComponent::Initialize()
 
 }
 
+void GameComponent::FixedUpdate()
+{
+}
+
 void GameComponent::Update(EngineTime time)
 {
 }

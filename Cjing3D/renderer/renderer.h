@@ -43,6 +43,7 @@ public:
 	Renderer(SystemContext& gameContext, RenderingDeviceType deviceType, HWND window);
 	~Renderer();
 
+	virtual void FixedUpdate();
 	virtual void Update(F32 deltaTime);
 
 	void UpdatePerFrameData(F32 deltaTime);

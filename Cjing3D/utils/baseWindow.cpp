@@ -15,4 +15,9 @@ namespace Cjing3D {
 	{
 		mHandlers.erase(std::remove(mHandlers.begin(), mHandlers.end(), handler), mHandlers.end());
 	}
+
+	bool BaseWindow::IsWindowActive() const
+	{
+		return true;
+	}
 }

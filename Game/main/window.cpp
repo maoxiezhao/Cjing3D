@@ -116,6 +116,11 @@ namespace Cjing3D {
 		}
 	}
 
+	bool Window::IsWindowActive() const
+	{
+		return mHwnd == GetForegroundWindow();
+	}
+
 	Window * Window::GetWindowCaller(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		if (WM_NCCREATE != message)

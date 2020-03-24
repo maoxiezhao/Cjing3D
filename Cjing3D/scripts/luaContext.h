@@ -27,6 +27,7 @@ public:
 
 	void Initialize();
 	void Uninitialize();
+	void FixedUpdate();
 	void Update(F32 deltaTime);
 	void GC();
 

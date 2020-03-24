@@ -101,6 +101,10 @@ void LuaContext::Uninitialize()
 	mLuaState = nullptr;
 }
 
+void LuaContext::FixedUpdate()
+{
+}
+
 bool LuaContext::DoLuaString(lua_State * l, const std::string & luaString, int arguments, int results)
 {
 	if (luaL_loadstring(l, luaString.c_str()) == 0) {

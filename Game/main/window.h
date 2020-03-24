@@ -28,6 +28,7 @@ namespace Cjing3D {
 		HWND GetHwnd()const { return mHwnd; }
 		bool IsFullScreen()const { return mFullScreen; }
 		std::string GetTitleName()const { return mTitleName; }
+		virtual bool IsWindowActive() const;
 
 		/** Wnd Proc Function */
 		static Window* GetWindowCaller(HWND, UINT, WPARAM, LPARAM);

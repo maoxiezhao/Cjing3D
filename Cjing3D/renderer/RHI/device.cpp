@@ -6,8 +6,7 @@ namespace Cjing3D
 GraphicsDevice::GraphicsDevice(GraphicsDeviceType type):
 	mGraphicsDeviceType(type),
 	mIsFullScreen(false),
-	mIsMultithreadedRendering(false),
-	mIsVsync(false)
+	mIsMultithreadedRendering(false)
 {
 }
 

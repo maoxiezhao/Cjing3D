@@ -22,6 +22,7 @@ namespace Cjing3D {
 
 		void AddMessageHandler(WindowMessageHandlerPtr handler);
 		void RemoveHandler(WindowMessageHandlerPtr handler);
+		virtual bool IsWindowActive() const;
 
 	protected:
 		std::vector<WindowMessageHandlerPtr> mHandlers;

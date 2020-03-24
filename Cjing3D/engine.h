@@ -33,6 +33,12 @@ namespace Cjing3D
 		SystemContext& GetGameContext() { return *mSystemContext; }
 
 	private:
+		void FixedUpdate();
+		void Update(F32 deltaTime);
+		void UpdateInput(F32 deltaTime);
+		void Render();
+
+	private:
 		bool mIsInitialized = false;
 		bool mIsExiting = false;
 
@@ -41,7 +47,11 @@ namespace Cjing3D
 		void* mWindowHwnd;
 
 		Timer mTimer;
-		EngineTime mTime;
+		EngineTime mEngineTime;
+		bool mIsLockFrameRate = false;
+		U32 mTargetFrameRate = 60;
+		bool mIsSkipFrame = true;
+		F32 mDeltaTimeAccumulator = 0;
 
 		SystemContext* mSystemContext;
 		std::unique_ptr<GameComponent> mGameComponent;

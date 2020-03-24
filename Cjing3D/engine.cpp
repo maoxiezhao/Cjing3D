@@ -12,6 +12,12 @@
 
 namespace Cjing3D
 {
+namespace {
+	Renderer* mRenderer = nullptr;
+	LuaContext* mLuaContext = nullptr;
+	GUIStage* mGuiStage = nullptr;
+	InputManager* mInputManager = nullptr;
+}
 
 Engine::Engine(GameComponent* gameConponent):
 	mIsInitialized(false),
@@ -49,8 +55,10 @@ void Engine::Initialize()
 
 	// initialize engine time
 	mTimer.Start();
-	mTime = mTimer.GetTime();
-	mSystemContext->SetEngineTime(mTime);
+	mEngineTime = mTimer.GetTime();
+	mDeltaTimeAccumulator = 0;
+
+	mSystemContext->SetEngineTime(mEngineTime);
 	mSystemContext->SetEngine(this);
 
 	// initialize file data
@@ -91,8 +99,14 @@ void Engine::Initialize()
 	mSystemContext->RegisterSubSystem(luaContext);
 	luaContext->Initialize();
 
+	// game start
 	mGameComponent->Initialize();
 	luaContext->OnMainStart();
+
+	mRenderer = renderer;
+	mLuaContext = luaContext;
+	mGuiStage = guiStage;
+	mInputManager = inputSystem;
 
 	mIsInitialized = true;
 }
@@ -102,35 +116,44 @@ void Engine::Tick()
 	PROFILER_BEGIN_FRAME();
 	PROFILER_OPTICK_EVENT();
 
-	mTime = mTimer.GetTime();
-	mSystemContext->SetEngineTime(mTime);
+	mEngineTime = mTimer.GetTime();
+	mSystemContext->SetEngineTime(mEngineTime);
+	F32 deltaTime = F32(mEngineTime.deltaTime / 1000.0f);
 
-	F32 deltaTime = F32(mTime.deltaTime / 1000.0f);
-	auto& inputManager = mSystemContext->GetSubSystem<InputManager>();
+	if (mBaseWindow->IsWindowActive())
+	{
+		const F32 dt = mIsLockFrameRate ? (1.0f / mTargetFrameRate) : deltaTime;
+		if (!mIsSkipFrame) 
+		{
+			FixedUpdate();
+		}
+		else
+		{
+			mDeltaTimeAccumulator += dt;
 
-	PROFILER_BEGIN_BLOCK("Input");
-	inputManager.Update(deltaTime);
-	PROFILER_END_BLOCK();
+			// 某些情况会触发超时操作，此时需要重置计数
+			if (mDeltaTimeAccumulator > 8) {
+				mDeltaTimeAccumulator = 0;
+			}
 
-	auto& renderer = mSystemContext->GetSubSystem<Renderer>();
-	auto& luaContext = mSystemContext->GetSubSystem<LuaContext>();
-	auto& guiStage = mSystemContext->GetSubSystem<GUIStage>();
+			const F32 targetRateInv = 1.0f / mTargetFrameRate;
+			while (mDeltaTimeAccumulator >= targetRateInv)
+			{
+				FixedUpdate();
+				mDeltaTimeAccumulator -= targetRateInv;
+			}
+		}
 
-	// update
-	PROFILER_BEGIN_BLOCK("Update");
-	FIRE_EVENT(EventType::EVENT_TICK);
-	mGameComponent->Update(mTime);
-	renderer.Update(deltaTime);
-	luaContext.Update(deltaTime);
-	guiStage.Update(deltaTime);
-	PROFILER_END_BLOCK();
+		Update(dt);
+		UpdateInput(dt);
+		Render();
+	}
+	else
+	{
+		mDeltaTimeAccumulator = 0;
+	}
 
-	// render
-	PROFILER_BEGIN_BLOCK("Render");
-	FIRE_EVENT(EventType::EVENT_RENDER);
-	renderer.Render();
-	renderer.Present();
-	PROFILER_END_BLOCK();
+	mRenderer->Present();
 
 	// end frame
 	PROFILER_END_FRAME();
@@ -143,7 +166,6 @@ void Engine::Uninitialize()
 	}
 
 	mSystemContext->GetSubSystem<LuaContext>().OnMainUninitialize();
-
 	mGameComponent->Uninitialize();
 
 	mSystemContext->GetSubSystem<GUIStage>().Uninitialize();
@@ -160,7 +182,6 @@ void Engine::Uninitialize()
 #ifdef CJING_DEBUG
 	Debug::UninitializeDebugConsolse();
 #endif
-
 	Profiler::GetInstance().Uninitialize();
 
 	mIsInitialized = false;
@@ -170,6 +191,46 @@ void Engine::SetHandles(void * windowHwnd, void * windowInstance)
 {
 	mWindowHwnd = windowHwnd;
 	mWindowHinstance = windowInstance;
+}
+
+void Engine::FixedUpdate()
+{
+	PROFILER_BEGIN_BLOCK("FixedUpdate");
+	FIRE_EVENT(EventType::EVENT_FIXED_TICK);
+
+	mGameComponent->FixedUpdate();
+	mLuaContext->FixedUpdate();
+	mRenderer->FixedUpdate();
+
+	PROFILER_END_BLOCK();
+}
+
+void Engine::Update(F32 deltaTime)
+{
+	PROFILER_BEGIN_BLOCK("Update");
+	FIRE_EVENT(EventType::EVENT_TICK);
+
+	mLuaContext->Update(deltaTime);
+	mGameComponent->Update(mEngineTime);
+	mGuiStage->Update(deltaTime);
+	mRenderer->Update(deltaTime);
+
+	PROFILER_END_BLOCK();
+}
+
+void Engine::UpdateInput(F32 deltaTime)
+{
+	PROFILER_BEGIN_BLOCK("Input");
+	mInputManager->Update(deltaTime);
+	PROFILER_END_BLOCK();
+}
+
+void Engine::Render()
+{
+	PROFILER_BEGIN_BLOCK("Render");
+	FIRE_EVENT(EventType::EVENT_RENDER);
+	mRenderer->Render();
+	PROFILER_END_BLOCK();
 }
 
 }

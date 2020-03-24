@@ -15,6 +15,7 @@ namespace Cjing3D
 
 		virtual void Setup();
 		virtual void Initialize();
+		virtual void FixedUpdate();
 		virtual void Update(EngineTime time);
 		virtual void Uninitialize();
 

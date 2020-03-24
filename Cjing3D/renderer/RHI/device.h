@@ -21,7 +21,6 @@ namespace Cjing3D
 
 		virtual void Initialize();
 		virtual void Uninitialize();
-
 		virtual void PresentBegin();
 		virtual void PresentEnd();
 
@@ -125,13 +124,16 @@ namespace Cjing3D
 
 		GraphicsDeviceType GetGraphicsDeviceType()const { return mGraphicsDeviceType; }
 
+		bool GetIsVsync()const { return mIsVsync; }
+		void SetIsVsync(bool isVsync) { mIsVsync = isVsync; }
+
 	protected:
 		GraphicsDeviceType mGraphicsDeviceType = GraphicsDeviceType_unknown;
 		bool mIsFullScreen;
 		FORMAT mBackBufferFormat;
 		U32x2 mScreenSize;
 		bool mIsMultithreadedRendering;                 // 启用多线程渲染
-		bool mIsVsync;									// 是否垂直同步 
+		bool mIsVsync = true;									// 是否垂直同步 
 		ViewPort mViewport;
 		uint64_t mCurrentFrameCount = 0;
 

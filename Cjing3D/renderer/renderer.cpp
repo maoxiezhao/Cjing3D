@@ -328,6 +328,10 @@ void Renderer::Uninitialize()
 	mIsInitialized = false;
 }
 
+void Renderer::FixedUpdate()
+{
+}
+
 void Renderer::Update(F32 deltaTime)
 {
 	if (mCurrentRenderPath != nullptr) {

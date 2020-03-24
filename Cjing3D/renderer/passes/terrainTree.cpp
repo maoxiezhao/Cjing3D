@@ -18,7 +18,6 @@ namespace {
 		for (U32 level = maxLevel; level >= 0; level--) {
 			CALC(level);
 		}
-#undef CALC;
 		return 0;
 	}
 
