@@ -22,6 +22,7 @@ class Scene;
 class MaterialComponent;
 class PipelineStateManager;
 class Renderer2D;
+class RenderPass;
 
 // 用于记录每一帧的基础数据
 class RenderFrameData
@@ -99,7 +100,14 @@ public:
 	// deferred mipmap gen
 	void AddDeferredTextureMipGen(Texture2D& texture);
 
+	// render path
+	void RegisterRenderPass(const StringID& name, std::shared_ptr<RenderPass> renderPath);
+	std::shared_ptr<RenderPass> GetRenderPass(const StringID& name);
+
 private:
+	void InitializeRenderPasses();
+	void UninitializeRenderPasses();
+
 	GraphicsDevice* CreateGraphicsDeviceByType(RenderingDeviceType deviceType, HWND window);
 	void ProcessRenderQueue(RenderQueue& queue, RenderPassType renderPassType, RenderableType renderableType);
 	void RenderDirLightShadowmap(LightComponent& light, CameraComponent& camera);
@@ -115,6 +123,7 @@ private:
 	};
 	std::unordered_map<std::shared_ptr<CameraComponent>, FrameCullings> mFrameCullings;
 
+public:
 	// 每帧所用的线性分配器
 	enum FrameAllocatorType
 	{
@@ -123,7 +132,6 @@ private:
 		FrameAllocatorType_Count
 	};
 	LinearAllocator& GetFrameAllocator(FrameAllocatorType type);
-	LinearAllocator mFrameAllocator[FrameAllocatorType_Count];
 
 private:
 	bool mIsInitialized;
@@ -134,7 +142,9 @@ private:
 
 	RenderFrameData mFrameData;
 	std::vector<int> mPendingUpdateMaterials;
+	LinearAllocator mFrameAllocator[FrameAllocatorType_Count];
 
+	// base member
 	std::shared_ptr<CameraComponent> mCamera;
 	std::unique_ptr<GraphicsDevice> mGraphicsDevice;
 	std::unique_ptr<ShaderLib> mShaderLib;
@@ -144,6 +154,9 @@ private:
 	std::unique_ptr<PipelineStateManager> mPipelineStateManager;
 	std::unique_ptr<Renderer2D> mRenderer2D;
 	std::unique_ptr<RenderPath> mCurrentRenderPath;
+
+	// render pass
+	std::map<StringID, std::shared_ptr<RenderPass>> mRenderPassMap;
 };
 
 }

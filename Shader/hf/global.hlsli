@@ -4,6 +4,10 @@
 #include "shaderInterop.h"
 #include "shaderInteropRender.h"
 
+#define TEXTURE_BASECOLOR_MAP	TEXTURE_SLOT_0
+#define TEXTURE_NORMAL_MAP		TEXTURE_SLOT_1
+#define TEXTURE_SURFACE_MAP		TEXTURE_SLOT_2
+
 // common texture slots
 TEXTURE2D(texture_0, TEXTURE_SLOT_0);
 TEXTURE2D(texture_1, TEXTURE_SLOT_1);

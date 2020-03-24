@@ -268,3 +268,5 @@ __pycache__/
 /ThirdParty/imgui
 /Game/imgui.ini
 /Game/OptickCore.dll
+/Cjing3D/renderer/passes/note.h
+/Assets/Textures

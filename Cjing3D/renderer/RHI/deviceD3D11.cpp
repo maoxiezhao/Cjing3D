@@ -1150,6 +1150,24 @@ HRESULT GraphicsDeviceD3D11::CreateComputeShader(const void* bytecode, size_t le
 	return mDevice->CreateComputeShader(bytecode, length, nullptr, computeShader.mResourceD3D11.ReleaseAndGetAddressOf());
 }
 
+HRESULT GraphicsDeviceD3D11::CreateHullShader(const void* bytecode, size_t length, HullShader& hullShader)
+{
+	hullShader.mByteCode.mByteLength = length;
+	hullShader.mByteCode.mByteData = new BYTE[length];
+	memcpy(hullShader.mByteCode.mByteData, bytecode, length);
+
+	return mDevice->CreateHullShader(bytecode, length, nullptr, hullShader.mResourceD3D11.ReleaseAndGetAddressOf());
+}
+
+HRESULT GraphicsDeviceD3D11::CreateDomainShader(const void* bytecode, size_t length, DomainShader& domainShader)
+{
+	domainShader.mByteCode.mByteLength = length;
+	domainShader.mByteCode.mByteData = new BYTE[length];
+	memcpy(domainShader.mByteCode.mByteData, bytecode, length);
+
+	return mDevice->CreateDomainShader(bytecode, length, nullptr, domainShader.mResourceD3D11.ReleaseAndGetAddressOf());
+}
+
 HRESULT GraphicsDeviceD3D11::CreateBuffer(const GPUBufferDesc * desc, GPUBuffer & buffer, const SubresourceData* initialData)
 {
 	DestroyGPUResource(buffer);
@@ -1268,6 +1286,12 @@ void GraphicsDeviceD3D11::BindConstantBuffer(SHADERSTAGES stage, GPUBuffer & buf
 	case Cjing3D::SHADERSTAGES_GS:
 		GetDeviceContext(GraphicsThread_IMMEDIATE).GSSetConstantBuffers(slot, 1, &d3dBuffer);
 		break;
+	case Cjing3D::SHADERSTAGES_HS:
+		GetDeviceContext(GraphicsThread_IMMEDIATE).HSSetConstantBuffers(slot, 1, &d3dBuffer);
+		break;
+	case Cjing3D::SHADERSTAGES_DS:
+		GetDeviceContext(GraphicsThread_IMMEDIATE).DSSetConstantBuffers(slot, 1, &d3dBuffer);
+		break;
 	case Cjing3D::SHADERSTAGES_PS:
 		GetDeviceContext(GraphicsThread_IMMEDIATE).PSSetConstantBuffers(slot, 1, &d3dBuffer);
 		break;
@@ -1342,6 +1366,12 @@ void GraphicsDeviceD3D11::BindSamplerState(SHADERSTAGES stage, SamplerState & st
 		break;
 	case Cjing3D::SHADERSTAGES_GS:
 		GetDeviceContext(GraphicsThread_IMMEDIATE).GSSetSamplers(slot, 1, &samplerState);
+		break;
+	case Cjing3D::SHADERSTAGES_HS:
+		GetDeviceContext(GraphicsThread_IMMEDIATE).HSSetSamplers(slot, 1, &samplerState);
+		break;
+	case Cjing3D::SHADERSTAGES_DS:
+		GetDeviceContext(GraphicsThread_IMMEDIATE).DSSetSamplers(slot, 1, &samplerState);
 		break;
 	case Cjing3D::SHADERSTAGES_PS:
 		GetDeviceContext(GraphicsThread_IMMEDIATE).PSSetSamplers(slot, 1, &samplerState);
@@ -1679,6 +1709,12 @@ void GraphicsDeviceD3D11::BindGPUResource(SHADERSTAGES stage, GPUResource& resou
 	case Cjing3D::SHADERSTAGES_GS:
 		GetDeviceContext(GraphicsThread_IMMEDIATE).GSSetShaderResources(slot, 1, &srv);
 		break;
+	case Cjing3D::SHADERSTAGES_HS:
+		GetDeviceContext(GraphicsThread_IMMEDIATE).HSSetShaderResources(slot, 1, &srv);
+		break;
+	case Cjing3D::SHADERSTAGES_DS:
+		GetDeviceContext(GraphicsThread_IMMEDIATE).DSSetShaderResources(slot, 1, &srv);
+		break;
 	case Cjing3D::SHADERSTAGES_PS:
 		GetDeviceContext(GraphicsThread_IMMEDIATE).PSSetShaderResources(slot, 1, &srv);
 		break;
@@ -1703,6 +1739,12 @@ void GraphicsDeviceD3D11::BindGPUResources(SHADERSTAGES stage, GPUResource * con
 		break;
 	case Cjing3D::SHADERSTAGES_GS:
 		GetDeviceContext(GraphicsThread_IMMEDIATE).GSSetShaderResources(slot, count, srvs);
+		break;
+	case Cjing3D::SHADERSTAGES_HS:
+		GetDeviceContext(GraphicsThread_IMMEDIATE).HSSetShaderResources(slot, count, srvs);
+		break;
+	case Cjing3D::SHADERSTAGES_DS:
+		GetDeviceContext(GraphicsThread_IMMEDIATE).DSSetShaderResources(slot, count, srvs);
 		break;
 	case Cjing3D::SHADERSTAGES_PS:
 		GetDeviceContext(GraphicsThread_IMMEDIATE).PSSetShaderResources(slot, count, srvs);
@@ -1837,6 +1879,20 @@ void GraphicsDeviceD3D11::BindShaderInfoState(PipelineState state)
 		mPrevPixelShader = ps;
 	}
 
+	ID3D11HullShader* hs = state.mHullShader != nullptr ? state.mHullShader->mResourceD3D11.Get() : nullptr;
+	if (hs != mPrevHullShader)
+	{
+		GetDeviceContext(GraphicsThread_IMMEDIATE).HSSetShader(hs, nullptr, 0);
+		mPrevHullShader = hs;
+	}
+
+	ID3D11DomainShader* ds = state.mDomainShader != nullptr ? state.mDomainShader->mResourceD3D11.Get() : nullptr;
+	if (ds != mPrevDomainShader)
+	{
+		GetDeviceContext(GraphicsThread_IMMEDIATE).DSSetShader(ds, nullptr, 0);
+		mPrevDomainShader = ds;
+	}
+
 	ID3D11BlendState* bs = state.mBlendState != nullptr ? state.mBlendState->GetBlendState() : nullptr;
 	if (bs != mPrevBlendState)
 	{
@@ -1882,6 +1938,12 @@ void GraphicsDeviceD3D11::BindShaderInfoState(PipelineState state)
 			break;
 		case LINELIST:
 			primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
+			break;
+		case PATCHLIST_3:
+			primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST;
+			break;
+		case PATCHLIST_4:
+			primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST;
 			break;
 		default:
 			primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED;
@@ -1945,6 +2007,8 @@ void GraphicsDeviceD3D11::ClearPrevStates()
 	mPrevVertexShader = nullptr;
 	mPrevPixelShader = nullptr;
 	mPrevComputeShader = nullptr;
+	mPrevHullShader = nullptr;
+	mPrevDomainShader = nullptr;
 	mPrevInputLayout = nullptr;
 	mPrevRasterizerState = nullptr;
 	mPrevDepthStencilState = nullptr;

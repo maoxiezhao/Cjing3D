@@ -41,6 +41,8 @@ namespace Cjing3D
 		virtual HRESULT CreateInputLayout(VertexLayoutDesc* desc, U32 numElements, const void* shaderBytecode, size_t shaderLength, InputLayout& inputLayout) = 0;
 		virtual HRESULT CreatePixelShader(const void* bytecode, size_t length, PixelShader &pixelShader) = 0;
 		virtual HRESULT CreateComputeShader(const void* bytecode, size_t length, ComputeShader& computeShader) = 0;
+		virtual HRESULT CreateHullShader(const void* bytecode, size_t length, HullShader& hullShader) = 0;
+		virtual HRESULT CreateDomainShader(const void* bytecode, size_t length, DomainShader& domainShader) = 0;
 
 		virtual HRESULT CreateBuffer(const GPUBufferDesc* desc, GPUBuffer& buffer, const SubresourceData* initialData) = 0;
 		virtual void UpdateBuffer(GPUBuffer& buffer, const void* data, U32 dataSize) = 0;

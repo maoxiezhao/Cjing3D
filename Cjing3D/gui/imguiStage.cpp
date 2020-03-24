@@ -11,6 +11,8 @@
 #include "renderer\RHI\deviceD3D11.h"
 #include "renderer\paths\renderPath3D.h"
 
+#include "renderer\passes\terrainPass.h"
+
 #include "system\sceneSystem.h"
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -349,16 +351,24 @@ namespace Cjing3D
 			ImGui::End();
 		}
 
-		bool showRenderWindow = true;
+		void ShowTerrainAttribute()
+		{
+			SystemContext& systemContext = SystemContext::GetSystemContext();
+			Renderer& renderer = systemContext.GetSubSystem<Renderer>();
+
+			auto renderPass = renderer.GetRenderPass(STRING_ID(TerrainPass));
+			if (renderPass == nullptr) return;
+
+			TerrainPass* terrainPass = dynamic_cast<TerrainPass*>(renderPass.get());
+			I32 elevation = (U32)terrainPass->GetElevation();
+
+			if (ImGui::SliderInt("Terrain elevation", &elevation, 0, 200)) {
+				terrainPass->SetElevation((U32)elevation);
+			} 
+		}
+		
 		void ShowRenderAttribute()
 		{
-			if (showRenderWindow == false) return;
-
-			// show render window
-			ImGui::SetNextWindowPos(ImVec2(10, 570), ImGuiCond_Always);
-			ImGui::SetNextWindowSize(ImVec2(350, 160), ImGuiCond_Always);
-			ImGui::Begin("Render Window");
-
 			SystemContext& systemContext = SystemContext::GetSystemContext();
 			Renderer& renderer = systemContext.GetSubSystem<Renderer>();
 
@@ -388,6 +398,33 @@ namespace Cjing3D
 			{
 				renderer.SetAmbientColor(ambientColor);
 			}
+		}
+
+		bool showRenderWindow = true;
+		void ShowRenderProperties()
+		{
+			if (showRenderWindow == false) return;
+
+			// show render window
+			ImGui::SetNextWindowPos(ImVec2(10, 570), ImGuiCond_Always);
+			ImGui::SetNextWindowSize(ImVec2(350, 160), ImGuiCond_Always);
+			ImGui::Begin("Render Window");
+
+			if (ImGui::BeginTabBar("Properties", ImGuiTabBarFlags_None))
+			{
+				if (ImGui::BeginTabItem("Renderer"))
+				{
+					ShowRenderAttribute();
+					ImGui::EndTabItem();
+				}
+				if (ImGui::BeginTabItem("Terrain"))
+				{
+					ShowTerrainAttribute();
+					ImGui::EndTabItem();
+				}
+
+				ImGui::EndTabBar();
+			}
 
 			ImGui::End();
 		}
@@ -401,7 +438,7 @@ namespace Cjing3D
 		mRegisteredWindowFuncs.push_back(ShowObjectAttribute);
 		mRegisteredWindowFuncs.push_back(ShowLightAttribute);
 		mRegisteredWindowFuncs.push_back(ShowMaterialAttribute);
-		mRegisteredWindowFuncs.push_back(ShowRenderAttribute);
+		mRegisteredWindowFuncs.push_back(ShowRenderProperties);
 	}
 
 	void IMGUIStage::UpdateImpl(F32 deltaTime)

@@ -20,6 +20,7 @@ namespace Cjing3D
 		AABB(XMVECTOR min, XMVECTOR max) { XMStoreFloat3(&mMin, min); XMStoreFloat3(&mMax, max); };
 		AABB(XMFLOAT3 p) : mMin(p), mMax(p) {};
 		AABB(XMFLOAT3 min, XMFLOAT3 max) : mMin(min), mMax(max) {};
+		AABB(F32x3 min, F32x3 max) : mMin(XMConvert(min)), mMax(XMConvert(max)) {}
 		AABB(const AABB& aabb) = default;
 		AABB(AABB&& aabb) = default;
 		~AABB() = default;

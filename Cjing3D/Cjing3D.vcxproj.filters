@@ -77,6 +77,9 @@
     <Filter Include="utils\optick">
       <UniqueIdentifier>{2222258e-268a-4308-9543-d23785027f6c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="renderer\passes">
+      <UniqueIdentifier>{5f37daed-16eb-4b11-9f21-4589de95b4ed}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine.cpp" />
@@ -439,6 +442,12 @@
     </ClCompile>
     <ClCompile Include="system\component\genericType.cpp">
       <Filter>system\component</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\passes\terrainPass.cpp">
+      <Filter>renderer\passes</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\passes\terrainTree.cpp">
+      <Filter>renderer\passes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -863,6 +872,21 @@
     </ClInclude>
     <ClInclude Include="system\component\genericType.h">
       <Filter>system\component</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\passes\renderPass.h">
+      <Filter>renderer\passes</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\passes\note.h">
+      <Filter>renderer\passes</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\passes\terrainPass.h">
+      <Filter>renderer\passes</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\quadTree.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\passes\terrainTree.h">
+      <Filter>renderer\passes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

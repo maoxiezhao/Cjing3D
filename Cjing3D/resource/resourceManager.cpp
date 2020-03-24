@@ -17,6 +17,9 @@ void ResourceManager::Initialize()
 	AddStandardResourceDirectory(Resrouce_VertexShader, "Shaders/");
 	AddStandardResourceDirectory(Resrouce_PixelShader, "Shaders/");
 	AddStandardResourceDirectory(Resource_ComputeShader, "Shaders/");
+	AddStandardResourceDirectory(Resource_HullShader, "Shaders/");
+	AddStandardResourceDirectory(Resource_DomainShader, "Shaders/");
+
 	AddStandardResourceDirectory(Resource_Model, "Models/");
 
 }
@@ -46,6 +49,7 @@ ResourcePtr ResourceManager::GetOrCreateByType(const StringID & name, Resource_T
 
 void ResourceManager::LoadTextrueFromFilePath(const std::filesystem::path & filePath, RhiTexture2D & texture)
 {
+	// TODO: to remove
 	std::wstring extension(filePath.extension());
 	if (extension == L".dds")
 	{
@@ -109,6 +113,164 @@ void ResourceManager::LoadTextrueFromFilePath(const std::filesystem::path & file
 
 		stbi_image_free(rgb);
 		
+		if (data != nullptr) {
+			delete[] data;
+		}
+	}
+}
+
+void ResourceManager::LoadTextureFromFilePathEx(const std::filesystem::path& filePath, RhiTexture2D& texture, FORMAT textureFormat, U32 channelCount, U32 bindFlag, bool generateMipmap)
+{
+	std::wstring extension(filePath.extension());
+	if (extension == L".dds")
+	{
+		const std::string path = filePath.generic_string();
+		if (!FileData::IsFileExists(path))
+		{
+			Debug::Warning("Cannot open file [" + path + "]");
+			return;
+		}
+
+		size_t size = 0;
+		char* data = FileData::ReadFileBytes(path, size);
+		if (data == nullptr) {
+			Debug::Warning("Cannot open file [" + path + "]");
+			return;
+		}
+
+		tinyddsloader::DDSFile ddsFile;
+		auto result = ddsFile.Load((const uint8_t*)data, size);
+		if (result == tinyddsloader::Result::Success)
+		{
+			TextureDesc desc = {};
+			desc.mWidth = ddsFile.GetWidth();
+			desc.mHeight = ddsFile.GetHeight();
+			desc.mDepth = ddsFile.GetDepth();
+			desc.mArraySize = ddsFile.GetArraySize();
+			desc.mMipLevels = ddsFile.GetMipCount();
+			desc.mFormat = textureFormat;
+			desc.mBindFlags = bindFlag;
+			desc.mUsage = USAGE_IMMUTABLE;
+
+			auto ddsFormat = ddsFile.GetFormat();
+			switch (ddsFormat)
+			{
+				case tinyddsloader::DDSFile::DXGIFormat::B8G8R8A8_UNorm: desc.mFormat = FORMAT_B8G8R8A8_UNORM; break;
+				case tinyddsloader::DDSFile::DXGIFormat::B8G8R8A8_UNorm_SRGB: desc.mFormat = FORMAT_B8G8R8A8_UNORM_SRGB; break;
+				case tinyddsloader::DDSFile::DXGIFormat::R8G8B8A8_UNorm: desc.mFormat = FORMAT_R8G8B8A8_UNORM; break;
+				case tinyddsloader::DDSFile::DXGIFormat::R8G8B8A8_UNorm_SRGB: desc.mFormat = FORMAT_R8G8B8A8_UNORM_SRGB; break;
+				case tinyddsloader::DDSFile::DXGIFormat::R8G8B8A8_UInt: desc.mFormat = FORMAT_R8G8B8A8_UINT; break;
+				case tinyddsloader::DDSFile::DXGIFormat::R8G8B8A8_SNorm: desc.mFormat = FORMAT_R8G8B8A8_SNORM; break;
+				case tinyddsloader::DDSFile::DXGIFormat::R8G8B8A8_SInt: desc.mFormat = FORMAT_R8G8B8A8_SINT; break;
+				case tinyddsloader::DDSFile::DXGIFormat::R16G16_Float: desc.mFormat = FORMAT_R16G16_FLOAT; break;
+				case tinyddsloader::DDSFile::DXGIFormat::R16G16_UNorm: desc.mFormat = FORMAT_R16G16_UNORM; break;
+				case tinyddsloader::DDSFile::DXGIFormat::R16G16_UInt: desc.mFormat = FORMAT_R16G16_UINT; break;
+				case tinyddsloader::DDSFile::DXGIFormat::R16G16_SNorm: desc.mFormat = FORMAT_R16G16_SNORM; break;
+				case tinyddsloader::DDSFile::DXGIFormat::R16G16_SInt: desc.mFormat = FORMAT_R16G16_SINT; break;
+				case tinyddsloader::DDSFile::DXGIFormat::D32_Float: desc.mFormat = FORMAT_D32_FLOAT; break;
+				case tinyddsloader::DDSFile::DXGIFormat::R32_Float: desc.mFormat = FORMAT_R32_FLOAT; break;
+				case tinyddsloader::DDSFile::DXGIFormat::R32_UInt: desc.mFormat = FORMAT_R32_UINT; break;
+				case tinyddsloader::DDSFile::DXGIFormat::R32_SInt: desc.mFormat = FORMAT_R32_SINT; break;
+				case tinyddsloader::DDSFile::DXGIFormat::R8G8_UNorm: desc.mFormat = FORMAT_R8G8_UNORM; break;
+				case tinyddsloader::DDSFile::DXGIFormat::R8G8_UInt: desc.mFormat = FORMAT_R8G8_UINT; break;
+				case tinyddsloader::DDSFile::DXGIFormat::R8G8_SNorm: desc.mFormat = FORMAT_R8G8_SNORM; break;
+				case tinyddsloader::DDSFile::DXGIFormat::R8G8_SInt: desc.mFormat = FORMAT_R8G8_SINT; break;
+				case tinyddsloader::DDSFile::DXGIFormat::R16_Float: desc.mFormat = FORMAT_R16_FLOAT; break;
+				case tinyddsloader::DDSFile::DXGIFormat::D16_UNorm: desc.mFormat = FORMAT_D16_UNORM; break;
+				case tinyddsloader::DDSFile::DXGIFormat::R16_UNorm: desc.mFormat = FORMAT_R16_UNORM; break;
+				case tinyddsloader::DDSFile::DXGIFormat::R16_UInt: desc.mFormat = FORMAT_R16_UINT; break;
+				case tinyddsloader::DDSFile::DXGIFormat::R16_SNorm: desc.mFormat = FORMAT_R16_SNORM; break;
+				case tinyddsloader::DDSFile::DXGIFormat::R16_SInt: desc.mFormat = FORMAT_R16_SINT; break;
+				case tinyddsloader::DDSFile::DXGIFormat::R8_UNorm: desc.mFormat = FORMAT_R8_UNORM; break;
+				case tinyddsloader::DDSFile::DXGIFormat::R8_UInt: desc.mFormat = FORMAT_R8_UINT; break;
+				case tinyddsloader::DDSFile::DXGIFormat::R8_SNorm: desc.mFormat = FORMAT_R8_SNORM; break;
+				case tinyddsloader::DDSFile::DXGIFormat::R8_SInt: desc.mFormat = FORMAT_R8_SINT; break;
+				case tinyddsloader::DDSFile::DXGIFormat::BC1_UNorm: desc.mFormat = FORMAT_BC1_UNORM; break;
+			default:
+				Debug::Warning("Invalid dds texture format [" + std::to_string(static_cast<U32>(ddsFormat)) + ", " + path + "]");
+				break;
+			}
+
+			std::vector<SubresourceData> resourceData;
+			for (U32 index = 0; index < desc.mArraySize; index++)
+			{
+				for (U32 mipLevle = 0; mipLevle < desc.mMipLevels; mipLevle++)
+				{
+					auto imageData = ddsFile.GetImageData(mipLevle, index);
+					SubresourceData subresourceData;
+					subresourceData.mSysMem = imageData->m_mem;
+					subresourceData.mSysMemPitch = imageData->m_memPitch;
+					subresourceData.mSysMemSlicePitch = imageData->m_memSlicePitch;
+
+					resourceData.push_back(subresourceData);
+				}
+			}
+
+			// only support texture2D now.
+			if (ddsFile.GetTextureDimension() != tinyddsloader::DDSFile::TextureDimension::Texture2D) {
+				return;
+			}
+
+			Renderer& renderer = GlobalGetSubSystem<Renderer>();
+			const auto result = renderer.GetDevice().CreateTexture2D(&desc, resourceData.data(), texture);
+			Debug::ThrowIfFailed(result, "Failed to create texture:%08x", result);
+			renderer.GetDevice().SetResourceName(texture, path.c_str());
+		}
+
+		SAFE_DELETE_ARRAY(data);
+	}
+	else
+	{
+		const std::string path = filePath.generic_string();
+		size_t length = 0;
+		unsigned char* data = (unsigned char*)FileData::ReadFileBytes(path, length);
+
+		int width, height, bpp;
+		unsigned char* rgb = stbi_load_from_memory(data, length, &width, &height, &bpp, channelCount);
+		if (rgb != nullptr)
+		{
+			SystemContext& systemContext = SystemContext::GetSystemContext();
+			Renderer& renderer = systemContext.GetSubSystem<Renderer>();
+			GraphicsDevice& device = renderer.GetDevice();
+
+			TextureDesc desc = {};
+			desc.mWidth = width;
+			desc.mHeight = height;
+			desc.mArraySize = 1;
+			desc.mFormat = textureFormat;
+			desc.mBindFlags = bindFlag;
+			desc.mMipLevels = generateMipmap ? static_cast<U32>(std::log2(std::max(width, height))) : 1;
+
+			std::vector<SubresourceData> resourceData(desc.mMipLevels);
+
+			// 对于非dds纹理加载，需要自建mipmap
+			U32 mipWidth = width;
+			for (int mipLevel = 0; mipLevel < desc.mMipLevels; mipLevel++)
+			{
+				resourceData[mipLevel].mSysMem = rgb;
+				resourceData[mipLevel].mSysMemPitch = mipWidth * channelCount;
+
+				mipWidth = std::max(1u, mipWidth / 2);
+			}
+
+			const auto result = renderer.GetDevice().CreateTexture2D(&desc, resourceData.data(), texture);
+			Debug::ThrowIfFailed(result, "Failed to create texture:%08x", result);
+			renderer.GetDevice().SetResourceName(texture, path.c_str());
+
+			// 创建各个subresource的srv和uav,用于deferred generate mipmap
+			for (int mipLevel = 0; mipLevel < desc.mMipLevels; mipLevel++)
+			{
+				renderer.GetDevice().CreateShaderResourceView(texture, 0, -1, mipLevel, 1);
+				renderer.GetDevice().CreateUnordereddAccessView(texture, mipLevel);
+			}
+
+			if (desc.mMipLevels > 1) {
+				renderer.AddDeferredTextureMipGen(texture);
+			}
+		}
+
+		stbi_image_free(rgb);
+
 		if (data != nullptr) {
 			delete[] data;
 		}

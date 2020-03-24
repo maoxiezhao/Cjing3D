@@ -17,6 +17,8 @@ ADDTORESOURCETYPE(VertexShaderInfo, Resrouce_VertexShader)
 ADDTORESOURCETYPE(VertexShader, Resrouce_VertexShader)
 ADDTORESOURCETYPE(PixelShader, Resrouce_PixelShader)
 ADDTORESOURCETYPE(ComputeShader, Resource_ComputeShader);
+ADDTORESOURCETYPE(HullShader, Resource_HullShader);
+ADDTORESOURCETYPE(DomainShader, Resource_DomainShader);
 
 Resource::Resource(Resource_Type type) :
 	mType(type),

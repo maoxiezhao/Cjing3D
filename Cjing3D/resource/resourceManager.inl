@@ -65,6 +65,20 @@ ResourceManager::GetPool<ComputeShader>()const
 	return mComputeShaderPool;
 }
 
+template <>
+inline const ResourceManager::PoolType<HullShader>&
+ResourceManager::GetPool<HullShader>()const
+{
+	return mHullShaderPool;
+}
+
+template <>
+inline const ResourceManager::PoolType<DomainShader>&
+ResourceManager::GetPool<DomainShader>()const
+{
+	return mDomainShaderPool;
+}
+
 // 创建VertexShader着色器
 template<typename ResourceT>
 inline std::enable_if_t<std::is_same<ResourceT, VertexShaderInfo>::value, std::shared_ptr<VertexShaderInfo>>
@@ -137,3 +151,19 @@ ResourceManager::GetOrCreate(const StringID & filePath)
 	}
 	return texture;
 }
+
+
+template<typename ResourceT>
+inline std::enable_if_t<std::is_same<ResourceT, RhiTexture2D>::value, std::shared_ptr<RhiTexture2D>> 
+ResourceManager::GetOrCreate(const StringID& filePath, FORMAT textureFormat, U32 channelCount, U32 bindFlag, bool generateMipmap)
+{
+	PoolType<RhiTexture2D>& texturePool = GetPool< RhiTexture2D >();
+
+	bool isExists = texturePool.Contains(filePath);
+	auto texture = texturePool.GetOrCreate(filePath);
+	if (isExists == false) {
+		LoadTextureFromFilePathEx(filePath.GetString(), *texture, textureFormat, channelCount, bindFlag, generateMipmap);
+	}
+	return texture;
+}
+

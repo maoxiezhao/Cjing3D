@@ -18,6 +18,12 @@
     <Filter Include="cs">
       <UniqueIdentifier>{6368279f-f2de-4593-9047-3876ef1675b7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="hs">
+      <UniqueIdentifier>{f9516714-e351-4772-ab14-79bf87434f64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ds">
+      <UniqueIdentifier>{2da8f1ba-f179-415c-8b55-635bc7408cd1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="cs\toneMapping.hlsl">
@@ -49,6 +55,18 @@
     </FxCompile>
     <FxCompile Include="vs\shadowVS.hlsl">
       <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="vs\terrainVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="ps\terrainPS.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
+    <FxCompile Include="hs\terrainHS.hlsl">
+      <Filter>hs</Filter>
+    </FxCompile>
+    <FxCompile Include="ds\terrainDS.hlsl">
+      <Filter>ds</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

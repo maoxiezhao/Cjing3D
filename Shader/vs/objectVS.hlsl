@@ -1,4 +1,4 @@
-#include "..\hf\objectHF.hlsli"
+#include "..\hf\objectInput.hlsli"
 
 PixelInputType main(InputObjectAll input)
 {

@@ -18,9 +18,9 @@ private:
 	std::vector<GameSystemPtr> mSystems;
 	
 	EngineTime mTime;
-	Engine* mEngine;
+	Engine* mEngine = nullptr;
 
-	SystemContext() = default;
+	SystemContext() {};
 
 public:
 	~SystemContext() { mSystems.clear();}
@@ -72,5 +72,11 @@ public:
 		return mEngine;
 	}
 };
+
+template <typename T>
+inline T& GlobalGetSubSystem()
+{
+	return SystemContext::GetSystemContext().GetSubSystem<T>();
+}
 
 }

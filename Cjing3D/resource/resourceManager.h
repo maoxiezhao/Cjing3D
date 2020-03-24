@@ -22,6 +22,8 @@ namespace Cjing3D
 *		Resrouce_VertexShader,
 *		Resrouce_PixelShader,
 *		Resource_Texture,
+*
+*  TODO: refactor
 */
 class ResourceManager : public SubSystem
 {
@@ -92,9 +94,21 @@ public:
 	std::enable_if_t<std::is_same<ResourceT, ComputeShader>::value, std::shared_ptr<ComputeShader> >
 		GetOrCreate(const StringID& name);
 
+	template <typename ResourceT>
+	std::enable_if_t<std::is_same<ResourceT, HullShader>::value, std::shared_ptr<HullShader> >
+		GetOrCreate(const StringID& name);
+
+	template <typename ResourceT>
+	std::enable_if_t<std::is_same<ResourceT, DomainShader>::value, std::shared_ptr<DomainShader> >
+		GetOrCreate(const StringID& name);
+
 	template<typename ResourceT>
 	std::enable_if_t<std::is_same<ResourceT, RhiTexture2D>::value, std::shared_ptr<RhiTexture2D>>
 		GetOrCreate(const StringID & filePath);
+
+	template<typename ResourceT>
+	std::enable_if_t<std::is_same<ResourceT, RhiTexture2D>::value, std::shared_ptr<RhiTexture2D>>
+		GetOrCreate(const StringID& filePath, FORMAT textureFormat, U32 channelCount = 4, U32 bindFlag = BIND_SHADER_RESOURCE, bool generateMipmap = false);
 
 	template<typename ResourceT>
 	void ClearResource(const StringID& name)
@@ -110,6 +124,9 @@ public:
 		pool.RemoveAll();
 	}
 
+	void LoadTextrueFromFilePath(const std::filesystem::path& filePath, RhiTexture2D& texture);
+	void LoadTextureFromFilePathEx(const std::filesystem::path& filePath, RhiTexture2D& texture, FORMAT textureFormat, U32 channelCount = 4, U32 bindFlag = BIND_SHADER_RESOURCE, bool generateMipmap = false);
+
 private:
 	template <typename ResourceT>
 	PoolType<ResourceT>& GetPool();
@@ -117,15 +134,16 @@ private:
 	template <typename ResourceT>
 	const PoolType<ResourceT>& GetPool()const;
 
-	void LoadTextrueFromFilePath(const std::filesystem::path& filePath, RhiTexture2D& texture);
-
 private:
 	std::map<Resource_Type, std::string> mResourceDirectories;
+
+	PoolType<RhiTexture2D> mTexture2DPool;
 
 	PoolType<VertexShaderInfo> mVertexShaderPool;
 	PoolType<PixelShader> mPixelShaderPool;
 	PoolType<ComputeShader> mComputeShaderPool;
-	PoolType<RhiTexture2D> mTexture2DPool;
+	PoolType<HullShader> mHullShaderPool;
+	PoolType<DomainShader> mDomainShaderPool;
 };
 
 template <typename ResourceT>
@@ -151,6 +169,51 @@ ResourceManager::GetOrCreate(const StringID& name)
 	return computeShader;
 }
 
+template <typename ResourceT>
+inline std::enable_if_t<std::is_same<ResourceT, HullShader>::value, std::shared_ptr<HullShader> >
+ResourceManager::GetOrCreate(const StringID& name)
+{
+	std::shared_ptr<HullShader> hullShader = nullptr;
+	const std::string byteData = FileData::ReadFile(name.GetString());
+	if (byteData.empty() == false)
+	{
+		PoolType<HullShader>& shaderPool = GetPool< HullShader >();
+		hullShader = shaderPool.GetOrCreate(name);
+
+		auto& renderer = mGameContext.GetSubSystem<Renderer>();
+		auto& device = renderer.GetDevice();
+		{
+			const HRESULT result = device.CreateHullShader(static_cast<const void*>(
+				byteData.data()), byteData.size(), *hullShader);
+			Debug::ThrowIfFailed(result, "Failed to create hull shader: %08X", result);
+		}
+	}
+
+	return hullShader;
+}
+
+template <typename ResourceT>
+inline std::enable_if_t<std::is_same<ResourceT, DomainShader>::value, std::shared_ptr<DomainShader> >
+ResourceManager::GetOrCreate(const StringID& name)
+{
+	std::shared_ptr<DomainShader> domainShader = nullptr;
+	const std::string byteData = FileData::ReadFile(name.GetString());
+	if (byteData.empty() == false)
+	{
+		PoolType<DomainShader>& shaderPool = GetPool< DomainShader >();
+		domainShader = shaderPool.GetOrCreate(name);
+
+		auto& renderer = mGameContext.GetSubSystem<Renderer>();
+		auto& device = renderer.GetDevice();
+		{
+			const HRESULT result = device.CreateDomainShader(static_cast<const void*>(
+				byteData.data()), byteData.size(), *domainShader);
+			Debug::ThrowIfFailed(result, "Failed to create domain shader: %08X", result);
+		}
+	}
+
+	return domainShader;
+}
 
 #include "resource\resourceManager.inl"
 

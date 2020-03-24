@@ -121,4 +121,13 @@ CBUFFER(MipmapGenerateCB, CBSLOT_MIPMAPGENERATE)
 	float2 gMipmapInverseResolution;
 };
 
+///////////////////////////////////////////////////////////////////////////////////////////
+// terrain
+CBUFFER(TerrainCB, CBSLOT_TERRAIN)
+{
+	uint2 gTerrainResolution;
+	float2 gTerrainInverseResolution;
+	float gTerrainElevation;
+};
+
 #endif

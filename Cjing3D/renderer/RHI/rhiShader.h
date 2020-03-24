@@ -29,10 +29,14 @@ namespace Cjing3D
 	using VertexShader = Shader<ID3D11VertexShader>;
 	using PixelShader = Shader<ID3D11PixelShader>;
 	using ComputeShader = Shader<ID3D11ComputeShader>;
+	using HullShader = Shader<ID3D11HullShader>;
+	using DomainShader = Shader<ID3D11DomainShader>;
 
 	using VertexShaderPtr = std::shared_ptr<VertexShader>;
 	using PixelShaderPtr = std::shared_ptr<PixelShader>;
 	using ComputeShaderPtr = std::shared_ptr<ComputeShader>;
+	using HullShaderPtr = std::shared_ptr<HullShader>;
+	using DomainShaderPtr = std::shared_ptr<DomainShader>;
 
 	// 顶点着色器信息
 	class VertexShaderInfo : public Resource
@@ -50,6 +54,12 @@ namespace Cjing3D
 	struct is_shader<VertexShader> : public std::true_type {};
 	template <>
 	struct is_shader<PixelShader> : public std::true_type {};
+	template <>
+	struct is_shader<ComputeShader> : public std::true_type {};
+	template <>
+	struct is_shader<HullShader> : public std::true_type {};
+	template <>
+	struct is_shader<DomainShader> : public std::true_type {};
 
 	// shader info state
 	class PipelineState : public GraphicsDeviceChild
@@ -57,6 +67,8 @@ namespace Cjing3D
 	public:
 		VertexShaderPtr mVertexShader = nullptr;
 		PixelShaderPtr mPixelShader = nullptr;
+		HullShaderPtr mHullShader = nullptr;
+		DomainShaderPtr mDomainShader = nullptr;
 
 		std::shared_ptr<DepthStencilState> mDepthStencilState = nullptr;
 		std::shared_ptr<BlendState> mBlendState = nullptr;
@@ -70,6 +82,9 @@ namespace Cjing3D
 			mVertexShader = nullptr;
 			mInputLayout = nullptr;
 			mPixelShader = nullptr;
+			mHullShader = nullptr;
+			mDomainShader = nullptr;
+
 			mDepthStencilState = nullptr;
 			mBlendState = nullptr;
 			mRasterizerState = nullptr;
@@ -92,6 +107,8 @@ namespace Cjing3D
 			return (
 				mVertexShader == other.mVertexShader &&
 				mPixelShader == other.mPixelShader &&
+				mHullShader == other.mHullShader &&
+				mDomainShader == other.mDomainShader &&
 				mInputLayout == other.mInputLayout &&
 				mBlendState == other.mBlendState &&
 				mDepthStencilState == other.mDepthStencilState &&

@@ -37,6 +37,8 @@ public:
 	virtual HRESULT CreateInputLayout(VertexLayoutDesc* desc, U32 numElements, const void* shaderBytecode, size_t shaderLength, InputLayout& inputLayout);
 	virtual HRESULT CreatePixelShader(const void* bytecode, size_t length, PixelShader &pixelShader);
 	virtual HRESULT CreateComputeShader(const void* bytecode, size_t length, ComputeShader& computeShader);
+	virtual HRESULT CreateHullShader(const void* bytecode, size_t length, HullShader& hullShader);
+	virtual HRESULT CreateDomainShader(const void* bytecode, size_t length, DomainShader& domainShader);
 
 	virtual HRESULT CreateBuffer(const GPUBufferDesc* desc, GPUBuffer& buffer, const SubresourceData* initialData);
 	virtual void UpdateBuffer(GPUBuffer& buffer, const void* data, U32 dataSize);
@@ -133,6 +135,8 @@ private:
 	ID3D11VertexShader* mPrevVertexShader = nullptr;
 	ID3D11PixelShader* mPrevPixelShader = nullptr;
 	ID3D11ComputeShader* mPrevComputeShader = nullptr;
+	ID3D11HullShader* mPrevHullShader = nullptr;
+	ID3D11DomainShader* mPrevDomainShader = nullptr;
 
 	ID3D11DepthStencilState* mPrevDepthStencilState = nullptr;
 	ID3D11BlendState* mPrevBlendState = nullptr;

@@ -85,7 +85,8 @@ namespace Cjing3D {
 
 		F32x2 GetPos()const { return { mLeft, mTop }; }
 		F32x2 GetSize()const { return { mRight - mLeft, mBottom - mTop }; }
-		
+		F32x2 GetCenter()const { return {(mRight + mLeft) * 0.5f, (mTop + mBottom) * 0.5f }; }
+
 		bool Intersects(const Rect& rect)const;
 		bool Intersects(const F32x2& point)const;
 

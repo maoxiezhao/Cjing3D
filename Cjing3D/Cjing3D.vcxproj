@@ -189,6 +189,10 @@
     <ClInclude Include="note.h" />
     <ClInclude Include="renderer\bufferManager.h" />
     <ClInclude Include="renderer\includeD3D11.h" />
+    <ClInclude Include="renderer\passes\note.h" />
+    <ClInclude Include="renderer\passes\renderPass.h" />
+    <ClInclude Include="renderer\passes\terrainPass.h" />
+    <ClInclude Include="renderer\passes\terrainTree.h" />
     <ClInclude Include="renderer\paths\renderPath2D.h" />
     <ClInclude Include="renderer\paths\renderPath3D.h" />
     <ClInclude Include="renderer\paths\renderPath_forward.h" />
@@ -276,6 +280,7 @@
     <ClInclude Include="utils\geometry.h" />
     <ClInclude Include="utils\intersectable.h" />
     <ClInclude Include="utils\math.h" />
+    <ClInclude Include="utils\quadTree.h" />
     <ClInclude Include="utils\stb_image.h" />
     <ClInclude Include="utils\stb_truetype.h" />
     <ClInclude Include="utils\threadSafeBuffer.h" />
@@ -319,6 +324,8 @@
     <ClCompile Include="input\directInput.cpp" />
     <ClCompile Include="input\InputSystem.cpp" />
     <ClCompile Include="renderer\bufferManager.cpp" />
+    <ClCompile Include="renderer\passes\terrainPass.cpp" />
+    <ClCompile Include="renderer\passes\terrainTree.cpp" />
     <ClCompile Include="renderer\paths\renderPath2D.cpp" />
     <ClCompile Include="renderer\paths\renderPath3D.cpp" />
     <ClCompile Include="renderer\paths\renderPath_forward.cpp" />

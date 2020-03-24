@@ -28,6 +28,7 @@ namespace Cjing3D
 		RasterizerStateID_Front = 0,
 		RasterizerStateID_Image,
 		RasterizerStateID_Shadow,
+		RasterizerStateID_WireFrame,
 		RasterizerStateID_Count
 	};
 

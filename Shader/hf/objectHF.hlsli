@@ -6,15 +6,6 @@
 #include "brdf.hlsli"
 #include "lightingHF.hlsli"
 
-struct PixelInputType
-{
-	float4 pos		: SV_POSITION;
-	float4 pos3D	: WORLDPOSITION;
-	float2 tex		: TEXCOORD0;
-	float3 nor		: NORMAL;
-    float4 color	: COLOR;
-};
-
 TEXTURE2D(texture_basecolormap, TEXTURE_BASECOLOR_MAP);
 TEXTURE2D(texture_normalmap, TEXTURE_NORMAL_MAP);
 TEXTURE2D(texture_surfacemap, TEXTURE_SURFACE_MAP);

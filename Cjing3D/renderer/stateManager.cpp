@@ -242,6 +242,23 @@ void StateManager::SetupRasterizerStates()
 		const auto result = mDevice.CreateRasterizerState(desc, *mRasterizerStates[RasterizerStateID::RasterizerStateID_Shadow]);
 		Debug::ThrowIfFailed(result, "Failed to create shadow rasterizerState", result);
 	}
+
+	{
+		RasterizerStateDesc desc = {};
+		desc.mFillMode = FILL_WIREFRAME;
+		desc.mCullMode = CULL_BACK;
+		desc.mFrontCounterClockwise = true;
+		desc.mDepthBias = 0;
+		desc.mDepthBiasClamp = 0;
+		desc.mSlopeScaleDepthBias = 0;
+		desc.mDepthClipEnable = true;
+		desc.mMultisampleEnable = false;
+		desc.mAntialiaseLineEnable = false;
+		desc.mConservativeRasterizationEnable = false;
+
+		const auto result = mDevice.CreateRasterizerState(desc, *mRasterizerStates[RasterizerStateID::RasterizerStateID_WireFrame]);
+		Debug::ThrowIfFailed(result, "Failed to create shadow rasterizerState", result);
+	}
 }
 
 void StateManager::SetupSamplerStates()

@@ -14,6 +14,9 @@
 #include "resource\resourceManager.h"
 #include "system\sceneSystem.h"
 
+#include "passes\renderPass.h"
+#include "passes\terrainPass.h"
+
 namespace Cjing3D {
 
 namespace {
@@ -113,7 +116,7 @@ namespace {
 
 	void CreateCascadeShadowCameras(LightComponent& light, CameraComponent& camera, U32 cascadeCount, std::vector<CascadeShadowCamera>& csfs)
 	{
-		if (currentCascadeSplits.size() != (cascadeCount + 1)) {
+		if (currentCascadeSplits.size() != (size_t)(cascadeCount + 1)) {
 			CalculateCascadeSplits(camera, cascadeCount, currentCascadeSplits);
 		}
 
@@ -278,8 +281,10 @@ void Renderer::Initialize()
 	mFrameData.mFrameScreenSize = { (F32)mScreenSize[0], (F32)mScreenSize[1] };
 	mFrameData.mFrameAmbient = { 0.1f, 0.1f, 0.1f };
 
-
 	SetShadowMap2DProperty(*this, shadowRes2DResolution, shadowMap2DCount);
+
+	// initialize render pass
+	InitializeRenderPasses();
 
 	mIsInitialized = true;
 }
@@ -291,6 +296,8 @@ void Renderer::Uninitialize()
 	}
 
 	GetMainScene().Clear();
+
+	UninitializeRenderPasses();
 
 	if (mCurrentRenderPath != nullptr)
 	{
@@ -451,6 +458,15 @@ void Renderer::UpdatePerFrameData(F32 deltaTime)
 			frameAllocator.Free(culledLightCount * sizeof(U32));
 		}
 	}
+
+	// refresh render pass 
+	for (auto kvp : mRenderPassMap)
+	{
+		auto renderPass = kvp.second;
+		if (renderPass != nullptr) {
+			renderPass->UpdatePerFrameData(deltaTime);
+		}
+	}
 }
 
 // 在render阶段render前执行
@@ -547,6 +563,15 @@ void Renderer::RefreshRenderData()
 
 	// 更新每一帧的基本信息
 	UpdateFrameCB();
+
+	// refresh render pass 
+	for (auto kvp : mRenderPassMap)
+	{
+		auto renderPass = kvp.second;
+		if (renderPass != nullptr) {
+			renderPass->RefreshRenderData();
+		}
+	}
 }
 
 void Renderer::Render()
@@ -574,6 +599,9 @@ void Renderer::Present()
 	mGraphicsDevice->PresentBegin();
 	Compose();
 	mGraphicsDevice->PresentEnd();
+
+	// end frame 
+	GetFrameAllocator(FrameAllocatorType_Render).Reset();
 }
 
 U32x2 Renderer::GetScreenSize()
@@ -683,6 +711,10 @@ void Renderer::RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, Render
 
 	BindShadowMaps(SHADERSTAGES_PS);
 
+	// terrain render
+	GetRenderPass(STRING_ID(TerrainPass))->Render();
+
+	// impostor render
 	if (camera != nullptr) {
 		RenderImpostor(*camera, renderPassType);
 	}
@@ -690,6 +722,7 @@ void Renderer::RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, Render
 	LinearAllocator& frameAllocator = GetFrameAllocator(FrameAllocatorType_Render);
 	auto& scene = GetMainScene();
 
+	// opaque object render
 	RenderQueue renderQueue;
 	FrameCullings& frameCulling = mFrameCullings[camera];
 	auto& objects = frameCulling.mCulledObjects;
@@ -707,7 +740,7 @@ void Renderer::RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, Render
 		// 默认当object设置为Impostor，仅仅在RenderImpostor时渲染
 		// 未来还是会设置一个distance，超过distance时才仅仅渲染Impostor
 		if (object->IsImpostor()) {
-			continue;;
+			continue;
 		}
 
 		RenderBatch* renderBatch = (RenderBatch*)frameAllocator.Allocate(sizeof(RenderBatch));
@@ -909,6 +942,39 @@ void Renderer::AddDeferredTextureMipGen(Texture2D& texture)
 	}
 
 	mDeferredMIPGenerator->AddTexture(texture);
+}
+
+void Renderer::RegisterRenderPass(const StringID& name, std::shared_ptr<RenderPass> renderPath)
+{
+	mRenderPassMap[name] = renderPath; 
+}
+
+std::shared_ptr<RenderPass> Renderer::GetRenderPass(const StringID& name)
+{
+	auto it = mRenderPassMap.find(name);
+	if (it != mRenderPassMap.end()) {
+		return it->second;
+	}
+	return nullptr;
+}
+
+void Renderer::InitializeRenderPasses()
+{
+	std::shared_ptr<RenderPass> terrainPass = std::shared_ptr<RenderPass>(new TerrainPass(*this));
+	terrainPass->Initialize();
+	RegisterRenderPass(STRING_ID(TerrainPass), terrainPass);
+}
+
+void Renderer::UninitializeRenderPasses()
+{
+	for (auto kvp : mRenderPassMap)
+	{
+		auto renderPass = kvp.second;
+		if (renderPass != nullptr) {
+			renderPass->Uninitialize();
+		}
+	}
+	mRenderPassMap.clear();
 }
 
 GraphicsDevice* Renderer::CreateGraphicsDeviceByType(RenderingDeviceType deviceType, HWND window)
