@@ -2,6 +2,7 @@
 
 #include "renderer\renderableCommon.h"
 #include "renderer\renderer.h"
+#include "renderer\passes\terrainRender.h"
 #include "system\component\camera.h"
 #include "utils\quadTree.h"
 #include "utils\geometry.h"
@@ -10,28 +11,6 @@ namespace Cjing3D
 {
 	class Renderer;
 	class TerrainPass;
-
-	// 地形渲染批次
-	struct TerrainRenderBatchInstance
-	{
-		GPUBuffer* mVertexBuffer = nullptr;
-		GPUBuffer* mIndexBuffer = nullptr;
-
-		U32 mIndiceCount = 0;
-		U32 mDataOffset = 0;
-		U32 mInstanceCount = 0;
-	};
-
-	// 地形材质结构
-	struct TerrainMaterial
-	{
-		Texture2DPtr weightTexture;
-		Texture2DPtr detailTexture1;
-		Texture2DPtr detailTexture2;
-		Texture2DPtr detailTexture3;
-
-		void Clear();
-	};
 
 	//--------------------------------------------------------------------
 	// 地形瓷片，一个地形渲染的基本单元
@@ -46,6 +25,7 @@ namespace Cjing3D
 		Rect GetRect()const { return mTerrainRect; }
 		U32x2 GetLocalPos()const { return mLocalPos; }
 		U32 GetLodLevel()const { return mLodLevel; }
+		U32 GetEdgeLodLevel()const { return mEdgeLodLevels; }
 
 		void SetLodLevel(U32 level) { mLodLevel = level; }
 		void SetRect(const Rect& rect) { mTerrainRect = rect; }
@@ -53,6 +33,7 @@ namespace Cjing3D
 		void SetVertexBuffer(GPUBuffer* buffer) { mVertexBufferPos = buffer; }
 		void SetIndexBuffer(GPUBuffer* buffer) { mIndexBuffer = buffer; }
 		void SetIndiceCount(U32 indiceCount) { mIndiceCount = indiceCount; }
+		void SetEdgeLodLevel(U32 edgeLodLevel) { mEdgeLodLevels = edgeLodLevel; }
 
 		GPUBuffer* GetVertexBuffer() { return mVertexBufferPos; }
 		GPUBuffer* GetIndexBuffer() { return mIndexBuffer; }
@@ -61,8 +42,9 @@ namespace Cjing3D
 		Rect mTerrainRect;
 		U32x2 mLocalPos = {0u, 0u};
 		U32 mLodLevel = 1;
-		U32 mIndiceCount = 0;
+		U32 mEdgeLodLevels = 0;     // 四个邻居的最大Lod等级保存在4个8位中，用于tesselation解决裂缝问题
 
+		U32 mIndiceCount = 0;
 		GPUBuffer* mVertexBufferPos = nullptr;
 		GPUBuffer* mIndexBuffer = nullptr;
 	};
@@ -81,7 +63,7 @@ namespace Cjing3D
 		void UpdateGeometryBuffer();
 
 		U32 GetTerrainTileVertexCount()const { return mTerrainTileVertexCount; }
-		TerrainTilePtr GetTerrainTile(Renderer& renderer, const U32x2& locaPos, U32 depth, const Rect& rect);
+		TerrainTilePtr GetTerrainTile(Renderer& renderer, const U32x2& locaPos, U32 depth, const Rect& rect, U32 edgeLodLevel);
 
 	private:
 		std::map<U32, TerrainTilePtr> mTerrainTileMap;
@@ -94,19 +76,22 @@ namespace Cjing3D
 	};
 
 	//--------------------------------------------------------------------
-	class TerrainTreeComponent
+	// 地形树，以四叉树结构管理TerrainTile的Lod更新和渲染
+	class TerrainTree
 	{
 	public:
-		TerrainTreeComponent();
-		~TerrainTreeComponent();
+		TerrainTree();
+		~TerrainTree();
 
 		virtual void Initialize(U32 width, U32 height);
 		virtual void Uninitialize();
 		virtual void UpdatePerFrameData(F32 deltaTime);
 		virtual void RefreshRenderData();
-		virtual void Render();
+		virtual void Render(TransformComponent& transform);
 
 		void LoadHeightMap(const std::string& path);
+		void LoadHeightMap(Texture2DPtr heightMap);
+		Texture2DPtr GetHeightMap();
 		void LoadTerrainMaterial(TerrainMaterial material);
 
 		U32 GetElevation()const { return mTerrainElevation; }
@@ -143,7 +128,7 @@ namespace Cjing3D
 
 			std::vector<TerrainTile*> mRenderTiles;
 		};
-		void ProcessTerrainRenderQueue(TerrrainRenderQueue& renderQueue);
+		void ProcessTerrainRenderQueue(TerrrainRenderQueue& renderQueue, TransformComponent& transform);
 
 	private:
 		PipelineState mTerrainPSO;
@@ -161,8 +146,18 @@ namespace Cjing3D
 		TerrainTileManager mTerrainTileManager;
 
 		// terrain quad tree
-		using TerrainTreeNode = QuadTreeNode<TerrainTilePtr>;
-		using TerrainQuadTree = QuadTree<TerrainTilePtr>;
+		struct TerrainTileQuadTreeNode
+		{
+			TerrainTilePtr mTilePtr = nullptr;
+			U32x4 mEdgeLodLevel = { 0u, 0u, 0u, 0u };
+
+			U32 GetEdgeLodLevel(NodeDirection direction);
+			void SetEdgeLodLevel(NodeDirection direction, U32 level);
+			U32 GetAllEdgeLodLevel()const;
+		};
+		
+		using TerrainTreeNode = QuadTreeNode<TerrainTileQuadTreeNode>;
+		using TerrainQuadTree = QuadTree<TerrainTileQuadTreeNode>;
 
 		void UpdateTerrainTree(CameraComponent& camera);
 		void CalcSeamlessLevel();
@@ -170,4 +165,5 @@ namespace Cjing3D
 
 		TerrainQuadTree mTerrainQuadTree;
 	};
+	using TerrainTreePtr = std::shared_ptr<TerrainTree>;
 }

@@ -133,7 +133,7 @@ namespace Cjing3D
 		FORMAT mBackBufferFormat;
 		U32x2 mScreenSize;
 		bool mIsMultithreadedRendering;                 // 启用多线程渲染
-		bool mIsVsync = true;									// 是否垂直同步 
+		bool mIsVsync = true;							// 是否垂直同步 
 		ViewPort mViewport;
 		uint64_t mCurrentFrameCount = 0;
 

@@ -15,8 +15,8 @@ function MainScene:onStart()
 	local main_camera = Render.GetMainCamera();
 	self.m_fps_camera:setCamera(main_camera);
 	self.m_fps_camera:reset(Vector:new(200, 40, 0), Vector:new(0.2, 0, 0));
-	self.m_fps_camera:setMoveSpeed(20);
-	self.m_fps_camera:setRotateSpeed(0.0005);
+	self.m_fps_camera:setMoveSpeed(40);
+	self.m_fps_camera:setRotateSpeed(0.005);
 	
 	-- scene add custom light
 	local scene = Scene.GetMainScene();

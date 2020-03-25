@@ -7,7 +7,7 @@
 namespace Cjing3D{
 
 // 开启地形测试数据
-#define _TERRAIN_DEBUG_
+//#define _TERRAIN_DEBUG_
 
 // simple terrain rendering
 // 目前地形系统先简单采用的基于QuadTree的LOD和高度图的方法绘制地形
@@ -35,8 +35,15 @@ TerrainPass::~TerrainPass()
 
 void TerrainPass::Uninitialize()
 {
+	for (auto& kvp : mTerrainTreeMap) {
+		if (kvp.second != nullptr) {
+			kvp.second->Uninitialize();
+		}
+	}
+	mTerrainTreeMap.clear();
+	mToRemovedTerrainTree.clear();
+
 	terrainPSO.Clear();
-	mTerrainTree.Uninitialize();
 
 	mTerrainVS = nullptr;
 	mTerrainIL = nullptr;
@@ -65,8 +72,6 @@ void TerrainPass::Initialize()
 	terrainPSO.mDepthStencilState = stateManager.GetDepthStencilState(DepthStencilStateID_GreaterEqualReadWrite);
 	terrainPSO.mRasterizerState = stateManager.GetRasterizerState(RasterizerStateID_Front);
 
-	mTerrainTree.Initialize(1024, 1024);
-
 #ifdef _TERRAIN_DEBUG_
 	// TEST
 	InitializeTestData();
@@ -75,6 +80,8 @@ void TerrainPass::Initialize()
 
 void TerrainPass::InitializeTestData()
 {
+#ifdef _TERRAIN_DEBUG_
+	mTerrainTree.Initialize(1024, 1024);
 	mTerrainTree.SetTerrainPSO(terrainPSO);
 	mTerrainTree.LoadHeightMap("Textures/HeightMap.png");
 	
@@ -85,6 +92,7 @@ void TerrainPass::InitializeTestData()
 	material.detailTexture2 = resourceManager.GetOrCreate<RhiTexture2D>("Textures/TerrainDetail2.dds", FORMAT_R8G8B8A8_UNORM, 1);
 	material.detailTexture3 = resourceManager.GetOrCreate<RhiTexture2D>("Textures/TerrainDetail3.dds", FORMAT_R8G8B8A8_UNORM, 1);
 	mTerrainTree.LoadTerrainMaterial(material);
+#endif
 }
 
 void TerrainPass::InitializeShader()
@@ -94,10 +102,11 @@ void TerrainPass::InitializeShader()
 		{ "POSITION_NORMAL_SUBSETINDEX", 0u, MeshComponent::VertexPosNormalSubset::format, 0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
 
 		// instance
-		{ "INSTANCEMAT", 0u, FORMAT_R32G32B32A32_FLOAT,  1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-		{ "INSTANCEMAT", 1u, FORMAT_R32G32B32A32_FLOAT,  1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-		{ "INSTANCEMAT", 2u, FORMAT_R32G32B32A32_FLOAT,  1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-		{ "INSTANCECOLOR",0u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u }
+		{ "INSTANCEMAT",    0u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT, INPUT_PER_INSTANCE_DATA, 1u },
+		{ "INSTANCEMAT",    1u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT, INPUT_PER_INSTANCE_DATA, 1u },
+		{ "INSTANCEMAT",    2u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT, INPUT_PER_INSTANCE_DATA, 1u },
+		{ "INSTANCECOLOR",  0u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT, INPUT_PER_INSTANCE_DATA, 1u },
+		{ "INSTANCETERRAIN",0u, FORMAT_R32G32B32A32_UINT,  1u, APPEND_ALIGNED_ELEMENT, INPUT_PER_INSTANCE_DATA, 1u }
 	};
 
 	ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
@@ -113,32 +122,133 @@ void TerrainPass::InitializeShader()
 
 void TerrainPass::UpdatePerFrameData(F32 deltaTime)
 {
-	mTerrainTree.UpdatePerFrameData(deltaTime);
+	for (auto& kvp : mTerrainTreeMap) {
+		if (kvp.second != nullptr) {
+			kvp.second->UpdatePerFrameData(deltaTime);
+		}
+	}
+
+	// refresh current terrain map
+	Renderer& renderer = GlobalGetSubSystem<Renderer>();
+	Scene& scene = renderer.GetMainScene();
+	for (auto& kvp : mTerrainTreeMap) 
+	{
+		bool needRemove = false;
+		ECS::Entity entity = kvp.first;
+		if (!scene.mTerrains.Contains(entity)) {
+			needRemove = true;
+		}
+
+		if (needRemove) {
+			mToRemovedTerrainTree.push_back(entity);
+		}
+	}
+
+	// process removed terrainTree
+	for (auto entity : mToRemovedTerrainTree)
+	{
+		auto it = mTerrainTreeMap.find(entity);
+		if (it != mTerrainTreeMap.end() && it->second != nullptr) {
+			it->second->Uninitialize();
+		}
+		mTerrainTreeMap.erase(it);
+	}
+	mToRemovedTerrainTree.clear();
 }
 
 void TerrainPass::RefreshRenderData()
 {
-	mTerrainTree.RefreshRenderData();
+	for (auto& kvp : mTerrainTreeMap) {
+		if (kvp.second != nullptr) {
+			kvp.second->RefreshRenderData();
+		}
+	}
 }
 
 void TerrainPass::Render()
 {
+
 	GraphicsDevice& device = mRenderer.GetDevice();
 	device.BeginEvent("RenderTerrains");
 
-	mTerrainTree.Render();
+	Renderer& renderer = GlobalGetSubSystem<Renderer>();
+	Scene& scene = renderer.GetMainScene();
+	for (auto& kvp : mTerrainTreeMap) {
+		if (kvp.second != nullptr) {
+			ECS::Entity entity = kvp.first;
+			const auto transform = scene.GetComponent<TransformComponent>(entity);
+			if (transform == nullptr) {
+				continue;
+			}
+
+			kvp.second->Render(*transform);
+		}
+	}
 
 	device.EndEvent();
 }
 
-U32 TerrainPass::GetElevation() const
+U32 TerrainPass::GetElevation(ECS::Entity entity) const
 {
-	return mTerrainTree.GetElevation();
+	auto it = mTerrainTreeMap.find(entity);
+	if (it != mTerrainTreeMap.end()) {
+		return it->second->GetElevation();
+	}
+	return 0;
 }
 
-void TerrainPass::SetElevation(U32 elevation)
+void TerrainPass::SetElevation(ECS::Entity entity, U32 elevation)
 {
-	mTerrainTree.SetElevation(elevation);
+	auto it = mTerrainTreeMap.find(entity);
+	if (it != mTerrainTreeMap.end()) {
+		return it->second->SetElevation(elevation);
+	}
+}
+
+TerrainTreePtr TerrainPass::RegisterTerrain(ECS::Entity entity, U32 width, U32 height, U32 elevation)
+{
+	auto it = mTerrainTreeMap.find(entity);
+	if (it != mTerrainTreeMap.end())
+	{
+		// erase removed queue
+		auto vIt = std::find(mToRemovedTerrainTree.begin(), mToRemovedTerrainTree.end(), entity);
+		if (vIt != mToRemovedTerrainTree.end()) {
+			mToRemovedTerrainTree.erase(vIt);
+		}
+		return nullptr;
+	}
+
+	TerrainTreePtr newTerrainTree = std::make_shared<TerrainTree>();
+	newTerrainTree->Initialize(width, height);
+	newTerrainTree->SetElevation(elevation);
+	newTerrainTree->SetTerrainPSO(terrainPSO);
+
+	mTerrainTreeMap[entity] = newTerrainTree;
+	return newTerrainTree;
+}
+
+void TerrainPass::UnRegisterTerrain(ECS::Entity entity)
+{
+	auto it = mTerrainTreeMap.find(entity);
+	if (it != mTerrainTreeMap.end())
+	{
+		auto vIt = std::find(mToRemovedTerrainTree.begin(), mToRemovedTerrainTree.end(), entity);
+		if (vIt != mToRemovedTerrainTree.end()) {
+			return;
+		}
+
+		mToRemovedTerrainTree.push_back(entity);
+	}
+}
+
+TerrainTreePtr TerrainPass::GetTerrainTree(ECS::Entity entity)
+{
+	auto it = mTerrainTreeMap.find(entity);
+	if (it != mTerrainTreeMap.end()) {
+		return it->second;
+	}
+
+	return nullptr;
 }
 
 

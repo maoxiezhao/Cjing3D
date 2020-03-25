@@ -8,6 +8,7 @@
 #include "system\component\object.h"
 #include "system\component\material.h"
 #include "system\component\light.h"
+#include "system\component\terrain.h"
 
 #include "helper\archive.h"
 
@@ -26,7 +27,8 @@ namespace Cjing3D {
 		const ECS::ComponentManager<ObjectComponent>*,
 		const ECS::ComponentManager<AABBComponent>*,
 		const ECS::ComponentManager<LightComponent>*,
-		const ECS::ComponentManager<AABBComponent>*
+		const ECS::ComponentManager<AABBComponent>*,
+		const ECS::ComponentManager<TerrainComponent>*
 	>;
 
 	using ComponentManagerTypes = std::tuple<
@@ -38,7 +40,8 @@ namespace Cjing3D {
 		ECS::ComponentManager<ObjectComponent>*,
 		ECS::ComponentManager<AABBComponent>*,
 		ECS::ComponentManager<LightComponent>*,
-		ECS::ComponentManager<AABBComponent>*
+		ECS::ComponentManager<AABBComponent>*,
+		ECS::ComponentManager<TerrainComponent>*
 	>;
 
 	class Scene
@@ -60,6 +63,7 @@ namespace Cjing3D {
 			F32 energy = 1.0f,
 			F32 range = 10.0f
 		);
+		ECS::Entity CreateEntityTerrain(const std::string& name, U32 width, U32 height, U32 elevation);
 
 		// create by entity
 		NameComponent& GetOrCreateNameByEntity(ECS::Entity entity);
@@ -130,6 +134,7 @@ namespace Cjing3D {
 		ECS::ComponentManager<AABBComponent> mObjectAABBs;
 		ECS::ComponentManager<LightComponent> mLights;
 		ECS::ComponentManager<AABBComponent> mLightAABBs;
+		ECS::ComponentManager<TerrainComponent> mTerrains;
 
 		AABB mSceneAABB;
 
@@ -147,5 +152,6 @@ namespace Cjing3D {
 	void UpdateSceneTransformSystem(Scene& scene);
 	void UpdateSceneObjectSystem(Scene& scene);
 	void UpdateSceneLightSystem(Scene& scene);
+	void UpdateSceneTerrainSystem(Scene& scene);
 }
 	

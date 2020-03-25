@@ -962,6 +962,45 @@ std::shared_ptr<RenderPass> Renderer::GetRenderPass(const StringID& name)
 	return nullptr;
 }
 
+TerrainTreePtr Renderer::RegisterTerrain(ECS::Entity entity, U32 width, U32 height, U32 elevation)
+{
+	auto renderPass = GetRenderPass(STRING_ID(TerrainPass));
+	if (renderPass == nullptr)
+	{
+		Debug::Warning("Terrain pass is not ready.");
+		return nullptr;
+	}
+
+	TerrainPass& terrainPass = dynamic_cast<TerrainPass&>(*renderPass);
+	return terrainPass.RegisterTerrain(entity, width, height, elevation);
+}
+
+void Renderer::UnRegisterTerrain(ECS::Entity entity)
+{
+	auto renderPass = GetRenderPass(STRING_ID(TerrainPass));
+	if (renderPass == nullptr)
+	{
+		Debug::Warning("Terrain pass is not ready.");
+		return;
+	}
+
+	TerrainPass& terrainPass = dynamic_cast<TerrainPass&>(*renderPass);
+	terrainPass.UnRegisterTerrain(entity);
+}
+
+TerrainTreePtr Renderer::GetTerrainTree(ECS::Entity entity)
+{
+	auto renderPass = GetRenderPass(STRING_ID(TerrainPass));
+	if (renderPass == nullptr)
+	{
+		Debug::Warning("Terrain pass is not ready.");
+		return nullptr;
+	}
+
+	TerrainPass& terrainPass = dynamic_cast<TerrainPass&>(*renderPass);
+	return terrainPass.GetTerrainTree(entity);
+}
+
 void Renderer::InitializeRenderPasses()
 {
 	std::shared_ptr<RenderPass> terrainPass = std::shared_ptr<RenderPass>(new TerrainPass(*this));

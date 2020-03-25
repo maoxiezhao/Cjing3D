@@ -23,6 +23,7 @@ class MaterialComponent;
 class PipelineStateManager;
 class Renderer2D;
 class RenderPass;
+class TerrainTree;
 
 // 用于记录每一帧的基础数据
 class RenderFrameData
@@ -104,6 +105,11 @@ public:
 	// render path
 	void RegisterRenderPass(const StringID& name, std::shared_ptr<RenderPass> renderPath);
 	std::shared_ptr<RenderPass> GetRenderPass(const StringID& name);
+
+	// terrain 
+	std::shared_ptr<TerrainTree> RegisterTerrain(ECS::Entity entity, U32 width, U32 height, U32 elevation);
+	void UnRegisterTerrain(ECS::Entity entity);
+	std::shared_ptr<TerrainTree> GetTerrainTree(ECS::Entity entity);
 
 private:
 	void InitializeRenderPasses();

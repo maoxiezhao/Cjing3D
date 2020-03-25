@@ -46,6 +46,17 @@ namespace Cjing3D
 		// test load scene from archive
 		//const std::string filePath = "Models/sandbox/sandbox.c3dscene";
 		//renderer.GetMainScene().LoadSceneFromArchive(filePath);
+
+		Scene& mainScene = renderer.GetMainScene();
+		auto terrainEntity = mainScene.CreateEntityTerrain("test", 1024, 1024, 50);
+		auto terrain = mainScene.mTerrains.GetComponent(terrainEntity);
+		terrain->LoadHeightMap("Textures/HeightMap.png");
+		terrain->LoadDetailMap(
+			"Textures/TerrainWeights.dds", 
+			"Textures/TerrainDetail1.dds",
+			"Textures/TerrainDetail2.dds",
+			"Textures/TerrainDetail3.dds"
+		);
 	}
 
 	void TestGame::Update(EngineTime time)

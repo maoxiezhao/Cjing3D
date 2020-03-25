@@ -17,13 +17,18 @@ namespace Cjing3D
 		virtual void RefreshRenderData();
 		virtual void Render();
 
-		U32 GetElevation()const;
-		void SetElevation(U32 elevation);
+		U32 GetElevation(ECS::Entity entity)const;
+		void SetElevation(ECS::Entity entity, U32 elevation);
+
+		TerrainTreePtr RegisterTerrain(ECS::Entity entity, U32 width, U32 height, U32 elevation);
+		void UnRegisterTerrain(ECS::Entity entity);
+		TerrainTreePtr GetTerrainTree(ECS::Entity entity);
 
 	private:
 		void InitializeShader();
 		void InitializeTestData();
 
-		TerrainTreeComponent mTerrainTree;
+		std::vector<ECS::Entity> mToRemovedTerrainTree;
+		std::map<ECS::Entity, TerrainTreePtr> mTerrainTreeMap;
 	};
 }

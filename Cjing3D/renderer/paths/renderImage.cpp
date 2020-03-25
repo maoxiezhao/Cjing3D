@@ -26,6 +26,7 @@ namespace RenderImage
 		auto& pipelineStateManager = renderer.GetPipelineStateManager();
 		auto& bufferManager = renderer.GetBufferManager();
 
+		device.BindSamplerState(SHADERSTAGES_PS, *stateManager.GetSamplerState(SamplerStateID_LinearClampGreater), SAMPLER_LINEAR_CLAMP_SLOT);
 		device.BindGPUResource(SHADERSTAGES_PS, texture, TEXTURE_SLOT_0);
 
 		if (params.IsFullScreenEnabled()) 

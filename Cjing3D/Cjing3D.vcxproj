@@ -192,6 +192,7 @@
     <ClInclude Include="renderer\passes\note.h" />
     <ClInclude Include="renderer\passes\renderPass.h" />
     <ClInclude Include="renderer\passes\terrainPass.h" />
+    <ClInclude Include="renderer\passes\terrainRender.h" />
     <ClInclude Include="renderer\passes\terrainTree.h" />
     <ClInclude Include="renderer\paths\renderPath2D.h" />
     <ClInclude Include="renderer\paths\renderPath3D.h" />
@@ -270,6 +271,7 @@
     <ClInclude Include="system\component\material.h" />
     <ClInclude Include="system\component\mesh.h" />
     <ClInclude Include="system\component\object.h" />
+    <ClInclude Include="system\component\terrain.h" />
     <ClInclude Include="system\component\transform.h" />
     <ClInclude Include="system\ecsSystem.h" />
     <ClInclude Include="system\sceneSystem.h" />
@@ -403,12 +405,14 @@
     <ClCompile Include="system\component\material.cpp" />
     <ClCompile Include="system\component\mesh.cpp" />
     <ClCompile Include="system\component\object.cpp" />
+    <ClCompile Include="system\component\terrain.cpp" />
     <ClCompile Include="system\component\transform.cpp" />
     <ClCompile Include="system\sceneLightSystem.cpp" />
     <ClCompile Include="system\sceneObjectSystem.cpp" />
     <ClCompile Include="system\sceneSerializers.cpp" />
     <ClCompile Include="system\sceneSystem.cpp" />
     <ClCompile Include="system\sceneTransformSystem.cpp" />
+    <ClCompile Include="system\systems\sceneTerrainSystem.cpp" />
     <ClCompile Include="utils\baseWindow.cpp" />
     <ClCompile Include="utils\geometry.cpp" />
     <ClCompile Include="utils\intersectable.cpp" />

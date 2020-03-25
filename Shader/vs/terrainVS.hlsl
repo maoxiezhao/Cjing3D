@@ -3,15 +3,105 @@
 
 #define TERRAIN_TESSELATION
 
+// *InputTerrainInstance.locTrans:
+// x. x位移
+// y. z位移
+// z. 位移缩放
+
+// *InputTerrainInstance.terrain:
+// x. currentLodLevel
+// y. edgeLodLevel
+// z. cellVertexCount
+struct InputTerrainInstance
+{
+    float4 wi0 : INSTANCEMAT0;
+    float4 wi1 : INSTANCEMAT1;
+    float4 wi2 : INSTANCEMAT2;
+    float4 locTrans : INSTANCECOLOR;
+    uint4 terrain : INSTANCETERRAIN;
+};
+
+struct InpuTerrainPos
+{
+    float4 pos : POSITION_NORMAL_SUBSETINDEX;
+    
+    InputTerrainInstance instance;
+};
+
+inline float4x4 MakeWorldMatrixFromInstance(InputTerrainInstance input)
+{
+    return float4x4(
+		 float4(input.wi0.x, input.wi1.x, input.wi2.x, 0)
+		, float4(input.wi0.y, input.wi1.y, input.wi2.y, 0)
+		, float4(input.wi0.z, input.wi1.z, input.wi2.z, 0)
+		, float4(input.wi0.w, input.wi1.w, input.wi2.w, 1)
+	);
+}
+
+// InputTerrainInstance.terrain:
+// x. currentLodLevel
+// y. edgeLodLevel
+// z. cellVertexCount
+inline uint4 GetEdgeLodLevelFromInstance(InputTerrainInstance input, uint2 pos)
+{
+    uint currentLodLevel = input.terrain.x;
+    uint vertexCount = input.terrain.z;
+    uint4 ret = uint4(currentLodLevel, currentLodLevel, currentLodLevel, currentLodLevel);
+
+    uint edgeLodLevel = input.terrain.y;
+    
+    // 仅仅对边界做细分    
+    [branch]
+    if (pos.x < 1) 
+    { 
+        ret.x = ((edgeLodLevel) & 0xff);
+    }
+    [branch]
+    if (pos.x > vertexCount - 1)
+    {
+        ret.z = ((edgeLodLevel >> 16) & 0xff);
+    }
+    [branch]
+    if (pos.y < 1)
+    {
+        ret.w = ((edgeLodLevel >> 24) & 0xff);
+    }
+    [branch]
+    if (pos.y > vertexCount - 1)
+    {
+        ret.y = ((edgeLodLevel >> 8) & 0xff);
+    }
+
+    return ret;
+}
+
+inline VertexSurface MakeVertexSurfaceFromInput(InpuTerrainPos input)
+{
+    VertexSurface surface;
+    surface.position = float4(input.pos.xyz, 1.0f);
+    surface.color = gMaterial.baseColor;
+    
+    uint normalSubsetIndex = asuint(input.pos.w);
+    surface.normal.x = (float) (normalSubsetIndex & 0x000000ff) / 255.0f * 2.0f - 1.0f;
+    surface.normal.y = (float) ((normalSubsetIndex >> 8) & 0x000000ff) / 255.0f * 2.0f - 1.0f;
+    surface.normal.z = (float) ((normalSubsetIndex >> 16) & 0x000000ff) / 255.0f * 2.0f - 1.0f;
+
+    surface.materialIndex = (normalSubsetIndex >> 24);
+    
+    return surface;
+}
+
 #ifdef TERRAIN_TESSELATION
 struct HullInputType
 {
     float4 pos      : POSITIONT;
     float2 tex      : TEXCOORD0;
     float4 color    : COLOR;
+    uint4 edgeLevel : EDGELEVEL;
+    uint2 terrainProp : TERRAINPROP;
 };
 
-HullInputType main(InputObjectPos input)
+HullInputType main(InpuTerrainPos input)
 {
     HullInputType Out;
     
@@ -19,20 +109,26 @@ HullInputType main(InputObjectPos input)
     VertexSurface surface = MakeVertexSurfaceFromInput(input);
 
     // scale positoin
-    float cellX = input.instance.color.r;
-    float cellZ = input.instance.color.g;
-    float cellScale = input.instance.color.b;
-    surface.position.x = (surface.position.x * cellScale) + cellX;
-    surface.position.z = (surface.position.z * cellScale) + cellZ;
+    float cellX = input.instance.locTrans.r;
+    float cellZ = input.instance.locTrans.g;
+    float cellScale = input.instance.locTrans.b;
+    float4 position = surface.position;
+    
+    position.x = (position.x * cellScale) + cellX;
+    position.z = (position.z * cellScale) + cellZ;
     
     float2 tex = float2(
-        surface.position.x * gTerrainInverseResolution.x,
-        surface.position.z * gTerrainInverseResolution.y
+        position.x * gTerrainInverseResolution.x,
+        position.z * gTerrainInverseResolution.y
     );
 
-    Out.pos = mul(surface.position, worldMat);
+    Out.pos = mul(position, worldMat);
     Out.tex = tex;
     Out.color = float4(1.0f, 1.0f, 1.0f, 1.0f);
+    Out.terrainProp = input.instance.terrain.xz;
+    
+    uint2 localPos = uint2(surface.position.xz);
+    Out.edgeLevel = GetEdgeLodLevelFromInstance(input.instance, localPos);
     
     return Out;
 }

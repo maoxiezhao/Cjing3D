@@ -14,6 +14,7 @@ namespace Cjing3D
 		UpdateHierarchySystem(*this);     // must update after transform
 		UpdateSceneLightSystem(*this);
 		UpdateSceneObjectSystem(*this);
+		UpdateSceneTerrainSystem(*this);
 	}
 
 	void Scene::Merge(Scene & scene)
@@ -27,6 +28,7 @@ namespace Cjing3D
 		mLightAABBs.Merge(scene.mLightAABBs);
 		mLights.Merge(scene.mLights);
 		mHierarchies.Merge(scene.mHierarchies);
+		mTerrains.Merge(scene.mTerrains);
 	}
 
 	void Scene::Clear()
@@ -91,6 +93,19 @@ namespace Cjing3D
 		light.mEnergy = energy;
 		light.mRange = range;
 		light.SetLightType(LightComponent::LightType_Point);
+
+		return entity;
+	}
+
+	ECS::Entity Scene::CreateEntityTerrain(const std::string& name, U32 width, U32 height, U32 elevation)
+	{
+		auto entity = CreateEntityByName(name);
+		TransformComponent& transform = *mTransforms.Create(entity);
+		transform.Update();
+
+		TerrainComponent& terrain = *mTerrains.Create(entity);
+		terrain.SetElevation(elevation);
+		terrain.SetTerrainSize(width, height);
 
 		return entity;
 	}
@@ -171,6 +186,7 @@ namespace Cjing3D
 		mTransforms.Remove(entity);
 		mLightAABBs.Remove(entity);
 		mLights.Remove(entity);
+		mTerrains.Remove(entity);
 		mHierarchies.RemoveAndKeepSorted(entity);
 
 		if (mNames.Contains(entity))
@@ -236,7 +252,8 @@ namespace Cjing3D
 			&mObjects,
 			&mObjectAABBs,
 			&mLights,
-			&mLightAABBs
+			&mLightAABBs,
+			&mTerrains
 		);
 		return t;
 	}
@@ -252,7 +269,8 @@ namespace Cjing3D
 			&mObjects,
 			&mObjectAABBs,
 			&mLights,
-			&mLightAABBs
+			&mLightAABBs,
+			&mTerrains
 		);
 		return t;
 	}

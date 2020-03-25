@@ -69,10 +69,13 @@ inline float3 DirectionalLight(in ShaderLight light, in Surface surface)
     float3 lightDir = normalize(light.direction);
 
     float NdotL = dot(lightDir, surface.normal);
+    
+    [branch]
     if (NdotL > 0) {
         color = light.color.rgb * light.energy * NdotL;
         
         // CSM 阴影
+        [branch]
         if (light.IsCastingShadow())
         {
             float shadow = 1.0f;
@@ -86,6 +89,7 @@ inline float3 DirectionalLight(in ShaderLight light, in Surface surface)
                 float3 shPos = mul(MatrixArray[matrixIndex + cascade], float4(surface.position, 1.0f)).xyz;
                 float3 shTex = shPos * float3(0.5f, -0.5f, 0.5f) + 0.5f; // uv坐标中v值和y值方向相反，所以乘以-0.5
                 
+                [branch]
                 if (IsSaturated(shTex))
                 {
                     float currentShadow = cascadeShadow(shPos, shTex.xy, light.shadowBias, shadowMapIndex + cascade, NdotL, light.shadowKernel);
@@ -94,6 +98,8 @@ inline float3 DirectionalLight(in ShaderLight light, in Surface surface)
 					// 和下一级的shadowvalue做一个线性混合
                     float3 cascadePosFactor = saturate(saturate(abs(shPos)) - 0.8f) * 5.0f; //[0, 0.2] => [0, 1]
                     float cascadeFactor = max(cascadePosFactor.x, max(cascadePosFactor.y, cascadePosFactor.z));
+                 
+                    [branch]
                     if (cascadeFactor > 0 && cascade < (gFrameShadowCascadeCount - 1))
                     {
                         uint nextCascade = cascade + 1;
@@ -133,12 +139,14 @@ inline float3 PointLight(in ShaderLight light, in Surface surface)
 	float dist2 = dot(lightV, lightV);
 	float dist = sqrt(dist2);
 
-	if (dist <= light.range)
+    [branch]
+    if (dist <= light.range)
 	{
 		float3 lightDir = normalize(lightV / dist);
-
 		float NdotL = dot(lightDir, surface.normal);
-		if (NdotL > 0)
+		
+        [branch]    
+        if (NdotL > 0)
 		{
 			float3 lightColor = light.color.rgb * light.energy;
 

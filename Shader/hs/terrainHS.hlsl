@@ -4,9 +4,11 @@
 // 输入控制点
 struct HullInputType
 {
-    float4 pos   : POSITIONT;
-    float2 tex   : TEXCOORD0;
+    float4 pos : POSITIONT;
+    float2 tex : TEXCOORD0;
     float4 color : COLOR;
+    uint4  edgeLevel : EDGELEVEL;
+    uint2  terrainProp : TERRAINPROP;
 };
 
 // 输出控制点
@@ -29,10 +31,22 @@ ConstantOutputType CalcHSPatchConstants(
 {
     ConstantOutputType Output;
 
-    Output.EdgeTessFactor[0] = 1;
-    Output.EdgeTessFactor[1] = 1;
-    Output.EdgeTessFactor[2] = 1;
-    Output.EdgeTessFactor[3] = 1;
+    uint currentLodLevel = patch[0].terrainProp.x;
+    uint4 edgeLodLevel = uint4(currentLodLevel, currentLodLevel, currentLodLevel, currentLodLevel);
+    
+    [unroll]
+    for (uint id = 0; id < 4; id++)
+    {
+        edgeLodLevel.x = max(patch[id].edgeLevel.x, edgeLodLevel.x);
+        edgeLodLevel.y = max(patch[id].edgeLevel.y, edgeLodLevel.y);
+        edgeLodLevel.z = max(patch[id].edgeLevel.z, edgeLodLevel.z);
+        edgeLodLevel.w = max(patch[id].edgeLevel.w, edgeLodLevel.w);
+    }
+    
+    Output.EdgeTessFactor[0] = max(1, pow(2, max(0, (int) edgeLodLevel.x - (int)currentLodLevel)));
+    Output.EdgeTessFactor[1] = max(1, pow(2, max(0, (int) edgeLodLevel.w - (int) currentLodLevel)));
+    Output.EdgeTessFactor[2] = max(1, pow(2, max(0, (int) edgeLodLevel.z - (int) currentLodLevel)));
+    Output.EdgeTessFactor[3] = max(1, pow(2, max(0, (int) edgeLodLevel.y - (int) currentLodLevel)));
     
     Output.InsideTessFactor[0] = 1;
     Output.InsideTessFactor[1] = 1;

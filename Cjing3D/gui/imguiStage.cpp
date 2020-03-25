@@ -11,8 +11,6 @@
 #include "renderer\RHI\deviceD3D11.h"
 #include "renderer\paths\renderPath3D.h"
 
-#include "renderer\passes\terrainPass.h"
-
 #include "system\sceneSystem.h"
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -351,20 +349,31 @@ namespace Cjing3D
 			ImGui::End();
 		}
 
+		Entity currentTerrain = INVALID_ENTITY;
 		void ShowTerrainAttribute()
 		{
-			SystemContext& systemContext = SystemContext::GetSystemContext();
-			Renderer& renderer = systemContext.GetSubSystem<Renderer>();
+			if (currentTerrain == INVALID_ENTITY) return;
 
-			auto renderPass = renderer.GetRenderPass(STRING_ID(TerrainPass));
-			if (renderPass == nullptr) return;
+			ImGui::SetNextWindowPos(ImVec2(1070, 20), ImGuiCond_Always);
+			ImGui::SetNextWindowSize(ImVec2(350, 360), ImGuiCond_Always);
+			ImGui::Begin("Terrain attributes");
 
-			TerrainPass* terrainPass = dynamic_cast<TerrainPass*>(renderPass.get());
-			I32 elevation = (U32)terrainPass->GetElevation();
+			Scene& scene = Scene::GetScene();
+			auto transform = scene.mTransforms.GetComponent(currentTerrain);
+			if (transform != nullptr) {
+				ShowTransformWindow(*transform);
+			}
+			
+			auto terrain = scene.mTerrains.GetComponent(currentTerrain);
+			if (terrain != nullptr)
+			{
+				I32 elevation = (I32)terrain->GetElevation();
+				if (ImGui::SliderInt("Elevation", &elevation, 0, 200)) {
+					terrain->SetElevation((U32)elevation);
+				}
+			}
 
-			if (ImGui::SliderInt("Terrain elevation", &elevation, 0, 200)) {
-				terrainPass->SetElevation((U32)elevation);
-			} 
+			ImGui::End();
 		}
 		
 		void ShowRenderAttribute()
@@ -417,11 +426,6 @@ namespace Cjing3D
 					ShowRenderAttribute();
 					ImGui::EndTabItem();
 				}
-				if (ImGui::BeginTabItem("Terrain"))
-				{
-					ShowTerrainAttribute();
-					ImGui::EndTabItem();
-				}
 
 				ImGui::EndTabBar();
 			}
@@ -435,9 +439,12 @@ namespace Cjing3D
 
 	void IMGUIStage::InitializeImpl()
 	{
+		// entity attributes
 		mRegisteredWindowFuncs.push_back(ShowObjectAttribute);
 		mRegisteredWindowFuncs.push_back(ShowLightAttribute);
 		mRegisteredWindowFuncs.push_back(ShowMaterialAttribute);
+		mRegisteredWindowFuncs.push_back(ShowTerrainAttribute);
+
 		mRegisteredWindowFuncs.push_back(ShowRenderProperties);
 	}
 
@@ -566,6 +573,27 @@ namespace Cjing3D
 
 					if (nodeClicked != -1) {
 						materialSelectionIndex = nodeClicked;
+					}
+
+					ImGui::EndTabItem();
+				}
+
+				// show material window
+				if (ImGui::BeginTabItem("Terrains"))
+				{
+					static int terrainSelectionIndex = -1;
+					int nodeClicked = -1;
+					auto terrainManager = scene.mTerrains;
+					for (int index = 0; index < terrainManager.GetCount(); index++)
+					{
+						Entity entity = terrainManager.GetEntityByIndex(index);
+						if (ShowEntityList(scene, entity, index, terrainSelectionIndex, nodeClicked)) {
+							currentTerrain = entity;
+						}
+					}
+
+					if (nodeClicked != -1) {
+						terrainSelectionIndex = nodeClicked;
 					}
 
 					ImGui::EndTabItem();

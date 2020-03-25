@@ -10,17 +10,16 @@
 namespace Cjing3D {
 namespace {
 
+	// 更具当前距离获取Lod等级，目前直接采用了线性关系，后续可以优化
 	U32 GetLodLevelByDistance(F32 distance, U32 maxLevel, U32 tileVertexCount)
 	{
 		int dist = (int)distance;
-
-#define CALC(lv) if ((dist >>= 1) < (tileVertexCount)) return lv;
-		for (U32 level = maxLevel; level >= 0; level--) {
-			CALC(level);
+		for (int level = (int)maxLevel; level >= 0; level--) 
+		{
+			if ((dist >>= 1) < (tileVertexCount)) return level;
 		}
 		return 0;
 	}
-
 
 	std::vector<TerrainTile*> mCulledTerrainTiles;
 }	
@@ -46,15 +45,36 @@ U32 TerrainTile::GetIdentityHashValue() const
 	return U32();
 }
 
-TerrainTreeComponent::TerrainTreeComponent() 
+U32 TerrainTree::TerrainTileQuadTreeNode::GetEdgeLodLevel(NodeDirection direction)
+{
+	U32 index = static_cast<U32>(direction);
+	return mEdgeLodLevel[index];
+}
+
+void TerrainTree::TerrainTileQuadTreeNode::SetEdgeLodLevel(NodeDirection direction, U32 level)
+{
+	U32 index = static_cast<U32>(direction);
+	mEdgeLodLevel[index] = level;
+}
+
+U32 TerrainTree::TerrainTileQuadTreeNode::GetAllEdgeLodLevel() const
+{
+	U32 value = 0;
+	for (U32 index = 0; index < NodeDirection::NodeDirection_Count; index++) {
+		value |= (mEdgeLodLevel[index]) << (8 * index);
+	}
+	return value;
+}
+
+TerrainTree::TerrainTree() 
 {
 }
 
-TerrainTreeComponent::~TerrainTreeComponent()
+TerrainTree::~TerrainTree()
 {
 }
 
-void TerrainTreeComponent::Initialize(U32 width, U32 height)
+void TerrainTree::Initialize(U32 width, U32 height)
 {
 	Renderer& renderer = GlobalGetSubSystem<Renderer>();
 	mTerrainWidth = width;
@@ -81,15 +101,18 @@ void TerrainTreeComponent::Initialize(U32 width, U32 height)
 	U32 maxSize = std::max(mTerrainWidth, mTerrainHeight);
 	U32 tileVertexCount = mTerrainTileManager.GetTerrainTileVertexCount();
 	mTerrainMaxLodLevel = (U32)std::log2f((F32)maxSize) - (U32)std::log2f((F32)tileVertexCount) - 1;
+
+	// 设置QuadTree的最大深度
+	mTerrainQuadTree.SetMaxDepth(mTerrainMaxLodLevel);
 }
 
-void TerrainTreeComponent::Uninitialize()
+void TerrainTree::Uninitialize()
 {
 	mTerrainTileManager.Uninitialize();
 	mTerrainQuadTree.Clear();
 }
 
-void TerrainTreeComponent::UpdatePerFrameData(F32 deltaTime)
+void TerrainTree::UpdatePerFrameData(F32 deltaTime)
 {
 	// update terrain tree
 	Renderer& renderer = GlobalGetSubSystem<Renderer>();
@@ -99,14 +122,14 @@ void TerrainTreeComponent::UpdatePerFrameData(F32 deltaTime)
 	}
 }
 
-void TerrainTreeComponent::RefreshRenderData()
+void TerrainTree::RefreshRenderData()
 {
 	if (mTerrainBufferDirty) {
 		UpdateConstantBuffer();
 	}
 }
 
-void TerrainTreeComponent::Render()
+void TerrainTree::Render(TransformComponent& transform)
 {
 	Renderer& renderer = GlobalGetSubSystem<Renderer>();
 	GraphicsDevice& device = renderer.GetDevice();
@@ -120,37 +143,47 @@ void TerrainTreeComponent::Render()
 
 	if (!renderQueue.IsEmpty())
 	{
-		ProcessTerrainRenderQueue(renderQueue);
+		ProcessTerrainRenderQueue(renderQueue, transform);
 	}
 
 	device.EndEvent();
 }
 
-void TerrainTreeComponent::LoadHeightMap(const std::string& path)
+void TerrainTree::LoadHeightMap(const std::string& path)
 {
 	ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
 	mHeightMap = resourceManager.GetOrCreate<RhiTexture2D>(path, FORMAT_R8_UNORM, 1);
 }
 
-void TerrainTreeComponent::LoadTerrainMaterial(TerrainMaterial material)
+void TerrainTree::LoadHeightMap(Texture2DPtr heightMap)
+{
+	mHeightMap = heightMap;
+}
+
+Texture2DPtr TerrainTree::GetHeightMap()
+{
+	return mHeightMap;
+}
+
+void TerrainTree::LoadTerrainMaterial(TerrainMaterial material)
 {
 	mTerrainMaterial = material;
 }
 
-void TerrainTreeComponent::SetElevation(U32 elevation)
+void TerrainTree::SetElevation(U32 elevation)
 {
 	mTerrainElevation = elevation;
 	mTerrainBufferDirty = true;
 }
 
-void TerrainTreeComponent::ProcessTerrainRenderQueue(TerrrainRenderQueue& renderQueue)
+void TerrainTree::ProcessTerrainRenderQueue(TerrrainRenderQueue& renderQueue, TransformComponent& transform)
 {
 	Renderer& renderer = GlobalGetSubSystem<Renderer>();
 	GraphicsDevice& device = renderer.GetDevice();
 
 	U32 batchCount = renderQueue.GetCount();
 	LinearAllocator& frameAllocator = renderer.GetFrameAllocator(Renderer::FrameAllocatorType_Render);
-	size_t instanceSize = sizeof(RenderInstance);
+	size_t instanceSize = sizeof(RenderTerrainInstance);
 	GraphicsDevice::GPUAllocation instances = device.AllocateGPU(batchCount * instanceSize);
 
 	// build render batches
@@ -181,20 +214,25 @@ void TerrainTreeComponent::ProcessTerrainRenderQueue(TerrrainRenderQueue& render
 
 		// process terrain tile rect
 		Rect terrainRect = terrainTile.GetRect();
-		F32 cellScale = terrainRect.GetSize()[0] / mTerrainTileManager.GetTerrainTileVertexCount();	// 必须保证宽和高一致
+		U32 cellVertexCount = mTerrainTileManager.GetTerrainTileVertexCount();
+		F32 cellScale = terrainRect.GetSize()[0] / cellVertexCount;	// 必须保证宽和高一致
 
-		// 等到将地形component化后，才支持transform
-		XMMATRIX worldTransform = XMMatrixIdentity();
-		XMFLOAT4X4 worldMatrix;
-		XMStoreFloat4x4(&worldMatrix, worldTransform);
+		// 处理地形lod
+		U32 currentLodLevel = terrainTile.GetLodLevel();
+		U32 edgeLodLevel = terrainTile.GetEdgeLodLevel();
 
-		const XMFLOAT4 color(
+		// 记录当前tile的局部位移信息，因为transform是作用于整个tree，
+		// 所以这些局部信息需要单独储存
+		const XMFLOAT4 localTransform(
 			terrainRect.mLeft,
 			terrainRect.mTop,
 			cellScale, 
 			1.0f);
-		((RenderInstance*)instances.data)[index].Setup(worldMatrix, color);
 
+		// 保存每个batch（包含一个object）的worldMatrix
+		// 用于在shader中计算顶点的世界坐标
+		const XMFLOAT4X4 worldMatrix = transform.GetWorldTransform();
+		((RenderTerrainInstance*)instances.data)[index].Setup(worldMatrix, localTransform, currentLodLevel, edgeLodLevel, cellVertexCount);
 
 		mRenderBatchInstances.back()->mInstanceCount++;
 	}
@@ -252,7 +290,7 @@ void TerrainTreeComponent::ProcessTerrainRenderQueue(TerrrainRenderQueue& render
 	frameAllocator.Free(sizeof(RenderBatchInstance) * instancedBatchCount);
 }
 
-void TerrainTreeComponent::UpdateConstantBuffer()
+void TerrainTree::UpdateConstantBuffer()
 {
 	TerrainCB cb;
 	cb.gTerrainResolution.x = mTerrainWidth;
@@ -260,12 +298,13 @@ void TerrainTreeComponent::UpdateConstantBuffer()
 	cb.gTerrainInverseResolution.x = (1.0f / mTerrainWidth);
 	cb.gTerrainInverseResolution.y = (1.0f / mTerrainHeight);
 	cb.gTerrainElevation = (F32)mTerrainElevation;
+	cb.gTerrainHaveWeightDetailMap = (mTerrainMaterial.weightTexture != nullptr) ? 1 : 0;
 
 	Renderer& renderer = GlobalGetSubSystem<Renderer>();
 	renderer.GetDevice().UpdateBuffer(mTerrainBuffer, &cb, sizeof(TerrainCB));
 }
 
-void TerrainTreeComponent::UpdateTerrainTree(CameraComponent& camera)
+void TerrainTree::UpdateTerrainTree(CameraComponent& camera)
 {
 	mTerrainQuadTree.Clear();
 	U32 treeNodeCount = 0;
@@ -300,6 +339,8 @@ void TerrainTreeComponent::UpdateTerrainTree(CameraComponent& camera)
 
 	// seamless terrain
 	CalcSeamlessLevel();
+	// 需要做第二次，来保证每个节点都更新过edge lod level
+	CalcSeamlessLevel();	
 
 	// get terrain tiles
 	mCulledTerrainTiles.clear();
@@ -313,8 +354,10 @@ void TerrainTreeComponent::UpdateTerrainTree(CameraComponent& camera)
 		Rect rect = node->GetRect();
 		U32 level = node->GetDepth();
 		U32x2 localPos = node->GetLocalPos();
-		TerrainTilePtr tilePtr = mTerrainTileManager.GetTerrainTile(renderer, localPos, level, rect);
-		node->SetData(tilePtr);
+		U32 edgeLodLevel = node->GetData().GetAllEdgeLodLevel();
+		
+		TerrainTilePtr tilePtr = mTerrainTileManager.GetTerrainTile(renderer, localPos, level, rect, edgeLodLevel);
+		node->GetData().mTilePtr = tilePtr;
 
 		mCulledTerrainTiles.push_back(&(*tilePtr));
 	}
@@ -323,11 +366,78 @@ void TerrainTreeComponent::UpdateTerrainTree(CameraComponent& camera)
 	frameAllocator.Free(sizeof(TerrainTreeNode) * treeNodeCount);
 }
 
-void TerrainTreeComponent::CalcSeamlessLevel()
+void TerrainTree::CalcSeamlessLevel()
 {
+	std::stack<TerrainTreeNode*> currentTreeNodes;
+	auto& rootNode = mTerrainQuadTree.GetRootNode();
+	for (auto node : rootNode.GetChildren()) {
+		currentTreeNodes.push(node);
+	}
+
+	auto ProcessEdgeLodLevel = [&](NodeDirection direction, TerrainTreeNode& currentNode)
+	{
+		TerrainTreeNode* targetNode = nullptr;
+		switch (direction)
+		{
+		case NodeDirection_NORTH:
+			targetNode = mTerrainQuadTree.GetNorthNeighbor(currentNode);
+			break;
+		case NodeDirection_EAST:
+			targetNode = mTerrainQuadTree.GetEastNeighbor(currentNode);
+			break;
+		case NodeDirection_SOUTH:
+			targetNode = mTerrainQuadTree.GetSouthNeighbor(currentNode);
+			break;
+		case NodeDirection_WEST:
+			targetNode = mTerrainQuadTree.GetWestNeighbor(currentNode);
+			break;
+		}
+
+		if (targetNode == nullptr)
+		{
+			currentNode.GetData().SetEdgeLodLevel(direction, currentNode.GetDepth());
+		}
+		else
+		{
+			NodeDirection oppositeDir = GetOppositeNodeDirection(direction);
+			auto& currentData = currentNode.GetData();
+			auto& targetData = targetNode->GetData();
+
+			if (currentData.GetEdgeLodLevel(direction) < currentNode.GetDepth()) {
+				currentData.SetEdgeLodLevel(direction, currentNode.GetDepth());
+			}
+
+			if (targetData.GetEdgeLodLevel(oppositeDir) < currentData.GetEdgeLodLevel(direction)) {
+				targetData.SetEdgeLodLevel(oppositeDir, currentData.GetEdgeLodLevel(direction));
+			}
+
+			if (currentData.GetEdgeLodLevel(direction) < targetData.GetEdgeLodLevel(oppositeDir)) {
+				currentData.SetEdgeLodLevel(direction, targetData.GetEdgeLodLevel(oppositeDir));
+			}
+		}
+	};
+
+	while (!currentTreeNodes.empty())
+	{
+		TerrainTreeNode& currentNode = *currentTreeNodes.top();
+		currentTreeNodes.pop();
+
+		if (!currentNode.IsLeafNode())
+		{
+			for (auto node : currentNode.GetChildren()) {
+				currentTreeNodes.push(node);
+			}
+		}
+		else
+		{
+			for (U32 dir = 0; dir < NodeDirection::NodeDirection_Count; dir++) {
+				ProcessEdgeLodLevel(static_cast<NodeDirection>(dir), currentNode);
+			}
+		}
+	}
 }
 
-bool TerrainTreeComponent::CheckTerrainNodeCanSplit(CameraComponent& camera, TerrainTreeNode& treeNode)
+bool TerrainTree::CheckTerrainNodeCanSplit(CameraComponent& camera, TerrainTreeNode& treeNode)
 {
 	U32 currentLevel = treeNode.GetDepth();
 	if (currentLevel >= mTerrainMaxLodLevel) {
@@ -422,28 +532,32 @@ void TerrainTileManager::Uninitialize()
 	mIndices.clear();
 }
 
-TerrainTilePtr TerrainTileManager::GetTerrainTile(Renderer& renderer, const U32x2& locaPos, U32 depth, const Rect& rect)
+TerrainTilePtr TerrainTileManager::GetTerrainTile(Renderer& renderer, const U32x2& locaPos, U32 depth, const Rect& rect, U32 edgeLodLevel)
 {
 	const U32 key = (depth * 1000000000) + (locaPos[1] * 10000) + locaPos[0];
+
+	TerrainTilePtr ret = nullptr;
 	auto it = mTerrainTileMap.find(key);
-	if (it != mTerrainTileMap.end()) {
-		it->second->SetRect(rect);
-		return it->second;
+	if (it != mTerrainTileMap.end()) 
+	{
+		ret = it->second;
+	}
+	else
+	{
+		ret = std::make_shared<TerrainTile>();
+		ret->SetIndiceCount(mIndices.size());
+		ret->SetVertexBuffer(&mVertexBufferPos);
+		ret->SetIndexBuffer(&mIndexBuffer);
+
+		mTerrainTileMap[key] = ret;
 	}
 
-	TerrainTilePtr newTile = std::make_shared<TerrainTile>();
-	newTile->SetRect(rect);
-	newTile->SetLocalPos(locaPos);
-	newTile->SetLodLevel(depth);
+	ret->SetRect(rect);
+	ret->SetLocalPos(locaPos);
+	ret->SetLodLevel(depth);
+	ret->SetEdgeLodLevel(edgeLodLevel);
 
-	// TODO: use shared_ptr?
-	newTile->SetIndiceCount(mIndices.size());
-	newTile->SetVertexBuffer(&mVertexBufferPos);
-	newTile->SetIndexBuffer(&mIndexBuffer);
-
-	mTerrainTileMap[key] = newTile;
-
-	return newTile;
+	return ret;
 }
 
 void TerrainTileManager::Clear()

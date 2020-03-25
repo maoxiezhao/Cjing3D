@@ -127,6 +127,7 @@ CBUFFER(TerrainCB, CBSLOT_TERRAIN)
 {
 	uint2 gTerrainResolution;
 	float2 gTerrainInverseResolution;
+	uint gTerrainHaveWeightDetailMap;
 	float gTerrainElevation;
 };
 

@@ -19,6 +19,7 @@ enum ComponentType
 	ComponentType_Light,
 	ComponentType_AABB,
 	ComponentType_Name,
+	ComponentType_Terrain,
 };
 
 class Component
