@@ -47,16 +47,17 @@ namespace Cjing3D
 		//const std::string filePath = "Models/sandbox/sandbox.c3dscene";
 		//renderer.GetMainScene().LoadSceneFromArchive(filePath);
 
-		Scene& mainScene = renderer.GetMainScene();
-		auto terrainEntity = mainScene.CreateEntityTerrain("test", 1024, 1024, 50);
-		auto terrain = mainScene.mTerrains.GetComponent(terrainEntity);
-		terrain->LoadHeightMap("Textures/HeightMap.png");
-		terrain->LoadDetailMap(
-			"Textures/TerrainWeights.dds", 
-			"Textures/TerrainDetail1.dds",
-			"Textures/TerrainDetail2.dds",
-			"Textures/TerrainDetail3.dds"
-		);
+		// test terrain
+		//Scene& mainScene = renderer.GetMainScene();
+		//auto terrainEntity = mainScene.CreateEntityTerrain("test", 512, 512, 50);
+		//auto terrain = mainScene.mTerrains.GetComponent(terrainEntity);
+		//terrain->LoadHeightMap("Textures/HeightMap.png");
+		//terrain->LoadDetailMap(
+		//	"Textures/TerrainWeights.dds", 
+		//	"Textures/TerrainDetail1.dds",
+		//	"Textures/TerrainDetail2.dds",
+		//	"Textures/TerrainDetail3.dds"
+		//);
 	}
 
 	void TestGame::Update(EngineTime time)
@@ -92,7 +93,11 @@ namespace Cjing3D
 			ofn.lpstrFileTitle = nullptr;
 			ofn.nMaxFileTitle = 0;
 			ofn.lpstrInitialDir = nullptr;
-			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+			// If you change folder in the dialog it will change the current folder for your process without OFN_NOCHANGEDIR;
+			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;	
+
+			auto a = FileData::IsFileExists("Textures/HeightMap.png");
 
 			if (GetOpenFileNameA(&ofn))
 			{

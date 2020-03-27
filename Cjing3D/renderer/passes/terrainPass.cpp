@@ -102,10 +102,7 @@ void TerrainPass::InitializeShader()
 		{ "POSITION_NORMAL_SUBSETINDEX", 0u, MeshComponent::VertexPosNormalSubset::format, 0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
 
 		// instance
-		{ "INSTANCEMAT",    0u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT, INPUT_PER_INSTANCE_DATA, 1u },
-		{ "INSTANCEMAT",    1u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT, INPUT_PER_INSTANCE_DATA, 1u },
-		{ "INSTANCEMAT",    2u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT, INPUT_PER_INSTANCE_DATA, 1u },
-		{ "INSTANCECOLOR",  0u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT, INPUT_PER_INSTANCE_DATA, 1u },
+		{ "INSTANCELOCALTRANS",  0u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT, INPUT_PER_INSTANCE_DATA, 1u },
 		{ "INSTANCETERRAIN",0u, FORMAT_R32G32B32A32_UINT,  1u, APPEND_ALIGNED_ELEMENT, INPUT_PER_INSTANCE_DATA, 1u }
 	};
 
@@ -158,9 +155,18 @@ void TerrainPass::UpdatePerFrameData(F32 deltaTime)
 
 void TerrainPass::RefreshRenderData()
 {
+	Renderer& renderer = GlobalGetSubSystem<Renderer>();
+	Scene& scene = renderer.GetMainScene();
+
 	for (auto& kvp : mTerrainTreeMap) {
 		if (kvp.second != nullptr) {
-			kvp.second->RefreshRenderData();
+			ECS::Entity entity = kvp.first;
+			const auto transform = scene.GetComponent<TransformComponent>(entity);
+			if (transform == nullptr) {
+				continue;
+			}
+
+			kvp.second->RefreshRenderData(*transform);
 		}
 	}
 }
@@ -171,17 +177,9 @@ void TerrainPass::Render()
 	GraphicsDevice& device = mRenderer.GetDevice();
 	device.BeginEvent("RenderTerrains");
 
-	Renderer& renderer = GlobalGetSubSystem<Renderer>();
-	Scene& scene = renderer.GetMainScene();
 	for (auto& kvp : mTerrainTreeMap) {
 		if (kvp.second != nullptr) {
-			ECS::Entity entity = kvp.first;
-			const auto transform = scene.GetComponent<TransformComponent>(entity);
-			if (transform == nullptr) {
-				continue;
-			}
-
-			kvp.second->Render(*transform);
+			kvp.second->Render();
 		}
 	}
 

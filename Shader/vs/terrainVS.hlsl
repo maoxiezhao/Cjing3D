@@ -14,10 +14,7 @@
 // z. cellVertexCount
 struct InputTerrainInstance
 {
-    float4 wi0 : INSTANCEMAT0;
-    float4 wi1 : INSTANCEMAT1;
-    float4 wi2 : INSTANCEMAT2;
-    float4 locTrans : INSTANCECOLOR;
+    float4 locTrans : INSTANCELOCALTRANS;
     uint4 terrain : INSTANCETERRAIN;
 };
 
@@ -27,16 +24,6 @@ struct InpuTerrainPos
     
     InputTerrainInstance instance;
 };
-
-inline float4x4 MakeWorldMatrixFromInstance(InputTerrainInstance input)
-{
-    return float4x4(
-		 float4(input.wi0.x, input.wi1.x, input.wi2.x, 0)
-		, float4(input.wi0.y, input.wi1.y, input.wi2.y, 0)
-		, float4(input.wi0.z, input.wi1.z, input.wi2.z, 0)
-		, float4(input.wi0.w, input.wi1.w, input.wi2.w, 1)
-	);
-}
 
 // InputTerrainInstance.terrain:
 // x. currentLodLevel
@@ -104,8 +91,6 @@ struct HullInputType
 HullInputType main(InpuTerrainPos input)
 {
     HullInputType Out;
-    
-    float4x4 worldMat = MakeWorldMatrixFromInstance(input.instance);
     VertexSurface surface = MakeVertexSurfaceFromInput(input);
 
     // scale positoin
@@ -122,7 +107,7 @@ HullInputType main(InpuTerrainPos input)
         position.z * gTerrainInverseResolution.y
     );
 
-    Out.pos = mul(position, worldMat);
+    Out.pos = mul(gTerrainTransform, position);
     Out.tex = tex;
     Out.color = float4(1.0f, 1.0f, 1.0f, 1.0f);
     Out.terrainProp = input.instance.terrain.xz;

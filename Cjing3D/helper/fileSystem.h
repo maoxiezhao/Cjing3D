@@ -13,6 +13,7 @@ namespace Cjing3D {
 
 		bool OpenData(const std::string&dataName, const std::string& dataPath);
 		void CloseData();
+		void Reset();
 
 		// diretories
 		bool CreateDirectory(const std::string& path);

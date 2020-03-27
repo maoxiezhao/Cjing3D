@@ -125,6 +125,7 @@ CBUFFER(MipmapGenerateCB, CBSLOT_MIPMAPGENERATE)
 // terrain
 CBUFFER(TerrainCB, CBSLOT_TERRAIN)
 {
+	float4x4 gTerrainTransform;
 	uint2 gTerrainResolution;
 	float2 gTerrainInverseResolution;
 	uint gTerrainHaveWeightDetailMap;

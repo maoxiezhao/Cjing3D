@@ -20,7 +20,7 @@ function MainScene:onStart()
 	
 	-- scene add custom light
 	local scene = Scene.GetMainScene();
-	local entity = scene:CreateEntity();
+	-- local entity = scene:CreateEntity();
 	-- local light = scene:CreateLight(entity);
 	-- light:SetRange(100);
 	-- light:SetEnergy(20);
@@ -29,9 +29,9 @@ function MainScene:onStart()
     -- transform:Translate(Vector:new(20, 30, -18));
 	-- transform:Update();
 
-	local light = scene:CreateLight(entity);
-	light:SetLightType(LightType_Directional);
-	light:SetEnergy(1);
+	-- local light = scene:CreateLight(entity);
+	-- light:SetLightType(LightType_Directional);
+	-- light:SetEnergy(1);
 
 	------------------------
 

@@ -121,7 +121,6 @@ void Engine::Tick()
 	F32 deltaTime = F32(mEngineTime.deltaTime / 1000.0f);
 
 	bool isWindowActive = mBaseWindow->IsWindowActive();
-	isWindowActive = true;
 	if (isWindowActive)
 	{
 		const F32 dt = mIsLockFrameRate ? (1.0f / mTargetFrameRate) : deltaTime;

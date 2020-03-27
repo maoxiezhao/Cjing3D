@@ -16,16 +16,11 @@ namespace Cjing3D
 
 		// 依次序列化所有的componentManager
 		U32 seed = GENERATE_RANDOM_ID;
-
-		mNames.Serialize(archive, seed);
-		mTransforms.Serialize(archive, seed);
-		mHierarchies.Serialize(archive, seed);
-		mMaterials.Serialize(archive, seed);
-		mMeshes.Serialize(archive, seed);
-		mObjects.Serialize(archive, seed);
-		mObjectAABBs.Serialize(archive, seed);
-		mLights.Serialize(archive, seed);
-		mLightAABBs.Serialize(archive, seed);
+		auto allComponentManagers = GetAllComponentManagers();
+		std::apply([&archive, &seed](auto&&... componentManager) {
+			return (componentManager->Serialize(archive, seed), ...); },
+			allComponentManagers
+		);
 
 		// reset name mapping
 		for (auto entity : mNames.GetEntities())
@@ -44,14 +39,10 @@ namespace Cjing3D
 			return;
 		}
 
-		mNames.Unserialize(archive);
-		mTransforms.Unserialize(archive);
-		mHierarchies.Unserialize(archive);
-		mMaterials.Unserialize(archive);
-		mMeshes.Unserialize(archive);
-		mObjects.Unserialize(archive);
-		mObjectAABBs.Unserialize(archive);
-		mLights.Unserialize(archive);
-		mLightAABBs.Unserialize(archive);
+		auto allComponentManagers = GetAllComponentManagers();
+		std::apply([&archive](auto&&... componentManager) {
+			return (componentManager->Unserialize(archive), ...); },
+			allComponentManagers
+		);
 	}
 }

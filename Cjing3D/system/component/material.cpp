@@ -48,7 +48,6 @@ void Cjing3D::MaterialComponent::Serialize(Archive& archive, U32 seed)
 	Renderer& renderer = systemContext.GetSubSystem<Renderer>();
 	ResourceManager& resourceManager = renderer.GetResourceManager();
 
-
 	const std::string parentPath =  archive.GetDirectory();
 	if (mBaseColorMapName.empty() == false)
 	{

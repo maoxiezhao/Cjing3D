@@ -122,14 +122,14 @@ void TerrainTree::UpdatePerFrameData(F32 deltaTime)
 	}
 }
 
-void TerrainTree::RefreshRenderData()
+void TerrainTree::RefreshRenderData(TransformComponent& transform)
 {
 	if (mTerrainBufferDirty) {
-		UpdateConstantBuffer();
+		UpdateConstantBuffer(transform);
 	}
 }
 
-void TerrainTree::Render(TransformComponent& transform)
+void TerrainTree::Render()
 {
 	Renderer& renderer = GlobalGetSubSystem<Renderer>();
 	GraphicsDevice& device = renderer.GetDevice();
@@ -143,7 +143,7 @@ void TerrainTree::Render(TransformComponent& transform)
 
 	if (!renderQueue.IsEmpty())
 	{
-		ProcessTerrainRenderQueue(renderQueue, transform);
+		ProcessTerrainRenderQueue(renderQueue);
 	}
 
 	device.EndEvent();
@@ -176,7 +176,7 @@ void TerrainTree::SetElevation(U32 elevation)
 	mTerrainBufferDirty = true;
 }
 
-void TerrainTree::ProcessTerrainRenderQueue(TerrrainRenderQueue& renderQueue, TransformComponent& transform)
+void TerrainTree::ProcessTerrainRenderQueue(TerrrainRenderQueue& renderQueue)
 {
 	Renderer& renderer = GlobalGetSubSystem<Renderer>();
 	GraphicsDevice& device = renderer.GetDevice();
@@ -231,8 +231,7 @@ void TerrainTree::ProcessTerrainRenderQueue(TerrrainRenderQueue& renderQueue, Tr
 
 		// 保存每个batch（包含一个object）的worldMatrix
 		// 用于在shader中计算顶点的世界坐标
-		const XMFLOAT4X4 worldMatrix = transform.GetWorldTransform();
-		((RenderTerrainInstance*)instances.data)[index].Setup(worldMatrix, localTransform, currentLodLevel, edgeLodLevel, cellVertexCount);
+		((RenderTerrainInstance*)instances.data)[index].Setup(localTransform, currentLodLevel, edgeLodLevel, cellVertexCount);
 
 		mRenderBatchInstances.back()->mInstanceCount++;
 	}
@@ -290,9 +289,10 @@ void TerrainTree::ProcessTerrainRenderQueue(TerrrainRenderQueue& renderQueue, Tr
 	frameAllocator.Free(sizeof(RenderBatchInstance) * instancedBatchCount);
 }
 
-void TerrainTree::UpdateConstantBuffer()
+void TerrainTree::UpdateConstantBuffer(TransformComponent& transform)
 {
 	TerrainCB cb;
+	cb.gTerrainTransform = transform.GetWorldTransform();
 	cb.gTerrainResolution.x = mTerrainWidth;
 	cb.gTerrainResolution.y = mTerrainHeight;
 	cb.gTerrainInverseResolution.x = (1.0f / mTerrainWidth);

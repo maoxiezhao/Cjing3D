@@ -36,10 +36,10 @@ namespace Cjing3D {
 		std::string mHeightMapName;
 		Texture2DPtr mHeightMap = nullptr;
 
-		std::string mWeightTexture;
-		std::string mDetailTexture1;
-		std::string mDetailTexture2;
-		std::string mDetailTexture3;
+		std::string mWeightTextureName;
+		std::string mDetailTextureName1;
+		std::string mDetailTextureName2;
+		std::string mDetailTextureName3;
 		TerrainMaterial mMaterial;
 	};
 

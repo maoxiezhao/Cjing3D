@@ -90,7 +90,9 @@ namespace Cjing3D
 		bool Insert(const T& element, const Rect& boundingBox);
 		bool Remove(const T& element, const Rect& boundingBox);
 		void SplitNode(QuadTreeNode<T>& node, LinearAllocator& allocator);
-		void SetMaxDepth(U32 maxDepth) { mTreeMaxDepth = maxDepth; }
+
+		void SetMaxDepth(U32 maxDepth);
+		void SetGridCellSize(U32 gridCellSize);
 
 		QuadTreeNode<T>& GetRootNode() { return mRoot; }
 		std::set<QuadTreeNode<T>*>& GetAllNodes() { return mAllNodes; }
@@ -153,6 +155,7 @@ namespace Cjing3D
 		U32 MakeHashKey(U32 level, U32 localX, U32 localY);
 	private:
 		U32 mTreeMaxDepth = 12;
+		U32 mGridCellSize = 16;
 		QuadTreeNode<T> mRoot;
 		std::set<QuadTreeNode<T>*> mAllNodes;
 
@@ -217,6 +220,20 @@ namespace Cjing3D
 	}
 
 	template<typename T>
+	inline void QuadTree<T>::SetMaxDepth(U32 maxDepth)
+	{
+		mTreeMaxDepth = maxDepth;
+		mGridCellSize = ((U32)mRoot.GetRect().GetWidth()) >> (mTreeMaxDepth + 1);
+	}
+
+	template<typename T>
+	inline void QuadTree<T>::SetGridCellSize(U32 gridCellSize)
+	{
+		mGridCellSize = gridCellSize;
+		mTreeMaxDepth = (U32)std::log2(mRoot.GetRect().GetWidth()) - (U32)std::log2(gridCellSize) - 1;
+	}
+
+	template<typename T>
 	inline std::vector<T> QuadTree<T>::GetAllElements()
 	{
 		std::vector<T> ret;
@@ -235,9 +252,8 @@ namespace Cjing3D
 	template<typename T>
 	inline QuadTreeNode<T>* QuadTree<T>::GetNodeByPos(const F32x2& pos, U32 currentLevel)
 	{
-		U32 gridSize = 1 << (mTreeMaxDepth -1 );
-		U32 x = std::max(0u, (U32)(pos[0] / (F32)gridSize));
-		U32 y = std::max(0u, (U32)(pos[1] / (F32)gridSize));
+		U32 x = std::max(0u, (U32)(pos[0] / (F32)mGridCellSize));
+		U32 y = std::max(0u, (U32)(pos[1] / (F32)mGridCellSize));
 
 		U32 nodeLevel = mTreeMaxDepth;
 		QuadTreeNode<T>* ret = nullptr;

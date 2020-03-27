@@ -16,6 +16,7 @@ namespace Cjing3D {
 	namespace FileData {
 		namespace
 		{
+			string dataName_ = "";
 			string dataPath_ = "";
 			string dataWriteDir_ = "";
 			string appWriteDir_ = "Cjing3D";
@@ -123,9 +124,10 @@ namespace Cjing3D {
 			else
 				PHYSFS_init(dataName.c_str());
 
+			dataName_ = dataName;
 			dataPath_ = dataPath;
-			string dirDataPath = dataPath;
 
+			string dirDataPath = dataPath;
 			const string&baseDir = PHYSFS_getBaseDir();
 			PHYSFS_addToSearchPath(dirDataPath.c_str(), 1);
 			PHYSFS_addToSearchPath((baseDir + "\\" + dirDataPath).c_str(), 1);
@@ -142,8 +144,23 @@ namespace Cjing3D {
 		{
 			if (!IsOpen())
 				return;
+
+			dataName_.clear();
 			dataPath_.clear();
-			PHYSFS_deinit();
+			bool result = PHYSFS_deinit();
+			return;
+		}
+
+		void Reset()
+		{
+			for (char** i = PHYSFS_getSearchPath(); *i != NULL; i++)
+				printf("[%s] is in the search path.\n", *i);
+
+			std::string dataName = dataName_;
+			std::string dataPah = dataPath_;
+
+			CloseData();
+			OpenData(dataName, dataPah);
 		}
 
 		// 设置写路径,通过对userdata路径后添加自定义写路径
@@ -198,7 +215,8 @@ namespace Cjing3D {
 				return true;
 			}
 			else {
-				return (PHYSFS_exists(name.c_str()) != 0);
+				int result = PHYSFS_exists(name.c_str());
+				return result != 0;
 			}
 		}
 

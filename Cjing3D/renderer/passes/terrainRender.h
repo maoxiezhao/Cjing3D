@@ -18,40 +18,22 @@ namespace Cjing3D
 
 	struct alignas(16) RenderTerrainInstance
 	{
-		XMFLOAT4A mat0;
-		XMFLOAT4A mat1;
-		XMFLOAT4A mat2;
-		XMFLOAT4A mat3;
+		XMFLOAT4A lcoalTrans;
 		XMUINT4 terrain;
 
-		RenderTerrainInstance(const XMFLOAT4X4& mat, const XMFLOAT4 color, U32 currentLodLevel, U32 edgeLodLevel, U32 vertexCount)
+		RenderTerrainInstance(const XMFLOAT4 currentLcoalTrans, U32 currentLodLevel, U32 edgeLodLevel, U32 vertexCount)
 		{
-			Setup(mat, color, currentLodLevel, edgeLodLevel, vertexCount);
+			Setup(currentLcoalTrans, currentLodLevel, edgeLodLevel, vertexCount);
 		}
 
-		inline void Setup(const XMFLOAT4X4 & mat, const XMFLOAT4 color, U32 currentLodLevel, U32 edgeLodLevel, U32 vertexCount)
+		inline void Setup(const XMFLOAT4 currentLcoalTrans, U32 currentLodLevel, U32 edgeLodLevel, U32 vertexCount)
 		{
 			// 在C++端矩阵存储方式为行为主，而在HLSL端则以列为主，且右乘矩阵
 			// 所以在传递给HLSL端之前，这里直接将存储方式转换
-			mat0.x = mat._11;
-			mat0.y = mat._21;
-			mat0.z = mat._31;
-			mat0.w = mat._41;
-
-			mat1.x = mat._12;
-			mat1.y = mat._22;
-			mat1.z = mat._32;
-			mat1.w = mat._42;
-
-			mat2.x = mat._13;
-			mat2.y = mat._23;
-			mat2.z = mat._33;
-			mat2.w = mat._43;
-
-			mat3.x = color.x;
-			mat3.y = color.y;
-			mat3.z = color.z;
-			mat3.w = color.w;
+			lcoalTrans.x = currentLcoalTrans.x;
+			lcoalTrans.y = currentLcoalTrans.y;
+			lcoalTrans.z = currentLcoalTrans.z;
+			lcoalTrans.w = currentLcoalTrans.w;
 
 			terrain.x = currentLodLevel;
 			terrain.y = edgeLodLevel;
