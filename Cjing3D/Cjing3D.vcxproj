@@ -263,6 +263,7 @@
     <ClInclude Include="scripts\lua\lundump.h" />
     <ClInclude Include="scripts\lua\lvm.h" />
     <ClInclude Include="scripts\lua\lzio.h" />
+    <ClInclude Include="system\component\animation.h" />
     <ClInclude Include="system\component\camera.h" />
     <ClInclude Include="system\component\genericType.h" />
     <ClInclude Include="system\component\component.h" />
@@ -281,12 +282,14 @@
     <ClInclude Include="utils\color.h" />
     <ClInclude Include="utils\geometry.h" />
     <ClInclude Include="utils\intersectable.h" />
+    <ClInclude Include="utils\json\json.hpp" />
     <ClInclude Include="utils\math.h" />
     <ClInclude Include="utils\quadTree.h" />
     <ClInclude Include="utils\stb_image.h" />
     <ClInclude Include="utils\stb_truetype.h" />
     <ClInclude Include="utils\threadSafeBuffer.h" />
     <ClInclude Include="utils\tinyddsloader.h" />
+    <ClInclude Include="utils\tinygltf\tiny_gltf.h" />
     <ClInclude Include="utils\tinyobjloader.h" />
     <ClInclude Include="utils\tinyxml2\tinyxml2.h" />
     <ClInclude Include="utils\treeNode.h" />
@@ -345,6 +348,7 @@
     <ClCompile Include="renderer\RHI\swapChainD3D11.cpp" />
     <ClCompile Include="renderer\stateManager.cpp" />
     <ClCompile Include="renderer\textureHelper.cpp" />
+    <ClCompile Include="resource\modelImporter\modelImporterGLTF.cpp" />
     <ClCompile Include="resource\modelImporter\modelImporterObj.cpp" />
     <ClCompile Include="resource\resource.cpp" />
     <ClCompile Include="resource\resourceManager.cpp" />
@@ -398,6 +402,7 @@
     <ClCompile Include="scripts\lua\lutf8lib.c" />
     <ClCompile Include="scripts\lua\lvm.c" />
     <ClCompile Include="scripts\lua\lzio.c" />
+    <ClCompile Include="system\component\animation.cpp" />
     <ClCompile Include="system\component\camera.cpp" />
     <ClCompile Include="system\component\component.cpp" />
     <ClCompile Include="system\component\genericType.cpp" />

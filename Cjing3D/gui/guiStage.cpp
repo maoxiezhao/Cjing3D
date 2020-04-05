@@ -75,7 +75,7 @@ namespace Cjing3D
 
 	void GUIStage::Update(F32 deltaTime)
 	{
-		PROFILER_BEGIN_BLOCK("GUI_UPDATE");
+		PROFILER_BEGIN_GPU_BLOCK("GuiUpdate");
 
 #ifdef CJING_IMGUI_ENABLE
 		mImGuiStage.Update(deltaTime);

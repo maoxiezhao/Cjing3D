@@ -80,6 +80,12 @@
     <Filter Include="renderer\passes">
       <UniqueIdentifier>{5f37daed-16eb-4b11-9f21-4589de95b4ed}</UniqueIdentifier>
     </Filter>
+    <Filter Include="utils\tinygltf">
+      <UniqueIdentifier>{22c7c0b8-fb3c-48cd-984a-8c5435bd0638}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils\json">
+      <UniqueIdentifier>{279d324f-8fea-4bf5-9564-f5e482f90caa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine.cpp" />
@@ -454,6 +460,12 @@
     </ClCompile>
     <ClCompile Include="system\systems\sceneTerrainSystem.cpp">
       <Filter>system\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="system\component\animation.cpp">
+      <Filter>system\component</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\modelImporter\modelImporterGLTF.cpp">
+      <Filter>resource\importer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -899,6 +911,15 @@
     </ClInclude>
     <ClInclude Include="system\component\terrain.h">
       <Filter>system\component</Filter>
+    </ClInclude>
+    <ClInclude Include="system\component\animation.h">
+      <Filter>system\component</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tinygltf\tiny_gltf.h">
+      <Filter>utils\tinygltf</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\json\json.hpp">
+      <Filter>utils\json</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

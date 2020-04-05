@@ -123,7 +123,7 @@ void InputManager::Uninitialize()
 
 void InputManager::Update(F32 deltaTime)
 {
-	PROFILER_OPTICK_CATEGORY("Input", Optick::Category::Input);
+
 	if (mDirectInput != nullptr) 
 	{
 		mDirectInput->Update();

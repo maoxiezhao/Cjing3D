@@ -9,5 +9,6 @@ namespace Cjing3D
 	namespace ModelImporter
 	{
 		void ImportModelObj(const std::string& fileName, SystemContext& systemContext);
+		void ImportModelGLTF(const std::string& fileName, SystemContext& systemContext);
 	}
 }

@@ -20,6 +20,8 @@ enum ComponentType
 	ComponentType_AABB,
 	ComponentType_Name,
 	ComponentType_Terrain,
+	ComponentType_Animation,
+	ComponentType_Custom
 };
 
 class Component

@@ -415,7 +415,7 @@ namespace Cjing3D
 			if (showRenderWindow == false) return;
 
 			// show render window
-			ImGui::SetNextWindowPos(ImVec2(10, 570), ImGuiCond_Always);
+			ImGui::SetNextWindowPos(ImVec2(1070, 20), ImGuiCond_Always);
 			ImGui::SetNextWindowSize(ImVec2(350, 160), ImGuiCond_Always);
 			ImGui::Begin("Render Window");
 
@@ -458,7 +458,7 @@ namespace Cjing3D
 		if (IsShowBasicInfo())
 		{
 			ImGui::SetNextWindowPos(ImVec2(10, 20), ImGuiCond_Always);
-			ImGui::SetNextWindowSize(ImVec2(350, 170), ImGuiCond_Always);
+			ImGui::SetNextWindowSize(ImVec2(350, 320), ImGuiCond_Always);
 			ImGui::Begin("Application info");
 			ImGui::Text("Cjing3D v0.0.1");
 			ImGui::Text("");
@@ -471,6 +471,8 @@ namespace Cjing3D
 				showRenderWindow = !showRenderWindow;
 			}
 
+			ImGui::Text("");
+			ImGui::Text(Profiler::GetInstance().GetProfileString().c_str());
 			ImGui::End();
 		}
 
@@ -505,8 +507,8 @@ namespace Cjing3D
 				return is_selected;
 			};
 
-			ImGui::SetNextWindowPos(ImVec2(10, 200), ImGuiCond_Always);
-			ImGui::SetNextWindowSize(ImVec2(350, 360), ImGuiCond_Always);
+			ImGui::SetNextWindowPos(ImVec2(10, 350), ImGuiCond_Always);
+			ImGui::SetNextWindowSize(ImVec2(350, 300), ImGuiCond_Always);
 			ImGui::Begin("Entity Window");
 
 			Scene& scene = Scene::GetScene();

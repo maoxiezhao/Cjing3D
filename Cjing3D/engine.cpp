@@ -154,7 +154,7 @@ void Engine::Tick()
 		mDeltaTimeAccumulator = 0;
 	}
 
-	mRenderer->Present();
+	EndFrame();
 
 	// end frame
 	PROFILER_END_FRAME();
@@ -196,7 +196,7 @@ void Engine::SetHandles(void * windowHwnd, void * windowInstance)
 
 void Engine::FixedUpdate()
 {
-	PROFILER_BEGIN_BLOCK("FixedUpdate");
+	PROFILER_BEGIN_GPU_BLOCK("FixedUpdate");
 	FIRE_EVENT(EventType::EVENT_FIXED_TICK);
 
 	mGameComponent->FixedUpdate();
@@ -208,7 +208,7 @@ void Engine::FixedUpdate()
 
 void Engine::Update(F32 deltaTime)
 {
-	PROFILER_BEGIN_BLOCK("Update");
+	PROFILER_BEGIN_GPU_BLOCK("Update");
 	FIRE_EVENT(EventType::EVENT_TICK);
 
 	mLuaContext->Update(deltaTime);
@@ -221,17 +221,23 @@ void Engine::Update(F32 deltaTime)
 
 void Engine::UpdateInput(F32 deltaTime)
 {
-	PROFILER_BEGIN_BLOCK("Input");
+	PROFILER_BEGIN_GPU_BLOCK("Input");
 	mInputManager->Update(deltaTime);
 	PROFILER_END_BLOCK();
 }
 
 void Engine::Render()
 {
-	PROFILER_BEGIN_BLOCK("Render");
+	PROFILER_BEGIN_GPU_BLOCK("Render");
 	FIRE_EVENT(EventType::EVENT_RENDER);
 	mRenderer->Render();
 	PROFILER_END_BLOCK();
+}
+
+void Engine::EndFrame()
+{
+	mRenderer->Present();
+	mLuaContext->GC();
 }
 
 }

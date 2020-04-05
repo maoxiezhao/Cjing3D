@@ -37,6 +37,7 @@ namespace Cjing3D
 		void Update(F32 deltaTime);
 		void UpdateInput(F32 deltaTime);
 		void Render();
+		void EndFrame();
 
 	private:
 		bool mIsInitialized = false;

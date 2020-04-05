@@ -36,10 +36,12 @@ namespace Cjing3D {
 
 		TimeInterval GetDeltaTime()const;
 		TimeInterval GetTotalDeltaTime()const;
+		TimeStamp GetRecordedTimeStamp()const;
 		EngineTime GetTime()const;
 
+		void RecordDeltaTime()const;
+
 	private:
-		void UpdateDeltaTime()const;
 		TimeStamp GetTotalTime()const;
 
 		CoreClock mClock;

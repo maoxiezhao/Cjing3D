@@ -77,20 +77,18 @@ void LuaContext::InitializeEnum(lua_State * l)
 
 void LuaContext::Update(F32 deltaTime)
 {
-	auto& profiler = Profiler::GetInstance();
-	profiler.BeginBlock("LuaUpdate");
+	PROFILER_BEGIN_CPU_BLOCK("LuaUpdate");
 	OnMainUpdate();
-	profiler.EndBlock();
-
-	profiler.BeginBlock("LuaGC");
-	GC();
-	profiler.EndBlock();
+	PROFILER_END_BLOCK();
 }
 
 void LuaContext::GC()
 {
 	// TEMP:暂时在每一帧结束后执行一次step gc
+
+	PROFILER_BEGIN_CPU_BLOCK("LuaGC");
 	lua_gc(mLuaState, LUA_GCSTEP, 200);
+	PROFILER_END_BLOCK();
 }
 
 void LuaContext::Uninitialize()

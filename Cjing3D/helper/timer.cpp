@@ -65,7 +65,7 @@ namespace Cjing3D {
 		mIsRunning = true;
 	}
 
-	void Timer::UpdateDeltaTime() const
+	void Timer::RecordDeltaTime() const
 	{
 		TimeStamp curTimeStamp = GetTotalTime();
 
@@ -92,7 +92,7 @@ namespace Cjing3D {
 	TimeInterval Timer::GetDeltaTime() const
 	{
 		if (mIsRunning) {
-			UpdateDeltaTime();
+			RecordDeltaTime();
 		}
 
 		return mDeltaTime;
@@ -101,15 +101,20 @@ namespace Cjing3D {
 	TimeInterval Timer::GetTotalDeltaTime() const
 	{
 		if (mIsRunning)
-			UpdateDeltaTime();
+			RecordDeltaTime();
 
 		return mTotalDeltaTime;
+	}
+
+	TimeStamp Timer::GetRecordedTimeStamp() const
+	{
+		return mTimeStamp;
 	}
 
 	EngineTime Timer::GetTime() const
 	{
 		if (mIsRunning) {
-			UpdateDeltaTime();
+			RecordDeltaTime();
 		}
 
 		return { mDeltaTime, mTotalDeltaTime };
