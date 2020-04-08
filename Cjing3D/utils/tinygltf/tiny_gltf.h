@@ -1065,6 +1065,7 @@ namespace tinygltf {
 #ifndef TINYGLTF_NO_FS
 #include <fstream>
 #endif
+#include <fstream>
 #include <sstream>
 
 #ifdef __clang__

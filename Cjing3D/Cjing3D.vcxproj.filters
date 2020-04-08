@@ -86,6 +86,9 @@
     <Filter Include="utils\json">
       <UniqueIdentifier>{279d324f-8fea-4bf5-9564-f5e482f90caa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="utils\stb_image">
+      <UniqueIdentifier>{f0c695a9-8838-4b8e-b9fd-a1bee47eeb3e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine.cpp" />
@@ -467,6 +470,9 @@
     <ClCompile Include="resource\modelImporter\modelImporterGLTF.cpp">
       <Filter>resource\importer</Filter>
     </ClCompile>
+    <ClCompile Include="system\systems\sceneAnimationSystem.cpp">
+      <Filter>system\systems</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -588,12 +594,6 @@
       <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="utils\intersectable.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\stb_image.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\stb_truetype.h">
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="renderer\rendererUtils.h">
@@ -920,6 +920,15 @@
     </ClInclude>
     <ClInclude Include="utils\json\json.hpp">
       <Filter>utils\json</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\stb_image_include.h">
+      <Filter>utils\stb_image</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\stb_image.h">
+      <Filter>utils\stb_image</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\stb_truetype.h">
+      <Filter>utils\stb_image</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

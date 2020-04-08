@@ -41,6 +41,7 @@ namespace Cjing3D {
 		void SetRotationLocal(const XMFLOAT4& value);
 		void SetTranslationLocal(const XMFLOAT3& value);
 		void SetScaleLocal(const XMFLOAT3& value);
+		void SetWorldTransform(const XMFLOAT4X4& world);
 
 		void ApplyTransform();
 		void UpdateFromParent(TransformComponent& parent, const XMMATRIX& parentBindInverseWorld);

@@ -4,8 +4,7 @@
 #include "renderer\renderer.h"
 #include "core\systemContext.hpp"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "utils\stb_image.h"
+#include "utils\stb_image_include.h"
 
 #define TINYDDSLOADER_IMPLEMENTATION
 #include "utils\tinyddsloader.h"

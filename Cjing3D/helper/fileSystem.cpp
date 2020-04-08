@@ -67,6 +67,22 @@ namespace Cjing3D {
 				return ret;
 			}
 
+			bool ReadFileBytesBySystemIO(const std::string& name, std::vector<unsigned char>& data)
+			{
+				std::ifstream file(name, std::ios::binary | std::ios::ate);
+				if (file.is_open())
+				{
+					U32 length = (size_t)file.tellg();
+					file.seekg(0, file.beg);
+					data.resize(length);
+					file.read(reinterpret_cast<char*>(&data.at(0)), length);
+					file.close();
+					
+					return true;
+				}
+				return false;
+			}
+
 			bool SaveFileBySystemIO(const std::string& name, const char* buffer, size_t length)
 			{
 				std::ofstream file(name, std::ios::binary | std::ios::trunc);
@@ -97,6 +113,25 @@ namespace Cjing3D {
 				PHYSFS_close(file);
 
 				return buffer;
+			}
+			
+			bool ReadFileBytesByPhysfs(const string& name, std::vector<unsigned char>& data)
+			{
+				// 确保文件存在
+				Debug::CheckAssertion(PHYSFS_exists(name.c_str()),
+					string("the file:") + name + " isn't exits.");
+
+				PHYSFS_file* file = PHYSFS_openRead(name.c_str());
+				Debug::CheckAssertion(file != nullptr,
+					string("the file:") + name + " loaded failed.");
+
+				size_t size = static_cast<size_t>(PHYSFS_fileLength(file));
+				data.resize(size);
+
+				PHYSFS_read(file, data.data(), 1, (PHYSFS_uint32)size);
+				PHYSFS_close(file);
+
+				return true;
 			}
 
 			bool SaveFileByPhysfs(const std::string& name, const char* buffer, size_t length)
@@ -232,6 +267,16 @@ namespace Cjing3D {
 			}
 			else {
 				return ReadFileBytesByPhysfs(name, length);
+			}
+		}
+
+		bool ReadFileBytes(const std::string& name, std::vector<unsigned char>& data)
+		{
+			if (IsAbsolutePath(name)) {
+				return ReadFileBytesBySystemIO(name, data);
+			}
+			else {
+				return ReadFileBytesByPhysfs(name, data);
 			}
 		}
 

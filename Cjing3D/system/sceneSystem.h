@@ -9,6 +9,7 @@
 #include "system\component\material.h"
 #include "system\component\light.h"
 #include "system\component\terrain.h"
+#include "system\component\animation.h"
 
 #include "helper\archive.h"
 
@@ -28,7 +29,8 @@ namespace Cjing3D {
 		const ECS::ComponentManager<AABBComponent>*,
 		const ECS::ComponentManager<LightComponent>*,
 		const ECS::ComponentManager<AABBComponent>*,
-		const ECS::ComponentManager<TerrainComponent>*
+		const ECS::ComponentManager<TerrainComponent>*,
+		const ECS::ComponentManager<ArmatureComponent>*
 	>;
 
 	using ComponentManagerTypes = std::tuple<
@@ -41,7 +43,8 @@ namespace Cjing3D {
 		ECS::ComponentManager<AABBComponent>*,
 		ECS::ComponentManager<LightComponent>*,
 		ECS::ComponentManager<AABBComponent>*,
-		ECS::ComponentManager<TerrainComponent>*
+		ECS::ComponentManager<TerrainComponent>*,
+		ECS::ComponentManager<ArmatureComponent>*
 	>;
 
 	class Scene
@@ -54,6 +57,7 @@ namespace Cjing3D {
 		void Clear();
 
 		// create function
+		ECS::Entity CreateEntityTransform(const std::string& name);
 		ECS::Entity CreateEntityMaterial(const std::string& name);
 		ECS::Entity CreateEntityMesh(const std::string& name);
 		ECS::Entity CreateEntityObject(const std::string& name);
@@ -64,6 +68,7 @@ namespace Cjing3D {
 			F32 range = 10.0f
 		);
 		ECS::Entity CreateEntityTerrain(const std::string& name, U32 width, U32 height, U32 elevation);
+		ECS::Entity CreateArmature(const std::string& name);
 
 		// create by entity
 		NameComponent& GetOrCreateNameByEntity(ECS::Entity entity);
@@ -74,7 +79,6 @@ namespace Cjing3D {
 		ECS::Entity GetEntityByName(const StringID& name);
 
 		void RemoveEntity(ECS::Entity entity);
-
 		// entity间的层级结构基于 hierarchy component
 		void AttachEntity(ECS::Entity entity, ECS::Entity parent);
 		void DetachEntity(ECS::Entity entity);
@@ -135,6 +139,7 @@ namespace Cjing3D {
 		ECS::ComponentManager<LightComponent> mLights;
 		ECS::ComponentManager<AABBComponent> mLightAABBs;
 		ECS::ComponentManager<TerrainComponent> mTerrains;
+		ECS::ComponentManager<ArmatureComponent> mArmatures;
 
 		AABB mSceneAABB;
 
@@ -153,5 +158,6 @@ namespace Cjing3D {
 	void UpdateSceneObjectSystem(Scene& scene);
 	void UpdateSceneLightSystem(Scene& scene);
 	void UpdateSceneTerrainSystem(Scene& scene);
+	void UpdateSceneArmatureSystem(Scene& scene);
 }
 	

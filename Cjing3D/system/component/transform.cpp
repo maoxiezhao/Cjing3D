@@ -100,6 +100,12 @@ namespace Cjing3D
 		mIsDirty = true;
 	}
 
+	void TransformComponent::SetWorldTransform(const XMFLOAT4X4& world)
+	{
+		mWorldTransform = world;
+		mIsDirty = true;
+	}
+
 	void TransformComponent::ApplyTransform()
 	{
 		// 以当前世界坐标位置给local变量赋值

@@ -3,6 +3,7 @@
 #include "common\common.h"
 
 #include <string>
+#include <vector>
 
 namespace Cjing3D {
 
@@ -23,6 +24,7 @@ namespace Cjing3D {
 		// files
 		bool IsFileExists(const std::string& name);
 		char* ReadFileBytes(const std::string& name, size_t& length);
+		bool ReadFileBytes(const std::string& name, std::vector<unsigned char>& data);
 		std::string ReadFile(const std::string& name);
 		bool SaveFile(const std::string& name, const std::string&buffer);
 		bool SaveFile(const std::string& name, const char* buffer, size_t length);

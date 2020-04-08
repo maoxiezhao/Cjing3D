@@ -34,7 +34,7 @@ namespace Cjing3D
 	void TestGame::Initialize()
 	{
 		auto systemContext = GetGameContext();
-		//ModelImporter::ImportModelObj("Models/sandbox/sandbox.obj", *systemContext);
+		ModelImporter::ImportModelGLTF("Models/drone/busterDrone.gltf", *systemContext);
 
 		auto& renderer = systemContext->GetSubSystem<Renderer>();
 		RenderPathForward* path = new RenderPathForward(renderer);

@@ -12,6 +12,7 @@ namespace Cjing3D
 	{
 		UpdateSceneTransformSystem(*this);
 		UpdateHierarchySystem(*this);     // must update after transform
+		UpdateSceneArmatureSystem(*this);
 		UpdateSceneLightSystem(*this);
 		UpdateSceneObjectSystem(*this);
 		UpdateSceneTerrainSystem(*this);
@@ -29,6 +30,7 @@ namespace Cjing3D
 		mLights.Merge(scene.mLights);
 		mHierarchies.Merge(scene.mHierarchies);
 		mTerrains.Merge(scene.mTerrains);
+		mArmatures.Merge(scene.mArmatures);
 	}
 
 	void Scene::Clear()
@@ -50,6 +52,14 @@ namespace Cjing3D
 			return (componentManager->Clear(), ...); },
 			allComponentManagers
 		);
+	}
+
+	ECS::Entity Scene::CreateEntityTransform(const std::string& name)
+	{
+		auto entity = CreateEntityByName(name);
+		mTransforms.Create(entity);
+
+		return entity;
 	}
 
 	ECS::Entity Scene::CreateEntityMaterial(const std::string & name)
@@ -106,6 +116,17 @@ namespace Cjing3D
 		TerrainComponent& terrain = *mTerrains.Create(entity);
 		terrain.SetElevation(elevation);
 		terrain.SetTerrainSize(width, height);
+
+		return entity;
+	}
+
+	ECS::Entity Scene::CreateArmature(const std::string& name)
+	{
+		auto entity = CreateEntityByName(name);
+		TransformComponent& transform = *mTransforms.Create(entity);
+		transform.Update();
+
+		ArmatureComponent& armature = *mArmatures.Create(entity);
 
 		return entity;
 	}
@@ -253,7 +274,8 @@ namespace Cjing3D
 			&mObjectAABBs,
 			&mLights,
 			&mLightAABBs,
-			&mTerrains
+			&mTerrains,
+			&mArmatures
 		);
 		return t;
 	}
@@ -270,7 +292,8 @@ namespace Cjing3D
 			&mObjectAABBs,
 			&mLights,
 			&mLightAABBs,
-			&mTerrains
+			&mTerrains,
+			&mArmatures
 		);
 		return t;
 	}

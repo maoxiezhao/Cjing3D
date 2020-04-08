@@ -16,6 +16,10 @@ namespace Cjing3D {
 		std::vector<U32> mVertexColors;
 		std::vector<U32> mIndices;
 
+		ECS::Entity mArmature = ECS::INVALID_ENTITY;
+
+		AABB mAABB;
+
 		struct MeshSubset
 		{
 			ECS::Entity mMaterialID = ECS::INVALID_ENTITY;
@@ -28,8 +32,6 @@ namespace Cjing3D {
 		std::unique_ptr<GPUBuffer> mVertexBufferTex;
 		std::unique_ptr<GPUBuffer> mVertexBufferColor;
 		std::unique_ptr<GPUBuffer> mIndexBuffer;
-
-		AABB mAABB;
 
 	public:
 		void SetupRenderData(GraphicsDevice& device);

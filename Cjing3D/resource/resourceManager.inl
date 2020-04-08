@@ -1,3 +1,4 @@
+#include "resourceManager.h"
 
 /**
 *	\brief 获取指定资源
@@ -78,6 +79,8 @@ ResourceManager::GetPool<DomainShader>()const
 {
 	return mDomainShaderPool;
 }
+
+
 
 // 创建VertexShader着色器
 template<typename ResourceT>
@@ -167,3 +170,78 @@ ResourceManager::GetOrCreate(const StringID& filePath, FORMAT textureFormat, U32
 	return texture;
 }
 
+template <typename ResourceT>
+inline std::enable_if_t<std::is_same<ResourceT, ComputeShader>::value, std::shared_ptr<ComputeShader> >
+ResourceManager::GetOrCreate(const StringID& name)
+{
+	std::shared_ptr<ComputeShader> computeShader = nullptr;
+	const std::string byteData = FileData::ReadFile(name.GetString());
+	if (byteData.empty() == false)
+	{
+		PoolType<ComputeShader>& shaderPool = GetPool< ComputeShader >();
+		computeShader = shaderPool.GetOrCreate(name);
+
+		auto& renderer = mGameContext.GetSubSystem<Renderer>();
+		auto& device = renderer.GetDevice();
+		{
+			const HRESULT result = device.CreateComputeShader(static_cast<const void*>(
+				byteData.data()), byteData.size(), *computeShader);
+			Debug::ThrowIfFailed(result, "Failed to create compute shader: %08X", result);
+		}
+	}
+
+	return computeShader;
+}
+
+template <typename ResourceT>
+inline std::enable_if_t<std::is_same<ResourceT, HullShader>::value, std::shared_ptr<HullShader> >
+ResourceManager::GetOrCreate(const StringID& name)
+{
+	std::shared_ptr<HullShader> hullShader = nullptr;
+	const std::string byteData = FileData::ReadFile(name.GetString());
+	if (byteData.empty() == false)
+	{
+		PoolType<HullShader>& shaderPool = GetPool< HullShader >();
+		hullShader = shaderPool.GetOrCreate(name);
+
+		auto& renderer = mGameContext.GetSubSystem<Renderer>();
+		auto& device = renderer.GetDevice();
+		{
+			const HRESULT result = device.CreateHullShader(static_cast<const void*>(
+				byteData.data()), byteData.size(), *hullShader);
+			Debug::ThrowIfFailed(result, "Failed to create hull shader: %08X", result);
+		}
+	}
+
+	return hullShader;
+}
+
+template <typename ResourceT>
+inline std::enable_if_t<std::is_same<ResourceT, DomainShader>::value, std::shared_ptr<DomainShader> >
+ResourceManager::GetOrCreate(const StringID& name)
+{
+	std::shared_ptr<DomainShader> domainShader = nullptr;
+	const std::string byteData = FileData::ReadFile(name.GetString());
+	if (byteData.empty() == false)
+	{
+		PoolType<DomainShader>& shaderPool = GetPool< DomainShader >();
+		domainShader = shaderPool.GetOrCreate(name);
+
+		auto& renderer = mGameContext.GetSubSystem<Renderer>();
+		auto& device = renderer.GetDevice();
+		{
+			const HRESULT result = device.CreateDomainShader(static_cast<const void*>(
+				byteData.data()), byteData.size(), *domainShader);
+			Debug::ThrowIfFailed(result, "Failed to create domain shader: %08X", result);
+		}
+	}
+
+	return domainShader;
+}
+
+template<typename ResourceT>
+inline std::shared_ptr<ResourceT> Cjing3D::ResourceManager::GetOrCreateEmptyResource(const StringID& name)
+{
+	PoolType<ResourceT>& resourcePool = GetPool< ResourceT >();
+	return resourcePool.GetOrCreate(name);
+}
