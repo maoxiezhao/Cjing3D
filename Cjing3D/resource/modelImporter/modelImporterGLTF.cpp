@@ -513,7 +513,111 @@ namespace ModelImporter {
 		}
 
 		// create animations
+		// animation基于keyframe,分为两部分数据sampler和channle
+		// 1.sampler记录了keyframe的时间和值
+		// 2.channel则记录了影响的node和使用的sampler，对应改变的属性（scale\rotation\translation)
+		// 层级关系为：animation包含channels，每个channel对应一个sampler
+		for (tinygltf::Animation& gltfAnimation : gltfModel.animations)
+		{
+			ECS::Entity entity = newScene.CreateAnimation(gltfAnimation.name);
+			AnimationComponent& animation = *newScene.mAnimations.GetComponent(entity);
+			animation.mChannels.resize(gltfAnimation.channels.size());
+			animation.mSamplers.resize(gltfAnimation.samplers.size());
 
+			for (int i = 0; i < gltfAnimation.samplers.size(); i++)
+			{
+				tinygltf::AnimationSampler& gltfSampler = gltfAnimation.samplers[i];
+				AnimationComponent::AnimationSampler& sampler = animation.mSamplers[i];
+
+				if (gltfSampler.interpolation == "LINEAR")
+				{
+					sampler.mSamplerMode = AnimationComponent::AnimationSampler::SamplerMode_Linear;
+				}
+				else
+				{
+					sampler.mSamplerMode = AnimationComponent::AnimationSampler::SamplerMode_Step;
+				}
+
+				// 从sampler.input中读取keyframeTime
+				{
+					const tinygltf::Accessor& accessor = gltfModel.accessors[gltfSampler.input];
+					const tinygltf::BufferView& bufferView = gltfModel.bufferViews[accessor.bufferView];
+					const tinygltf::Buffer& buffer = gltfModel.buffers[bufferView.buffer];
+					const unsigned char* data = buffer.data.data() + accessor.byteOffset + bufferView.byteOffset;
+
+					const size_t keyframeCount = accessor.count;
+					sampler.mKeyframeTimes.resize(keyframeCount);
+
+					for (size_t index = 0; index < keyframeCount; index++)
+					{
+						F32 time = ((F32*)data)[index];
+						sampler.mKeyframeTimes[index] = time;
+						animation.mTimeStart = std::min(animation.mTimeStart, time);
+						animation.mTimeEnd = std::max(animation.mTimeEnd, time);
+					}
+				}
+
+				// 从sampler.output中读取keyframeData
+				{
+					const tinygltf::Accessor& accessor = gltfModel.accessors[gltfSampler.output];
+					const tinygltf::BufferView& bufferView = gltfModel.bufferViews[accessor.bufferView];
+					const tinygltf::Buffer& buffer = gltfModel.buffers[bufferView.buffer];
+					const unsigned char* data = buffer.data.data() + accessor.byteOffset + bufferView.byteOffset;
+				
+					const size_t keyframeCount = accessor.count;
+					switch (accessor.type)
+					{
+					case TINYGLTF_TYPE_VEC3:
+					{
+						sampler.mKeyframeDatas.resize(keyframeCount * 3);
+						for (size_t index = 0; index < keyframeCount; index++)
+						{
+							((XMFLOAT3*)sampler.mKeyframeDatas.data())[index] = ((XMFLOAT3*)data)[index];
+						}
+					}
+						break;
+					case TINYGLTF_TYPE_VEC4:
+					{
+						sampler.mKeyframeDatas.resize(keyframeCount * 4);
+						for (size_t index = 0; index < keyframeCount; index++)
+						{
+							((XMFLOAT4*)sampler.mKeyframeDatas.data())[index] = ((XMFLOAT4*)data)[index];
+						}
+					}
+						break;
+					default:
+						Debug::CheckAssertion(false, "Failed to load keyframe data from gltf.");
+						break;
+					}
+				}
+			}
+
+			for (int i = 0; i < gltfAnimation.channels.size(); i++)
+			{
+				tinygltf::AnimationChannel& gltfChannel = gltfAnimation.channels[i];
+				
+				AnimationComponent::AnimationChannel& channel = animation.mChannels[i];
+				channel.mTargetNode = loaderInfo.nodeEntityMap[gltfChannel.target_node];
+				channel.mSamplerIndex = (U32)gltfChannel.sampler;
+
+				if (!gltfChannel.target_path.compare("scale"))
+				{
+					channel.mTargetPath = AnimationComponent::AnimationChannel::TargetPath_Scale;
+				}
+				else if (!gltfChannel.target_path.compare("rotation"))
+				{
+					channel.mTargetPath = AnimationComponent::AnimationChannel::TargetPath_Rotation;
+				}
+				else if (!gltfChannel.target_path.compare("translation"))
+				{
+					channel.mTargetPath = AnimationComponent::AnimationChannel::TargetPath_Translation;
+				}
+				else
+				{
+					channel.mTargetPath = AnimationComponent::AnimationChannel::TargetPath_Unknown;
+				}
+			}
+		}
 
 		// gltf默认使用RH，转到LH
 		if (true)

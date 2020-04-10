@@ -9,7 +9,7 @@ namespace Cjing3D
 		Renderer& renderer = systemContext.GetSubSystem<Renderer>();
 
 		ECS::ComponentManager<TerrainComponent >& terrains = scene.mTerrains;
-		ECS::ComponentManager<TransformComponent> transforms = scene.mTransforms;
+		ECS::ComponentManager<TransformComponent>& transforms = scene.mTransforms;
 
 		for (size_t i = 0; i < terrains.GetCount(); i++)
 		{

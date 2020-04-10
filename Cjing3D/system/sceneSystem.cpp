@@ -10,6 +10,7 @@ namespace Cjing3D
 
 	void Scene::Update(F32 deltaTime)
 	{
+		UpdateSceneAnimationSystem(*this);
 		UpdateSceneTransformSystem(*this);
 		UpdateHierarchySystem(*this);     // must update after transform
 		UpdateSceneArmatureSystem(*this);
@@ -31,21 +32,11 @@ namespace Cjing3D
 		mHierarchies.Merge(scene.mHierarchies);
 		mTerrains.Merge(scene.mTerrains);
 		mArmatures.Merge(scene.mArmatures);
+		mAnimations.Merge(scene.mAnimations);
 	}
 
 	void Scene::Clear()
 	{
-		//mNameEntityMap.clear();
-		//mNames.Clear();
-		//mMaterials.Clear();
-		//mMeshes.Clear();
-		//mObjects.Clear();
-		//mObjectAABBs.Clear();
-		//mTransforms.Clear();
-		//mLightAABBs.Clear();
-		//mLights.Clear();
-		//mHierarchies.Clear();
-
 		// use std::apply and fold expression, and it needs c++17
 		auto allComponentManagers = GetAllComponentManagers();
 		std::apply([](auto&&... componentManager) {
@@ -127,6 +118,14 @@ namespace Cjing3D
 		transform.Update();
 
 		ArmatureComponent& armature = *mArmatures.Create(entity);
+
+		return entity;
+	}
+
+	ECS::Entity Scene::CreateAnimation(const std::string& name)
+	{
+		auto entity = CreateEntityByName(name);
+		mAnimations.Create(entity);
 
 		return entity;
 	}
@@ -279,7 +278,8 @@ namespace Cjing3D
 			&mLights,
 			&mLightAABBs,
 			&mTerrains,
-			&mArmatures
+			&mArmatures,
+			&mAnimations
 		);
 		return t;
 	}
@@ -297,7 +297,8 @@ namespace Cjing3D
 			&mLights,
 			&mLightAABBs,
 			&mTerrains,
-			&mArmatures
+			&mArmatures,
+			&mAnimations
 		);
 		return t;
 	}

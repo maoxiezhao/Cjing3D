@@ -30,7 +30,8 @@ namespace Cjing3D {
 		const ECS::ComponentManager<LightComponent>*,
 		const ECS::ComponentManager<AABBComponent>*,
 		const ECS::ComponentManager<TerrainComponent>*,
-		const ECS::ComponentManager<ArmatureComponent>*
+		const ECS::ComponentManager<ArmatureComponent>*,
+		const ECS::ComponentManager<AnimationComponent>*
 	>;
 
 	using ComponentManagerTypes = std::tuple<
@@ -44,7 +45,8 @@ namespace Cjing3D {
 		ECS::ComponentManager<LightComponent>*,
 		ECS::ComponentManager<AABBComponent>*,
 		ECS::ComponentManager<TerrainComponent>*,
-		ECS::ComponentManager<ArmatureComponent>*
+		ECS::ComponentManager<ArmatureComponent>*,
+		ECS::ComponentManager<AnimationComponent>*
 	>;
 
 	class Scene
@@ -69,6 +71,7 @@ namespace Cjing3D {
 		);
 		ECS::Entity CreateEntityTerrain(const std::string& name, U32 width, U32 height, U32 elevation);
 		ECS::Entity CreateArmature(const std::string& name);
+		ECS::Entity CreateAnimation(const std::string& name);
 
 		// create by entity
 		NameComponent& GetOrCreateNameByEntity(ECS::Entity entity);
@@ -140,6 +143,7 @@ namespace Cjing3D {
 		ECS::ComponentManager<AABBComponent> mLightAABBs;
 		ECS::ComponentManager<TerrainComponent> mTerrains;
 		ECS::ComponentManager<ArmatureComponent> mArmatures;
+		ECS::ComponentManager<AnimationComponent> mAnimations;
 
 		AABB mSceneAABB;
 
@@ -159,5 +163,6 @@ namespace Cjing3D {
 	void UpdateSceneLightSystem(Scene& scene);
 	void UpdateSceneTerrainSystem(Scene& scene);
 	void UpdateSceneArmatureSystem(Scene& scene);
+	void UpdateSceneAnimationSystem(Scene& scene);
 }
 	

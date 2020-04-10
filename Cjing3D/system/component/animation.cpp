@@ -19,20 +19,26 @@ namespace Cjing3D
 	{
 	}
 
-	Animation::Animation() :
+	AnimationComponent::AnimationComponent() :
 		Component(ComponentType_Animation)
 	{
 	}
 
-	Animation::~Animation()
+	AnimationComponent::~AnimationComponent()
 	{
 	}
 
-	void Animation::Serialize(Archive& archive, U32 seed)
+	AnimationComponent::AnimationSampler& AnimationComponent::GetAnimationSamplerByChannel(AnimationChannel& channel)
+	{
+		Debug::CheckAssertion(channel.mSamplerIndex < mSamplers.size(), "Invalid sampler index in animation channel");
+		return mSamplers[channel.mSamplerIndex];
+	}
+
+	void AnimationComponent::Serialize(Archive& archive, U32 seed)
 	{
 	}
 
-	void Animation::Unserialize(Archive& archive) const
+	void AnimationComponent::Unserialize(Archive& archive) const
 	{
 	}
 

@@ -58,6 +58,14 @@ namespace Cjing3D
 		//	"Textures/TerrainDetail2.dds",
 		//	"Textures/TerrainDetail3.dds"
 		//);
+
+		// test animations
+		Scene& scene = Scene::GetScene();
+		for (auto& animation : scene.mAnimations.GetComponents())
+		{
+			animation->SetIsLooped(true);
+			animation->Play();
+		}
 	}
 
 	void TestGame::Update(EngineTime time)

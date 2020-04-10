@@ -11,7 +11,7 @@ namespace Cjing3D
 
 		ECS::ComponentManager<LightComponent > & lights = scene.mLights;
 		ECS::ComponentManager<AABBComponent>& lightAABBs = scene.mLightAABBs;
-		ECS::ComponentManager<TransformComponent> transforms = scene.mTransforms;
+		ECS::ComponentManager<TransformComponent>& transforms = scene.mTransforms;
 
 		for (size_t i = 0; i < lights.GetCount(); i++)
 		{

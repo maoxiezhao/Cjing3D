@@ -62,6 +62,11 @@ public:
 		return mTime;
 	}
 
+	F32 GetDelatTime()
+	{
+		return F32(mTime.deltaTime / 1000.0f);
+	}
+
 	void SetEngine(Engine* engine)
 	{
 		mEngine = engine;
