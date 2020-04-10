@@ -63,11 +63,15 @@ namespace Cjing3D
 		GraphicsDevice& device = mRenderer.GetDevice();
 		device.BeginEvent("Composition");
 
-		RenderImage::ImageParams params;
-		params.EnableFullScreen();
-		params.mBlendType = BlendType_Opaque;
+		Texture2D* lastTexture = GetLastPostprocessRT();
+		if (lastTexture != nullptr && lastTexture->GetShaderResourceView() != CPU_NULL_HANDLE)
+		{
+			RenderImage::ImageParams params;
+			params.EnableFullScreen();
+			params.mBlendType = BlendType_Opaque;
 
-		RenderImage::Render(*GetLastPostprocessRT(), params, mRenderer);
+			RenderImage::Render(*lastTexture, params, mRenderer);
+		}
 
 		RenderPath2D::Compose();
 

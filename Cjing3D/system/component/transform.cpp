@@ -12,12 +12,7 @@ namespace Cjing3D
 		if (mIsDirty == true) {
 			mIsDirty = false;
 
-			XMVECTOR s = XMLoadFloat3(&mScaleLocal);
-			XMVECTOR r = XMLoadFloat4(&mRotationLocal);
-			XMVECTOR t = XMLoadFloat3(&mTranslationLocal);
-			XMMATRIX w = XMMatrixScalingFromVector(s) * XMMatrixRotationQuaternion(r) * XMMatrixTranslationFromVector(t);
-
-			XMStoreFloat4x4(&mWorldTransform, w);
+			XMStoreFloat4x4(&mWorldTransform, GetLocalTransform());
 		}
 	}
 
@@ -106,6 +101,25 @@ namespace Cjing3D
 		mIsDirty = true;
 	}
 
+	XMMATRIX TransformComponent::GetLocalTransform() const
+	{
+		XMVECTOR s = XMLoadFloat3(&mScaleLocal);
+		XMVECTOR r = XMLoadFloat4(&mRotationLocal);
+		XMVECTOR t = XMLoadFloat3(&mTranslationLocal);
+		return XMMatrixScalingFromVector(s) * XMMatrixRotationQuaternion(r) * XMMatrixTranslationFromVector(t);
+	}
+
+	void TransformComponent::UpdateByTransform(const XMMATRIX& matrix)
+	{
+		XMVECTOR s, r, t;
+		XMMatrixDecompose(&s, &r, &t, GetLocalTransform() * matrix);
+		XMStoreFloat3(&mScaleLocal, s);
+		XMStoreFloat4(&mRotationLocal, r);
+		XMStoreFloat3(&mTranslationLocal, t);
+
+		mIsDirty = true;
+	}
+
 	void TransformComponent::ApplyTransform()
 	{
 		// 以当前世界坐标位置给local变量赋值
@@ -118,33 +132,13 @@ namespace Cjing3D
 		mIsDirty = true;
 	}
 
-	void TransformComponent::UpdateFromParent(TransformComponent& parent, const XMMATRIX& parentBindInverseWorld)
+	void TransformComponent::UpdateFromParent(TransformComponent& parent)
 	{
-		// 在transform层级关系中，mWorldTransform只表示最终的世界坐标系下变换
-		// 所以child节点需要先乘以绑定时的父节点变换的逆矩阵，来恢复绑定前的状态，再乘以新的parent transform
+		XMMATRIX childWorld = GetLocalTransform();
+		XMMATRIX parentWorld = XMLoadFloat4x4(&parent.GetWorldTransform());
 
-		// parent正常情况下非dirty, 但某些情况下被其他系统手动设置为dirty
-		if (parent.IsDirty())
-		{
-			SetDirty(true);
-
-			XMMATRIX childWorld = XMLoadFloat4x4(&mWorldTransform);
-			XMMATRIX parentWorld = XMLoadFloat4x4(&parent.GetWorldTransform());
-
-			childWorld = childWorld * parentBindInverseWorld * parentWorld;
-			XMStoreFloat4x4(&mWorldTransform, childWorld);
-		}
-		else
-		{
-			XMVECTOR s = XMLoadFloat3(&mScaleLocal);
-			XMVECTOR r = XMLoadFloat4(&mRotationLocal);
-			XMVECTOR t = XMLoadFloat3(&mTranslationLocal);
-			XMMATRIX childWorld = XMMatrixScalingFromVector(s) * XMMatrixRotationQuaternion(r) * XMMatrixTranslationFromVector(t);
-			XMMATRIX parentWorld = XMLoadFloat4x4(&parent.GetWorldTransform());
-		
-			childWorld = childWorld * parentBindInverseWorld * parentWorld;
-			XMStoreFloat4x4(&mWorldTransform, childWorld);
-		}
+		childWorld = childWorld * parentWorld;
+		XMStoreFloat4x4(&mWorldTransform, childWorld);
 	}
 
 	void TransformComponent::Serialize(Archive& archive, U32 seed)

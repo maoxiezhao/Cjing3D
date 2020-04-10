@@ -90,11 +90,14 @@ namespace Cjing3D
 
 	void RenderPath2D::Compose()
 	{
-		RenderImage::ImageParams params;
-		params.EnableFullScreen();
-		params.mBlendType = BlendType_PreMultiplied;
+		if (mRTFinal.GetShaderResourceView() != CPU_NULL_HANDLE)
+		{
+			RenderImage::ImageParams params;
+			params.EnableFullScreen();
+			params.mBlendType = BlendType_PreMultiplied;
 
-		RenderImage::Render(mRTFinal, params, mRenderer);
+			RenderImage::Render(mRTFinal, params, mRenderer);
+		}
 
 		RenderPath::Compose();
 	}

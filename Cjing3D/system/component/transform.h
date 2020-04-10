@@ -26,6 +26,7 @@ namespace Cjing3D {
 		LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
 		void Scale(const XMFLOAT3& value);
 
+		LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
 		void Rotate(const XMFLOAT4& quaternion);
 
 		LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
@@ -43,8 +44,10 @@ namespace Cjing3D {
 		void SetScaleLocal(const XMFLOAT3& value);
 		void SetWorldTransform(const XMFLOAT4X4& world);
 
+		XMMATRIX GetLocalTransform()const;
+		void UpdateByTransform(const XMMATRIX& matrix);
 		void ApplyTransform();
-		void UpdateFromParent(TransformComponent& parent, const XMMATRIX& parentBindInverseWorld);
+		void UpdateFromParent(TransformComponent& parent);
 
 		inline void SetDirty(bool isDirty) { mIsDirty = isDirty; }
 		inline bool IsDirty()const { return mIsDirty; }

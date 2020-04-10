@@ -221,22 +221,12 @@ namespace Cjing3D
 		}
 	}
 
-	void Scene::AttachEntity(ECS::Entity entity, ECS::Entity parent)
+	void Scene::AttachEntity(ECS::Entity entity, ECS::Entity parent, bool alreadyInLocalSpace)
 	{
 		if (mHierarchies.Contains(entity)) {
 			DetachEntity(entity);
 		}
 
-		// handle transform
-		auto parentTransform = mTransforms.GetOrCreateComponent(parent);
-		auto childTransform = mTransforms.GetOrCreateComponent(entity);
-
-		auto hierarchy = mHierarchies.Create(entity);
-		hierarchy->mParent = parent;
-		hierarchy->mParentBindInverseWorld = XMMatrixInverse(nullptr, XMLoadFloat4x4(&parentTransform->GetWorldTransform()));
-
-		childTransform->UpdateFromParent(*parentTransform, hierarchy->mParentBindInverseWorld);
-	
 		// keep parent before child
 		for (int i = 0; i < mHierarchies.GetCount(); i++)
 		{
@@ -246,6 +236,20 @@ namespace Cjing3D
 				break;
 			}
 		}
+
+		// handle transform
+		auto parentTransform = mTransforms.GetOrCreateComponent(parent);
+		auto childTransform = mTransforms.GetOrCreateComponent(entity);
+
+		auto hierarchy = mHierarchies.Create(entity)->mParent = parent;
+		if (!alreadyInLocalSpace)
+		{
+			// 如果不在local space，则需要乘上父级的逆矩阵转换到local space
+			XMMATRIX inverseM = XMMatrixInverse(nullptr, XMLoadFloat4x4(&parentTransform->GetWorldTransform()));
+			childTransform->UpdateByTransform(inverseM);
+		}
+
+		childTransform->UpdateFromParent(*parentTransform);
 	}
 
 	void Scene::DetachEntity(ECS::Entity entity)
@@ -333,7 +337,7 @@ namespace Cjing3D
 			for (auto& entity : newScene.mTransforms.GetEntities())
 			{
 				if (!newScene.mHierarchies.Contains(entity)) {
-					newScene.AttachEntity(entity, root);
+					newScene.AttachEntity(entity, root, true);
 				}
 			}
 
@@ -371,7 +375,7 @@ namespace Cjing3D
 				continue;
 			}
 
-			childTransform->UpdateFromParent(*parentTransform, hierarchy->mParentBindInverseWorld);
+			childTransform->UpdateFromParent(*parentTransform);
 		}
 	}
 }

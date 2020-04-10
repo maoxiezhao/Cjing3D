@@ -355,7 +355,8 @@ namespace ModelImporter {
 				ECS::Entity objectEntity = scene.CreateEntityObject(node.name);
 				auto object = scene.GetComponent<ObjectComponent>(objectEntity);
 				object->mMeshID = mesh.GetCurrentEntity();
-		
+			
+				scene.AttachEntity(objectEntity, currentEntity, true);
 			}
 			else
 			{
@@ -415,20 +416,19 @@ namespace ModelImporter {
 			currentTransform->ApplyTransform();
 		}
 
-		// 这里设置worldMatrix为identity，因为在attachEntity时，会计算inverseBindMatrix
-		// 因为这里读出的变换已经在骨骼空间，所以inverseBindmatrix应该为identity
-		currentTransform->SetWorldTransform(IDENTITYMATRIX);
+		currentTransform->Update();
 
+		// 读取出来的变换都已经基于bind space
 		if (parentEntity != ECS::INVALID_ENTITY)
 		{
-			scene.AttachEntity(currentEntity, parentEntity);
+			scene.AttachEntity(currentEntity, parentEntity, true);
 		}
 
 		// process children
 		if (!node.children.empty())
 		{
 			for (int child : node.children) {
-				LoadNode(child, parentEntity, loaderInfo);
+				LoadNode(child, currentEntity, loaderInfo);
 			}
 		}
 	}
@@ -511,6 +511,9 @@ namespace ModelImporter {
 				armature.mSkiningBones[index] = loaderInfo.nodeEntityMap[gltfSkin.joints[index]];
 			}
 		}
+
+		// create animations
+
 
 		// gltf默认使用RH，转到LH
 		if (true)

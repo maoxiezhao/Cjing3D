@@ -15,12 +15,12 @@ function MainScene:onStart()
 	local main_camera = Render.GetMainCamera();
 	self.m_fps_camera:setCamera(main_camera);
 	self.m_fps_camera:reset(Vector:new(0, 1, -1), Vector:new(0, 0, 0));
-	self.m_fps_camera:setMoveSpeed(40);
+	self.m_fps_camera:setMoveSpeed(10);
 	self.m_fps_camera:setRotateSpeed(0.005);
 	
 	-- scene add custom light
 	local scene = Scene.GetMainScene();
-	-- local entity = scene:CreateEntity();
+    local entity = scene:CreateEntity();
 	-- local light = scene:CreateLight(entity);
 	-- light:SetRange(100);
 	-- light:SetEnergy(20);
@@ -29,9 +29,9 @@ function MainScene:onStart()
     -- transform:Translate(Vector:new(20, 30, -18));
 	-- transform:Update();
 
-	-- local light = scene:CreateLight(entity);
-	-- light:SetLightType(LightType_Directional);
-	-- light:SetEnergy(1);
+    local light = scene:CreateLight(entity);
+	light:SetLightType(LightType_Directional);
+	light:SetEnergy(1);
 
 	------------------------
 

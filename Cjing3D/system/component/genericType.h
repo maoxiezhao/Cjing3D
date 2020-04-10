@@ -44,8 +44,6 @@ namespace Cjing3D {
 
 		// parent entity
 		ECS::Entity mParent = ECS::INVALID_ENTITY;
-		// parent inverse world matrix
-		XMMATRIX mParentBindInverseWorld = XMMatrixIdentity();
 
 		virtual void Serialize(Archive& archive, U32 seed = 0);
 		virtual void Unserialize(Archive& archive)const;
