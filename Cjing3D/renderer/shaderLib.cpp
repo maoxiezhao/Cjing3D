@@ -107,6 +107,7 @@ void ShaderLib::LoadComputeShaders()
 		mComputeShader[ComputeShaderType_Tonemapping] = resourceManager.GetOrCreate<ComputeShader>(shaderPath + "toneMapping.cso");
 		mComputeShader[ComputeShaderType_MipmapGenerate] = resourceManager.GetOrCreate<ComputeShader>(shaderPath + "mipmapGenerate.cso");
 		mComputeShader[ComputeShaderType_FXAA] = resourceManager.GetOrCreate<ComputeShader>(shaderPath + "fxaaCS.cso");
+		mComputeShader[ComputeShaderType_Skinning] = resourceManager.GetOrCreate<ComputeShader>(shaderPath + "skinningCS.cso");	
 	}
 }
 

@@ -12,9 +12,6 @@
     <Filter Include="hf">
       <UniqueIdentifier>{51fa7c58-692b-4ba9-86c2-575fcaece361}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GPUMapping">
-      <UniqueIdentifier>{d01c5e4d-7bdf-482d-96e7-91ca5f45835c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="cs">
       <UniqueIdentifier>{6368279f-f2de-4593-9047-3876ef1675b7}</UniqueIdentifier>
     </Filter>
@@ -23,6 +20,12 @@
     </Filter>
     <Filter Include="ds">
       <UniqueIdentifier>{2da8f1ba-f179-415c-8b55-635bc7408cd1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shaderInterop">
+      <UniqueIdentifier>{d01c5e4d-7bdf-482d-96e7-91ca5f45835c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shaderInterop\gpuMapping">
+      <UniqueIdentifier>{5c94d14c-ed4f-407f-99b7-592289083b47}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -68,6 +71,9 @@
     <FxCompile Include="ds\terrainDS.hlsl">
       <Filter>ds</Filter>
     </FxCompile>
+    <FxCompile Include="cs\skinningCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="hf\objectInput.hlsli">
@@ -97,13 +103,19 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="hf\shaderInterop.h">
-      <Filter>GPUMapping</Filter>
+      <Filter>shaderInterop</Filter>
     </ClInclude>
     <ClInclude Include="hf\shaderDefine.h">
-      <Filter>GPUMapping</Filter>
+      <Filter>shaderInterop</Filter>
     </ClInclude>
     <ClInclude Include="hf\shaderInteropRender.h">
-      <Filter>GPUMapping</Filter>
+      <Filter>shaderInterop</Filter>
+    </ClInclude>
+    <ClInclude Include="hf\constantBufferMapping.h">
+      <Filter>shaderInterop\gpuMapping</Filter>
+    </ClInclude>
+    <ClInclude Include="hf\resourceMapping.h">
+      <Filter>shaderInterop\gpuMapping</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

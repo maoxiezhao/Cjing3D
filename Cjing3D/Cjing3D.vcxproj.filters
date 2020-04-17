@@ -62,9 +62,6 @@
     <Filter Include="generates">
       <UniqueIdentifier>{95837ed7-6ef3-4928-afec-2cf455dcd6b3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="gui\imgui">
-      <UniqueIdentifier>{89cc6ab1-2726-48b0-b20d-221e6e4329a9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="utils\tinyxml2">
       <UniqueIdentifier>{316d6612-6111-4237-9446-725bb86d82a6}</UniqueIdentifier>
     </Filter>
@@ -88,6 +85,12 @@
     </Filter>
     <Filter Include="utils\stb_image">
       <UniqueIdentifier>{f0c695a9-8838-4b8e-b9fd-a1bee47eeb3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui\guiEditor">
+      <UniqueIdentifier>{1afb078f-fe5b-411a-9efc-e22e3f5c00db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui\guiEditor\imgui">
+      <UniqueIdentifier>{89cc6ab1-2726-48b0-b20d-221e6e4329a9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -375,16 +378,16 @@
       <Filter>scripts\api</Filter>
     </ClCompile>
     <ClCompile Include="..\ThirdParty\imgui\imgui.cpp">
-      <Filter>gui\imgui</Filter>
+      <Filter>gui\guiEditor\imgui</Filter>
     </ClCompile>
     <ClCompile Include="..\ThirdParty\imgui\imgui_demo.cpp">
-      <Filter>gui\imgui</Filter>
+      <Filter>gui\guiEditor\imgui</Filter>
     </ClCompile>
     <ClCompile Include="..\ThirdParty\imgui\imgui_draw.cpp">
-      <Filter>gui\imgui</Filter>
+      <Filter>gui\guiEditor\imgui</Filter>
     </ClCompile>
     <ClCompile Include="..\ThirdParty\imgui\imgui_widgets.cpp">
-      <Filter>gui\imgui</Filter>
+      <Filter>gui\guiEditor\imgui</Filter>
     </ClCompile>
     <ClCompile Include="gui\imguiStage.cpp">
       <Filter>gui</Filter>
@@ -393,10 +396,10 @@
       <Filter>gui</Filter>
     </ClCompile>
     <ClCompile Include="..\ThirdParty\imgui\imgui_impl_dx11.cpp">
-      <Filter>gui\imgui</Filter>
+      <Filter>gui\guiEditor\imgui</Filter>
     </ClCompile>
     <ClCompile Include="..\ThirdParty\imgui\imgui_impl_win32.cpp">
-      <Filter>gui\imgui</Filter>
+      <Filter>gui\guiEditor\imgui</Filter>
     </ClCompile>
     <ClCompile Include="utils\baseWindow.cpp">
       <Filter>utils</Filter>
@@ -472,6 +475,9 @@
     </ClCompile>
     <ClCompile Include="system\systems\sceneAnimationSystem.cpp">
       <Filter>system\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiEditor\guiEditor.cpp">
+      <Filter>gui\guiEditor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -802,13 +808,13 @@
       <Filter>scripts\api</Filter>
     </ClInclude>
     <ClInclude Include="..\ThirdParty\imgui\imconfig.h">
-      <Filter>gui\imgui</Filter>
+      <Filter>gui\guiEditor\imgui</Filter>
     </ClInclude>
     <ClInclude Include="..\ThirdParty\imgui\imgui.h">
-      <Filter>gui\imgui</Filter>
+      <Filter>gui\guiEditor\imgui</Filter>
     </ClInclude>
     <ClInclude Include="..\ThirdParty\imgui\imgui_internal.h">
-      <Filter>gui\imgui</Filter>
+      <Filter>gui\guiEditor\imgui</Filter>
     </ClInclude>
     <ClInclude Include="gui\imguiStage.h">
       <Filter>gui</Filter>
@@ -817,10 +823,10 @@
       <Filter>gui</Filter>
     </ClInclude>
     <ClInclude Include="..\ThirdParty\imgui\imgui_impl_dx11.h">
-      <Filter>gui\imgui</Filter>
+      <Filter>gui\guiEditor\imgui</Filter>
     </ClInclude>
     <ClInclude Include="..\ThirdParty\imgui\imgui_impl_win32.h">
-      <Filter>gui\imgui</Filter>
+      <Filter>gui\guiEditor\imgui</Filter>
     </ClInclude>
     <ClInclude Include="utils\baseWindow.h">
       <Filter>utils</Filter>
@@ -929,6 +935,12 @@
     </ClInclude>
     <ClInclude Include="utils\stb_truetype.h">
       <Filter>utils\stb_image</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\RHI\d3d11\rhiResourceD3D11.h">
+      <Filter>renderer\rhi\d3d11</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiEditor\guiEditor.h">
+      <Filter>gui\guiEditor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

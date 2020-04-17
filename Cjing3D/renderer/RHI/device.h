@@ -49,6 +49,7 @@ namespace Cjing3D
 
 		virtual void BindIndexBuffer(GPUBuffer& buffer, IndexFormat format, U32 offset) = 0;
 		virtual void BindVertexBuffer(GPUBuffer* const* buffer, U32 slot, U32 num, const U32* strides, const U32* offsets) = 0;
+		virtual void ClearVertexBuffer() = 0;
 
 		virtual HRESULT CreateSamplerState(const SamplerDesc* desc, SamplerState& state) = 0;
 		virtual void DestroySamplerState(SamplerState& state) = 0;

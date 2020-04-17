@@ -60,6 +60,11 @@ namespace Cjing3D
 		mIsDirty = true;
 	}
 
+	XMFLOAT3 TransformComponent::GetWorldPosition() const
+	{
+		return *((XMFLOAT3*)&mWorldTransform._41);
+	}
+
 	void TransformComponent::SetRotateFromRollPitchYaw(const XMFLOAT3& value)
 	{
 		XMFLOAT4 indentityQuat(0.0f, 0.0f, 0.0f, 1.0f);

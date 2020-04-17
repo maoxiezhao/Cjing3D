@@ -162,6 +162,7 @@
     <ClInclude Include="gui\guiCore\guiDispatcher.h" />
     <ClInclude Include="gui\guiCore\guiDispatcher_impl.h" />
     <ClInclude Include="gui\guiCore\guiEvents.h" />
+    <ClInclude Include="gui\guiEditor\guiEditor.h" />
     <ClInclude Include="gui\guiFactory.h" />
     <ClInclude Include="gui\guiInclude.h" />
     <ClInclude Include="gui\guiRenderer.h" />
@@ -205,6 +206,7 @@
     <ClInclude Include="renderer\renderer2D.h" />
     <ClInclude Include="renderer\rendererUtils.h" />
     <ClInclude Include="renderer\renderNote.h" />
+    <ClInclude Include="renderer\RHI\d3d11\rhiResourceD3D11.h" />
     <ClInclude Include="renderer\RHI\rhiFactory.h" />
     <ClInclude Include="renderer\RHI\rhiResource.h" />
     <ClInclude Include="renderer\RHI\rhiShader.h" />
@@ -309,6 +311,7 @@
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="generates\luabind_registers.cpp" />
     <ClCompile Include="gui\guiCore\guiDispatcher.cpp" />
+    <ClCompile Include="gui\guiEditor\guiEditor.cpp" />
     <ClCompile Include="gui\guiFactory.cpp" />
     <ClCompile Include="gui\guiRenderer.cpp" />
     <ClCompile Include="gui\guiWidgets\Panel.cpp" />

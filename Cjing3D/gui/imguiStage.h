@@ -9,6 +9,7 @@ namespace Cjing3D
 	class IMGUIStage
 	{
 	public:
+		using CustomWindowFunc = std::function<void()>;
 		friend class GUIRenderer;
 
 		IMGUIStage();
@@ -24,6 +25,8 @@ namespace Cjing3D
 		bool IsShowBasicInfo()const { return mShowBasicInfo; }
 		bool IsShowDetailInfo()const { return mShowDetailInfo; }
 
+		void RegisterCustomWindow(CustomWindowFunc func);
+
 	private:
 		void InitializeImpl();
 		void UpdateImpl(F32 deltaTime);
@@ -34,5 +37,6 @@ namespace Cjing3D
 		bool mShowBasicInfo = true;
 		bool mShowDetailInfo = true;
 
+		std::vector <CustomWindowFunc> mRegisteredWindows;
 	};
 }

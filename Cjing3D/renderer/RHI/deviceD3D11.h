@@ -46,6 +46,7 @@ public:
 
 	virtual void BindIndexBuffer(GPUBuffer& buffer, IndexFormat format, U32 offset);
 	virtual void BindVertexBuffer(GPUBuffer* const* buffer, U32 slot, U32 num, const U32* strides, const U32* offsets);
+	virtual void ClearVertexBuffer();
 
 	virtual HRESULT CreateSamplerState(const SamplerDesc* desc, SamplerState& state);
 	virtual void DestroySamplerState(SamplerState& state);

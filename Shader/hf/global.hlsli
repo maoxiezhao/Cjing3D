@@ -68,4 +68,22 @@ inline float RGBToLuminance(float3 color)
     return dot(color, float3(0.2126, 0.7152, 0.0722));
 }
 
+inline float3 GetNormalFromNumber(uint norNumber)
+{
+    float3 nor = 0.0f;
+    nor.x = (float) (norNumber & 0x000000ff) / 255.0f * 2.0f - 1.0f;
+    nor.y = (float) ((norNumber >> 8) & 0x000000ff) / 255.0f * 2.0f - 1.0f;
+    nor.z = (float) ((norNumber >> 16) & 0x000000ff) / 255.0f * 2.0f - 1.0f;
+    return nor;
+}
+
+inline uint SetNormalIntoNumber(float3 nor)
+{
+    uint norNumber = 0;
+    norNumber |= ((uint) ((nor.x * 0.5f + 0.5f) * 255.0f))  << 0;
+    norNumber |= ((uint) ((nor.y * 0.5f + 0.5f) * 255.0f)) << 8;
+    norNumber |= ((uint) ((nor.z * 0.5f + 0.5f) * 255.0f)) << 16;
+    return norNumber;
+}
+
 #endif

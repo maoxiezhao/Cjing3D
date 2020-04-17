@@ -568,6 +568,9 @@ void Renderer::RefreshRenderData()
 	// 更新每一帧的基本信息
 	UpdateFrameCB();
 
+	// mesh skinning
+	ProcessSkinning();
+
 	// refresh render pass 
 	for (auto kvp : mRenderPassMap)
 	{
@@ -1148,7 +1151,7 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPass
 				case BoundVexterBufferType_All:
 					{
 						GPUBuffer* vbs[] = {
-							mesh->GetVertexBufferPos(),
+							mesh->GetFinalVertexBufferPos(),
 							mesh->GetVertexBufferTex(),
 							mesh->GetVertexBufferColor(),
 							instances.buffer
@@ -1171,7 +1174,7 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPass
 				case BoundVexterBufferType_Pos:
 					{
 						GPUBuffer* vbs[] = {
-							mesh->GetVertexBufferPos(),
+							mesh->GetFinalVertexBufferPos(),
 							instances.buffer
 						};
 						U32 strides[] = {
@@ -1189,7 +1192,7 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPass
 				case BoundVexterBufferType_Pos_Tex:
 					{
 						GPUBuffer* vbs[] = {
-							mesh->GetVertexBufferPos(),
+							mesh->GetFinalVertexBufferPos(),
 							mesh->GetVertexBufferTex(),
 							instances.buffer
 						};
@@ -1317,6 +1320,63 @@ void Renderer::RenderDirLightShadowmap(LightComponent& light, CameraComponent& c
 			frameAllocator.Free(renderQueue.GetBatchCount() * sizeof(RenderBatch));
 		}
 	}
+}
+
+void Renderer::ProcessSkinning()
+{
+	mGraphicsDevice->BeginEvent("Skinning");
+	auto& mainScene = GetMainScene();
+
+	bool isResourceSetup = false;
+	for (int i = 0; i < mainScene.mMeshes.GetCount(); i++)
+	{
+		MeshComponent& mesh = *mainScene.mMeshes.GetComponentByIndex(i);
+		ECS::Entity entity = mesh.GetCurrentEntity();
+
+		if (!mesh.IsSkinned()) {
+			continue;
+		}
+
+		auto armature = mainScene.mArmatures.GetComponent(mesh.mArmature);
+		if (armature == nullptr) {
+			continue;
+		}
+
+		if (!isResourceSetup)
+		{
+			isResourceSetup = true;
+			// 因为需要写入到顶点缓冲中，所以需要清除下VertexBuffer
+			mGraphicsDevice->ClearVertexBuffer();
+			mGraphicsDevice->BindComputeShader(mShaderLib->GetComputeShader(ComputeShaderType_Skinning));
+		}
+
+		// update bonePoses buffer
+		mGraphicsDevice->UpdateBuffer(armature->mBufferBonePoses, armature->mBonePoses.data(), sizeof(ArmatureComponent::BonePose) * armature->mBonePoses.size());
+		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, armature->mBufferBonePoses, SKINNING_SBSLOT_BONE_POSE_BUFFER);
+
+		GPUResource* resoureces[] = { 
+			mesh.GetVertexBufferPos(),
+			mesh.GetVertexBufferBoneIndexWeight(),
+		};
+		GPUResource* uavs[] = {
+			mesh.GetVertexBufferStreamoutPos()
+		};
+		mGraphicsDevice->BindGPUResources(SHADERSTAGES_CS, resoureces, SKINNING_SLOT_VERTEX_POS, ARRAYSIZE(resoureces));
+		mGraphicsDevice->BindUAVs(uavs, 0, 1);
+		mGraphicsDevice->Dispatch(
+			(U32)((mesh.mVertexPositions.size() + SHADER_SKINNING_BLOCKSIZE - 1) / SHADER_SKINNING_BLOCKSIZE),
+			1,
+			1
+		);
+	}
+
+	if (isResourceSetup)
+	{
+		mGraphicsDevice->UnBindUAVs(0, 1);
+		mGraphicsDevice->UnbindGPUResources(SKINNING_SLOT_VERTEX_POS, 2);
+	}
+
+	mGraphicsDevice->EndEvent();
 }
 
 LinearAllocator& Renderer::GetFrameAllocator(FrameAllocatorType type)

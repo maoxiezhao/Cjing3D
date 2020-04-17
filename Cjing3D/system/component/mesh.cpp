@@ -15,6 +15,8 @@ namespace Cjing3D
 		mVertexBufferTex.reset();
 		mVertexBufferColor.reset();
 		mIndexBuffer.reset();
+		mVertexBufferBoneIndexWeight.reset();
+		mVertexBufferStreamoutPos.reset();
 	}
 
 	void MeshComponent::SetupRenderData(GraphicsDevice& device)
@@ -87,6 +89,53 @@ namespace Cjing3D
 			const auto result = CreateStaticVertexBuffer(device, *mVertexBufferColor, mVertexColors, VertexColor::format);
 			Debug::ThrowIfFailed(result, "Failed to create vertex colors buffer:%08x", result);
 		}
+
+		// vertex bone indices and weights
+		if (!mVertexBoneIndices.empty())
+		{
+			U32 boneCount = 0;
+			std::vector<VertexBoneIndexWeight> bones(mVertexBoneIndices.size());
+			for (int index = 0; index < mVertexBoneIndices.size(); index++)
+			{
+				U32x4 boneIndices = mVertexBoneIndices[index];
+				F32x4 boneWeights = mVertexBoneWeights[index];
+
+				float weightSum = boneWeights[0] + boneWeights[1] + boneWeights[2] + boneWeights[3];
+				if (weightSum <= 0) {
+					continue;
+				}
+
+				boneWeights /= (F32)weightSum;
+				bones[boneCount++].Setup(boneIndices, boneWeights);
+			}
+
+			// USAGE_IMMUTABLE
+			// GPU: read + write
+			// CPU: no read + no write
+			{
+				mVertexBufferBoneIndexWeight = std::make_unique<GPUBuffer>();
+				const auto result = CreateBABVertexBuffer(device, *mVertexBufferBoneIndexWeight, bones, BIND_SHADER_RESOURCE, USAGE_IMMUTABLE);
+				Debug::ThrowIfFailed(result, "Failed to create bone indexWeight buffer:%08x", result);
+			}
+			// create streamout buffer
+			{
+				mVertexBufferStreamoutPos.reset(new GPUBuffer);
+				const auto result = CreateEmptyBABVertexBuffer<VertexPosNormalSubset>(device, *mVertexBufferStreamoutPos, mVertexPositions.size(), BIND_VERTEX_BUFFER | BIND_SHADER_RESOURCE | BIND_UNORDERED_ACCESS);
+				Debug::ThrowIfFailed(result, "Failed to create streamout vertex buffer:%08x", result);
+			}
+		}
+	}
+
+	GPUBuffer* MeshComponent::GetFinalVertexBufferPos()
+	{
+		if (mVertexBufferStreamoutPos != nullptr && mVertexBufferStreamoutPos->IsValid()) 
+		{
+			return mVertexBufferStreamoutPos.get();
+		}
+		else 
+		{
+			return mVertexBufferPos.get();
+		}
 	}
 
 	void MeshComponent::Serialize(Archive& archive, U32 seed)
@@ -96,6 +145,8 @@ namespace Cjing3D
 		archive >> mVertexTexcoords;
 		archive >> mVertexColors;
 		archive >> mIndices;
+		archive >> mVertexBoneIndices;
+		archive >> mVertexBoneWeights;
 
 		U32 subsetSize = 0;
 		archive >> subsetSize;
@@ -123,6 +174,8 @@ namespace Cjing3D
 		archive << mVertexTexcoords;
 		archive << mVertexColors;
 		archive << mIndices;
+		archive << mVertexBoneIndices;
+		archive << mVertexBoneWeights;
 
 		archive << mSubsets.size();
 		for (const auto& subset : mSubsets)
@@ -150,5 +203,20 @@ namespace Cjing3D
 		mNormalSubsetIndex |= (U32)((normal[1] * 0.5f + 0.5f) * 255.0f) << 8;
 		mNormalSubsetIndex |= (U32)((normal[2] * 0.5f + 0.5f) * 255.0f) << 16;
 		mNormalSubsetIndex |= ((subsetIndex && 0x000000FF) << 24);
+	}
+
+	void MeshComponent::VertexBoneIndexWeight::Setup(U32x4 boneIndices, F32x4 boneWeights)
+	{
+		mIndices = 0u;
+		mIndices |= U64(boneIndices[0]) << 0;
+		mIndices |= U64(boneIndices[1]) << 16;
+		mIndices |= U64(boneIndices[2]) << 32;
+		mIndices |= U64(boneIndices[3]) << 48;
+
+		mWeights = 0u;
+		mWeights |= U64(boneWeights[0] * 65535.0f) << 0;
+		mWeights |= U64(boneWeights[1] * 65535.0f) << 16;
+		mWeights |= U64(boneWeights[2] * 65535.0f) << 32;
+		mWeights |= U64(boneWeights[3] * 65535.0f) << 48;
 	}
 }

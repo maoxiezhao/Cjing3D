@@ -35,6 +35,10 @@ namespace Cjing3D
 				{
 					XMFLOAT4X4 worldMatrix = transform->GetWorldTransform();
 					auto meshAABB = mesh->mAABB.GetByTransforming(worldMatrix);
+					if (mesh->IsSkinned())
+					{
+						meshAABB = AABB::Union(meshAABB, mesh->mAABB);
+					}
 
 					AABB& aabb = aabbComponent->GetAABB();
 					aabb.CopyFromOther(meshAABB);

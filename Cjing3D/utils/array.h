@@ -140,6 +140,16 @@ namespace Cjing3D {
 			}
 			return *this;
 		}
+
+		template<typename T>
+		std::enable_if_t<std::is_integral<T>::value || std::is_floating_point<T>::value, Array<T, N>>&
+			operator/=(const T& lhs)
+		{
+			for (int i = 0; i < N; i++) {
+				this->_Elems[i] /= lhs;
+			}
+			return *this;
+		}
 	};
 
 }

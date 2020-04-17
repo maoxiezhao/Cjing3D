@@ -171,13 +171,17 @@ namespace Cjing3D
 
 	ECS::Entity Scene::CreateEntityByName(const std::string & name)
 	{
-		// 目前不支持名字重名，后一个将无法添加
 		auto nameID = StringID(name);
-		auto it = mNameEntityMap.find(nameID);
-		if (it != mNameEntityMap.end())
+
+		// 暂时移除名字寻址功能，所以名字可以重复存在
+		if (false)
 		{
-			Debug::Warning("Duplicate entity name:" + name);
-			return it->second;
+			auto it = mNameEntityMap.find(nameID);
+			if (it != mNameEntityMap.end())
+			{
+				Debug::Warning("Duplicate entity name:" + name);
+				return it->second;
+			}
 		}
 
 		Entity entity = CreateEntity();
@@ -189,11 +193,15 @@ namespace Cjing3D
 
 	Entity Scene::GetEntityByName(const StringID& name)
 	{
-		auto it = mNameEntityMap.find(name);
-		if (it != mNameEntityMap.end())
+		if (false)
 		{
-			return it->second;
+			auto it = mNameEntityMap.find(name);
+			if (it != mNameEntityMap.end())
+			{
+				return it->second;
+			}
 		}
+
 		return ECS::INVALID_ENTITY;
 	}
 
@@ -207,6 +215,8 @@ namespace Cjing3D
 		mLightAABBs.Remove(entity);
 		mLights.Remove(entity);
 		mTerrains.Remove(entity);
+		mArmatures.Remove(entity);
+		mAnimations.Remove(entity);
 		mHierarchies.RemoveAndKeepSorted(entity);
 
 		if (mNames.Contains(entity))
@@ -220,32 +230,48 @@ namespace Cjing3D
 		}
 	}
 
-	void Scene::AttachEntity(ECS::Entity entity, ECS::Entity parent, bool alreadyInLocalSpace)
+	void Scene::AttachEntity(ECS::Entity entity, ECS::Entity parent, bool alreadyInLocalSpace, bool detachIfAttached)
 	{
-		if (mHierarchies.Contains(entity)) {
+		Debug::CheckAssertion(entity != parent, "Attach entity to self.");
+
+		if (mHierarchies.Contains(entity)) 
+		{
+			if (!detachIfAttached) {
+				return;
+			}
 			DetachEntity(entity);
 		}
 
-		// keep parent before child
-		for (int i = 0; i < mHierarchies.GetCount(); i++)
+		auto hierarchy = mHierarchies.Create(entity)->mParent = parent;
+
+		// fix tree which keep parent before child
+		if (mHierarchies.GetCount() > 1)
 		{
-			auto currentHierachy = mHierarchies[i];
-			if (currentHierachy->mParent == entity) {
-				mHierarchies.MoveLastInto(i);
-				break;
+			for (int i = mHierarchies.GetCount() - 1; i > 0; i--)
+			{
+				auto parentHierachy = mHierarchies.GetEntityByIndex(i);
+				for (int j = 0; j < i; j++)
+				{
+					auto childHierachy = mHierarchies.GetComponentByIndex(j);
+					if (childHierachy->mParent == parentHierachy)
+					{
+						mHierarchies.MoveInto(i, j);
+						i++;	// check same index again
+						break;
+					}
+				}
 			}
 		}
 
 		// handle transform
 		auto parentTransform = mTransforms.GetOrCreateComponent(parent);
 		auto childTransform = mTransforms.GetOrCreateComponent(entity);
-
-		auto hierarchy = mHierarchies.Create(entity)->mParent = parent;
 		if (!alreadyInLocalSpace)
 		{
 			// 如果不在local space，则需要乘上父级的逆矩阵转换到local space
 			XMMATRIX inverseM = XMMatrixInverse(nullptr, XMLoadFloat4x4(&parentTransform->GetWorldTransform()));
 			childTransform->UpdateByTransform(inverseM);
+			childTransform->Update();
 		}
 
 		childTransform->UpdateFromParent(*parentTransform);
@@ -367,7 +393,7 @@ namespace Cjing3D
 		for (size_t index = 0; index < scene.mHierarchies.GetCount(); index++)
 		{
 			auto hierarchy = scene.mHierarchies[index];
-			auto entity = scene.mHierarchies.GetEntityByIndex(index);
+			auto entity = hierarchy->GetCurrentEntity();
 
 			auto parentTransform = scene.mTransforms.GetComponent(hierarchy->mParent);
 			auto childTransform = scene.mTransforms.GetComponent(entity);

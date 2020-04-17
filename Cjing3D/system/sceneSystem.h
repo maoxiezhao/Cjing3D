@@ -83,7 +83,7 @@ namespace Cjing3D {
 
 		void RemoveEntity(ECS::Entity entity);
 		// entity间的层级结构基于 hierarchy component
-		void AttachEntity(ECS::Entity entity, ECS::Entity parent, bool alreadyInLocalSpace = false);
+		void AttachEntity(ECS::Entity entity, ECS::Entity parent, bool alreadyInLocalSpace = false, bool detachIfAttached = true);
 		void DetachEntity(ECS::Entity entity);
 
 		template<typename ComponentT>

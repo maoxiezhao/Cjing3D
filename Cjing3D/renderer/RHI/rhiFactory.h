@@ -12,15 +12,18 @@ namespace Cjing3D
 
 	// create byte address buffer
 	template <typename VertexT>
-	HRESULT CreateBABVertexBuffer(GraphicsDevice & device, GPUBuffer& buffer, std::vector<VertexT>& vertices)
+	HRESULT CreateBABVertexBuffer(
+		GraphicsDevice & device, GPUBuffer& buffer, std::vector<VertexT>& vertices, 
+		U32 bindFlags = BIND_VERTEX_BUFFER | BIND_SHADER_RESOURCE,
+		USAGE usage = USAGE_DEFAULT)
 	{
 		GPUBufferDesc desc = {};
-		desc.mBindFlags = BIND_VERTEX_BUFFER | BIND_SHADER_RESOURCE;
+		desc.mBindFlags = bindFlags; // BIND_VERTEX_BUFFER | BIND_SHADER_RESOURCE
 		desc.mByteWidth = static_cast<U32>(vertices.size() * sizeof(VertexT));
 
 		// GPU: read + write
 		// CPU: no read + no write
-		desc.mUsage = USAGE_DEFAULT;
+		desc.mUsage = usage; // USAGE_DEFAULT;
 		desc.mCPUAccessFlags = 0;
 
 		// Byte Address Buffers
@@ -34,6 +37,28 @@ namespace Cjing3D
 	}
 
 	template <typename VertexT>
+	HRESULT CreateEmptyBABVertexBuffer(
+		GraphicsDevice& device, GPUBuffer& buffer, U32 count,
+		U32 bindFlags = BIND_VERTEX_BUFFER | BIND_SHADER_RESOURCE,
+		USAGE usage = USAGE_DEFAULT)
+	{
+		GPUBufferDesc desc = {};
+		desc.mBindFlags = bindFlags; // BIND_VERTEX_BUFFER | BIND_SHADER_RESOURCE
+		desc.mByteWidth = static_cast<U32>(count * sizeof(VertexT));
+
+		// GPU: read + write
+		// CPU: no read + no write
+		desc.mUsage = usage; // USAGE_DEFAULT;
+		desc.mCPUAccessFlags = 0;
+
+		// Byte Address Buffers
+		desc.mMiscFlags = RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
+		buffer.SetDesc(desc);
+
+		return device.CreateBuffer(&desc, buffer, nullptr);
+	}
+
+	template <typename VertexT>
 	HRESULT CreateStaticVertexBuffer(GraphicsDevice & device, GPUBuffer& buffer, std::vector<VertexT>& vertices, FORMAT format)
 	{
 		GPUBufferDesc desc = {};
@@ -41,6 +66,27 @@ namespace Cjing3D
 		desc.mByteWidth = static_cast<U32>(vertices.size() * sizeof(VertexT));
 		desc.mFormat = format;
 		desc.mStructureByteStride = sizeof(VertexT);
+
+		// GPU: read + no write
+		// CPU: no read + no write
+		desc.mUsage = USAGE_IMMUTABLE;
+		desc.mCPUAccessFlags = 0;
+		buffer.SetDesc(desc);
+
+		SubresourceData initiaData = {};
+		initiaData.mSysMem = vertices.data();
+
+		return device.CreateBuffer(&desc, buffer, &initiaData);
+	}
+
+	template <typename T>
+	HRESULT CreateStaticShaderBuffer(GraphicsDevice& device, GPUBuffer& buffer, std::vector<T>& vertices, FORMAT format)
+	{
+		GPUBufferDesc desc = {};
+		desc.mBindFlags = BIND_SHADER_RESOURCE;
+		desc.mByteWidth = static_cast<U32>(vertices.size() * sizeof(T));
+		desc.mFormat = format;
+		desc.mStructureByteStride = sizeof(T);
 
 		// GPU: read + no write
 		// CPU: no read + no write

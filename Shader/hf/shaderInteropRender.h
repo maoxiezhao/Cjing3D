@@ -132,4 +132,10 @@ CBUFFER(TerrainCB, CBSLOT_TERRAIN)
 	float gTerrainElevation;
 };
 
+
+///////////////////////////////////////////////////////////////////////////////////////////
+// skinning
+static const uint SHADER_SKINNING_BLOCKSIZE = 128;
+
+
 #endif

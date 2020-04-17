@@ -33,10 +33,7 @@ namespace Cjing3D
 
 	void TestGame::Initialize()
 	{
-		auto systemContext = GetGameContext();
-		ModelImporter::ImportModelGLTF("Models/drone/busterDrone.gltf", *systemContext);
-
-		auto& renderer = systemContext->GetSubSystem<Renderer>();
+		auto& renderer = GlobalGetSubSystem<Renderer>();
 		RenderPathForward* path = new RenderPathForward(renderer);
 		renderer.SetCurrentRenderPath(path);
 
@@ -59,13 +56,9 @@ namespace Cjing3D
 		//	"Textures/TerrainDetail3.dds"
 		//);
 
-		// test animations
+		// test animations and gltf
 		Scene& scene = Scene::GetScene();
-		for (auto& animation : scene.mAnimations.GetComponents())
-		{
-			animation->SetIsLooped(true);
-			animation->Play();
-		}
+		ModelImporter::ImportModelGLTF("Models/zombie/scene.gltf");
 	}
 
 	void TestGame::Update(EngineTime time)
@@ -115,9 +108,11 @@ namespace Cjing3D
 					renderer.GetMainScene().LoadSceneFromArchive(filePath);
 				}
 				else if (extension == ".obj") {
-					ModelImporter::ImportModelObj(filePath, *systemContext);
+					ModelImporter::ImportModelObj(filePath);
 				}
-		
+				else if (extension == ".gltf") {
+					ModelImporter::ImportModelGLTF(filePath);
+				}
 			}
 		}
 		else if (inputManager.IsKeyDown(KeyCode::F6)) 

@@ -137,6 +137,24 @@ namespace Cjing3D {
 		);
 	}
 
+	inline XMFLOAT3 XMFloat3Max(XMFLOAT3 a, XMFLOAT3 b)
+	{
+		return XMFLOAT3(
+			std::max(a.x, b.x),
+			std::max(a.y, b.y),
+			std::max(a.z, b.z)
+		);
+	}
+
+	inline XMFLOAT3 XMFloat3Min(XMFLOAT3 a, XMFLOAT3 b)
+	{
+		return XMFLOAT3(
+			std::min(a.x, b.x),
+			std::min(a.y, b.y),
+			std::min(a.z, b.z)
+		);
+	}
+
 	inline F32x3 F32x3Normalize(F32x3 n)
 	{
 		return XMStore<F32x3>(XMVector3Normalize(XMLoad(n)));

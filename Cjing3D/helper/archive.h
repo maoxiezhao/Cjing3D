@@ -167,6 +167,10 @@ namespace Cjing3D {
 	template<> struct ArchiveTypeNormalMapping<F32x3> : ArchiveTypeExtraTypeMapping<F32x3> {};
 	template<> struct ArchiveTypeNormalMapping<F32x4> : ArchiveTypeExtraTypeMapping<F32x4> {};
 
+	template<> struct ArchiveTypeNormalMapping<U32x2> : ArchiveTypeExtraTypeMapping<U32x2> {};
+	template<> struct ArchiveTypeNormalMapping<U32x3> : ArchiveTypeExtraTypeMapping<U32x3> {};
+	template<> struct ArchiveTypeNormalMapping<U32x4> : ArchiveTypeExtraTypeMapping<U32x4> {};
+
 	// enum type
 	template<typename T>
 	struct ArchiveTypeNormalMapping<T, typename std::enable_if<std::is_enum<T>::value, void>::type> : 

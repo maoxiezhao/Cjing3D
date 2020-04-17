@@ -38,6 +38,8 @@ namespace Cjing3D {
 		LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
 		inline XMFLOAT3 GetScaleLocal()const { return mScaleLocal; }
 
+		XMFLOAT3 GetWorldPosition()const;
+
 		void SetRotateFromRollPitchYaw(const XMFLOAT3& value);
 		void SetRotationLocal(const XMFLOAT4& value);
 		void SetTranslationLocal(const XMFLOAT3& value);

@@ -183,7 +183,6 @@ namespace ModelImporter {
 					material->mBaseColor[i] = static_cast<F32>(color[0]);
 				}
 			}
-
 			// process additional values 
 			if (normalTextureIt != gltfMaterial.additionalValues.end())
 			{
@@ -192,6 +191,21 @@ namespace ModelImporter {
 				material->mNormalMapName = img.uri;
 
 				LoadTextureFromImageData(img, loaderInfo.loadedTextures);
+			}
+
+			// process specular-glossiness
+			auto specularGlossinessIt = gltfMaterial.extensions.find("KHR_materials_pbrSpecularGlossiness");
+			if (specularGlossinessIt != gltfMaterial.extensions.end())
+			{
+				if (specularGlossinessIt->second.Has("diffuseTexture"))
+				{
+					int index = specularGlossinessIt->second.Get("diffuseTexture").Get("index").Get<int>();
+					auto& tex = gltfModel.textures[index];
+					auto& img = gltfModel.images[tex.source];
+					material->mBaseColorMapName = img.uri;
+
+					LoadTextureFromImageData(img, loaderInfo.loadedTextures);
+				}
 			}
 
 			// load textures
@@ -319,9 +333,43 @@ namespace ModelImporter {
 					// skeletons
 					else if (attrType == "JOINTS_0")
 					{
+						mesh->mVertexBoneIndices.resize(vertexOffset + vertexCount);
+						if (stride == 4)
+						{
+							struct JointTmp { uint8_t indices[4]; };
+							for (int i = 0; i < vertexCount; i++)
+							{
+								JointTmp& joints = ((JointTmp*)data)[i];
+								mesh->mVertexBoneIndices[vertexOffset + i] = {
+									(U32)joints.indices[0],
+									(U32)joints.indices[1],
+									(U32)joints.indices[2],
+									(U32)joints.indices[3],
+								};
+							}
+						}
+						else if (stride == 8)
+						{
+							struct JointTmp { uint16_t indices[4]; };
+							for (int i = 0; i < vertexCount; i++)
+							{
+								JointTmp& joints = ((JointTmp*)data)[i];
+								mesh->mVertexBoneIndices[vertexOffset + i] = {
+									(U32)joints.indices[0],
+									(U32)joints.indices[1],
+									(U32)joints.indices[2],
+									(U32)joints.indices[3],
+								};
+							}
+						}
 					}
 					else if (attrType == "WEIGHTS_0")
 					{
+						mesh->mVertexBoneWeights.resize(vertexOffset + vertexCount);
+						for (int i = 0; i < vertexCount; i++)
+						{
+							mesh->mVertexBoneWeights[vertexOffset + i] = ((F32x4*)data)[i];
+						}
 					}
 				}
 			}
@@ -345,18 +393,14 @@ namespace ModelImporter {
 		{
 			if (node.skin >= 0)
 			{
-				MeshComponent& mesh = *scene.mMeshes.GetComponentByIndex(node.mesh);
-
 				// 如果是骨骼节点，则将当前entity指向armature entity
 				// 同时为mesh创建object，并attach在armature下
-				currentEntity = scene.mArmatures.GetEntityByIndex(node.skin);
-				mesh.mArmature = currentEntity;
+				MeshComponent& mesh = *scene.mMeshes.GetComponentByIndex(node.mesh);
+				mesh.mArmature = scene.mArmatures.GetEntityByIndex(node.skin);
 
-				ECS::Entity objectEntity = scene.CreateEntityObject(node.name);
-				auto object = scene.GetComponent<ObjectComponent>(objectEntity);
+				currentEntity = scene.CreateEntityObject(node.name);
+				auto object = scene.GetComponent<ObjectComponent>(currentEntity);
 				object->mMeshID = mesh.GetCurrentEntity();
-			
-				scene.AttachEntity(objectEntity, currentEntity, true);
 			}
 			else
 			{
@@ -433,86 +477,11 @@ namespace ModelImporter {
 		}
 	}
 
-	void ImportModelGLTF(const std::string& fileName, SystemContext& systemContext)
+	void LoadAnimations(LoaderInfo& loaderInfo)
 	{
-		std::filesystem::path path(fileName);
-
-		auto& renderer = systemContext.GetSubSystem<Renderer>();
-		auto& device = renderer.GetDevice();
-
-		tinygltf::TinyGLTF loader;
-		loader.SetImageLoader(tinygltf::LoadImageData, nullptr);
-
-		// set custom fs callbacks
-		tinygltf::FsCallbacks fsCallbacks = {
-		  &tinygltf::FileExists,  &tinygltf::ExpandFilePath,
-		  &tinygltf::ReadWholeFile, &tinygltf::WriteWholeFile,
-		  nullptr
-		};
-		loader.SetFsCallbacks(fsCallbacks);
-
-		LoaderInfo loaderInfo = {};
-		std::string err, warn;
-		bool result = loader.LoadASCIIFromFile(&loaderInfo.gltfModel, &err, &warn, fileName);
-		if (!result)
-		{
-			Debug::Warning("Failed to open gltf model:" + fileName + "', " + err);
-			return;
-		}
-		
 		tinygltf::Model& gltfModel = loaderInfo.gltfModel;
 		Scene& newScene = loaderInfo.scene;
 
-		// load materials
-		std::string parentPath = std::string(path.parent_path().string().c_str()) + "/";
-		LoadMaterials(loaderInfo, parentPath);
-
-		// load meshes
-		LoadMeshes(loaderInfo);
-
-		// load armature
-		for (auto gltfSkin : gltfModel.skins)
-		{
-			Entity entity = newScene.CreateArmature(gltfSkin.name);
-			ArmatureComponent& armature = *newScene.mArmatures.GetComponent(entity);
-
-			if (gltfSkin.inverseBindMatrices >= 0)
-			{
-				const tinygltf::Accessor& accessor = gltfModel.accessors[gltfSkin.inverseBindMatrices];
-				const tinygltf::BufferView& bufferView = gltfModel.bufferViews[accessor.bufferView];
-				const tinygltf::Buffer& buffer = gltfModel.buffers[bufferView.buffer];
-
-				size_t count = accessor.count;
-				armature.mInverseBindMatrices.resize(count);	
-				memcpy(armature.mInverseBindMatrices.data(), &buffer.data[accessor.byteOffset + bufferView.byteOffset], count * sizeof(XMFLOAT4X4));
-			}
-		}
-
-		// process nodes and create hierarchy
-		Entity rootEntity = ECS::CreateEntity();
-		TransformComponent& rootTransform = newScene.GetOrCreateTransformByEntity(rootEntity);
-
-		tinygltf::Scene& gltfScene = gltfModel.scenes[std::max(0, gltfModel.defaultScene)];
-		for (int node : gltfScene.nodes) {
-			LoadNode(node, rootEntity, loaderInfo);
-		}
-
-		// mapping bone to armature
-		int armatureIndex = 0;
-		for (auto gltfSkin : gltfModel.skins)
-		{
-			ArmatureComponent& armature = *newScene.mArmatures.GetComponentByIndex(armatureIndex++);
-
-			size_t boneCount = gltfSkin.joints.size();
-			armature.mSkiningBones.resize(boneCount);
-
-			for (size_t index = 0; index < boneCount; index++)
-			{
-				armature.mSkiningBones[index] = loaderInfo.nodeEntityMap[gltfSkin.joints[index]];
-			}
-		}
-
-		// create animations
 		// animation基于keyframe,分为两部分数据sampler和channle
 		// 1.sampler记录了keyframe的时间和值
 		// 2.channel则记录了影响的node和使用的sampler，对应改变的属性（scale\rotation\translation)
@@ -563,7 +532,7 @@ namespace ModelImporter {
 					const tinygltf::BufferView& bufferView = gltfModel.bufferViews[accessor.bufferView];
 					const tinygltf::Buffer& buffer = gltfModel.buffers[bufferView.buffer];
 					const unsigned char* data = buffer.data.data() + accessor.byteOffset + bufferView.byteOffset;
-				
+
 					const size_t keyframeCount = accessor.count;
 					switch (accessor.type)
 					{
@@ -575,7 +544,7 @@ namespace ModelImporter {
 							((XMFLOAT3*)sampler.mKeyframeDatas.data())[index] = ((XMFLOAT3*)data)[index];
 						}
 					}
-						break;
+					break;
 					case TINYGLTF_TYPE_VEC4:
 					{
 						sampler.mKeyframeDatas.resize(keyframeCount * 4);
@@ -584,7 +553,7 @@ namespace ModelImporter {
 							((XMFLOAT4*)sampler.mKeyframeDatas.data())[index] = ((XMFLOAT4*)data)[index];
 						}
 					}
-						break;
+					break;
 					default:
 						Debug::CheckAssertion(false, "Failed to load keyframe data from gltf.");
 						break;
@@ -595,7 +564,7 @@ namespace ModelImporter {
 			for (int i = 0; i < gltfAnimation.channels.size(); i++)
 			{
 				tinygltf::AnimationChannel& gltfChannel = gltfAnimation.channels[i];
-				
+
 				AnimationComponent::AnimationChannel& channel = animation.mChannels[i];
 				channel.mTargetNode = loaderInfo.nodeEntityMap[gltfChannel.target_node];
 				channel.mSamplerIndex = (U32)gltfChannel.sampler;
@@ -618,6 +587,101 @@ namespace ModelImporter {
 				}
 			}
 		}
+	}
+
+	ECS::Entity ImportModelGLTF(const std::string& fileName)
+	{
+		std::filesystem::path path(fileName);
+
+		auto& renderer = GlobalGetSubSystem<Renderer>();
+		auto& device = renderer.GetDevice();
+
+		tinygltf::TinyGLTF loader;
+		loader.SetImageLoader(tinygltf::LoadImageData, nullptr);
+
+		// set custom fs callbacks
+		tinygltf::FsCallbacks fsCallbacks = {
+		  &tinygltf::FileExists,  &tinygltf::ExpandFilePath,
+		  &tinygltf::ReadWholeFile, &tinygltf::WriteWholeFile,
+		  nullptr
+		};
+		loader.SetFsCallbacks(fsCallbacks);
+
+		LoaderInfo loaderInfo = {};
+		std::string err, warn;
+		bool result = false;
+
+		const std::string extensionStr = path.extension().string();
+		if (extensionStr == ".gltf")
+		{
+			result = loader.LoadASCIIFromFile(&loaderInfo.gltfModel, &err, &warn, fileName);
+		}
+		else
+		{
+			result = loader.LoadBinaryFromFile(&loaderInfo.gltfModel, &err, &warn, fileName);
+		}
+
+		if (!result)
+		{
+			Debug::Warning("Failed to open gltf model:" + fileName + "', " + err);
+			return ECS::INVALID_ENTITY;
+		}
+		
+		tinygltf::Model& gltfModel = loaderInfo.gltfModel;
+		Scene& newScene = loaderInfo.scene;
+
+		// load materials
+		std::string parentPath = std::string(path.parent_path().string().c_str()) + "/";
+		LoadMaterials(loaderInfo, parentPath);
+
+		// load meshes
+		LoadMeshes(loaderInfo);
+
+		// load armature
+		for (auto gltfSkin : gltfModel.skins)
+		{
+			Entity entity = newScene.CreateArmature(gltfSkin.name);
+			ArmatureComponent& armature = *newScene.mArmatures.GetComponent(entity);
+
+			if (gltfSkin.inverseBindMatrices >= 0)
+			{
+				const tinygltf::Accessor& accessor = gltfModel.accessors[gltfSkin.inverseBindMatrices];
+				const tinygltf::BufferView& bufferView = gltfModel.bufferViews[accessor.bufferView];
+				const tinygltf::Buffer& buffer = gltfModel.buffers[bufferView.buffer];
+
+				size_t count = accessor.count;
+				armature.mInverseBindMatrices.resize(count);	
+				memcpy(armature.mInverseBindMatrices.data(), &buffer.data[accessor.byteOffset + bufferView.byteOffset], count * sizeof(XMFLOAT4X4));
+			}
+		}
+
+		// process nodes and create hierarchy
+		Entity rootEntity = ECS::CreateEntity();
+		TransformComponent& rootTransform = newScene.GetOrCreateTransformByEntity(rootEntity);
+
+		tinygltf::Scene& gltfScene = gltfModel.scenes[std::max(0, gltfModel.defaultScene)];
+		for (int node : gltfScene.nodes) {
+			LoadNode(node, rootEntity, loaderInfo);
+		}
+
+		// mapping bone to armature
+		int armatureIndex = 0;
+		for (auto gltfSkin : gltfModel.skins)
+		{
+			ArmatureComponent& armature = *newScene.mArmatures.GetComponentByIndex(armatureIndex++);
+			armature.mRootBone = loaderInfo.nodeEntityMap[gltfSkin.skeleton];
+
+			size_t boneCount = gltfSkin.joints.size();
+			armature.mSkinningBones.resize(boneCount);
+
+			for (size_t index = 0; index < boneCount; index++)
+			{
+				armature.mSkinningBones[index] = loaderInfo.nodeEntityMap[gltfSkin.joints[index]];
+			}
+		}
+
+		// create animations
+		LoadAnimations(loaderInfo);
 
 		// gltf默认使用RH，转到LH
 		if (true)
@@ -632,6 +696,8 @@ namespace ModelImporter {
 
 		// update scene
 		Scene::GetScene().Merge(loaderInfo.scene);
+
+		return rootEntity;
 	}
 }
 }

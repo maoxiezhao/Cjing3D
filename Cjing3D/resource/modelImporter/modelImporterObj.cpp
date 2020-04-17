@@ -16,13 +16,13 @@ namespace ModelImporter
 		bool loadVertexColors = false;
 	}
 
-	void ImportModelObj(const std::string& fileName, SystemContext& systemContext)
+	ECS::Entity ImportModelObj(const std::string& fileName)
 	{
 		std::filesystem::path path(fileName);
 
-		auto& renderer = systemContext.GetSubSystem<Renderer>();
+		auto& renderer = GlobalGetSubSystem<Renderer>();
 		auto& device = renderer.GetDevice();
-		auto& resourceManager = systemContext.GetSubSystem<ResourceManager>();
+		auto& resourceManager = GlobalGetSubSystem<ResourceManager>();
 
 		tinyobj::attrib_t objAttrib;
 		std::vector <tinyobj::shape_t> objShapes;
@@ -34,7 +34,7 @@ namespace ModelImporter
 		bool success = tinyobj::LoadObjCjing3D(&objAttrib, &objShapes, &objMaterials, &obj_errors, path.string().c_str(), parentPath.c_str(), true);
 		if (success == false) {
 			Debug::Warning("Failed to open model'" + path.string() + "', " + obj_errors);
-			return;
+			return ECS::INVALID_ENTITY;
 		}
 
 		Scene newScene;
@@ -83,6 +83,9 @@ namespace ModelImporter
 			ECS::Entity materialEntity = newScene.CreateEntityMaterial("ObjDefaultMaterial");
 			materialArray.push_back(materialEntity);
 		}
+
+		Entity rootEntity = ECS::CreateEntity();
+		TransformComponent& rootTransform = newScene.GetOrCreateTransformByEntity(rootEntity);
 
 		// load shape
 		for (auto& objShape : objShapes)
@@ -187,6 +190,8 @@ namespace ModelImporter
 		}
 
 		Scene::GetScene().Merge(newScene);
+
+		return rootEntity;
 	}
 }
 }

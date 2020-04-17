@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common\common.h"
+#include "system\ecsSystem.h"
 
 namespace Cjing3D
 {
@@ -8,7 +9,7 @@ namespace Cjing3D
 
 	namespace ModelImporter
 	{
-		void ImportModelObj(const std::string& fileName, SystemContext& systemContext);
-		void ImportModelGLTF(const std::string& fileName, SystemContext& systemContext);
+		ECS::Entity ImportModelObj(const std::string& fileName);
+		ECS::Entity ImportModelGLTF(const std::string& fileName);
 	}
 }

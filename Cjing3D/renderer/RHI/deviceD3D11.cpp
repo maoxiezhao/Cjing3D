@@ -1,4 +1,5 @@
 #include "deviceD3D11.h"
+#include "renderer\RHI\d3d11\rhiResourceD3D11.h"
 
 namespace Cjing3D {
 
@@ -1230,6 +1231,34 @@ HRESULT GraphicsDeviceD3D11::CreateBuffer(const GPUBufferDesc * desc, GPUBuffer 
 			auto& srv = buffer.GetShaderResourceView();
 			result = mDevice->CreateShaderResourceView((ID3D11Resource*)resource, &srvDesc, (ID3D11ShaderResourceView**)&srv);
 		}
+		if (bufferDesc.BindFlags & D3D11_BIND_UNORDERED_ACCESS)
+		{
+			D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+			uavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+			uavDesc.Buffer.FirstElement = 0;
+
+			if (bufferDesc.MiscFlags & D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS)
+			{
+				// byte raw buffer
+				uavDesc.Format = DXGI_FORMAT_R32_TYPELESS; // ????
+				uavDesc.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_RAW;
+				uavDesc.Buffer.NumElements = desc->mByteWidth / 4;	// 4字节存储
+			}
+			else if (bufferDesc.MiscFlags & D3D11_RESOURCE_MISC_BUFFER_STRUCTURED)
+			{
+				uavDesc.Format = DXGI_FORMAT_UNKNOWN; // ????
+				uavDesc.Buffer.NumElements = desc->mByteWidth / desc->mStructureByteStride;
+			}
+			else
+			{
+				// typed buffer，存储为numElements个structureByteStride大小的元素
+				uavDesc.Format = _ConvertFormat(desc->mFormat);
+				uavDesc.Buffer.NumElements = desc->mByteWidth / desc->mStructureByteStride;
+			}
+
+			auto& uav = buffer.GetUnorderedAccessView();
+			result = mDevice->CreateUnorderedAccessView((ID3D11Resource*)resource, &uavDesc, (ID3D11UnorderedAccessView**)&uav);
+		}
 	}
 
 	return result;
@@ -1318,6 +1347,20 @@ void GraphicsDeviceD3D11::BindVertexBuffer(GPUBuffer* const* buffer, U32 slot, U
 		buffers[i] = (buffer[i] != nullptr) ? &buffer[i]->GetBuffer() : nullptr;
 	}
 	GetDeviceContext(GraphicsThread_IMMEDIATE).IASetVertexBuffers(slot, num, buffers, strides, offsets);
+}
+
+void GraphicsDeviceD3D11::ClearVertexBuffer()
+{
+	GPUBuffer* vbs[] = {
+		nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr
+	};
+	U32 strides[] = {
+		0,0,0,0,0,0,0,0
+	};
+	U32 offsets[] = {
+		0,0,0,0,0,0,0,0
+	};
+	BindVertexBuffer(vbs, 0, ARRAYSIZE(vbs), strides, offsets);
 }
 
 // 创建采样器状态

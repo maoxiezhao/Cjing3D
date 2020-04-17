@@ -130,30 +130,32 @@ namespace ECS
 			}
 		}
 
-		inline void MoveLastInto(U32 index)
+		inline void MoveInto(U32 from, U32 into)
 		{
-			// 将末尾的对象插入到指定位置
-			
-			if (index == GetCount() - 1 || GetCount() < 2) {
+			if (from >= GetCount() || into >= GetCount() || from == into) {
 				return;
 			}
 
-			auto targetComponent = std::move(mComponents.back());
-			auto targetEntity = mEntities.back();
+			auto targetComponent = std::move(mComponents[from]);
+			auto targetEntity = mEntities[from];
 
-			// 将拆入位置的元素往后移
-			for (int i = mComponents.size() - 1; i > index; i--) {
-				mComponents[i] = std::move(mComponents[i - 1]);
-			}
-
-			for (int i = mEntities.size() - 1; i > index; i--) {
-				mEntities[i] = mEntities[i - 1];
+			U32 dir = from < into ? 1 : 0;
+			for (int i = from; i != into; i+= dir) {
+				U32 nextIndex = i += dir;
+				mComponents[i] = std::move(mComponents[nextIndex]);
+				mEntities[i] = mEntities[nextIndex];
 				mLookup[mEntities[i]] = i;
 			}
 
-			mComponents[index] = std::move(targetComponent);
-			mEntities[index] = targetEntity;
-			mLookup[targetEntity] = index;
+			mComponents[into] = std::move(targetComponent);
+			mEntities[into] = targetEntity;
+			mLookup[targetEntity] = into;
+		}
+
+		inline void MoveLastInto(U32 index)
+		{
+			// 将末尾的对象插入到指定位置
+			MoveInto(GetCount() - 1, index);
 		}
 
 		inline void Merge(ComponentManager<ComponentT>& other)

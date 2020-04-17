@@ -145,5 +145,50 @@ namespace Cjing3D {
 
 	void UpdateSceneArmatureSystem(Scene& scene)
 	{
+		ECS::ComponentManager<ArmatureComponent>& armatures = scene.mArmatures;
+		ECS::ComponentManager<TransformComponent>& transforms = scene.mTransforms;
+
+		for (size_t index = 0; index < armatures.GetCount(); index++)
+		{
+			ArmatureComponent& armature = *armatures.GetComponentByIndex(index);
+
+			if (armature.mBonePoses.size() != armature.mSkinningBones.size()) {
+				armature.mBonePoses.resize(armature.mSkinningBones.size());
+			}
+
+			// bone的transform在world-space下，需要先乘以armature root transform逆矩阵，得到bone的bone-space
+			XMMATRIX inverseArmatureM = XMMatrixIdentity();
+
+			auto rootTransform = transforms.GetComponent(armature.mRootBone);
+			if (rootTransform != nullptr) {
+				inverseArmatureM = XMMatrixInverse(nullptr, XMLoadFloat4x4(&rootTransform->GetWorldTransform()));
+			}
+
+			XMFLOAT3 bonePosMin = XMFLOAT3(FLT_MAX, FLT_MAX, FLT_MAX);
+			XMFLOAT3 bonePosMax = XMFLOAT3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+
+			U32 boneIndex = 0;
+			for (ECS::Entity entity : armature.mSkinningBones)
+			{
+				TransformComponent& boneTransform = *transforms.GetComponent(entity);
+				
+				XMMATRIX inverseBindM = XMLoadFloat4x4(&armature.mInverseBindMatrices[boneIndex]);
+				XMMATRIX boneWorldM = XMLoadFloat4x4(&boneTransform.GetWorldTransform());
+				XMMATRIX finalM = inverseBindM * boneWorldM * inverseArmatureM;
+
+				armature.mBonePoses[boneIndex++].Store(finalM);
+
+				XMFLOAT3 bonePos = boneTransform.GetWorldPosition();
+				bonePosMin = XMFloat3Min(bonePosMin, bonePos);
+				bonePosMax = XMFloat3Max(bonePosMax, bonePos);
+			}
+
+			armature.mAABB = AABB(bonePosMin, bonePosMax);
+
+			// 如果buffer未创建，则创建buffer
+			if (!armature.IsBoneBufferSetup()) {
+				armature.SetupBoneBuffer();
+			}
+		}
 	}
 }

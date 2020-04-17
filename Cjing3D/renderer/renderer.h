@@ -118,6 +118,7 @@ private:
 	GraphicsDevice* CreateGraphicsDeviceByType(RenderingDeviceType deviceType, HWND window);
 	void ProcessRenderQueue(RenderQueue& queue, RenderPassType renderPassType, RenderableType renderableType);
 	void RenderDirLightShadowmap(LightComponent& light, CameraComponent& camera);
+	void ProcessSkinning();
 
 	// 当前帧的裁剪后的数据
 	struct FrameCullings
