@@ -171,8 +171,5 @@ namespace Cjing3D
 		for (auto it : mRegisteredWindows) {
 			it();
 		}
-
-		//bool openDemoWindow = true;
-		//ImGui::ShowDemoWindow(&openDemoWindow);
 	}
 }

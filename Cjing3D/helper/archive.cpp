@@ -26,6 +26,11 @@ namespace Cjing3D
 			mDataSize = dataSize;
 
 			this->operator>>(mCurrentArchiveVersion);
+
+			// check archive version
+			if (mCurrentArchiveVersion != currentArchiveVersion) {
+				Close();
+			}
 		}
 		else
 		{

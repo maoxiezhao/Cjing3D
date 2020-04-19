@@ -187,6 +187,9 @@ namespace ModelImporter
 			}
 
 			mesh->SetupRenderData(device);
+
+			// attach to root entity
+			newScene.AttachEntity(objectEntity, rootEntity, true);
 		}
 
 		Scene::GetScene().Merge(newScene);

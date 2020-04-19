@@ -57,8 +57,8 @@ namespace Cjing3D
 		//);
 
 		// test animations and gltf
-		Scene& scene = Scene::GetScene();
-		ModelImporter::ImportModelGLTF("Models/zombie/scene.gltf");
+		//Scene& scene = Scene::GetScene();
+		//ModelImporter::ImportModelGLTF("Models/tap/scene.gltf");
 	}
 
 	void TestGame::Update(EngineTime time)

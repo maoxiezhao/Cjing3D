@@ -14,7 +14,34 @@
 namespace Cjing3D {
 namespace Editor {
 
-	void ShowTransformWindow(TransformComponent& transform)
+	static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+	bool ShowEntityList(Scene& scene, Entity entity, U32 currentIndex, I32 selectionIndex, I32& nodeClicked)
+	{
+		std::string nodeName = "Entity ";
+		auto nameComponent = scene.mNames.GetComponent(entity);
+		if (nameComponent != nullptr) {
+			nodeName = nodeName + " " + nameComponent->GetString();
+		}
+		else {
+			nodeName = nodeName + std::to_string(entity);
+		}
+
+		// 通过mask检测是否点击到
+		ImGuiTreeNodeFlags node_flags = base_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+		const bool is_selected = (selectionIndex == currentIndex);
+		if (is_selected) {
+			node_flags |= ImGuiTreeNodeFlags_Selected;
+		}
+
+		ImGui::TreeNodeEx((void*)(intptr_t)currentIndex, node_flags, nodeName.c_str());
+		if (ImGui::IsItemClicked()) {
+			nodeClicked = currentIndex;
+		}
+
+		return is_selected;
+	};
+
+	void ShowTransformAttribute(TransformComponent& transform)
 	{
 		ImGui::Text("Transform");
 
@@ -65,13 +92,13 @@ namespace Editor {
 		}
 
 		ImGui::SetNextWindowPos(ImVec2(1070, 20), ImGuiCond_Always);
-		ImGui::SetNextWindowSize(ImVec2(350, 360), ImGuiCond_Always);
+		ImGui::SetNextWindowSize(ImVec2(350, 360), ImGuiCond_Once);
 		ImGui::Begin("Object attributes");
 
 		// transform
 		auto transform = scene.mTransforms.GetComponent(currentObject);
 		if (transform != nullptr) {
-			ShowTransformWindow(*transform);
+			ShowTransformAttribute(*transform);
 		}
 
 		// mesh 
@@ -133,15 +160,15 @@ namespace Editor {
 	{
 		if (currentLight == INVALID_ENTITY) return;
 
-		ImGui::SetNextWindowPos(ImVec2(1070, 20), ImGuiCond_Always);
-		ImGui::SetNextWindowSize(ImVec2(350, 360), ImGuiCond_Always);
+		ImGui::SetNextWindowPos(ImVec2(1070, 20), ImGuiCond_Once);
+		ImGui::SetNextWindowSize(ImVec2(350, 360), ImGuiCond_Once);
 		ImGui::Begin("Light attributes");
 
 		Scene& scene = Scene::GetScene();
 		// transform
 		auto transform = scene.mTransforms.GetComponent(currentLight);
 		if (transform != nullptr) {
-			ShowTransformWindow(*transform);
+			ShowTransformAttribute(*transform);
 		}
 
 		// light 
@@ -185,8 +212,8 @@ namespace Editor {
 	{
 		if (currentMaterial == INVALID_ENTITY) return;
 
-		ImGui::SetNextWindowPos(ImVec2(1070, 20), ImGuiCond_Always);
-		ImGui::SetNextWindowSize(ImVec2(350, 360), ImGuiCond_Always);
+		ImGui::SetNextWindowPos(ImVec2(1070, 20), ImGuiCond_Once);
+		ImGui::SetNextWindowSize(ImVec2(350, 360), ImGuiCond_Once);
 		ImGui::Begin("Material attributes");
 
 		Scene& scene = Scene::GetScene();
@@ -221,14 +248,14 @@ namespace Editor {
 	{
 		if (currentTerrain == INVALID_ENTITY) return;
 
-		ImGui::SetNextWindowPos(ImVec2(1070, 20), ImGuiCond_Always);
-		ImGui::SetNextWindowSize(ImVec2(350, 360), ImGuiCond_Always);
+		ImGui::SetNextWindowPos(ImVec2(1070, 20), ImGuiCond_Once);
+		ImGui::SetNextWindowSize(ImVec2(350, 360), ImGuiCond_Once);
 		ImGui::Begin("Terrain attributes");
 
 		Scene& scene = Scene::GetScene();
 		auto transform = scene.mTransforms.GetComponent(currentTerrain);
 		if (transform != nullptr) {
-			ShowTransformWindow(*transform);
+			ShowTransformAttribute(*transform);
 		}
 
 		auto terrain = scene.mTerrains.GetComponent(currentTerrain);
@@ -368,39 +395,121 @@ namespace Editor {
 		ImGui::End();
 	}
 
+	static int currentTransformEntity = ECS::INVALID_ENTITY;
+	void ShowHierarchyWindow()
+	{
+		if (currentTransformEntity == INVALID_ENTITY) return;
+
+		// show render window
+		ImGui::SetNextWindowPos(ImVec2(1070, 20), ImGuiCond_Once);
+		ImGui::SetNextWindowSize(ImVec2(350, 160), ImGuiCond_Once);
+		ImGui::Begin("Hierarchy Window", &showRenderWindow);
+
+		// transform
+		auto transform = Scene::GetScene().mTransforms.GetComponent(currentTransformEntity);
+		if (transform != nullptr) {
+			ShowTransformAttribute(*transform);
+		}
+
+		ImGui::End();
+	}
+
+	using TransformChildrenMap = std::map<ECS::Entity, std::vector<ECS::Entity>>;
+	bool processTransformNode(Scene& scene, Entity entity, int currentIndex, std::set<ECS::Entity>& transformSet, TransformChildrenMap& transformChildren) {
+		if (transformSet.find(entity) != transformSet.end()) {
+			return false;
+		}
+		transformSet.insert(entity);
+
+		std::string nodeName = "Entity ";
+		auto nameComponent = scene.mNames.GetComponent(entity);
+		if (nameComponent != nullptr) {
+			nodeName = nodeName + " " + nameComponent->GetString();
+		}
+		else {
+			nodeName = nodeName + std::to_string(entity);
+		}
+
+		// 通过mask检测是否点击到
+		ImGuiTreeNodeFlags node_flags = base_flags;
+		const bool is_selected = (currentTransformEntity == entity);
+		if (is_selected) {
+			node_flags |= ImGuiTreeNodeFlags_Selected;
+		}
+
+		// has children
+		auto childrenIt = transformChildren.find(entity);
+		bool hasChildren = (childrenIt != transformChildren.end());
+		if (!hasChildren) {
+			node_flags |= ImGuiTreeNodeFlags_Leaf;
+		}
+
+		bool isChildClicked = false;
+		if (ImGui::TreeNodeEx((void*)(intptr_t)currentIndex, node_flags, nodeName.c_str()))
+		{
+			if (hasChildren)
+			{
+				U32 childIndex = 0;
+				for (ECS::Entity child : childrenIt->second) {
+					isChildClicked = isChildClicked || processTransformNode(scene, child, childIndex++, transformSet, transformChildren);
+				}
+			}
+			ImGui::TreePop();
+		}
+
+		if (!isChildClicked && ImGui::IsItemClicked()) {
+			currentTransformEntity = entity;
+			isChildClicked = true;
+		}
+
+		return isChildClicked;
+	};
+
+	void ShowHierarchyList()
+	{
+		static std::set<ECS::Entity> transformSet;
+		transformSet.clear();
+
+		Scene& scene = Scene::GetScene();
+		auto transforms = scene.GetComponentManager<TransformComponent>();
+
+		std::vector<ECS::Entity> rootTransforms;
+		TransformChildrenMap transformChildrenMap;
+		// 临时计算每个transform children，性能存在问题，仅用于in-engine editor
+		for (int index = 0; index < transforms.GetCount(); index++)
+		{
+			Entity entity = transforms.GetEntityByIndex(index);
+			auto hierarchy = scene.mHierarchies.GetComponent(entity);
+			if (hierarchy == nullptr || hierarchy->mParent == ECS::INVALID_ENTITY) {
+				rootTransforms.push_back(entity);
+				continue;
+			}
+
+			auto findIt = transformChildrenMap.find(hierarchy->mParent);
+			if (findIt == transformChildrenMap.end())
+			{
+				std::vector<ECS::Entity> children;
+				children.push_back(entity);
+
+				transformChildrenMap[hierarchy->mParent] = children;
+			}
+			else
+			{
+				findIt->second.push_back(entity);
+			}
+		}
+
+		U32 rootIndex = 0;
+		for(ECS::Entity entity : rootTransforms)
+		{
+			processTransformNode(scene, entity, rootIndex++, transformSet, transformChildrenMap);
+		}
+	}
+
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
 	void showEntityListWindow()
 	{
-		static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
-
-		auto ShowEntityList = [&](
-			Scene& scene, Entity entity, U32 currentIndex, I32 selectionIndex, I32& nodeClicked) -> bool {
-
-				std::string nodeName = "Entity ";
-				auto nameComponent = scene.mNames.GetComponent(entity);
-				if (nameComponent != nullptr) {
-					nodeName = nodeName + " " + nameComponent->GetString();
-				}
-				else {
-					nodeName = nodeName + std::to_string(entity);
-				}
-
-				// 通过mask检测是否点击到
-				ImGuiTreeNodeFlags node_flags = base_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-				const bool is_selected = (selectionIndex == currentIndex);
-				if (is_selected) {
-					node_flags |= ImGuiTreeNodeFlags_Selected;
-				}
-
-				ImGui::TreeNodeEx((void*)(intptr_t)currentIndex, node_flags, nodeName.c_str());
-				if (ImGui::IsItemClicked()) {
-					nodeClicked = currentIndex;
-				}
-
-				return is_selected;
-		};
-
 		ImGui::SetNextWindowPos(ImVec2(10, 350), ImGuiCond_Always);
 		ImGui::SetNextWindowSize(ImVec2(350, 300), ImGuiCond_Always);
 		ImGui::Begin("Entity Window");
@@ -432,6 +541,14 @@ namespace Editor {
 
 				ImGui::EndTabItem();
 			}
+
+			// show hierarchy list
+			if (ImGui::BeginTabItem("Hierarchy"))
+			{
+				ShowHierarchyList();
+				ImGui::EndTabItem();
+			}
+
 			// show light window
 			if (ImGui::BeginTabItem("Lights"))
 			{
@@ -511,6 +628,7 @@ namespace Editor {
 		imguiStage.RegisterCustomWindow(ShowTerrainAttribute);
 		imguiStage.RegisterCustomWindow(ShowRenderProperties);
 		imguiStage.RegisterCustomWindow(ShowAnimationAttribute);
+		imguiStage.RegisterCustomWindow(ShowHierarchyWindow);
 	}
 
 	void ShowBasicWindow(F32 deltaTime)

@@ -358,7 +358,7 @@ namespace Cjing3D
 			archive >> newScene;
 
 			root = CreateEntity();
-			newScene.mTransforms.Create(root);
+			mTransforms.Create(root);
 
 			// 每一个没有父级结构transform指向root
 			for (auto& entity : newScene.mTransforms.GetEntities())

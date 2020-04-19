@@ -555,7 +555,7 @@ namespace ModelImporter {
 					}
 					break;
 					default:
-						Debug::CheckAssertion(false, "Failed to load keyframe data from gltf.");
+						Debug::Warning("Failed to load keyframe data from gltf.");
 						break;
 					}
 				}

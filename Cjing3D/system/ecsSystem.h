@@ -139,9 +139,9 @@ namespace ECS
 			auto targetComponent = std::move(mComponents[from]);
 			auto targetEntity = mEntities[from];
 
-			U32 dir = from < into ? 1 : 0;
+			int dir = from < into ? 1 : -1;
 			for (int i = from; i != into; i+= dir) {
-				U32 nextIndex = i += dir;
+				int nextIndex = i + dir;
 				mComponents[i] = std::move(mComponents[nextIndex]);
 				mEntities[i] = mEntities[nextIndex];
 				mLookup[mEntities[i]] = i;
