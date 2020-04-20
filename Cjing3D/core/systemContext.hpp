@@ -17,7 +17,7 @@ private:
 	using GameSystemPtr = std::unique_ptr<SubSystem>;
 	std::vector<GameSystemPtr> mSystems;
 	
-	EngineTime mTime;
+	EngineTime mTime = {};
 	Engine* mEngine = nullptr;
 
 	SystemContext() {};

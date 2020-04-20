@@ -90,7 +90,7 @@ namespace Cjing3D
 
 	void RenderPath2D::Compose()
 	{
-		if (mRTFinal.GetShaderResourceView() != CPU_NULL_HANDLE)
+		if (mRTFinal.IsValid())
 		{
 			RenderImage::ImageParams params;
 			params.EnableFullScreen();

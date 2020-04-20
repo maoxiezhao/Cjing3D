@@ -30,12 +30,8 @@ namespace Cjing3D
 		virtual void BindViewports(const ViewPort* viewports, U32 numViewports, GraphicsThread threadID) = 0;
 
 		virtual HRESULT CreateDepthStencilState(const DepthStencilStateDesc& desc, DepthStencilState& state) = 0;
-		virtual void DestroyDepthStencilState(DepthStencilState& state) = 0;
 		virtual HRESULT CreateBlendState(const BlendStateDesc& desc, BlendState& state) = 0;
-		virtual void DestroyBlendState(BlendState& state) = 0;
 		virtual HRESULT CreateRasterizerState(const RasterizerStateDesc& desc, RasterizerState& state) = 0;
-		virtual void DestroyRasterizerState(RasterizerState& state) = 0;
-
 		virtual HRESULT CreateVertexShader(const void* bytecode, size_t length, VertexShader& vertexShader) = 0;
 		virtual HRESULT CreateInputLayout(VertexLayoutDesc* desc, U32 numElements, const void* shaderBytecode, size_t shaderLength, InputLayout& inputLayout) = 0;
 		virtual HRESULT CreatePixelShader(const void* bytecode, size_t length, PixelShader &pixelShader) = 0;
@@ -52,19 +48,17 @@ namespace Cjing3D
 		virtual void ClearVertexBuffer() = 0;
 
 		virtual HRESULT CreateSamplerState(const SamplerDesc* desc, SamplerState& state) = 0;
-		virtual void DestroySamplerState(SamplerState& state) = 0;
 		virtual void BindSamplerState(SHADERSTAGES stage, SamplerState& state, U32 slot) = 0;
 
 		virtual HRESULT CreateTexture2D(const TextureDesc* desc, const SubresourceData* data, RhiTexture2D& texture2D) = 0;
-		virtual void DestroyTexture2D(RhiTexture2D& texture2D) = 0;
 		virtual void CopyTexture2D(RhiTexture2D* texDst, RhiTexture2D* texSrc) = 0;
 
 		virtual void BindRenderTarget(UINT numView, RhiTexture2D* const *texture2D, RhiTexture2D* depthStencilTexture, I32 subresourceIndex = -1) = 0;
 
-		virtual HRESULT CreateRenderTargetView(RhiTexture2D& texture) = 0;
-		virtual HRESULT CreateShaderResourceView(RhiTexture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1, U32 firstMip = 0, U32 mipLevel = -1) = 0;
-		virtual HRESULT CreateDepthStencilView(RhiTexture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1) = 0;
-		virtual HRESULT CreateUnordereddAccessView(RhiTexture2D& texture, U32 firstMip = 0) = 0;
+		virtual void CreateRenderTargetView(RhiTexture2D& texture) = 0;
+		virtual void CreateShaderResourceView(RhiTexture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1, U32 firstMip = 0, U32 mipLevel = -1) = 0;
+		virtual void CreateDepthStencilView(RhiTexture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1) = 0;
+		virtual void CreateUnordereddAccessView(RhiTexture2D& texture, U32 firstMip = 0) = 0;
 
 		virtual void ClearRenderTarget(RhiTexture2D& texture, F32x4 color) = 0;
 		virtual void ClearDepthStencil(RhiTexture2D& texture, UINT clearFlag, F32 depth, U8 stencil, I32 subresourceIndex = -1) = 0;
@@ -72,7 +66,6 @@ namespace Cjing3D
 		virtual void BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot, I32 subresourceIndex = -1) = 0;
 		virtual void BindGPUResources(SHADERSTAGES stage, GPUResource* const* resource, U32 slot, U32 count) = 0;
 		virtual void UnbindGPUResources(U32 slot, U32 count) = 0;
-		virtual void DestroyGPUResource(GPUResource& resource) = 0;
 		virtual void SetResourceName(GPUResource& resource, const std::string& name) = 0;
 
 		// compute
@@ -127,6 +120,22 @@ namespace Cjing3D
 
 		bool GetIsVsync()const { return mIsVsync; }
 		void SetIsVsync(bool isVsync) { mIsVsync = isVsync; }
+
+		template<typename T>
+		std::shared_ptr<T> RegisterGraphicsDeviceChild(GraphicsDeviceChild& deviceChild)
+		{
+			// 重新创建了一个rhiState，原来的rhiState则会因为引用清零自动释放
+			auto rhiState = std::make_shared<T>();
+			deviceChild.mRhiState = rhiState;
+
+			return rhiState;
+		}
+
+		template<typename T>
+		T* GetGraphicsDeviceChildState(GraphicsDeviceChild& deviceChild)
+		{
+			return static_cast<T*>(deviceChild.mRhiState.get());
+		}
 
 	protected:
 		GraphicsDeviceType mGraphicsDeviceType = GraphicsDeviceType_unknown;

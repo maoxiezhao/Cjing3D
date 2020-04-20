@@ -170,9 +170,6 @@
     <ClCompile Include="helper\random.cpp">
       <Filter>helper</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\RHI\rhiResource.cpp">
-      <Filter>renderer\rhi</Filter>
-    </ClCompile>
     <ClCompile Include="scripts\luaContext.cpp">
       <Filter>scripts</Filter>
     </ClCompile>

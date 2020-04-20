@@ -233,7 +233,7 @@ void StateManager::SetupRasterizerStates()
 		desc.mFrontCounterClockwise = true;
 		desc.mDepthBias = 0;
 		desc.mDepthBiasClamp = 0;
-		desc.mSlopeScaleDepthBias = -0.2f;
+		desc.mSlopeScaleDepthBias = -2.0f;
 		desc.mDepthClipEnable = true;
 		desc.mMultisampleEnable = false;
 		desc.mAntialiaseLineEnable = false;

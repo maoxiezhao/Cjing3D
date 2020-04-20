@@ -91,16 +91,7 @@ namespace Cjing3D
 
 	void TextureHelper::SwapTexture(Texture2D& texture1, Texture2D& texture2)
 	{
-		std::swap(texture1.mResource, texture2.mResource);
-		std::swap(texture1.mDesc, texture2.mDesc);
-
-		std::swap(texture1.mRTV,  texture2.mRTV);
-		std::swap(texture1.mDSV,  texture2.mDSV);
-
-		std::swap(texture1.mUAV,  texture2.mUAV);
-		std::swap(texture1.mSubresourceUAVS, texture2.mSubresourceUAVS);
-		std::swap(texture1.mSRV, texture2.mSRV);
-		std::swap(texture1.mSubresourceSRVs, texture2.mSubresourceSRVs);
+		std::swap(texture1.mRhiState, texture2.mRhiState);
 	}
 
 }

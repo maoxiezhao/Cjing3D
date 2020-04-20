@@ -234,9 +234,4 @@ namespace Cjing3D
 			mSysMemSlicePitch(0)
 		{}
 	};
-
-	struct PipelineStateDesc
-	{
-
-	};
 }

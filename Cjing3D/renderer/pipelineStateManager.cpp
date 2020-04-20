@@ -41,7 +41,6 @@ void PipelineStateManager::SetupPipelineStates()
 		params.renderPassType = RenderPassType_Forward;
 
 		PipelineState infoState;
-		infoState.Register(&mRenderer.GetDevice());
 		infoState.mVertexShader = shaderLib.GetVertexShader(VertexShaderType_Transform);
 		infoState.mPixelShader = shaderLib.GetPixelShader(PixelShaderType_Forward);
 		infoState.mInputLayout = shaderLib.GetVertexLayout(InputLayoutType_Transform);
@@ -58,7 +57,6 @@ void PipelineStateManager::SetupPipelineStates()
 		params.renderPassType = RenderPassType_Shadow;
 
 		PipelineState infoState;
-		infoState.Register(&mRenderer.GetDevice());
 		infoState.mVertexShader = shaderLib.GetVertexShader(VertexShaderType_Shadow);
 		infoState.mPixelShader = nullptr;  // only write depth
 		infoState.mInputLayout = shaderLib.GetVertexLayout(InputLayoutType_Shadow);
@@ -84,7 +82,6 @@ void PipelineStateManager::SetupImagePipelineStates()
 		params.mBlendType = blendType;
 
 		PipelineState infoState;
-		infoState.Register(&mRenderer.GetDevice());
 		infoState.mPrimitiveTopology = TRIANGLESTRIP;
 
 		if (params.IsFullScreenEnabled())

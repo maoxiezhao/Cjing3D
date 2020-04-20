@@ -1,17 +1,14 @@
 #pragma once
 
 #include "renderer\RHI\rhiResource.h"
-#include "resource\resource.h"
 
 namespace Cjing3D
 {
 	// 着色器结构
-	template<typename D3D11ShaderType>
-	class Shader : public Resource
+	class Shader : public GraphicsDeviceChild
 	{
 	public:
-		Shader() : Resource(Resource::DeduceResourceType<Shader<D3D11ShaderType>>()) {};
-		~Shader() {};
+		Shader(SHADERSTAGES stage) : mStage(stage) {};
 
 		struct ShaderByteCode
 		{
@@ -23,14 +20,14 @@ namespace Cjing3D
 		};
 
 		ShaderByteCode mByteCode;
-		ComPtr<D3D11ShaderType> mResourceD3D11;
+		const SHADERSTAGES mStage = SHADERSTAGES_COUNT;
 	};
 
-	using VertexShader = Shader<ID3D11VertexShader>;
-	using PixelShader = Shader<ID3D11PixelShader>;
-	using ComputeShader = Shader<ID3D11ComputeShader>;
-	using HullShader = Shader<ID3D11HullShader>;
-	using DomainShader = Shader<ID3D11DomainShader>;
+	class VertexShader : public Shader { public: VertexShader() : Shader(SHADERSTAGES_VS) {} };
+	class PixelShader : public Shader { public: PixelShader() : Shader(SHADERSTAGES_PS) {} };
+	class ComputeShader : public Shader { public:ComputeShader() : Shader(SHADERSTAGES_CS) {}};
+	class HullShader : public Shader { public: HullShader() : Shader(SHADERSTAGES_HS) {} };
+	class DomainShader : public Shader { public: DomainShader() : Shader(SHADERSTAGES_DS) {} };
 
 	using VertexShaderPtr = std::shared_ptr<VertexShader>;
 	using PixelShaderPtr = std::shared_ptr<PixelShader>;
@@ -39,11 +36,9 @@ namespace Cjing3D
 	using DomainShaderPtr = std::shared_ptr<DomainShader>;
 
 	// 顶点着色器信息
-	class VertexShaderInfo : public Resource
+	class VertexShaderInfo
 	{
 	public:
-		VertexShaderInfo() : Resource(Resrouce_VertexShader) {}
-
 		std::shared_ptr<InputLayout> mInputLayout;
 		std::shared_ptr<VertexShader> mVertexShader;
 	};
@@ -79,8 +74,8 @@ namespace Cjing3D
 
 		void Clear() 
 		{
-			mVertexShader = nullptr;
 			mInputLayout = nullptr;
+			mVertexShader = nullptr;
 			mPixelShader = nullptr;
 			mHullShader = nullptr;
 			mDomainShader = nullptr;
@@ -93,13 +88,11 @@ namespace Cjing3D
 
 		bool IsEmpty()
 		{
-			return false;
-			//return mVertexShader == nullptr ||
-			//	mPixelShader == nullptr ||
-			//	mInputLayout == nullptr ||
-			//	mBlendState == nullptr  ||
-			//	mDepthStencilState == nullptr ||
-			//	mRasterizerState == nullptr;
+			return ( mVertexShader == nullptr &&
+					 mPixelShader  == nullptr &&
+					 mInputLayout  == nullptr &&
+					 mHullShader   == nullptr &&
+					 mDomainShader == nullptr);
 		}
 
 		bool operator== (const PipelineState& other)

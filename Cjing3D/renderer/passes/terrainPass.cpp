@@ -61,7 +61,6 @@ void TerrainPass::Initialize()
 	ShaderLib& shaderLib = mRenderer.GetShaderLib();
 	StateManager& stateManager = mRenderer.GetStateManager();
 
-	terrainPSO.Register(&mRenderer.GetDevice());
 	terrainPSO.mInputLayout = mTerrainIL;
 	terrainPSO.mVertexShader = mTerrainVS;
 	terrainPSO.mPixelShader = mTerrainPS;

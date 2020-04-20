@@ -16,10 +16,8 @@ public:
 
 	virtual void Initialize();
 	virtual void Uninitialize();
-
 	virtual void PresentBegin();
 	virtual void PresentEnd();
-
 	virtual void BeginEvent(const std::string& name);
 	virtual void EndEvent();
 
@@ -27,12 +25,8 @@ public:
 
 	/** Creating function */
 	virtual HRESULT CreateDepthStencilState(const DepthStencilStateDesc& desc, DepthStencilState& state);
-	virtual void DestroyDepthStencilState(DepthStencilState& state);
 	virtual HRESULT CreateBlendState(const BlendStateDesc& desc, BlendState& state);
-	virtual void DestroyBlendState(BlendState& state);
 	virtual HRESULT CreateRasterizerState(const RasterizerStateDesc& desc, RasterizerState& state);
-	virtual void DestroyRasterizerState(RasterizerState& state);
-
 	virtual HRESULT CreateVertexShader(const void* bytecode, size_t length, VertexShader& vertexShader);
 	virtual HRESULT CreateInputLayout(VertexLayoutDesc* desc, U32 numElements, const void* shaderBytecode, size_t shaderLength, InputLayout& inputLayout);
 	virtual HRESULT CreatePixelShader(const void* bytecode, size_t length, PixelShader &pixelShader);
@@ -49,27 +43,23 @@ public:
 	virtual void ClearVertexBuffer();
 
 	virtual HRESULT CreateSamplerState(const SamplerDesc* desc, SamplerState& state);
-	virtual void DestroySamplerState(SamplerState& state);
 	virtual void BindSamplerState(SHADERSTAGES stage, SamplerState& state, U32 slot);
 
 	virtual HRESULT CreateTexture2D(const TextureDesc* desc, const SubresourceData* data, RhiTexture2D& texture2D);
-	virtual void DestroyTexture2D(RhiTexture2D& texture2D);
 	virtual void CopyTexture2D(RhiTexture2D* texDst, RhiTexture2D* texSrc);
 
-	virtual void BindRenderTarget(UINT numView, RhiTexture2D* const *texture2D, RhiTexture2D* depthStencilTexture, I32 subresourceIndex = -1);
+	virtual void CreateRenderTargetView(RhiTexture2D& texture);
+	virtual void CreateShaderResourceView(RhiTexture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1, U32 firstMip = 0, U32 mipLevel = -1);
+	virtual void CreateDepthStencilView(RhiTexture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1);
+	virtual void CreateUnordereddAccessView(RhiTexture2D& texture, U32 firstMip = 0);
 
-	virtual HRESULT CreateRenderTargetView(RhiTexture2D& texture);
-	virtual HRESULT CreateShaderResourceView(RhiTexture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1, U32 firstMip = 0, U32 mipLevel = -1);
-	virtual HRESULT CreateDepthStencilView(RhiTexture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1);
-	virtual HRESULT CreateUnordereddAccessView(RhiTexture2D& texture, U32 firstMip = 0);
-
+	virtual void BindRenderTarget(UINT numView, RhiTexture2D* const* texture2D, RhiTexture2D* depthStencilTexture, I32 subresourceIndex = -1);
 	virtual void ClearRenderTarget(RhiTexture2D& texture, F32x4 color);
 	virtual void ClearDepthStencil(RhiTexture2D& texture, UINT clearFlag, F32 depth, U8 stencil, I32 subresourceIndex = -1);
 
 	virtual void BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot, I32 subresourceIndex = -1);
 	virtual void BindGPUResources(SHADERSTAGES stage, GPUResource* const* resource, U32 slot, U32 count);
 	virtual void UnbindGPUResources(U32 slot, U32 count);
-	virtual void DestroyGPUResource(GPUResource& resource);
 	virtual void SetResourceName(GPUResource& resource, const std::string& name);
 
 	// compute
@@ -110,12 +100,12 @@ private:
 	// GPU Buffer∑÷≈‰
 	struct GPUAllocator
 	{
-		std::unique_ptr<GPUBuffer> buffer;
+		GPUBuffer buffer;
 		size_t byteOffset = 0;
 		uint64_t residentFrame = 0;
 		bool dirty = false;
 
-		size_t GetDataSize() { return buffer->GetDesc().mByteWidth; }
+		size_t GetDataSize() { return buffer.GetDesc().mByteWidth; }
 	};
 	GPUAllocator mGPUAllocator;
 	GPUBufferDesc mGPUAllocatorDesc;

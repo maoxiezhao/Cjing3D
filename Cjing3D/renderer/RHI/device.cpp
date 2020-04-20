@@ -20,7 +20,7 @@ void GraphicsDevice::Uninitialize()
 
 	for (GPUResource* resource : mGPUResource){
 		if (resource != nullptr) {
-			resource->UnRegister();
+			resource->Clear();
 		}
 	}
 

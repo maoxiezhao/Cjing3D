@@ -5,23 +5,12 @@
 
 namespace Cjing3D
 {
-	class GraphicsDevice;
-
-	using CPUHandle = uint64_t;
-	static const CPUHandle CPU_NULL_HANDLE = 0;
-
 	class GraphicsDeviceChild
 	{
 	public:
-		GraphicsDeviceChild() = default;
-		~GraphicsDeviceChild();
-
-		inline bool IsValid()const { return mDevice != nullptr; }
-
-		virtual void Register(GraphicsDevice* device) { mDevice = device; }
-		virtual void UnRegister() { mDevice = nullptr; }
-
-		GraphicsDevice * mDevice = nullptr;
+		std::shared_ptr<void> mRhiState = nullptr;
+		inline bool IsValid()const { return mRhiState.get() != nullptr; }
+		inline void Clear() { mRhiState = nullptr; }
 	};
 
 	//***********************************************************************
@@ -39,37 +28,16 @@ namespace Cjing3D
 	class GPUResource : public GraphicsDeviceChild
 	{
 	public:
-		GPUResource() = default;
-		virtual ~GPUResource();
-
-		virtual void Register(GraphicsDevice* device);
-		virtual void UnRegister();
-
-		CPUHandle& GetGPUResource() { return mResource; }
-		CPUHandle& GetShaderResourceView() { return mSRV; }
-		CPUHandle& GetUnorderedAccessView() { return mUAV; }
-		CPUHandle& GetSubShaderResourceView(U32 index) { assert(index < mSubresourceSRVs.size()); return mSubresourceSRVs[index]; }
-		CPUHandle& GetSubUnorderedAccessView(U32 index) { assert(index < mSubresourceUAVS.size()); return mSubresourceUAVS[index]; }
-
 		inline bool IsBuffer()const { return mCurrType == GPU_RESOURCE_TYPE::BUFFER; }
 		inline bool IsTexture()const { return mCurrType == GPU_RESOURCE_TYPE::TEXTURE_1D || mCurrType == GPU_RESOURCE_TYPE::TEXTURE_2D; }
 
 		GPU_RESOURCE_TYPE mCurrType = GPU_RESOURCE_TYPE::UNKNOWN_TYPE;
-		CPUHandle mResource = CPU_NULL_HANDLE;
-
-		CPUHandle mSRV = CPU_NULL_HANDLE;
-		CPUHandle mUAV = CPU_NULL_HANDLE;
-
-		std::vector<CPUHandle> mSubresourceSRVs;	// 用于存储各个mipmap的SRV
-		std::vector<CPUHandle> mSubresourceUAVS;    // 用于存储各个mipmap的UAV
 	};
 
 	class GPUBuffer : public GPUResource
 	{
 	public:
 		GPUBufferDesc mDesc;
-
-		ID3D11Buffer& GetBuffer() { return **((ID3D11Buffer**)&GetGPUResource());}
 		GPUBufferDesc GetDesc() { return mDesc; }
 		void SetDesc(GPUBufferDesc desc) {	mDesc = desc;}
 	};
@@ -78,41 +46,15 @@ namespace Cjing3D
 	{
 	public:
 		TextureDesc mDesc;
-		CPUHandle mRTV = CPU_NULL_HANDLE;
-
 		const TextureDesc& GetDesc()const { return mDesc; }
 		void SetDesc(TextureDesc& desc) { mDesc = desc; }
-
-		ID3D11RenderTargetView* GetRenderTargetView() {return *((ID3D11RenderTargetView**)&mRTV);}
-		ID3D11RenderTargetView** GetRenderTargetViewPtr() { return ((ID3D11RenderTargetView**)&mRTV); }
 	};
 
-	class RhiTexture2D : public RhiTexture
-	{
-	public:
-		CPUHandle mDSV = CPU_NULL_HANDLE;
-		std::vector<CPUHandle> mSubresourceDSVs;	// 用于存储textureArray的DSV
-
-		~RhiTexture2D();
-
-		virtual void UnRegister();
-
-		ID3D11DepthStencilView* GetDepthStencilView() { return *((ID3D11DepthStencilView**)&mDSV); }
-		ID3D11DepthStencilView** GetDepthStencilViewPtr() { return ((ID3D11DepthStencilView**)&mDSV); }
-		ID3D11DepthStencilView* GetSubresourceDepthStencilView(U32 index) const
-		{
-			assert(index < mSubresourceDSVs.size()); return *((ID3D11DepthStencilView**)&mSubresourceDSVs[index]);
-		}
-		ID3D11DepthStencilView** GetSubresourceDepthStencilViewPtr(U32 index) const
-		{
-			assert(index < mSubresourceDSVs.size()); return ((ID3D11DepthStencilView**)&mSubresourceDSVs[index]);
-		}
-	};
-	using RhiTexture2DPtr = std::shared_ptr<RhiTexture2D>;
+	class RhiTexture2D : public RhiTexture {};
 
 	using Texture1D = RhiTexture;
 	using Texture2D = RhiTexture2D;
-	using Texture2DPtr = RhiTexture2DPtr;
+	using Texture2DPtr = std::shared_ptr<Texture2D>;
 
 	//***********************************************************************
 	// GPU States
@@ -121,76 +63,40 @@ namespace Cjing3D
 	class RasterizerState : public GraphicsDeviceChild
 	{
 	public:
-		RasterizerState() {};
-		~RasterizerState();
-
+		RasterizerStateDesc mDesc;
 		void SetDesc(RasterizerStateDesc desc) { mDesc = desc; }
 		RasterizerStateDesc GetDesc()const { return mDesc; }
-		ID3D11RasterizerState* GetRasterizerState() { return *(ID3D11RasterizerState**)&mHandle; }
-		ID3D11RasterizerState** GetRasterizerStatePtr() { return (ID3D11RasterizerState**)&mHandle; }
-
-		RasterizerStateDesc mDesc;
-		CPUHandle mHandle = CPU_NULL_HANDLE;
 	};
 
 	class DepthStencilState : public GraphicsDeviceChild
 	{
 	public:
-		DepthStencilState() {};
-		~DepthStencilState();
-
+		DepthStencilStateDesc mDesc;
 		void SetDesc(DepthStencilStateDesc desc) { mDesc = desc; }
 		DepthStencilStateDesc GetDesc()const { return mDesc; }
-		ID3D11DepthStencilState* GetDepthStencilState() { return *(ID3D11DepthStencilState**)&mHandle; }
-		ID3D11DepthStencilState** GetDepthStencilStatePtr() { return (ID3D11DepthStencilState**)&mHandle; }
-
-		DepthStencilStateDesc mDesc;
-		CPUHandle mHandle = CPU_NULL_HANDLE;
 	};
 
 	class BlendState : public GraphicsDeviceChild
 	{
 	public:
-		BlendState() {};
-		~BlendState();
-
+		BlendStateDesc mDesc;
 		void SetDesc(BlendStateDesc desc) { mDesc = desc; }
 		BlendStateDesc GetDesc()const { return mDesc; }
-		ID3D11BlendState* GetBlendState() { return *(ID3D11BlendState**)&mHandle; }
-		ID3D11BlendState** GetBlendStatePtr() { return (ID3D11BlendState**)&mHandle; }
-
-		BlendStateDesc mDesc;
-		CPUHandle mHandle = CPU_NULL_HANDLE;
 	};
 
 	class SamplerState : public GraphicsDeviceChild
 	{
 	public:
-		SamplerState() {};
-		~SamplerState();
-
+		SamplerDesc mDesc;
 		void SetDesc(const SamplerDesc& desc) { mDesc = desc; }
 		SamplerDesc GetDesc()const { return mDesc; }
-		ID3D11SamplerState* GetSamplerState() { return *(ID3D11SamplerState**)&mHandle; }
-		ID3D11SamplerState** GetSamplerStatePtr() { return (ID3D11SamplerState**)&mHandle; }
-
-		SamplerDesc mDesc;
-		CPUHandle mHandle = CPU_NULL_HANDLE;
 	};
 
-	class InputLayout
+	class InputLayout : public GraphicsDeviceChild
 	{
 	public:
-		InputLayout() {};
-		~InputLayout();
-
-		const std::vector<VertexLayoutDesc>& GetDesc()const { return mDescs; }
-		ID3D11InputLayout& GetState() { return *mResourceD3D11.Get(); }
-		ComPtr<ID3D11InputLayout>& GetStatePtr() { return mResourceD3D11; }
-	private:
-		ComPtr<ID3D11InputLayout> mResourceD3D11;
 		std::vector<VertexLayoutDesc> mDescs;
+		const std::vector<VertexLayoutDesc>& GetDesc()const { return mDescs; }
 	};
-
 	using InputLayoutPtr = std::shared_ptr<InputLayout>;
 }

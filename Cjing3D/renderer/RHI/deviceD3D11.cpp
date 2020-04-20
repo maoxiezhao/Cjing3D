@@ -501,7 +501,7 @@ namespace {
 
 	inline U32 _ParseColorWriteMask(U32 value)
 	{
-		U32 flag;
+		U32 flag = 0;
 		if (value == ColorWriteEnable::COLOR_WRITE_ENABLE_ALL) {
 			return D3D11_COLOR_WRITE_ENABLE_ALL;
 		}
@@ -894,15 +894,12 @@ void GraphicsDeviceD3D11::Initialize()
 	mViewport.mMaxDepth = 1.0f;
 
 	// 初始化gpu allocator
-	mGPUAllocator.buffer = std::make_unique<GPUBuffer>();
-	mGPUAllocator.buffer->Register(this);
-
 	mGPUAllocatorDesc.mByteWidth = 4 * 1024 * 1024;
 	mGPUAllocatorDesc.mBindFlags = BIND_SHADER_RESOURCE | BIND_INDEX_BUFFER | BIND_VERTEX_BUFFER;
 	mGPUAllocatorDesc.mUsage = USAGE_DYNAMIC;
 	mGPUAllocatorDesc.mCPUAccessFlags = CPU_ACCESS_WRITE;
 	mGPUAllocatorDesc.mMiscFlags = RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
-	CreateBuffer(&mGPUAllocatorDesc, *mGPUAllocator.buffer, nullptr);
+	CreateBuffer(&mGPUAllocatorDesc, mGPUAllocator.buffer, nullptr);
 }
 
 void GraphicsDeviceD3D11::Uninitialize()
@@ -995,7 +992,6 @@ void GraphicsDeviceD3D11::BindViewports(const ViewPort * viewports, U32 numViewp
 
 HRESULT GraphicsDeviceD3D11::CreateDepthStencilState(const DepthStencilStateDesc & desc, DepthStencilState & state)
 {
-	state.Register(this);
 	state.SetDesc(desc);
 
 	D3D11_DEPTH_STENCIL_DESC depthDesc = {};
@@ -1016,24 +1012,12 @@ HRESULT GraphicsDeviceD3D11::CreateDepthStencilState(const DepthStencilStateDesc
 	depthDesc.BackFace.StencilFailOp		 = _ConvertStencilOp(desc.mBackFace.mStencilFailOp);
 	depthDesc.BackFace.StencilDepthFailOp    = _ConvertStencilOp(desc.mBackFace.mStencilDepthFailOp);
 
-	ID3D11DepthStencilState** depthStencilState = state.GetDepthStencilStatePtr();
-	return mDevice->CreateDepthStencilState(&depthDesc, depthStencilState);
-}
-
-void GraphicsDeviceD3D11::DestroyDepthStencilState(DepthStencilState& state)
-{
-	state.UnRegister();
-
-	if (state.mHandle != CPU_NULL_HANDLE)
-	{
-		state.GetDepthStencilState()->Release();
-		state.mHandle = CPU_NULL_HANDLE;
-	}
+	auto rhiState = RegisterGraphicsDeviceChild<DepthStencilStateD3D11>(state);
+	return mDevice->CreateDepthStencilState(&depthDesc, &rhiState->mHandle);
 }
 
 HRESULT GraphicsDeviceD3D11::CreateBlendState(const BlendStateDesc & desc, BlendState & state)
 {
-	state.Register(this);
 	state.SetDesc(desc);
 
 	D3D11_BLEND_DESC blendDesc = {};
@@ -1053,24 +1037,12 @@ HRESULT GraphicsDeviceD3D11::CreateBlendState(const BlendStateDesc & desc, Blend
 		blendDesc.RenderTarget[i].RenderTargetWriteMask = _ParseColorWriteMask(desc.mRenderTarget[i].mRenderTargetWriteMask);
 	}
 
-	ID3D11BlendState** blendState = state.GetBlendStatePtr();
-	return mDevice->CreateBlendState(&blendDesc, blendState);
-}
-
-void GraphicsDeviceD3D11::DestroyBlendState(BlendState& state)
-{
-	state.UnRegister();
-
-	if (state.mHandle != CPU_NULL_HANDLE)
-	{
-		state.GetBlendState()->Release();
-		state.mHandle = CPU_NULL_HANDLE;
-	}
+	auto rhiState = RegisterGraphicsDeviceChild<BlendStateD3D11>(state);
+	return mDevice->CreateBlendState(&blendDesc, &rhiState->mHandle);
 }
 
 HRESULT GraphicsDeviceD3D11::CreateRasterizerState(const RasterizerStateDesc & desc, RasterizerState & state)
 {
-	state.Register(this);
 	state.SetDesc(desc);
 
 	D3D11_RASTERIZER_DESC rasterizerDesc = {};
@@ -1089,19 +1061,8 @@ HRESULT GraphicsDeviceD3D11::CreateRasterizerState(const RasterizerStateDesc & d
 	rasterizerDesc.MultisampleEnable = desc.mMultisampleEnable;
 	rasterizerDesc.AntialiasedLineEnable = desc.mAntialiaseLineEnable;
 
-	ID3D11RasterizerState** rasterizerState = state.GetRasterizerStatePtr();
-	return mDevice->CreateRasterizerState(&rasterizerDesc, rasterizerState);
-}
-
-void GraphicsDeviceD3D11::DestroyRasterizerState(RasterizerState& state)
-{
-	state.UnRegister();
-	
-	if (state.mHandle != CPU_NULL_HANDLE)
-	{
-		state.GetRasterizerState()->Release();
-		state.mHandle = CPU_NULL_HANDLE;
-	}
+	auto rhiState = RegisterGraphicsDeviceChild<RasterizerStateD3D11>(state);
+	return mDevice->CreateRasterizerState(&rasterizerDesc, &rhiState->mHandle);
 }
 
 // 创建顶点着色器
@@ -1111,7 +1072,8 @@ HRESULT GraphicsDeviceD3D11::CreateVertexShader(const void * bytecode, size_t le
 	vertexShader.mByteCode.mByteData = new BYTE[length];
 	memcpy(vertexShader.mByteCode.mByteData, bytecode, length);
 
-	return mDevice->CreateVertexShader(bytecode, length, nullptr, vertexShader.mResourceD3D11.ReleaseAndGetAddressOf());
+	auto rhiState = RegisterGraphicsDeviceChild<VertexShaderD3D11>(vertexShader);
+	return mDevice->CreateVertexShader(bytecode, length, nullptr, &rhiState->mHandle);
 }
 
 // 创建输入布局
@@ -1129,8 +1091,8 @@ HRESULT GraphicsDeviceD3D11::CreateInputLayout(VertexLayoutDesc* desc, U32 numEl
 		inputLayoutdescs[i].InstanceDataStepRate  = desc[i].mInstanceDataStepRate;
 	}
 
-	auto& inputLayputResource = inputLayout.GetStatePtr();
-	return mDevice->CreateInputLayout(inputLayoutdescs, numElements, shaderBytecode, shaderLength, inputLayputResource.ReleaseAndGetAddressOf());
+	auto rhiState = RegisterGraphicsDeviceChild<InputLayoutD3D11>(inputLayout);
+	return mDevice->CreateInputLayout(inputLayoutdescs, numElements, shaderBytecode, shaderLength, &rhiState->mHandle);
 }
 
 HRESULT GraphicsDeviceD3D11::CreatePixelShader(const void * bytecode, size_t length, PixelShader & pixelShader)
@@ -1139,7 +1101,8 @@ HRESULT GraphicsDeviceD3D11::CreatePixelShader(const void * bytecode, size_t len
 	pixelShader.mByteCode.mByteData = new BYTE[length];
 	memcpy(pixelShader.mByteCode.mByteData, bytecode, length);
 
-	return mDevice->CreatePixelShader(bytecode, length, nullptr, pixelShader.mResourceD3D11.ReleaseAndGetAddressOf());
+	auto rhiState = RegisterGraphicsDeviceChild<PixelShaderD3D11>(pixelShader);
+	return mDevice->CreatePixelShader(bytecode, length, nullptr, &rhiState->mHandle);
 }
 
 HRESULT GraphicsDeviceD3D11::CreateComputeShader(const void* bytecode, size_t length, ComputeShader& computeShader)
@@ -1148,7 +1111,8 @@ HRESULT GraphicsDeviceD3D11::CreateComputeShader(const void* bytecode, size_t le
 	computeShader.mByteCode.mByteData = new BYTE[length];
 	memcpy(computeShader.mByteCode.mByteData, bytecode, length);
 
-	return mDevice->CreateComputeShader(bytecode, length, nullptr, computeShader.mResourceD3D11.ReleaseAndGetAddressOf());
+	auto rhiState = RegisterGraphicsDeviceChild<ComputeShaderD3D11>(computeShader);
+	return mDevice->CreateComputeShader(bytecode, length, nullptr, &rhiState->mHandle);
 }
 
 HRESULT GraphicsDeviceD3D11::CreateHullShader(const void* bytecode, size_t length, HullShader& hullShader)
@@ -1157,7 +1121,8 @@ HRESULT GraphicsDeviceD3D11::CreateHullShader(const void* bytecode, size_t lengt
 	hullShader.mByteCode.mByteData = new BYTE[length];
 	memcpy(hullShader.mByteCode.mByteData, bytecode, length);
 
-	return mDevice->CreateHullShader(bytecode, length, nullptr, hullShader.mResourceD3D11.ReleaseAndGetAddressOf());
+	auto rhiState = RegisterGraphicsDeviceChild<HullShaderD3D11>(hullShader);
+	return mDevice->CreateHullShader(bytecode, length, nullptr, &rhiState->mHandle);
 }
 
 HRESULT GraphicsDeviceD3D11::CreateDomainShader(const void* bytecode, size_t length, DomainShader& domainShader)
@@ -1166,15 +1131,14 @@ HRESULT GraphicsDeviceD3D11::CreateDomainShader(const void* bytecode, size_t len
 	domainShader.mByteCode.mByteData = new BYTE[length];
 	memcpy(domainShader.mByteCode.mByteData, bytecode, length);
 
-	return mDevice->CreateDomainShader(bytecode, length, nullptr, domainShader.mResourceD3D11.ReleaseAndGetAddressOf());
+	auto rhiState = RegisterGraphicsDeviceChild<DomainShaderD3D11>(domainShader);
+	return mDevice->CreateDomainShader(bytecode, length, nullptr, &rhiState->mHandle);
 }
 
 HRESULT GraphicsDeviceD3D11::CreateBuffer(const GPUBufferDesc * desc, GPUBuffer & buffer, const SubresourceData* initialData)
 {
-	DestroyGPUResource(buffer);
-
+	buffer.SetDesc(*desc);
 	buffer.mCurrType = GPU_RESOURCE_TYPE::BUFFER;
-	buffer.Register(this);
 
 	D3D11_BUFFER_DESC bufferDesc = {};
 	bufferDesc.ByteWidth = desc->mByteWidth;
@@ -1184,8 +1148,6 @@ HRESULT GraphicsDeviceD3D11::CreateBuffer(const GPUBufferDesc * desc, GPUBuffer 
 	bufferDesc.MiscFlags = _ParseResourceMiscFlags(desc->mMiscFlags);
 	bufferDesc.StructureByteStride = desc->mStructureByteStride;
 
-	buffer.SetDesc(*desc);
-
 	D3D11_SUBRESOURCE_DATA* subresource_data = nullptr;
 	if (initialData != nullptr)
 	{
@@ -1193,8 +1155,8 @@ HRESULT GraphicsDeviceD3D11::CreateBuffer(const GPUBufferDesc * desc, GPUBuffer 
 		(*subresource_data) = _ConvertSubresourceData(*initialData);
 	}
 
-	auto& resource = buffer.GetGPUResource();
-	HRESULT result = mDevice->CreateBuffer(&bufferDesc, subresource_data, (ID3D11Buffer**)&resource);
+	auto rhiState = RegisterGraphicsDeviceChild<GPUResourceD3D11>(buffer);
+	HRESULT result = mDevice->CreateBuffer(&bufferDesc, subresource_data, (ID3D11Buffer**)rhiState->mResource.ReleaseAndGetAddressOf());
 	SAFE_DELETE_ARRAY(subresource_data);
 
 	if (SUCCEEDED(result))
@@ -1228,8 +1190,7 @@ HRESULT GraphicsDeviceD3D11::CreateBuffer(const GPUBufferDesc * desc, GPUBuffer 
 				srvDesc.Buffer.NumElements = desc->mByteWidth / desc->mStructureByteStride;
 			}
 
-			auto& srv = buffer.GetShaderResourceView();
-			result = mDevice->CreateShaderResourceView((ID3D11Resource*)resource, &srvDesc, (ID3D11ShaderResourceView**)&srv);
+			result = mDevice->CreateShaderResourceView(rhiState->mResource.Get(), &srvDesc, &rhiState->mSRV);
 		}
 		if (bufferDesc.BindFlags & D3D11_BIND_UNORDERED_ACCESS)
 		{
@@ -1256,8 +1217,7 @@ HRESULT GraphicsDeviceD3D11::CreateBuffer(const GPUBufferDesc * desc, GPUBuffer 
 				uavDesc.Buffer.NumElements = desc->mByteWidth / desc->mStructureByteStride;
 			}
 
-			auto& uav = buffer.GetUnorderedAccessView();
-			result = mDevice->CreateUnorderedAccessView((ID3D11Resource*)resource, &uavDesc, (ID3D11UnorderedAccessView**)&uav);
+			result = mDevice->CreateUnorderedAccessView(rhiState->mResource.Get(), &uavDesc, &rhiState->mUAV);
 		}
 	}
 
@@ -1275,20 +1235,26 @@ void GraphicsDeviceD3D11::UpdateBuffer(GPUBuffer & buffer, const void * data, U3
 		return;
 	}
 
+	auto rhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(buffer);
+	if (rhiState == nullptr) {
+		Debug::Warning("Faild to update null constant buffer");
+		return;
+	}
+
 	// 仅当usage为USAGE_DYNAMIC时，CPU使用map/unmap写数据
 	if (desc.mUsage == USAGE_DYNAMIC)
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		HRESULT result = GetDeviceContext(GraphicsThread_IMMEDIATE).Map(&buffer.GetBuffer(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		HRESULT result = GetDeviceContext(GraphicsThread_IMMEDIATE).Map(rhiState->mResource.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 		Debug::ThrowIfFailed(result, "Failed to map buffer:%08x", result);
 
 		memcpy(mappedResource.pData, data, dataSize);
 
-		GetDeviceContext(GraphicsThread_IMMEDIATE).Unmap(&buffer.GetBuffer(), 0);
+		GetDeviceContext(GraphicsThread_IMMEDIATE).Unmap(rhiState->mResource.Get(), 0);
 	}
 	else if (desc.mBindFlags & BIND_CONSTANT_BUFFER)
 	{
-		GetDeviceContext(GraphicsThread_IMMEDIATE).UpdateSubresource(&buffer.GetBuffer(), 0, nullptr, data, 0, 0);
+		GetDeviceContext(GraphicsThread_IMMEDIATE).UpdateSubresource(rhiState->mResource.Get(), 0, nullptr, data, 0, 0);
 	}
 	else
 	{
@@ -1300,13 +1266,19 @@ void GraphicsDeviceD3D11::UpdateBuffer(GPUBuffer & buffer, const void * data, U3
 		box.front = 0;
 		box.back = 1;
 
-		GetDeviceContext(GraphicsThread_IMMEDIATE).UpdateSubresource(&buffer.GetBuffer(), 0, &box, data, 0, 0);
+		GetDeviceContext(GraphicsThread_IMMEDIATE).UpdateSubresource(rhiState->mResource.Get(), 0, &box, data, 0, 0);
 	}
 }
 
 void GraphicsDeviceD3D11::BindConstantBuffer(SHADERSTAGES stage, GPUBuffer & buffer, U32 slot)
 {
-	ID3D11Buffer* d3dBuffer = &buffer.GetBuffer();
+	auto rhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(buffer);
+	if (rhiState == nullptr) {
+		Debug::Warning("Faild to bind null constant buffer");
+		return;
+	}
+
+	ID3D11Buffer* d3dBuffer = (ID3D11Buffer*)rhiState->mResource.Get();
 	switch (stage)
 	{
 	case Cjing3D::SHADERSTAGES_VS:
@@ -1334,17 +1306,32 @@ void GraphicsDeviceD3D11::BindConstantBuffer(SHADERSTAGES stage, GPUBuffer & buf
 
 void GraphicsDeviceD3D11::BindIndexBuffer(GPUBuffer & buffer, IndexFormat format, U32 offset)
 {
-	ID3D11Buffer& d3d11Buffer = buffer.GetBuffer();
+	auto rhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(buffer);
+	if (rhiState == nullptr) {
+		Debug::Warning("Faild to bind null index buffer");
+		return;
+	}
+
+	ID3D11Buffer* d3d11Buffer = (ID3D11Buffer*)rhiState->mResource.Get();
 	DXGI_FORMAT d3d11Format = (format == IndexFormat::INDEX_FORMAT_32BIT) ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT;
-	GetDeviceContext(GraphicsThread_IMMEDIATE).IASetIndexBuffer(&d3d11Buffer, d3d11Format, offset);
+	GetDeviceContext(GraphicsThread_IMMEDIATE).IASetIndexBuffer(d3d11Buffer, d3d11Format, offset);
 }
 
 void GraphicsDeviceD3D11::BindVertexBuffer(GPUBuffer* const* buffer, U32 slot, U32 num, const U32 * strides, const U32 * offsets)
 {
-	ID3D11Buffer* buffers[8] = { 0 };
+	ID3D11Buffer* buffers[8] = { nullptr };
 	for (size_t i = 0; i < num; i++)
 	{
-		buffers[i] = (buffer[i] != nullptr) ? &buffer[i]->GetBuffer() : nullptr;
+		if (buffer[i] == nullptr) {
+			continue;
+		}
+
+		auto rhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(*buffer[i]);
+		if (rhiState == nullptr) {
+			continue;
+		}
+
+		buffers[i] = (ID3D11Buffer*)rhiState->mResource.Get();
 	}
 	GetDeviceContext(GraphicsThread_IMMEDIATE).IASetVertexBuffers(slot, num, buffers, strides, offsets);
 }
@@ -1366,7 +1353,6 @@ void GraphicsDeviceD3D11::ClearVertexBuffer()
 // 创建采样器状态
 HRESULT GraphicsDeviceD3D11::CreateSamplerState(const SamplerDesc * desc, SamplerState & state)
 {
-	state.Register(this);
 	state.SetDesc(*desc);
 
 	D3D11_SAMPLER_DESC samplerDesc = {};
@@ -1385,23 +1371,18 @@ HRESULT GraphicsDeviceD3D11::CreateSamplerState(const SamplerDesc * desc, Sample
 	samplerDesc.MinLOD = desc->mMinLOD;
 	samplerDesc.MaxLOD = desc->mMaxLOD;
 
-	ID3D11SamplerState** samplerState = state.GetSamplerStatePtr();
-	return mDevice->CreateSamplerState(&samplerDesc, samplerState);
-}
-
-void GraphicsDeviceD3D11::DestroySamplerState(SamplerState& state)
-{
-	state.UnRegister();
-	if (state.mHandle != CPU_NULL_HANDLE)
-	{
-		state.GetSamplerState()->Release();
-		state.mHandle = CPU_NULL_HANDLE;
-	}
+	auto rhiState = RegisterGraphicsDeviceChild<SamplerStateD3D11>(state);
+	return mDevice->CreateSamplerState(&samplerDesc, &rhiState->mHandle);
 }
 
 void GraphicsDeviceD3D11::BindSamplerState(SHADERSTAGES stage, SamplerState & state, U32 slot)
 {
-	ID3D11SamplerState* samplerState = state.GetSamplerState();
+	auto rhiState = GetGraphicsDeviceChildState<SamplerStateD3D11>(state);
+	if (rhiState == nullptr) {
+		return;
+	}
+
+	ID3D11SamplerState* samplerState = rhiState->mHandle.Get();
 	switch (stage)
 	{
 	case Cjing3D::SHADERSTAGES_VS:
@@ -1430,12 +1411,9 @@ void GraphicsDeviceD3D11::BindSamplerState(SHADERSTAGES stage, SamplerState & st
 // 创建2D纹理
 HRESULT GraphicsDeviceD3D11::CreateTexture2D(const TextureDesc * desc, const SubresourceData * data, RhiTexture2D & texture2D)
 {
-	DestroyTexture2D(texture2D);
-	DestroyGPUResource(texture2D);
-
+	auto rhiState = RegisterGraphicsDeviceChild<TextureD3D11>(texture2D);
 	texture2D.mCurrType = GPU_RESOURCE_TYPE::TEXTURE_2D;
 	texture2D.mDesc = *desc;
-	texture2D.Register(this);
 
 	D3D11_TEXTURE2D_DESC tex2D_desc = _ConvertTexture2DDesc(desc);
 
@@ -1450,10 +1428,9 @@ HRESULT GraphicsDeviceD3D11::CreateTexture2D(const TextureDesc * desc, const Sub
 		}
 	}
 
-	auto& texture2DPtr = texture2D.GetGPUResource();
-	const auto result = mDevice->CreateTexture2D(&tex2D_desc, subresource_datas.data(), (ID3D11Texture2D**)&texture2DPtr);
+	const auto result = mDevice->CreateTexture2D(&tex2D_desc, subresource_datas.data(), (ID3D11Texture2D**)rhiState->mResource.ReleaseAndGetAddressOf());
 	if (FAILED(result)) {
-		return result;
+		return result; 
 	}
 
 	// create graphics resource
@@ -1465,35 +1442,20 @@ HRESULT GraphicsDeviceD3D11::CreateTexture2D(const TextureDesc * desc, const Sub
 	return result;
 }
 
-void GraphicsDeviceD3D11::DestroyTexture2D(RhiTexture2D & texture2D)
-{
-	if (texture2D.mRTV != CPU_NULL_HANDLE)
-	{
-		texture2D.GetRenderTargetView()->Release();
-		texture2D.mRTV = CPU_NULL_HANDLE;
-	}
-
-	if (texture2D.mDSV != CPU_NULL_HANDLE)
-	{
-		texture2D.GetDepthStencilView()->Release();
-		texture2D.mDSV = CPU_NULL_HANDLE;
-	}
-
-	if (texture2D.mSubresourceDSVs.size() > 0)
-	{
-		for (CPUHandle& handle : texture2D.mSubresourceDSVs) {
-			if (handle != CPU_NULL_HANDLE) {
-				((ID3D11DepthStencilView*)handle)->Release();
-			}
-		}
-		texture2D.mSubresourceDSVs.clear();
-	}
-}
-
 void GraphicsDeviceD3D11::CopyTexture2D(RhiTexture2D * texDst, RhiTexture2D * texSrc)
 {
-	ID3D11Resource* dstResource = (ID3D11Resource*)&texDst->GetGPUResource();
-	ID3D11Resource* srcResource = (ID3D11Resource*)&texSrc->GetGPUResource();
+	auto dstRhiState = GetGraphicsDeviceChildState<TextureD3D11>(*texDst);
+	if (dstRhiState == nullptr) {
+		return;
+	}
+
+	auto srcRhiState = GetGraphicsDeviceChildState<TextureD3D11>(*texSrc);
+	if (srcRhiState == nullptr) {
+		return;
+	}
+
+	ID3D11Resource* dstResource = dstRhiState->mResource.Get();
+	ID3D11Resource* srcResource = srcRhiState->mResource.Get();
 	GetDeviceContext(GraphicsThread_IMMEDIATE).CopyResource(dstResource, srcResource);
 }
 
@@ -1503,25 +1465,35 @@ void GraphicsDeviceD3D11::BindRenderTarget(UINT numView, RhiTexture2D* const *te
 	ID3D11RenderTargetView* renderTargetViews[8] = {};
 	UINT curNum = std::min((int)numView, 8);
 	for (int i = 0; i < curNum; i++) {
-		renderTargetViews[i] = texture2D[i]->GetRenderTargetView();
+		if (texture2D[i] == nullptr) {
+			continue;
+		}
+
+		auto rhiState = GetGraphicsDeviceChildState<TextureD3D11>(*texture2D[i]);
+		if (rhiState == nullptr) {
+			continue;
+		}
+
+		renderTargetViews[i] = rhiState->mRTV.Get();
 	}
 
 	// get depthStencilView
 	ID3D11DepthStencilView* depthStencilView = nullptr;
 	if (depthStencilTexture != nullptr) {
-		depthStencilView = (subresourceIndex < 0) ?
-			depthStencilTexture->GetDepthStencilView() :
-			depthStencilTexture->GetSubresourceDepthStencilView(subresourceIndex);
+		auto rhiState = GetGraphicsDeviceChildState<TextureD3D11>(*depthStencilTexture);
+		if (rhiState != nullptr) {
+			depthStencilView = (subresourceIndex < 0) ? rhiState->mDSV.Get() : rhiState->mSubresourceDSVs[subresourceIndex].Get();
+		}
 	}
 
 	GetDeviceContext(GraphicsThread_IMMEDIATE).OMSetRenderTargets(curNum, renderTargetViews, depthStencilView);
 }
 
-HRESULT GraphicsDeviceD3D11::CreateRenderTargetView(RhiTexture2D & texture)
+void GraphicsDeviceD3D11::CreateRenderTargetView(RhiTexture2D & texture)
 {
-	HRESULT result = E_FAIL;
-	if (texture.GetRenderTargetView() != nullptr) {
-		return result;
+	auto rhiState = GetGraphicsDeviceChildState<TextureD3D11>(texture);
+	if (rhiState == nullptr) {
+		return;
 	}
 
 	const auto& desc = texture.GetDesc();
@@ -1543,18 +1515,31 @@ HRESULT GraphicsDeviceD3D11::CreateRenderTargetView(RhiTexture2D & texture)
 			// 目前不处理texture2DArray,且不处理multisampled
 			if (arraySize > 0 && arraySize <= 1)
 			{
-				auto& texture2DPtr = texture.GetGPUResource();
-				ID3D11RenderTargetView** rtvPtr = texture.GetRenderTargetViewPtr();
-				result = mDevice->CreateRenderTargetView((ID3D11Resource*)texture2DPtr, &renderTargetViewDesc, rtvPtr);
+				ComPtr<ID3D11RenderTargetView> newRTV = nullptr;
+				HRESULT result = mDevice->CreateRenderTargetView(rhiState->mResource.Get(), &renderTargetViewDesc, &newRTV);
+				if (SUCCEEDED(result))
+				{
+					if (rhiState->mRTV == nullptr) 
+					{
+						rhiState->mRTV = newRTV;
+					}
+					else
+					{
+						//Debug::Warning("CreateShaderResourceView: create new subresource, count:" + std::to_string(texture.mSubresourceSRVs.size()));
+						rhiState->mSubresourceRTVs.push_back(newRTV);
+					}
+				}
 			}
 		}
 	}
-	return result;
 }
 
-HRESULT GraphicsDeviceD3D11::CreateShaderResourceView(RhiTexture2D & texture, U32 arraySlice, U32 arrayCount, U32 firstMip, U32 mipLevel)
+void GraphicsDeviceD3D11::CreateShaderResourceView(RhiTexture2D & texture, U32 arraySlice, U32 arrayCount, U32 firstMip, U32 mipLevel)
 {
-	HRESULT result = E_FAIL;
+	auto rhiState = GetGraphicsDeviceChildState<TextureD3D11>(texture);
+	if (rhiState == nullptr) {
+		return;
+	}
 
 	const auto& desc = texture.GetDesc();
 	if (desc.mBindFlags & BIND_SHADER_RESOURCE)
@@ -1590,31 +1575,31 @@ HRESULT GraphicsDeviceD3D11::CreateShaderResourceView(RhiTexture2D & texture, U3
 			shaderResourceViewDesc.Texture2DArray.MipLevels = mipLevel;         // 使用mipLevel数量
 		}
 
-		ID3D11ShaderResourceView* newSRV = nullptr;
-		auto& texture2DPtr = texture.GetGPUResource();
-		result = mDevice->CreateShaderResourceView((ID3D11Resource*)texture2DPtr, &shaderResourceViewDesc, &newSRV);
-
+		ComPtr<ID3D11ShaderResourceView> newSRV = nullptr;
+		auto result = mDevice->CreateShaderResourceView(rhiState->mResource.Get(), &shaderResourceViewDesc, &newSRV);
 		if (SUCCEEDED(result))
 		{
-			auto& srv = texture.GetShaderResourceView();
-			if (srv == CPU_NULL_HANDLE) {
-				texture.mSRV = (CPUHandle)newSRV;
+			if (rhiState->mSRV == nullptr)
+			{
+				rhiState->mSRV = newSRV;
 			}
-			else {
+			else 
+			{
 				//Debug::Warning("CreateShaderResourceView: create new subresource, count:" + std::to_string(texture.mSubresourceSRVs.size()));
-				texture.mSubresourceSRVs.push_back((CPUHandle)newSRV);
+				rhiState->mSubresourceSRVs.push_back(newSRV);
 			}
 		}
 	}
-
-	return result;
 }
 
 // arraySlice和arrayCount仅用于当texture.ArraySize > 0时使用
 // arraySlice表示textureArray的第几部分，arrayCount表示这部分的数量
-HRESULT GraphicsDeviceD3D11::CreateDepthStencilView(RhiTexture2D & texture, U32 arraySlice, U32 arrayCount)
+void GraphicsDeviceD3D11::CreateDepthStencilView(RhiTexture2D & texture, U32 arraySlice, U32 arrayCount)
 {
-	HRESULT result = E_FAIL;
+	auto rhiState = GetGraphicsDeviceChildState<TextureD3D11>(texture);
+	if (rhiState == nullptr) {
+		return;
+	}
 
 	const auto& desc = texture.GetDesc();
 	if (desc.mBindFlags & BIND_DEPTH_STENCIL)
@@ -1648,26 +1633,26 @@ HRESULT GraphicsDeviceD3D11::CreateDepthStencilView(RhiTexture2D & texture, U32 
 			depthStencilViewDesc.Texture2DArray.MipSlice = 0;
 		}
 
-		ID3D11DepthStencilView* newDsv = nullptr;
-		auto texture2DPtr = texture.GetGPUResource();
-		result = mDevice->CreateDepthStencilView((ID3D11Resource*)texture2DPtr, &depthStencilViewDesc, &newDsv);
+		ComPtr<ID3D11DepthStencilView> newDsv = nullptr;
+		HRESULT result = mDevice->CreateDepthStencilView(rhiState->mResource.Get(), &depthStencilViewDesc, &newDsv);
 		if (SUCCEEDED(result))
 		{
-			if (texture.mDSV == CPU_NULL_HANDLE) {
-				texture.mDSV = (CPUHandle)newDsv;
+			if (rhiState->mDSV == nullptr) {
+				rhiState->mDSV = newDsv;
 			}
 			else {
-				texture.mSubresourceDSVs.push_back((CPUHandle)newDsv);
+				rhiState->mSubresourceDSVs.push_back(newDsv);
 			}
 		}
 	}
-
-	return result;
 }
 
-HRESULT GraphicsDeviceD3D11::CreateUnordereddAccessView(RhiTexture2D& texture, U32 firstMip)
+void GraphicsDeviceD3D11::CreateUnordereddAccessView(RhiTexture2D& texture, U32 firstMip)
 {
-	HRESULT result = E_FAIL;
+	auto rhiState = GetGraphicsDeviceChildState<TextureD3D11>(texture);
+	if (rhiState == nullptr) {
+		return;
+	}
 
 	const auto& desc = texture.GetDesc();
 	if (desc.mBindFlags & BIND_UNORDERED_ACCESS)
@@ -1691,52 +1676,65 @@ HRESULT GraphicsDeviceD3D11::CreateUnordereddAccessView(RhiTexture2D& texture, U
 			uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
 			uavDesc.Texture2D.MipSlice = firstMip;
 
-			ID3D11UnorderedAccessView* newUAV = nullptr;
-			auto& texture2DPtr = texture.GetGPUResource();
-			result = mDevice->CreateUnorderedAccessView((ID3D11Resource*)texture2DPtr, &uavDesc, &newUAV);
+			ComPtr <ID3D11UnorderedAccessView> newUAV = nullptr;
+			HRESULT result = mDevice->CreateUnorderedAccessView(rhiState->mResource.Get(), &uavDesc, &newUAV);
 			if (SUCCEEDED(result))
 			{
-				auto& uav = texture.GetUnorderedAccessView();
-				if (uav == CPU_NULL_HANDLE) {
-					texture.mUAV = (CPUHandle)newUAV;
+				if (rhiState->mUAV == nullptr)
+				{
+					rhiState->mUAV = newUAV;
 				}
-				else {
+				else 
+				{
 					//Debug::Warning("CreateUnordereddAccessView: create new subresource, count:" + std::to_string(texture.mSubresourceUAVS.size()));
-					texture.mSubresourceUAVS.push_back((CPUHandle)newUAV);
+					rhiState->mSubresourceUAVS.push_back(newUAV);
 				}
 			}
 		}
 	}
-
-	return result;
 }
 
 void GraphicsDeviceD3D11::ClearRenderTarget(RhiTexture2D & texture, F32x4 color)
 {
-	auto renderTarget = texture.GetRenderTargetView();
-	GetDeviceContext(GraphicsThread_IMMEDIATE).ClearRenderTargetView(texture.GetRenderTargetView(), color.data());
+	auto rhiState = GetGraphicsDeviceChildState<TextureD3D11>(texture);
+	if (rhiState == nullptr) {
+		return;
+	}
+
+	GetDeviceContext(GraphicsThread_IMMEDIATE).ClearRenderTargetView(rhiState->mRTV.Get(), color.data());
 }
 
 void GraphicsDeviceD3D11::ClearDepthStencil(RhiTexture2D& texture, UINT clearFlag, F32 depth, U8 stencil, I32 subresourceIndex)
 {
+	auto rhiState = GetGraphicsDeviceChildState<TextureD3D11>(texture);
+	if (rhiState == nullptr) {
+		return;
+	}
+
 	UINT flag = _ConvertClearFlag(clearFlag);
 	if (subresourceIndex < 0) {
-		GetDeviceContext(GraphicsThread_IMMEDIATE).ClearDepthStencilView(texture.GetDepthStencilView(), flag, depth, stencil);
+		GetDeviceContext(GraphicsThread_IMMEDIATE).ClearDepthStencilView(rhiState->mDSV.Get(), flag, depth, stencil);
 	}
 	else {
-		ID3D11DepthStencilView* dsv = texture.GetSubresourceDepthStencilView(subresourceIndex);
+		ID3D11DepthStencilView* dsv = rhiState->mSubresourceDSVs[subresourceIndex].Get();
 		GetDeviceContext(GraphicsThread_IMMEDIATE).ClearDepthStencilView(dsv, flag, depth, stencil);
 	}
 }
 
 void GraphicsDeviceD3D11::BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot, I32 subresourceIndex)
 {
+	auto rhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(resource);
+	if (rhiState == nullptr) {
+		Debug::Warning("Faild to bind null gpu resource");
+		return;
+	}
+
 	ID3D11ShaderResourceView* srv = nullptr;
 	if (subresourceIndex < 0) {
-		srv = (ID3D11ShaderResourceView*)resource.GetShaderResourceView();
+		srv = (ID3D11ShaderResourceView*)rhiState->mSRV.Get();
 	}
-	else if (subresourceIndex < resource.mSubresourceSRVs.size()) {
-		srv = (ID3D11ShaderResourceView*)resource.GetSubShaderResourceView(subresourceIndex);
+	else if (subresourceIndex < rhiState->mSubresourceSRVs.size()) {
+		srv = (ID3D11ShaderResourceView*)rhiState->mSubresourceSRVs[subresourceIndex].Get();
 	}
 		
 	if (srv == nullptr) {
@@ -1771,9 +1769,19 @@ void GraphicsDeviceD3D11::BindGPUResource(SHADERSTAGES stage, GPUResource& resou
 
 void GraphicsDeviceD3D11::BindGPUResources(SHADERSTAGES stage, GPUResource * const * resource, U32 slot, U32 count)
 {
-	ID3D11ShaderResourceView* srvs[8];
-	for (int i = 0; i < count; i++) {
-		srvs[i] = resource[i] != nullptr ? (ID3D11ShaderResourceView*)resource[i]->GetShaderResourceView() :nullptr;
+	ID3D11ShaderResourceView* srvs[8] = { nullptr };
+	for (int i = 0; i < count; i++) 
+	{
+		if (resource[i] == nullptr) {
+			continue;
+		}
+
+		auto rhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(*resource[i]);
+		if (rhiState == nullptr) {
+			continue;
+		}
+
+		srvs[i] = rhiState->mSRV.Get();
 	}
 	switch (stage)
 	{
@@ -1808,53 +1816,28 @@ void GraphicsDeviceD3D11::UnbindGPUResources(U32 slot, U32 count)
 	GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetShaderResources(slot, count, (ID3D11ShaderResourceView**)nullptrBlob);
 }
 
-void GraphicsDeviceD3D11::DestroyGPUResource(GPUResource & resource)
-{
-	if (resource.GetGPUResource() != CPU_NULL_HANDLE){
-		((ID3D11Resource*)resource.GetGPUResource())->Release();
-		resource.mResource = CPU_NULL_HANDLE;
-	}
-
-	if (resource.GetShaderResourceView() != CPU_NULL_HANDLE){
-		((ID3D11ShaderResourceView*)resource.GetShaderResourceView())->Release();
-		resource.mSRV = CPU_NULL_HANDLE;
-	}
-
-	if (resource.GetUnorderedAccessView() != CPU_NULL_HANDLE) {
-		((ID3D11UnorderedAccessView*)resource.GetUnorderedAccessView())->Release();
-		resource.mUAV = CPU_NULL_HANDLE;
-	}
-
-	if (resource.mSubresourceSRVs.size() > 0)
-	{
-		for (CPUHandle& handle : resource.mSubresourceSRVs) {
-			if (handle != CPU_NULL_HANDLE) {
-				((ID3D11ShaderResourceView*)handle)->Release();
-			}
-		}
-		resource.mSubresourceSRVs.clear();
-	}
-
-	if (resource.mSubresourceUAVS.size() > 0)
-	{
-		for (CPUHandle& handle : resource.mSubresourceUAVS) {
-			if (handle != CPU_NULL_HANDLE) {
-				((ID3D11UnorderedAccessView*)handle)->Release();
-			}
-		}
-		resource.mSubresourceUAVS.clear();
-	}
-}
-
 void GraphicsDeviceD3D11::SetResourceName(GPUResource & resource, const std::string & name)
 {
-	ID3D11Resource* d3dResource = (ID3D11Resource*)resource.GetGPUResource();
+	auto rhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(resource);
+	if (rhiState == nullptr) {
+		return;
+	}
+
+	ID3D11Resource* d3dResource = rhiState->mResource.Get();
 	d3dResource->SetPrivateData(WKPDID_D3DDebugObjectName, (UINT)name.length(), name.c_str());
 }
 
 void GraphicsDeviceD3D11::BindComputeShader(ComputeShaderPtr computeShader)
 {
-	ID3D11ComputeShader* cs = computeShader != nullptr ? computeShader->mResourceD3D11.Get() : nullptr;
+	ID3D11ComputeShader* cs = nullptr;
+	if (computeShader != nullptr)
+	{
+		auto rhiState = GetGraphicsDeviceChildState<ComputeShaderD3D11>(*computeShader);
+		if (rhiState != nullptr) {
+			cs = rhiState->mHandle.Get();
+		}
+	}
+
 	if (cs != mPrevComputeShader)
 	{
 		GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetShader(cs, nullptr, 0);
@@ -1877,12 +1860,18 @@ void GraphicsDeviceD3D11::BindUAV(GPUResource* const resource, U32 slot, I32 sub
 {
 	if (resource == nullptr) return;
 
+	auto rhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(*resource);
+	if (rhiState == nullptr) {
+		Debug::Warning("Faild to bind null uav resource");
+		return;
+	}
+
 	ID3D11UnorderedAccessView* uav = nullptr;
 	if (subresourceIndex < 0) {
-		uav = (ID3D11UnorderedAccessView*)resource->GetUnorderedAccessView();
+		uav = (ID3D11UnorderedAccessView*)rhiState->mUAV.Get();
 	}
-	else if (subresourceIndex < resource->mSubresourceSRVs.size()) {
-		uav = (ID3D11UnorderedAccessView*)resource->GetSubUnorderedAccessView(subresourceIndex);
+	else if (subresourceIndex < rhiState->mSubresourceUAVS.size()) {
+		uav = (ID3D11UnorderedAccessView*)rhiState->mSubresourceUAVS[subresourceIndex].Get();
 	}
 
 	if (uav == nullptr) {
@@ -1895,12 +1884,21 @@ void GraphicsDeviceD3D11::BindUAV(GPUResource* const resource, U32 slot, I32 sub
 
 void GraphicsDeviceD3D11::BindUAVs(GPUResource* const* resource, U32 slot, U32 count)
 {
-	ID3D11UnorderedAccessView* uavs[8];
+	ID3D11UnorderedAccessView* uavs[8] = { nullptr };
 	for (int i = 0; i < count; i++)
 	{
 		if (i >= 8) break;
-		uavs[i] = resource[i] != nullptr ? 
-			(ID3D11UnorderedAccessView*)(resource[i]->GetUnorderedAccessView()) : nullptr;
+	
+		if (resource[i] == nullptr) {
+			continue;
+		}
+
+		auto rhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(*resource[i]);
+		if (rhiState == nullptr) {
+			continue;
+		}
+
+		uavs[i] = rhiState->mUAV.Get();
 	}
 
 	GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetUnorderedAccessViews(slot, count, uavs, nullptr);
@@ -1908,35 +1906,40 @@ void GraphicsDeviceD3D11::BindUAVs(GPUResource* const* resource, U32 slot, U32 c
 
 void GraphicsDeviceD3D11::BindShaderInfoState(PipelineState state)
 {
-	ID3D11VertexShader* vs = state.mVertexShader != nullptr ? state.mVertexShader->mResourceD3D11.Get() : nullptr;
+	ID3D11VertexShader* vs = state.mVertexShader != nullptr ? 
+		GetGraphicsDeviceChildState<VertexShaderD3D11>(*state.mVertexShader)->mHandle.Get() : nullptr;
 	if (vs != mPrevVertexShader)
 	{
 		GetDeviceContext(GraphicsThread_IMMEDIATE).VSSetShader(vs, nullptr, 0);
 		mPrevVertexShader = vs;
 	}
 
-	ID3D11PixelShader* ps = state.mPixelShader != nullptr ? state.mPixelShader->mResourceD3D11.Get() : nullptr;
+	ID3D11PixelShader* ps = state.mPixelShader != nullptr ? 
+		GetGraphicsDeviceChildState<PixelShaderD3D11>(*state.mPixelShader)->mHandle.Get() : nullptr;
 	if (ps != mPrevPixelShader)
 	{
 		GetDeviceContext(GraphicsThread_IMMEDIATE).PSSetShader(ps, nullptr, 0);
 		mPrevPixelShader = ps;
 	}
 
-	ID3D11HullShader* hs = state.mHullShader != nullptr ? state.mHullShader->mResourceD3D11.Get() : nullptr;
+	ID3D11HullShader* hs = state.mHullShader != nullptr ? 
+		GetGraphicsDeviceChildState<HullShaderD3D11>(*state.mHullShader)->mHandle.Get() : nullptr;
 	if (hs != mPrevHullShader)
 	{
 		GetDeviceContext(GraphicsThread_IMMEDIATE).HSSetShader(hs, nullptr, 0);
 		mPrevHullShader = hs;
 	}
 
-	ID3D11DomainShader* ds = state.mDomainShader != nullptr ? state.mDomainShader->mResourceD3D11.Get() : nullptr;
+	ID3D11DomainShader* ds = state.mDomainShader != nullptr ? 
+		GetGraphicsDeviceChildState<DomainShaderD3D11>(*state.mDomainShader)->mHandle.Get() : nullptr;
 	if (ds != mPrevDomainShader)
 	{
 		GetDeviceContext(GraphicsThread_IMMEDIATE).DSSetShader(ds, nullptr, 0);
 		mPrevDomainShader = ds;
 	}
 
-	ID3D11BlendState* bs = state.mBlendState != nullptr ? state.mBlendState->GetBlendState() : nullptr;
+	ID3D11BlendState* bs = state.mBlendState != nullptr ? 
+		GetGraphicsDeviceChildState<BlendStateD3D11>(*state.mBlendState)->mHandle.Get() : nullptr;
 	if (bs != mPrevBlendState)
 	{
 		const float factor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -1944,21 +1947,24 @@ void GraphicsDeviceD3D11::BindShaderInfoState(PipelineState state)
 		mPrevBlendState = bs;
 	}
 
-	ID3D11RasterizerState* rs = state.mRasterizerState != nullptr ? state.mRasterizerState->GetRasterizerState() : nullptr;
+	ID3D11RasterizerState* rs = state.mRasterizerState != nullptr ? 
+		GetGraphicsDeviceChildState<RasterizerStateD3D11>(*state.mRasterizerState)->mHandle.Get() : nullptr;
 	if (rs != mPrevRasterizerState)
 	{
 		GetDeviceContext(GraphicsThread_IMMEDIATE).RSSetState(rs);
 		mPrevRasterizerState = rs;
 	}
 
-	ID3D11DepthStencilState* dss = state.mDepthStencilState != nullptr ? state.mDepthStencilState->GetDepthStencilState() : nullptr;
+	ID3D11DepthStencilState* dss = state.mDepthStencilState != nullptr ? 
+		GetGraphicsDeviceChildState<DepthStencilStateD3D11>(*state.mDepthStencilState)->mHandle.Get() : nullptr;
 	if (dss != mPrevDepthStencilState)
 	{
 		GetDeviceContext(GraphicsThread_IMMEDIATE).OMSetDepthStencilState(dss, 0);
 		mPrevDepthStencilState = dss;
 	}
 
-	ID3D11InputLayout* il = state.mInputLayout != nullptr ? &state.mInputLayout->GetState() : nullptr;
+	ID3D11InputLayout* il = state.mInputLayout != nullptr ? 
+		GetGraphicsDeviceChildState<InputLayoutD3D11>(*state.mInputLayout)->mHandle.Get() : nullptr;
 	if (il != mPrevInputLayout)
 	{
 		GetDeviceContext(GraphicsThread_IMMEDIATE).IASetInputLayout(il);
@@ -2012,6 +2018,11 @@ GraphicsDevice::GPUAllocation GraphicsDeviceD3D11::AllocateGPU(size_t dataSize)
 		return result;
 	}
 
+	auto rhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(mGPUAllocator.buffer);
+	if (rhiState == nullptr) {
+		return result;
+	}
+
 	size_t allocDataSize = std::min(mGPUAllocator.GetDataSize(), dataSize);
 	size_t position = mGPUAllocator.byteOffset;
 
@@ -2026,14 +2037,14 @@ GraphicsDevice::GPUAllocation GraphicsDeviceD3D11::AllocateGPU(size_t dataSize)
 	// mapping data
 	D3D11_MAP mapping = wrap ? D3D11_MAP_WRITE_DISCARD : D3D11_MAP_WRITE_NO_OVERWRITE;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	const HRESULT hr = GetDeviceContext(GraphicsThread_IMMEDIATE).Map(&mGPUAllocator.buffer->GetBuffer(), 0, mapping, 0, &mappedResource);
+	const HRESULT hr = GetDeviceContext(GraphicsThread_IMMEDIATE).Map(rhiState->mResource.Get(), 0, mapping, 0, &mappedResource);
 	Debug::ThrowIfFailed(hr, "Failed to mapped GPUBuffer.");
 
 	mGPUAllocator.residentFrame = mCurrentFrameCount;
 	mGPUAllocator.byteOffset = position + dataSize;
 	mGPUAllocator.dirty = true;
 
-	result.buffer = mGPUAllocator.buffer.get();
+	result.buffer = &mGPUAllocator.buffer;
 	result.offset = (U32)position;
 	result.data = (void*)((size_t)mappedResource.pData + position);
 
@@ -2149,7 +2160,11 @@ void GraphicsDeviceD3D11::CommitAllocations()
 	if (mGPUAllocator.dirty)
 	{
 		auto& buffer = mGPUAllocator.buffer;
-		GetDeviceContext(GraphicsThread_IMMEDIATE).Unmap(&buffer->GetBuffer(), 0);
+		auto rhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(buffer);
+		if (rhiState != nullptr) {
+			GetDeviceContext(GraphicsThread_IMMEDIATE).Unmap(rhiState->mResource.Get(), 0);
+		}
+
 		mGPUAllocator.dirty = false;
 	}
 }

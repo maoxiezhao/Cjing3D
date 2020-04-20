@@ -30,10 +30,10 @@ namespace Cjing3D
 	void BufferManager::Uninitialize()
 	{
 		for (U32 i = 0; i < ConstantBufferType_Count; i++) {
-			mConstantBuffer[i].UnRegister();
+			mConstantBuffer[i].Clear();
 		}
 		for (U32 i = 0; i < StructuredBufferType_Count; i++) {
-			mStructuredBuffer[i].UnRegister();
+			mStructuredBuffer[i].Clear();
 		}
 	}
 

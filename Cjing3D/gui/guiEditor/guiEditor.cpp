@@ -198,7 +198,7 @@ namespace Editor {
 			}
 
 			F32 shadowBias = light->mShadowBias;
-			if (ImGui::DragFloat("shadowBias", &shadowBias, 0.0001f, 0.0f, 1.0f))
+			if (ImGui::DragFloat("shadowBias", &shadowBias, 0.0001f, 0.0f, 1.0f, "%.4f"))
 			{
 				light->mShadowBias = shadowBias;
 			}

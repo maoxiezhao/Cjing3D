@@ -64,7 +64,7 @@ namespace Cjing3D
 		device.BeginEvent("Composition");
 
 		Texture2D* lastTexture = GetLastPostprocessRT();
-		if (lastTexture != nullptr && lastTexture->GetShaderResourceView() != CPU_NULL_HANDLE)
+		if (lastTexture != nullptr && lastTexture->IsValid())
 		{
 			RenderImage::ImageParams params;
 			params.EnableFullScreen();

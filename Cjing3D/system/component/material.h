@@ -15,9 +15,9 @@ namespace Cjing3D {
 		std::string mSurfaceMapName;
 		std::string mNormalMapName;
 
-		RhiTexture2DPtr mBaseColorMap = nullptr;
-		RhiTexture2DPtr mSurfaceMap = nullptr;
-		RhiTexture2DPtr mNormalMap = nullptr;
+		Texture2DPtr mBaseColorMap = nullptr;
+		Texture2DPtr mSurfaceMap = nullptr;
+		Texture2DPtr mNormalMap = nullptr;
 
 	public:
 		MaterialComponent();

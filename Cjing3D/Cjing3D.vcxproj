@@ -345,7 +345,6 @@
     <ClCompile Include="renderer\renderer2D.cpp" />
     <ClCompile Include="renderer\rendererUtils.cpp" />
     <ClCompile Include="renderer\RHI\rhiFactory.cpp" />
-    <ClCompile Include="renderer\RHI\rhiResource.cpp" />
     <ClCompile Include="renderer\shaderLib.cpp" />
     <ClCompile Include="renderer\RHI\device.cpp" />
     <ClCompile Include="renderer\RHI\deviceD3D11.cpp" />
