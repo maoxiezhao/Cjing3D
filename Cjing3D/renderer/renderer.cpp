@@ -43,6 +43,8 @@ namespace {
 	};
 
 	Texture2D shadowMapArray2D;
+	std::vector<RenderBehavior> shadowRenderBehaviors;
+	std::vector<bool> shadowMapDirtyTable;
 
 	// 级联子视锥体
 	struct CascadeShadowCamera
@@ -80,8 +82,14 @@ namespace {
 		Debug::ThrowIfFailed(result, "Failed to create shadow map array 2d:%08x", result);
 		device.SetResourceName(shadowMapArray2D, "ShadowMapArray2D");
 
+		shadowMapDirtyTable.resize(count, false);
+		shadowRenderBehaviors.resize(count);
 		for (U32 i = 0; i < count; i++) {
-			device.CreateDepthStencilView(shadowMapArray2D, i, 1);
+			I32 subresourceIndex = device.CreateDepthStencilView(shadowMapArray2D, i, 1);
+
+			RenderBehaviorDesc desc = {};
+			desc.mParams.push_back({ RenderBehaviorParam::RenderType_DepthStencil, &shadowMapArray2D, subresourceIndex, RenderBehaviorParam::RenderOperation_Clear });
+			device.CreateRenderBehavior(desc, shadowRenderBehaviors[i]);
 		}
 	}
 
@@ -782,6 +790,30 @@ void Renderer::RenderImpostor(CameraComponent& camera, RenderPassType renderPass
 	mGraphicsDevice->EndEvent();
 }
 
+void Renderer::RenderSky()
+{
+	mGraphicsDevice->BeginEvent("RenderSky");
+
+	auto& scene = GetMainScene();
+	if (scene.mWeathers.GetCount() > 0)
+	{
+		auto currentWeather = scene.mWeathers.GetComponentByIndex(0);
+		if (currentWeather->mSkyMap != nullptr)
+		{
+			PipelineState pso = mPipelineStateManager->GetPipelineStateByID(PipelineStateID_SkyRendering);
+			if (pso.IsValid())
+			{
+				mGraphicsDevice->BindPipelineState(pso);
+				mGraphicsDevice->BindGPUResource(SHADERSTAGES_PS, *currentWeather->mSkyMap, TEXTURE_SLOT_GLOBAL_ENV_MAP);
+			}
+		}
+
+		mGraphicsDevice->Draw(3, 0);
+	}
+
+	mGraphicsDevice->EndEvent();
+}
+
 void Renderer::PostprocessTonemap(Texture2D& input, Texture2D& output, F32 exposure)
 {
 	mGraphicsDevice->BeginEvent("Postprocess_Tonemap");
@@ -881,9 +913,10 @@ void Renderer::UpdateCameraCB(CameraComponent & camera)
 {
 	CameraCB cb;
 
-	DirectX::XMStoreFloat4x4(&cb.gCameraVP,   camera.GetViewProjectionMatrix());
-	DirectX::XMStoreFloat4x4(&cb.gCameraView, camera.GetViewMatrix());
-	DirectX::XMStoreFloat4x4(&cb.gCameraProj, camera.GetProjectionMatrix());
+	DirectX::XMStoreFloat4x4(&cb.gCameraVP,    camera.GetViewProjectionMatrix());
+	DirectX::XMStoreFloat4x4(&cb.gCameraView,  camera.GetViewMatrix());
+	DirectX::XMStoreFloat4x4(&cb.gCameraProj,  camera.GetProjectionMatrix());
+	DirectX::XMStoreFloat4x4(&cb.gCameraInvVP, camera.GetInvViewProjectionMatrix());
 
 	cb.gCameraPos = XMConvert(camera.GetCameraPos());
 
@@ -1114,7 +1147,7 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPass
 
 			// TODO: 很多变量和设置可以整合到PipelineState中
 			PipelineState state = mPipelineStateManager->GetNormalPipelineState(renderPassType, *material);  // TODO
-			if (state.IsEmpty()) {
+			if (!state.IsValid()) {
 				continue;
 			}
 
@@ -1213,7 +1246,7 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPass
 			}
 
 			// bind material state
-			mGraphicsDevice->BindShaderInfoState(state);
+			mGraphicsDevice->BindPipelineState(state);
 
 			// bind material constant buffer
 			mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_VS, material->GetConstantBuffer(), CB_GETSLOT_NAME(MaterialCB));
@@ -1304,20 +1337,27 @@ void Renderer::RenderDirLightShadowmap(LightComponent& light, CameraComponent& c
 			}
 		}
 
+		U32 resourceIndex = light.GetShadowMapIndex() + cascadeLevel;
+
 		// 对于每个级联绘制包含物体的深度贴图
 		if (!renderQueue.IsEmpty())
 		{
-			U32 resourceIndex = light.GetShadowMapIndex() + cascadeLevel;
+			shadowMapDirtyTable[resourceIndex] = true;
 
 			CameraCB cb;
 			DirectX::XMStoreFloat4x4(&cb.gCameraVP, cam.GetViewProjectionMatrix());
 			device.UpdateBuffer(cameraBuffer, &cb, sizeof(CameraCB));
 
-			device.ClearDepthStencil(shadowMapArray2D, CLEAR_DEPTH, 0.0f, 0, resourceIndex);
-			device.BindRenderTarget(0, nullptr, &shadowMapArray2D, resourceIndex);
+			device.BeginRenderBehavior(shadowRenderBehaviors[resourceIndex]);
 			ProcessRenderQueue(renderQueue, RenderPassType_Shadow, RenderableType_Opaque);
+			device.EndRenderBehavior();
 
 			frameAllocator.Free(renderQueue.GetBatchCount() * sizeof(RenderBatch));
+		}
+		else if (shadowMapDirtyTable[resourceIndex])
+		{
+			shadowMapDirtyTable[resourceIndex] = false;
+			device.ClearDepthStencil(shadowMapArray2D, CLEAR_DEPTH, 0.0f, 0, resourceIndex);
 		}
 	}
 }

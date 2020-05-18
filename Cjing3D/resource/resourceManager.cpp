@@ -120,6 +120,8 @@ void ResourceManager::LoadTextrueFromFilePath(const std::filesystem::path & file
 
 void ResourceManager::LoadTextureFromFilePathEx(const std::filesystem::path& filePath, RhiTexture2D& texture, FORMAT textureFormat, U32 channelCount, U32 bindFlag, bool generateMipmap)
 {
+	Logger::Info("LoadTextureFromFilePath:" + filePath.string());
+
 	std::wstring extension(filePath.extension());
 	if (extension == L".dds")
 	{
@@ -150,6 +152,10 @@ void ResourceManager::LoadTextureFromFilePathEx(const std::filesystem::path& fil
 			desc.mFormat = textureFormat;
 			desc.mBindFlags = bindFlag;
 			desc.mUsage = USAGE_IMMUTABLE;
+
+			if (ddsFile.IsCubemap()) {
+				desc.mMiscFlags |= RESOURCE_MISC_TEXTURECUBE;
+			}
 
 			auto ddsFormat = ddsFile.GetFormat();
 			switch (ddsFormat)

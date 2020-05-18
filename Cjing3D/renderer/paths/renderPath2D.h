@@ -28,6 +28,7 @@ namespace Cjing3D {
 
 	private:
 		Texture2D mRTFinal;
+		RenderBehavior mRBFinal;
 	};
 
 }

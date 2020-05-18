@@ -72,6 +72,7 @@ namespace ECS
 			mLookup[entity] = mComponents.size();
 			mEntities.push_back(entity);
 
+			// TODO: 改为从object pool创建
 			auto componentPtr = std::make_shared<ComponentT>();
 			mComponents.push_back(componentPtr);
 
@@ -291,6 +292,7 @@ namespace ECS
 			mComponents.resize(count);
 			mEntities.resize(count);
 
+			// TODO: 改为从object pool创建
 			for (int i = 0; i < count; i++){
 				mComponents[i] = std::make_shared<ComponentT>();
 				mComponents[i]->Serialize(archive, seed);

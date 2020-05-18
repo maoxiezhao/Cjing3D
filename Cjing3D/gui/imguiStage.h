@@ -9,7 +9,7 @@ namespace Cjing3D
 	class IMGUIStage
 	{
 	public:
-		using CustomWindowFunc = std::function<void()>;
+		using CustomWindowFunc = std::function<void(F32)>;
 		friend class GUIRenderer;
 
 		IMGUIStage();

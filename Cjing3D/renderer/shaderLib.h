@@ -16,6 +16,7 @@ enum VetextShaderType
 	VertexShaderType_FullScreen,
 	VertexShaderType_Image,
 	VertexShaderType_Shadow,
+	VertexShaderType_Sky,
 	VertexShaderType_Count,
 };
 
@@ -31,6 +32,7 @@ enum PixelShaderType
 	PixelShaderType_Forward = 0,
 	PixelShaderType_FullScreen,
 	PixelShaderType_Image,
+	PixelShaderType_Sky,
 	PixelShaderType_Count,
 };
 

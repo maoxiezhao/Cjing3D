@@ -61,15 +61,18 @@ void TerrainPass::Initialize()
 	ShaderLib& shaderLib = mRenderer.GetShaderLib();
 	StateManager& stateManager = mRenderer.GetStateManager();
 
-	terrainPSO.mInputLayout = mTerrainIL;
-	terrainPSO.mVertexShader = mTerrainVS;
-	terrainPSO.mPixelShader = mTerrainPS;
-	terrainPSO.mHullShader = mTerrainHS;
-	terrainPSO.mDomainShader = mTerrainDS;
-	terrainPSO.mPrimitiveTopology = PATCHLIST_4;
-	terrainPSO.mBlendState = stateManager.GetBlendState(BlendStateID_Opaque);
-	terrainPSO.mDepthStencilState = stateManager.GetDepthStencilState(DepthStencilStateID_GreaterEqualReadWrite);
-	terrainPSO.mRasterizerState = stateManager.GetRasterizerState(RasterizerStateID_Front);
+	PipelineStateDesc desc = {};
+	desc.mInputLayout = mTerrainIL;
+	desc.mVertexShader = mTerrainVS;
+	desc.mPixelShader = mTerrainPS;
+	desc.mHullShader = mTerrainHS;
+	desc.mDomainShader = mTerrainDS;
+	desc.mPrimitiveTopology = PATCHLIST_4;
+	desc.mBlendState = stateManager.GetBlendState(BlendStateID_Opaque);
+	desc.mDepthStencilState = stateManager.GetDepthStencilState(DepthStencilStateID_GreaterEqualReadWrite);
+	desc.mRasterizerState = stateManager.GetRasterizerState(RasterizerStateID_Front);
+
+	mRenderer.GetDevice().CreatePipelineState(desc, terrainPSO);
 
 #ifdef _TERRAIN_DEBUG_
 	// TEST

@@ -10,6 +10,7 @@
 #include "system\component\light.h"
 #include "system\component\terrain.h"
 #include "system\component\animation.h"
+#include "system\component\weather.h"
 
 #include "helper\archive.h"
 
@@ -31,7 +32,8 @@ namespace Cjing3D {
 		const ECS::ComponentManager<AABBComponent>*,
 		const ECS::ComponentManager<TerrainComponent>*,
 		const ECS::ComponentManager<ArmatureComponent>*,
-		const ECS::ComponentManager<AnimationComponent>*
+		const ECS::ComponentManager<AnimationComponent>*,
+		const ECS::ComponentManager<WeatherComponent>*
 	>;
 
 	using ComponentManagerTypes = std::tuple<
@@ -46,7 +48,8 @@ namespace Cjing3D {
 		ECS::ComponentManager<AABBComponent>*,
 		ECS::ComponentManager<TerrainComponent>*,
 		ECS::ComponentManager<ArmatureComponent>*,
-		ECS::ComponentManager<AnimationComponent>*
+		ECS::ComponentManager<AnimationComponent>*,
+		ECS::ComponentManager<WeatherComponent>*
 	>;
 
 	class Scene
@@ -72,6 +75,7 @@ namespace Cjing3D {
 		ECS::Entity CreateEntityTerrain(const std::string& name, U32 width, U32 height, U32 elevation);
 		ECS::Entity CreateArmature(const std::string& name);
 		ECS::Entity CreateAnimation(const std::string& name);
+		ECS::Entity CreateWeather(const std::string& name);
 
 		// create by entity
 		NameComponent& GetOrCreateNameByEntity(ECS::Entity entity);
@@ -144,6 +148,7 @@ namespace Cjing3D {
 		ECS::ComponentManager<TerrainComponent> mTerrains;
 		ECS::ComponentManager<ArmatureComponent> mArmatures;
 		ECS::ComponentManager<AnimationComponent> mAnimations;
+		ECS::ComponentManager<WeatherComponent> mWeathers;
 
 		AABB mSceneAABB;
 

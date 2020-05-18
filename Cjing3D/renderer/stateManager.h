@@ -10,7 +10,7 @@ namespace Cjing3D
 	enum DepthStencilStateID {
 		DepthStencilStateID_DepthNone = 0,
 		DepthStencilStateID_GreaterEqualReadWrite,
-		DepthStencilStateID_DepthReadEqual,
+		DepthStencilStateID_DepthRead,
 		DepthStencilStateID_Shadow,
 		DepthStencilStateID_Count
 	};
@@ -20,6 +20,7 @@ namespace Cjing3D
 		BlendStateID_Opaque = 0,
 		BlendStateID_Transpranent,
 		BlendStateID_PreMultiplied,
+		BlendStateID_ColorWriteDisable,
 		BlendStateID_Count
 	};
 
@@ -29,6 +30,7 @@ namespace Cjing3D
 		RasterizerStateID_Image,
 		RasterizerStateID_Shadow,
 		RasterizerStateID_WireFrame,
+		RasterizerStateID_Sky,
 		RasterizerStateID_Count
 	};
 

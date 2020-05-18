@@ -22,6 +22,7 @@ enum ComponentType
 	ComponentType_Terrain,
 	ComponentType_Animation,
 	ComponentType_Armature,
+	ComponentType_Weather,
 	ComponentType_Custom
 };
 

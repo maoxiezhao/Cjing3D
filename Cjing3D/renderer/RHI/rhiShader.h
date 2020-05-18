@@ -56,58 +56,24 @@ namespace Cjing3D
 	template <>
 	struct is_shader<DomainShader> : public std::true_type {};
 
+	struct PipelineStateDesc
+	{
+		std::shared_ptr < VertexShader>      mVertexShader = nullptr;
+		std::shared_ptr < PixelShader>       mPixelShader = nullptr;
+		std::shared_ptr < HullShader>        mHullShader = nullptr;
+		std::shared_ptr < DomainShader>      mDomainShader = nullptr;
+		std::shared_ptr < DepthStencilState> mDepthStencilState = nullptr;
+		std::shared_ptr < BlendState>	     mBlendState = nullptr;
+		std::shared_ptr < RasterizerState>   mRasterizerState = nullptr;
+		std::shared_ptr < InputLayout>       mInputLayout = nullptr;
+		PRIMITIVE_TOPOLOGY       mPrimitiveTopology = UNDEFINED_TOPOLOGY;
+	};
+
 	// shader info state
 	class PipelineState : public GraphicsDeviceChild
 	{
 	public:
-		VertexShaderPtr mVertexShader = nullptr;
-		PixelShaderPtr mPixelShader = nullptr;
-		HullShaderPtr mHullShader = nullptr;
-		DomainShaderPtr mDomainShader = nullptr;
-
-		std::shared_ptr<DepthStencilState> mDepthStencilState = nullptr;
-		std::shared_ptr<BlendState> mBlendState = nullptr;
-		std::shared_ptr<RasterizerState> mRasterizerState = nullptr;
-
-		InputLayoutPtr mInputLayout = nullptr;
-		PRIMITIVE_TOPOLOGY mPrimitiveTopology = UNDEFINED_TOPOLOGY;
-
-		void Clear() 
-		{
-			mInputLayout = nullptr;
-			mVertexShader = nullptr;
-			mPixelShader = nullptr;
-			mHullShader = nullptr;
-			mDomainShader = nullptr;
-
-			mDepthStencilState = nullptr;
-			mBlendState = nullptr;
-			mRasterizerState = nullptr;
-			mPrimitiveTopology = UNDEFINED_TOPOLOGY;
-		}
-
-		bool IsEmpty()
-		{
-			return ( mVertexShader == nullptr &&
-					 mPixelShader  == nullptr &&
-					 mInputLayout  == nullptr &&
-					 mHullShader   == nullptr &&
-					 mDomainShader == nullptr);
-		}
-
-		bool operator== (const PipelineState& other)
-		{
-			return (
-				mVertexShader == other.mVertexShader &&
-				mPixelShader == other.mPixelShader &&
-				mHullShader == other.mHullShader &&
-				mDomainShader == other.mDomainShader &&
-				mInputLayout == other.mInputLayout &&
-				mBlendState == other.mBlendState &&
-				mDepthStencilState == other.mDepthStencilState &&
-				mRasterizerState == other.mRasterizerState &&
-				mPrimitiveTopology == other.mPrimitiveTopology
-			);
-		}
+		PipelineStateDesc mDesc;
+		
 	};
 }

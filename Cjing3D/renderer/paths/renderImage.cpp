@@ -31,7 +31,7 @@ namespace RenderImage
 
 		if (params.IsFullScreenEnabled()) 
 		{
-			device.BindShaderInfoState(pipelineStateManager.GetImagePipelineState(params));
+			device.BindPipelineState(pipelineStateManager.GetImagePipelineState(params));
 			device.Draw(3, 0);
 		}
 		else
@@ -55,7 +55,7 @@ namespace RenderImage
 			
 			device.BindConstantBuffer(SHADERSTAGES_VS, buffer, CB_GETSLOT_NAME(ImageCB));
 			device.BindConstantBuffer(SHADERSTAGES_PS, buffer, CB_GETSLOT_NAME(ImageCB));
-			device.BindShaderInfoState(pipelineStateManager.GetImagePipelineState(params));
+			device.BindPipelineState(pipelineStateManager.GetImagePipelineState(params));
 
 			device.Draw(4, 0);
 		}

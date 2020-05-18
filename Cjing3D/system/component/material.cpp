@@ -44,9 +44,7 @@ void Cjing3D::MaterialComponent::Serialize(Archive& archive, U32 seed)
 
 	archive >> mIsCastingShadow;
 
-	SystemContext& systemContext = SystemContext::GetSystemContext();
-	Renderer& renderer = systemContext.GetSubSystem<Renderer>();
-	ResourceManager& resourceManager = renderer.GetResourceManager();
+	ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
 
 	const std::string parentPath =  archive.GetDirectory();
 	if (mBaseColorMapName.empty() == false)

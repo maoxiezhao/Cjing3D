@@ -74,9 +74,6 @@
     <Filter Include="utils\optick">
       <UniqueIdentifier>{2222258e-268a-4308-9543-d23785027f6c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="renderer\passes">
-      <UniqueIdentifier>{5f37daed-16eb-4b11-9f21-4589de95b4ed}</UniqueIdentifier>
-    </Filter>
     <Filter Include="utils\tinygltf">
       <UniqueIdentifier>{22c7c0b8-fb3c-48cd-984a-8c5435bd0638}</UniqueIdentifier>
     </Filter>
@@ -91,6 +88,12 @@
     </Filter>
     <Filter Include="gui\guiEditor\imgui">
       <UniqueIdentifier>{89cc6ab1-2726-48b0-b20d-221e6e4329a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\passes">
+      <UniqueIdentifier>{5f37daed-16eb-4b11-9f21-4589de95b4ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\passes\terrain">
+      <UniqueIdentifier>{1c8f2cb5-f8f4-4fba-b3d5-05bb2fa02c44}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -452,12 +455,6 @@
     <ClCompile Include="system\component\genericType.cpp">
       <Filter>system\component</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\passes\terrainPass.cpp">
-      <Filter>renderer\passes</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\passes\terrainTree.cpp">
-      <Filter>renderer\passes</Filter>
-    </ClCompile>
     <ClCompile Include="system\component\terrain.cpp">
       <Filter>system\component</Filter>
     </ClCompile>
@@ -475,6 +472,15 @@
     </ClCompile>
     <ClCompile Include="gui\guiEditor\guiEditor.cpp">
       <Filter>gui\guiEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\passes\terrainPass.cpp">
+      <Filter>renderer\passes\terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\passes\terrainTree.cpp">
+      <Filter>renderer\passes\terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="system\component\weather.cpp">
+      <Filter>system\component</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -894,23 +900,8 @@
     <ClInclude Include="system\component\genericType.h">
       <Filter>system\component</Filter>
     </ClInclude>
-    <ClInclude Include="renderer\passes\renderPass.h">
-      <Filter>renderer\passes</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\passes\note.h">
-      <Filter>renderer\passes</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\passes\terrainPass.h">
-      <Filter>renderer\passes</Filter>
-    </ClInclude>
     <ClInclude Include="utils\quadTree.h">
       <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\passes\terrainTree.h">
-      <Filter>renderer\passes</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\passes\terrainRender.h">
-      <Filter>renderer\passes</Filter>
     </ClInclude>
     <ClInclude Include="system\component\terrain.h">
       <Filter>system\component</Filter>
@@ -938,6 +929,24 @@
     </ClInclude>
     <ClInclude Include="gui\guiEditor\guiEditor.h">
       <Filter>gui\guiEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\passes\note.h">
+      <Filter>renderer\passes</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\passes\renderPass.h">
+      <Filter>renderer\passes</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\passes\terrainPass.h">
+      <Filter>renderer\passes\terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\passes\terrainRender.h">
+      <Filter>renderer\passes\terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\passes\terrainTree.h">
+      <Filter>renderer\passes\terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="system\component\weather.h">
+      <Filter>system\component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -123,10 +123,11 @@ void StateManager::SetupDepthStencilStates()
 
 	{
 		desc.mDepthEnable = true;
+		desc.mStencilEnable = false;
 		desc.mDepthWriteMask = DEPTH_WRITE_MASK_ZERO;
-		desc.mDepthFunc = COMPARISON_EQUAL;
+		desc.mDepthFunc = COMPARISON_GREATER_EQUAL;
 
-		const auto result = mDevice.CreateDepthStencilState(desc, *mDepthStencilStates[DepthStencilStateID::DepthStencilStateID_DepthReadEqual]);
+		const auto result = mDevice.CreateDepthStencilState(desc, *mDepthStencilStates[DepthStencilStateID::DepthStencilStateID_DepthRead]);
 		Debug::ThrowIfFailed(result, "Failed to create greater equal depthStencilState", result);
 	}
 
@@ -134,6 +135,7 @@ void StateManager::SetupDepthStencilStates()
 		desc.mDepthEnable = true;
 		desc.mDepthWriteMask = DEPTH_WRITE_MASK_ALL;
 		desc.mDepthFunc = COMPARISON_GREATER;
+		desc.mStencilEnable = false;
 
 		const auto result = mDevice.CreateDepthStencilState(desc, *mDepthStencilStates[DepthStencilStateID::DepthStencilStateID_Shadow]);
 		Debug::ThrowIfFailed(result, "Failed to create shadow depthStencilState", result);
@@ -156,6 +158,15 @@ void StateManager::SetupBlendStates()
 		desc.mRenderTarget[0].mBlendOpAlpha = BLEND_OP_ADD;
 		const auto result = mDevice.CreateBlendState(desc, *mBlendStates[BlendStateID::BlendStateID_Opaque]);
 		Debug::ThrowIfFailed(result, "Failed to create opaque blendState", result);
+	}
+	{
+		BlendStateDesc desc = {};
+		desc.mAlphaToCoverageEnable = false;
+		desc.mIndependentBlendEnable = false;
+		desc.mRenderTarget[0].mBlendEnable = false;
+		desc.mRenderTarget[0].mRenderTargetWriteMask = COLOR_WRITE_DISABLE;
+		const auto result = mDevice.CreateBlendState(desc, *mBlendStates[BlendStateID::BlendStateID_ColorWriteDisable]);
+		Debug::ThrowIfFailed(result, "Failed to create color write disable blendState", result);
 	}
 	{
 		BlendStateDesc desc = {};
@@ -257,6 +268,22 @@ void StateManager::SetupRasterizerStates()
 		desc.mConservativeRasterizationEnable = false;
 
 		const auto result = mDevice.CreateRasterizerState(desc, *mRasterizerStates[RasterizerStateID::RasterizerStateID_WireFrame]);
+		Debug::ThrowIfFailed(result, "Failed to create shadow rasterizerState", result);
+	}
+	{
+		RasterizerStateDesc desc = {};
+		desc.mFillMode = FILL_SOLID;
+		desc.mCullMode = CULL_FRONT;
+		desc.mFrontCounterClockwise = true;
+		desc.mDepthBias = 0;
+		desc.mDepthBiasClamp = 0;
+		desc.mSlopeScaleDepthBias = 0;
+		desc.mDepthClipEnable = false;
+		desc.mMultisampleEnable = false;
+		desc.mAntialiaseLineEnable = false;
+		desc.mConservativeRasterizationEnable = false;
+
+		const auto result = mDevice.CreateRasterizerState(desc, *mRasterizerStates[RasterizerStateID::RasterizerStateID_Sky]);
 		Debug::ThrowIfFailed(result, "Failed to create shadow rasterizerState", result);
 	}
 }

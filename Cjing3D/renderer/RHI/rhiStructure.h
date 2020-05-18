@@ -194,6 +194,13 @@ namespace Cjing3D
 		{}
 	};
 
+	struct ClearValue
+	{
+		float color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+		float depth = 0.0f;
+		U32 stencil = 0;
+	};
+
 	struct TextureDesc
 	{
 		U32 mWidth;
@@ -207,6 +214,7 @@ namespace Cjing3D
 		U32 mBindFlags;
 		U32 mCPUAccessFlags;
 		U32 mMiscFlags;
+		ClearValue mClearValue = {};
 
 		TextureDesc() :
 			mWidth(0),

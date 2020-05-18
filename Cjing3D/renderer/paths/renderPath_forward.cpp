@@ -18,17 +18,27 @@ namespace Cjing3D {
 		RenderPath3D::ResizeBuffers();
 
 		const auto screenSize = mRenderer.GetDevice().GetScreenSize();
-		TextureDesc desc = {};
-		desc.mWidth = screenSize[0];
-		desc.mHeight = screenSize[1];
-		desc.mFormat = RenderPath3D::RenderTargetFormatHDR;
-		desc.mSampleDesc.mCount = 1;
-		desc.mBindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE | BIND_UNORDERED_ACCESS;
 		{
-			const auto result = mRenderer.GetDevice().CreateTexture2D(&desc, nullptr, mRTMain);
-			Debug::ThrowIfFailed(result, "Failed to create render target:%08x", result);
+			TextureDesc desc = {};
+			desc.mWidth = screenSize[0];
+			desc.mHeight = screenSize[1];
+			desc.mFormat = RenderPath3D::RenderTargetFormatHDR;
+			desc.mSampleDesc.mCount = 1;
+			desc.mBindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE | BIND_UNORDERED_ACCESS;
+			{
+				const auto result = mRenderer.GetDevice().CreateTexture2D(&desc, nullptr, mRTMain);
+				Debug::ThrowIfFailed(result, "Failed to create render target:%08x", result);
 
-			mRenderer.GetDevice().SetResourceName(mRTMain, "RTMain");
+				mRenderer.GetDevice().SetResourceName(mRTMain, "RTMain");
+			}
+		}
+		//////////////////////////////////////////////////////////////////////////////////////////
+		{
+			RenderBehaviorDesc desc = {};
+			desc.mParams.push_back({ RenderBehaviorParam::RenderType_RenderTarget, &mRTMain,         -1, RenderBehaviorParam::RenderOperation_Clear });
+			desc.mParams.push_back({ RenderBehaviorParam::RenderType_DepthStencil, GetDepthBuffer(), -1, RenderBehaviorParam::RenderOperation_Clear });
+
+			mRenderer.GetDevice().CreateRenderBehavior(desc, mRBMain);
 		}
 	}
 
@@ -55,12 +65,8 @@ namespace Cjing3D {
 		mRenderer.UpdateCameraCB(*camera);
 
 		// opaque scene
-		Texture2D& depthBuffer = *GetDepthBuffer();
-		Texture2D* rts[] = { &mRTMain };
 		{
-			device.BindRenderTarget(1, rts, &depthBuffer);
-			device.ClearRenderTarget(mRTMain, { 0.0f, 0.0f, 0.0f, 1.0f });
-			device.ClearDepthStencil(depthBuffer, CLEAR_DEPTH | CLEAR_STENCIL, 0, 0);
+			device.BeginRenderBehavior(mRBMain);
 
 			ViewPort vp;
 			vp.mWidth = (F32)mRTMain.GetDesc().mWidth;
@@ -70,7 +76,13 @@ namespace Cjing3D {
 			device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
 
 			mRenderer.RenderSceneOpaque(camera, RenderPassType_Forward);
+			mRenderer.RenderSky();
+
+			device.EndRenderBehavior();
 		}
+
+		// transparent
+		RenderTransparents(mRBTransparent, RenderPassType_Forward);
 
 		// postprocess
 		RenderPostprocess(mRTMain);

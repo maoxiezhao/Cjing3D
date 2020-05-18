@@ -38,7 +38,6 @@ namespace Cjing3D
 		StateManager& stateManager = mRenderer.GetStateManager();
 
 		// generate mipmap by compute shader
-		device.BindRenderTarget(0, nullptr, nullptr);
 		switch (filter)
 		{
 		case MIPGENFILTER_POINT:

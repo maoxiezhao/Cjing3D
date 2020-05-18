@@ -81,6 +81,10 @@ void ShaderLib::LoadVertexShaders()
 		auto shadowVSInfo = resourceManager.GetOrCreate<VertexShaderInfo>(shaderPath + "shadowVS.cso", shadowLayout, ARRAYSIZE(shadowLayout));
 		mVertexShader[VertexShaderType_Shadow] = shadowVSInfo->mVertexShader;
 		mInputLayout[InputLayoutType_Shadow] = shadowVSInfo->mInputLayout;
+
+		// full screen vs
+		auto skyVSInfo = resourceManager.GetOrCreate<VertexShaderInfo>(shaderPath + "skyVS.cso", nullptr, 0);
+		mVertexShader[VertexShaderType_Sky] = skyVSInfo->mVertexShader;
 	}
 }
 
@@ -89,6 +93,7 @@ void ShaderLib::LoadPixelShaders()
 	auto& resourceManager = mRenderer.GetResourceManager();
 	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resrouce_PixelShader);
 	{
+		// object
 		mPixelShader[PixelShaderType_Forward] = resourceManager.GetOrCreate<PixelShader>(shaderPath + "objectForwardPS.cso");
 
 		// full screen ps
@@ -96,6 +101,9 @@ void ShaderLib::LoadPixelShaders()
 
 		// image ps
 		mPixelShader[PixelShaderType_Image] = resourceManager.GetOrCreate<PixelShader>(shaderPath + "imagePS.cso");
+
+		// full screen ps
+		mPixelShader[PixelShaderType_Sky] = resourceManager.GetOrCreate<PixelShader>(shaderPath + "skyPS.cso");
 	}
 }
 

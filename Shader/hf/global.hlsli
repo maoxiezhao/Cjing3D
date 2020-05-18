@@ -9,10 +9,12 @@
 #define TEXTURE_SURFACE_MAP		TEXTURE_SLOT_2
 
 // common texture slots
+TEXTURE2DARRAY(texture_shadowmap_array, float, TEXTURE_SLOT_SHADOW_ARRAY_2D);
+TEXTRRECUBE(texture_global_env_map, float4, TEXTURE_SLOT_GLOBAL_ENV_MAP);
+
 TEXTURE2D(texture_0, TEXTURE_SLOT_0);
 TEXTURE2D(texture_1, TEXTURE_SLOT_1);
 TEXTURE2D(texture_2, TEXTURE_SLOT_2);
-TEXTURE2DARRAY(texture_shadowmap_array, float, TEXTURE_SLOT_SHADOW_ARRAY_2D);
 
 // common sampler states
 SAMPLERSTATE(sampler_linear_clamp, SAMPLER_LINEAR_CLAMP_SLOT);
@@ -58,6 +60,11 @@ inline float3 GammaCorrect(float3 color)
     return pow(color, 1.0f / gFrameGamma);
 }
 inline float3 DeGammaCorrect(float3 color)
+{
+    return pow(color, gFrameGamma);
+}
+
+inline float3 DeGammaCorrectSky(float3 color)
 {
     return pow(color, gFrameGamma);
 }

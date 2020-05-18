@@ -3,8 +3,6 @@
 #include "imgui\imgui_impl_win32.h"
 #include "imgui\imgui_impl_dx11.h"
 
-#include "gui\guiEditor\guiEditor.h"
-
 #include "engine.h"
 #include "utils\baseWindow.h"
 #include "core\systemContext.hpp"
@@ -12,8 +10,9 @@
 #include "renderer\renderer2D.h"
 #include "renderer\RHI\deviceD3D11.h"
 #include "renderer\paths\renderPath3D.h"
-
 #include "system\sceneSystem.h"
+
+#include "guiEditor\guiEditor.h"
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 namespace Cjing3D
@@ -161,15 +160,9 @@ namespace Cjing3D
 			return;
 		}
 
-		// show base window
-		if (IsShowBasicInfo())
-		{
-			Editor::ShowBasicWindow(deltaTime);
-		}
-
 		// show custom registerd windows
 		for (auto it : mRegisteredWindows) {
-			it();
+			it(deltaTime);
 		}
 	}
 }

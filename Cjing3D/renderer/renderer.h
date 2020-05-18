@@ -82,6 +82,7 @@ public:
 	void RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, RenderPassType renderPassType);
 	void RenderSceneTransparent(std::shared_ptr<CameraComponent> camera, RenderPassType renderPassType);
 	void RenderImpostor(CameraComponent& camera, RenderPassType renderPassType);
+	void RenderSky();
 
 	// postprocess
 	void PostprocessTonemap(Texture2D& input, Texture2D& output, F32 exposure);

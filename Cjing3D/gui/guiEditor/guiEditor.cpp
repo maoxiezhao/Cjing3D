@@ -11,6 +11,10 @@
 
 #include "system\sceneSystem.h"
 
+#include "imgui\imgui.h"
+#include "imgui\imgui_impl_win32.h"
+#include "imgui\imgui_impl_dx11.h"
+
 namespace Cjing3D {
 namespace Editor {
 
@@ -81,7 +85,7 @@ namespace Editor {
 	}
 
 	Entity currentObject = INVALID_ENTITY;
-	void ShowObjectAttribute()
+	void ShowObjectAttribute(F32 deltaTime)
 	{
 		if (currentObject == INVALID_ENTITY) return;
 
@@ -156,7 +160,7 @@ namespace Editor {
 	}
 
 	Entity currentLight = INVALID_ENTITY;
-	void ShowLightAttribute()
+	void ShowLightAttribute(F32 deltaTime)
 	{
 		if (currentLight == INVALID_ENTITY) return;
 
@@ -198,7 +202,7 @@ namespace Editor {
 			}
 
 			F32 shadowBias = light->mShadowBias;
-			if (ImGui::DragFloat("shadowBias", &shadowBias, 0.0001f, 0.0f, 1.0f, "%.4f"))
+			if (ImGui::DragFloat("shadowBias", &shadowBias, 0.00001f, 0.0f, 1.0f, "%.5f"))
 			{
 				light->mShadowBias = shadowBias;
 			}
@@ -208,7 +212,7 @@ namespace Editor {
 	}
 
 	Entity currentMaterial = INVALID_ENTITY;
-	void ShowMaterialAttribute()
+	void ShowMaterialAttribute(F32 deltaTime)
 	{
 		if (currentMaterial == INVALID_ENTITY) return;
 
@@ -244,7 +248,7 @@ namespace Editor {
 	}
 
 	Entity currentTerrain = INVALID_ENTITY;
-	void ShowTerrainAttribute()
+	void ShowTerrainAttribute(F32 deltaTime)
 	{
 		if (currentTerrain == INVALID_ENTITY) return;
 
@@ -271,7 +275,7 @@ namespace Editor {
 	}
 
 	bool showAnimationWindow = false;
-	void ShowAnimationAttribute()
+	void ShowAnimationAttribute(F32 deltaTime)
 	{
 		if (showAnimationWindow == false) return;
 
@@ -372,7 +376,7 @@ namespace Editor {
 	}
 
 	bool showRenderWindow = false;
-	void ShowRenderProperties()
+	void ShowRenderProperties(F32 deltaTime)
 	{
 		if (showRenderWindow == false) return;
 
@@ -396,7 +400,7 @@ namespace Editor {
 	}
 
 	static int currentTransformEntity = ECS::INVALID_ENTITY;
-	void ShowHierarchyWindow()
+	void ShowHierarchyWindow(F32 deltaTime)
 	{
 		if (currentTransformEntity == INVALID_ENTITY) return;
 
@@ -508,7 +512,7 @@ namespace Editor {
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
-	void showEntityListWindow()
+	void showEntityListWindow(F32 deltaTime)
 	{
 		ImGui::SetNextWindowPos(ImVec2(10, 350), ImGuiCond_Always);
 		ImGui::SetNextWindowSize(ImVec2(350, 300), ImGuiCond_Always);
@@ -617,20 +621,6 @@ namespace Editor {
 		ImGui::End();
 	}
 
-	//////////////////////////////////////////////////////////////////////////////////////////////////
-
-	void InitializeEditor(IMGUIStage& imguiStage)
-	{
-		imguiStage.RegisterCustomWindow(showEntityListWindow);
-		imguiStage.RegisterCustomWindow(ShowObjectAttribute);
-		imguiStage.RegisterCustomWindow(ShowLightAttribute);
-		imguiStage.RegisterCustomWindow(ShowMaterialAttribute);
-		imguiStage.RegisterCustomWindow(ShowTerrainAttribute);
-		imguiStage.RegisterCustomWindow(ShowRenderProperties);
-		imguiStage.RegisterCustomWindow(ShowAnimationAttribute);
-		imguiStage.RegisterCustomWindow(ShowHierarchyWindow);
-	}
-
 	void ShowBasicWindow(F32 deltaTime)
 	{
 		ImGuiWindowFlags windowFlags = ImGuiWindowFlags_MenuBar;
@@ -661,6 +651,21 @@ namespace Editor {
 		ImGui::Text("");
 		ImGui::Text(Profiler::GetInstance().GetProfileString().c_str());
 		ImGui::End();
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////
+
+	void InitializeEditor(IMGUIStage& imguiStage)
+	{
+		imguiStage.RegisterCustomWindow(ShowBasicWindow);
+		imguiStage.RegisterCustomWindow(showEntityListWindow);
+		imguiStage.RegisterCustomWindow(ShowObjectAttribute);
+		imguiStage.RegisterCustomWindow(ShowLightAttribute);
+		imguiStage.RegisterCustomWindow(ShowMaterialAttribute);
+		imguiStage.RegisterCustomWindow(ShowTerrainAttribute);
+		imguiStage.RegisterCustomWindow(ShowRenderProperties);
+		imguiStage.RegisterCustomWindow(ShowAnimationAttribute);
+		imguiStage.RegisterCustomWindow(ShowHierarchyWindow);
 	}
 }
 }

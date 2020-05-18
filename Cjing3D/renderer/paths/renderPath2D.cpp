@@ -27,11 +27,21 @@ namespace Cjing3D
 		desc.mHeight = screenSize[1];
 		desc.mFormat = format;
 		desc.mBindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
+		desc.mClearValue.color[3] = 0.0f;
 		{
 			const auto result = mRenderer.GetDevice().CreateTexture2D(&desc, nullptr, mRTFinal);
 			Debug::ThrowIfFailed(result, "Failed to create render target:%08x", result);
 
 			mRenderer.GetDevice().SetResourceName(mRTFinal, "mRTFinal");
+		}
+
+		//////////////////////////////////////////////////////////////////////////////////////////
+		{
+			RenderBehaviorDesc desc = {};
+			desc.mParams.push_back({ RenderBehaviorParam::RenderType_RenderTarget, &mRTFinal,         -1, RenderBehaviorParam::RenderOperation_Clear });
+			desc.mParams.push_back({ RenderBehaviorParam::RenderType_DepthStencil, GetDepthBuffer(),  -1, RenderBehaviorParam::RenderOperation_Load });
+
+			mRenderer.GetDevice().CreateRenderBehavior(desc, mRBFinal);
 		}
 	}
 
@@ -54,12 +64,8 @@ namespace Cjing3D
 	{
 		GraphicsDevice& device = mRenderer.GetDevice();
 		device.BeginEvent("Render2D");
-
-		Texture2D* depthBuffer = GetDepthBuffer();
-		Texture2D* rts[] = { &mRTFinal };
 		{
-			device.BindRenderTarget(1, rts, depthBuffer);
-			device.ClearRenderTarget(mRTFinal, { 0.0f, 0.0f, 0.0f, 0.0f });
+			device.BeginRenderBehavior(mRBFinal);
 
 			ViewPort vp;
 			vp.mWidth = (F32)mRTFinal.GetDesc().mWidth;
@@ -69,6 +75,8 @@ namespace Cjing3D
 			device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
 
 			RenderGUI();
+
+			device.EndRenderBehavior();
 		}
 
 		device.EndEvent();

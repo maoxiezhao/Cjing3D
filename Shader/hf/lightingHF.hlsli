@@ -34,7 +34,7 @@ static const float pointLightAttLinear = 0.09f;
 static const float pointLightAttQuadratic = 0.032f;
 
 static const float softShadowSamplerRange = 1.5f;
-static const float defaultMaxShadowBias = 0.002;
+static const float defaultMaxShadowBias = 0.0002;
 inline float cascadeShadow(float3 shadowPos, float2 shadowTex, float bias, float slice, float NdotL, float shadowKernel)
 {
     bias = max(defaultMaxShadowBias * (1.0f - NdotL), bias);

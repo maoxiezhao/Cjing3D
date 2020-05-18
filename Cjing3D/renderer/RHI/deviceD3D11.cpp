@@ -811,6 +811,21 @@ namespace {
 			result |= D3D11_CLEAR_STENCIL;
 		return result;
 	}
+
+	inline bool IsFormatStencilSupport(FORMAT value)
+	{
+		switch (value)
+		{
+		case FORMAT_R32G8X24_TYPELESS:
+		case FORMAT_D32_FLOAT_S8X24_UINT:
+		case FORMAT_R24G8_TYPELESS:
+		case FORMAT_D24_UNORM_S8_UINT:
+			return true;
+		}
+
+		return false;
+	}
+
 }
 
 GraphicsDeviceD3D11::GraphicsDeviceD3D11(HWND window, bool fullScreen, bool debugLayer):
@@ -835,6 +850,8 @@ GraphicsDeviceD3D11::GraphicsDeviceD3D11(HWND window, bool fullScreen, bool debu
 
 void GraphicsDeviceD3D11::Initialize()
 {
+	GraphicsDevice::Initialize();
+
 	// 初始化device
 	InitializeDevice();
 
@@ -953,7 +970,7 @@ void GraphicsDeviceD3D11::PresentEnd()
 	deviceContext.OMSetRenderTargets(0, nullptr, nullptr);
 	deviceContext.ClearState();
 
-	BindShaderInfoState(PipelineState());
+	BindPipelineState(PipelineState());
 	ClearPrevStates();
 
 	mCurrentFrameCount++;
@@ -1489,13 +1506,14 @@ void GraphicsDeviceD3D11::BindRenderTarget(UINT numView, RhiTexture2D* const *te
 	GetDeviceContext(GraphicsThread_IMMEDIATE).OMSetRenderTargets(curNum, renderTargetViews, depthStencilView);
 }
 
-void GraphicsDeviceD3D11::CreateRenderTargetView(RhiTexture2D & texture)
+I32 GraphicsDeviceD3D11::CreateRenderTargetView(RhiTexture2D & texture)
 {
 	auto rhiState = GetGraphicsDeviceChildState<TextureD3D11>(texture);
 	if (rhiState == nullptr) {
-		return;
+		return -1;
 	}
 
+	I32 subresourceIndex = -1;
 	const auto& desc = texture.GetDesc();
 	if (desc.mBindFlags & BIND_RENDER_TARGET)
 	{
@@ -1526,21 +1544,25 @@ void GraphicsDeviceD3D11::CreateRenderTargetView(RhiTexture2D & texture)
 					else
 					{
 						//Debug::Warning("CreateShaderResourceView: create new subresource, count:" + std::to_string(texture.mSubresourceSRVs.size()));
+						subresourceIndex = rhiState->mSubresourceRTVs.size();
 						rhiState->mSubresourceRTVs.push_back(newRTV);
 					}
 				}
 			}
 		}
 	}
+
+	return subresourceIndex;
 }
 
-void GraphicsDeviceD3D11::CreateShaderResourceView(RhiTexture2D & texture, U32 arraySlice, U32 arrayCount, U32 firstMip, U32 mipLevel)
+I32 GraphicsDeviceD3D11::CreateShaderResourceView(RhiTexture2D & texture, U32 arraySlice, U32 arrayCount, U32 firstMip, U32 mipLevel)
 {
 	auto rhiState = GetGraphicsDeviceChildState<TextureD3D11>(texture);
 	if (rhiState == nullptr) {
-		return;
+		return -1;
 	}
 
+	I32 subresourceIndex = -1;
 	const auto& desc = texture.GetDesc();
 	if (desc.mBindFlags & BIND_SHADER_RESOURCE)
 	{
@@ -1568,11 +1590,20 @@ void GraphicsDeviceD3D11::CreateShaderResourceView(RhiTexture2D & texture, U32 a
 		}
 		else
 		{
-			shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
-			shaderResourceViewDesc.Texture2DArray.FirstArraySlice = arraySlice; // 使用的texture的索引
-			shaderResourceViewDesc.Texture2DArray.ArraySize = arraySize;        // texture的数量
-			shaderResourceViewDesc.Texture2DArray.MostDetailedMip = firstMip;   // 开始使用的miplevel
-			shaderResourceViewDesc.Texture2DArray.MipLevels = mipLevel;         // 使用mipLevel数量
+			if (desc.mMiscFlags & RESOURCE_MISC_TEXTURECUBE)
+			{
+				shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+				shaderResourceViewDesc.TextureCube.MostDetailedMip = firstMip;
+				shaderResourceViewDesc.TextureCube.MipLevels = mipLevel;
+			}
+			else
+			{
+				shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+				shaderResourceViewDesc.Texture2DArray.FirstArraySlice = arraySlice; // 使用的texture的索引
+				shaderResourceViewDesc.Texture2DArray.ArraySize = arraySize;        // texture的数量
+				shaderResourceViewDesc.Texture2DArray.MostDetailedMip = firstMip;   // 开始使用的miplevel
+				shaderResourceViewDesc.Texture2DArray.MipLevels = mipLevel;         // 使用mipLevel数量
+			}
 		}
 
 		ComPtr<ID3D11ShaderResourceView> newSRV = nullptr;
@@ -1586,21 +1617,25 @@ void GraphicsDeviceD3D11::CreateShaderResourceView(RhiTexture2D & texture, U32 a
 			else 
 			{
 				//Debug::Warning("CreateShaderResourceView: create new subresource, count:" + std::to_string(texture.mSubresourceSRVs.size()));
+				subresourceIndex = rhiState->mSubresourceSRVs.size();
 				rhiState->mSubresourceSRVs.push_back(newSRV);
 			}
 		}
 	}
+
+	return subresourceIndex;
 }
 
 // arraySlice和arrayCount仅用于当texture.ArraySize > 0时使用
 // arraySlice表示textureArray的第几部分，arrayCount表示这部分的数量
-void GraphicsDeviceD3D11::CreateDepthStencilView(RhiTexture2D & texture, U32 arraySlice, U32 arrayCount)
+I32 GraphicsDeviceD3D11::CreateDepthStencilView(RhiTexture2D & texture, U32 arraySlice, U32 arrayCount)
 {
 	auto rhiState = GetGraphicsDeviceChildState<TextureD3D11>(texture);
 	if (rhiState == nullptr) {
-		return;
+		return -1;
 	}
 
+	I32 subresourceIndex = -1;
 	const auto& desc = texture.GetDesc();
 	if (desc.mBindFlags & BIND_DEPTH_STENCIL)
 	{
@@ -1637,23 +1672,29 @@ void GraphicsDeviceD3D11::CreateDepthStencilView(RhiTexture2D & texture, U32 arr
 		HRESULT result = mDevice->CreateDepthStencilView(rhiState->mResource.Get(), &depthStencilViewDesc, &newDsv);
 		if (SUCCEEDED(result))
 		{
-			if (rhiState->mDSV == nullptr) {
+			if (rhiState->mDSV == nullptr) 
+			{
 				rhiState->mDSV = newDsv;
 			}
-			else {
+			else 
+			{
+				subresourceIndex = rhiState->mSubresourceDSVs.size();
 				rhiState->mSubresourceDSVs.push_back(newDsv);
 			}
 		}
 	}
+
+	return subresourceIndex;
 }
 
-void GraphicsDeviceD3D11::CreateUnordereddAccessView(RhiTexture2D& texture, U32 firstMip)
+I32 GraphicsDeviceD3D11::CreateUnordereddAccessView(RhiTexture2D& texture, U32 firstMip)
 {
 	auto rhiState = GetGraphicsDeviceChildState<TextureD3D11>(texture);
 	if (rhiState == nullptr) {
-		return;
+		return -1;
 	}
 
+	I32 subresourceIndex = -1;
 	const auto& desc = texture.GetDesc();
 	if (desc.mBindFlags & BIND_UNORDERED_ACCESS)
 	{
@@ -1687,11 +1728,14 @@ void GraphicsDeviceD3D11::CreateUnordereddAccessView(RhiTexture2D& texture, U32 
 				else 
 				{
 					//Debug::Warning("CreateUnordereddAccessView: create new subresource, count:" + std::to_string(texture.mSubresourceUAVS.size()));
+					subresourceIndex = rhiState->mSubresourceUAVS.size();
 					rhiState->mSubresourceUAVS.push_back(newUAV);
 				}
 			}
 		}
 	}
+
+	return subresourceIndex;
 }
 
 void GraphicsDeviceD3D11::ClearRenderTarget(RhiTexture2D & texture, F32x4 color)
@@ -1827,6 +1871,70 @@ void GraphicsDeviceD3D11::SetResourceName(GPUResource & resource, const std::str
 	d3dResource->SetPrivateData(WKPDID_D3DDebugObjectName, (UINT)name.length(), name.c_str());
 }
 
+void GraphicsDeviceD3D11::CreateRenderBehavior(RenderBehaviorDesc& desc, RenderBehavior& behavior)
+{
+	behavior.mRhiState = mEmptyRhiState;
+	behavior.mDesc = desc;
+}
+
+void GraphicsDeviceD3D11::BeginRenderBehavior(RenderBehavior& behavior)
+{
+	ID3D11RenderTargetView* renderTargetViews[8] = {};
+	UINT rtCount = 0;
+	ID3D11DepthStencilView* depthStencilView = nullptr;
+
+	// 遍历所有RenderBehaviorParams填充rtvs和dsv
+	RenderBehaviorDesc& desc = behavior.mDesc;
+	for (RenderBehaviorParam& param : desc.mParams)
+	{
+		const Texture* texture = param.mTexture;
+		if (texture == nullptr) {
+			continue;
+		}
+
+		auto rhiState = GetGraphicsDeviceChildState<TextureD3D11>(*texture);
+		if (rhiState == nullptr) {
+			continue;
+		}
+
+		I32 subresourceIndex = param.mSubresourceIndex;
+		if (param.mType == RenderBehaviorParam::RenderType_RenderTarget)
+		{	
+			Debug::CheckAssertion(subresourceIndex < (I32)rhiState->mSubresourceRTVs.size(), "Invalid renderTarget subresource.");
+			renderTargetViews[rtCount] = (subresourceIndex < 0) ? rhiState->mRTV.Get() : rhiState->mSubresourceRTVs[subresourceIndex].Get();
+
+			if (param.mOperation == RenderBehaviorParam::RenderOperation_Clear) {
+				ClearValue value = texture->mDesc.mClearValue;
+				GetDeviceContext(GraphicsThread_IMMEDIATE).ClearRenderTargetView(renderTargetViews[rtCount], texture->mDesc.mClearValue.color);
+			}
+
+			rtCount++;
+		}
+		else if (param.mType == RenderBehaviorParam::RenderType_DepthStencil)
+		{
+			Debug::CheckAssertion(subresourceIndex < (I32)rhiState->mSubresourceDSVs.size(), "Invalid renderTarget subresource.");
+			depthStencilView = (subresourceIndex < 0) ? rhiState->mDSV.Get() : rhiState->mSubresourceDSVs[subresourceIndex].Get();
+		
+			if (param.mOperation == RenderBehaviorParam::RenderOperation_Clear) {
+				uint32_t flag = D3D11_CLEAR_DEPTH;
+				if (IsFormatStencilSupport(texture->mDesc.mFormat)) {
+					flag |= D3D11_CLEAR_STENCIL;
+				}
+
+				ClearValue value = texture->mDesc.mClearValue;
+				GetDeviceContext(GraphicsThread_IMMEDIATE).ClearDepthStencilView(depthStencilView, flag, value.depth, value.stencil);
+			}
+		}
+	}
+
+	GetDeviceContext(GraphicsThread_IMMEDIATE).OMSetRenderTargets(rtCount, renderTargetViews, depthStencilView);
+}
+
+void GraphicsDeviceD3D11::EndRenderBehavior()
+{
+	GetDeviceContext(GraphicsThread_IMMEDIATE).OMSetRenderTargets(0, nullptr, nullptr);
+}
+
 void GraphicsDeviceD3D11::BindComputeShader(ComputeShaderPtr computeShader)
 {
 	ID3D11ComputeShader* cs = nullptr;
@@ -1904,42 +2012,44 @@ void GraphicsDeviceD3D11::BindUAVs(GPUResource* const* resource, U32 slot, U32 c
 	GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetUnorderedAccessViews(slot, count, uavs, nullptr);
 }
 
-void GraphicsDeviceD3D11::BindShaderInfoState(PipelineState state)
+void GraphicsDeviceD3D11::BindPipelineState(PipelineState state)
 {
-	ID3D11VertexShader* vs = state.mVertexShader != nullptr ? 
-		GetGraphicsDeviceChildState<VertexShaderD3D11>(*state.mVertexShader)->mHandle.Get() : nullptr;
+	PipelineStateDesc& desc = state.mDesc;
+
+	ID3D11VertexShader* vs = desc.mVertexShader != nullptr ?
+		GetGraphicsDeviceChildState<VertexShaderD3D11>(*desc.mVertexShader)->mHandle.Get() : nullptr;
 	if (vs != mPrevVertexShader)
 	{
 		GetDeviceContext(GraphicsThread_IMMEDIATE).VSSetShader(vs, nullptr, 0);
 		mPrevVertexShader = vs;
 	}
 
-	ID3D11PixelShader* ps = state.mPixelShader != nullptr ? 
-		GetGraphicsDeviceChildState<PixelShaderD3D11>(*state.mPixelShader)->mHandle.Get() : nullptr;
+	ID3D11PixelShader* ps = desc.mPixelShader != nullptr ? 
+		GetGraphicsDeviceChildState<PixelShaderD3D11>(*desc.mPixelShader)->mHandle.Get() : nullptr;
 	if (ps != mPrevPixelShader)
 	{
 		GetDeviceContext(GraphicsThread_IMMEDIATE).PSSetShader(ps, nullptr, 0);
 		mPrevPixelShader = ps;
 	}
 
-	ID3D11HullShader* hs = state.mHullShader != nullptr ? 
-		GetGraphicsDeviceChildState<HullShaderD3D11>(*state.mHullShader)->mHandle.Get() : nullptr;
+	ID3D11HullShader* hs = desc.mHullShader != nullptr ? 
+		GetGraphicsDeviceChildState<HullShaderD3D11>(*desc.mHullShader)->mHandle.Get() : nullptr;
 	if (hs != mPrevHullShader)
 	{
 		GetDeviceContext(GraphicsThread_IMMEDIATE).HSSetShader(hs, nullptr, 0);
 		mPrevHullShader = hs;
 	}
 
-	ID3D11DomainShader* ds = state.mDomainShader != nullptr ? 
-		GetGraphicsDeviceChildState<DomainShaderD3D11>(*state.mDomainShader)->mHandle.Get() : nullptr;
+	ID3D11DomainShader* ds = desc.mDomainShader != nullptr ? 
+		GetGraphicsDeviceChildState<DomainShaderD3D11>(*desc.mDomainShader)->mHandle.Get() : nullptr;
 	if (ds != mPrevDomainShader)
 	{
 		GetDeviceContext(GraphicsThread_IMMEDIATE).DSSetShader(ds, nullptr, 0);
 		mPrevDomainShader = ds;
 	}
 
-	ID3D11BlendState* bs = state.mBlendState != nullptr ? 
-		GetGraphicsDeviceChildState<BlendStateD3D11>(*state.mBlendState)->mHandle.Get() : nullptr;
+	ID3D11BlendState* bs = desc.mBlendState != nullptr ? 
+		GetGraphicsDeviceChildState<BlendStateD3D11>(*desc.mBlendState)->mHandle.Get() : nullptr;
 	if (bs != mPrevBlendState)
 	{
 		const float factor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -1947,34 +2057,34 @@ void GraphicsDeviceD3D11::BindShaderInfoState(PipelineState state)
 		mPrevBlendState = bs;
 	}
 
-	ID3D11RasterizerState* rs = state.mRasterizerState != nullptr ? 
-		GetGraphicsDeviceChildState<RasterizerStateD3D11>(*state.mRasterizerState)->mHandle.Get() : nullptr;
+	ID3D11RasterizerState* rs = desc.mRasterizerState != nullptr ? 
+		GetGraphicsDeviceChildState<RasterizerStateD3D11>(*desc.mRasterizerState)->mHandle.Get() : nullptr;
 	if (rs != mPrevRasterizerState)
 	{
 		GetDeviceContext(GraphicsThread_IMMEDIATE).RSSetState(rs);
 		mPrevRasterizerState = rs;
 	}
 
-	ID3D11DepthStencilState* dss = state.mDepthStencilState != nullptr ? 
-		GetGraphicsDeviceChildState<DepthStencilStateD3D11>(*state.mDepthStencilState)->mHandle.Get() : nullptr;
+	ID3D11DepthStencilState* dss = desc.mDepthStencilState != nullptr ? 
+		GetGraphicsDeviceChildState<DepthStencilStateD3D11>(*desc.mDepthStencilState)->mHandle.Get() : nullptr;
 	if (dss != mPrevDepthStencilState)
 	{
 		GetDeviceContext(GraphicsThread_IMMEDIATE).OMSetDepthStencilState(dss, 0);
 		mPrevDepthStencilState = dss;
 	}
 
-	ID3D11InputLayout* il = state.mInputLayout != nullptr ? 
-		GetGraphicsDeviceChildState<InputLayoutD3D11>(*state.mInputLayout)->mHandle.Get() : nullptr;
+	ID3D11InputLayout* il = desc.mInputLayout != nullptr ? 
+		GetGraphicsDeviceChildState<InputLayoutD3D11>(*desc.mInputLayout)->mHandle.Get() : nullptr;
 	if (il != mPrevInputLayout)
 	{
 		GetDeviceContext(GraphicsThread_IMMEDIATE).IASetInputLayout(il);
 		mPrevInputLayout = il;
 	}
 
-	if (state.mPrimitiveTopology != mPrevPrimitiveTopology)
+	if (desc.mPrimitiveTopology != mPrevPrimitiveTopology)
 	{
 		D3D11_PRIMITIVE_TOPOLOGY primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-		switch (state.mPrimitiveTopology)
+		switch (desc.mPrimitiveTopology)
 		{
 		case TRIANGLELIST:
 			primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
@@ -2000,7 +2110,7 @@ void GraphicsDeviceD3D11::BindShaderInfoState(PipelineState state)
 		}
 
 		GetDeviceContext(GraphicsThread_IMMEDIATE).IASetPrimitiveTopology(primitiveTopology);
-		mPrevPrimitiveTopology = state.mPrimitiveTopology;
+		mPrevPrimitiveTopology = desc.mPrimitiveTopology;
 	}
 }
 

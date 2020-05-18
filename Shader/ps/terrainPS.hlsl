@@ -62,10 +62,19 @@ float4 main(PixelInputType input) : SV_TARGET
         float3 weights = weightTexture.SampleLevel(terrainSampler, input.tex, 0).rgb;
         float sumWeight = weights.r + weights.g + weights.b;
         weights /= sumWeight;
+        
+        float4 color1 = detailTexture1.SampleLevel(terrainSampler, input.tex, 0);
+        float4 color2 = detailTexture2.SampleLevel(terrainSampler, input.tex, 0);
+        float4 color3 = detailTexture3.SampleLevel(terrainSampler, input.tex, 0);
+        
+        color1.rgb = DeGammaCorrect(color1.rgb);
+        color2.rgb = DeGammaCorrect(color2.rgb);
+        color3.rgb = DeGammaCorrect(color3.rgb);
+        
         float4 diffColor = (
-            weights.r * detailTexture1.SampleLevel(terrainSampler, input.tex, 0) +
-            weights.g * detailTexture2.SampleLevel(terrainSampler, input.tex, 0) +
-            weights.b * detailTexture3.SampleLevel(terrainSampler, input.tex, 0)
+            weights.r * color1 +
+            weights.g * color2 +
+            weights.b * color3
         );
     }
 

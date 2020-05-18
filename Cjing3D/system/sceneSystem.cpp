@@ -130,6 +130,14 @@ namespace Cjing3D
 		return entity;
 	}
 
+	ECS::Entity Scene::CreateWeather(const std::string& name)
+	{
+		auto entity = CreateEntityByName(name);
+		mWeathers.Create(entity);
+
+		return entity;
+	}
+
 	NameComponent& Scene::GetOrCreateNameByEntity(ECS::Entity entity)
 	{
 		auto nameComponentPtr = mNames.GetComponent(entity);
@@ -305,7 +313,8 @@ namespace Cjing3D
 			&mLightAABBs,
 			&mTerrains,
 			&mArmatures,
-			&mAnimations
+			&mAnimations,
+			&mWeathers
 		);
 		return t;
 	}
@@ -324,7 +333,8 @@ namespace Cjing3D
 			&mLightAABBs,
 			&mTerrains,
 			&mArmatures,
-			&mAnimations
+			&mAnimations,
+			&mWeathers
 		);
 		return t;
 	}

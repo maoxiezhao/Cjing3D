@@ -20,7 +20,7 @@ namespace Cjing3D {
 
 		// render method
 		virtual void RenderShadowmaps();
-		virtual void RenderTransparents(Texture2D& rtMain, RenderPassType renderType);
+		virtual void RenderTransparents(RenderBehavior& renderBehavior, RenderPassType renderType);
 		virtual void RenderPostprocess(Texture2D& rtScreen);
 
 		void SetExposure(F32 exposure) { mExposure = exposure; }

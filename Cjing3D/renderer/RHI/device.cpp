@@ -12,6 +12,7 @@ GraphicsDevice::GraphicsDevice(GraphicsDeviceType type):
 
 void GraphicsDevice::Initialize()
 {
+	mEmptyRhiState = std::make_shared<EmptyRhiState>();
 }
 
 void GraphicsDevice::Uninitialize()
@@ -150,6 +151,12 @@ U32 GraphicsDevice::GetFormatStride(FORMAT value) const
 	}
 
 	return 16;
+}
+
+void GraphicsDevice::CreatePipelineState(PipelineStateDesc& desc, PipelineState& state)
+{
+	state.mRhiState = mEmptyRhiState;
+	state.mDesc = desc;
 }
 
 }

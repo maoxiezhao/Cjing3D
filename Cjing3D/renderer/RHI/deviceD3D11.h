@@ -48,10 +48,10 @@ public:
 	virtual HRESULT CreateTexture2D(const TextureDesc* desc, const SubresourceData* data, RhiTexture2D& texture2D);
 	virtual void CopyTexture2D(RhiTexture2D* texDst, RhiTexture2D* texSrc);
 
-	virtual void CreateRenderTargetView(RhiTexture2D& texture);
-	virtual void CreateShaderResourceView(RhiTexture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1, U32 firstMip = 0, U32 mipLevel = -1);
-	virtual void CreateDepthStencilView(RhiTexture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1);
-	virtual void CreateUnordereddAccessView(RhiTexture2D& texture, U32 firstMip = 0);
+	virtual I32 CreateRenderTargetView(RhiTexture2D& texture);
+	virtual I32 CreateShaderResourceView(RhiTexture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1, U32 firstMip = 0, U32 mipLevel = -1);
+	virtual I32 CreateDepthStencilView(RhiTexture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1);
+	virtual I32 CreateUnordereddAccessView(RhiTexture2D& texture, U32 firstMip = 0);
 
 	virtual void BindRenderTarget(UINT numView, RhiTexture2D* const* texture2D, RhiTexture2D* depthStencilTexture, I32 subresourceIndex = -1);
 	virtual void ClearRenderTarget(RhiTexture2D& texture, F32x4 color);
@@ -62,6 +62,10 @@ public:
 	virtual void UnbindGPUResources(U32 slot, U32 count);
 	virtual void SetResourceName(GPUResource& resource, const std::string& name);
 
+	virtual void CreateRenderBehavior(RenderBehaviorDesc& desc, RenderBehavior& behavior);
+	virtual void BeginRenderBehavior(RenderBehavior& behavior);
+	virtual void EndRenderBehavior();
+
 	// compute
 	virtual void BindComputeShader(ComputeShaderPtr computeShader);
 	virtual void Dispatch(U32 threadGroupCountX, U32 threadGroupCountY, U32 threadGroupCountZ);
@@ -69,7 +73,7 @@ public:
 	virtual void BindUAVs(GPUResource* const* resource, U32 slot, U32 count);
 	virtual void UnBindUAVs(U32 slot, U32 count);
 
-	virtual void BindShaderInfoState(PipelineState state);
+	virtual void BindPipelineState(PipelineState state);
 
 	void ClearPrevStates();
 

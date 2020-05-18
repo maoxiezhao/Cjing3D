@@ -87,7 +87,7 @@ namespace Cjing3D
 		mRenderer.RenderShadowmaps(mRenderer.GetCamera());
 	}
 
-	void RenderPath3D::RenderTransparents(Texture2D& rtMain, RenderPassType renderType)
+	void RenderPath3D::RenderTransparents(RenderBehavior& renderBehavior, RenderPassType renderType)
 	{
 		// render transparent
 	}

@@ -263,7 +263,7 @@ void TerrainTree::ProcessTerrainRenderQueue(TerrrainRenderQueue& renderQueue)
 		};
 		device.BindVertexBuffer(vbs, 0, ARRAYSIZE(vbs), strides, offsets);
 		device.BindIndexBuffer(*indexBuffer, IndexFormat::INDEX_FORMAT_32BIT, 0);
-		device.BindShaderInfoState(mTerrainPSO);
+		device.BindPipelineState(mTerrainPSO);
 
 		// bind domain shader resource
 		GPUResource* vsResources[] = {

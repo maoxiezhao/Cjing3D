@@ -24,6 +24,9 @@ namespace Cjing3D
 *		Resource_Texture,
 *
 *  TODO: refactor
+// 1. 支持持久化的texture和引用计数的texture
+// 2. 资源结构优化
+// 3. 异步加载支持
 */
 class ResourceManager : public SubSystem
 {
@@ -128,7 +131,7 @@ public:
 	}
 
 	void LoadTextrueFromFilePath(const std::filesystem::path& filePath, RhiTexture2D& texture);
-	void LoadTextureFromFilePathEx(const std::filesystem::path& filePath, RhiTexture2D& texture, FORMAT textureFormat, U32 channelCount = 4, U32 bindFlag = BIND_SHADER_RESOURCE, bool generateMipmap = false);
+	void LoadTextureFromFilePathEx(const std::filesystem::path& filePath, RhiTexture2D& texture, FORMAT textureFormat = FORMAT_R8G8B8A8_UNORM, U32 channelCount = 4, U32 bindFlag = BIND_SHADER_RESOURCE, bool generateMipmap = false);
 
 private:
 	template <typename ResourceT>

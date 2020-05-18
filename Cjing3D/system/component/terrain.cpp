@@ -78,9 +78,7 @@ namespace Cjing3D
 		archive >> mDetailTextureName2;
 		archive >> mDetailTextureName3;
 
-		SystemContext& systemContext = SystemContext::GetSystemContext();
-		Renderer& renderer = systemContext.GetSubSystem<Renderer>();
-		ResourceManager& resourceManager = renderer.GetResourceManager();
+		ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
 
 		if (mHeightMapName.empty() == false)
 		{

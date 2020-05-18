@@ -150,7 +150,7 @@ ResourceManager::GetOrCreate(const StringID & filePath)
 	bool isExists = texturePool.Contains(filePath);
 	auto texture = texturePool.GetOrCreate(filePath);
 	if (isExists == false) {
-		LoadTextrueFromFilePath(filePath.GetString(), *texture);
+		LoadTextureFromFilePathEx(filePath.GetString(), *texture);
 	}
 	return texture;
 }

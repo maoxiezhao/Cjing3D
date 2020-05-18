@@ -4,7 +4,6 @@
 
 namespace Cjing3D {
 	  
-	// ¹Ç÷À½Úµã
 	class ArmatureComponent : public Component
 	{
 	public:

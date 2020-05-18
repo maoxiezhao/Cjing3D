@@ -276,6 +276,7 @@
     <ClInclude Include="system\component\object.h" />
     <ClInclude Include="system\component\terrain.h" />
     <ClInclude Include="system\component\transform.h" />
+    <ClInclude Include="system\component\weather.h" />
     <ClInclude Include="system\ecsSystem.h" />
     <ClInclude Include="system\sceneSystem.h" />
     <ClInclude Include="utils\allocator.h" />
@@ -415,6 +416,7 @@
     <ClCompile Include="system\component\object.cpp" />
     <ClCompile Include="system\component\terrain.cpp" />
     <ClCompile Include="system\component\transform.cpp" />
+    <ClCompile Include="system\component\weather.cpp" />
     <ClCompile Include="system\sceneLightSystem.cpp" />
     <ClCompile Include="system\sceneObjectSystem.cpp" />
     <ClCompile Include="system\sceneSerializers.cpp" />

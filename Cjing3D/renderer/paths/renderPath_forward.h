@@ -15,7 +15,9 @@ public:
 
 private:
 	Texture2D mRTMain;
-	Texture2D mRTFinal;
+
+	RenderBehavior mRBMain;
+	RenderBehavior mRBTransparent;
 };
 
 }

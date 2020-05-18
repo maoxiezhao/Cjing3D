@@ -22,6 +22,8 @@ CBUFFER(CameraCB, CBSLOT_RENDERER_CAMERA)
 	float4x4 gCameraVP;
 	float4x4 gCameraView;
 	float4x4 gCameraProj;
+	float4x4 gCameraInvVP;
+
 	float3   gCameraPos;
 	float    gPadding;
 };

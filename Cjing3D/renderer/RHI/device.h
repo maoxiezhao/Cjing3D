@@ -55,10 +55,10 @@ namespace Cjing3D
 
 		virtual void BindRenderTarget(UINT numView, RhiTexture2D* const *texture2D, RhiTexture2D* depthStencilTexture, I32 subresourceIndex = -1) = 0;
 
-		virtual void CreateRenderTargetView(RhiTexture2D& texture) = 0;
-		virtual void CreateShaderResourceView(RhiTexture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1, U32 firstMip = 0, U32 mipLevel = -1) = 0;
-		virtual void CreateDepthStencilView(RhiTexture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1) = 0;
-		virtual void CreateUnordereddAccessView(RhiTexture2D& texture, U32 firstMip = 0) = 0;
+		virtual I32 CreateRenderTargetView(RhiTexture2D& texture) = 0;
+		virtual I32 CreateShaderResourceView(RhiTexture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1, U32 firstMip = 0, U32 mipLevel = -1) = 0;
+		virtual I32 CreateDepthStencilView(RhiTexture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1) = 0;
+		virtual I32 CreateUnordereddAccessView(RhiTexture2D& texture, U32 firstMip = 0) = 0;
 
 		virtual void ClearRenderTarget(RhiTexture2D& texture, F32x4 color) = 0;
 		virtual void ClearDepthStencil(RhiTexture2D& texture, UINT clearFlag, F32 depth, U8 stencil, I32 subresourceIndex = -1) = 0;
@@ -68,6 +68,11 @@ namespace Cjing3D
 		virtual void UnbindGPUResources(U32 slot, U32 count) = 0;
 		virtual void SetResourceName(GPUResource& resource, const std::string& name) = 0;
 
+		virtual void CreatePipelineState(PipelineStateDesc& desc, PipelineState& state);
+		virtual void CreateRenderBehavior(RenderBehaviorDesc& desc, RenderBehavior& behavior) = 0;
+		virtual void BeginRenderBehavior(RenderBehavior& behavior) = 0;
+		virtual void EndRenderBehavior() = 0;
+
 		// compute
 		virtual void BindComputeShader(ComputeShaderPtr computeShader) = 0;
 		virtual void Dispatch(U32 threadGroupCountX, U32 threadGroupCountY, U32 threadGroupCountZ) = 0;
@@ -75,7 +80,7 @@ namespace Cjing3D
 		virtual void BindUAVs(GPUResource* const* resource, U32 slot, U32 count) = 0;
 		virtual void UnBindUAVs(U32 slot, U32 count) = 0;
 
-		virtual void BindShaderInfoState(PipelineState state) = 0;
+		virtual void BindPipelineState(PipelineState state) = 0;
 
 		virtual void Draw(UINT vertexCount, UINT startVertexLocation) = 0;
 		virtual void DrawIndexed(UINT indexCount, UINT startIndexLocation) = 0;
@@ -132,7 +137,7 @@ namespace Cjing3D
 		}
 
 		template<typename T>
-		T* GetGraphicsDeviceChildState(GraphicsDeviceChild& deviceChild)
+		T* GetGraphicsDeviceChildState(const GraphicsDeviceChild& deviceChild)
 		{
 			return static_cast<T*>(deviceChild.mRhiState.get());
 		}
@@ -146,6 +151,9 @@ namespace Cjing3D
 		bool mIsVsync = true;							// 是否垂直同步 
 		ViewPort mViewport;
 		uint64_t mCurrentFrameCount = 0;
+
+		struct EmptyRhiState {};
+		std::shared_ptr<EmptyRhiState> mEmptyRhiState = nullptr;
 
 		std::list<GPUResource*> mGPUResource;  // 记录所有注册的GPUResource
 		std::vector<GPUResource*> mRemovedGPUResources;

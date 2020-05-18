@@ -52,8 +52,9 @@ namespace Cjing3D
 
 	class RhiTexture2D : public RhiTexture {};
 
-	using Texture1D = RhiTexture;
-	using Texture2D = RhiTexture2D;
+	using Texture      = RhiTexture;
+	using Texture2D    = RhiTexture2D;
+	using TexturePtr   = std::shared_ptr<Texture>;
 	using Texture2DPtr = std::shared_ptr<Texture2D>;
 
 	//***********************************************************************
@@ -99,4 +100,35 @@ namespace Cjing3D
 		const std::vector<VertexLayoutDesc>& GetDesc()const { return mDescs; }
 	};
 	using InputLayoutPtr = std::shared_ptr<InputLayout>;
+
+
+	struct RenderBehaviorParam
+	{
+		enum RenderType
+		{
+			RenderType_RenderTarget,
+			RenderType_DepthStencil
+		};
+		RenderType mType = RenderType_RenderTarget;
+		const Texture* mTexture = nullptr;
+		I32 mSubresourceIndex = -1;
+
+		enum RenderOperation
+		{
+			RenderOperation_Load,
+			RenderOperation_Clear
+		};
+		RenderOperation mOperation = RenderOperation_Load;
+	};
+
+	struct RenderBehaviorDesc
+	{
+		std::vector<RenderBehaviorParam> mParams;
+	};
+
+	class RenderBehavior : public GraphicsDeviceChild
+	{
+	public:
+		RenderBehaviorDesc mDesc;
+	};
 }
