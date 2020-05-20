@@ -56,6 +56,7 @@ namespace Cjing3D {
 	{
 	public:
 		Scene();
+		~Scene();
 
 		void Update(F32 deltaTime);
 		void Merge(Scene& scene);
@@ -91,14 +92,14 @@ namespace Cjing3D {
 		void DetachEntity(ECS::Entity entity);
 
 		template<typename ComponentT>
-		std::shared_ptr<ComponentT> GetComponent(ECS::Entity entity)
+		ComponentT* GetComponent(ECS::Entity entity)
 		{
 			auto& manager = GetComponentManager<ComponentT>();
 			return manager.GetComponent(entity);
 		}
 
 		template<typename ComponentT>
-		std::shared_ptr<ComponentT> GetComponentByIndex(U32 index)
+		ComponentT* GetComponentByIndex(U32 index)
 		{
 			auto& manager = GetComponentManager<ComponentT>();
 			if (index >= manager.GetCount())
@@ -157,6 +158,9 @@ namespace Cjing3D {
 			static Scene scene;
 			return scene;
 		}
+
+		static void Initialize();
+		static void Uninitialize();
 	};
 
 	#include "system\sceneSystem.inl"

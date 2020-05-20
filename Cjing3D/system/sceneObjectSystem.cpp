@@ -13,8 +13,8 @@ namespace Cjing3D
 		AABB sceneAABB;
 		for (size_t i = 0; i < objects.GetCount(); i++)
 		{
-			std::shared_ptr<ObjectComponent> object = objects[i];
-			std::shared_ptr<AABBComponent> aabbComponent = objectAABBs[i];
+			ObjectComponent* object = objects[i];
+			AABBComponent* aabbComponent = objectAABBs[i];
 
 			if (object == nullptr || aabbComponent == nullptr) {
 				continue;
@@ -27,7 +27,7 @@ namespace Cjing3D
 			if (object->mMeshID != ECS::INVALID_ENTITY)
 			{
 				Entity entity = objects.GetEntityByIndex(i);
-				std::shared_ptr<MeshComponent> mesh = meshes.GetComponent(object->mMeshID);
+				MeshComponent* mesh = meshes.GetComponent(object->mMeshID);
 
 				const auto transformIndex = transforms.GetEntityIndex(entity);
 				const auto transform = transforms[transformIndex];

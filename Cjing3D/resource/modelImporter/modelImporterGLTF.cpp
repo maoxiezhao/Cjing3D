@@ -155,7 +155,7 @@ namespace ModelImporter {
 		for (auto gltfMaterial : gltfModel.materials)
 		{
 			ECS::Entity materialEntity = newScene.CreateEntityMaterial(gltfMaterial.name);
-			std::shared_ptr<MaterialComponent> material = newScene.GetComponent<MaterialComponent>(materialEntity);
+			MaterialComponent* material = newScene.GetComponent<MaterialComponent>(materialEntity);
 
 			material->mBaseColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 			material->mRoughness = 1.0f;
@@ -239,7 +239,7 @@ namespace ModelImporter {
 		for (auto& gltfMesh : gltfModel.meshes)
 		{
 			ECS::Entity meshEntity = newScene.CreateEntityMesh(gltfMesh.name);
-			std::shared_ptr<MeshComponent> mesh = newScene.GetComponent<MeshComponent>(meshEntity);
+			MeshComponent* mesh = newScene.GetComponent<MeshComponent>(meshEntity);
 
 			for (auto& primitive : gltfMesh.primitives)
 			{

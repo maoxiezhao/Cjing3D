@@ -10,6 +10,14 @@ namespace Cjing3D {
 		MeshComponent();
 		virtual ~MeshComponent();
 
+		struct MeshSubset
+		{
+			ECS::Entity mMaterialID = ECS::INVALID_ENTITY;
+			U32 mIndexOffset = 0;
+			U32 mIndexCount = 0;
+		};
+		std::vector<MeshSubset> mSubsets;
+
 		std::vector<F32x3> mVertexPositions;
 		std::vector<F32x3> mVertexNormals;
 		std::vector<F32x2> mVertexTexcoords;
@@ -22,30 +30,23 @@ namespace Cjing3D {
 
 		AABB mAABB;
 
-		struct MeshSubset
-		{
-			ECS::Entity mMaterialID = ECS::INVALID_ENTITY;
-			U32 mIndexOffset = 0;
-			U32 mIndexCount = 0;
-		};
-		std::vector<MeshSubset> mSubsets;
-
-		std::unique_ptr<GPUBuffer> mVertexBufferPos;
-		std::unique_ptr<GPUBuffer> mVertexBufferTex;
-		std::unique_ptr<GPUBuffer> mVertexBufferColor;
-		std::unique_ptr<GPUBuffer> mIndexBuffer;
-		std::unique_ptr<GPUBuffer> mVertexBufferBoneIndexWeight;
-		std::unique_ptr<GPUBuffer> mVertexBufferStreamoutPos;
+		GPUBuffer mVertexBufferPos;
+		GPUBuffer mVertexBufferTex;
+		GPUBuffer mVertexBufferColor;
+		GPUBuffer mIndexBuffer;
+		GPUBuffer mVertexBufferBoneIndexWeight;
+		GPUBuffer mVertexBufferStreamoutPos;
 
 	public:
 		void SetupRenderData(GraphicsDevice& device);
+		void ClearRenderData();
 
-		GPUBuffer* GetIndexBuffer() { return mIndexBuffer.get(); }
-		GPUBuffer* GetVertexBufferPos() { return mVertexBufferPos.get(); }
-		GPUBuffer* GetVertexBufferTex() { return mVertexBufferTex.get(); }
-		GPUBuffer* GetVertexBufferColor() { return mVertexBufferColor.get(); }
-		GPUBuffer* GetVertexBufferBoneIndexWeight() { return mVertexBufferBoneIndexWeight.get(); }
-		GPUBuffer* GetVertexBufferStreamoutPos() { return mVertexBufferStreamoutPos.get(); }
+		GPUBuffer* GetIndexBuffer() { return &mIndexBuffer; }
+		GPUBuffer* GetVertexBufferPos() { return &mVertexBufferPos; }
+		GPUBuffer* GetVertexBufferTex() { return &mVertexBufferTex; }
+		GPUBuffer* GetVertexBufferColor() { return &mVertexBufferColor; }
+		GPUBuffer* GetVertexBufferBoneIndexWeight() { return &mVertexBufferBoneIndexWeight; }
+		GPUBuffer* GetVertexBufferStreamoutPos() { return &mVertexBufferStreamoutPos; }
 		GPUBuffer* GetFinalVertexBufferPos();
 
 		IndexFormat GetIndexFormat()const { return IndexFormat::INDEX_FORMAT_32BIT; }

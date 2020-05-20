@@ -11,24 +11,16 @@ namespace Cjing3D
 
 	MeshComponent::~MeshComponent()
 	{
-		mVertexBufferPos.reset();
-		mVertexBufferTex.reset();
-		mVertexBufferColor.reset();
-		mIndexBuffer.reset();
-		mVertexBufferBoneIndexWeight.reset();
-		mVertexBufferStreamoutPos.reset();
+		ClearRenderData();
 	}
 
 	void MeshComponent::SetupRenderData(GraphicsDevice& device)
 	{
-		mVertexBufferPos = std::make_unique<GPUBuffer>();
-		mVertexBufferTex = std::make_unique<GPUBuffer>();
-		mVertexBufferColor = std::make_unique<GPUBuffer>();
-		mIndexBuffer = std::make_unique<GPUBuffer>();
+		ClearRenderData();
 
 		// setup index buffer
 		{
-			const auto result = CreateStaticIndexBuffer(device, *mIndexBuffer, mIndices);
+			const auto result = CreateStaticIndexBuffer(device, mIndexBuffer, mIndices);
 			Debug::ThrowIfFailed(result, "Failed to create index buffer:%08x", result);
 		}
 
@@ -69,8 +61,7 @@ namespace Cjing3D
 				mMaxPos = F32x3Max(mMaxPos, pos);
 			}
 
-			mVertexBufferPos.reset(new GPUBuffer);
-			const auto result = CreateBABVertexBuffer(device, *mVertexBufferPos, vertices);
+			const auto result = CreateBABVertexBuffer(device, mVertexBufferPos, vertices);
 			Debug::ThrowIfFailed(result, "Failed to create vertex buffer:%08x", result);
 		}
 
@@ -79,14 +70,14 @@ namespace Cjing3D
 		// vertex texcoords
 		if (mVertexTexcoords.empty() == false)
 		{
-			const auto result = CreateStaticVertexBuffer(device, *mVertexBufferTex, mVertexTexcoords, VertexTex::format);
+			const auto result = CreateStaticVertexBuffer(device, mVertexBufferTex, mVertexTexcoords, VertexTex::format);
 			Debug::ThrowIfFailed(result, "Failed to create vertex texcoords buffer:%08x", result);
 		}
 
 		// vertex colors
 		if (mVertexColors.empty() == false)
 		{
-			const auto result = CreateStaticVertexBuffer(device, *mVertexBufferColor, mVertexColors, VertexColor::format);
+			const auto result = CreateStaticVertexBuffer(device, mVertexBufferColor, mVertexColors, VertexColor::format);
 			Debug::ThrowIfFailed(result, "Failed to create vertex colors buffer:%08x", result);
 		}
 
@@ -113,28 +104,36 @@ namespace Cjing3D
 			// GPU: read + write
 			// CPU: no read + no write
 			{
-				mVertexBufferBoneIndexWeight = std::make_unique<GPUBuffer>();
-				const auto result = CreateBABVertexBuffer(device, *mVertexBufferBoneIndexWeight, bones, BIND_SHADER_RESOURCE, USAGE_IMMUTABLE);
+				const auto result = CreateBABVertexBuffer(device, mVertexBufferBoneIndexWeight, bones, BIND_SHADER_RESOURCE, USAGE_IMMUTABLE);
 				Debug::ThrowIfFailed(result, "Failed to create bone indexWeight buffer:%08x", result);
 			}
 			// create streamout buffer
 			{
-				mVertexBufferStreamoutPos.reset(new GPUBuffer);
-				const auto result = CreateEmptyBABVertexBuffer<VertexPosNormalSubset>(device, *mVertexBufferStreamoutPos, mVertexPositions.size(), BIND_VERTEX_BUFFER | BIND_SHADER_RESOURCE | BIND_UNORDERED_ACCESS);
+				const auto result = CreateEmptyBABVertexBuffer<VertexPosNormalSubset>(device, mVertexBufferStreamoutPos, mVertexPositions.size(), BIND_VERTEX_BUFFER | BIND_SHADER_RESOURCE | BIND_UNORDERED_ACCESS);
 				Debug::ThrowIfFailed(result, "Failed to create streamout vertex buffer:%08x", result);
 			}
 		}
 	}
 
+	void MeshComponent::ClearRenderData()
+	{
+		mVertexBufferPos.Clear();
+		mVertexBufferTex.Clear();
+		mVertexBufferColor.Clear();
+		mIndexBuffer.Clear();
+		mVertexBufferBoneIndexWeight.Clear();
+		mVertexBufferStreamoutPos.Clear();
+	}
+
 	GPUBuffer* MeshComponent::GetFinalVertexBufferPos()
 	{
-		if (mVertexBufferStreamoutPos != nullptr && mVertexBufferStreamoutPos->IsValid()) 
+		if (mVertexBufferStreamoutPos.IsValid()) 
 		{
-			return mVertexBufferStreamoutPos.get();
+			return &mVertexBufferStreamoutPos;
 		}
 		else 
 		{
-			return mVertexBufferPos.get();
+			return &mVertexBufferPos;
 		}
 	}
 

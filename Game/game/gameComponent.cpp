@@ -13,12 +13,19 @@
 #include "renderer\paths\renderPath_forward.h"
 #include "gui\guiStage.h"
 
-
 #include <thread>
 #include <Windows.h>
 
+#include "utils\objectPool.h"
+
 namespace Cjing3D
 {
+	class TestA
+	{
+	public:
+		int a = 0;
+	};
+
 	TestGame::TestGame()
 	{
 	}
@@ -89,7 +96,7 @@ namespace Cjing3D
 			ofn.hwndOwner = nullptr;
 			ofn.lpstrFile = szFile;
 			ofn.nMaxFile = sizeof(szFile);
-			ofn.lpstrFilter = "Scene file(Model file)\0*.c3dscene;*.obj\0";
+			ofn.lpstrFilter = "Scene file(Model file)\0*.c3dscene;*.obj;*.gltf\0";
 			ofn.nFilterIndex = 1;
 			ofn.lpstrFileTitle = nullptr;
 			ofn.nMaxFileTitle = 0;

@@ -30,6 +30,8 @@ class Component
 {
 public:
 	Component(ComponentType type);
+	Component(const Component& rhs);
+	Component(Component&& rhs);
 	virtual ~Component();
 
 	ComponentType GetType()const { return mType; }

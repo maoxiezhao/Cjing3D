@@ -14,8 +14,8 @@ namespace Cjing3D
 		for (size_t i = 0; i < terrains.GetCount(); i++)
 		{
 			Entity entity = terrains.GetEntityByIndex(i);
-			std::shared_ptr<TerrainComponent> terrain = terrains[i];
-			std::shared_ptr<TransformComponent> transform = transforms.GetComponent(entity);
+			TerrainComponent* terrain = terrains[i];
+			TransformComponent* transform = transforms.GetComponent(entity);
 
 			if (terrain == nullptr || transform == nullptr) {
 				continue;

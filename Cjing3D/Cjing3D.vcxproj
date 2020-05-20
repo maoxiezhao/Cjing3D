@@ -151,10 +151,13 @@
     <ClInclude Include="common\about.h" />
     <ClInclude Include="common\common.h" />
     <ClInclude Include="common\definitions.h" />
+    <ClInclude Include="core\allocator.h" />
     <ClInclude Include="core\eventDefine.h" />
     <ClInclude Include="core\eventSystem.h" />
     <ClInclude Include="core\gameComponent.h" />
     <ClInclude Include="core\jobSystem.h" />
+    <ClInclude Include="core\memory.h" />
+    <ClInclude Include="core\safeRefcount.h" />
     <ClInclude Include="core\systemContext.hpp" />
     <ClInclude Include="core\subSystem.hpp" />
     <ClInclude Include="core\threadSafeSystem.h" />
@@ -279,14 +282,17 @@
     <ClInclude Include="system\component\weather.h" />
     <ClInclude Include="system\ecsSystem.h" />
     <ClInclude Include="system\sceneSystem.h" />
-    <ClInclude Include="utils\allocator.h" />
+    <ClInclude Include="utils\allocator\linearAllocator.h" />
+    <ClInclude Include="utils\allocator\tlsfAllocator.h" />
     <ClInclude Include="utils\array.h" />
     <ClInclude Include="utils\baseWindow.h" />
     <ClInclude Include="utils\color.h" />
+    <ClInclude Include="utils\container\dynamicArray.h" />
     <ClInclude Include="utils\geometry.h" />
     <ClInclude Include="utils\intersectable.h" />
     <ClInclude Include="utils\json\json.hpp" />
     <ClInclude Include="utils\math.h" />
+    <ClInclude Include="utils\objectPool.h" />
     <ClInclude Include="utils\quadTree.h" />
     <ClInclude Include="utils\stb_image.h" />
     <ClInclude Include="utils\stb_image_include.h" />
@@ -296,6 +302,7 @@
     <ClInclude Include="utils\tinygltf\tiny_gltf.h" />
     <ClInclude Include="utils\tinyobjloader.h" />
     <ClInclude Include="utils\tinyxml2\tinyxml2.h" />
+    <ClInclude Include="utils\tlsf\tlsf.h" />
     <ClInclude Include="utils\treeNode.h" />
   </ItemGroup>
   <ItemGroup>
@@ -305,9 +312,12 @@
     <ClCompile Include="..\ThirdParty\imgui\imgui_impl_dx11.cpp" />
     <ClCompile Include="..\ThirdParty\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="..\ThirdParty\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="core\allocator.cpp" />
     <ClCompile Include="core\eventSystem.cpp" />
     <ClCompile Include="core\gameComponent.cpp" />
     <ClCompile Include="core\jobSystem.cpp" />
+    <ClCompile Include="core\memory.cpp" />
+    <ClCompile Include="core\safeRefcount.cpp" />
     <ClCompile Include="core\threadSafeSystem.cpp" />
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="generates\luabind_registers.cpp" />
@@ -428,6 +438,7 @@
     <ClCompile Include="utils\geometry.cpp" />
     <ClCompile Include="utils\intersectable.cpp" />
     <ClCompile Include="utils\tinyxml2\tinyxml2.cpp" />
+    <ClCompile Include="utils\tlsf\tlsf.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="helper\enumInfo.inl" />

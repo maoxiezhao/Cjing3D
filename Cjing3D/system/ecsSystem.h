@@ -3,6 +3,7 @@
 #include "common\common.h"
 #include "helper\IDGenerator.h"
 #include "helper\archive.h"
+#include "utils\objectPool.h"
 
 #include <unordered_map>
 #include <vector>
@@ -15,6 +16,8 @@ namespace ECS
 {
 	using Entity = U32;
 	static const Entity INVALID_ENTITY = 0;
+	static const uint32_t COMPONENT_POOL_DEFAULT_BLOCK_SIZE = 32;
+
 	inline Entity CreateEntity()
 	{
 		return GENERATE_RANDOM_ID;
@@ -45,7 +48,8 @@ namespace ECS
 	class ComponentManager
 	{
 	public:
-		using ComponentTPtr = std::shared_ptr<ComponentT>;
+		//using ComponentTPtr = std::shared_ptr<ComponentT>;
+		using ComponentTPtr = ComponentT*;
 
 		ComponentManager(size_t capacity = 0)
 		{
@@ -54,8 +58,53 @@ namespace ECS
 			mLookup.reserve(capacity);
 		}
 
-		inline void Clear()
+		~ComponentManager()
 		{
+			Clear();
+		}
+
+		ComponentManager(ComponentManager& rhs) = delete;
+		ComponentManager& operator=(const ComponentManager& rhs) = delete;
+
+		static void Initialize()
+		{
+			mComponentPool = CJING_MEM_NEW(ObjectPool<ComponentT>(COMPONENT_POOL_DEFAULT_BLOCK_SIZE));
+		}
+
+		static void Uninitilize()
+		{
+			CJING_MEM_DELETE(mComponentPool);
+		}
+
+		static ComponentT* CreateComponent()
+		{
+			// TODO:optim
+			if (mComponentPool == nullptr) {
+				return CJING_MEM_NEW(ComponentT);
+			} else {
+				return mComponentPool->New();
+			}
+		}
+
+		static void DestroyComponent(ComponentT* ptr)
+		{
+			// TODO:optim
+			if (mComponentPool == nullptr) {
+				return CJING_MEM_DELETE(ptr);
+			}
+			else {
+				return mComponentPool->Delete(ptr);
+			}
+		}
+
+		inline void Clear(bool clearPool = true)
+		{
+			if (clearPool) {
+				for (auto& componentPtr : mComponents) {
+					DestroyComponent(componentPtr);
+				}
+			}
+
 			mEntities.clear();
 			mComponents.clear();
 			mLookup.clear();
@@ -72,8 +121,8 @@ namespace ECS
 			mLookup[entity] = mComponents.size();
 			mEntities.push_back(entity);
 
-			// TODO: 改为从object pool创建
-			auto componentPtr = std::make_shared<ComponentT>();
+			// 从object pool创建
+			auto componentPtr = CreateComponent();
 			mComponents.push_back(componentPtr);
 
 			// TEMP: 临时尝试下在component中保存entity
@@ -90,12 +139,18 @@ namespace ECS
 				const auto index = it->second;
 				const Entity entity = mEntities[index];
 
+				ComponentTPtr ptr = nullptr;
 				// 如果删除的不是最后的元素，则与最后的元素交换
 				if (index < mComponents.size() - 1)
 				{
+					ptr = mComponents[index];
 					mComponents[index] = std::move(mComponents.back());
 					mEntities[index] = mEntities.back();
 					mLookup[mEntities.back()] = index;
+				}
+
+				if (ptr != nullptr) {
+					DestroyComponent(ptr);
 				}
 
 				mComponents.pop_back();
@@ -112,6 +167,7 @@ namespace ECS
 				const auto index = it->second;
 				const Entity entity = mEntities[index];
 
+				ComponentTPtr ptr = mComponents[index];
 				// 如果删除的不是最后的元素，则将后面的元素往前移
 				if (index < mComponents.size() - 1)
 				{
@@ -125,7 +181,10 @@ namespace ECS
 					}
 				}
 
-				mComponents.pop_back();
+				if (ptr != nullptr) {
+					DestroyComponent(ptr);
+				}
+
 				mEntities.pop_back();
 				mLookup.erase(entity);
 			}
@@ -174,12 +233,15 @@ namespace ECS
 					mEntities.push_back(entity);
 					mLookup[entity] = mComponents.size();
 
+					// TODO: 可能还会产生大量拷贝构造行为
+					int tSize = sizeof(ComponentT);
 					auto componentPtr = other.GetComponent(entity);
 					mComponents.push_back(componentPtr);
 				}
 			}
 
-			other.Clear();
+			// merge的时候，other的component不需要释放
+			other.Clear(false);
 		}
 
 		inline bool Contains(Entity entity)
@@ -292,9 +354,9 @@ namespace ECS
 			mComponents.resize(count);
 			mEntities.resize(count);
 
-			// TODO: 改为从object pool创建
+			// 从object pool创建
 			for (int i = 0; i < count; i++){
-				mComponents[i] = std::make_shared<ComponentT>();
+				mComponents[i] = CreateComponent();
 				mComponents[i]->Serialize(archive, seed);
 			}
 			for (int i = 0; i < count; i++) {
@@ -323,8 +385,11 @@ namespace ECS
 		std::vector<Entity> mEntities;
 		std::vector<ComponentTPtr> mComponents;
 		std::unordered_map<Entity, size_t> mLookup;
+
+		static ObjectPool<ComponentT>* mComponentPool;
 	};
 
-
+	template<typename ComponentT>
+	ObjectPool<ComponentT>* ComponentManager<ComponentT>::mComponentPool = nullptr;
 }
 }

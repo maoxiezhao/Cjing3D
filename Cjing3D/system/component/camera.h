@@ -57,6 +57,4 @@ namespace Cjing3D {
 		XMFLOAT4X4 mViewProjection;
 		XMFLOAT4X4 mInvViewProjection;
 	};
-
-	using CameraPtr = std::shared_ptr<CameraComponent>;
 }

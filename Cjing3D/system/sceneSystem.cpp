@@ -8,6 +8,42 @@ namespace Cjing3D
 	{
 	}
 
+	Scene::~Scene()
+	{
+	}
+
+	void Scene::Initialize()
+	{
+		ECS::ComponentManager<NameComponent>::Initialize();
+		ECS::ComponentManager<TransformComponent>::Initialize();
+		ECS::ComponentManager<HierarchyComponent>::Initialize();
+		ECS::ComponentManager<MaterialComponent>::Initialize();
+		ECS::ComponentManager<MeshComponent>::Initialize();
+		ECS::ComponentManager<ObjectComponent>::Initialize();
+		ECS::ComponentManager<LightComponent>::Initialize();
+		ECS::ComponentManager<AABBComponent>::Initialize();
+		ECS::ComponentManager<TerrainComponent>::Initialize();
+		ECS::ComponentManager<ArmatureComponent>::Initialize();
+		ECS::ComponentManager<AnimationComponent>::Initialize();
+		ECS::ComponentManager<WeatherComponent>::Initialize();
+	}
+
+	void Scene::Uninitialize()
+	{
+		ECS::ComponentManager<NameComponent>::Uninitilize();
+		ECS::ComponentManager<TransformComponent>::Uninitilize();
+		ECS::ComponentManager<HierarchyComponent>::Uninitilize();
+		ECS::ComponentManager<MaterialComponent>::Uninitilize();
+		ECS::ComponentManager<MeshComponent>::Uninitilize();
+		ECS::ComponentManager<ObjectComponent>::Uninitilize();
+		ECS::ComponentManager<LightComponent>::Uninitilize();
+		ECS::ComponentManager<AABBComponent>::Uninitilize();
+		ECS::ComponentManager<TerrainComponent>::Uninitilize();
+		ECS::ComponentManager<ArmatureComponent>::Uninitilize();
+		ECS::ComponentManager<AnimationComponent>::Uninitilize();
+		ECS::ComponentManager<WeatherComponent>::Uninitilize();
+	}
+
 	void Scene::Update(F32 deltaTime)
 	{
 		UpdateSceneAnimationSystem(*this);
@@ -215,6 +251,8 @@ namespace Cjing3D
 
 	void Scene::RemoveEntity(Entity entity)
 	{
+		DetachEntity(entity);
+
 		mMaterials.Remove(entity);
 		mMeshes.Remove(entity);
 		mObjects.Remove(entity);
@@ -225,7 +263,7 @@ namespace Cjing3D
 		mTerrains.Remove(entity);
 		mArmatures.Remove(entity);
 		mAnimations.Remove(entity);
-		mHierarchies.RemoveAndKeepSorted(entity);
+		mWeathers.Remove(entity);
 
 		if (mNames.Contains(entity))
 		{

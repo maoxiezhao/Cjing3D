@@ -231,7 +231,6 @@ Renderer::Renderer(SystemContext& gameContext, RenderingDeviceType deviceType, H
 	mPipelineStateManager(nullptr),
 	mIsInitialized(false),
 	mIsRendering(false),
-	mCamera(nullptr),
 	mCurrentRenderPath(nullptr),
 	mFrameNum(0)
 {
@@ -254,8 +253,7 @@ void Renderer::Initialize()
 	mScreenSize = mGraphicsDevice->GetScreenSize();
 
 	// initialize camera
-	mCamera = std::make_shared<CameraComponent>();
-	mCamera->SetupPerspective((F32)mScreenSize[0], (F32)mScreenSize[1], 0.1f, 1000.0f);
+	GetCamera().SetupPerspective((F32)mScreenSize[0], (F32)mScreenSize[1], 0.1f, 1000.0f);
 
 	// initialize states
 	mStateManager = std::make_unique<StateManager>(*mGraphicsDevice);
@@ -284,7 +282,7 @@ void Renderer::Initialize()
 	mPipelineStateManager->Initialize();
 
 	// initialize frame cullings
-	mFrameCullings[GetCamera()] = FrameCullings();
+	mFrameCullings[&GetCamera()] = FrameCullings();
 
 	mFrameData.mFrameScreenSize = { (F32)mScreenSize[0], (F32)mScreenSize[1] };
 	mFrameData.mFrameAmbient = { 0.1f, 0.1f, 0.1f };
@@ -302,8 +300,6 @@ void Renderer::Uninitialize()
 	if (mIsInitialized == false) {
 		return;
 	}
-
-	GetMainScene().Clear();
 
 	UninitializeRenderPasses();
 
@@ -354,13 +350,13 @@ void Renderer::UpdatePerFrameData(F32 deltaTime)
 	auto& mainScene = GetMainScene();
 	mainScene.Update(deltaTime);
 
-	CameraPtr mainCamera = GetCamera();
-	mainCamera->Update();
+	CameraComponent& mainCamera = GetCamera();
+	mainCamera.Update();
 
 	// update materials
 	mPendingUpdateMaterials.clear();
 
-	auto& materials = mainScene.GetComponentManager<MaterialComponent>();
+	auto& materials = mainScene.mMaterials;
 	for (int index = 0; index < materials.GetCount(); index++)
 	{
 		auto material = materials[index];
@@ -380,8 +376,8 @@ void Renderer::UpdatePerFrameData(F32 deltaTime)
 		frameCulling.Clear();
 
 		// 只处理当前主相机的culling
-		CameraPtr camera = kvp.first;
-		if (camera == nullptr && camera != mainCamera) {
+		const CameraComponent* camera = kvp.first;
+		if (camera == nullptr && camera != &mainCamera) {
 			continue;
 		}
 
@@ -493,10 +489,7 @@ void Renderer::RefreshRenderData()
 		mDeferredMIPGenerator->UpdateMipGenerating();
 	}
 
-	CameraPtr mainCamera = GetCamera();
-	if (mainCamera == nullptr) {
-		return;
-	}
+	CameraComponent& mainCamera = GetCamera();
 
 	// 处理更新material data 
 	for (int materialIndex : mPendingUpdateMaterials)
@@ -517,8 +510,8 @@ void Renderer::RefreshRenderData()
 	XMMATRIX* shaderMatrixs = (XMMATRIX*)frameAllocator.Allocate(sizeof(XMMATRIX) * SHADER_MATRIX_COUNT);
 	U32 currentMatrixIndex = 0;
 
-	XMMATRIX viewMatrix = mainCamera->GetViewMatrix();
-	FrameCullings& frameCulling = mFrameCullings.at(mainCamera);
+	XMMATRIX viewMatrix = mainCamera.GetViewMatrix();
+	FrameCullings& frameCulling = mFrameCullings.at(&mainCamera);
 	auto& lights = frameCulling.mCulledLights;
 	for (const auto& lightIndex : lights)
 	{
@@ -527,7 +520,7 @@ void Renderer::RefreshRenderData()
 			break;
 		}
 
-		std::shared_ptr<LightComponent> light = mainScene.GetComponentByIndex<LightComponent>(lightIndex);
+		LightComponent* light = mainScene.GetComponentByIndex<LightComponent>(lightIndex);
 		if (light == nullptr) {
 			continue;
 		}
@@ -546,7 +539,7 @@ void Renderer::RefreshRenderData()
 			{
 				// TODO:在renderShadow部分又计算了一次。。
 				std::vector<CascadeShadowCamera> cascadeShadowCameras;
-				CreateCascadeShadowCameras(*light, *GetCamera(), shadowCascadeCount, cascadeShadowCameras);
+				CreateCascadeShadowCameras(*light, GetCamera(), shadowCascadeCount, cascadeShadowCameras);
 
 				for (auto& cam : cascadeShadowCameras) {
 					shaderMatrixs[currentMatrixIndex++] = cam.GetViewProjectionMatrix();
@@ -634,8 +627,9 @@ ResourceManager & Renderer::GetResourceManager()
 	return mGameContext.GetSubSystem<ResourceManager>();
 }
 
-CameraPtr Renderer::GetCamera()
+CameraComponent& Renderer::GetCamera()
 {
+	static CameraComponent mCamera;
 	return mCamera;
 }
 
@@ -674,9 +668,9 @@ void Renderer::SetAmbientColor(F32x3 color)
 	mFrameData.mFrameAmbient = color;
 }
 
-void Renderer::RenderShadowmaps(std::shared_ptr<CameraComponent> camera)
+void Renderer::RenderShadowmaps(CameraComponent& camera)
 {
-	FrameCullings& frameCulling = mFrameCullings[camera];
+	FrameCullings& frameCulling = mFrameCullings[&camera];
 	auto& culledLights = frameCulling.mCulledLights;
 	if (culledLights.empty()) {
 		return;
@@ -706,7 +700,7 @@ void Renderer::RenderShadowmaps(std::shared_ptr<CameraComponent> camera)
 			switch (lightType)
 			{
 			case Cjing3D::LightComponent::LightType_Directional:
-				RenderDirLightShadowmap(*light, *camera);
+				RenderDirLightShadowmap(*light, camera);
 				break;
 			case Cjing3D::LightComponent::LightType_Point:
 				break;
@@ -720,7 +714,7 @@ void Renderer::RenderShadowmaps(std::shared_ptr<CameraComponent> camera)
 	mGraphicsDevice->EndEvent();
 }
 
-void Renderer::RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, RenderPassType renderPassType)
+void Renderer::RenderSceneOpaque(CameraComponent& camera, RenderPassType renderPassType)
 {
 	mGraphicsDevice->BeginEvent("RenderSceneOpaque");
 
@@ -730,16 +724,14 @@ void Renderer::RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, Render
 	GetRenderPass(STRING_ID(TerrainPass))->Render();
 
 	// impostor render
-	if (camera != nullptr) {
-		RenderImpostor(*camera, renderPassType);
-	}
+	RenderImpostor(camera, renderPassType);
 
 	LinearAllocator& frameAllocator = GetFrameAllocator(FrameAllocatorType_Render);
 	auto& scene = GetMainScene();
 
 	// opaque object render
 	RenderQueue renderQueue;
-	FrameCullings& frameCulling = mFrameCullings[camera];
+	FrameCullings& frameCulling = mFrameCullings[&camera];
 	auto& objects = frameCulling.mCulledObjects;
 	for (const auto& objectIndex : objects)
 	{
@@ -775,7 +767,7 @@ void Renderer::RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, Render
 	mGraphicsDevice->EndEvent();
 }
 
-void Renderer::RenderSceneTransparent(std::shared_ptr<CameraComponent> camera, RenderPassType renderPassTypee)
+void Renderer::RenderSceneTransparent(CameraComponent& camera, RenderPassType renderPassTypee)
 {
 	mGraphicsDevice->BeginEvent("RenderSceneTransparent");
 

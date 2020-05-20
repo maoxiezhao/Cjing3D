@@ -44,7 +44,7 @@ namespace ModelImporter
 		for (auto& objMaterial : objMaterials)
 		{
 			ECS::Entity materialEntity = newScene.CreateEntityMaterial(objMaterial.name);
-			std::shared_ptr<MaterialComponent> material = newScene.GetComponent<MaterialComponent>(materialEntity);
+			MaterialComponent* material = newScene.GetComponent<MaterialComponent>(materialEntity);
 
 			material->mBaseColor = { objMaterial.diffuse[0], objMaterial.diffuse[1], objMaterial.diffuse[2], objMaterial.diffuse[3] };
 			material->mRoughness = objMaterial.roughness;
@@ -94,8 +94,8 @@ namespace ModelImporter
 			ECS::Entity objectEntity = newScene.CreateEntityObject(shapeName);
 			ECS::Entity meshEntity = newScene.CreateEntityMesh(shapeName + "_mesh");
 
-			std::shared_ptr<ObjectComponent> object = newScene.GetComponent<ObjectComponent>(objectEntity);
-			std::shared_ptr<MeshComponent> mesh = newScene.GetComponent<MeshComponent>(meshEntity);
+			ObjectComponent* object = newScene.GetComponent<ObjectComponent>(objectEntity);
+			MeshComponent* mesh = newScene.GetComponent<MeshComponent>(meshEntity);
 
 			object->mMeshID = meshEntity;
 

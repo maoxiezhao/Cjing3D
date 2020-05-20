@@ -3,6 +3,9 @@
 #include <string>
 #include <windows.h>
 #include <exception>
+#include <sstream>
+
+#include "common\definitions.h"
 
 namespace Cjing3D {
 
@@ -42,5 +45,24 @@ namespace Cjing3D {
 		void ThrowIfFailed(HRESULT result);
 		void ThrowIfFailed(HRESULT result, const char* format, ...);
 	}
+
+#define ERR_FAIL_COND(mCond)																		\
+	if (mCond) {																					\
+		std::ostringstream oss;																		\
+		oss << __FUNCTION__; oss << __FILE__; oss << __LINE__;										\
+		oss << "Condition \"" _STR(mCond) "\" is true. returned: " _STR(mRet);					    \
+		Debug::Error(oss.str());																	\
+	} else                                                                                          \
+		((void)0)
+
+#define ERR_FAIL_COND_V(mCond, mRet)															    \
+	if (mCond) {																					\
+		std::ostringstream oss;																		\
+		oss << __FUNCTION__; oss << __FILE__; oss << __LINE__;										\
+		oss << "Condition \"" _STR(mCond) "\" is true. returned: " _STR(mRet);					    \
+		Debug::Error(oss.str());																	\
+		return mRet;                                                                                \
+	} else                                                                                          \
+		((void)0)
 
 }

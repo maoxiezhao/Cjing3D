@@ -95,6 +95,15 @@
     <Filter Include="renderer\passes\terrain">
       <UniqueIdentifier>{1c8f2cb5-f8f4-4fba-b3d5-05bb2fa02c44}</UniqueIdentifier>
     </Filter>
+    <Filter Include="utils\allocator">
+      <UniqueIdentifier>{4c67ba05-cb6d-4c14-b411-7543968eae4c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils\tlsf">
+      <UniqueIdentifier>{b1ef336f-3f1b-4701-8a3c-a2b38b9dce3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils\container">
+      <UniqueIdentifier>{8493e0b2-8923-47f1-a0e4-968e650daace}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine.cpp" />
@@ -482,6 +491,18 @@
     <ClCompile Include="system\component\weather.cpp">
       <Filter>system\component</Filter>
     </ClCompile>
+    <ClCompile Include="core\memory.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\tlsf\tlsf.c">
+      <Filter>utils\tlsf</Filter>
+    </ClCompile>
+    <ClCompile Include="core\allocator.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\safeRefcount.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -607,9 +628,6 @@
     </ClInclude>
     <ClInclude Include="renderer\rendererUtils.h">
       <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\allocator.h">
-      <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="helper\helper.h">
       <Filter>helper</Filter>
@@ -947,6 +965,30 @@
     </ClInclude>
     <ClInclude Include="system\component\weather.h">
       <Filter>system\component</Filter>
+    </ClInclude>
+    <ClInclude Include="core\memory.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\allocator\linearAllocator.h">
+      <Filter>utils\allocator</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\objectPool.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\allocator\tlsfAllocator.h">
+      <Filter>utils\allocator</Filter>
+    </ClInclude>
+    <ClInclude Include="core\allocator.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tlsf\tlsf.h">
+      <Filter>utils\tlsf</Filter>
+    </ClInclude>
+    <ClInclude Include="core\safeRefcount.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\container\dynamicArray.h">
+      <Filter>utils\container</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

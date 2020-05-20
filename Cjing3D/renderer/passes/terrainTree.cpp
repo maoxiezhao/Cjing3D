@@ -116,10 +116,7 @@ void TerrainTree::UpdatePerFrameData(F32 deltaTime)
 {
 	// update terrain tree
 	Renderer& renderer = GlobalGetSubSystem<Renderer>();
-	auto cam = renderer.GetCamera();
-	if (cam != nullptr) {
-		UpdateTerrainTree(*cam);
-	}
+	UpdateTerrainTree(renderer.GetCamera());
 }
 
 void TerrainTree::RefreshRenderData(TransformComponent& transform)

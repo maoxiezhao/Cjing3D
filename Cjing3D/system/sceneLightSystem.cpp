@@ -7,7 +7,7 @@ namespace Cjing3D
 	{
 		SystemContext& systemContext = SystemContext::GetSystemContext();
 		Renderer& renderer = systemContext.GetSubSystem<Renderer>();
-		CameraPtr camera = renderer.GetCamera();
+		CameraComponent& camera = renderer.GetCamera();
 
 		ECS::ComponentManager<LightComponent > & lights = scene.mLights;
 		ECS::ComponentManager<AABBComponent>& lightAABBs = scene.mLightAABBs;
@@ -17,9 +17,9 @@ namespace Cjing3D
 		{
 			Entity entity = lights.GetEntityByIndex(i);
 
-			std::shared_ptr<LightComponent> light = lights[i];
-			std::shared_ptr<AABBComponent> aabb = lightAABBs[i];
-			std::shared_ptr<TransformComponent> transform = transforms.GetComponent(entity);
+			LightComponent* light = lights[i];
+			AABBComponent* aabb = lightAABBs[i];
+			TransformComponent* transform = transforms.GetComponent(entity);
 
 			if (light == nullptr || aabb == nullptr || transform == nullptr) {
 				continue;
@@ -38,7 +38,7 @@ namespace Cjing3D
 			switch (lightType)
 			{
 			case Cjing3D::LightComponent::LightType_Directional:
-				aabb->GetAABB().SetFromHalfWidth(XMConvert(camera->GetCameraPos()), XMFLOAT3(1000.0f, 1000.0f, 1000.0f));
+				aabb->GetAABB().SetFromHalfWidth(XMConvert(camera.GetCameraPos()), XMFLOAT3(1000.0f, 1000.0f, 1000.0f));
 				break;
 			case Cjing3D::LightComponent::LightType_Point:
 				aabb->GetAABB().SetFromHalfWidth(XMConvert(light->mPosition), XMFLOAT3(light->mRange, light->mRange, light->mRange));

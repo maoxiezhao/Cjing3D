@@ -4,8 +4,7 @@
 #include "resource\resourceManager.h"
 
 Cjing3D::MaterialComponent::MaterialComponent():
-	Component(ComponentType_Material),
-	mConstantBuffer(nullptr)
+	Component(ComponentType_Material)
 {
 }
 
@@ -23,11 +22,9 @@ ShaderMaterial Cjing3D::MaterialComponent::CreateMaterialCB()
 
 void Cjing3D::MaterialComponent::SetupConstantBuffer(GraphicsDevice& device)
 {
-	if (mConstantBuffer == nullptr)
+	if (!mConstantBuffer.IsValid())
 	{
-		mConstantBuffer = std::make_unique<GPUBuffer>();
-
-		const auto result = CreateDefaultConstantBuffer(device, *mConstantBuffer, sizeof(MaterialCB));
+		const auto result = CreateDefaultConstantBuffer(device, mConstantBuffer, sizeof(MaterialCB));
 		Debug::ThrowIfFailed(result, "Failed to create material constant buffer:%08x", result);
 	}
 }

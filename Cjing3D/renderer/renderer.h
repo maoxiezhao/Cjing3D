@@ -4,7 +4,7 @@
 #include "renderer\paths\renderPath.h"
 #include "renderer\rendererUtils.h"
 #include "core\subSystem.hpp"
-#include "utils\allocator.h"
+#include "utils\allocator\linearAllocator.h"
 
 #include <unordered_map>
 
@@ -60,7 +60,7 @@ public:
 	U32x2 GetScreenSize();
 	GraphicsDevice& GetDevice();
 	ResourceManager& GetResourceManager();
-	std::shared_ptr<CameraComponent> GetCamera();
+	CameraComponent& GetCamera();
 	ShaderLib& GetShaderLib();
 	StateManager& GetStateManager();
 	BufferManager& GetBufferManager();
@@ -78,9 +78,9 @@ public:
 	void SetAmbientColor(F32x3 color);
 
 	// Render Method
-	void RenderShadowmaps(std::shared_ptr<CameraComponent> camera);
-	void RenderSceneOpaque(std::shared_ptr<CameraComponent> camera, RenderPassType renderPassType);
-	void RenderSceneTransparent(std::shared_ptr<CameraComponent> camera, RenderPassType renderPassType);
+	void RenderShadowmaps(CameraComponent& camera);
+	void RenderSceneOpaque(CameraComponent& camera, RenderPassType renderPassType);
+	void RenderSceneTransparent(CameraComponent& camera, RenderPassType renderPassType);
 	void RenderImpostor(CameraComponent& camera, RenderPassType renderPassType);
 	void RenderSky();
 
@@ -130,7 +130,7 @@ private:
 
 		void Clear();
 	};
-	std::unordered_map<std::shared_ptr<CameraComponent>, FrameCullings> mFrameCullings;
+	std::unordered_map<const CameraComponent*, FrameCullings> mFrameCullings;
 
 public:
 	// 每帧所用的线性分配器
@@ -154,7 +154,6 @@ private:
 	LinearAllocator mFrameAllocator[FrameAllocatorType_Count];
 
 	// base member
-	std::shared_ptr<CameraComponent> mCamera;
 	std::unique_ptr<GraphicsDevice> mGraphicsDevice;
 	std::unique_ptr<ShaderLib> mShaderLib;
 	std::unique_ptr<StateManager> mStateManager;

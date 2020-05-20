@@ -10,12 +10,9 @@ namespace Cjing3D {
 		{
 			return LuaTools::ExceptionBoundary(l, [&] {
 				Renderer& renderer = SystemContext::GetSystemContext().GetSubSystem<Renderer>();
-				CameraPtr camera = renderer.GetCamera();
-				if (camera == nullptr) {
-					return 0;
-				}
+				CameraComponent& camera = renderer.GetCamera();
 
-				LuaTools::Push<CameraComponent&>(l, *camera);
+				LuaTools::Push<CameraComponent&>(l, camera);
 				return 1;
 			});
 		}

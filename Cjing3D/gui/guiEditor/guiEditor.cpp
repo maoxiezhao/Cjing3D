@@ -122,7 +122,7 @@ namespace Editor {
 			static int materialIndex = 1;
 			std::string materialNameList = "\0";
 
-			auto materialManager = scene.GetComponentManager<MaterialComponent>();
+			auto& materialManager = scene.mMaterials;
 			for (int index = 0; index < materialManager.GetCount(); index++)
 			{
 				Entity entity = materialManager.GetEntityByIndex(index);
@@ -284,7 +284,7 @@ namespace Editor {
 		ImGui::Begin("Animations attributes", &showAnimationWindow);
 
 		Scene& scene = Scene::GetScene();
-		auto animations = scene.mAnimations;
+		auto& animations = scene.mAnimations;
 		if (animations.GetCount() <= 0) {
 			ImGui::End();
 			return;
@@ -475,7 +475,7 @@ namespace Editor {
 		transformSet.clear();
 
 		Scene& scene = Scene::GetScene();
-		auto transforms = scene.GetComponentManager<TransformComponent>();
+		auto& transforms = scene.mTransforms;
 
 		std::vector<ECS::Entity> rootTransforms;
 		TransformChildrenMap transformChildrenMap;
@@ -530,7 +530,7 @@ namespace Editor {
 			{
 				static int objectSelectionIndex = -1;
 				int nodeClicked = -1;
-				auto objectManager = scene.GetComponentManager<ObjectComponent>();
+				auto& objectManager = scene.mObjects;
 				for (int index = 0; index < objectManager.GetCount(); index++)
 				{
 					Entity entity = objectManager.GetEntityByIndex(index);
@@ -558,7 +558,7 @@ namespace Editor {
 			{
 				static int lightSelectionIndex = -1;
 				int nodeClicked = -1;
-				auto lightManager = scene.GetComponentManager<LightComponent>();
+				auto& lightManager = scene.mLights;
 				for (int index = 0; index < lightManager.GetCount(); index++)
 				{
 					Entity entity = lightManager.GetEntityByIndex(index);
@@ -579,7 +579,7 @@ namespace Editor {
 			{
 				static int materialSelectionIndex = -1;
 				int nodeClicked = -1;
-				auto materialManager = scene.GetComponentManager<MaterialComponent>();
+				auto& materialManager = scene.mMaterials;
 				for (int index = 0; index < materialManager.GetCount(); index++)
 				{
 					Entity entity = materialManager.GetEntityByIndex(index);
@@ -600,7 +600,7 @@ namespace Editor {
 			{
 				static int terrainSelectionIndex = -1;
 				int nodeClicked = -1;
-				auto terrainManager = scene.mTerrains;
+				auto& terrainManager = scene.mTerrains;
 				for (int index = 0; index < terrainManager.GetCount(); index++)
 				{
 					Entity entity = terrainManager.GetEntityByIndex(index);
@@ -643,13 +643,14 @@ namespace Editor {
 
 
 		ImGui::Text("Cjing3D v0.0.1");
-		ImGui::Text("");
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", deltaTime, 1.0f / deltaTime);
 		ImGui::Text("F4-Show Debug; F5-Load scene;");
 		ImGui::Text("F6-Save scene; F7-Clear scene;");
 		ImGui::Text("WASD-Move camera;  RB-Rotate camera");
 		ImGui::Text("");
 		ImGui::Text(Profiler::GetInstance().GetProfileString().c_str());
+		ImGui::Text("");
+		ImGui::Text("heap memory usage:%.3f KB", Memory::GetMemUsage() / 1000.0f);
 		ImGui::End();
 	}
 

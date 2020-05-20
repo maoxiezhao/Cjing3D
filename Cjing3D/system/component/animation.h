@@ -10,10 +10,6 @@ namespace Cjing3D {
 		ArmatureComponent();
 		~ArmatureComponent();
 
-		ECS::Entity mRootBone = ECS::INVALID_ENTITY;
-		std::vector<ECS::Entity> mSkinningBones;
-		std::vector<XMFLOAT4X4> mInverseBindMatrices;
-
 		struct BonePose
 		{
 			XMFLOAT4 bonePose0;
@@ -42,6 +38,10 @@ namespace Cjing3D {
 		};
 		std::vector<BonePose> mBonePoses;
 		GPUBuffer mBufferBonePoses;
+
+		ECS::Entity mRootBone = ECS::INVALID_ENTITY;
+		std::vector<ECS::Entity> mSkinningBones;
+		std::vector<XMFLOAT4X4> mInverseBindMatrices;
 
 		AABB mAABB;
 

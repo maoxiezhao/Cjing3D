@@ -9,6 +9,7 @@
 #include "renderer\renderer.h"
 #include "scripts\luaContext.h"
 #include "gui\guiStage.h"
+#include "system\sceneSystem.h"
 
 namespace Cjing3D
 {
@@ -41,6 +42,8 @@ void Engine::Initialize()
 	if (mIsInitialized == true) {
 		return;
 	}
+
+	Memory::Initialize();
 
 	Profiler::GetInstance().Initialize();
 	Profiler::GetInstance().SetProfileEnable(true);
@@ -98,6 +101,9 @@ void Engine::Initialize()
 	auto luaContext = new LuaContext(*mSystemContext);
 	mSystemContext->RegisterSubSystem(luaContext);
 	luaContext->Initialize();
+
+	// initialize main scene
+	Scene::Initialize();
 
 	// game start
 	mGameComponent->Initialize();
@@ -170,6 +176,9 @@ void Engine::Uninitialize()
 	mSystemContext->GetSubSystem<LuaContext>().OnMainUninitialize();
 	mGameComponent->Uninitialize();
 
+	Scene::GetScene().Clear();
+	Scene::Uninitialize();
+
 	mSystemContext->GetSubSystem<GUIStage>().Uninitialize();
 	mSystemContext->GetSubSystem<LuaContext>().Uninitialize();
 	mSystemContext->GetSubSystem<Renderer>().Uninitialize();
@@ -185,6 +194,8 @@ void Engine::Uninitialize()
 	Debug::UninitializeDebugConsolse();
 #endif
 	Profiler::GetInstance().Uninitialize();
+
+	Memory::Uninitialize();
 
 	mIsInitialized = false;
 }

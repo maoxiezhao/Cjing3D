@@ -19,3 +19,12 @@
 #define LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
 #define LUA_BINDER_REGISTER_CLASS_STATIC_FUNCTION
 #define LUA_BINDER_REGISTER_CLASS_SET_NAME(name)
+
+// common definitions
+#ifndef _STR
+#define _STR(m_x) #m_x
+#define _MKSTR(m_x) _STR(m_x)
+#endif
+
+#define PLATFORM_ALIGNMENT 16
+#define ALIGN_TO(n, a)((n + a)&~a)

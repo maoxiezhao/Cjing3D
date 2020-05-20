@@ -29,7 +29,7 @@ namespace Cjing3D {
 
 		ShaderMaterial CreateMaterialCB();
 		void SetupConstantBuffer(GraphicsDevice& device);
-		GPUBuffer& GetConstantBuffer() { return *mConstantBuffer; }
+		GPUBuffer& GetConstantBuffer() { return mConstantBuffer; }
 	
 		virtual void Serialize(Archive& archive, U32 seed = 0);
 		virtual void Unserialize(Archive& archive)const;
@@ -38,7 +38,7 @@ namespace Cjing3D {
 		void SetIsUsingVertexColors(bool useVertexColors) { mIsUsingVertexColors = useVertexColors; }
 
 	private:
-		std::unique_ptr<GPUBuffer> mConstantBuffer = nullptr;
+		GPUBuffer mConstantBuffer;
 
 		bool mIsDirty = true;
 		bool mIsUsingVertexColors = false;

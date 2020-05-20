@@ -69,10 +69,4 @@ namespace Cjing3D
 		size_t mCapacity = 0;
 		size_t mOffset = 0;
 	};
-
-
-	class HeapBlockAlloctor
-	{
-	public:
-	};
 }

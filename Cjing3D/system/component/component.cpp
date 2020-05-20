@@ -10,7 +10,6 @@ ComponentType Component::DeduceComponentType()
 
 #define ADDTOCOMPONENTTYPE(T, enumT) template<> ComponentType Component::DeduceComponentType<T>() { return enumT; }
 //ADDTOCOMPONENTTYPE(Renderable, ComponentType_Renderable)
-
 	
 Component::Component(ComponentType type):
 	mType(type),
@@ -18,8 +17,25 @@ Component::Component(ComponentType type):
 {
 }
 
+Component::Component(const Component& rhs)
+{
+	mCurrentEntity = rhs.mCurrentEntity;
+	mType = rhs.mType;
+	mInitialized = rhs.mInitialized;
+}
+
+Component::Component(Component&& rhs)
+{
+	mCurrentEntity = rhs.mCurrentEntity;
+	rhs.mCurrentEntity = INVALID_ENTITY;
+
+	mType = rhs.mType;
+	mInitialized = rhs.mInitialized;
+}
+
 Component::~Component()
 {
 }
+
 
 }

@@ -45,10 +45,7 @@ namespace Cjing3D {
 	void RenderPathForward::Render()
 	{
 		GraphicsDevice& device = mRenderer.GetDevice();
-		auto camera = mRenderer.GetCamera();
-		if (camera == nullptr) {
-			return;
-		}
+		CameraComponent& camera = mRenderer.GetCamera();
 
 		// update and bind common resources
 		mRenderer.RefreshRenderData();
@@ -62,7 +59,7 @@ namespace Cjing3D {
 		RenderShadowmaps();
 
 		// update main camera constant buffer
-		mRenderer.UpdateCameraCB(*camera);
+		mRenderer.UpdateCameraCB(camera);
 
 		// opaque scene
 		{

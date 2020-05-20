@@ -9,6 +9,7 @@
 #include "helper\debug.h"
 #include "helper\stringID.h"
 #include "utils\math.h"
+#include "core\memory.h"
 
 
 
