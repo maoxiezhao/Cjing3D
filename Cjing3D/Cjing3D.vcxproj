@@ -288,6 +288,9 @@
     <ClInclude Include="utils\baseWindow.h" />
     <ClInclude Include="utils\color.h" />
     <ClInclude Include="utils\container\dynamicArray.h" />
+    <ClInclude Include="utils\container\hashMap.h" />
+    <ClInclude Include="utils\container\map.h" />
+    <ClInclude Include="utils\container\staticArray.h" />
     <ClInclude Include="utils\geometry.h" />
     <ClInclude Include="utils\intersectable.h" />
     <ClInclude Include="utils\json\json.hpp" />
@@ -434,6 +437,7 @@
     <ClCompile Include="system\sceneTransformSystem.cpp" />
     <ClCompile Include="system\systems\sceneAnimationSystem.cpp" />
     <ClCompile Include="system\systems\sceneTerrainSystem.cpp" />
+    <ClCompile Include="utils\allocator\tlsfAllocator.cpp" />
     <ClCompile Include="utils\baseWindow.cpp" />
     <ClCompile Include="utils\geometry.cpp" />
     <ClCompile Include="utils\intersectable.cpp" />

@@ -16,13 +16,17 @@
 #include <thread>
 #include <Windows.h>
 
-#include "utils\objectPool.h"
+#include "utils\container\dynamicArray.h"
+#include "utils\container\map.h"
+#include "utils\container\staticArray.h"
 
 namespace Cjing3D
 {
 	class TestA
 	{
 	public:
+		TestA() = delete;
+		TestA(int num) : a(num) {}
 		int a = 0;
 	};
 

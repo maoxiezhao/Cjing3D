@@ -21,7 +21,11 @@ namespace Cjing3D
 		static void FreeStatic(void* ptr, bool prepad = false);
 
 		static void* AlignAllocStatic(size_t size, size_t align, bool prepad = false);
+		static void* AlignReallocStatic(void* ptr, size_t newBytes, size_t align, bool prepad = false);
 		static void AlignFreeStatic(void* ptr, bool prepad = false);
+
+		static void Memmove(void* dst, void* src, size_t size);
+		static void Memcpy(void* dst, void* src, size_t size);
 
 		static uint64_t GetMemUsage();
 		static uint64_t GetMaxMemUsage();
@@ -111,6 +115,14 @@ namespace Cjing3D
 		});
 	}
 
+	template< typename T>
+	SharedPtr<T> CJING_SHARED(T* ptr)
+	{
+		return SharedPtr<T>(ptr, [](T* data) {
+			CJING_MEM_DELETE(data);
+		});
+	}
+
 	template<typename T>
 	using UniquePtr = std::unique_ptr<T>;
 
@@ -118,6 +130,14 @@ namespace Cjing3D
 	UniquePtr<T> CJING_MAKE_UNIQUE(Args&&... args)
 	{
 		return UniquePtr<T>(CJING_MEM_NEW(T{ std::forward<Args>(args)... }), [](T* data) {
+			CJING_MEM_DELETE(data);
+		});
+	}
+
+	template< typename T>
+	UniquePtr<T> CJING_UNIQUE(T* ptr)
+	{
+		return UniquePtr<T>(ptr, [](T* data) {
 			CJING_MEM_DELETE(data);
 		});
 	}

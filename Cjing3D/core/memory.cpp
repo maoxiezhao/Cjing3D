@@ -152,6 +152,56 @@ namespace Cjing3D
 		}
 	}
 
+	void* Memory::AlignReallocStatic(void* ptr, size_t newBytes, size_t align, bool prepad)
+	{
+		if (ptr == nullptr) {
+			return AllocStatic(newBytes, prepad);
+		}
+
+#ifdef CJING_DEBUG
+		prepad = true;
+#endif
+		if (prepad)
+		{
+			// align情况下，需要后置ALIGN_SIZE返回分配内存开始的位置
+			uint8_t* mem = (uint8_t*)ptr;
+			mem -= DEFAULT_ALIGN_SIZE;
+
+#ifdef CJING_DEBUG
+			uint64_t oldBytes = *((uint64_t*)mem);
+			if (newBytes > oldBytes)
+			{
+				atomicAdd(&memUsage, newBytes - oldBytes);
+				atomicExchangeIfGreater(&maxMemUsage, memUsage);
+			}
+			else
+			{
+				atomicSub(&memUsage, oldBytes - newBytes);
+			}
+#endif
+			if (newBytes == 0)
+			{
+				FreeStatic(ptr, prepad);
+				return nullptr;
+			}
+			else
+			{
+				mem = (uint8_t*)allocator.AlignReallocate(mem, newBytes + (prepad ? DEFAULT_ALIGN_SIZE : 0), align);
+				ERR_FAIL_COND_V(!mem, nullptr);
+
+				*((uint64_t*)mem) = newBytes;
+				return mem + DEFAULT_ALIGN_SIZE;
+			}
+		}
+		else
+		{
+			void* mem = allocator.AlignReallocate(ptr, newBytes, align);
+			ERR_FAIL_COND_V(!mem, nullptr);
+
+			return mem;
+		}
+	}
+
 	void Memory::AlignFreeStatic(void* ptr, bool prepad)
 	{
 		if (ptr == nullptr) {
@@ -177,6 +227,16 @@ namespace Cjing3D
 		{
 			allocator.AlignFree(mem);
 		}
+	}
+
+	void Memory::Memmove(void* dst, void* src, size_t size)
+	{
+		memmove_s(dst, size, src, size);
+	}
+
+	void Memory::Memcpy(void* dst, void* src, size_t size)
+	{
+		memcpy_s(dst, size, src, size);
 	}
 
 	uint64_t Memory::GetMemUsage()

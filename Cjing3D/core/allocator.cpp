@@ -22,9 +22,18 @@ namespace Cjing3D
 		return _aligned_malloc(size, align);
 	}
 
+	void* DefaultAllocator::AlignReallocate(void* ptr, size_t newSize, size_t align)
+	{
+		return _aligned_realloc(ptr, newSize, align);
+	}
+
 	void DefaultAllocator::AlignFree(void* ptr)
 	{
 		return _aligned_free(ptr);
+	}
+
+	void DefaultAllocator::LogStats() const
+	{
 	}
 
 	DefaultAllocator& GetDefaultAllocator()

@@ -15,8 +15,11 @@ namespace Cjing3D
 		virtual void* Allocate(size_t size) = 0;
 		virtual void* Reallocate(void* ptr, size_t newSize) = 0;
 		virtual void  Free(void* ptr) = 0;
+
 		virtual void* AlignAllocate(size_t size, size_t align) = 0;
+		virtual void* AlignReallocate(void* ptr, size_t newSize, size_t align) = 0;
 		virtual void  AlignFree(void* ptr) = 0;
+		virtual void  LogStats() const = 0;
 
 		template<typename T, typename... Args>
 		T* New(Args&&... args)
@@ -50,7 +53,10 @@ namespace Cjing3D
 		virtual void Free(void* ptr);
 	
 		virtual void* AlignAllocate(size_t size, size_t align);
+		virtual void* AlignReallocate(void* ptr, size_t newSize, size_t align);
 		virtual void  AlignFree(void* ptr);
+
+		virtual void  LogStats() const;
 	};
 
 	inline DefaultAllocator& GetDefaultAllocator();

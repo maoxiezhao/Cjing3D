@@ -503,6 +503,9 @@
     <ClCompile Include="core\safeRefcount.cpp">
       <Filter>core</Filter>
     </ClCompile>
+    <ClCompile Include="utils\allocator\tlsfAllocator.cpp">
+      <Filter>utils\allocator</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -988,6 +991,15 @@
       <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="utils\container\dynamicArray.h">
+      <Filter>utils\container</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\container\map.h">
+      <Filter>utils\container</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\container\staticArray.h">
+      <Filter>utils\container</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\container\hashMap.h">
       <Filter>utils\container</Filter>
     </ClInclude>
   </ItemGroup>

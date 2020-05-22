@@ -68,6 +68,19 @@ namespace Cjing3D {
 			SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
 		}
 
+		void InfoEx(const char* format, ...)
+		{
+			char msg[256] = {};
+			va_list args;
+			va_start(args, format);
+			vsnprintf_s(msg, std::size(msg), format, args);
+			va_end(args);
+
+			SetLoggerConsoleFontColor(CONSOLE_FONT_GREEN);
+			Print("[Info]  " + std::string(msg));
+			SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
+		}
+
 		void Logger::Warning(const string & msg)
 		{
 			SetLoggerConsoleFontColor(CONSOLE_FONT_YELLOW);
