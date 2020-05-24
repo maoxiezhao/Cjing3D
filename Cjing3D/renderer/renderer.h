@@ -76,6 +76,8 @@ public:
 	U32 GetShadowRes2DResolution()const;
 	F32x3 GetAmbientColor()const;
 	void SetAmbientColor(F32x3 color);
+	void SetAlphaCutRef(F32 alpha);
+	void ResetAlphaCutRef() { SetAlphaCutRef(1.0f); }
 
 	// Render Method
 	void RenderShadowmaps(CameraComponent& camera);
@@ -148,8 +150,8 @@ private:
 	U32 mFrameNum = 0;
 	U32x2 mScreenSize;
 	F32 mGamma = 2.2f;
-
 	RenderFrameData mFrameData;
+	CommonCB mCommonCB;
 	std::vector<int> mPendingUpdateMaterials;
 	LinearAllocator mFrameAllocator[FrameAllocatorType_Count];
 

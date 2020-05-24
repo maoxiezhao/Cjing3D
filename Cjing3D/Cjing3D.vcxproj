@@ -203,7 +203,7 @@
     <ClInclude Include="renderer\paths\renderPath_forward.h" />
     <ClInclude Include="renderer\paths\renderImage.h" />
     <ClInclude Include="renderer\paths\renderPath.h" />
-    <ClInclude Include="renderer\pipelineStateManager.h" />
+    <ClInclude Include="renderer\pipelineStates\pipelineStateManager.h" />
     <ClInclude Include="renderer\renderableCommon.h" />
     <ClInclude Include="renderer\renderer.h" />
     <ClInclude Include="renderer\renderer2D.h" />
@@ -354,7 +354,9 @@
     <ClCompile Include="renderer\paths\renderPath_forward.cpp" />
     <ClCompile Include="renderer\paths\renderImage.cpp" />
     <ClCompile Include="renderer\paths\renderPath.cpp" />
-    <ClCompile Include="renderer\pipelineStateManager.cpp" />
+    <ClCompile Include="renderer\pipelineStates\imagePipelineStates.cpp" />
+    <ClCompile Include="renderer\pipelineStates\normalPipelineStates.cpp" />
+    <ClCompile Include="renderer\pipelineStates\pipelineStateManager.cpp" />
     <ClCompile Include="renderer\renderer.cpp" />
     <ClCompile Include="renderer\renderer2D.cpp" />
     <ClCompile Include="renderer\rendererUtils.cpp" />

@@ -3,7 +3,7 @@
 #include "renderer\RHI\device.h"
 #include "renderer\stateManager.h"
 #include "renderer\shaderLib.h"
-#include "renderer\pipelineStateManager.h"
+#include "renderer\pipelineStates\pipelineStateManager.h"
 #include "renderer\bufferManager.h"
 
 namespace Cjing3D

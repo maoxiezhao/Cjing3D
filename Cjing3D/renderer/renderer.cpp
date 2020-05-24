@@ -1,7 +1,6 @@
 #include "renderer.h"
 #include "shaderLib.h"
 #include "stateManager.h"
-#include "pipelineStateManager.h"
 #include "bufferManager.h"
 #include "renderer2D.h"
 #include "textureHelper.h"
@@ -13,6 +12,7 @@
 #include "system\component\camera.h"
 #include "resource\resourceManager.h"
 #include "system\sceneSystem.h"
+#include "pipelineStates\pipelineStateManager.h"
 
 #include "passes\renderPass.h"
 #include "passes\terrainPass.h"
@@ -187,20 +187,25 @@ namespace {
 				radius = std::max(radius, XMVectorGetX(XMVector3Length(XMVectorSubtract(corner, center))));
 			}
 
-			XMVECTOR vMin = center + XMVectorReplicate(-radius);
-			XMVECTOR vMax = center + XMVectorReplicate(radius);
+			XMVECTOR vRadius = XMVectorReplicate(-radius);
+			XMVECTOR vMin = center - vRadius;
+			XMVECTOR vMax = center + vRadius;
 
 			// 对齐到纹理网格上
 			const XMVECTOR texelSize = XMVectorSubtract(vMax, vMin) / (F32)shadowRes2DResolution;
 			vMin = XMVectorFloor(vMin / texelSize) * texelSize;
 			vMax = XMVectorFloor(vMax / texelSize) * texelSize;
+			XMVECTOR vCenter = (vMax + vMax) * 0.5f;
 			
 			// 子视锥体本身包围盒在z轴方向过小，拉伸包围盒以包含更多的物体（例如视锥体之外的物体，但在光源方向中也可能产生阴影）
-			XMFLOAT3 _min, _max;
+			XMFLOAT3 _min, _max, _center;
 			XMStoreFloat3(&_min, vMin);
 			XMStoreFloat3(&_max, vMax);
-			_min.z = std::min(_min.z, -farPlane * 0.5f);
-			_max.z = std::max(_max.z,  farPlane * 0.5f);
+			XMStoreFloat3(&_center, vCenter);
+
+			float ext = std::max(abs(_center.z - _min.z), farPlane * 0.5f);
+			_min.z = _center.z - ext;
+			_max.z = _center.z + ext;
 
 			auto& cam = csfs.emplace_back();
 
@@ -328,6 +333,8 @@ void Renderer::Uninitialize()
 
 	mGraphicsDevice->Uninitialize();
 	mGraphicsDevice = nullptr;
+
+	GetFrameAllocator(FrameAllocatorType_Render).FreeBuffer();
 
 	mIsInitialized = false;
 }
@@ -668,6 +675,16 @@ void Renderer::SetAmbientColor(F32x3 color)
 	mFrameData.mFrameAmbient = color;
 }
 
+void Renderer::SetAlphaCutRef(F32 alpha)
+{
+	F32 newAlphaRef = 1.0f - alpha + 1.0f / 256.0f; // 加上一个单位(1.0f/256.f)使结果偏大
+	if (newAlphaRef != mCommonCB.gCommonAlphaCutRef)
+	{
+		mCommonCB.gCommonAlphaCutRef = newAlphaRef;
+		mGraphicsDevice->UpdateBuffer(mBufferManager->GetConstantBuffer(ConstantBufferType_Common), &mCommonCB, sizeof(CommonCB));
+	}
+}
+
 void Renderer::RenderShadowmaps(CameraComponent& camera)
 {
 	FrameCullings& frameCulling = mFrameCullings[&camera];
@@ -729,6 +746,7 @@ void Renderer::RenderSceneOpaque(CameraComponent& camera, RenderPassType renderP
 	LinearAllocator& frameAllocator = GetFrameAllocator(FrameAllocatorType_Render);
 	auto& scene = GetMainScene();
 
+	F32x3 cameraPos = camera.GetCameraPos();
 	// opaque object render
 	RenderQueue renderQueue;
 	FrameCullings& frameCulling = mFrameCullings[&camera];
@@ -751,14 +769,14 @@ void Renderer::RenderSceneOpaque(CameraComponent& camera, RenderPassType renderP
 		}
 
 		RenderBatch* renderBatch = (RenderBatch*)frameAllocator.Allocate(sizeof(RenderBatch));
-		renderBatch->Init(objectEntity, object->mMeshID);
+		renderBatch->Init(objectEntity, object->mMeshID, DistanceEstimated(cameraPos, object->mCenter));
 
 		renderQueue.AddBatch(renderBatch);
 	}
 
 	if (renderQueue.IsEmpty() == false)
 	{
-		renderQueue.Sort();
+		renderQueue.Sort(RenderQueue::FrontToBack);
 		ProcessRenderQueue(renderQueue, renderPassType, RenderableType_Opaque);
 
 		frameAllocator.Free(renderQueue.GetBatchCount() * sizeof(RenderBatch));
@@ -767,10 +785,44 @@ void Renderer::RenderSceneOpaque(CameraComponent& camera, RenderPassType renderP
 	mGraphicsDevice->EndEvent();
 }
 
-void Renderer::RenderSceneTransparent(CameraComponent& camera, RenderPassType renderPassTypee)
+void Renderer::RenderSceneTransparent(CameraComponent& camera, RenderPassType renderPassType)
 {
 	mGraphicsDevice->BeginEvent("RenderSceneTransparent");
 
+	BindShadowMaps(SHADERSTAGES_PS);
+
+	LinearAllocator& frameAllocator = GetFrameAllocator(FrameAllocatorType_Render);
+	auto& scene = GetMainScene();
+
+	F32x3 cameraPos = camera.GetCameraPos();
+	// transparent object render
+	RenderQueue renderQueue;
+	FrameCullings& frameCulling = mFrameCullings[&camera];
+	auto& objects = frameCulling.mCulledObjects;
+	for (const auto& objectIndex : objects)
+	{
+		auto objectEntity = scene.GetEntityByIndex<ObjectComponent>(objectIndex);
+		auto object = scene.GetComponent<ObjectComponent>(objectEntity);
+
+		if (object == nullptr ||
+			object->GetObjectType() != ObjectComponent::OjbectType_Renderable ||
+			object->GetRenderableType() != RenderableType_Transparent) {
+			continue;
+		}
+
+		RenderBatch* renderBatch = (RenderBatch*)frameAllocator.Allocate(sizeof(RenderBatch));
+		renderBatch->Init(objectEntity, object->mMeshID, DistanceEstimated(cameraPos, object->mCenter));
+		renderQueue.AddBatch(renderBatch);
+	}
+
+	if (renderQueue.IsEmpty() == false)
+	{
+		// 渲染透明物体时需要从远处往近处渲染
+		renderQueue.Sort(RenderQueue::BackToFront);
+		ProcessRenderQueue(renderQueue, renderPassType, RenderableType_Transparent);
+
+		frameAllocator.Free(renderQueue.GetBatchCount() * sizeof(RenderBatch));
+	}
 
 	mGraphicsDevice->EndEvent();
 }
@@ -1146,9 +1198,12 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPass
 			bool is_renderable = false;
 			if (renderableType == RenderableType_Opaque)
 			{
-				is_renderable = true;
+				is_renderable = is_renderable || (!material->IsTransparent());
 			}
-
+			if (renderableType == RenderableType_Transparent)
+			{
+				is_renderable = is_renderable || (material->IsTransparent());
+			}
 			if (renderPassType == RenderPassType_Shadow)
 			{
 				is_renderable &= material->IsCastingShadow();
@@ -1237,6 +1292,9 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPass
 				}
 			}
 
+			// set alpha cut ref
+			SetAlphaCutRef(material->GetAlphaCutRef());
+
 			// bind material state
 			mGraphicsDevice->BindPipelineState(state);
 
@@ -1267,17 +1325,17 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPass
 		}
 	}
 
+	ResetAlphaCutRef();
+
 	mGraphicsDevice->UnAllocateGPU();	
 	frameAllocator.Free(instancedBatchCount * sizeof(RenderBatchInstance));
 }
 
 void Renderer::BindConstanceBuffer(SHADERSTAGES stage)
 {
-	GPUBuffer& cameraBuffer = mBufferManager->GetConstantBuffer(ConstantBufferType_Camera);
-	mGraphicsDevice->BindConstantBuffer(stage, cameraBuffer, CB_GETSLOT_NAME(CameraCB));
-
-	GPUBuffer& frameBuffer = mBufferManager->GetConstantBuffer(ConstantBufferType_Frame);
-	mGraphicsDevice->BindConstantBuffer(stage, frameBuffer, CB_GETSLOT_NAME(FrameCB));
+	mGraphicsDevice->BindConstantBuffer(stage, mBufferManager->GetConstantBuffer(ConstantBufferType_Common), CB_GETSLOT_NAME(CommonCB));
+	mGraphicsDevice->BindConstantBuffer(stage, mBufferManager->GetConstantBuffer(ConstantBufferType_Camera), CB_GETSLOT_NAME(CameraCB));
+	mGraphicsDevice->BindConstantBuffer(stage, mBufferManager->GetConstantBuffer(ConstantBufferType_Frame),  CB_GETSLOT_NAME(FrameCB));
 }
 
 void Renderer::BindShadowMaps(SHADERSTAGES stage)
@@ -1324,7 +1382,7 @@ void Renderer::RenderDirLightShadowmap(LightComponent& light, CameraComponent& c
 				}
 
 				RenderBatch* renderBatch = (RenderBatch*)frameAllocator.Allocate(sizeof(RenderBatch));
-				renderBatch->Init(object->GetCurrentEntity(), object->mMeshID);
+				renderBatch->Init(object->GetCurrentEntity(), object->mMeshID, 0);
 				renderQueue.AddBatch(renderBatch);
 			}
 		}

@@ -89,7 +89,23 @@ namespace Cjing3D
 
 	void RenderPath3D::RenderTransparents(RenderBehavior& renderBehavior, RenderPassType renderType)
 	{
-		// render transparent
+		GraphicsDevice& device = mRenderer.GetDevice();
+		// transparent scene
+		{
+			device.BeginRenderBehavior(renderBehavior);
+			const Texture* rtTexture = renderBehavior.mDesc.mParams[0].mTexture;
+
+			ViewPort vp;
+			vp.mWidth = (F32)rtTexture->GetDesc().mWidth;
+			vp.mHeight = (F32)rtTexture->GetDesc().mHeight;
+			vp.mMinDepth = 0.0f;
+			vp.mMaxDepth = 1.0f;
+			device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
+
+			mRenderer.RenderSceneTransparent(mRenderer.GetCamera(), renderType);
+
+			device.EndRenderBehavior();
+		}
 	}
 
 	void RenderPath3D::RenderPostprocess(Texture2D & rtScreen)

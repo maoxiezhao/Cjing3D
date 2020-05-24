@@ -104,6 +104,9 @@
     <Filter Include="utils\container">
       <UniqueIdentifier>{8493e0b2-8923-47f1-a0e4-968e650daace}</UniqueIdentifier>
     </Filter>
+    <Filter Include="renderer\pipelineStates">
+      <UniqueIdentifier>{642de6e7-1c44-4b3a-b558-21c6178ee6f2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine.cpp" />
@@ -458,9 +461,6 @@
     <ClCompile Include="scripts\api\utilsApi.cpp">
       <Filter>scripts\api</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\pipelineStateManager.cpp">
-      <Filter>renderer</Filter>
-    </ClCompile>
     <ClCompile Include="system\component\genericType.cpp">
       <Filter>system\component</Filter>
     </ClCompile>
@@ -505,6 +505,15 @@
     </ClCompile>
     <ClCompile Include="utils\allocator\tlsfAllocator.cpp">
       <Filter>utils\allocator</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\pipelineStates\imagePipelineStates.cpp">
+      <Filter>renderer\pipelineStates</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\pipelineStates\normalPipelineStates.cpp">
+      <Filter>renderer\pipelineStates</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\pipelineStates\pipelineStateManager.cpp">
+      <Filter>renderer\pipelineStates</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -915,9 +924,6 @@
     <ClInclude Include="..\ThirdParty\optick\optick.h">
       <Filter>utils\optick</Filter>
     </ClInclude>
-    <ClInclude Include="renderer\pipelineStateManager.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
     <ClInclude Include="system\component\genericType.h">
       <Filter>system\component</Filter>
     </ClInclude>
@@ -1001,6 +1007,9 @@
     </ClInclude>
     <ClInclude Include="utils\container\hashMap.h">
       <Filter>utils\container</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\pipelineStates\pipelineStateManager.h">
+      <Filter>renderer\pipelineStates</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -30,6 +30,7 @@ enum InputLayoutType
 enum PixelShaderType
 {
 	PixelShaderType_Forward = 0,
+	PixelShaderType_Forward_Transparent,
 	PixelShaderType_FullScreen,
 	PixelShaderType_Image,
 	PixelShaderType_Sky,

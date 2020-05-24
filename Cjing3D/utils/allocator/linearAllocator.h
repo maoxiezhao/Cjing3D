@@ -16,23 +16,31 @@ namespace Cjing3D
 		LinearAllocator() = default;
 		~LinearAllocator()
 		{
-			SAFE_DELETE_ARRAY(mBuffer);
-			mCapacity = 0;
-			mOffset = 0;
+			FreeBuffer();
 		}
 
+		inline void FreeBuffer()
+		{
+			if (mBuffer != nullptr)
+			{
+				CJING_MEM_DELETE_ARR(mBuffer);
+				mBuffer = nullptr;
+				mCapacity = 0;
+				mOffset = 0;
+			}
+		}
 
 		inline void Reserve(size_t capacity)
 		{
 			if (mCapacity > 0 && mBuffer != nullptr)
 			{
-				SAFE_DELETE_ARRAY(mBuffer);
+				CJING_MEM_DELETE_ARR(mBuffer);
 				mCapacity = 0;
 				mOffset = 0;
 			}
 
 			mCapacity = capacity;
-			mBuffer = new uint8_t[capacity];
+			mBuffer = CJING_MEM_NEW_ARR<uint8_t>(capacity);
 		}
 
 		inline uint8_t* Allocate(size_t size)

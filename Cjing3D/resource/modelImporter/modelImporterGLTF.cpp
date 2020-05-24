@@ -166,6 +166,8 @@ namespace ModelImporter {
 			auto baseColorFactorIt = gltfMaterial.values.find("baseColorFactor");
 			// addition value iterator
 			auto normalTextureIt = gltfMaterial.additionalValues.find("normalTexture");
+			auto alphaCutoff = gltfMaterial.additionalValues.find("alphaCutoff");
+			auto alphaMode = gltfMaterial.additionalValues.find("alphaMode");
 
 			// process base values
 			if (baseColorTextureIt != gltfMaterial.values.end())
@@ -220,6 +222,19 @@ namespace ModelImporter {
 			if (material->mSurfaceMapName.empty() == false)
 			{
 				material->mSurfaceMap = resourceManager.GetOrCreate<Texture2D>(StringID(material->mSurfaceMapName));
+			}
+
+			if (alphaCutoff != gltfMaterial.additionalValues.end())
+			{
+				material->SetAlphaCutRef(1.0f - (F32)alphaCutoff->second.Factor());
+			}
+			
+			if (alphaMode != gltfMaterial.additionalValues.end())
+			{
+				if (alphaMode->second.string_value.compare("BLEND") == 0)
+				{
+					material->SetBlendMode(BlendType_Alpha);
+				}
 			}
 		}
 		if (newScene.mMaterials.GetCount() <= 0)

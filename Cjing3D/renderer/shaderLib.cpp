@@ -95,6 +95,7 @@ void ShaderLib::LoadPixelShaders()
 	{
 		// object
 		mPixelShader[PixelShaderType_Forward] = resourceManager.GetOrCreate<PixelShader>(shaderPath + "objectForwardPS.cso");
+		mPixelShader[PixelShaderType_Forward_Transparent] = resourceManager.GetOrCreate<PixelShader>(shaderPath + "objectForwardTransparent.cso");
 
 		// full screen ps
 		mPixelShader[PixelShaderType_FullScreen] = resourceManager.GetOrCreate<PixelShader>(shaderPath + "screenPS.cso");

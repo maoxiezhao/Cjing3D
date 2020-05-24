@@ -130,7 +130,15 @@ void StateManager::SetupDepthStencilStates()
 		const auto result = mDevice.CreateDepthStencilState(desc, *mDepthStencilStates[DepthStencilStateID::DepthStencilStateID_DepthRead]);
 		Debug::ThrowIfFailed(result, "Failed to create greater equal depthStencilState", result);
 	}
+	{
+		desc.mDepthEnable = true;
+		desc.mStencilEnable = false;
+		desc.mDepthWriteMask = DEPTH_WRITE_MASK_ZERO;
+		desc.mDepthFunc = COMPARISON_EQUAL;
 
+		const auto result = mDevice.CreateDepthStencilState(desc, *mDepthStencilStates[DepthStencilStateID::DepthStencilStateID_DepthReadEqual]);
+		Debug::ThrowIfFailed(result, "Failed to create State:DepthStencilStateID_DepthReadEqual", result);
+	}
 	{
 		desc.mDepthEnable = true;
 		desc.mDepthWriteMask = DEPTH_WRITE_MASK_ALL;

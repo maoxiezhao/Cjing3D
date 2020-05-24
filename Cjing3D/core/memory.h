@@ -52,17 +52,17 @@ namespace Cjing3D
 			ptr->~T();
 		}
 
-		return Memory::FreeStatic(ptr);
+		Memory::FreeStatic(ptr);
 	}
 
 	template<typename T>
 	T* CJING_MEM_NEW_ARR(size_t num, const char* desc = "")
 	{
 		size_t size = sizeof(T) * num;
-		uint64_t* mem = (uint64_t)Memory::AllocStatic(size, true);
+		uint64_t* mem = (uint64_t*)Memory::AllocStatic(size, true);
 		ERR_FAIL_COND_V(!mem, nullptr);
 
-		*(mem - 1) == num;
+		*(mem - 1) = num;
 
 		T* elems = (T*)mem;
 		if (!__has_trivial_constructor(T)) {

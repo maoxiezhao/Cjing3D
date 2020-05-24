@@ -38,8 +38,9 @@ void Cjing3D::MaterialComponent::Serialize(Archive& archive, U32 seed)
 	archive >> mBaseColorMapName;
 	archive >> mSurfaceMapName;
 	archive >> mNormalMapName;
-
+	archive >> mBlendType;
 	archive >> mIsCastingShadow;
+	archive >> mAlphaCutRef;
 
 	ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
 
@@ -73,6 +74,7 @@ void Cjing3D::MaterialComponent::Unserialize(Archive& archive) const
 	archive << mBaseColorMapName;
 	archive << mSurfaceMapName;
 	archive << mNormalMapName;
-
+	archive << mBlendType;
 	archive << mIsCastingShadow;
+	archive << mAlphaCutRef;
 }

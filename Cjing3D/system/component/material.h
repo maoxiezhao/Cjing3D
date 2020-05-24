@@ -22,20 +22,27 @@ namespace Cjing3D {
 	public:
 		MaterialComponent();
 
+		inline void SetBlendMode(BlendType blendType) { mBlendType = blendType; }
+		inline BlendType GetBlendMode()const { return mBlendType; }
+		inline bool IsTransparent()const { return mBlendType != BlendType_Opaque; }
 		inline bool IsCastingShadow()const { return mIsCastingShadow; }
 		inline void SetCastShadow(bool castingShadow) { mIsCastingShadow = castingShadow; }
+		inline bool IsUsingVertexColors()const { return mIsUsingVertexColors; }
+		inline void SetIsUsingVertexColors(bool useVertexColors) { mIsUsingVertexColors = useVertexColors; }
+		inline F32  GetAlphaCutRef()const { return mAlphaCutRef; }
+		inline void SetAlphaCutRef(F32 alpha) { mAlphaCutRef = alpha; }
+
+		inline bool IsNeedAlphaTest()const { return mAlphaCutRef < (1.0f - 0.0001); }
+
 		inline bool IsDirty()const { return mIsDirty; }
 		inline void SetIsDirty(bool isDirty) { mIsDirty = isDirty; }
 
 		ShaderMaterial CreateMaterialCB();
 		void SetupConstantBuffer(GraphicsDevice& device);
 		GPUBuffer& GetConstantBuffer() { return mConstantBuffer; }
-	
+
 		virtual void Serialize(Archive& archive, U32 seed = 0);
 		virtual void Unserialize(Archive& archive)const;
-
-		bool IsUsingVertexColors()const { return mIsUsingVertexColors; }
-		void SetIsUsingVertexColors(bool useVertexColors) { mIsUsingVertexColors = useVertexColors; }
 
 	private:
 		GPUBuffer mConstantBuffer;
@@ -43,6 +50,8 @@ namespace Cjing3D {
 		bool mIsDirty = true;
 		bool mIsUsingVertexColors = false;
 		bool mIsCastingShadow = false;
+		BlendType mBlendType = BlendType_Opaque;
+		F32 mAlphaCutRef = 1.0f;
 
 		// TODO£º support custom shader
 	};

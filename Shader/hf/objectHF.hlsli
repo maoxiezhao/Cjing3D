@@ -1,6 +1,10 @@
 #ifndef _OBJECT_HF_
 #define _OBJECT_HF_
 
+#ifdef _TRNAPARENT_
+#define _ENABLE_ALPHATEST_
+#endif
+
 #include "global.hlsli"
 #include "objectInput.hlsli"
 #include "brdf.hlsli"
@@ -9,7 +13,7 @@
 TEXTURE2D(texture_basecolormap, TEXTURE_BASECOLOR_MAP);
 TEXTURE2D(texture_normalmap, TEXTURE_NORMAL_MAP);
 TEXTURE2D(texture_surfacemap, TEXTURE_SURFACE_MAP);
-
+ 
 float4 ForwardLighting(in Surface surface)
 {
 	return float4(1, 1, 1, 1);
@@ -51,6 +55,8 @@ float4 main(PixelInputType input) : SV_TARGET
 		color = float4(1.0, 1.0, 1.0, 1.0);
 	}
 	color *= input.color;
+    
+    ALPHATEST(color.a);
 
 	float3 pos3D = input.pos3D.xyz;
 	float3 view = gCameraPos - pos3D;

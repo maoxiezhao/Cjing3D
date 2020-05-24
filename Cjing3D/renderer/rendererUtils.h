@@ -83,7 +83,7 @@ namespace Cjing3D
 		RenderBatch();
 		~RenderBatch();
 
-		void Init(ECS::Entity objectEntity, ECS::Entity meshEntity);
+		void Init(ECS::Entity objectEntity, ECS::Entity meshEntity, F32 distance);
 
 		U32 GetHash()const { return mHash; }
 		U32 GetMeshGUID()const { return mHash; }
@@ -99,6 +99,12 @@ namespace Cjing3D
 	class RenderQueue
 	{
 	public:
+		enum SortMethod
+		{
+			FrontToBack,
+			BackToFront,
+		};
+
 		void AddBatch(RenderBatch* batch)
 		{
 			mRenderBatch.push_back(batch);
@@ -112,13 +118,22 @@ namespace Cjing3D
 			mRenderBatch.clear();
 		}
 		
-		void Sort()
+		void Sort(SortMethod sortMethod)
 		{
 			if (mRenderBatch.empty() == false)
 			{
-				std::sort(mRenderBatch.begin(), mRenderBatch.end(), [](const RenderBatch*a, const RenderBatch*b) {
-					return a->GetHash() < b->GetHash();
-				});
+				if (sortMethod == FrontToBack)
+				{
+					std::sort(mRenderBatch.begin(), mRenderBatch.end(), [](const RenderBatch* a, const RenderBatch* b) {
+						return a->GetHash() < b->GetHash();
+					});
+				}
+				else
+				{
+					std::sort(mRenderBatch.begin(), mRenderBatch.end(), [](const RenderBatch* a, const RenderBatch* b) {
+						return a->GetHash() > b->GetHash();
+					});
+				}
 			}
 		}
 	

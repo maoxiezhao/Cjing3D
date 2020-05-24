@@ -11,6 +11,7 @@ namespace Cjing3D
 		DepthStencilStateID_DepthNone = 0,
 		DepthStencilStateID_GreaterEqualReadWrite,
 		DepthStencilStateID_DepthRead,
+		DepthStencilStateID_DepthReadEqual,
 		DepthStencilStateID_Shadow,
 		DepthStencilStateID_Count
 	};

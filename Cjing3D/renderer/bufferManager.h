@@ -17,8 +17,9 @@ enum StructuredBufferType
 
 enum ConstantBufferType
 {
-	ConstantBufferType_Camera = 0,
-	ConstantBufferType_Frame = 1,
+	ConstantBufferType_Common = 0,
+	ConstantBufferType_Camera,
+	ConstantBufferType_Frame,
 	ConstantBufferType_Image,
 	ConstantBufferType_Postprocess,
 	ConstantBufferType_MipmapGenerate,

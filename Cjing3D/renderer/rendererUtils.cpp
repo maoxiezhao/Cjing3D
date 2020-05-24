@@ -93,13 +93,14 @@ namespace Cjing3D
 		device.EndEvent();
 	}
 
-	void RenderBatch::Init(ECS::Entity objectEntity, ECS::Entity meshEntity)
+	void RenderBatch::Init(ECS::Entity objectEntity, ECS::Entity meshEntity, F32 distance)
 	{
 		mObjectEntity = objectEntity;
 		mMeshEntity = meshEntity;
 
-		// 用mmeshEntity作为hash sort
-		mHash = (U32)(meshEntity);
+		// 用meshEntity作为hash sort
+		mHash = (U32)(meshEntity) & 0x00FFFFFF;
+		mHash |= (U32)(distance) & 0xFF;
 	}
 
 	RenderBatch::RenderBatch()

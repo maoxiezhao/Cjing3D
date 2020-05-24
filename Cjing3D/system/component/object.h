@@ -16,6 +16,7 @@ namespace Cjing3D {
 
 		inline ObjectType GetObjectType() { return mObjectType; }
 		inline RenderableType GetRenderableType()const { return mRenderableType; }
+		inline void SetRenderableType(RenderableType type) { mRenderableType = type; }
 		inline bool IsRenderable()const { return  GetRenderableType() == OjbectType_Renderable;}
 
 		inline void SetCastShadow(bool isCastShadow) { mIsCastShadow = isCastShadow; }

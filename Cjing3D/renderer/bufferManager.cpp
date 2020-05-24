@@ -40,6 +40,18 @@ namespace Cjing3D
 	void BufferManager::LoadConstantBuffers()
 	{
 		auto& device = mRenderer.GetDevice();
+		// common buffer
+		{
+			GPUBufferDesc desc = {};
+			desc.mUsage = USAGE_DYNAMIC;	// fast update
+			desc.mCPUAccessFlags = CPU_ACCESS_WRITE;
+			desc.mBindFlags = BIND_CONSTANT_BUFFER;
+			desc.mByteWidth = sizeof(CommonCB);
+
+			const auto result = device.CreateBuffer(&desc, mConstantBuffer[ConstantBufferType_Common], nullptr);
+			Debug::ThrowIfFailed(result, "failed to create common constant buffer:%08x", result);
+			device.SetResourceName(mConstantBuffer[ConstantBufferType_Common], "CommonCB");
+		}
 		// Frame buffer
 		{
 			GPUBufferDesc desc = {};

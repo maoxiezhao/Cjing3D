@@ -25,6 +25,13 @@ SAMPLERCOMPARISONSTATE(sampler_comparison_depth, SAMPLER_COMPARISON_SLOT);
 STRUCTUREDBUFFER(LightArray, ShaderLight, SBSLOT_SHADER_LIGHT_ARRAY);
 STRUCTUREDBUFFER(MatrixArray, float4x4, SBSLOT_MATRIX_ARRAY);
 
+// alpha test
+#ifdef _ENABLE_ALPHATEST_
+#define ALPHATEST(x)	clip((x) - gCommonAlphaCutRef);
+#else
+#define ALPHATEST(x)
+#endif
+
 // 计算法线切线空间变换矩阵
 inline float3x3 ComputeTangateTransform(float3 N, float3 P, float2 UV)
 {

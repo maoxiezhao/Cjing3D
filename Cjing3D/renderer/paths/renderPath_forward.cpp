@@ -40,6 +40,13 @@ namespace Cjing3D {
 
 			mRenderer.GetDevice().CreateRenderBehavior(desc, mRBMain);
 		}
+		{
+			RenderBehaviorDesc desc = {};
+			desc.mParams.push_back({ RenderBehaviorParam::RenderType_RenderTarget, &mRTMain,         -1, RenderBehaviorParam::RenderOperation_Load });
+			desc.mParams.push_back({ RenderBehaviorParam::RenderType_DepthStencil, GetDepthBuffer(), -1, RenderBehaviorParam::RenderOperation_Load });
+
+			mRenderer.GetDevice().CreateRenderBehavior(desc, mRBTransparent);
+		}
 	}
 
 	void RenderPathForward::Render()

@@ -14,11 +14,8 @@ enum PipelineStateID {
 
 struct NormalRenderParams
 {
-	RenderPassType renderPassType;
-
-	NormalRenderParams() :
-		renderPassType(RenderPassType_Forward)
-	{}
+	RenderPassType renderPassType = RenderPassType_Forward;
+	BlendType blendType = BlendType_Opaque;
 };
 
 // TODO:应将bufferManager、ShaderLib等与PipelineState整合，以Image和Render来区分
@@ -29,12 +26,12 @@ public:
 	PipelineStateManager(Renderer& renderer);
 	~PipelineStateManager();
 
-	PipelineState GetNormalPipelineState(RenderPassType renderPassType, MaterialComponent& material);
-	PipelineState GetImagePipelineState(RenderImage::ImageParams params);
-	PipelineState GetPipelineStateByID(PipelineStateID stateID);
-
 	void Initialize();
 	void Uninitialize();
+
+	PipelineState GetNormalPipelineState(RenderPassType renderPassType, MaterialComponent& material, bool forceAlphaTest = false);
+	PipelineState GetImagePipelineState(RenderImage::ImageParams params);
+	PipelineState GetPipelineStateByID(PipelineStateID stateID);
 
 	void RegisterPipelineState(RenderImage::ImageParams params, PipelineStateDesc desc);
 	void RegisterPipelineState(NormalRenderParams params, PipelineStateDesc desc);

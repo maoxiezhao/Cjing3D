@@ -56,6 +56,7 @@ namespace Cjing3D
 						if (material != nullptr)
 						{
 							object->SetCastShadow(material->IsCastingShadow());
+							object->SetRenderableType(material->IsTransparent() ? RenderableType_Transparent : RenderableType_Opaque);
 						}
 					}
 

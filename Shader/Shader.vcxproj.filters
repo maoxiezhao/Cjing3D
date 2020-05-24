@@ -80,6 +80,9 @@
     <FxCompile Include="ps\skyPS.hlsl">
       <Filter>ps</Filter>
     </FxCompile>
+    <FxCompile Include="ps\objectForwardTransparent.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="hf\objectInput.hlsli">

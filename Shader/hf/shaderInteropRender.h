@@ -5,6 +5,11 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 // common
+CBUFFER(CommonCB, CBSLOT_RENDERER_COMMON)
+{
+	float  gCommonAlphaCutRef;
+	float3 gCommonPadding;
+};
 
 CBUFFER(FrameCB, CBSLOT_RENDERER_FRAME)
 {
