@@ -1082,19 +1082,8 @@ HRESULT GraphicsDeviceD3D11::CreateRasterizerState(const RasterizerStateDesc & d
 	return mDevice->CreateRasterizerState(&rasterizerDesc, &rhiState->mHandle);
 }
 
-// 创建顶点着色器
-HRESULT GraphicsDeviceD3D11::CreateVertexShader(const void * bytecode, size_t length, VertexShader & vertexShader)
-{
-	vertexShader.mByteCode.mByteLength = length;
-	vertexShader.mByteCode.mByteData = new BYTE[length];
-	memcpy(vertexShader.mByteCode.mByteData, bytecode, length);
-
-	auto rhiState = RegisterGraphicsDeviceChild<VertexShaderD3D11>(vertexShader);
-	return mDevice->CreateVertexShader(bytecode, length, nullptr, &rhiState->mHandle);
-}
-
 // 创建输入布局
-HRESULT GraphicsDeviceD3D11::CreateInputLayout(VertexLayoutDesc* desc, U32 numElements, const void * shaderBytecode, size_t shaderLength, InputLayout & inputLayout)
+HRESULT GraphicsDeviceD3D11::CreateInputLayout(VertexLayoutDesc* desc, U32 numElements, Shader& shader, InputLayout & inputLayout)
 {
 	D3D11_INPUT_ELEMENT_DESC* inputLayoutdescs = new D3D11_INPUT_ELEMENT_DESC[numElements];
 	for (int i = 0; i < numElements; i++)
@@ -1109,47 +1098,54 @@ HRESULT GraphicsDeviceD3D11::CreateInputLayout(VertexLayoutDesc* desc, U32 numEl
 	}
 
 	auto rhiState = RegisterGraphicsDeviceChild<InputLayoutD3D11>(inputLayout);
-	return mDevice->CreateInputLayout(inputLayoutdescs, numElements, shaderBytecode, shaderLength, &rhiState->mHandle);
+	return mDevice->CreateInputLayout(inputLayoutdescs, numElements, shader.mByteCode.mByteData, shader.mByteCode.mByteLength, &rhiState->mHandle);
 }
 
-HRESULT GraphicsDeviceD3D11::CreatePixelShader(const void * bytecode, size_t length, PixelShader & pixelShader)
+HRESULT GraphicsDeviceD3D11::CreateShader(SHADERSTAGES stage, const void* bytecode, size_t length, Shader& shader)
 {
-	pixelShader.mByteCode.mByteLength = length;
-	pixelShader.mByteCode.mByteData = new BYTE[length];
-	memcpy(pixelShader.mByteCode.mByteData, bytecode, length);
+	shader.mByteCode.mByteLength = length;
+	shader.mByteCode.mByteData = new BYTE[length];
+	memcpy(shader.mByteCode.mByteData, bytecode, length);
 
-	auto rhiState = RegisterGraphicsDeviceChild<PixelShaderD3D11>(pixelShader);
-	return mDevice->CreatePixelShader(bytecode, length, nullptr, &rhiState->mHandle);
-}
+	shader.mStage = stage;
 
-HRESULT GraphicsDeviceD3D11::CreateComputeShader(const void* bytecode, size_t length, ComputeShader& computeShader)
-{
-	computeShader.mByteCode.mByteLength = length;
-	computeShader.mByteCode.mByteData = new BYTE[length];
-	memcpy(computeShader.mByteCode.mByteData, bytecode, length);
-
-	auto rhiState = RegisterGraphicsDeviceChild<ComputeShaderD3D11>(computeShader);
-	return mDevice->CreateComputeShader(bytecode, length, nullptr, &rhiState->mHandle);
-}
-
-HRESULT GraphicsDeviceD3D11::CreateHullShader(const void* bytecode, size_t length, HullShader& hullShader)
-{
-	hullShader.mByteCode.mByteLength = length;
-	hullShader.mByteCode.mByteData = new BYTE[length];
-	memcpy(hullShader.mByteCode.mByteData, bytecode, length);
-
-	auto rhiState = RegisterGraphicsDeviceChild<HullShaderD3D11>(hullShader);
-	return mDevice->CreateHullShader(bytecode, length, nullptr, &rhiState->mHandle);
-}
-
-HRESULT GraphicsDeviceD3D11::CreateDomainShader(const void* bytecode, size_t length, DomainShader& domainShader)
-{
-	domainShader.mByteCode.mByteLength = length;
-	domainShader.mByteCode.mByteData = new BYTE[length];
-	memcpy(domainShader.mByteCode.mByteData, bytecode, length);
-
-	auto rhiState = RegisterGraphicsDeviceChild<DomainShaderD3D11>(domainShader);
-	return mDevice->CreateDomainShader(bytecode, length, nullptr, &rhiState->mHandle);
+	HRESULT hr = E_FAIL;
+	switch (stage)
+	{
+	case Cjing3D::SHADERSTAGES_VS:
+	{
+		auto rhiState = RegisterGraphicsDeviceChild<VertexShaderD3D11>(shader);
+		hr = mDevice->CreateVertexShader(bytecode, length, nullptr, &rhiState->mHandle);
+	}
+	break;
+	case Cjing3D::SHADERSTAGES_HS:
+	{
+		auto rhiState = RegisterGraphicsDeviceChild<HullShaderD3D11>(shader);
+		hr = mDevice->CreateHullShader(bytecode, length, nullptr, &rhiState->mHandle);
+	}
+	break;
+	case Cjing3D::SHADERSTAGES_DS:
+	{
+		auto rhiState = RegisterGraphicsDeviceChild<DomainShaderD3D11>(shader);
+		hr = mDevice->CreateDomainShader(bytecode, length, nullptr, &rhiState->mHandle);
+	}
+	break;
+	case Cjing3D::SHADERSTAGES_PS:
+	{
+		auto rhiState = RegisterGraphicsDeviceChild<PixelShaderD3D11>(shader);
+		hr = mDevice->CreatePixelShader(bytecode, length, nullptr, &rhiState->mHandle);
+	}
+	break;
+	case Cjing3D::SHADERSTAGES_CS:
+	{
+		auto rhiState = RegisterGraphicsDeviceChild<ComputeShaderD3D11>(shader);
+		hr = mDevice->CreateComputeShader(bytecode, length, nullptr, &rhiState->mHandle);
+	}
+	break;
+	default:
+		break;
+	}
+	return hr;
 }
 
 HRESULT GraphicsDeviceD3D11::CreateBuffer(const GPUBufferDesc * desc, GPUBuffer & buffer, const SubresourceData* initialData)
@@ -1935,7 +1931,7 @@ void GraphicsDeviceD3D11::EndRenderBehavior()
 	GetDeviceContext(GraphicsThread_IMMEDIATE).OMSetRenderTargets(0, nullptr, nullptr);
 }
 
-void GraphicsDeviceD3D11::BindComputeShader(ComputeShaderPtr computeShader)
+void GraphicsDeviceD3D11::BindComputeShader(ShaderPtr computeShader)
 {
 	ID3D11ComputeShader* cs = nullptr;
 	if (computeShader != nullptr)

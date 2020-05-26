@@ -67,8 +67,8 @@ namespace Cjing3D {
 			//  subsetindex, normal_z, normal_y, normal_x
 			U32 mNormalSubsetIndex = 0;
 
-			void Setup(F32x3 pos, F32x3 normal, U32 subsetIndex);
-			void Setup(F32x3 normal, U32 subsetIndex);
+			void Setup(F32x3 pos, F32x3 normal, U32 extraData);
+			void Setup(F32x3 normal, U32 extraData);
 
 			static const FORMAT format = FORMAT::FORMAT_R32G32B32A32_FLOAT;
 		};

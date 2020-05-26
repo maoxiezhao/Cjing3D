@@ -14,11 +14,11 @@ namespace Cjing3D{
 
 namespace
 {
-	std::shared_ptr<VertexShader> mTerrainVS = nullptr;
+	std::shared_ptr<Shader> mTerrainVS = nullptr;
 	std::shared_ptr<InputLayout> mTerrainIL = nullptr;
-	std::shared_ptr<PixelShader> mTerrainPS = nullptr;
-	std::shared_ptr<HullShader> mTerrainHS = nullptr;
-	std::shared_ptr<DomainShader> mTerrainDS = nullptr;
+	std::shared_ptr<Shader> mTerrainPS = nullptr;
+	std::shared_ptr<Shader> mTerrainHS = nullptr;
+	std::shared_ptr<Shader> mTerrainDS = nullptr;
 
 	PipelineState terrainPSO;
 }
@@ -111,12 +111,12 @@ void TerrainPass::InitializeShader()
 	ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
 	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resrouce_VertexShader);
 
-	auto vsinfo = resourceManager.GetOrCreate<VertexShaderInfo>(shaderPath + "terrainVS.cso", shadowLayout, ARRAYSIZE(shadowLayout));
-	mTerrainVS = vsinfo->mVertexShader;
-	mTerrainIL = vsinfo->mInputLayout;
-	mTerrainPS = resourceManager.GetOrCreate<PixelShader>(shaderPath + "terrainPS.cso");
-	mTerrainHS = resourceManager.GetOrCreate<HullShader>(shaderPath + "terrainHS.cso");
-	mTerrainDS = resourceManager.GetOrCreate<DomainShader>(shaderPath + "terrainDS.cso");
+	auto vsinfo = mRenderer.LoadVertexShaderInfo(shaderPath + "terrainVS.cso", shadowLayout, ARRAYSIZE(shadowLayout));
+	mTerrainVS = vsinfo.mVertexShader;
+	mTerrainIL = vsinfo.mInputLayout;
+	mTerrainPS = mRenderer.LoadShader(SHADERSTAGES_PS, shaderPath + "terrainPS.cso");
+	mTerrainHS = mRenderer.LoadShader(SHADERSTAGES_HS, shaderPath + "terrainHS.cso");
+	mTerrainDS = mRenderer.LoadShader(SHADERSTAGES_DS, shaderPath + "terrainDS.cso");
 }
 
 void TerrainPass::UpdatePerFrameData(F32 deltaTime)

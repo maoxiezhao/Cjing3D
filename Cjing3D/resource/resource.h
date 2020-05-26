@@ -15,6 +15,7 @@ namespace Cjing3D
 		Resource_ComputeShader,
 		Resource_HullShader,
 		Resource_DomainShader,
+		Resource_InputLayout,
 		Resource_Texture,
 		Resource_Model
 

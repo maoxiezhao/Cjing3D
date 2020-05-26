@@ -16,6 +16,7 @@ struct NormalRenderParams
 {
 	RenderPassType renderPassType = RenderPassType_Forward;
 	BlendType blendType = BlendType_Opaque;
+	bool enableAlphaTest = false;
 };
 
 // TODO:应将bufferManager、ShaderLib等与PipelineState整合，以Image和Render来区分

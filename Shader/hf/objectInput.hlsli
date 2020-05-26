@@ -9,12 +9,20 @@ struct InputInstance
     float4 wi0 : INSTANCEMAT0;
     float4 wi1 : INSTANCEMAT1;
     float4 wi2 : INSTANCEMAT2;
-    float4 color : INSTANCECOLOR;
+    float4 userdata : INSTANCEUSERDATA;
 };
 
 struct InputObjectPos
 {
     float4 pos : POSITION_NORMAL_SUBSETINDEX;
+    
+    InputInstance instance;
+};
+
+struct InputObjectPosTex
+{
+    float4 pos : POSITION_NORMAL_SUBSETINDEX;
+    float2 tex : TEXCOORD;
     
     InputInstance instance;
 };
@@ -34,7 +42,6 @@ struct VertexSurface
     float4 position;
     float3 normal;
     float4 color;
-    uint materialIndex;
     float2 uv;
 };
 
@@ -44,6 +51,13 @@ struct PixelInputType
     float4 pos3D : WORLDPOSITION;
     float2 tex : TEXCOORD0;
     float3 nor : NORMAL;
+    float4 color : COLOR;
+};
+
+struct PixelInputTypePosTexColor
+{
+    float4 pos : SV_POSITION;
+    float2 tex : TEXCOORD0;
     float4 color : COLOR;
 };
 
@@ -67,8 +81,22 @@ inline VertexSurface MakeVertexSurfaceFromInput(InputObjectPos input)
     surface.normal.x = (float) (normalSubsetIndex & 0x000000ff) / 255.0f * 2.0f - 1.0f;
     surface.normal.y = (float) ((normalSubsetIndex >> 8) & 0x000000ff) / 255.0f * 2.0f - 1.0f;
     surface.normal.z = (float) ((normalSubsetIndex >> 16) & 0x000000ff) / 255.0f * 2.0f - 1.0f;
+    
+    return surface;
+}
 
-    surface.materialIndex = (normalSubsetIndex >> 24);
+inline VertexSurface MakeVertexSurfaceFromInput(InputObjectPosTex input)
+{
+    VertexSurface surface;
+    surface.position = float4(input.pos.xyz, 1.0f);
+    surface.color = gMaterial.baseColor;
+    
+    uint normalSubsetIndex = asuint(input.pos.w);
+    surface.normal.x = (float) (normalSubsetIndex & 0x000000ff) / 255.0f * 2.0f - 1.0f;
+    surface.normal.y = (float) ((normalSubsetIndex >> 8) & 0x000000ff) / 255.0f * 2.0f - 1.0f;
+    surface.normal.z = (float) ((normalSubsetIndex >> 16) & 0x000000ff) / 255.0f * 2.0f - 1.0f;
+
+    surface.uv = input.tex;
     
     return surface;
 }
@@ -87,8 +115,6 @@ inline VertexSurface MakeVertexSurfaceFromInput(InputObjectAll input)
     surface.normal.x = (float) (normalSubsetIndex & 0x000000ff) / 255.0f * 2.0f - 1.0f;
     surface.normal.y = (float) ((normalSubsetIndex >> 8) & 0x000000ff) / 255.0f * 2.0f - 1.0f;
     surface.normal.z = (float) ((normalSubsetIndex >> 16) & 0x000000ff) / 255.0f * 2.0f - 1.0f;
-
-    surface.materialIndex = (normalSubsetIndex >> 24);
 
     surface.uv = input.tex;
 

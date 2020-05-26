@@ -16,6 +16,7 @@ public:
 private:
 	Texture2D mRTMain;
 
+	RenderBehavior mRBDepthPrepass;
 	RenderBehavior mRBMain;
 	RenderBehavior mRBTransparent;
 };

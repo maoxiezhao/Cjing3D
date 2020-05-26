@@ -733,7 +733,7 @@ void Renderer::RenderShadowmaps(CameraComponent& camera)
 
 void Renderer::RenderSceneOpaque(CameraComponent& camera, RenderPassType renderPassType)
 {
-	mGraphicsDevice->BeginEvent("RenderSceneOpaque");
+	mGraphicsDevice->BeginEvent("RenderScene");
 
 	BindShadowMaps(SHADERSTAGES_PS);
 
@@ -1081,6 +1081,16 @@ TerrainTreePtr Renderer::GetTerrainTree(ECS::Entity entity)
 	return terrainPass.GetTerrainTree(entity);
 }
 
+ShaderPtr Renderer::LoadShader(SHADERSTAGES stages, const std::string& path)
+{
+	return mShaderLib->LoadShader(stages, path);
+}
+
+VertexShaderInfo Renderer::LoadVertexShaderInfo(const std::string& path, VertexLayoutDesc* desc, U32 numElements)
+{
+	return mShaderLib->LoadVertexShaderInfo(path, desc, numElements);
+}
+
 void Renderer::InitializeRenderPasses()
 {
 	std::shared_ptr<RenderPass> terrainPass = std::shared_ptr<RenderPass>(new TerrainPass(*this));
@@ -1218,6 +1228,10 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPass
 			if (renderPassType == RenderPassType_Shadow)
 			{
 				boundType = BoundVexterBufferType_Pos;
+			}
+			else if (renderPassType == RenderPassType_Depth)
+			{
+				boundType = material->IsNeedAlphaTest() ? BoundVexterBufferType_Pos_Tex : BoundVexterBufferType_Pos;
 			}
 
 			// bind vertex buffer

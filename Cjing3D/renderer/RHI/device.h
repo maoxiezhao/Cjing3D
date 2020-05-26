@@ -32,12 +32,8 @@ namespace Cjing3D
 		virtual HRESULT CreateDepthStencilState(const DepthStencilStateDesc& desc, DepthStencilState& state) = 0;
 		virtual HRESULT CreateBlendState(const BlendStateDesc& desc, BlendState& state) = 0;
 		virtual HRESULT CreateRasterizerState(const RasterizerStateDesc& desc, RasterizerState& state) = 0;
-		virtual HRESULT CreateVertexShader(const void* bytecode, size_t length, VertexShader& vertexShader) = 0;
-		virtual HRESULT CreateInputLayout(VertexLayoutDesc* desc, U32 numElements, const void* shaderBytecode, size_t shaderLength, InputLayout& inputLayout) = 0;
-		virtual HRESULT CreatePixelShader(const void* bytecode, size_t length, PixelShader &pixelShader) = 0;
-		virtual HRESULT CreateComputeShader(const void* bytecode, size_t length, ComputeShader& computeShader) = 0;
-		virtual HRESULT CreateHullShader(const void* bytecode, size_t length, HullShader& hullShader) = 0;
-		virtual HRESULT CreateDomainShader(const void* bytecode, size_t length, DomainShader& domainShader) = 0;
+		virtual HRESULT CreateInputLayout(VertexLayoutDesc* desc, U32 numElements, Shader& shader, InputLayout& inputLayout) = 0;
+		virtual HRESULT CreateShader(SHADERSTAGES stage, const void* bytecode, size_t length, Shader& shader) = 0;
 
 		virtual HRESULT CreateBuffer(const GPUBufferDesc* desc, GPUBuffer& buffer, const SubresourceData* initialData) = 0;
 		virtual void UpdateBuffer(GPUBuffer& buffer, const void* data, U32 dataSize) = 0;
@@ -74,7 +70,7 @@ namespace Cjing3D
 		virtual void EndRenderBehavior() = 0;
 
 		// compute
-		virtual void BindComputeShader(ComputeShaderPtr computeShader) = 0;
+		virtual void BindComputeShader(ShaderPtr computeShader) = 0;
 		virtual void Dispatch(U32 threadGroupCountX, U32 threadGroupCountY, U32 threadGroupCountZ) = 0;
 		virtual void BindUAV(GPUResource* const resource, U32 slot, I32 subresourceIndex = -1) = 0;
 		virtual void BindUAVs(GPUResource* const* resource, U32 slot, U32 count) = 0;

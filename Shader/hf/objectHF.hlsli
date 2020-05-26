@@ -44,11 +44,14 @@ float4 SimpleLighting(in Surface surface)
 	return float4(color.rgb, 1.0f);
 }
 
+#if !defined(_DISABLE_OBJECT_PS_)
+
 float4 main(PixelInputType input) : SV_TARGET
 {
 	float4 color;
 
-	if (gMaterial.haveBaseColorMap > 0) {
+    [branch]
+    if (gMaterial.haveBaseColorMap > 0) {
         color = texture_basecolormap.Sample(sampler_linear_clamp, input.tex);
         color.rgb = DeGammaCorrect(color.rgb);
     } else {
@@ -68,7 +71,8 @@ float4 main(PixelInputType input) : SV_TARGET
 	surface.view = normalize(view / dist);
 
 	// 如果存在法线贴图，则根据法线贴图修改法线
-	if (gMaterial.haveNormalMap > 0)
+    [branch]
+    if (gMaterial.haveNormalMap > 0)
 	{
 		float3x3 TBN = ComputeTangateTransform(surface.normal, surface.position, input.tex);
         float3 nor = texture_normalmap.Sample(sampler_linear_clamp, input.tex).rgb;
@@ -78,6 +82,7 @@ float4 main(PixelInputType input) : SV_TARGET
 	
 	// 处理反射贴图
     float3 spcularIntensity = float3(1.0f, 1.0f, 1.0f);
+    [branch]
     if (gMaterial.haveSurfaceMap > 0) {
         spcularIntensity = texture_surfacemap.Sample(sampler_linear_clamp, input.tex).rgb;
     }
@@ -99,5 +104,5 @@ float4 main(PixelInputType input) : SV_TARGET
 	return color;
 }
 
-
+#endif
 #endif

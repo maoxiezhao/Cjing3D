@@ -114,6 +114,10 @@ public:
 	void UnRegisterTerrain(ECS::Entity entity);
 	std::shared_ptr<TerrainTree> GetTerrainTree(ECS::Entity entity);
 
+	// shader
+	ShaderPtr LoadShader(SHADERSTAGES stages, const std::string& path);
+	VertexShaderInfo LoadVertexShaderInfo(const std::string& path, VertexLayoutDesc* desc, U32 numElements);
+
 private:
 	void InitializeRenderPasses();
 	void UninitializeRenderPasses();

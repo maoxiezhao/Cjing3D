@@ -35,8 +35,14 @@ namespace Cjing3D {
 		//////////////////////////////////////////////////////////////////////////////////////////
 		{
 			RenderBehaviorDesc desc = {};
-			desc.mParams.push_back({ RenderBehaviorParam::RenderType_RenderTarget, &mRTMain,         -1, RenderBehaviorParam::RenderOperation_Clear });
 			desc.mParams.push_back({ RenderBehaviorParam::RenderType_DepthStencil, GetDepthBuffer(), -1, RenderBehaviorParam::RenderOperation_Clear });
+
+			mRenderer.GetDevice().CreateRenderBehavior(desc, mRBDepthPrepass);
+		}
+		{
+			RenderBehaviorDesc desc = {};
+			desc.mParams.push_back({ RenderBehaviorParam::RenderType_RenderTarget, &mRTMain,         -1, RenderBehaviorParam::RenderOperation_Clear });
+			desc.mParams.push_back({ RenderBehaviorParam::RenderType_DepthStencil, GetDepthBuffer(), -1, RenderBehaviorParam::RenderOperation_Load });
 
 			mRenderer.GetDevice().CreateRenderBehavior(desc, mRBMain);
 		}
@@ -61,15 +67,31 @@ namespace Cjing3D {
 		mRenderer.BindCommonResource();
 		mRenderer.BindConstanceBuffer(SHADERSTAGES_VS);
 		mRenderer.BindConstanceBuffer(SHADERSTAGES_PS);
-
+		
 		// shadowmaps
 		RenderShadowmaps();
 
 		// update main camera constant buffer
 		mRenderer.UpdateCameraCB(camera);
 
+		// depth prepass
+		{
+			device.BeginEvent("depthPrepass");
+			device.BeginRenderBehavior(mRBDepthPrepass);
+
+			ViewPort vp;
+			vp.mWidth = (F32)mDepthBuffer.GetDesc().mWidth;
+			vp.mHeight = (F32)mDepthBuffer.GetDesc().mHeight;
+			device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
+
+			mRenderer.RenderSceneOpaque(camera, RenderPassType_Depth);
+
+			device.EndRenderBehavior();
+			device.EndEvent();
+		}
 		// opaque scene
 		{
+			device.BeginEvent("RenderSceneOpaque");
 			device.BeginRenderBehavior(mRBMain);
 
 			ViewPort vp;
@@ -83,6 +105,7 @@ namespace Cjing3D {
 			mRenderer.RenderSky();
 
 			device.EndRenderBehavior();
+			device.EndEvent();
 		}
 
 		// transparent

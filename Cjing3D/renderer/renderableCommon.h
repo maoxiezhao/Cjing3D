@@ -39,6 +39,7 @@ enum RenderPassType
 	RenderPassType_Forward,
 	RenderPassType_Deferred,
 	RenderPassType_Shadow,
+	RenderPassType_Depth,
 };
 
 enum RenderableType

@@ -12,21 +12,25 @@ namespace Cjing3D
 			U32 hashValue = 0;
 			HashCombine(hashValue, static_cast<U32>(params.renderPassType));
 			HashCombine(hashValue, static_cast<U32>(params.blendType));
+			HashCombine(hashValue, static_cast<U32>(params.enableAlphaTest));
 			return hashValue;
 		}
 
-		VertexShaderPtr GetVertexShader(RenderPassType renderPass, ShaderLib& shaderLib)
+		InputLayoutPtr GetInputLayout(RenderPassType renderPass, bool alphaTest, ShaderLib& shaderLib)
 		{
-			VertexShaderPtr ret = nullptr;
+			InputLayoutPtr ret = nullptr;
 			switch (renderPass)
 			{
 			case RenderPassType_Forward:
-				ret = shaderLib.GetVertexShader(VertexShaderType_Transform);
-				break;
-			case RenderPassType_Deferred:
+				ret = shaderLib.GetVertexLayout(InputLayoutType_ObjectAll);
 				break;
 			case RenderPassType_Shadow:
-				ret = shaderLib.GetVertexShader(VertexShaderType_Shadow);
+				ret = shaderLib.GetVertexLayout(InputLayoutType_Shadow);
+				break;
+			case RenderPassType_Depth:
+				ret = alphaTest == true ?
+					shaderLib.GetVertexLayout(InputLayoutType_ObjectPosTex) :
+					shaderLib.GetVertexLayout(InputLayoutType_ObjectPos);
 				break;
 			default:
 				break;
@@ -34,21 +38,43 @@ namespace Cjing3D
 			return ret;
 		}
 
-		PixelShaderPtr GetPixelShader(RenderPassType renderPass, bool transparent, ShaderLib& shaderLib)
+		ShaderPtr GetVertexShader(RenderPassType renderPass, bool alphaTest, ShaderLib& shaderLib)
 		{
-			PixelShaderPtr ret = nullptr;
+			ShaderPtr ret = nullptr;
+			switch (renderPass)
+			{
+			case RenderPassType_Forward:
+				ret = shaderLib.GetVertexShader(VertexShaderType_ObjectAll);
+				break;
+			case RenderPassType_Shadow:
+				ret = shaderLib.GetVertexShader(VertexShaderType_Shadow);
+				break;
+			case RenderPassType_Depth:
+				ret = alphaTest == true ?
+					shaderLib.GetVertexShader(VertexShaderType_ObjectPosTex) :
+					shaderLib.GetVertexShader(VertexShaderType_ObjectPos);
+				break;
+			default:
+				break;
+			}
+			return ret;
+		}
+
+		ShaderPtr GetPixelShader(RenderPassType renderPass, bool alphaTest, bool transparent, ShaderLib& shaderLib)
+		{
+			ShaderPtr ret = nullptr;
 			switch (renderPass)
 			{
 			case RenderPassType_Forward:
 				if (transparent) {
-					ret = shaderLib.GetPixelShader(PixelShaderType_Forward_Transparent);
+					ret = shaderLib.GetPixelShader(PixelShaderType_Object_Forward_Transparent);
 				} else {
-					ret = shaderLib.GetPixelShader(PixelShaderType_Forward);
+					ret = shaderLib.GetPixelShader(PixelShaderType_Object_Forward);
 				}
 				break;
-			case RenderPassType_Deferred:
-				break;
-			case RenderPassType_Shadow:
+			case RenderPassType_Depth:
+				ret = alphaTest == true ?
+					shaderLib.GetPixelShader(PixelShaderType_Object_AlphaTest) : nullptr;
 				break;
 			default:
 				break;
@@ -57,7 +83,6 @@ namespace Cjing3D
 		}
 	}
 
-
 	void PipelineStateManager::SetupNormalPipelineStates()
 	{
 		ShaderLib& shaderLib = mRenderer.GetShaderLib();
@@ -65,61 +90,83 @@ namespace Cjing3D
 		NormalRenderParams params = {};
 
 		// base object rendering
+		std::vector<RenderPassType> renderPasses = { RenderPassType_Forward , RenderPassType_Depth, RenderPassType_Shadow };
+		for (RenderPassType renderPass : renderPasses)
 		{
-			RenderPassType renderPass = RenderPassType_Forward;
 			for (int blendTypeIndex = 0; blendTypeIndex < BlendType::BlendType_Count; blendTypeIndex++)
 			{
-				BlendType blendType = static_cast<BlendType>(blendTypeIndex);
-				bool transparent = blendType != BlendType::BlendType_Opaque;
-
-				PipelineStateDesc infoState;
-				// shader
-				infoState.mPrimitiveTopology = TRIANGLELIST;
-				infoState.mVertexShader = GetVertexShader(renderPass, shaderLib);
-				infoState.mPixelShader = GetPixelShader(renderPass, transparent, shaderLib);
-				infoState.mInputLayout = shaderLib.GetVertexLayout(InputLayoutType_Transform);
-
-				// blendState
-				switch (blendType)
+				for (int alphaTestIndex = 0; alphaTestIndex <= 1; alphaTestIndex++)
 				{
-				case BlendType_Opaque:
-					infoState.mBlendState = stateManager.GetBlendState(BlendStateID_Opaque);
-					break;
-				case BlendType_Alpha:
-					infoState.mBlendState = stateManager.GetBlendState(BlendStateID_Transpranent);
-					break;
-				case BlendType_PreMultiplied:
-					infoState.mBlendState = stateManager.GetBlendState(BlendStateID_PreMultiplied);
-					break;
-				default:
-					assert(0);
-					break;
+					BlendType blendType = static_cast<BlendType>(blendTypeIndex);
+					bool transparent = blendType != BlendType::BlendType_Opaque;
+					bool alphaTest = alphaTestIndex > 0;
+
+					PipelineStateDesc infoState;
+					infoState.mPrimitiveTopology = TRIANGLELIST;
+					infoState.mVertexShader = GetVertexShader(renderPass, alphaTest, shaderLib);
+					infoState.mPixelShader = GetPixelShader(renderPass, alphaTest, transparent, shaderLib);
+					infoState.mInputLayout = GetInputLayout(renderPass, alphaTest, shaderLib);
+
+					// blendState
+					switch (blendType)
+					{
+					case BlendType_Opaque:
+						infoState.mBlendState = stateManager.GetBlendState(BlendStateID_Opaque);
+						break;
+					case BlendType_Alpha:
+						infoState.mBlendState = stateManager.GetBlendState(BlendStateID_Transpranent);
+						break;
+					case BlendType_PreMultiplied:
+						infoState.mBlendState = stateManager.GetBlendState(BlendStateID_PreMultiplied);
+						break;
+					default:
+						assert(0);
+						break;
+					}
+					if (!transparent && renderPass == RenderPassType_Depth && renderPass == RenderPassType_Shadow) {
+						infoState.mBlendState = stateManager.GetBlendState(BlendStateID_ColorWriteDisable);
+					}
+
+					// depthStencilState
+					switch (renderPass)
+					{
+					case RenderPassType_Forward:
+						if (transparent)
+						{
+							infoState.mDepthStencilState = stateManager.GetDepthStencilState(DepthStencilStateID_GreaterEqualReadWrite);
+						}
+						else
+						{
+							// 因为非透明物体在depth prepass中已经写入了depthBuffer(支持alphaTest，减少overdraw)，
+							// 这里只需要读取depthBuffer，且相等时绘制
+							infoState.mDepthStencilState = stateManager.GetDepthStencilState(DepthStencilStateID_DepthReadEqual);
+						}
+						break;
+					case RenderPassType_Shadow:
+						infoState.mDepthStencilState = stateManager.GetDepthStencilState(DepthStencilStateID_Shadow);
+						break;
+					default:
+						infoState.mDepthStencilState = stateManager.GetDepthStencilState(DepthStencilStateID_GreaterEqualReadWrite);
+						break;
+					}
+
+					// rasteriazer
+					switch (renderPass)
+					{
+					case RenderPassType_Shadow:
+						infoState.mRasterizerState = stateManager.GetRasterizerState(RasterizerStateID_Shadow);
+						break;
+					default:
+						infoState.mRasterizerState = stateManager.GetRasterizerState(RasterizerStateID_Front);
+						break;
+					}
+	
+					params.renderPassType = renderPass;
+					params.blendType = blendType;
+					params.enableAlphaTest = alphaTest;
+					RegisterPipelineState(params, infoState);
 				}
-
-				infoState.mDepthStencilState = stateManager.GetDepthStencilState(DepthStencilStateID_GreaterEqualReadWrite);
-				infoState.mRasterizerState = stateManager.GetRasterizerState(RasterizerStateID_Front);
-
-				params.renderPassType = renderPass;
-				params.blendType = blendType;
-				RegisterPipelineState(params, infoState);
 			}
-		}
-
-		// directional light shadow map
-		{
-			RenderPassType renderPass = RenderPassType_Shadow;
-			PipelineStateDesc infoState;
-			infoState.mVertexShader = GetVertexShader(renderPass, shaderLib);
-			infoState.mPixelShader = nullptr;  // only write depth
-			infoState.mInputLayout = shaderLib.GetVertexLayout(InputLayoutType_Shadow);
-			infoState.mPrimitiveTopology = TRIANGLELIST;
-			infoState.mBlendState = stateManager.GetBlendState(BlendStateID_ColorWriteDisable);
-			infoState.mDepthStencilState = stateManager.GetDepthStencilState(DepthStencilStateID_Shadow);
-			infoState.mRasterizerState = stateManager.GetRasterizerState(RasterizerStateID_Shadow);
-
-			params.renderPassType = renderPass;
-			params.blendType = BlendType_Opaque;
-			RegisterPipelineState(params, infoState);
 		}
 	}
 
@@ -129,6 +176,7 @@ namespace Cjing3D
 		NormalRenderParams params;
 		params.renderPassType = renderPassType;
 		params.blendType = material.GetBlendMode();
+		params.enableAlphaTest = material.IsNeedAlphaTest();
 
 		U32 hashValue = ConvertNormalRenderParamsToHashCode(params);
 		auto it = mNormalPipelineStateIndexMap.find(hashValue);

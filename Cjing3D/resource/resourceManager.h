@@ -19,8 +19,6 @@ namespace Cjing3D
 *	\brief 资源管理器类
 *	
 *	SUPPORT:
-*		Resrouce_VertexShader,
-*		Resrouce_PixelShader,
 *		Resource_Texture,
 *
 *  TODO: refactor
@@ -32,9 +30,7 @@ class ResourceManager : public SubSystem
 {
 public:
 	ResourceManager(SystemContext& gameContext) :
-		SubSystem(gameContext),
-		mVertexShaderPool(),
-		mPixelShaderPool() {}
+		SubSystem(gameContext) {}
 	~ResourceManager() = default;
 
 	void Initialize();
@@ -88,26 +84,6 @@ public:
 	template<typename ResourceT>
 	std::shared_ptr< ResourceT> GetOrCreateEmptyResource(const StringID& name);
 
-	template <typename ResourceT>
-	std::enable_if_t<std::is_same<ResourceT, VertexShaderInfo>::value, std::shared_ptr<VertexShaderInfo> >
-		GetOrCreate(const StringID& name, VertexLayoutDesc* desc, U32 numElements);
-
-	template <typename ResourceT>
-	std::enable_if_t<std::is_same<ResourceT, PixelShader>::value, std::shared_ptr<PixelShader> >
-		GetOrCreate(const StringID& name);
-
-	template <typename ResourceT>
-	std::enable_if_t<std::is_same<ResourceT, ComputeShader>::value, std::shared_ptr<ComputeShader> >
-		GetOrCreate(const StringID& name);
-
-	template <typename ResourceT>
-	std::enable_if_t<std::is_same<ResourceT, HullShader>::value, std::shared_ptr<HullShader> >
-		GetOrCreate(const StringID& name);
-
-	template <typename ResourceT>
-	std::enable_if_t<std::is_same<ResourceT, DomainShader>::value, std::shared_ptr<DomainShader> >
-		GetOrCreate(const StringID& name);
-
 	template<typename ResourceT>
 	std::enable_if_t<std::is_same<ResourceT, RhiTexture2D>::value, std::shared_ptr<RhiTexture2D>>
 		GetOrCreate(const StringID & filePath);
@@ -144,12 +120,6 @@ private:
 	std::map<Resource_Type, std::string> mResourceDirectories;
 
 	PoolType<RhiTexture2D> mTexture2DPool;
-
-	PoolType<VertexShaderInfo> mVertexShaderPool;
-	PoolType<PixelShader> mPixelShaderPool;
-	PoolType<ComputeShader> mComputeShaderPool;
-	PoolType<HullShader> mHullShaderPool;
-	PoolType<DomainShader> mDomainShaderPool;
 };
 
 #include "resource\resourceManager.inl"

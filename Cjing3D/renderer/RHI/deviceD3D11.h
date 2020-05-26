@@ -27,12 +27,8 @@ public:
 	virtual HRESULT CreateDepthStencilState(const DepthStencilStateDesc& desc, DepthStencilState& state);
 	virtual HRESULT CreateBlendState(const BlendStateDesc& desc, BlendState& state);
 	virtual HRESULT CreateRasterizerState(const RasterizerStateDesc& desc, RasterizerState& state);
-	virtual HRESULT CreateVertexShader(const void* bytecode, size_t length, VertexShader& vertexShader);
-	virtual HRESULT CreateInputLayout(VertexLayoutDesc* desc, U32 numElements, const void* shaderBytecode, size_t shaderLength, InputLayout& inputLayout);
-	virtual HRESULT CreatePixelShader(const void* bytecode, size_t length, PixelShader &pixelShader);
-	virtual HRESULT CreateComputeShader(const void* bytecode, size_t length, ComputeShader& computeShader);
-	virtual HRESULT CreateHullShader(const void* bytecode, size_t length, HullShader& hullShader);
-	virtual HRESULT CreateDomainShader(const void* bytecode, size_t length, DomainShader& domainShader);
+	virtual HRESULT CreateInputLayout(VertexLayoutDesc* desc, U32 numElements, Shader& shader, InputLayout& inputLayout);
+	virtual HRESULT CreateShader(SHADERSTAGES stage, const void* bytecode, size_t length, Shader& shader);
 
 	virtual HRESULT CreateBuffer(const GPUBufferDesc* desc, GPUBuffer& buffer, const SubresourceData* initialData);
 	virtual void UpdateBuffer(GPUBuffer& buffer, const void* data, U32 dataSize);
@@ -67,7 +63,7 @@ public:
 	virtual void EndRenderBehavior();
 
 	// compute
-	virtual void BindComputeShader(ComputeShaderPtr computeShader);
+	virtual void BindComputeShader(ShaderPtr computeShader);
 	virtual void Dispatch(U32 threadGroupCountX, U32 threadGroupCountY, U32 threadGroupCountZ);
 	virtual void BindUAV(GPUResource* const resource, U32 slot, I32 subresourceIndex = -1);
 	virtual void BindUAVs(GPUResource* const* resource, U32 slot, U32 count);

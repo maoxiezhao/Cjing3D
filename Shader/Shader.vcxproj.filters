@@ -80,7 +80,16 @@
     <FxCompile Include="ps\skyPS.hlsl">
       <Filter>ps</Filter>
     </FxCompile>
-    <FxCompile Include="ps\objectForwardTransparent.hlsl">
+    <FxCompile Include="vs\objectPosVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="vs\objectPosTexVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="ps\objectAlphaTestPS.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
+    <FxCompile Include="ps\objectForwardTransparentPS.hlsl">
       <Filter>ps</Filter>
     </FxCompile>
   </ItemGroup>

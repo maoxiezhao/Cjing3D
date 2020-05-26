@@ -72,8 +72,6 @@ inline VertexSurface MakeVertexSurfaceFromInput(InpuTerrainPos input)
     surface.normal.x = (float) (normalSubsetIndex & 0x000000ff) / 255.0f * 2.0f - 1.0f;
     surface.normal.y = (float) ((normalSubsetIndex >> 8) & 0x000000ff) / 255.0f * 2.0f - 1.0f;
     surface.normal.z = (float) ((normalSubsetIndex >> 16) & 0x000000ff) / 255.0f * 2.0f - 1.0f;
-
-    surface.materialIndex = (normalSubsetIndex >> 24);
     
     return surface;
 }

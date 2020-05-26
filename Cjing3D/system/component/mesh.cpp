@@ -30,21 +30,6 @@ namespace Cjing3D
 		// setup vertex pos buffer
 		// format: pos + normal + subsetindex
 		{
-			// 记录每个顶点所属于的subset的index
-			std::vector<U32> subsetIndices(mVertexPositions.size());
-
-			U32 subsetIndex = 0;
-			for (auto& subset : mSubsets)
-			{
-				auto indexOffset = subset.mIndexOffset;
-				for (int i = 0; i < subset.mIndexCount; i++)
-				{
-					U32 vertexIndex = mIndices[indexOffset + i];
-					subsetIndices[vertexIndex] = subsetIndex;
-				}
-				subsetIndex++;
-			}
-
 			// 创建VertexPosNormalSubset结构
 			std::vector<VertexPosNormalSubset> vertices(mVertexPositions.size());
 			for (int i = 0; i < mVertexPositions.size(); i++)
@@ -52,10 +37,9 @@ namespace Cjing3D
 				F32x3 pos = mVertexPositions[i];
 				F32x3 normal = mVertexNormals.size() > 0 ? mVertexNormals[i] : F32x3(0.0f, 0.0f, 0.0f);
 				normal = F32x3Normalize(normal);
-				U32 index = subsetIndices[i];
 
 				auto& vertex = vertices[i];
-				vertex.Setup(pos, normal, index);
+				vertex.Setup(pos, normal, 0);
 
 				mMinPos = F32x3Min(mMinPos, pos);
 				mMaxPos = F32x3Max(mMaxPos, pos);
@@ -185,23 +169,23 @@ namespace Cjing3D
 		}
 	}
 
-	void MeshComponent::VertexPosNormalSubset::Setup(F32x3 pos, F32x3 normal, U32 subsetIndex)
+	void MeshComponent::VertexPosNormalSubset::Setup(F32x3 pos, F32x3 normal, U32 extraData)
 	{
 		mPos = pos;
-		Setup(normal, subsetIndex);
+		Setup(normal, extraData);
 	}
 
-	void MeshComponent::VertexPosNormalSubset::Setup(F32x3 normal, U32 subsetIndex)
+	void MeshComponent::VertexPosNormalSubset::Setup(F32x3 normal, U32 extraData)
 	{
 		// normal 必须 normalize
-		// 一个32位依次存储 subsetindex, normal_z, normal_y, normal_x
-		Debug::CheckAssertion(subsetIndex < 256, "Invalid subset index.");
+		// 一个32位依次存储 extraData, normal_z, normal_y, normal_x
+		Debug::CheckAssertion(extraData < 256, "Invalid subset index.");
 
 		mNormalSubsetIndex = 0;
 		mNormalSubsetIndex |= (U32)((normal[0] * 0.5f + 0.5f) * 255.0f) << 0;
 		mNormalSubsetIndex |= (U32)((normal[1] * 0.5f + 0.5f) * 255.0f) << 8;
 		mNormalSubsetIndex |= (U32)((normal[2] * 0.5f + 0.5f) * 255.0f) << 16;
-		mNormalSubsetIndex |= ((subsetIndex && 0x000000FF) << 24);
+		mNormalSubsetIndex |= ((extraData && 0x000000FF) << 24);
 	}
 
 	void MeshComponent::VertexBoneIndexWeight::Setup(U32x4 boneIndices, F32x4 boneWeights)
