@@ -166,6 +166,8 @@
     <ClInclude Include="gui\guiCore\guiDispatcher_impl.h" />
     <ClInclude Include="gui\guiCore\guiEvents.h" />
     <ClInclude Include="gui\guiEditor\guiEditor.h" />
+    <ClInclude Include="gui\guiEditor\guiEditorInclude.h" />
+    <ClInclude Include="gui\guiEditor\guiEditorLight.h" />
     <ClInclude Include="gui\guiFactory.h" />
     <ClInclude Include="gui\guiInclude.h" />
     <ClInclude Include="gui\guiRenderer.h" />
@@ -203,6 +205,7 @@
     <ClInclude Include="renderer\paths\renderPath_forward.h" />
     <ClInclude Include="renderer\paths\renderImage.h" />
     <ClInclude Include="renderer\paths\renderPath.h" />
+    <ClInclude Include="renderer\paths\renderPath_tiledForward.h" />
     <ClInclude Include="renderer\pipelineStates\pipelineStateManager.h" />
     <ClInclude Include="renderer\renderableCommon.h" />
     <ClInclude Include="renderer\renderer.h" />
@@ -326,6 +329,7 @@
     <ClCompile Include="generates\luabind_registers.cpp" />
     <ClCompile Include="gui\guiCore\guiDispatcher.cpp" />
     <ClCompile Include="gui\guiEditor\guiEditor.cpp" />
+    <ClCompile Include="gui\guiEditor\guiEditorLight.cpp" />
     <ClCompile Include="gui\guiFactory.cpp" />
     <ClCompile Include="gui\guiRenderer.cpp" />
     <ClCompile Include="gui\guiWidgets\Panel.cpp" />
@@ -354,6 +358,7 @@
     <ClCompile Include="renderer\paths\renderPath_forward.cpp" />
     <ClCompile Include="renderer\paths\renderImage.cpp" />
     <ClCompile Include="renderer\paths\renderPath.cpp" />
+    <ClCompile Include="renderer\paths\renderPath_tiledForward.cpp" />
     <ClCompile Include="renderer\pipelineStates\imagePipelineStates.cpp" />
     <ClCompile Include="renderer\pipelineStates\normalPipelineStates.cpp" />
     <ClCompile Include="renderer\pipelineStates\pipelineStateManager.cpp" />

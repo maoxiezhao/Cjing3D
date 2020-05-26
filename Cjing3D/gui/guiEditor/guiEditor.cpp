@@ -1,19 +1,7 @@
 #include "guiEditor.h"
-#include "gui\imguiStage.h"
+#include "guiEditorInclude.h"
 
-#include "engine.h"
-#include "utils\baseWindow.h"
-#include "core\systemContext.hpp"
-#include "renderer\renderer.h"
-#include "renderer\renderer2D.h"
-#include "renderer\RHI\deviceD3D11.h"
-#include "renderer\paths\renderPath3D.h"
-
-#include "system\sceneSystem.h"
-
-#include "imgui\imgui.h"
-#include "imgui\imgui_impl_win32.h"
-#include "imgui\imgui_impl_dx11.h"
+#include "guiEditorLight.h"
 
 namespace Cjing3D {
 namespace Editor {
@@ -45,11 +33,28 @@ namespace Editor {
 		return is_selected;
 	};
 
-	void ShowTransformAttribute(TransformComponent& transform)
+	void ShowNameComponentAttribute(NameComponent* name)
 	{
+		if (name == nullptr) {
+			return;
+		}
+
+		const std::string nameStr = std::string("Name:") + name->GetString();
+		ImGui::Text(nameStr.c_str());
+	
+		const std::string entityStr = std::string("Entity:") + std::to_string(name->GetCurrentEntity());
+		ImGui::Text(entityStr.c_str());
+	}
+
+	void ShowTransformAttribute(TransformComponent* transform)
+	{
+		if (transform == nullptr) {
+			return;
+		}
+
 		ImGui::Text("Transform");
 
-		XMFLOAT3 translation = transform.GetTranslationLocal();
+		XMFLOAT3 translation = transform->GetTranslationLocal();
 		float vec3f[3] = { translation.x, translation.y, translation.z };
 		if (ImGui::DragFloat3("position", vec3f, 0.005f, -1000, 1000))
 		{
@@ -57,10 +62,10 @@ namespace Editor {
 			translation.y = vec3f[1];
 			translation.z = vec3f[2];
 
-			transform.SetTranslationLocal(translation);
+			transform->SetTranslationLocal(translation);
 		}
 
-		XMFLOAT4 quaternion = transform.GetRotationLocal();
+		XMFLOAT4 quaternion = transform->GetRotationLocal();
 		XMFLOAT3 rotation = QuaternionToRollPitchYaw(quaternion);
 		float rVec3f[3] = { rotation.x, rotation.y, rotation.z };
 		if (ImGui::DragFloat3("rotation", rVec3f, 0.01f, -XM_2PI, XM_2PI))
@@ -69,10 +74,10 @@ namespace Editor {
 			rotation.y = rVec3f[1];
 			rotation.z = rVec3f[2];
 
-			transform.SetRotateFromRollPitchYaw(rotation);
+			transform->SetRotateFromRollPitchYaw(rotation);
 		}
 
-		XMFLOAT3 scale = transform.GetScaleLocal();
+		XMFLOAT3 scale = transform->GetScaleLocal();
 		float sVec3f[3] = { scale.x, scale.y, scale.z };
 		if (ImGui::DragFloat3("scale", sVec3f, 0.005f, 0, 10))
 		{
@@ -80,7 +85,7 @@ namespace Editor {
 			scale.y = sVec3f[1];
 			scale.z = sVec3f[2];
 
-			transform.SetScaleLocal(scale);
+			transform->SetScaleLocal(scale);
 		}
 	}
 
@@ -101,9 +106,7 @@ namespace Editor {
 
 		// transform
 		auto transform = scene.mTransforms.GetComponent(currentObject);
-		if (transform != nullptr) {
-			ShowTransformAttribute(*transform);
-		}
+		ShowTransformAttribute(transform);
 
 		// mesh 
 		auto mesh = scene.mMeshes.GetComponent(object->mMeshID);
@@ -159,58 +162,6 @@ namespace Editor {
 		ImGui::End();
 	}
 
-	Entity currentLight = INVALID_ENTITY;
-	void ShowLightAttribute(F32 deltaTime)
-	{
-		if (currentLight == INVALID_ENTITY) return;
-
-		ImGui::SetNextWindowPos(ImVec2(1070, 20), ImGuiCond_Once);
-		ImGui::SetNextWindowSize(ImVec2(350, 360), ImGuiCond_Once);
-		ImGui::Begin("Light attributes");
-
-		Scene& scene = Scene::GetScene();
-		// transform
-		auto transform = scene.mTransforms.GetComponent(currentLight);
-		if (transform != nullptr) {
-			ShowTransformAttribute(*transform);
-		}
-
-		// light 
-		auto light = scene.mLights.GetComponent(currentLight);
-		if (light != nullptr)
-		{
-			ImGui::Spacing();
-			ImGui::Text("Light");
-
-			F32 color[3] = { light->mColor[0], light->mColor[1], light->mColor[2] };
-			if (ImGui::ColorEdit3("color", color))
-			{
-				light->mColor[0] = color[0];
-				light->mColor[1] = color[1];
-				light->mColor[2] = color[2];
-			}
-
-			F32 energy = light->mEnergy;
-			if (ImGui::DragFloat("energy", &energy, 0.1f, 9.0f, 200.0f))
-			{
-				light->mEnergy = energy;
-			}
-
-			bool castingShadow = light->IsCastShadow();
-			if (ImGui::Checkbox("castShadow", &castingShadow)) {
-				light->SetCastShadow(castingShadow);
-			}
-
-			F32 shadowBias = light->mShadowBias;
-			if (ImGui::DragFloat("shadowBias", &shadowBias, 0.00001f, 0.0f, 1.0f, "%.5f"))
-			{
-				light->mShadowBias = shadowBias;
-			}
-		}
-
-		ImGui::End();
-	}
-
 	Entity currentMaterial = INVALID_ENTITY;
 	void ShowMaterialAttribute(F32 deltaTime)
 	{
@@ -258,9 +209,7 @@ namespace Editor {
 
 		Scene& scene = Scene::GetScene();
 		auto transform = scene.mTransforms.GetComponent(currentTerrain);
-		if (transform != nullptr) {
-			ShowTransformAttribute(*transform);
-		}
+		ShowTransformAttribute(transform);
 
 		auto terrain = scene.mTerrains.GetComponent(currentTerrain);
 		if (terrain != nullptr)
@@ -411,9 +360,7 @@ namespace Editor {
 
 		// transform
 		auto transform = Scene::GetScene().mTransforms.GetComponent(currentTransformEntity);
-		if (transform != nullptr) {
-			ShowTransformAttribute(*transform);
-		}
+		ShowTransformAttribute(transform);
 
 		ImGui::End();
 	}
@@ -523,7 +470,7 @@ namespace Editor {
 		if (ImGui::BeginTabBar("EntityBar", tab_bar_flags))
 		{
 			currentObject = INVALID_ENTITY;
-			currentLight = INVALID_ENTITY;
+			SetCurrentLight(INVALID_ENTITY);
 
 			// show object window
 			if (ImGui::BeginTabItem("Objects"))
@@ -563,7 +510,7 @@ namespace Editor {
 				{
 					Entity entity = lightManager.GetEntityByIndex(index);
 					if (ShowEntityList(scene, entity, index, lightSelectionIndex, nodeClicked)) {
-						currentLight = entity;
+						SetCurrentLight(entity);
 					}
 				}
 
@@ -638,9 +585,13 @@ namespace Editor {
 				if (ImGui::MenuItem("Properties")) { showRenderWindow = true; }
 				ImGui::EndMenu();
 			}
+			if (ImGui::BeginMenu("Component"))
+			{
+				if (ImGui::MenuItem("Light")) { ShowNewLightWindow(); }
+				ImGui::EndMenu();
+			}
 			ImGui::EndMenuBar();
 		}
-
 
 		ImGui::Text("Cjing3D v0.0.1");
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", deltaTime, 1.0f / deltaTime);
@@ -658,15 +609,21 @@ namespace Editor {
 
 	void InitializeEditor(IMGUIStage& imguiStage)
 	{
+#ifndef _DISBALE_IMGUI_EDITOR_
+
 		imguiStage.RegisterCustomWindow(ShowBasicWindow);
 		imguiStage.RegisterCustomWindow(showEntityListWindow);
 		imguiStage.RegisterCustomWindow(ShowObjectAttribute);
-		imguiStage.RegisterCustomWindow(ShowLightAttribute);
 		imguiStage.RegisterCustomWindow(ShowMaterialAttribute);
 		imguiStage.RegisterCustomWindow(ShowTerrainAttribute);
 		imguiStage.RegisterCustomWindow(ShowRenderProperties);
 		imguiStage.RegisterCustomWindow(ShowAnimationAttribute);
 		imguiStage.RegisterCustomWindow(ShowHierarchyWindow);
+
+
+
+		InitializeEditorLight(imguiStage);
+#endif
 	}
 }
 }

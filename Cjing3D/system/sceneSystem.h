@@ -71,7 +71,8 @@ namespace Cjing3D {
 			const F32x3& pos = { 0.0f, 0.0f, 0.0f }, 
 			const F32x3& color = {1.0f, 1.0f, 1.0f},
 			F32 energy = 1.0f,
-			F32 range = 10.0f
+			F32 range = 10.0f,
+			LightComponent::LightType lightType = LightComponent::LightType_Point
 		);
 		ECS::Entity CreateEntityTerrain(const std::string& name, U32 width, U32 height, U32 elevation);
 		ECS::Entity CreateArmature(const std::string& name);

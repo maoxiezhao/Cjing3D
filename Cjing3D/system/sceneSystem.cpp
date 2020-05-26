@@ -115,7 +115,7 @@ namespace Cjing3D
 		return entity;
 	}
 
-	ECS::Entity Scene::CreateEntityLight(const std::string & name, const F32x3 & pos, const F32x3 & color, F32 energy, F32 range)
+	ECS::Entity Scene::CreateEntityLight(const std::string & name, const F32x3 & pos, const F32x3 & color, F32 energy, F32 range, LightComponent::LightType lightType)
 	{
 		auto entity = CreateEntityByName(name);
 		TransformComponent& transform = *mTransforms.Create(entity);
@@ -129,7 +129,7 @@ namespace Cjing3D
 		light.mPosition = pos;
 		light.mEnergy = energy;
 		light.mRange = range;
-		light.SetLightType(LightComponent::LightType_Point);
+		light.SetLightType(lightType);
 
 		return entity;
 	}

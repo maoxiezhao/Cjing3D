@@ -515,6 +515,12 @@
     <ClCompile Include="renderer\pipelineStates\pipelineStateManager.cpp">
       <Filter>renderer\pipelineStates</Filter>
     </ClCompile>
+    <ClCompile Include="renderer\paths\renderPath_tiledForward.cpp">
+      <Filter>renderer\paths</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiEditor\guiEditorLight.cpp">
+      <Filter>gui\guiEditor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -1010,6 +1016,15 @@
     </ClInclude>
     <ClInclude Include="renderer\pipelineStates\pipelineStateManager.h">
       <Filter>renderer\pipelineStates</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\paths\renderPath_tiledForward.h">
+      <Filter>renderer\paths</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiEditor\guiEditorLight.h">
+      <Filter>gui\guiEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiEditor\guiEditorInclude.h">
+      <Filter>gui\guiEditor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
