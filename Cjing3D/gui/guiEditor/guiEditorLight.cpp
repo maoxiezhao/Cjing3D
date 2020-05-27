@@ -40,9 +40,15 @@ namespace Editor {
 			}
 
 			F32 energy = light->mEnergy;
-			if (ImGui::DragFloat("energy", &energy, 0.1f, 9.0f, 200.0f))
+			if (ImGui::DragFloat("energy", &energy, 0.1f, 0.0f, 200.0f))
 			{
 				light->mEnergy = energy;
+			}
+
+			F32 range = light->mRange;
+			if (ImGui::DragFloat("range", &range,  0.1f, 0.0f, 200.0f))
+			{
+				light->mRange = range;
 			}
 
 			bool castingShadow = light->IsCastShadow();

@@ -31,7 +31,7 @@ inline float3 GetAmbientLight()
 // Blinn-Phong Lighting
 static const float pointLightAttConstant = 1.0f;
 static const float pointLightAttLinear = 0.09f;
-static const float pointLightAttQuadratic = 0.032f;
+static const float pointLightAttQuadratic = 0.32f;
 
 static const float softShadowSamplerRange = 1.5f;
 static const float defaultMaxShadowBias = 0.0002;
@@ -137,11 +137,12 @@ inline float3 PointLight(in ShaderLight light, in Surface surface)
 
 	float3 lightV = light.worldPosition - surface.position;
 	float dist2 = dot(lightV, lightV);
-	float dist = sqrt(dist2);
-
+    float range2 = light.range * light.range;
+    
     [branch]
-    if (dist <= light.range)
+    if (dist2 <= range2)
 	{
+        float dist = sqrt(dist2);
 		float3 lightDir = normalize(lightV / dist);
 		float NdotL = dot(lightDir, surface.normal);
 		
@@ -150,9 +151,9 @@ inline float3 PointLight(in ShaderLight light, in Surface surface)
 		{
 			float3 lightColor = light.color.rgb * light.energy;
 
-			float attenuation = 1.0f /
-				(pointLightAttConstant + pointLightAttLinear * dist + pointLightAttQuadratic * dist2);
-
+            float attenuation = saturate(1.0 - (dist2 / range2));
+            attenuation = attenuation * attenuation;
+            
 			// diffuse
 			float3 diffuseColor = lightColor * NdotL * attenuation;
 
