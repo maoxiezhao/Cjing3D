@@ -10,6 +10,9 @@
 
 // common texture slots
 TEXTURE2DARRAY(texture_shadowmap_array, float, TEXTURE_SLOT_SHADOW_ARRAY_2D);
+TEXTRRECUBEARRAY(texture_shadowcubemap_array, float, TEXTURE_SLOT_SHADOW_ARRAY_CUBE);
+
+//TEXTURE_SLOT_SHADOW_ARRAY_CUBE
 TEXTRRECUBE(texture_global_env_map, float4, TEXTURE_SLOT_GLOBAL_ENV_MAP);
 
 TEXTURE2D(texture_0, TEXTURE_SLOT_0);

@@ -23,6 +23,7 @@ enum ConstantBufferType
 	ConstantBufferType_Image,
 	ConstantBufferType_Postprocess,
 	ConstantBufferType_MipmapGenerate,
+	ConstantBufferType_CubeMap,
 	ConstantBufferType_Count,
 };
 

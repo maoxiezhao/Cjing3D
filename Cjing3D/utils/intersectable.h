@@ -6,6 +6,20 @@
 namespace Cjing3D
 {
 	class Archive;
+	class AABB;
+
+	class Sphere final
+	{
+	public:
+		XMFLOAT3 mCenter;
+		F32 mRadius;
+
+		Sphere() :mCenter(XMFLOAT3(0.0f, 0.0f, 0.0f)), mRadius(0.0f) {}
+		Sphere(XMFLOAT3 center, F32 radius) : mCenter(center), mRadius(radius) {}
+
+		bool Intersects(const AABB& other)const;
+		bool Intersects(const Sphere& other)const;
+	};
 
 	// Öá¶Ô³Æ°üÎ§ºÐ
 	class AABB final

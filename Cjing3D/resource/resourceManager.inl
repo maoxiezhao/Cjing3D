@@ -48,7 +48,7 @@ ResourceManager::GetOrCreate(const StringID & filePath)
 	bool isExists = texturePool.Contains(filePath);
 	auto texture = texturePool.GetOrCreate(filePath);
 	if (isExists == false) {
-		LoadTextureFromFilePathEx(filePath.GetString(), *texture);
+		LoadTextureFromFilePath(filePath.GetString(), *texture);
 	}
 	return texture;
 }
@@ -63,7 +63,7 @@ ResourceManager::GetOrCreate(const StringID& filePath, FORMAT textureFormat, U32
 	bool isExists = texturePool.Contains(filePath);
 	auto texture = texturePool.GetOrCreate(filePath);
 	if (isExists == false) {
-		LoadTextureFromFilePathEx(filePath.GetString(), *texture, textureFormat, channelCount, bindFlag, generateMipmap);
+		LoadTextureFromFilePath(filePath.GetString(), *texture, textureFormat, channelCount, bindFlag, generateMipmap);
 	}
 	return texture;
 }

@@ -32,8 +32,9 @@ typedef XMINT4 int4;
 #define RWRAWBUFFER(name,slot) RWByteAddressBuffer name : register(u ## slot)
 
 #define TEXTURE2D(name, slot) Texture2D name : register(t ## slot);
-#define TEXTRRECUBE(name, type, slot)  TextureCube<type> name : register(t ## slot);
 #define TEXTURE2DARRAY(name, type, slot) Texture2DArray<type> name : register(t ## slot);
+#define TEXTRRECUBE(name, type, slot)  TextureCube<type> name : register(t ## slot);
+#define TEXTRRECUBEARRAY(name, type, slot)  TextureCubeArray<type> name : register(t ## slot);
 #define TYPE_TEXTURE2D(name, type, slot) Texture2D<type> name : register(t ## slot);
 #define SAMPLERSTATE(name, slot) SamplerState name :register(s ## slot);
 #define SAMPLERCOMPARISONSTATE(name, slot) SamplerComparisonState name :register(s ## slot);

@@ -18,6 +18,7 @@ enum VetextShaderType
 	VertexShaderType_FullScreen,
 	VertexShaderType_Image,
 	VertexShaderType_Shadow,
+	VertexShaderType_ShadowCube,
 	VertexShaderType_Sky,
 	VertexShaderType_Count,
 };

@@ -123,8 +123,9 @@ private:
 	void UninitializeRenderPasses();
 
 	GraphicsDevice* CreateGraphicsDeviceByType(RenderingDeviceType deviceType, HWND window);
-	void ProcessRenderQueue(RenderQueue& queue, RenderPassType renderPassType, RenderableType renderableType);
+	void ProcessRenderQueue(RenderQueue& queue, RenderPassType renderPassType, RenderableType renderableType, U32 instanceReplicator = 1, InstanceHandler* instanceHandler = nullptr);
 	void RenderDirLightShadowmap(LightComponent& light, CameraComponent& camera);
+	void RenderPointLightShadowmap(LightComponent& light, CameraComponent& camera);
 	void ProcessSkinning();
 
 	// 当前帧的裁剪后的数据

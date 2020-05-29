@@ -25,6 +25,7 @@ namespace Cjing3D
 				ret = shaderLib.GetVertexLayout(InputLayoutType_ObjectAll);
 				break;
 			case RenderPassType_Shadow:
+			case RenderPassType_ShadowCube:
 				ret = shaderLib.GetVertexLayout(InputLayoutType_Shadow);
 				break;
 			case RenderPassType_Depth:
@@ -48,6 +49,9 @@ namespace Cjing3D
 				break;
 			case RenderPassType_Shadow:
 				ret = shaderLib.GetVertexShader(VertexShaderType_Shadow);
+				break;
+			case RenderPassType_ShadowCube:
+				ret = shaderLib.GetVertexShader(VertexShaderType_ShadowCube);
 				break;
 			case RenderPassType_Depth:
 				ret = alphaTest == true ?
@@ -90,7 +94,13 @@ namespace Cjing3D
 		NormalRenderParams params = {};
 
 		// base object rendering
-		std::vector<RenderPassType> renderPasses = { RenderPassType_Forward , RenderPassType_Depth, RenderPassType_Shadow };
+		std::vector<RenderPassType> renderPasses = 
+		{ 
+			RenderPassType_Forward, 
+			RenderPassType_Depth, 
+			RenderPassType_Shadow,
+			RenderPassType_ShadowCube
+		};
 		for (RenderPassType renderPass : renderPasses)
 		{
 			for (int blendTypeIndex = 0; blendTypeIndex < BlendType::BlendType_Count; blendTypeIndex++)
@@ -123,7 +133,10 @@ namespace Cjing3D
 						assert(0);
 						break;
 					}
-					if (!transparent && renderPass == RenderPassType_Depth && renderPass == RenderPassType_Shadow) {
+					if (!transparent && 
+						renderPass == RenderPassType_Depth && 
+						renderPass == RenderPassType_Shadow &&
+						renderPass == RenderPassType_ShadowCube) {
 						infoState.mBlendState = stateManager.GetBlendState(BlendStateID_ColorWriteDisable);
 					}
 
@@ -143,6 +156,7 @@ namespace Cjing3D
 						}
 						break;
 					case RenderPassType_Shadow:
+					case RenderPassType_ShadowCube:
 						infoState.mDepthStencilState = stateManager.GetDepthStencilState(DepthStencilStateID_Shadow);
 						break;
 					default:
@@ -154,6 +168,7 @@ namespace Cjing3D
 					switch (renderPass)
 					{
 					case RenderPassType_Shadow:
+					case RenderPassType_ShadowCube:
 						infoState.mRasterizerState = stateManager.GetRasterizerState(RasterizerStateID_Shadow);
 						break;
 					default:

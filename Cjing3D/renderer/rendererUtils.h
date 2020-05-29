@@ -3,8 +3,11 @@
 #include "system\ecsSystem.h"
 #include "renderer\RHI\rhiResource.h"
 
+#include <functional>
+
 namespace Cjing3D
 {
+	class Scene;
 	class GraphicsDevice;
 	class Renderer;
 
@@ -37,7 +40,7 @@ namespace Cjing3D
 		XMFLOAT4A mat0;
 		XMFLOAT4A mat1;
 		XMFLOAT4A mat2;
-		XMFLOAT4A mat3;
+		XMFLOAT4A userdata;
 
 		RenderInstance(const XMFLOAT4X4& mat, const XMFLOAT4 color = XMFLOAT4(1, 1, 1, 1))
 		{
@@ -63,10 +66,10 @@ namespace Cjing3D
 			mat2.z = mat._33;
 			mat2.w = mat._43;
 
-			mat3.x = color.x;
-			mat3.y = color.y;
-			mat3.z = color.z;
-			mat3.w = color.w;
+			userdata.x = 0.0f;
+			userdata.y = 0.0f;
+			userdata.z = 0.0f;
+			userdata.w = 0.0f;
 		}
 	};
 
@@ -154,5 +157,15 @@ namespace Cjing3D
 
 	private:
 		std::vector<RenderBatch*> mRenderBatch;
+	};
+
+	struct InstanceHandler
+	{
+	public:
+		using CheckConditionFunc = std::function<bool(U32, ECS::Entity, Scene&)>;
+		using ProcessInstanceFunc = std::function<void(U32, RenderInstance&)>;
+
+		CheckConditionFunc checkCondition_ = nullptr;
+		ProcessInstanceFunc processInstance_ = nullptr;
 	};
 }

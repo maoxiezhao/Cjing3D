@@ -47,17 +47,43 @@ namespace {
 	std::vector<bool> shadowMapDirtyTable;
 
 	// 级联子视锥体
-	struct CascadeShadowCamera
+	struct LightShadowCamera
 	{
-		AABB mBoundingBox;
-		XMFLOAT4X4 mView;
-		XMFLOAT4X4 mProjection;
+		Frustum mFrustum;
+		XMMATRIX mViewProjection;
+
+		LightShadowCamera() {}
+		LightShadowCamera(const XMVECTOR& eyePos, const XMVECTOR& rot, F32 nearZ, F32 farZ, F32 fov)
+		{
+			const XMMATRIX matRot = XMMatrixRotationQuaternion(rot);
+			// create light camera view matrix
+			// light default dir is (0, -1, 0), up(0, 0, 1)
+			const XMVECTOR to = XMVector3TransformNormal(XMVectorSet(0.0f,-1.0f, 0.0f, 0.0f), matRot);
+			const XMVECTOR up = XMVector3TransformNormal(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), matRot);
+			const XMMATRIX view = XMMatrixLookToLH(eyePos, to, up);
+			const XMMATRIX proj = XMMatrixPerspectiveFovLH(fov, 1.0f, farZ, nearZ);	// reversed depth buffer!!!
+			mViewProjection = view * proj;
+			mFrustum.SetupFrustum(mViewProjection);
+		}
 
 		XMMATRIX GetViewProjectionMatrix()
 		{
-			return XMLoadFloat4x4(&mView) * XMLoadFloat4x4(&mProjection);
+			return mViewProjection;
 		}
 	};
+
+	// shadow cubemap
+	U32 shadowResCubeResolution = 512;
+	U32 shadowMapCubeCount = 5;
+	Texture2D shadowMapArrayCube;
+	std::vector<bool> shadowCubeMapDirtyTable;
+	std::vector<RenderBehavior> shadowCubeRenderBehaviors;
+
+	void ClearShadowMap()
+	{
+		shadowMapArray2D.Clear();
+		shadowMapArrayCube.Clear();
+	}
 
 	void SetShadowMap2DProperty(Renderer& renderer, U32 resolution, U32 count)
 	{
@@ -84,12 +110,49 @@ namespace {
 
 		shadowMapDirtyTable.resize(count, false);
 		shadowRenderBehaviors.resize(count);
-		for (U32 i = 0; i < count; i++) {
+		for (U32 i = 0; i < count; i++) 
+		{
 			I32 subresourceIndex = device.CreateDepthStencilView(shadowMapArray2D, i, 1);
 
 			RenderBehaviorDesc desc = {};
 			desc.mParams.push_back({ RenderBehaviorParam::RenderType_DepthStencil, &shadowMapArray2D, subresourceIndex, RenderBehaviorParam::RenderOperation_Clear });
 			device.CreateRenderBehavior(desc, shadowRenderBehaviors[i]);
+		}
+	}
+
+	void SetShadowMapCubeProperty(Renderer& renderer, U32 resolution, U32 count)
+	{
+		shadowResCubeResolution = resolution;
+		shadowMapCubeCount = count;
+
+		if (resolution <= 0 || count <= 0) {
+			return;
+		}
+
+		TextureDesc desc = {};
+		desc.mWidth = resolution;
+		desc.mHeight = resolution;
+		desc.mArraySize = count * 6;
+		desc.mMipLevels = 1;
+		desc.mFormat = FORMAT_R16_TYPELESS;
+		desc.mBindFlags = BIND_DEPTH_STENCIL | BIND_SHADER_RESOURCE;
+		desc.mUsage = USAGE_DEFAULT;
+		desc.mMiscFlags = RESOURCE_MISC_TEXTURECUBE;
+
+		GraphicsDevice& device = renderer.GetDevice();
+		const auto result = device.CreateTexture2D(&desc, nullptr, shadowMapArrayCube);
+		Debug::ThrowIfFailed(result, "Failed to create shadow cube map:%08x", result);
+		device.SetResourceName(shadowMapArrayCube, "ShadowMapArrayCube");
+
+		shadowCubeMapDirtyTable.resize(count, false);
+		shadowCubeRenderBehaviors.resize(count);
+		for (U32 i = 0; i < count; i++)
+		{
+			I32 subresourceIndex = device.CreateDepthStencilView(shadowMapArrayCube, i * 6, 6);
+
+			RenderBehaviorDesc desc = {};
+			desc.mParams.push_back({ RenderBehaviorParam::RenderType_DepthStencil, &shadowMapArrayCube, subresourceIndex, RenderBehaviorParam::RenderOperation_Clear });
+			device.CreateRenderBehavior(desc, shadowCubeRenderBehaviors[i]);
 		}
 	}
 
@@ -122,7 +185,7 @@ namespace {
 		}
 	}
 
-	void CreateCascadeShadowCameras(LightComponent& light, CameraComponent& camera, U32 cascadeCount, std::vector<CascadeShadowCamera>& csfs)
+	void CreateCascadeShadowCameras(LightComponent& light, CameraComponent& camera, U32 cascadeCount, std::vector<LightShadowCamera>& csfs)
 	{
 		if (currentCascadeSplits.size() != (size_t)(cascadeCount + 1)) {
 			CalculateCascadeSplits(camera, cascadeCount, currentCascadeSplits);
@@ -209,14 +272,10 @@ namespace {
 
 			auto& cam = csfs.emplace_back();
 
-			// 包围盒需要再转换到世界坐标
-			AABB boundingBox(XMLoadFloat3(&_min), XMLoadFloat3(&_max));
-			cam.mBoundingBox = boundingBox.GetByTransforming(invLightView);
-
 			// light view and projection matrix, reversed z
 			const XMMATRIX lightProjection = XMMatrixOrthographicOffCenterLH(_min.x, _max.x, _min.y, _max.y, _max.z, _min.z); 
-			XMStoreFloat4x4(&cam.mView, lightView);
-			XMStoreFloat4x4(&cam.mProjection, lightProjection);
+			cam.mViewProjection = lightView * lightProjection;
+			cam.mFrustum.SetupFrustum(cam.mViewProjection);
 		}
 	}
 }
@@ -259,6 +318,11 @@ void Renderer::Initialize()
 
 	// initialize camera
 	GetCamera().SetupPerspective((F32)mScreenSize[0], (F32)mScreenSize[1], 0.1f, 1000.0f);
+	GetCamera().SetCameraStatus(
+		{ 0.0f, 0.0f, -50.0f },
+		{ 0.0f, 0.0f,   1.0f },
+		{ 0.0f, 1.0f,   0.0f }
+	);
 
 	// initialize states
 	mStateManager = std::make_unique<StateManager>(*mGraphicsDevice);
@@ -293,6 +357,7 @@ void Renderer::Initialize()
 	mFrameData.mFrameAmbient = { 0.1f, 0.1f, 0.1f };
 
 	SetShadowMap2DProperty(*this, shadowRes2DResolution, shadowMap2DCount);
+	SetShadowMapCubeProperty(*this, shadowResCubeResolution, shadowMapCubeCount);
 
 	// initialize render pass
 	InitializeRenderPasses();
@@ -306,6 +371,7 @@ void Renderer::Uninitialize()
 		return;
 	}
 
+	ClearShadowMap();
 	UninitializeRenderPasses();
 
 	if (mCurrentRenderPath != nullptr)
@@ -441,6 +507,7 @@ void Renderer::UpdatePerFrameData(F32 deltaTime)
 			std::sort(lightSortingHashes, lightSortingHashes + hashIndex, std::less<U32>());
 
 			U32 currentShadowMap2DCount = 0;
+			U32 currentShadowMapCubeCount = 0;
 			for (U32 i = 0; i < hashIndex; i++)
 			{
 				U32 lightIndex = lightSortingHashes[culledLights[i]] & 0xffff;
@@ -458,11 +525,18 @@ void Renderer::UpdatePerFrameData(F32 deltaTime)
 
 				switch (light->GetLightType())
 				{
-				case Cjing3D::LightComponent::LightType_Directional:
+				case LightComponent::LightType_Directional:
 					if ((currentShadowMap2DCount + shadowCascadeCount) <= shadowMap2DCount)
 					{
 						light->SetShadowMapIndex(currentShadowMap2DCount);
 						currentShadowMap2DCount += shadowCascadeCount;
+					}
+					break;
+				case LightComponent::LightType_Point:
+					if (currentShadowMapCubeCount < shadowMapCubeCount)
+					{
+						light->SetShadowMapIndex(currentShadowMapCubeCount);
+						currentShadowMapCubeCount++;
 					}
 					break;
 				default:
@@ -545,7 +619,7 @@ void Renderer::RefreshRenderData()
 			case Cjing3D::LightComponent::LightType_Directional:
 			{
 				// TODO:在renderShadow部分又计算了一次。。
-				std::vector<CascadeShadowCamera> cascadeShadowCameras;
+				std::vector<LightShadowCamera> cascadeShadowCameras;
 				CreateCascadeShadowCameras(*light, GetCamera(), shadowCascadeCount, cascadeShadowCameras);
 
 				for (auto& cam : cascadeShadowCameras) {
@@ -720,6 +794,7 @@ void Renderer::RenderShadowmaps(CameraComponent& camera)
 				RenderDirLightShadowmap(*light, camera);
 				break;
 			case Cjing3D::LightComponent::LightType_Point:
+				RenderPointLightShadowmap(*light, camera);
 				break;
 			default:
 				break;
@@ -1122,7 +1197,7 @@ GraphicsDevice* Renderer::CreateGraphicsDeviceByType(RenderingDeviceType deviceT
 	return graphicsDevice;
 }
 
-void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPassType, RenderableType renderableType)
+void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPassType, RenderableType renderableType, U32 instanceReplicator, InstanceHandler* instanceHandler)
 {
 	if (queue.IsEmpty() == true) {
 		return;
@@ -1132,7 +1207,8 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPass
 	auto& scene = GetMainScene();
 
 	size_t instanceSize = sizeof(RenderInstance);
-	GraphicsDevice::GPUAllocation instances = mGraphicsDevice->AllocateGPU(queue.GetBatchCount() * instanceSize);
+	size_t allocSize = queue.GetBatchCount() * instanceReplicator * instanceSize;
+	GraphicsDevice::GPUAllocation instances = mGraphicsDevice->AllocateGPU(allocSize);
 
 	// 对于使用相同mesh的object将创建同一个instanceBatch，包含相同的shader，
 	// 但是依然会为每个object创建一个instance（input layout）包含了颜色和世界坐标变换矩阵
@@ -1144,6 +1220,7 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPass
 
 	auto& renderBatches = queue.GetRenderBatches();
 	size_t batchesCount = renderBatches.size();
+	size_t currentInstanceCount = 0;
 	for (size_t index = 0; index < batchesCount; index++)
 	{
 		auto& batch = renderBatches[index];
@@ -1163,24 +1240,46 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPass
 			mRenderBatchInstances.push_back(batchInstance);
 		}
 
-		const auto object = scene.GetComponent<ObjectComponent>(objectEntity);
-		const auto transform = scene.GetComponent<TransformComponent>(objectEntity);
+		const auto object = scene.mObjects.GetComponent(objectEntity);
+		const auto transform = scene.mTransforms.GetComponent(objectEntity);
+		const auto aabb = scene.mObjectAABBs.GetComponent(objectEntity);
 
 		// 保存每个batch（包含一个object）的worldMatrix
 		// 用于在shader中计算顶点的世界坐标
 		const XMFLOAT4X4 worldMatrix = transform->GetWorldTransform();
 		const XMFLOAT4 color = XMConvert(object->mColor) ;
-		((RenderInstance*)instances.data)[index].Setup(worldMatrix, color);
 
-		// 当前batchInstance必然在array最后
-		mRenderBatchInstances.back()->mInstanceCount++;
+		for (U32 subIndex = 0; subIndex < instanceReplicator; subIndex++)
+		{
+			// check condition
+			if (instanceHandler != nullptr && 
+				instanceHandler->checkCondition_ != nullptr && 
+				!instanceHandler->checkCondition_(subIndex, objectEntity, scene)) 
+			{
+				continue;
+			}
+
+			((RenderInstance*)instances.data)[currentInstanceCount].Setup(worldMatrix, color);
+
+			// set userdata
+			if (instanceHandler != nullptr &&
+				instanceHandler->processInstance_ != nullptr) 
+			{
+				instanceHandler->processInstance_(subIndex, ((RenderInstance*)instances.data)[currentInstanceCount]);
+			}
+
+			// 当前batchInstance必然在array最后
+			mRenderBatchInstances.back()->mInstanceCount++;
+			currentInstanceCount++;
+		}
 	}
 
 	// simpleBindTexture，只绑定baseColorMap
 	bool simpleBindTexture = false;
-	if (renderPassType == RenderPassType_Shadow)
+	if (renderPassType == RenderPassType_Shadow ||
+		renderPassType == RenderPassType_Depth ||
+		renderPassType == RenderPassType_ShadowCube)
 	{
-		// 阴影贴图绘制时只需要绑定baseColorMap
 		simpleBindTexture = true;
 	}
 
@@ -1214,7 +1313,8 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPass
 			{
 				is_renderable = is_renderable || (material->IsTransparent());
 			}
-			if (renderPassType == RenderPassType_Shadow)
+			if (renderPassType == RenderPassType_Shadow ||
+				renderPassType == RenderPassType_ShadowCube)
 			{
 				is_renderable &= material->IsCastingShadow();
 			}
@@ -1225,7 +1325,8 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPass
 			}
 		
 			BoundVexterBufferType boundType = BoundVexterBufferType_All;
-			if (renderPassType == RenderPassType_Shadow)
+			if (renderPassType == RenderPassType_Shadow ||
+				renderPassType == RenderPassType_ShadowCube)
 			{
 				boundType = BoundVexterBufferType_Pos;
 			}
@@ -1339,6 +1440,7 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPass
 		}
 	}
 
+	// remove alpha test
 	ResetAlphaCutRef();
 
 	mGraphicsDevice->UnAllocateGPU();	
@@ -1354,14 +1456,15 @@ void Renderer::BindConstanceBuffer(SHADERSTAGES stage)
 
 void Renderer::BindShadowMaps(SHADERSTAGES stage)
 {
-	mGraphicsDevice->BindGPUResource(SHADERSTAGES_PS, shadowMapArray2D, TEXTURE_SLOT_SHADOW_ARRAY_2D);
+	mGraphicsDevice->BindGPUResource(stage, shadowMapArray2D,   TEXTURE_SLOT_SHADOW_ARRAY_2D);
+	mGraphicsDevice->BindGPUResource(stage, shadowMapArrayCube, TEXTURE_SLOT_SHADOW_ARRAY_CUBE);
 }
 
 void Renderer::RenderDirLightShadowmap(LightComponent& light, CameraComponent& camera)
 {
 	// 基于CSM的方向光阴影
 	// 1.将视锥体分成CASCADE_COUNT个子视锥体，对于每个子视锥体创建包围求和变换矩阵
-	std::vector<CascadeShadowCamera> cascadeShadowCameras;
+	std::vector<LightShadowCamera> cascadeShadowCameras;
 	CreateCascadeShadowCameras(light, camera, shadowCascadeCount, cascadeShadowCameras);
 
 	LinearAllocator& frameAllocator = GetFrameAllocator(FrameAllocatorType_Render);
@@ -1379,13 +1482,13 @@ void Renderer::RenderDirLightShadowmap(LightComponent& light, CameraComponent& c
 	// 2.根据级联视锥体创建的包围盒，获取每个级联对应的物体
 	for (U32 cascadeLevel = 0; cascadeLevel < shadowCascadeCount; cascadeLevel++)
 	{
-		CascadeShadowCamera& cam = cascadeShadowCameras[cascadeLevel];
+		LightShadowCamera& cam = cascadeShadowCameras[cascadeLevel];
 		RenderQueue renderQueue;
 
 		for (U32 index = 0; index < mainScene.mObjectAABBs.GetCount(); index++)
 		{
 			auto aabb = mainScene.mObjectAABBs[index];
-			if (cam.mBoundingBox.Intersects(aabb->GetAABB()))
+			if (cam.mFrustum.Overlaps(aabb->GetAABB()))
 			{
 				auto object = mainScene.mObjects[index];
 				if (object == nullptr || 
@@ -1423,6 +1526,102 @@ void Renderer::RenderDirLightShadowmap(LightComponent& light, CameraComponent& c
 			shadowMapDirtyTable[resourceIndex] = false;
 			device.ClearDepthStencil(shadowMapArray2D, CLEAR_DEPTH, 0.0f, 0, resourceIndex);
 		}
+	}
+}
+
+void Renderer::RenderPointLightShadowmap(LightComponent& light, CameraComponent& camera)
+{
+	LinearAllocator& frameAllocator = GetFrameAllocator(FrameAllocatorType_Render);
+	RenderQueue renderQueue;
+
+	// 点光源根据范围创建球状包围盒
+	Sphere lightSphere(XMConvert(light.mPosition), light.mRange);
+	Scene& mainScene = GetMainScene();
+	for (U32 index = 0; index < mainScene.mObjectAABBs.GetCount(); index++)
+	{
+		auto aabb = mainScene.mObjectAABBs[index];
+		if (lightSphere.Intersects(aabb->GetAABB()))
+		{
+			auto object = mainScene.mObjects[index];
+			if (object == nullptr ||
+				object->IsRenderable() == false ||
+				object->IsCastShadow() == false)
+			{
+				continue;
+			}
+
+			RenderBatch* renderBatch = (RenderBatch*)frameAllocator.Allocate(sizeof(RenderBatch));
+			renderBatch->Init(object->GetCurrentEntity(), object->mMeshID, 0);
+			renderQueue.AddBatch(renderBatch);
+		}
+	}
+
+	GraphicsDevice& device = GetDevice();
+	I32 resourceIndex = light.GetShadowMapIndex();
+	if (!renderQueue.IsEmpty())
+	{
+		shadowCubeMapDirtyTable[resourceIndex] = true;
+
+		const XMVECTOR lightPos = XMLoad(light.mPosition);
+		const F32 nearZ = 0.1f;
+		const F32 farZ = std::max(1.0f, light.mRange);
+
+		// 创建6个面的光源相机变换投影矩阵，顺序为x,-x,y, -y, z,-z
+		// light default dir is (0, -1, 0), up(0, 0, 1)
+		// q.x = sin(theta / 2) * axis.x
+		// q.y = sin(theta / 2) * axis.y
+		// q.z = sin(theta / 2) * axis.z
+		// q.w = cos(theta / 2)
+		// 或者通过欧拉角转换得到四元数
+		const LightShadowCamera cams[] = {
+			LightShadowCamera(lightPos, XMVectorSet(0.5f, -0.5f, -0.5f, -0.5f), nearZ, farZ, XM_PIDIV2), //  x
+			LightShadowCamera(lightPos, XMVectorSet(0.5f, 0.5f, 0.5f, -0.5f), nearZ, farZ, XM_PIDIV2),   // -x
+			LightShadowCamera(lightPos, XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), nearZ, farZ, XM_PIDIV2),    //  y
+			LightShadowCamera(lightPos, XMVectorSet(0.0f, 0.0f, 0.0f, -1.0f), nearZ, farZ, XM_PIDIV2),   // -y
+			LightShadowCamera(lightPos, XMVectorSet(0.707f, 0, 0, -0.707f), nearZ, farZ, XM_PIDIV2),     //  z, 0.707 = 根号2/2
+			LightShadowCamera(lightPos, XMVectorSet(0, 0.707f, 0.707f, 0), nearZ, farZ, XM_PIDIV2),      // -z
+		};
+		CubeMapCB cb;
+		for (int i = 0; i < ARRAYSIZE(cams); i++) {
+			XMStoreFloat4x4(&cb.gCubeMapVP[i], cams[i].mViewProjection);
+		}
+		auto buffer = mBufferManager->GetConstantBuffer(ConstantBufferType_CubeMap);
+		mGraphicsDevice->UpdateBuffer(buffer, &cb, sizeof(CubeMapCB));
+		mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_VS, buffer, CB_GETSLOT_NAME(CubeMapCB));
+
+		ViewPort vp;
+		vp.mWidth = (F32)shadowResCubeResolution;
+		vp.mHeight = (F32)shadowResCubeResolution;
+		vp.mMinDepth = 0.0f;
+		vp.mMaxDepth = 1.0f;
+		device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
+
+		// instance handler
+		InstanceHandler instanceHandler;
+		instanceHandler.checkCondition_ = [cams](U32 subIndex, ECS::Entity entity, Scene& scene) 
+		{
+			auto aabb = scene.mObjectAABBs.GetComponent(entity);
+			if (aabb == nullptr) {
+				return false;
+			}
+			return cams[subIndex].mFrustum.Overlaps(aabb->GetAABB());
+		};
+		instanceHandler.processInstance_ = [cams](U32 subIndex, RenderInstance& instance) 
+		{
+			instance.userdata.x = (F32)subIndex;
+		};
+
+		// rendering
+		device.BeginRenderBehavior(shadowCubeRenderBehaviors[resourceIndex]);
+		ProcessRenderQueue(renderQueue, RenderPassType_ShadowCube, RenderableType_Opaque, 6, &instanceHandler);
+		device.EndRenderBehavior();
+
+		frameAllocator.Free(renderQueue.GetBatchCount() * sizeof(RenderBatch));
+	}
+	else if (shadowCubeMapDirtyTable[resourceIndex])
+	{
+		shadowCubeMapDirtyTable[resourceIndex] = false;
+		device.ClearDepthStencil(shadowMapArrayCube, CLEAR_DEPTH, 0.0f, 0, resourceIndex);
 	}
 }
 

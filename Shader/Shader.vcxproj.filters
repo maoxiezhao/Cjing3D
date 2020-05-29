@@ -92,6 +92,9 @@
     <FxCompile Include="ps\objectForwardTransparentPS.hlsl">
       <Filter>ps</Filter>
     </FxCompile>
+    <FxCompile Include="vs\cubeShadowVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="hf\objectInput.hlsli">

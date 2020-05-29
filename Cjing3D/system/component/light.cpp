@@ -18,11 +18,13 @@ namespace Cjing3D
 		shaderLight.color = XMConvert(F32x4(mColor, 1.0f));
 		shaderLight.shadowBias = mShadowBias;
 		shaderLight.shadowData = ~0;
+		shaderLight.extraData = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 
 		XMFLOAT3 viewPosition;
 		XMStoreFloat3(&viewPosition, XMVector3TransformCoord(XMLoadFloat3(&shaderLight.worldPosition), viewMatrix));
 		shaderLight.viewPosition = viewPosition;
 
+		// base attribute
 		switch (mLightType)
 		{
 		case Cjing3D::LightComponent::LightType_Directional:
@@ -32,10 +34,30 @@ namespace Cjing3D
 			break;
 		case Cjing3D::LightComponent::LightType_Spot:
 			break;
-		case Cjing3D::LightComponent::LightType_Count:
-			break;
 		default:
 			break;
+		}
+
+		// calculate cubemap k/b
+		if (IsCastShadow())
+		{
+			switch (mLightType)
+			{
+			case Cjing3D::LightComponent::LightType_Point:
+			{
+				// depth = k/z + b, depth[1, 0]
+				// !!!reversed depth buffer
+				const F32 farZ = 0.1f;
+				const F32 nearZ = std::max(1.0f, mRange);
+				const F32 cubemapDepthB = farZ / (farZ - nearZ);
+				const F32 cubemapDepthK = -cubemapDepthB * nearZ;
+				shaderLight.extraData.x = cubemapDepthK;
+				shaderLight.extraData.y = cubemapDepthB;
+			}
+			break;
+			default:
+				break;
+			}
 		}
 
 		return shaderLight;

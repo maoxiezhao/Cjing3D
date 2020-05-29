@@ -1588,9 +1588,20 @@ I32 GraphicsDeviceD3D11::CreateShaderResourceView(RhiTexture2D & texture, U32 ar
 		{
 			if (desc.mMiscFlags & RESOURCE_MISC_TEXTURECUBE)
 			{
-				shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
-				shaderResourceViewDesc.TextureCube.MostDetailedMip = firstMip;
-				shaderResourceViewDesc.TextureCube.MipLevels = mipLevel;
+				if (arraySize > 6)
+				{
+					shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBEARRAY;
+					shaderResourceViewDesc.TextureCubeArray.First2DArrayFace = arraySlice;
+					shaderResourceViewDesc.TextureCubeArray.NumCubes = std::min(desc.mArraySize, arrayCount) / 6;
+					shaderResourceViewDesc.TextureCubeArray.MostDetailedMip = firstMip;
+					shaderResourceViewDesc.TextureCubeArray.MipLevels = mipLevel;
+				}
+				else
+				{
+					shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+					shaderResourceViewDesc.TextureCube.MostDetailedMip = firstMip;
+					shaderResourceViewDesc.TextureCube.MipLevels = mipLevel;
+				}
 			}
 			else
 			{
@@ -1651,7 +1662,7 @@ I32 GraphicsDeviceD3D11::CreateDepthStencilView(RhiTexture2D & texture, U32 arra
 			break;
 		}
 
-		if (arraySize <= 1)
+		if (arraySize > 0 && arraySize <= 1)
 		{
 			depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 			depthStencilViewDesc.Texture2D.MipSlice = 0;

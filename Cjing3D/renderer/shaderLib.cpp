@@ -112,6 +112,9 @@ void ShaderLib::LoadVertexShaders()
 		mVertexShader[VertexShaderType_Shadow] = shadowVSInfo.mVertexShader;
 		mInputLayout[InputLayoutType_Shadow] = shadowVSInfo.mInputLayout;
 
+		// cube shadow vs
+		mVertexShader[VertexShaderType_ShadowCube] = LoadShader(SHADERSTAGES_VS, shaderPath + "cubeShadowVS.cso");
+
 		// full screen vs
 		auto skyVSInfo = LoadVertexShaderInfo(shaderPath + "skyVS.cso", nullptr, 0);
 		mVertexShader[VertexShaderType_Sky] = skyVSInfo.mVertexShader;

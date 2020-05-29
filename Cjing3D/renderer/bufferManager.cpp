@@ -92,6 +92,13 @@ namespace Cjing3D
 			Debug::ThrowIfFailed(result, "failed to create mipmap generate constant buffer:%08x", result);
 			device.SetResourceName(buffer, "MipmapGenerateCB");
 		}
+		// CubeShadowCB
+		{
+			GPUBuffer& buffer = mConstantBuffer[ConstantBufferType_CubeMap];
+			const HRESULT result = CreateWriteDynamicConstantBuffer(device, buffer, sizeof(CubeMapCB));
+			Debug::ThrowIfFailed(result, "failed to create CubeShadowCB constant buffer:%08x", result);
+			device.SetResourceName(buffer, "CubeShadowCB");
+		}
 	}
 
 	void BufferManager::LoadStructuredBuffers()

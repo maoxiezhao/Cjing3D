@@ -53,6 +53,11 @@ CBUFFER(ImageCB, CBSLOT_IMAGE)
 	float4 gImageColor;
 };
 
+CBUFFER(CubeMapCB, CBSLOT_CUBEMAP)
+{
+	float4x4 gCubeMapVP[6];
+};
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 // light
 
@@ -69,10 +74,11 @@ struct ShaderLight
 	float3 worldPosition;
 	float energy;
 	float4 color;
+	float4 extraData;
 	float shadowBias;
 	uint shadowData;	// 前16位表示光照矩阵索引，后16位表示阴影贴图索引
 	float shadowKernel;
-
+	
 	inline uint GetLightType()
 	{
 		return type;
@@ -102,6 +108,16 @@ struct ShaderLight
 	inline uint GetShadowMapIndex()
 	{
 		return (shadowData >> 16) & 0xffff;
+	}
+
+	// cubemap depth 
+	inline float GetCubemapDepthK()
+	{
+		return extraData.x;
+	}
+	inline float GetCubemapDepthB()
+	{
+		return extraData.y;
 	}
 };
 

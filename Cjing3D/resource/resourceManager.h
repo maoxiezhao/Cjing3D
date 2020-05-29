@@ -106,8 +106,7 @@ public:
 		pool.RemoveAll();
 	}
 
-	void LoadTextrueFromFilePath(const std::filesystem::path& filePath, RhiTexture2D& texture);
-	void LoadTextureFromFilePathEx(const std::filesystem::path& filePath, RhiTexture2D& texture, FORMAT textureFormat = FORMAT_R8G8B8A8_UNORM, U32 channelCount = 4, U32 bindFlag = BIND_SHADER_RESOURCE, bool generateMipmap = false);
+	void LoadTextureFromFilePath(const std::filesystem::path& filePath, RhiTexture2D& texture, FORMAT textureFormat = FORMAT_R8G8B8A8_UNORM, U32 channelCount = 4, U32 bindFlag = BIND_SHADER_RESOURCE, bool generateMipmap = false);
 
 private:
 	template <typename ResourceT>

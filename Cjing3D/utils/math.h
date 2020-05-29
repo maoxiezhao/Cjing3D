@@ -183,4 +183,20 @@ namespace Cjing3D {
 		XMVECTOR sub = XMLoad(v1 - v2);
 		return XMStore<F32>(XMVector3LengthEst(sub));
 	}
+
+	// 使用DirectXMath SIMD加速运算
+	inline F32 XMDistance(const XMVECTOR& v1, const XMVECTOR& v2)
+	{
+		XMVECTOR sub = XMVectorSubtract(v1, v2);
+		XMVECTOR length = XMVector3Length(sub);
+
+		float ret = 0.0f;
+		XMStoreFloat(&ret, length);
+		return ret;
+	}
+
+	inline F32 XMDistance(XMFLOAT3 v1, XMFLOAT3 v2)
+	{
+		return XMDistance(XMLoadFloat3(&v1), XMLoadFloat3(&v2));
+	}
 }

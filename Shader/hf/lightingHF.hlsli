@@ -5,12 +5,15 @@
 #include "brdf.hlsli"
 
 // switch definitions
+// 关闭阴影
+//#define _DISABLE_SHADOW_
 // 使用blin-phong光照
 #define _SIMPLE_BASE_LIGHT_
 // 开启软阴影
 #define ENABLE_SOFT_SHADOW
 // 开启cascade shadow调试
 //#define _SHOW_DEBUG_SHADOW_CASCADE 
+
 
 #ifdef _SHOW_DEBUG_SHADOW_CASCADE
 static const float3 debugCascadeColor[3] =
@@ -27,11 +30,6 @@ inline float3 GetAmbientLight()
 }
 
 #ifdef _SIMPLE_BASE_LIGHT_
-
-// Blinn-Phong Lighting
-static const float pointLightAttConstant = 1.0f;
-static const float pointLightAttLinear = 0.09f;
-static const float pointLightAttQuadratic = 0.32f;
 
 static const float softShadowSamplerRange = 1.5f;
 static const float defaultMaxShadowBias = 0.0002;
@@ -63,17 +61,26 @@ inline float cascadeShadow(float3 shadowPos, float2 shadowTex, float bias, float
     return shadow;
 }
 
+inline float shadowCube(in ShaderLight light, float3 lightV)
+{
+    // calculate depth: depth = k(1 / z) + b, k、b已经在CPU端计算保存在ShaderLight中
+    // max(lightV.x, light.y, light.z) 可以得到正确的深度方向
+    float z = max(max(abs(lightV.x), abs(lightV.y)), abs(lightV.z));
+    float depth = (light.GetCubemapDepthB() + light.GetCubemapDepthK() / z) + light.shadowBias;
+    return texture_shadowcubemap_array.SampleCmpLevelZero(sampler_comparison_depth, float4(-lightV, light.GetShadowMapIndex()), depth).r;
+}
+
 inline float3 DirectionalLight(in ShaderLight light, in Surface surface)
 {
     float3 color = float3(0.0f, 0.0f, 0.0f);
     float3 lightDir = normalize(light.direction);
 
     float NdotL = dot(lightDir, surface.normal);
-    
     [branch]
     if (NdotL > 0) {
         color = light.color.rgb * light.energy * NdotL;
         
+#ifndef _DISABLE_SHADOW_
         // CSM 阴影
         [branch]
         if (light.IsCastingShadow())
@@ -122,15 +129,17 @@ inline float3 DirectionalLight(in ShaderLight light, in Surface surface)
                     
                     break;
                 }
-            }
-            
+            }          
             color *= shadow;
         }
+#endif
+        
     }
     
     return color;
 }
 
+// Blinn-Phong Lighting
 inline float3 PointLight(in ShaderLight light, in Surface surface)
 {
 	float3 color = float3(0.0f, 0.0f, 0.0f);
@@ -149,38 +158,39 @@ inline float3 PointLight(in ShaderLight light, in Surface surface)
         [branch]    
         if (NdotL > 0)
 		{
-			float3 lightColor = light.color.rgb * light.energy;
+            float sh = NdotL;
+         
+#ifndef _DISABLE_SHADOW_
+            [branch]
+            if (light.IsCastingShadow())
+            {
+                sh *= shadowCube(light, lightV);
+            }
+#endif
+            [branch]
+            if (sh > 0)
+            {
+                float3 lightColor = light.color.rgb * light.energy * sh;
 
-            float attenuation = saturate(1.0 - (dist2 / range2));
-            attenuation = attenuation * attenuation;
+                // attenuation
+                float attenuation = saturate(1.0 - (dist2 / range2));
+                attenuation = attenuation * attenuation;
             
-			// diffuse
-			float3 diffuseColor = lightColor * NdotL * attenuation;
+			    // diffuse
+                float3 diffuseColor = lightColor * attenuation;
 
-			// specular
-			float3 H = normalize(lightDir + surface.view);
-			float spec = pow(max(dot(lightDir, surface.normal), 0.0f), 32);
-            float3 specularColor = lightColor * spec * attenuation * surface.spcularIntensity;
+			    // specular
+                float3 H = normalize(lightDir + surface.view);
+                float spec = pow(max(dot(surface.normal, H), 0.0f), 32);
+                float3 specularColor = lightColor * spec * attenuation * surface.spcularIntensity;
 
-			color = diffuseColor + specularColor;
+                color = diffuseColor + specularColor;
+            }
 		}
 	}
 
 	return color;
 }
 
-#else
-
-inline float3 DirectionalLight(in ShaderLight light, in Surface surface)
-{
-	return float3(0, 0, 0);
-}
-
-inline float3 PointLight(in ShaderLight light, in Surface surface)
-{
-	return float3(0, 0, 0);
-}
-
 #endif
-
 #endif

@@ -138,4 +138,15 @@ namespace Cjing3D
 		archive << mMin;
 		archive << mMax;
 	}
+
+	bool Sphere::Intersects(const AABB& other) const
+	{
+		XMFLOAT3 closestPoint = XMFloat3Min(XMFloat3Max(other.mMin, mCenter), mCenter);
+		return XMDistance(mCenter, closestPoint) < mRadius;
+	}
+
+	bool Sphere::Intersects(const Sphere& other) const
+	{
+		return XMDistance(mCenter, other.mCenter) < (mRadius + other.mRadius);
+	}
 }
