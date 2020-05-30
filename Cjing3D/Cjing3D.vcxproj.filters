@@ -479,9 +479,6 @@
     <ClCompile Include="system\systems\sceneAnimationSystem.cpp">
       <Filter>system\systems</Filter>
     </ClCompile>
-    <ClCompile Include="gui\guiEditor\guiEditor.cpp">
-      <Filter>gui\guiEditor</Filter>
-    </ClCompile>
     <ClCompile Include="renderer\passes\terrainPass.cpp">
       <Filter>renderer\passes\terrain</Filter>
     </ClCompile>
@@ -517,9 +514,6 @@
     </ClCompile>
     <ClCompile Include="renderer\paths\renderPath_tiledForward.cpp">
       <Filter>renderer\paths</Filter>
-    </ClCompile>
-    <ClCompile Include="gui\guiEditor\guiEditorLight.cpp">
-      <Filter>gui\guiEditor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -562,9 +556,6 @@
     </ClInclude>
     <ClInclude Include="helper\IDGenerator.h">
       <Filter>helper</Filter>
-    </ClInclude>
-    <ClInclude Include="common\about.h">
-      <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="renderer\RHI\device.h">
       <Filter>renderer\rhi</Filter>
@@ -960,9 +951,6 @@
     <ClInclude Include="renderer\RHI\d3d11\rhiResourceD3D11.h">
       <Filter>renderer\rhi\d3d11</Filter>
     </ClInclude>
-    <ClInclude Include="gui\guiEditor\guiEditor.h">
-      <Filter>gui\guiEditor</Filter>
-    </ClInclude>
     <ClInclude Include="renderer\passes\note.h">
       <Filter>renderer\passes</Filter>
     </ClInclude>
@@ -1020,11 +1008,11 @@
     <ClInclude Include="renderer\paths\renderPath_tiledForward.h">
       <Filter>renderer\paths</Filter>
     </ClInclude>
-    <ClInclude Include="gui\guiEditor\guiEditorLight.h">
-      <Filter>gui\guiEditor</Filter>
-    </ClInclude>
     <ClInclude Include="gui\guiEditor\guiEditorInclude.h">
       <Filter>gui\guiEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="common\version.h">
+      <Filter>common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

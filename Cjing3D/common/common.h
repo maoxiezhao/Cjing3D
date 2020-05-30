@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <string>
 
+#include "common\version.h"
 #include "common\definitions.h"
 #include "helper\logger.h"
 #include "helper\debug.h"

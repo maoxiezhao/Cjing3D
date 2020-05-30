@@ -131,4 +131,10 @@ namespace Cjing3D
 	public:
 		RenderBehaviorDesc mDesc;
 	};
+
+	class GPUQuery : public GraphicsDeviceChild
+	{
+	public:
+		GPUQueryDesc mDesc;
+	};
 }

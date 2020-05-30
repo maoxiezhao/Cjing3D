@@ -75,7 +75,7 @@ namespace Cjing3D
 
 	void GUIStage::Update(F32 deltaTime)
 	{
-		PROFILER_BEGIN_GPU_BLOCK("GuiUpdate");
+		PROFILER_BEGIN_CPU_BLOCK("GuiUpdate");
 
 #ifdef CJING_IMGUI_ENABLE
 		mImGuiStage.Update(deltaTime);
@@ -119,24 +119,19 @@ namespace Cjing3D
 		mRegisteredKeyBoardKeys.push_back(key);
 	}
 
-	void GUIStage::ShowImGUIBasicInfo(bool show)
+	void GUIStage::SetImGUIStageVisible(bool visible)
 	{
-		mImGuiStage.ShowBasicInfo(show);
+		mImGuiStage.SetVisible(visible);
 	}
 
-	void GUIStage::ShowImGUIDetailInfo(bool show)
+	bool GUIStage::IsImGUIStageVisible() const
 	{
-		mImGuiStage.ShowDetailInfo(show);
+		return mImGuiStage.IsVisible();
 	}
 
-	bool GUIStage::IsShowImGUIBasicInfo() const
+	IMGUIStage& GUIStage::GetImGUIStage()
 	{
-		return mImGuiStage.IsShowBasicInfo();
-	}
-
-	bool GUIStage::IsShowImGUIDetailInfo() const
-	{
-		return mImGuiStage.IsShowDetailInfo();
+		return mImGuiStage;
 	}
 
 	void GUIStage::LoadRegisteredKeys()

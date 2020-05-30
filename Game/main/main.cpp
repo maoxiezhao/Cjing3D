@@ -1,6 +1,6 @@
 #include "engine.h"
 #include "window.h"
-#include "game\gameComponent.h"
+#include "game\gameEditor.h"
 #include "helper\profiler.h"
 
 #include <functional>
@@ -54,7 +54,7 @@ int WINAPI WinMain(HINSTANCE instance,
 	mainWindow->AddMessageHandler(mAppHandler);
 	mainWindow->Show();
 
-	mainEngine = std::make_unique<Engine>(new TestGame());
+	mainEngine = std::make_unique<Engine>(new GameEditor());
 	mainEngine->SetHandles(mainWindow->GetHwnd(), mainWindow->GetInstance());
 	mainEngine->SetWindow(mainWindow.get());
 	mainEngine->Initialize();

@@ -1,7 +1,7 @@
 #include "guiEditorLight.h"
-#include "guiEditorInclude.h"
-
 #include "guiEditor.h"
+
+#include "gui\guiEditor\guiEditorInclude.h"
 
 namespace Cjing3D {
 namespace Editor {

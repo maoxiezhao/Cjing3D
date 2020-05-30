@@ -70,12 +70,16 @@ public:
 	virtual void UnBindUAVs(U32 slot, U32 count);
 
 	virtual void BindPipelineState(PipelineState state);
-
 	void ClearPrevStates();
-
 	virtual void Draw(UINT vertexCount, UINT startVertexLocation);
 	virtual void DrawIndexed(UINT indexCount, UINT startIndexLocation) ;
 	virtual void DrawIndexedInstances(U32 indexCount, U32 instanceCount, U32 startIndexLocation, U32 baseVertexLocation, U32 startInstanceLocation);
+
+	// query
+	virtual HRESULT CreateQuery(const GPUQueryDesc& desc, GPUQuery& query) ;
+	virtual void BeginQuery(GPUQuery& query);
+	virtual void EndQuery(GPUQuery& query);
+	virtual HRESULT ReadQuery(GPUQuery& query, GPUQueryResult& result);
 
 	inline HWND GetHwnd() { return mWindow; }
 	inline ID3D11Device& GetDevice() { return *mDevice.Get(); }

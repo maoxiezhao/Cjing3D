@@ -77,10 +77,15 @@ namespace Cjing3D
 		virtual void UnBindUAVs(U32 slot, U32 count) = 0;
 
 		virtual void BindPipelineState(PipelineState state) = 0;
-
 		virtual void Draw(UINT vertexCount, UINT startVertexLocation) = 0;
 		virtual void DrawIndexed(UINT indexCount, UINT startIndexLocation) = 0;
 		virtual void DrawIndexedInstances(U32 indexCount, U32 instanceCount, U32 startIndexLocation, U32 baseVertexLocation, U32 startInstanceLocation) = 0;
+
+		// query
+		virtual HRESULT CreateQuery(const GPUQueryDesc& desc, GPUQuery& query) = 0;
+		virtual void BeginQuery(GPUQuery& query) = 0;
+		virtual void EndQuery(GPUQuery& query) = 0;
+		virtual HRESULT ReadQuery(GPUQuery& query, GPUQueryResult& result) = 0;
 
 		U32 GetFormatStride(FORMAT value) const;
 

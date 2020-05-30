@@ -242,4 +242,15 @@ namespace Cjing3D
 			mSysMemSlicePitch(0)
 		{}
 	};
+
+	struct GPUQueryDesc
+	{
+		GPU_QUERY_TYPE mGPUQueryType = GPU_QUERY_TYPE_INVALID;
+	};
+
+	struct GPUQueryResult
+	{
+		U64 mTimestamp = 0;
+		U64 mTimetampFrequency = 0;
+	};
 }

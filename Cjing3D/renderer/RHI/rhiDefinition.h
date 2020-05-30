@@ -349,4 +349,14 @@ namespace Cjing3D
 		CLEAR_DEPTH = 0x1L,
 		CLEAR_STENCIL = 0x2L,
 	};
+
+	enum GPU_QUERY_TYPE
+	{
+		GPU_QUERY_TYPE_INVALID,		
+		GPU_QUERY_TYPE_EVENT,				// has the GPU reached this point?
+		GPU_QUERY_TYPE_OCCLUSION,			// how many samples passed depthstencil test?
+		GPU_QUERY_TYPE_OCCLUSION_PREDICATE, // are there any samples that passed depthstencil test
+		GPU_QUERY_TYPE_TIMESTAMP,			// retrieve time point of gpu execution
+		GPU_QUERY_TYPE_TIMESTAMP_DISJOINT,	// timestamp frequency information
+	};
 }

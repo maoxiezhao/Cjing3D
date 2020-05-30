@@ -89,6 +89,7 @@ namespace Cjing3D
 
 	void RenderPath3D::RenderTransparents(RenderBehavior& renderBehavior, RenderPassType renderType)
 	{
+		PROFILER_BEGIN_GPU_BLOCK("RenderTransparents");
 		GraphicsDevice& device = mRenderer.GetDevice();
 		// transparent scene
 		{
@@ -106,6 +107,7 @@ namespace Cjing3D
 
 			device.EndRenderBehavior();
 		}
+		PROFILER_END_BLOCK();
 	}
 
 	void RenderPath3D::RenderPostprocess(Texture2D & rtScreen)

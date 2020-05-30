@@ -1,5 +1,6 @@
 #include "profiler.h"
 #include "timer.h"
+#include "renderer\renderer.h"
 
 #include <stack>
 #include <sstream>
@@ -20,7 +21,7 @@ namespace {
 	enum ProfileType
 	{
 		ProfilerType_CPU,
-		ProfilerType_GUP
+		ProfilerType_GPU
 	};
 	struct ProfileBlock
 	{
@@ -31,11 +32,18 @@ namespace {
 		Timer cpuBegin;
 		Timer cpuEnd;
 
+		Renderer::GPUQueryHandler<4> gpuBegin;
+		Renderer::GPUQueryHandler<4> gpuEnd;
+
 		bool IsCPUBlock()const { return type == ProfilerType_CPU; }
+		bool IsGPUBlock()const { return type == ProfilerType_GPU; }
 	};
 	std::unordered_map<U32, ProfileBlock> currentBlocks;
 	std::stack<U32> recordedBlock;
 	std::vector<U32> blockQueue;
+
+	// 查询GPU时钟频率时需要调用BeginQuery/EndQuery
+	Renderer::GPUQueryHandler<4> disjoint;
 }
 
 Profiler::~Profiler()
@@ -49,12 +57,14 @@ void Profiler::Initialize()
 		[](void* p) { operator delete(p); },
 		[]() {}
 	);
-
 	OPTICK_SET_STATE_CHANGED_CALLBACK(OnOptickStateChanged);
 }
 
 void Profiler::Uninitialize()
 {
+	disjoint.Uninitialize();
+	currentBlocks.clear();
+
 	OPTICK_SHUTDOWN();
 }
 
@@ -64,8 +74,21 @@ void Profiler::BeginFrame()
 		return;
 	}
 
+	Renderer& renderer = GlobalGetSubSystem<Renderer>();
+	if (!disjoint.IsInitialized()) 
+	{
+		GPUQueryDesc desc = {};
+		desc.mGPUQueryType = GPU_QUERY_TYPE_TIMESTAMP_DISJOINT;
+		disjoint.Initialize(renderer, desc);
+	}
 
+	// 查询GPU时钟频率时需要调用BeginQuery/EndQuery
+	renderer.GetDevice().BeginQuery(*disjoint.GetQueryForGPU());
+	renderer.GetDevice().EndQuery(*disjoint.GetQueryForGPU());
+
+	// begin frame
 	BeginCPUBlock(STRING_ID(CPU_FRAME));
+	BeginGPUBlock(STRING_ID(GPU_FRAME));
 }
 
 void Profiler::EndFrame()
@@ -74,16 +97,43 @@ void Profiler::EndFrame()
 		return;
 	}
 
+	Renderer& renderer = GlobalGetSubSystem<Renderer>();
+	// end gpu frame block
+	EndBlock();
 	// end cpu frame block
 	EndBlock();
+
+	// read gpu timesteamp frequency
+	U64 gpuTimestampFrequency = 0;
+	GPUQuery* disjointQuery = disjoint.GetQueryForCPU();
+	if (disjointQuery != nullptr)
+	{
+		GPUQueryResult result;
+		while (renderer.GetDevice().ReadQuery(*disjointQuery, result) == S_FALSE);
+		gpuTimestampFrequency = result.mTimetampFrequency;
+	}
 
 	// calculate block time
 	for (auto& kvp : currentBlocks)
 	{
 		ProfileBlock& block = kvp.second;
+		block.time = 0;
 		if (block.IsCPUBlock())
 		{
 			block.time = (F32)(block.cpuEnd.GetRecordedTimeStamp() - block.cpuBegin.GetRecordedTimeStamp());
+		}
+		else
+		{
+			GPUQuery* beginQuery = block.gpuBegin.GetQueryForCPU();
+			GPUQuery* endQuery = block.gpuEnd.GetQueryForCPU();
+			if (beginQuery != nullptr && endQuery != nullptr)
+			{
+				GPUQueryResult beginResult, endResult;
+				while (renderer.GetDevice().ReadQuery(*beginQuery, beginResult) == S_FALSE);
+				while (renderer.GetDevice().ReadQuery(*endQuery, endResult) == S_FALSE);
+
+				block.time = std::abs(F32(endResult.mTimestamp - beginResult.mTimestamp) / (F32)gpuTimestampFrequency * 1000.0f);
+			}
 		}
 	}
 }
@@ -119,7 +169,30 @@ void Profiler::BeginGPUBlock(const StringID& name)
 		return;
 	}
 
+	Renderer& renderer = GlobalGetSubSystem<Renderer>();
 
+	U32 hashValue = name.HashValue();
+	if (currentBlocks.find(hashValue) == currentBlocks.end())
+	{
+		auto it = currentBlocks.emplace(hashValue, ProfileBlock());
+		ProfileBlock& cpuBlock = it.first->second;
+
+		cpuBlock.type = ProfilerType_GPU;
+		cpuBlock.name = name.GetString();
+		cpuBlock.time = 0;
+
+		GPUQueryDesc desc = {};
+		desc.mGPUQueryType = GPU_QUERY_TYPE_TIMESTAMP;
+		cpuBlock.gpuBegin.Initialize(renderer, desc);
+		cpuBlock.gpuEnd.Initialize(renderer, desc);
+
+		blockQueue.push_back(hashValue);
+	}
+	recordedBlock.push(hashValue);
+
+	// 获取时间戳只要只执行QueryEnd即可
+	auto& gpuBegin = currentBlocks[hashValue].gpuBegin;
+	renderer.GetDevice().EndQuery(*gpuBegin.GetQueryForGPU());
 }
 
 void Profiler::EndBlock()
@@ -142,12 +215,47 @@ void Profiler::EndBlock()
 	}
 	else
 	{
-		ProfileBlock& cpuBlock = it->second;
-		cpuBlock.cpuEnd.RecordDeltaTime();
+		ProfileBlock& block = it->second;
+		if (block.IsCPUBlock())
+		{
+			block.cpuEnd.RecordDeltaTime();
+		}
+		else
+		{
+			// 获取时间戳只要只执行QueryEnd即可
+			auto& gpuEnd = block.gpuEnd;
+			GlobalGetSubSystem<Renderer>().GetDevice().EndQuery(*gpuEnd.GetQueryForGPU());
+		}
 	}
 }
 
-std::string Profiler::GetProfileString()const
+F32 Profiler::GetCPUBlockDeltaTime(const StringID& name)
+{
+	F32 deltaTime = 0.0f;
+	U32 hashValue = name.HashValue();
+
+	auto it = currentBlocks.find(hashValue);
+	if (it != currentBlocks.end() && it->second.IsCPUBlock()) {
+		deltaTime = it->second.time;
+	}
+
+	return deltaTime;
+}
+
+F32 Profiler::GetGPUBlockDeltaTime(const StringID& name)
+{
+	F32 deltaTime = 0.0f;
+	U32 hashValue = name.HashValue();
+
+	auto it = currentBlocks.find(hashValue);
+	if (it != currentBlocks.end() && it->second.IsGPUBlock()) {
+		deltaTime = it->second.time;
+	}
+
+	return deltaTime;
+}
+
+std::string Profiler::GetCPUProfileString()const
 {
 	if (!IsProfileEnable()) {
 		return "";
@@ -167,6 +275,28 @@ std::string Profiler::GetProfileString()const
 		}
 	}
 
+	return profileStr.str();
+}
+
+std::string Profiler::GetGPUProfileString() const
+{
+	if (!IsProfileEnable()) {
+		return "";
+	}
+
+	std::stringstream profileStr("");
+	profileStr.precision(2); // .2f
+	profileStr << "GPU profiler blocks:" << std::endl << "----------------------------" << std::endl;
+
+	// GPU Blocks
+	for (U32 hashValue : blockQueue)
+	{
+		ProfileBlock& block = currentBlocks[hashValue];
+		if (block.IsGPUBlock())
+		{
+			profileStr << block.name << ": " << std::fixed << block.time << " ms" << std::endl;
+		}
+	}
 	return profileStr.str();
 }
 

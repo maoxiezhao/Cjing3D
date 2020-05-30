@@ -86,4 +86,10 @@ namespace Cjing3D
 	public:
 		ComPtr<ID3D11DomainShader> mHandle = nullptr;
 	};
+
+	class QueryD3D11
+	{
+	public:
+		ComPtr<ID3D11Query> mHandle = nullptr;
+	};
 }

@@ -76,6 +76,7 @@ namespace Cjing3D {
 
 		// depth prepass
 		{
+			PROFILER_BEGIN_GPU_BLOCK("depthPrepass");
 			device.BeginEvent("depthPrepass");
 			device.BeginRenderBehavior(mRBDepthPrepass);
 
@@ -88,9 +89,11 @@ namespace Cjing3D {
 
 			device.EndRenderBehavior();
 			device.EndEvent();
+			PROFILER_END_BLOCK();
 		}
 		// opaque scene
 		{
+			PROFILER_BEGIN_GPU_BLOCK("RenderSceneOpaque");
 			device.BeginEvent("RenderSceneOpaque");
 			device.BeginRenderBehavior(mRBMain);
 
@@ -106,6 +109,7 @@ namespace Cjing3D {
 
 			device.EndRenderBehavior();
 			device.EndEvent();
+			PROFILER_END_BLOCK();
 		}
 
 		// transparent

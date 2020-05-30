@@ -20,12 +20,10 @@ namespace Cjing3D
 		void Update(F32 deltaTime);
 		void Render(GUIRenderer& renderer);
 
-		void ShowBasicInfo(bool show) { mShowBasicInfo = show; }
-		void ShowDetailInfo(bool show) { mShowDetailInfo = show; }
-		bool IsShowBasicInfo()const { return mShowBasicInfo; }
-		bool IsShowDetailInfo()const { return mShowDetailInfo; }
-
 		void RegisterCustomWindow(CustomWindowFunc func);
+
+		void SetVisible(bool isVisible) { mIsVisible = isVisible; }
+		bool IsVisible()const { return mIsVisible; }
 
 	private:
 		void InitializeImpl();
@@ -34,8 +32,7 @@ namespace Cjing3D
 
 	private:
 		bool mIsInitialized = false;
-		bool mShowBasicInfo = true;
-		bool mShowDetailInfo = true;
+		bool mIsVisible = true;
 
 		std::vector <CustomWindowFunc> mRegisteredWindows;
 	};

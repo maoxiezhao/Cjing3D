@@ -10,6 +10,7 @@
 namespace Cjing3D
 {
 	class WidgetManager;
+	class IMGUIStage;
 
 	enum GUI_INPUT_EVENT_TYPE
 	{
@@ -59,10 +60,9 @@ namespace Cjing3D
 		void AddRegisterKeyBoardKey(KeyCode key);
 
 		// imgui
-		void ShowImGUIBasicInfo(bool show);
-		void ShowImGUIDetailInfo(bool show);
-		bool IsShowImGUIBasicInfo()const;
-		bool IsShowImGUIDetailInfo()const;
+		void SetImGUIStageVisible(bool visible);
+		bool IsImGUIStageVisible()const;
+		IMGUIStage& GetImGUIStage();
 
 	private:
 		void LoadRegisteredKeys();

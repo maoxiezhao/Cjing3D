@@ -44,11 +44,10 @@ void Engine::Initialize()
 	}
 
 	Memory::Initialize();
-
 	Profiler::GetInstance().Initialize();
-	Profiler::GetInstance().SetProfileEnable(true);
 
 #ifdef CJING_DEBUG
+	Profiler::GetInstance().SetProfileEnable(true);
 	Debug::SetDebugConsoleEnable(true);
 	Debug::SetDieOnError(true);
 	Debug::InitializeDebugConsole();
@@ -208,7 +207,7 @@ void Engine::SetHandles(void * windowHwnd, void * windowInstance)
 
 void Engine::FixedUpdate()
 {
-	PROFILER_BEGIN_GPU_BLOCK("FixedUpdate");
+	PROFILER_BEGIN_CPU_BLOCK("FixedUpdate");
 	FIRE_EVENT(EventType::EVENT_FIXED_TICK);
 
 	mGameComponent->FixedUpdate();
@@ -220,7 +219,7 @@ void Engine::FixedUpdate()
 
 void Engine::Update(F32 deltaTime)
 {
-	PROFILER_BEGIN_GPU_BLOCK("Update");
+	PROFILER_BEGIN_CPU_BLOCK("Update");
 	FIRE_EVENT(EventType::EVENT_TICK);
 
 	mLuaContext->Update(deltaTime);
@@ -233,14 +232,14 @@ void Engine::Update(F32 deltaTime)
 
 void Engine::UpdateInput(F32 deltaTime)
 {
-	PROFILER_BEGIN_GPU_BLOCK("Input");
+	PROFILER_BEGIN_CPU_BLOCK("Input");
 	mInputManager->Update(deltaTime);
 	PROFILER_END_BLOCK();
 }
 
 void Engine::Render()
 {
-	PROFILER_BEGIN_GPU_BLOCK("Render");
+	PROFILER_BEGIN_CPU_BLOCK("Render");
 	FIRE_EVENT(EventType::EVENT_RENDER);
 	mRenderer->Render();
 	PROFILER_END_BLOCK();

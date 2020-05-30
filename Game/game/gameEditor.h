@@ -1,16 +1,16 @@
 #pragma once
 
+#include "definitions\definitions.h"
 #include "core\gameComponent.h"
 
 namespace Cjing3D
 {
-	class TestGame : public GameComponent
+	class GameEditor : public GameComponent
 	{
 	public:
-		TestGame();
-		virtual ~TestGame();
+		GameEditor();
+		virtual ~GameEditor();
 
-		virtual void Setup();
 		virtual void Initialize();
 		virtual void Update(EngineTime time);
 		virtual void Uninitialize();

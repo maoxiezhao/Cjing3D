@@ -7,7 +7,19 @@
     <ClCompile Include="main\window.cpp">
       <Filter>main</Filter>
     </ClCompile>
-    <ClCompile Include="game\gameComponent.cpp">
+    <ClCompile Include="editor\guiEditorLight.cpp">
+      <Filter>editor</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\guiEditorProfier.cpp">
+      <Filter>editor</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\guiEditor.cpp">
+      <Filter>editor</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\guiEditorScene.cpp">
+      <Filter>editor</Filter>
+    </ClCompile>
+    <ClCompile Include="game\gameEditor.cpp">
       <Filter>game</Filter>
     </ClCompile>
   </ItemGroup>
@@ -27,12 +39,30 @@
     <Filter Include="main">
       <UniqueIdentifier>{acfb683a-457b-42ef-ac12-9c9ceaeaf211}</UniqueIdentifier>
     </Filter>
+    <Filter Include="definitions">
+      <UniqueIdentifier>{1a1b3995-17d9-4a1c-8628-b1b958915558}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main\window.h">
       <Filter>main</Filter>
     </ClInclude>
-    <ClInclude Include="game\gameComponent.h">
+    <ClInclude Include="editor\guiEditorLight.h">
+      <Filter>editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\guiEditorProfier.h">
+      <Filter>editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\guiEditor.h">
+      <Filter>editor</Filter>
+    </ClInclude>
+    <ClInclude Include="definitions\definitions.h">
+      <Filter>definitions</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\guiEditorScene.h">
+      <Filter>editor</Filter>
+    </ClInclude>
+    <ClInclude Include="game\gameEditor.h">
       <Filter>game</Filter>
     </ClInclude>
   </ItemGroup>

@@ -148,9 +148,9 @@
     <ClInclude Include="..\ThirdParty\imgui\imgui_internal.h" />
     <ClInclude Include="..\ThirdParty\optick\optick.config.h" />
     <ClInclude Include="..\ThirdParty\optick\optick.h" />
-    <ClInclude Include="common\about.h" />
     <ClInclude Include="common\common.h" />
     <ClInclude Include="common\definitions.h" />
+    <ClInclude Include="common\version.h" />
     <ClInclude Include="core\allocator.h" />
     <ClInclude Include="core\eventDefine.h" />
     <ClInclude Include="core\eventSystem.h" />
@@ -165,9 +165,7 @@
     <ClInclude Include="gui\guiCore\guiDispatcher.h" />
     <ClInclude Include="gui\guiCore\guiDispatcher_impl.h" />
     <ClInclude Include="gui\guiCore\guiEvents.h" />
-    <ClInclude Include="gui\guiEditor\guiEditor.h" />
     <ClInclude Include="gui\guiEditor\guiEditorInclude.h" />
-    <ClInclude Include="gui\guiEditor\guiEditorLight.h" />
     <ClInclude Include="gui\guiFactory.h" />
     <ClInclude Include="gui\guiInclude.h" />
     <ClInclude Include="gui\guiRenderer.h" />
@@ -328,8 +326,6 @@
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="generates\luabind_registers.cpp" />
     <ClCompile Include="gui\guiCore\guiDispatcher.cpp" />
-    <ClCompile Include="gui\guiEditor\guiEditor.cpp" />
-    <ClCompile Include="gui\guiEditor\guiEditorLight.cpp" />
     <ClCompile Include="gui\guiFactory.cpp" />
     <ClCompile Include="gui\guiRenderer.cpp" />
     <ClCompile Include="gui\guiWidgets\Panel.cpp" />

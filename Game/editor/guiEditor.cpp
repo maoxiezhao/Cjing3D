@@ -1,7 +1,9 @@
 #include "guiEditor.h"
-#include "guiEditorInclude.h"
-
 #include "guiEditorLight.h"
+#include "guiEditorProfier.h"
+#include "guiEditorScene.h"
+
+#include "gui\guiEditor\guiEditorInclude.h"
 
 namespace Cjing3D {
 namespace Editor {
@@ -459,11 +461,12 @@ namespace Editor {
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
+	bool bShowEntityListWindow = true;
 	void showEntityListWindow(F32 deltaTime)
 	{
-		ImGui::SetNextWindowPos(ImVec2(10, 350), ImGuiCond_Always);
-		ImGui::SetNextWindowSize(ImVec2(350, 300), ImGuiCond_Always);
-		ImGui::Begin("Entity Window");
+		ImGui::SetNextWindowPos(ImVec2(10, 270), ImGuiCond_Once);
+		ImGui::SetNextWindowSize(ImVec2(350, 400), ImGuiCond_Once);
+		ImGui::Begin("Entity Window", &bShowEntityListWindow);
 
 		Scene& scene = Scene::GetScene();
 		ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
@@ -568,18 +571,38 @@ namespace Editor {
 		ImGui::End();
 	}
 
-	void ShowBasicWindow(F32 deltaTime)
+	bool bShowAboutWindow = true;
+	void ShowAboutWindow(F32 deltaTime)
 	{
-		ImGuiWindowFlags windowFlags = ImGuiWindowFlags_MenuBar;
-		bool isOpen = false;
+		if (bShowAboutWindow == false) return;
 
-		ImGui::SetNextWindowPos(ImVec2(10, 20), ImGuiCond_Always);
-		ImGui::SetNextWindowSize(ImVec2(350, 320), ImGuiCond_Always);
-		ImGui::Begin("Application info", &isOpen, windowFlags);
+		ImGui::SetNextWindowPos(ImVec2(10, 50), ImGuiCond_Once);
+		ImGui::SetNextWindowSize(ImVec2(350, 200), ImGuiCond_Once);
+		ImGui::Begin("About", &bShowAboutWindow);
+		ImGui::Text("Cjing3D v%s", CjingVersion::GetVersion());
+		ImGui::Text("By ZZZZY");
+		ImGui::Separator();
+		ImGui::Text("");
+		ImGui::Text("F4-Show Debug; F5-Load scene;");
+		ImGui::Text("F6-Save scene; F7-Clear scene;");
+		ImGui::Text("WASD-Move camera;  RB-Rotate camera");
+		ImGui::Text("");
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", deltaTime, 1.0f / deltaTime);
+		ImGui::End();
+	}
 
-		if (ImGui::BeginMenuBar())
+	void ShowMainMenuBar(F32 deltaTime)
+	{
+		if (ImGui::BeginMainMenuBar())
 		{
-			if (ImGui::BeginMenu("Base"))
+			if (ImGui::BeginMenu("File"))
+			{
+				if (ImGui::MenuItem("New Scene")) { Scene::GetScene().Clear(); }
+				if (ImGui::MenuItem("Load Scene")) { LoadSceneFromOpenFile(); }
+				if (ImGui::MenuItem("Save Scene")) { SaveSceneToOpenFile(); }
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("Prop"))
 			{
 				if (ImGui::MenuItem("Animations")) { showAnimationWindow = true; }
 				if (ImGui::MenuItem("Properties")) { showRenderWindow = true; }
@@ -590,19 +613,19 @@ namespace Editor {
 				if (ImGui::MenuItem("Light")) { ShowNewLightWindow(); }
 				ImGui::EndMenu();
 			}
-			ImGui::EndMenuBar();
+			if (ImGui::BeginMenu("Profiler"))
+			{
+				if (ImGui::MenuItem("CPU Profiler")) { ShowCPUProfilerWindow(); }
+				if (ImGui::MenuItem("GPU Profiler")) { ShowGPUProfilerWindow(); }
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("Help"))
+			{
+				if (ImGui::MenuItem("About")) { bShowAboutWindow = true; }
+				ImGui::EndMenu();
+			}
+			ImGui::EndMainMenuBar();
 		}
-
-		ImGui::Text("Cjing3D v0.0.1");
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", deltaTime, 1.0f / deltaTime);
-		ImGui::Text("F4-Show Debug; F5-Load scene;");
-		ImGui::Text("F6-Save scene; F7-Clear scene;");
-		ImGui::Text("WASD-Move camera;  RB-Rotate camera");
-		ImGui::Text("");
-		ImGui::Text(Profiler::GetInstance().GetProfileString().c_str());
-		ImGui::Text("");
-		ImGui::Text("heap memory usage:%.3f KB", Memory::GetMemUsage() / 1000.0f);
-		ImGui::End();
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
@@ -611,7 +634,7 @@ namespace Editor {
 	{
 #ifndef _DISBALE_IMGUI_EDITOR_
 
-		imguiStage.RegisterCustomWindow(ShowBasicWindow);
+		imguiStage.RegisterCustomWindow(ShowMainMenuBar);
 		imguiStage.RegisterCustomWindow(showEntityListWindow);
 		imguiStage.RegisterCustomWindow(ShowObjectAttribute);
 		imguiStage.RegisterCustomWindow(ShowMaterialAttribute);
@@ -619,9 +642,9 @@ namespace Editor {
 		imguiStage.RegisterCustomWindow(ShowRenderProperties);
 		imguiStage.RegisterCustomWindow(ShowAnimationAttribute);
 		imguiStage.RegisterCustomWindow(ShowHierarchyWindow);
+		imguiStage.RegisterCustomWindow(ShowAboutWindow);
 
-
-
+		InitializeEditorProfiler(imguiStage);
 		InitializeEditorLight(imguiStage);
 #endif
 	}

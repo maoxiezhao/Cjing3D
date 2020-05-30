@@ -2214,6 +2214,73 @@ void GraphicsDeviceD3D11::DrawIndexedInstances(U32 indexCount, U32 instanceCount
 		startInstanceLocation);
 }
 
+HRESULT GraphicsDeviceD3D11::CreateQuery(const GPUQueryDesc& desc, GPUQuery& query)
+{
+	query.mDesc = desc;
+
+	D3D11_QUERY_DESC queryDesc = {};
+	queryDesc.MiscFlags = 0;
+	queryDesc.Query = D3D11_QUERY_EVENT;
+
+	// 时间戳
+	if (desc.mGPUQueryType == GPU_QUERY_TYPE_TIMESTAMP)
+	{
+		queryDesc.Query = D3D11_QUERY_TIMESTAMP;
+	}
+	// 始终频率
+	else if (desc.mGPUQueryType == GPU_QUERY_TYPE_TIMESTAMP_DISJOINT)
+	{
+		queryDesc.Query = D3D11_QUERY_TIMESTAMP_DISJOINT;
+	}
+
+	auto rhiState = RegisterGraphicsDeviceChild<QueryD3D11>(query);
+	return mDevice->CreateQuery(&queryDesc, &rhiState->mHandle);
+}
+
+void GraphicsDeviceD3D11::BeginQuery(GPUQuery& query)
+{
+	auto rhiState = GetGraphicsDeviceChildState<QueryD3D11>(query);
+	if (rhiState == nullptr) {
+		return;
+	}
+	GetDeviceContext(GraphicsThread_IMMEDIATE).Begin(rhiState->mHandle.Get());
+}
+
+void GraphicsDeviceD3D11::EndQuery(GPUQuery& query)
+{
+	auto rhiState = GetGraphicsDeviceChildState<QueryD3D11>(query);
+	if (rhiState == nullptr) {
+		return;
+	}
+	GetDeviceContext(GraphicsThread_IMMEDIATE).End(rhiState->mHandle.Get());
+}
+
+HRESULT GraphicsDeviceD3D11::ReadQuery(GPUQuery& query, GPUQueryResult& result)
+{
+	auto rhiState = GetGraphicsDeviceChildState<QueryD3D11>(query);
+	if (rhiState == nullptr) {
+		return S_OK;
+	}
+
+	HRESULT hr = S_OK;
+	GPU_QUERY_TYPE type = query.mDesc.mGPUQueryType;
+	switch (type)
+	{
+	case GPU_QUERY_TYPE_TIMESTAMP:
+		GetDeviceContext(GraphicsThread_IMMEDIATE).GetData(rhiState->mHandle.Get(), &result.mTimestamp, sizeof(U64), D3D11_ASYNC_GETDATA_DONOTFLUSH);
+		break;
+	case GPU_QUERY_TYPE_TIMESTAMP_DISJOINT:
+		D3D11_QUERY_DATA_TIMESTAMP_DISJOINT disjointData;
+		GetDeviceContext(GraphicsThread_IMMEDIATE).GetData(rhiState->mHandle.Get(), &disjointData, sizeof(disjointData), D3D11_ASYNC_GETDATA_DONOTFLUSH);
+		result.mTimetampFrequency = disjointData.Frequency;
+		break;
+	default:
+		break;
+	}
+
+	return hr;
+}
+
 void GraphicsDeviceD3D11::InitializeDevice()
 {
 	// 优先D3D_DRIVER_TYPE_HARDWARE

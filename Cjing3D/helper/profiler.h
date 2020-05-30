@@ -32,7 +32,11 @@ public:
 	void SetProfileEnable(bool enable) { mProfileEnable = enable; };
 	bool IsProfileEnable()const { return mProfileEnable; }
 
-	std::string GetProfileString()const;
+	F32 GetCPUBlockDeltaTime(const StringID& name);
+	F32 GetGPUBlockDeltaTime(const StringID& name);
+
+	std::string GetCPUProfileString()const;
+	std::string GetGPUProfileString()const;
 
 private:
 	Profiler();
@@ -49,7 +53,7 @@ private:
 #define PROFILER_BEGIN_FRAME() Profiler::GetInstance().BeginFrame();
 #define PROFILER_END_FRAME() Profiler::GetInstance().EndFrame();
 #define PROFILER_BEGIN_CPU_BLOCK(name) Profiler::GetInstance().BeginCPUBlock(StringID(name));
-#define PROFILER_BEGIN_GPU_BLOCK(name) Profiler::GetInstance().BeginCPUBlock(StringID(name));
+#define PROFILER_BEGIN_GPU_BLOCK(name) Profiler::GetInstance().BeginGPUBlock(StringID(name));
 #define PROFILER_END_BLOCK() Profiler::GetInstance().EndBlock();
 
 }

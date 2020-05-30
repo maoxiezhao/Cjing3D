@@ -25,16 +25,6 @@ class Renderer2D;
 class RenderPass;
 class TerrainTree;
 
-// 用于记录每一帧的基础数据
-class RenderFrameData
-{
-public:
-	F32x2 mFrameScreenSize;
-	U32 mShaderLightArrayCount;
-	F32x3 mFrameAmbient;
-
-	void Clear();
-};
 
 // TODO: change to renderer namesapce
 // Renderer被设计为一个仅仅提供各种渲染方法的集合（namespace)，具体的调用方式应该由renderPath决定
@@ -149,13 +139,90 @@ public:
 	};
 	LinearAllocator& GetFrameAllocator(FrameAllocatorType type);
 
+	// 用于记录每一帧的基础数据
+	class RenderFrameData
+	{
+	public:
+		F32x2 mFrameScreenSize;
+		U32 mShaderLightArrayCount;
+		F32x3 mFrameAmbient;
+
+		void Clear();
+	};
+	RenderFrameData mFrameData;
+
+	// GPU Query, latency为延迟读取的数量，避免在同一帧中请求/读取同一个query
+	template<I32 latency>
+	class GPUQueryHandler
+	{
+	public:
+		GPUQueryHandler() {};
+		~GPUQueryHandler() { Uninitialize(); }
+
+		void Initialize(Renderer& renderer, GPUQueryDesc& desc)
+		{
+			if (IsInitialized()) {
+				return;
+			}
+
+			for (int i = 0; i < latency; i++)
+			{
+				renderer.GetDevice().CreateQuery(desc, mQueries[i]);
+				mActiveTable[i] = false;
+			}
+			currentIndex = 0;
+			mIsInitialized = true;
+		}
+
+		void Uninitialize()
+		{
+			if (!IsInitialized()) {
+				return;
+			}
+
+			for (int i = 0; i < latency; i++) {
+				mQueries[i].Clear();
+			}
+		}
+
+		bool IsInitialized()const
+		{
+			return mIsInitialized;
+		}
+
+		// 当向GPU请求信息时，则直接返回currentIndex的query
+		GPUQuery* GetQueryForGPU()
+		{
+			mActiveTable[currentIndex] = true;
+			return &mQueries[currentIndex];
+		}
+
+		// 当CPU返回数据结果时，这里总会循环请求下一个Index+1的query，
+		// 即延迟latency次读取
+		GPUQuery* GetQueryForCPU()
+		{
+			currentIndex = (currentIndex + 1) % latency;
+			if (!mActiveTable[currentIndex]) {
+				return nullptr;
+			}
+
+			mActiveTable[currentIndex] = false;
+			return &mQueries[currentIndex];
+		}
+	private:
+		bool mIsInitialized = false;
+		
+		GPUQuery mQueries[latency];
+		I32 currentIndex = 0;
+		bool mActiveTable[latency];
+	};
+
 private:
 	bool mIsInitialized;
 	bool mIsRendering;
 	U32 mFrameNum = 0;
 	U32x2 mScreenSize;
 	F32 mGamma = 2.2f;
-	RenderFrameData mFrameData;
 	CommonCB mCommonCB;
 	std::vector<int> mPendingUpdateMaterials;
 	LinearAllocator mFrameAllocator[FrameAllocatorType_Count];

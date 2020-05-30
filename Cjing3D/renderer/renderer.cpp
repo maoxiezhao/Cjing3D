@@ -282,7 +282,7 @@ namespace {
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-void RenderFrameData::Clear()
+void Renderer::RenderFrameData::Clear()
 {
 	mShaderLightArrayCount = 0;
 }
@@ -768,6 +768,7 @@ void Renderer::RenderShadowmaps(CameraComponent& camera)
 	}
 	auto& scene = GetMainScene();
 
+	PROFILER_BEGIN_GPU_BLOCK("RenderShadowmaps");
 	mGraphicsDevice->BeginEvent("RenderShadowmaps");
 
 	// 为了写入shadowmap,需要先Unbind GPUResource
@@ -804,6 +805,7 @@ void Renderer::RenderShadowmaps(CameraComponent& camera)
 
 	mGraphicsDevice->BindRenderTarget(0, nullptr, nullptr);
 	mGraphicsDevice->EndEvent();
+	PROFILER_END_BLOCK();
 }
 
 void Renderer::RenderSceneOpaque(CameraComponent& camera, RenderPassType renderPassType)
@@ -1627,6 +1629,7 @@ void Renderer::RenderPointLightShadowmap(LightComponent& light, CameraComponent&
 
 void Renderer::ProcessSkinning()
 {
+	PROFILER_BEGIN_GPU_BLOCK("Skinning");
 	mGraphicsDevice->BeginEvent("Skinning");
 	auto& mainScene = GetMainScene();
 
@@ -1680,6 +1683,7 @@ void Renderer::ProcessSkinning()
 	}
 
 	mGraphicsDevice->EndEvent();
+	PROFILER_END_BLOCK();
 }
 
 LinearAllocator& Renderer::GetFrameAllocator(FrameAllocatorType type)
@@ -1700,6 +1704,5 @@ void Renderer::FrameCullings::Clear()
 	mCulledObjects.clear();
 	mCulledLights.clear();
 }
-
 
 }

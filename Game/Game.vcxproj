@@ -134,7 +134,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="game\gameComponent.cpp" />
+    <ClCompile Include="editor\guiEditor.cpp" />
+    <ClCompile Include="editor\guiEditorLight.cpp" />
+    <ClCompile Include="editor\guiEditorProfier.cpp" />
+    <ClCompile Include="editor\guiEditorScene.cpp" />
+    <ClCompile Include="game\gameEditor.cpp" />
     <ClCompile Include="main\main.cpp" />
     <ClCompile Include="main\window.cpp" />
   </ItemGroup>
@@ -147,7 +151,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="game\gameComponent.h" />
+    <ClInclude Include="definitions\definitions.h" />
+    <ClInclude Include="editor\guiEditor.h" />
+    <ClInclude Include="editor\guiEditorLight.h" />
+    <ClInclude Include="editor\guiEditorProfier.h" />
+    <ClInclude Include="editor\guiEditorScene.h" />
+    <ClInclude Include="game\gameEditor.h" />
     <ClInclude Include="main\window.h" />
   </ItemGroup>
   <ItemGroup>
