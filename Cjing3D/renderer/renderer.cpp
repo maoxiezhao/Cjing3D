@@ -1533,6 +1533,12 @@ void Renderer::RenderDirLightShadowmap(LightComponent& light, CameraComponent& c
 
 void Renderer::RenderPointLightShadowmap(LightComponent& light, CameraComponent& camera)
 {
+	if (!GetDevice().CheckGraphicsFeatureSupport(GraphicsFeatureSupport::VIEWPORT_AND_RENDERTARGET_ARRAYINDEX_WITHOUT_GS)) 
+	{
+		Debug::Warning("RenderPointLightShadowmap failed: Feature not support: VIEWPORT_AND_RENDERTARGET_ARRAYINDEX_WITHOUT_GS");
+		return;
+	}
+
 	LinearAllocator& frameAllocator = GetFrameAllocator(FrameAllocatorType_Render);
 	RenderQueue renderQueue;
 

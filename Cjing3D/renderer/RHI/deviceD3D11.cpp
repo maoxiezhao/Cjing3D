@@ -917,6 +917,13 @@ void GraphicsDeviceD3D11::Initialize()
 	mGPUAllocatorDesc.mCPUAccessFlags = CPU_ACCESS_WRITE;
 	mGPUAllocatorDesc.mMiscFlags = RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
 	CreateBuffer(&mGPUAllocatorDesc, mGPUAllocator.buffer, nullptr);
+
+	// check graphics feature support
+	D3D11_FEATURE_DATA_D3D11_OPTIONS3 featureData;
+	mDevice->CheckFeatureSupport(D3D11_FEATURE_D3D11_OPTIONS3, &featureData, sizeof(featureData));
+	mGraphicsFeatureSupport.viewportAndRenderTargetArrayIndexWithoutGS_ = (featureData.VPAndRTArrayIndexFromAnyShaderFeedingRasterizer == TRUE);
+
+	Logger::Info("Initialized graphics device D3D11.");
 }
 
 void GraphicsDeviceD3D11::Uninitialize()
@@ -947,6 +954,8 @@ void GraphicsDeviceD3D11::Uninitialize()
 	if (mDevice != nullptr) {
 		mDevice.Reset();
 	}
+
+	Logger::Info("Uninitialized graphics device D3D11.");
 }
 
 void GraphicsDeviceD3D11::PresentBegin()

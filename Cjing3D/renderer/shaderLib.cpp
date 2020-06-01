@@ -113,7 +113,14 @@ void ShaderLib::LoadVertexShaders()
 		mInputLayout[InputLayoutType_Shadow] = shadowVSInfo.mInputLayout;
 
 		// cube shadow vs
-		mVertexShader[VertexShaderType_ShadowCube] = LoadShader(SHADERSTAGES_VS, shaderPath + "cubeShadowVS.cso");
+		if (!mRenderer.GetDevice().CheckGraphicsFeatureSupport(GraphicsFeatureSupport::VIEWPORT_AND_RENDERTARGET_ARRAYINDEX_WITHOUT_GS))
+		{
+			Debug::Warning("Failed to load cubeShadowVS: Feature not support: VIEWPORT_AND_RENDERTARGET_ARRAYINDEX_WITHOUT_GS");
+		}
+		else
+		{
+			mVertexShader[VertexShaderType_ShadowCube] = LoadShader(SHADERSTAGES_VS, shaderPath + "cubeShadowVS.cso");
+		}
 
 		// full screen vs
 		auto skyVSInfo = LoadVertexShaderInfo(shaderPath + "skyVS.cso", nullptr, 0);

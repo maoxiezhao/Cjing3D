@@ -74,6 +74,19 @@ void GraphicsDevice::ProcessRemovedGPUResouces()
 	mRemovedGPUResources.clear();
 }
 
+bool GraphicsDevice::CheckGraphicsFeatureSupport(GraphicsFeatureSupport::GraphicsFeature feature) const
+{
+	switch (feature)
+	{
+	case Cjing3D::GraphicsFeatureSupport::VIEWPORT_AND_RENDERTARGET_ARRAYINDEX_WITHOUT_GS:
+		return mGraphicsFeatureSupport.viewportAndRenderTargetArrayIndexWithoutGS_;
+		break;
+	default:
+		break;
+	}
+	return false;
+}
+
 U32 GraphicsDevice::GetFormatStride(FORMAT value) const
 {
 	switch (value)

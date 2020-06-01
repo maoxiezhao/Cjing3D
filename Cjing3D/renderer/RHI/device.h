@@ -14,6 +14,15 @@ namespace Cjing3D
 		GraphicsDeviceType_directx11
 	};
 
+	struct GraphicsFeatureSupport
+	{
+		enum GraphicsFeature
+		{
+			VIEWPORT_AND_RENDERTARGET_ARRAYINDEX_WITHOUT_GS
+		};
+		bool viewportAndRenderTargetArrayIndexWithoutGS_ = true;
+	};
+
 	class GraphicsDevice
 	{
 	public:
@@ -143,6 +152,8 @@ namespace Cjing3D
 			return static_cast<T*>(deviceChild.mRhiState.get());
 		}
 
+		bool CheckGraphicsFeatureSupport(GraphicsFeatureSupport::GraphicsFeature feature)const;
+
 	protected:
 		GraphicsDeviceType mGraphicsDeviceType = GraphicsDeviceType_unknown;
 		bool mIsFullScreen;
@@ -152,6 +163,8 @@ namespace Cjing3D
 		bool mIsVsync = true;							// 是否垂直同步 
 		ViewPort mViewport;
 		uint64_t mCurrentFrameCount = 0;
+
+		GraphicsFeatureSupport mGraphicsFeatureSupport;
 
 		struct EmptyRhiState {};
 		std::shared_ptr<EmptyRhiState> mEmptyRhiState = nullptr;
