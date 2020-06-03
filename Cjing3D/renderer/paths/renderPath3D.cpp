@@ -38,6 +38,9 @@ namespace Cjing3D
 
 			const auto result = mRenderer.GetDevice().CreateTexture2D(&desc, nullptr, mDepthBuffer);
 			Debug::ThrowIfFailed(result, "Failed to create depth buffer:%08x", result);
+
+			const auto tempResult = mRenderer.GetDevice().CreateTexture2D(&desc, nullptr, mDepthBufferTemp);
+			Debug::ThrowIfFailed(tempResult, "Failed to create temp depth buffer:%08x", result);
 		}
 
 		// post process render target

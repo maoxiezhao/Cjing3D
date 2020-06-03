@@ -1464,14 +1464,14 @@ HRESULT GraphicsDeviceD3D11::CreateTexture2D(const TextureDesc * desc, const Sub
 	return result;
 }
 
-void GraphicsDeviceD3D11::CopyTexture2D(RhiTexture2D * texDst, RhiTexture2D * texSrc)
+void GraphicsDeviceD3D11::CopyGPUResource(GPUResource& texDst, GPUResource& texSrc)
 {
-	auto dstRhiState = GetGraphicsDeviceChildState<TextureD3D11>(*texDst);
+	auto dstRhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(texDst);
 	if (dstRhiState == nullptr) {
 		return;
 	}
 
-	auto srcRhiState = GetGraphicsDeviceChildState<TextureD3D11>(*texSrc);
+	auto srcRhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(texSrc);
 	if (srcRhiState == nullptr) {
 		return;
 	}

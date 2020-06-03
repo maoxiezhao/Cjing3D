@@ -75,6 +75,7 @@ public:
 	void RenderSceneTransparent(CameraComponent& camera, RenderPassType renderPassType);
 	void RenderImpostor(CameraComponent& camera, RenderPassType renderPassType);
 	void RenderSky();
+	void TiledLightCulling(Texture2D& depthBuffer);
 
 	// postprocess
 	void PostprocessTonemap(Texture2D& input, Texture2D& output, F32 exposure);

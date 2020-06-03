@@ -935,6 +935,10 @@ void Renderer::RenderSky()
 	mGraphicsDevice->EndEvent();
 }
 
+void Renderer::TiledLightCulling(Texture2D& depthBuffer)
+{
+}
+
 void Renderer::PostprocessTonemap(Texture2D& input, Texture2D& output, F32 exposure)
 {
 	mGraphicsDevice->BeginEvent("Postprocess_Tonemap");

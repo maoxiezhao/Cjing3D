@@ -35,12 +35,15 @@ namespace Cjing3D {
 		Texture2D* GetLastPostprocessRT() {
 			return &mRTPostprocessLDR2;
 		}
-
-		virtual Texture2D* GetDepthBuffer() {
+		Texture2D* GetDepthBuffer() {
 			return &mDepthBuffer;
+		}
+		Texture2D* GetDepthBufferTemp() {
+			return &mDepthBufferTemp;
 		}
 
 		Texture2D mDepthBuffer;
+		Texture2D mDepthBufferTemp;
 		Texture2D mRTPostprocessLDR1;
 		Texture2D mRTPostprocessLDR2;
 

@@ -6,6 +6,7 @@
 #include "renderer\renderer2D.h"
 #include "system\sceneSystem.h"
 #include "renderer\paths\renderPath_forward.h"
+#include "renderer\paths\renderPath_tiledForward.h"
 #include "gui\guiStage.h"
 
 #include "editor\guiEditor.h"
