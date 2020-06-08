@@ -151,10 +151,12 @@ void ShaderLib::LoadComputeShaders()
 	auto& resourceManager = mRenderer.GetResourceManager();
 	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_ComputeShader);
 	{
-		mComputeShader[ComputeShaderType_Tonemapping]    = LoadShader(SHADERSTAGES_CS, shaderPath + "toneMapping.cso");
-		mComputeShader[ComputeShaderType_MipmapGenerate] = LoadShader(SHADERSTAGES_CS, shaderPath + "mipmapGenerate.cso");
-		mComputeShader[ComputeShaderType_FXAA]           = LoadShader(SHADERSTAGES_CS, shaderPath + "fxaaCS.cso");
-		mComputeShader[ComputeShaderType_Skinning]       = LoadShader(SHADERSTAGES_CS, shaderPath + "skinningCS.cso");
+		mComputeShader[ComputeShaderType_Tonemapping]       = LoadShader(SHADERSTAGES_CS, shaderPath + "toneMapping.cso");
+		mComputeShader[ComputeShaderType_MipmapGenerate]    = LoadShader(SHADERSTAGES_CS, shaderPath + "mipmapGenerate.cso");
+		mComputeShader[ComputeShaderType_FXAA]              = LoadShader(SHADERSTAGES_CS, shaderPath + "fxaaCS.cso");
+		mComputeShader[ComputeShaderType_Skinning]          = LoadShader(SHADERSTAGES_CS, shaderPath + "skinningCS.cso");
+		mComputeShader[ComputeShaderType_TileFrustum]       = LoadShader(SHADERSTAGES_CS, shaderPath + "tileFrustum.cso");
+		mComputeShader[ComputeShaderType_LightTiledCulling] = LoadShader(SHADERSTAGES_CS, shaderPath + "lightTiledCulling.cso");
 	}
 }
 

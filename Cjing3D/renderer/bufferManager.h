@@ -24,6 +24,7 @@ enum ConstantBufferType
 	ConstantBufferType_Postprocess,
 	ConstantBufferType_MipmapGenerate,
 	ConstantBufferType_CubeMap,
+	ConstantBufferType_CSParams,
 	ConstantBufferType_Count,
 };
 
@@ -34,6 +35,8 @@ public:
 
 	void Initialize();
 	void Uninitialize();
+
+	GPUBuffer& GetOrCreateCustomBuffer(const StringID& name);
 
 	inline GPUBuffer& GetConstantBuffer(ConstantBufferType bufferType) {
 		return mConstantBuffer[static_cast<int>(bufferType)];
@@ -51,6 +54,8 @@ private:
 
 	GPUBuffer mConstantBuffer[ConstantBufferType_Count];
 	GPUBuffer mStructuredBuffer[StructuredBufferType_Count];
+	
+	std::map<StringID, GPUBuffer> mCustomBufferMap;
 };
 
 }

@@ -103,4 +103,27 @@ inline uint SetNormalIntoNumber(float3 nor)
     return norNumber;
 }
 
+inline uint Flatten(uint2 input, uint2 params)
+{
+    return input.y * params.x + input.x;
+}
+
+struct Plane
+{
+    float3 normal;
+    float distance;
+};
+
+inline Plane ComputePlane(float3 pos1, float3 pos2, float3 pos3)
+{
+    Plane plane;
+    
+    float3 v1 = pos2 - pos1;
+    float3 v2 = pos3 - pos1;
+
+    plane.normal = normalize(cross(v1, v2));
+    plane.distance = dot(plane.normal, pos1); // use dot to compute distance to origin
+    return plane;
+}
+
 #endif

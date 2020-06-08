@@ -199,4 +199,9 @@ namespace Cjing3D {
 	{
 		return XMDistance(XMLoadFloat3(&v1), XMLoadFloat3(&v2));
 	}
+
+	inline bool XMMatrixCompare(const XMMATRIX& m1, const XMMATRIX& m2)
+	{
+		return memcmp(&m1, &m2, sizeof(XMFLOAT4X4)) == 0;
+	}
 }

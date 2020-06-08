@@ -29,12 +29,25 @@ namespace Cjing3D
 
 	void BufferManager::Uninitialize()
 	{
+		mCustomBufferMap.clear();
+
 		for (U32 i = 0; i < ConstantBufferType_Count; i++) {
 			mConstantBuffer[i].Clear();
 		}
 		for (U32 i = 0; i < StructuredBufferType_Count; i++) {
 			mStructuredBuffer[i].Clear();
 		}
+	}
+
+	GPUBuffer& BufferManager::GetOrCreateCustomBuffer(const StringID& name)
+	{
+		auto it = mCustomBufferMap.find(name);
+		if (it == mCustomBufferMap.end())
+		{
+			auto itTemp = mCustomBufferMap.emplace(name, GPUBuffer());
+			it = itTemp.first;
+		}
+		return it->second;
 	}
 
 	void BufferManager::LoadConstantBuffers()

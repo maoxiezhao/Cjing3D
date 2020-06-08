@@ -354,6 +354,7 @@ void Renderer::Initialize()
 	mFrameCullings[&GetCamera()] = FrameCullings();
 
 	mFrameData.mFrameScreenSize = { (F32)mScreenSize[0], (F32)mScreenSize[1] };
+	mFrameData.mFrameInvScreenSize = { 1.0f / (F32)mScreenSize[0], 1.0f / (F32)mScreenSize[1] };
 	mFrameData.mFrameAmbient = { 0.1f, 0.1f, 0.1f };
 
 	SetShadowMap2DProperty(*this, shadowRes2DResolution, shadowMap2DCount);
@@ -693,7 +694,19 @@ void Renderer::Present()
 	GetFrameAllocator(FrameAllocatorType_Render).Reset();
 }
 
-U32x2 Renderer::GetScreenSize()
+void Renderer::SetScreenSize(U32 width, U32 height)
+{
+	mScreenSize[0] = width;
+	mScreenSize[1] = height;
+
+	mFrameData.mFrameScreenSize = { (F32)mScreenSize[0], (F32)mScreenSize[1] };
+	mFrameData.mFrameInvScreenSize = { 1.0f / (F32)mScreenSize[0], 1.0f / (F32)mScreenSize[1] };
+
+	// device change screen size
+
+}
+
+U32x2 Renderer::GetScreenSize() const
 {
 	return mScreenSize;
 }
@@ -935,9 +948,138 @@ void Renderer::RenderSky()
 	mGraphicsDevice->EndEvent();
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// Tiled light culling
+const StringID frustumBufferName("TiledFrustumBuffer");
+const StringID tiledLightBufferName("TiledLightBuffer");
+
+U32 lastScreenWidth = 0;
+U32 lastScreenHeight = 0;
+XMMATRIX lastCameraViewMatrix;
+
+U32x2 Renderer::GetCullingTiledCount() const
+{
+	U32x2 screenSize = GetScreenSize();
+	return {
+		(screenSize[0] + LIGHT_CULLING_TILED_BLOCK_SIZE - 1) / LIGHT_CULLING_TILED_BLOCK_SIZE,
+		(screenSize[1] + LIGHT_CULLING_TILED_BLOCK_SIZE - 1) / LIGHT_CULLING_TILED_BLOCK_SIZE
+	};
+}
+
 void Renderer::TiledLightCulling(Texture2D& depthBuffer)
 {
+	// 1. 在当前分辨率下创建用于保存frustum的structuredBuffer FrustumBuffer
+	// frustum buffer 保存4个裁剪面F32x4 * 4
+	bool isScreenSizeChanged = false;
+	auto screenSize = GetScreenSize();
+	if (lastScreenWidth != screenSize[0] || lastScreenHeight != screenSize[1])
+	{
+		isScreenSizeChanged = true;
+		lastScreenWidth = screenSize[0];
+		lastScreenHeight = screenSize[1];
+	}
+
+	U32x2 cullingTiledCount = GetCullingTiledCount();
+	GPUBuffer& frustumBuffer = mBufferManager->GetOrCreateCustomBuffer(frustumBufferName);
+	if (isScreenSizeChanged || !frustumBuffer.IsValid())
+	{
+		GPUBufferDesc desc = {};
+		desc.mUsage = USAGE_DEFAULT;
+		desc.mCPUAccessFlags = 0;
+		desc.mBindFlags = BIND_SHADER_RESOURCE | BIND_UNORDERED_ACCESS;
+		desc.mMiscFlags = RESOURCE_MISC_BUFFER_STRUCTURED;
+		desc.mStructureByteStride = sizeof(XMFLOAT4) * 4;
+		desc.mByteWidth = desc.mStructureByteStride * cullingTiledCount[0] * cullingTiledCount[1];
+
+		const auto result = mGraphicsDevice->CreateBuffer(&desc, frustumBuffer, nullptr);
+		Debug::ThrowIfFailed(result, "failed to create tiled frustum buffer:%08x", result);
+		mGraphicsDevice->SetResourceName(frustumBuffer, "TiledFrustumBuffer");
+	}
+
+	// 2. 如果分辨率发生改变，意味着tileCount发生改变，需要重新构建每个tile的light列表
+	GPUBuffer& tiledLightBuffer = mBufferManager->GetOrCreateCustomBuffer(tiledLightBufferName);
+	if (isScreenSizeChanged || !tiledLightBuffer.IsValid())
+	{
+		GPUBufferDesc desc = {};
+		desc.mUsage = USAGE_DEFAULT;
+		desc.mCPUAccessFlags = 0;
+		desc.mBindFlags = BIND_SHADER_RESOURCE | BIND_UNORDERED_ACCESS;
+		desc.mMiscFlags = RESOURCE_MISC_BUFFER_STRUCTURED;
+		desc.mStructureByteStride = sizeof(U32);
+		desc.mByteWidth = desc.mStructureByteStride * cullingTiledCount[0] * cullingTiledCount[1] * SHADER_LIGHT_TILE_BUCKET_COUNT;
+
+		const auto result = mGraphicsDevice->CreateBuffer(&desc, tiledLightBuffer, nullptr);
+		Debug::ThrowIfFailed(result, "failed to create tiled light buffer:%08x", result);
+		mGraphicsDevice->SetResourceName(tiledLightBuffer, "TiledLightBuffer");
+	}
+
+	BindConstanceBuffer(SHADERSTAGES_CS);
+
+	// 3. 构建每一个tile的frustum，保存在FrustumBuffer。仅当当前相机的view矩阵发生变化时执行
+	CameraComponent& camera = GetCamera();
+	XMMATRIX currentViewMatrix = camera.GetViewMatrix();
+	if (XMMatrixCompare(currentViewMatrix, lastCameraViewMatrix) == false)
+	{
+		lastCameraViewMatrix = currentViewMatrix;
+
+		mGraphicsDevice->BeginEvent("BuildTiledFrustum");
+		mGraphicsDevice->BindComputeShader(mShaderLib->GetComputeShader(ComputeShaderType_TiledFrustum));
+
+		CSParams cb;
+		cb.gCSNumThreads.x = cullingTiledCount[0];
+		cb.gCSNumThreads.y = cullingTiledCount[1];
+
+		GPUBuffer& buffer = mBufferManager->GetConstantBuffer(ConstantBufferType_CSParams);
+		mGraphicsDevice->UpdateBuffer(buffer, &cb, sizeof(CSParams));
+		mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, buffer, CB_GETSLOT_NAME(CSParams));
+
+		// bind output texture
+		GPUResource* uavs[] = { &frustumBuffer };
+		mGraphicsDevice->BindUAVs(uavs, 0, 1);
+		mGraphicsDevice->Dispatch(
+			(cullingTiledCount[0] + LIGHT_CULLING_TILED_BLOCK_SIZE - 1) / LIGHT_CULLING_TILED_BLOCK_SIZE,
+			(cullingTiledCount[1] + LIGHT_CULLING_TILED_BLOCK_SIZE - 1) / LIGHT_CULLING_TILED_BLOCK_SIZE,
+			1
+		);
+		mGraphicsDevice->UnBindUAVs(0, 1);
+		mGraphicsDevice->EndEvent();
+	}
+
+	// 4. 对每一个tile执行光照裁剪，并获得一个有效Entity的bucket
+	{
+		mGraphicsDevice->BeginEvent("LightTiledCulling");
+		mGraphicsDevice->BindComputeShader(mShaderLib->GetComputeShader(ComputeShaderType_LightTiledCulling));
+
+		// bind resources
+		mGraphicsDevice->UnbindGPUResources(SBSLOT_TILED_LIGHTS, 1);
+		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, depthBuffer, TEXTURE_SLOT_DEPTH);
+		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, frustumBuffer, SBSLOT_TILED_FRUSTUMS);
+
+		FrameCullings& frameCulling = mFrameCullings.at(&camera);
+		CSParams cb;
+		cb.gCSNumThreads.x = cullingTiledCount[0] * LIGHT_CULLING_TILED_BLOCK_SIZE;
+		cb.gCSNumThreads.y = cullingTiledCount[1] * LIGHT_CULLING_TILED_BLOCK_SIZE;
+		cb.gCSNumThreadGroups.x = cullingTiledCount[0];
+		cb.gCSNumThreadGroups.y = cullingTiledCount[1];
+		cb.gCSNumLights = frameCulling.mCulledLights.size();
+
+		GPUBuffer& buffer = mBufferManager->GetConstantBuffer(ConstantBufferType_CSParams);
+		mGraphicsDevice->UpdateBuffer(buffer, &cb, sizeof(CSParams));
+		mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, buffer, CB_GETSLOT_NAME(CSParams));
+
+		// bind output texture
+		GPUResource* uavs[] = { &tiledLightBuffer };
+		mGraphicsDevice->BindUAVs(uavs, 0, 1);
+		mGraphicsDevice->Dispatch(
+			cb.gCSNumThreadGroups.x,
+			cb.gCSNumThreadGroups.y,
+			1
+		);
+		mGraphicsDevice->UnBindUAVs(0, 1);
+		mGraphicsDevice->EndEvent();
+	}
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Renderer::PostprocessTonemap(Texture2D& input, Texture2D& output, F32 exposure)
 {
@@ -1053,6 +1195,7 @@ void Renderer::UpdateFrameCB()
 {
 	FrameCB frameCB;
 	frameCB.gFrameScreenSize = XMConvert(mFrameData.mFrameScreenSize);
+	frameCB.gFrameInvScreenSize = XMConvert(mFrameData.mFrameInvScreenSize);
 	frameCB.gFrameAmbient = XMConvert(mFrameData.mFrameAmbient);
 	frameCB.gShaderLightArrayCount = mFrameData.mShaderLightArrayCount;
 	frameCB.gFrameGamma = GetGamma();

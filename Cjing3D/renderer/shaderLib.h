@@ -49,6 +49,8 @@ enum ComputeShaderType
 	ComputeShaderType_MipmapGenerate,
 	ComputeShaderType_FXAA,
 	ComputeShaderType_Skinning,
+	ComputeShaderType_TiledFrustum,
+	ComputeShaderType_LightTiledCulling,
 	ComputeShaderType_Count
 };
 

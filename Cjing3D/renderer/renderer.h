@@ -47,7 +47,6 @@ public:
 	void Present();
 	
 	// getter
-	U32x2 GetScreenSize();
 	GraphicsDevice& GetDevice();
 	ResourceManager& GetResourceManager();
 	CameraComponent& GetCamera();
@@ -68,6 +67,8 @@ public:
 	void SetAmbientColor(F32x3 color);
 	void SetAlphaCutRef(F32 alpha);
 	void ResetAlphaCutRef() { SetAlphaCutRef(1.0f); }
+	void SetScreenSize(U32 width, U32 height);
+	U32x2 GetScreenSize()const;
 
 	// Render Method
 	void RenderShadowmaps(CameraComponent& camera);
@@ -75,6 +76,8 @@ public:
 	void RenderSceneTransparent(CameraComponent& camera, RenderPassType renderPassType);
 	void RenderImpostor(CameraComponent& camera, RenderPassType renderPassType);
 	void RenderSky();
+
+	U32x2 GetCullingTiledCount()const;
 	void TiledLightCulling(Texture2D& depthBuffer);
 
 	// postprocess
@@ -145,6 +148,7 @@ public:
 	{
 	public:
 		F32x2 mFrameScreenSize;
+		F32x2 mFrameInvScreenSize;
 		U32 mShaderLightArrayCount;
 		F32x3 mFrameAmbient;
 

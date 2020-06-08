@@ -14,6 +14,7 @@ CBUFFER(CommonCB, CBSLOT_RENDERER_COMMON)
 CBUFFER(FrameCB, CBSLOT_RENDERER_FRAME)
 {
 	float2 gFrameScreenSize;
+	float2 gFrameInvScreenSize;
 	float2 gFramePadding;
 	// light
 	uint   gShaderLightArrayCount;
@@ -60,11 +61,27 @@ CBUFFER(CubeMapCB, CBSLOT_CUBEMAP)
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 // light
+// shader light definitions
+static const uint SHADER_MATRIX_COUNT = 128;
+static const uint SHADER_LIGHT_COUNT = 128;
+// 每个tile用一个U32的位来表示受影响的光源
+static const uint SHADER_LIGHT_TILE_BUCKET_COUNT = SHADER_LIGHT_COUNT / 32;
 
 static const uint SHADER_LIGHT_TYPE_DIRECTIONAL = 0;
 static const uint SHADER_LIGHT_TYPE_POINT = 1;
 static const uint SHADER_LIGHT_TYPE_SPOT = 2;
 
+// tile definitions
+static const uint LIGHT_CULLING_TILED_BLOCK_SIZE = 16;
+
+CBUFFER(CSParams, CBSLOT_CS_PARAMS)
+{
+	uint2 gCSNumThreads;
+	uint2 gCSNumThreadGroups;
+	uint  gCSNumLights;
+};
+
+// light type
 struct ShaderLight
 {
 	float3 viewPosition;
