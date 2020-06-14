@@ -23,15 +23,15 @@ void main( uint3 DTid : SV_DispatchThreadID )
         viewPos[i] = ScreenToView(screenPos[i]).xyz;
     }
     
-    // 构建4个面的方程ax + by + cz + d
+    // 构建4个面
     TiledFrustum frustum;
-    frustum.planes[0] = ComputePlane(viewPos[0], cameraPos, viewPos[2]);
-    frustum.planes[1] = ComputePlane(viewPos[2], cameraPos, viewPos[3]);
+    frustum.planes[0] = ComputePlane(viewPos[2], cameraPos, viewPos[0]);
+    frustum.planes[1] = ComputePlane(viewPos[3], cameraPos, viewPos[2]);
     frustum.planes[2] = ComputePlane(viewPos[1], cameraPos, viewPos[3]);
     frustum.planes[3] = ComputePlane(viewPos[0], cameraPos, viewPos[1]);
     
     if (DTid.x < gCSNumThreads.x && DTid.y < gCSNumThreads.y)
     {
-        TiledFrustums[Flatten(DTid.xy, gCSNumThreads)] = frustum;
+        TiledFrustums[Flatten(DTid.xy, gCSNumThreads.xy)] = frustum;
     }
 }

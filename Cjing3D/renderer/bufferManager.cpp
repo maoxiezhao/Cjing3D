@@ -112,6 +112,13 @@ namespace Cjing3D
 			Debug::ThrowIfFailed(result, "failed to create CubeShadowCB constant buffer:%08x", result);
 			device.SetResourceName(buffer, "CubeShadowCB");
 		}
+		//
+		{
+			GPUBuffer& buffer = mConstantBuffer[ConstantBufferType_CSParams];
+			const HRESULT result = CreateWriteDynamicConstantBuffer(device, buffer, sizeof(CSParamsCB));
+			Debug::ThrowIfFailed(result, "failed to create CSParamsCB constant buffer:%08x", result);
+			device.SetResourceName(buffer, "CSParamsCB");
+		}
 	}
 
 	void BufferManager::LoadStructuredBuffers()

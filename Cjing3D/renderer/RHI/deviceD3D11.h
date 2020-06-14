@@ -67,6 +67,7 @@ public:
 	virtual void BindUAV(GPUResource* const resource, U32 slot, I32 subresourceIndex = -1);
 	virtual void BindUAVs(GPUResource* const* resource, U32 slot, U32 count);
 	virtual void UnBindUAVs(U32 slot, U32 count);
+	virtual void UnBindAllUAVs();
 
 	virtual void BindPipelineState(PipelineState state);
 	void ClearPrevStates();

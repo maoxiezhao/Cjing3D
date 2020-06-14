@@ -39,6 +39,9 @@ namespace Cjing3D
 			);
 			XMStoreFloat4x4(&mView, view);
 
+			XMMATRIX invP = XMMatrixInverse(nullptr, XMLoadFloat4x4(&mProjection));
+			XMStoreFloat4x4(&mInvProjection, invP);
+
 			XMMATRIX vp = XMMatrixMultiply(view, XMLoadFloat4x4(&mProjection));
 			XMStoreFloat4x4(&mViewProjection, vp);
 

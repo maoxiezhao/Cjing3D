@@ -27,6 +27,8 @@ LuaContext::~LuaContext()
 
 void LuaContext::Initialize()
 {
+	Logger::Info("Initialize luaContext.");
+
 	mLuaState = luaL_newstate();
 	lua_atpanic(mLuaState, api_panic);
 	luaL_openlibs(mLuaState);

@@ -1976,8 +1976,13 @@ void GraphicsDeviceD3D11::Dispatch(U32 threadGroupCountX, U32 threadGroupCountY,
 
 void GraphicsDeviceD3D11::UnBindUAVs(U32 slot, U32 count)
 {
-	Debug::CheckAssertion(count <= ARRAYSIZE(nullptrBlob), "GraphicsDeviceD3D11::UnBindUAVs: Invalid count.");
+	Debug::CheckAssertion(count <= 8, "GraphicsDeviceD3D11::UnBindUAVs: Invalid count.");
 	GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetUnorderedAccessViews(slot, count, (ID3D11UnorderedAccessView**)nullptrBlob, nullptr);
+}
+
+void GraphicsDeviceD3D11::UnBindAllUAVs()
+{
+	GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetUnorderedAccessViews(0, 8, (ID3D11UnorderedAccessView**)nullptrBlob, nullptr);
 }
 
 void GraphicsDeviceD3D11::BindUAV(GPUResource* const resource, U32 slot, I32 subresourceIndex)

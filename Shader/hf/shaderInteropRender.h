@@ -15,12 +15,12 @@ CBUFFER(FrameCB, CBSLOT_RENDERER_FRAME)
 {
 	float2 gFrameScreenSize;
 	float2 gFrameInvScreenSize;
-	float2 gFramePadding;
 	// light
 	uint   gShaderLightArrayCount;
 	float3 gFrameAmbient;
 	float  gFrameGamma;
 	uint   gFrameShadowCascadeCount;
+	float2 gFramePadding;
 };
 
 CBUFFER(CameraCB, CBSLOT_RENDERER_CAMERA)
@@ -28,6 +28,7 @@ CBUFFER(CameraCB, CBSLOT_RENDERER_CAMERA)
 	float4x4 gCameraVP;
 	float4x4 gCameraView;
 	float4x4 gCameraProj;
+	float4x4 gCameraInvP;
 	float4x4 gCameraInvVP;
 
 	float3   gCameraPos;
@@ -73,12 +74,14 @@ static const uint SHADER_LIGHT_TYPE_SPOT = 2;
 
 // tile definitions
 static const uint LIGHT_CULLING_TILED_BLOCK_SIZE = 16;
+static const uint LIGHT_CULLING_THREAD_SIZE = 16;
 
-CBUFFER(CSParams, CBSLOT_CS_PARAMS)
+CBUFFER(CSParamsCB, CBSLOT_CS_PARAMS)
 {
 	uint2 gCSNumThreads;
 	uint2 gCSNumThreadGroups;
 	uint  gCSNumLights;
+	uint3 gCSNumValues;
 };
 
 // light type

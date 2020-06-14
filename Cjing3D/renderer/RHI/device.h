@@ -83,6 +83,7 @@ namespace Cjing3D
 		virtual void BindUAV(GPUResource* const resource, U32 slot, I32 subresourceIndex = -1) = 0;
 		virtual void BindUAVs(GPUResource* const* resource, U32 slot, U32 count) = 0;
 		virtual void UnBindUAVs(U32 slot, U32 count) = 0;
+		virtual void UnBindAllUAVs() = 0;
 
 		virtual void BindPipelineState(PipelineState state) = 0;
 		virtual void Draw(UINT vertexCount, UINT startVertexLocation) = 0;

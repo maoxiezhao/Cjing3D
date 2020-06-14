@@ -77,6 +77,7 @@ public:
 	void RenderImpostor(CameraComponent& camera, RenderPassType renderPassType);
 	void RenderSky();
 
+	bool IsTiledCullingDebug()const;
 	U32x2 GetCullingTiledCount()const;
 	void TiledLightCulling(Texture2D& depthBuffer);
 

@@ -90,9 +90,22 @@ namespace Cjing3D
 			device.EndRenderBehavior();
 			device.EndEvent();
 			PROFILER_END_BLOCK();
+
+			// TODO
+			//if (GetMSAASampleCount() > 0)
+			//{
+			//	device.CopyGPUResource(*GetDepthBufferTemp(), *GetDepthBuffer());
+			//}
+			//else
+			{
+				device.CopyGPUResource(*GetDepthBufferTemp(), *GetDepthBuffer());
+			}
 		}
+
 		// opaque scene
 		{
+			mRenderer.TiledLightCulling(*GetDepthBufferTemp());
+
 			PROFILER_BEGIN_GPU_BLOCK("RenderSceneOpaque");
 			device.BeginEvent("RenderSceneOpaque");
 			device.BeginRenderBehavior(mRBMain);

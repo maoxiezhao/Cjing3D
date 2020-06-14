@@ -28,7 +28,7 @@ namespace Cjing3D
 	void GameEditor::Initialize()
 	{
 		auto& renderer = GlobalGetSubSystem<Renderer>();
-		RenderPathForward* path = new RenderPathForward(renderer);
+		RenderPathTiledForward* path = new RenderPathTiledForward(renderer);
 		renderer.SetCurrentRenderPath(path);
 		renderer.GetRenderer2D().SetCurrentRenderPath(path);
 

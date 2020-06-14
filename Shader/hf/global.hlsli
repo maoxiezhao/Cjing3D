@@ -18,6 +18,7 @@ TEXTRRECUBE(texture_global_env_map, float4, TEXTURE_SLOT_GLOBAL_ENV_MAP);
 TEXTURE2D(texture_0, TEXTURE_SLOT_0);
 TEXTURE2D(texture_1, TEXTURE_SLOT_1);
 TEXTURE2D(texture_2, TEXTURE_SLOT_2);
+TYPE_TEXTURE2D(texture_depth, float, TEXTURE_SLOT_DEPTH);
 
 // common sampler states
 SAMPLERSTATE(sampler_linear_clamp, SAMPLER_LINEAR_CLAMP_SLOT);
@@ -34,6 +35,11 @@ STRUCTUREDBUFFER(MatrixArray, float4x4, SBSLOT_MATRIX_ARRAY);
 #else
 #define ALPHATEST(x)
 #endif
+
+inline float2 GetScreenSize()
+{
+    return gFrameScreenSize;
+}
 
 // 计算法线切线空间变换矩阵
 inline float3x3 ComputeTangateTransform(float3 N, float3 P, float2 UV)
@@ -106,6 +112,14 @@ inline uint SetNormalIntoNumber(float3 nor)
 inline uint Flatten(uint2 input, uint2 params)
 {
     return input.y * params.x + input.x;
+}
+
+inline uint2 UnFlatten(uint input, uint2 params)
+{
+    return uint2(
+        input % params.y,
+        input / params.y
+    );
 }
 
 struct Plane

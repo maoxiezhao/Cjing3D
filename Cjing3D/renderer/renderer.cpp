@@ -957,6 +957,34 @@ U32 lastScreenWidth = 0;
 U32 lastScreenHeight = 0;
 XMMATRIX lastCameraViewMatrix;
 
+bool bIsTiledCullingDebug = true;
+Texture2D tiledCullingDebugTexture;
+void UpdateTiledCullingDebugTexture(GraphicsDevice& device, U32 width, U32 height)
+{
+	if (!bIsTiledCullingDebug) {
+		return;
+	}
+
+	if (!tiledCullingDebugTexture.IsValid())
+	{
+		TextureDesc desc = {};
+		desc.mWidth = width;
+		desc.mHeight = height;
+		desc.mMipLevels = 1;
+		desc.mFormat = FORMAT_R8G8B8A8_UNORM;
+		desc.mBindFlags = BIND_UNORDERED_ACCESS | BIND_SHADER_RESOURCE;
+
+		const auto result = device.CreateTexture2D(&desc, nullptr, tiledCullingDebugTexture);
+		Debug::ThrowIfFailed(result, "Failed to create tiledCullingDebugTexture:%08x", result);
+		device.SetResourceName(tiledCullingDebugTexture, "tiledCullingDebugTexture");
+	}
+}
+
+bool Renderer::IsTiledCullingDebug() const
+{
+	return bIsTiledCullingDebug;
+}
+
 U32x2 Renderer::GetCullingTiledCount() const
 {
 	U32x2 screenSize = GetScreenSize();
@@ -968,6 +996,8 @@ U32x2 Renderer::GetCullingTiledCount() const
 
 void Renderer::TiledLightCulling(Texture2D& depthBuffer)
 {
+	PROFILER_BEGIN_GPU_BLOCK("TiledLightCulling");
+
 	// 1. 在当前分辨率下创建用于保存frustum的structuredBuffer FrustumBuffer
 	// frustum buffer 保存4个裁剪面F32x4 * 4
 	bool isScreenSizeChanged = false;
@@ -1013,6 +1043,10 @@ void Renderer::TiledLightCulling(Texture2D& depthBuffer)
 		mGraphicsDevice->SetResourceName(tiledLightBuffer, "TiledLightBuffer");
 	}
 
+	if (IsTiledCullingDebug() && isScreenSizeChanged) {
+		UpdateTiledCullingDebugTexture(*mGraphicsDevice, screenSize[0], screenSize[1]);
+	}
+
 	BindConstanceBuffer(SHADERSTAGES_CS);
 
 	// 3. 构建每一个tile的frustum，保存在FrustumBuffer。仅当当前相机的view矩阵发生变化时执行
@@ -1025,15 +1059,14 @@ void Renderer::TiledLightCulling(Texture2D& depthBuffer)
 		mGraphicsDevice->BeginEvent("BuildTiledFrustum");
 		mGraphicsDevice->BindComputeShader(mShaderLib->GetComputeShader(ComputeShaderType_TiledFrustum));
 
-		CSParams cb;
+		CSParamsCB cb;
 		cb.gCSNumThreads.x = cullingTiledCount[0];
 		cb.gCSNumThreads.y = cullingTiledCount[1];
 
 		GPUBuffer& buffer = mBufferManager->GetConstantBuffer(ConstantBufferType_CSParams);
-		mGraphicsDevice->UpdateBuffer(buffer, &cb, sizeof(CSParams));
-		mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, buffer, CB_GETSLOT_NAME(CSParams));
+		mGraphicsDevice->UpdateBuffer(buffer, &cb, sizeof(CSParamsCB));
+		mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, buffer, CB_GETSLOT_NAME(CSParamsCB));
 
-		// bind output texture
 		GPUResource* uavs[] = { &frustumBuffer };
 		mGraphicsDevice->BindUAVs(uavs, 0, 1);
 		mGraphicsDevice->Dispatch(
@@ -1056,7 +1089,7 @@ void Renderer::TiledLightCulling(Texture2D& depthBuffer)
 		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, frustumBuffer, SBSLOT_TILED_FRUSTUMS);
 
 		FrameCullings& frameCulling = mFrameCullings.at(&camera);
-		CSParams cb;
+		CSParamsCB cb;
 		cb.gCSNumThreads.x = cullingTiledCount[0] * LIGHT_CULLING_TILED_BLOCK_SIZE;
 		cb.gCSNumThreads.y = cullingTiledCount[1] * LIGHT_CULLING_TILED_BLOCK_SIZE;
 		cb.gCSNumThreadGroups.x = cullingTiledCount[0];
@@ -1064,20 +1097,27 @@ void Renderer::TiledLightCulling(Texture2D& depthBuffer)
 		cb.gCSNumLights = frameCulling.mCulledLights.size();
 
 		GPUBuffer& buffer = mBufferManager->GetConstantBuffer(ConstantBufferType_CSParams);
-		mGraphicsDevice->UpdateBuffer(buffer, &cb, sizeof(CSParams));
-		mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, buffer, CB_GETSLOT_NAME(CSParams));
+		mGraphicsDevice->UpdateBuffer(buffer, &cb, sizeof(CSParamsCB));
+		mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, buffer, CB_GETSLOT_NAME(CSParamsCB));
 
 		// bind output texture
 		GPUResource* uavs[] = { &tiledLightBuffer };
 		mGraphicsDevice->BindUAVs(uavs, 0, 1);
+
+		if (IsTiledCullingDebug()) {
+			mGraphicsDevice->BindUAV(&tiledCullingDebugTexture, 1);
+		}
+
 		mGraphicsDevice->Dispatch(
 			cb.gCSNumThreadGroups.x,
 			cb.gCSNumThreadGroups.y,
 			1
 		);
-		mGraphicsDevice->UnBindUAVs(0, 1);
+		mGraphicsDevice->UnBindAllUAVs();
 		mGraphicsDevice->EndEvent();
 	}
+
+	PROFILER_END_BLOCK();
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1183,6 +1223,7 @@ void Renderer::UpdateCameraCB(CameraComponent & camera)
 	DirectX::XMStoreFloat4x4(&cb.gCameraVP,    camera.GetViewProjectionMatrix());
 	DirectX::XMStoreFloat4x4(&cb.gCameraView,  camera.GetViewMatrix());
 	DirectX::XMStoreFloat4x4(&cb.gCameraProj,  camera.GetProjectionMatrix());
+	DirectX::XMStoreFloat4x4(&cb.gCameraInvP,  camera.GetInvProjectionMatrix());
 	DirectX::XMStoreFloat4x4(&cb.gCameraInvVP, camera.GetInvViewProjectionMatrix());
 
 	cb.gCameraPos = XMConvert(camera.GetCameraPos());
