@@ -137,6 +137,9 @@ void ShaderLib::LoadPixelShaders()
 		mPixelShader[PixelShaderType_Object_Forward] = LoadShader(SHADERSTAGES_PS, shaderPath + "objectForwardPS.cso");
 		mPixelShader[PixelShaderType_Object_Forward_Transparent] = LoadShader(SHADERSTAGES_PS, shaderPath + "objectForwardTransparentPS.cso");
 		mPixelShader[PixelShaderType_Object_AlphaTest] = LoadShader(SHADERSTAGES_PS, shaderPath + "objectAlphaTestPS.cso");
+		mPixelShader[PixelShaderType_Object_TiledForward] = LoadShader(SHADERSTAGES_PS, shaderPath + "objectTiledForwardPS.cso");
+		mPixelShader[PixelShaderType_Object_TiledForward_Transparent] = LoadShader(SHADERSTAGES_PS, shaderPath + "objectTiledForwardTransparentPS.cso");
+
 		// full screen ps
 		mPixelShader[PixelShaderType_FullScreen] = LoadShader(SHADERSTAGES_PS, shaderPath + "screenPS.cso");
 		// image ps
@@ -151,10 +154,12 @@ void ShaderLib::LoadComputeShaders()
 	auto& resourceManager = mRenderer.GetResourceManager();
 	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_ComputeShader);
 	{
-		mComputeShader[ComputeShaderType_Tonemapping]    = LoadShader(SHADERSTAGES_CS, shaderPath + "toneMapping.cso");
-		mComputeShader[ComputeShaderType_MipmapGenerate] = LoadShader(SHADERSTAGES_CS, shaderPath + "mipmapGenerate.cso");
-		mComputeShader[ComputeShaderType_FXAA]           = LoadShader(SHADERSTAGES_CS, shaderPath + "fxaaCS.cso");
-		mComputeShader[ComputeShaderType_Skinning]       = LoadShader(SHADERSTAGES_CS, shaderPath + "skinningCS.cso");
+		mComputeShader[ComputeShaderType_Tonemapping]       = LoadShader(SHADERSTAGES_CS, shaderPath + "toneMapping.cso");
+		mComputeShader[ComputeShaderType_MipmapGenerate]    = LoadShader(SHADERSTAGES_CS, shaderPath + "mipmapGenerate.cso");
+		mComputeShader[ComputeShaderType_FXAA]              = LoadShader(SHADERSTAGES_CS, shaderPath + "fxaaCS.cso");
+		mComputeShader[ComputeShaderType_Skinning]          = LoadShader(SHADERSTAGES_CS, shaderPath + "skinningCS.cso");
+		mComputeShader[ComputeShaderType_TiledFrustum]      = LoadShader(SHADERSTAGES_CS, shaderPath + "tileFrustumCS.cso");
+		mComputeShader[ComputeShaderType_LightTiledCulling] = LoadShader(SHADERSTAGES_CS, shaderPath + "lightTiledCullingCS.cso");
 	}
 }
 

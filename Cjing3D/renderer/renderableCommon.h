@@ -37,6 +37,7 @@ enum RenderingDeviceType
 enum RenderPassType
 {
 	RenderPassType_Forward,
+	RenderPassType_TiledForward,
 	RenderPassType_Deferred,
 	RenderPassType_Shadow,
 	RenderPassType_ShadowCube,

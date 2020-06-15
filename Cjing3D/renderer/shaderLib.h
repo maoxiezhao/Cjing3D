@@ -36,6 +36,8 @@ enum PixelShaderType
 {
 	PixelShaderType_Object_Forward = 0,
 	PixelShaderType_Object_Forward_Transparent,
+	PixelShaderType_Object_TiledForward,
+	PixelShaderType_Object_TiledForward_Transparent,
 	PixelShaderType_Object_AlphaTest,
 	PixelShaderType_FullScreen,
 	PixelShaderType_Image,
@@ -49,6 +51,8 @@ enum ComputeShaderType
 	ComputeShaderType_MipmapGenerate,
 	ComputeShaderType_FXAA,
 	ComputeShaderType_Skinning,
+	ComputeShaderType_TiledFrustum,
+	ComputeShaderType_LightTiledCulling,
 	ComputeShaderType_Count
 };
 

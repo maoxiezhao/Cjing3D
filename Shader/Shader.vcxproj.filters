@@ -95,6 +95,18 @@
     <FxCompile Include="vs\cubeShadowVS.hlsl">
       <Filter>vs</Filter>
     </FxCompile>
+    <FxCompile Include="cs\tileFrustumCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\lightTiledCullingCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="ps\objectTiledForwardPS.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
+    <FxCompile Include="ps\objectTiledForwardTransparentPS.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="hf\objectInput.hlsli">
@@ -119,6 +131,9 @@
       <Filter>hf</Filter>
     </None>
     <None Include="hf\nvidiaFxaa.hlsli">
+      <Filter>hf</Filter>
+    </None>
+    <None Include="hf\tiledCullingHF.hlsli">
       <Filter>hf</Filter>
     </None>
   </ItemGroup>

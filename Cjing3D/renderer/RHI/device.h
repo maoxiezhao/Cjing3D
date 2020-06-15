@@ -56,8 +56,6 @@ namespace Cjing3D
 		virtual void BindSamplerState(SHADERSTAGES stage, SamplerState& state, U32 slot) = 0;
 
 		virtual HRESULT CreateTexture2D(const TextureDesc* desc, const SubresourceData* data, RhiTexture2D& texture2D) = 0;
-		virtual void CopyTexture2D(RhiTexture2D* texDst, RhiTexture2D* texSrc) = 0;
-
 		virtual void BindRenderTarget(UINT numView, RhiTexture2D* const *texture2D, RhiTexture2D* depthStencilTexture, I32 subresourceIndex = -1) = 0;
 
 		virtual I32 CreateRenderTargetView(RhiTexture2D& texture) = 0;
@@ -72,6 +70,7 @@ namespace Cjing3D
 		virtual void BindGPUResources(SHADERSTAGES stage, GPUResource* const* resource, U32 slot, U32 count) = 0;
 		virtual void UnbindGPUResources(U32 slot, U32 count) = 0;
 		virtual void SetResourceName(GPUResource& resource, const std::string& name) = 0;
+		virtual void CopyGPUResource(GPUResource& texDst, GPUResource& texSrc) = 0;
 
 		virtual void CreatePipelineState(PipelineStateDesc& desc, PipelineState& state);
 		virtual void CreateRenderBehavior(RenderBehaviorDesc& desc, RenderBehavior& behavior) = 0;
@@ -84,6 +83,7 @@ namespace Cjing3D
 		virtual void BindUAV(GPUResource* const resource, U32 slot, I32 subresourceIndex = -1) = 0;
 		virtual void BindUAVs(GPUResource* const* resource, U32 slot, U32 count) = 0;
 		virtual void UnBindUAVs(U32 slot, U32 count) = 0;
+		virtual void UnBindAllUAVs() = 0;
 
 		virtual void BindPipelineState(PipelineState state) = 0;
 		virtual void Draw(UINT vertexCount, UINT startVertexLocation) = 0;

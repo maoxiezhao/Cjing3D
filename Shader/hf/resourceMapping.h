@@ -6,6 +6,7 @@
 #define TEXTURE_SLOT_GLOBAL_ENV_MAP 0
 #define TEXTURE_SLOT_SHADOW_ARRAY_2D 1
 #define TEXTURE_SLOT_SHADOW_ARRAY_CUBE 2
+#define TEXTURE_SLOT_DEPTH 3
 
 #define TEXTURE_SLOT_0 10
 #define TEXTURE_SLOT_1 11
@@ -20,9 +21,8 @@
 // STRUCTUREDBUFFRE SLOT
 #define SBSLOT_SHADER_LIGHT_ARRAY 18
 #define SBSLOT_MATRIX_ARRAY 19
-
-#define SHADER_MATRIX_COUNT 128
-#define SHADER_LIGHT_COUNT 128
+#define SBSLOT_TILED_LIGHTS 20
+#define SBSLOT_TILED_FRUSTUMS 21
 
 ///////////////////////////////////////////////////////////////////////////////////
 

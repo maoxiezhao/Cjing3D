@@ -65,12 +65,6 @@
     <Filter Include="utils\tinyxml2">
       <UniqueIdentifier>{316d6612-6111-4237-9446-725bb86d82a6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="gui\guiCore">
-      <UniqueIdentifier>{e62d1fda-9321-4229-a617-84af1c9c05cf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="gui\guiWidgets">
-      <UniqueIdentifier>{bc7a284d-7f86-48ae-ae01-8734129f031b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="utils\optick">
       <UniqueIdentifier>{2222258e-268a-4308-9543-d23785027f6c}</UniqueIdentifier>
     </Filter>
@@ -106,6 +100,12 @@
     </Filter>
     <Filter Include="renderer\pipelineStates">
       <UniqueIdentifier>{642de6e7-1c44-4b3a-b558-21c6178ee6f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui\guiCore">
+      <UniqueIdentifier>{e62d1fda-9321-4229-a617-84af1c9c05cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui\guiWidgets">
+      <UniqueIdentifier>{bc7a284d-7f86-48ae-ae01-8734129f031b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -419,23 +419,14 @@
     <ClCompile Include="gui\guiRenderer.cpp">
       <Filter>gui</Filter>
     </ClCompile>
-    <ClCompile Include="gui\widgets.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
     <ClCompile Include="utils\geometry.cpp">
       <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="gui\widgetManager.cpp">
-      <Filter>gui</Filter>
     </ClCompile>
     <ClCompile Include="renderer\textureHelper.cpp">
       <Filter>renderer</Filter>
     </ClCompile>
     <ClCompile Include="utils\tinyxml2\tinyxml2.cpp">
       <Filter>utils\tinyxml2</Filter>
-    </ClCompile>
-    <ClCompile Include="gui\guiFactory.cpp">
-      <Filter>gui</Filter>
     </ClCompile>
     <ClCompile Include="helper\archive.cpp">
       <Filter>helper</Filter>
@@ -445,9 +436,6 @@
     </ClCompile>
     <ClCompile Include="gui\guiCore\guiDispatcher.cpp">
       <Filter>gui\guiCore</Filter>
-    </ClCompile>
-    <ClCompile Include="gui\widget_properties.cpp">
-      <Filter>gui</Filter>
     </ClCompile>
     <ClCompile Include="system\component\object.cpp">
       <Filter>system\component</Filter>
@@ -514,6 +502,18 @@
     </ClCompile>
     <ClCompile Include="renderer\paths\renderPath_tiledForward.cpp">
       <Filter>renderer\paths</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiFactory.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\widget_properties.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\widgetManager.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\widgets.cpp">
+      <Filter>gui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -864,19 +864,10 @@
     <ClInclude Include="gui\guiRenderer.h">
       <Filter>gui</Filter>
     </ClInclude>
-    <ClInclude Include="gui\widgets.h">
-      <Filter>gui</Filter>
-    </ClInclude>
     <ClInclude Include="utils\treeNode.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="gui\guiFactory.h">
-      <Filter>gui</Filter>
-    </ClInclude>
     <ClInclude Include="gui\guiInclude.h">
-      <Filter>gui</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\widgetManager.h">
       <Filter>gui</Filter>
     </ClInclude>
     <ClInclude Include="utils\color.h">
@@ -905,9 +896,6 @@
     </ClInclude>
     <ClInclude Include="gui\guiCore\guiEvents.h">
       <Filter>gui\guiCore</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\widget_properties.h">
-      <Filter>gui</Filter>
     </ClInclude>
     <ClInclude Include="scripts\api\uiApi.h">
       <Filter>scripts\api</Filter>
@@ -1013,6 +1001,18 @@
     </ClInclude>
     <ClInclude Include="common\version.h">
       <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiFactory.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\widget_properties.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\widgetManager.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\widgets.h">
+      <Filter>gui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

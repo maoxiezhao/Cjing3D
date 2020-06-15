@@ -12,5 +12,6 @@
 #define CBSLOT_MIPMAPGENERATE		6
 #define CBSLOT_TERRAIN				7
 #define CBSLOT_CUBEMAP              8
+#define CBSLOT_CS_PARAMS            9
 
 #endif

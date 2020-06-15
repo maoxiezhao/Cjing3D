@@ -25,10 +25,11 @@ namespace Cjing3D {
 		LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
 		void Transform(const TransformComponent& transform);
 
-		inline XMMATRIX GetViewMatrix() { return XMLoadFloat4x4(&mView); };
-		inline XMMATRIX GetProjectionMatrix() { return XMLoadFloat4x4(&mProjection); };
-		inline XMMATRIX GetViewProjectionMatrix() { return XMLoadFloat4x4(&mViewProjection); };
-		inline XMMATRIX GetInvViewProjectionMatrix() { return XMLoadFloat4x4(&mInvViewProjection); }
+		inline XMMATRIX GetViewMatrix()const { return XMLoadFloat4x4(&mView); };
+		inline XMMATRIX GetProjectionMatrix()const { return XMLoadFloat4x4(&mProjection); };
+		inline XMMATRIX GetViewProjectionMatrix()const { return XMLoadFloat4x4(&mViewProjection); };
+		inline XMMATRIX GetInvProjectionMatrix()const { return XMLoadFloat4x4(&mInvProjection); }
+		inline XMMATRIX GetInvViewProjectionMatrix()const { return XMLoadFloat4x4(&mInvViewProjection); }
 
 		F32 GetNearPlane() { return mNearPlane; }
 		F32 GetFarPlane() { return mFarPlane; }
@@ -55,6 +56,7 @@ namespace Cjing3D {
 		XMFLOAT4X4 mView;
 		XMFLOAT4X4 mProjection;
 		XMFLOAT4X4 mViewProjection;
+		XMFLOAT4X4 mInvProjection;
 		XMFLOAT4X4 mInvViewProjection;
 	};
 }

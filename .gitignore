@@ -259,13 +259,9 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
-/lib/assimp.lib
 /Assets/Models
 /Game/error.txt
 /Cjing3D/note.h
 /Cjing3D/renderer/renderNote.h
-/ThirdParty/imgui
-/Game/imgui.ini
-/Game/OptickCore.dll
 /Cjing3D/renderer/passes/note.h
 /Assets/Textures

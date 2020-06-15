@@ -5,7 +5,7 @@
 #include "renderer\renderer.h"
 #include "renderer\renderer2D.h"
 #include "system\sceneSystem.h"
-#include "renderer\paths\renderPath_forward.h"
+#include "renderer\paths\renderPath_tiledForward.h"
 #include "gui\guiStage.h"
 
 #include "editor\guiEditor.h"
@@ -27,7 +27,7 @@ namespace Cjing3D
 	void GameEditor::Initialize()
 	{
 		auto& renderer = GlobalGetSubSystem<Renderer>();
-		RenderPathForward* path = new RenderPathForward(renderer);
+		RenderPathTiledForward* path = new RenderPathTiledForward(renderer);
 		renderer.SetCurrentRenderPath(path);
 		renderer.GetRenderer2D().SetCurrentRenderPath(path);
 

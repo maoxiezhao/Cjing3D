@@ -42,8 +42,6 @@ public:
 	virtual void BindSamplerState(SHADERSTAGES stage, SamplerState& state, U32 slot);
 
 	virtual HRESULT CreateTexture2D(const TextureDesc* desc, const SubresourceData* data, RhiTexture2D& texture2D);
-	virtual void CopyTexture2D(RhiTexture2D* texDst, RhiTexture2D* texSrc);
-
 	virtual I32 CreateRenderTargetView(RhiTexture2D& texture);
 	virtual I32 CreateShaderResourceView(RhiTexture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1, U32 firstMip = 0, U32 mipLevel = -1);
 	virtual I32 CreateDepthStencilView(RhiTexture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1);
@@ -57,6 +55,7 @@ public:
 	virtual void BindGPUResources(SHADERSTAGES stage, GPUResource* const* resource, U32 slot, U32 count);
 	virtual void UnbindGPUResources(U32 slot, U32 count);
 	virtual void SetResourceName(GPUResource& resource, const std::string& name);
+	virtual void CopyGPUResource(GPUResource& texDst, GPUResource& texSrc);
 
 	virtual void CreateRenderBehavior(RenderBehaviorDesc& desc, RenderBehavior& behavior);
 	virtual void BeginRenderBehavior(RenderBehavior& behavior);
@@ -68,6 +67,7 @@ public:
 	virtual void BindUAV(GPUResource* const resource, U32 slot, I32 subresourceIndex = -1);
 	virtual void BindUAVs(GPUResource* const* resource, U32 slot, U32 count);
 	virtual void UnBindUAVs(U32 slot, U32 count);
+	virtual void UnBindAllUAVs();
 
 	virtual void BindPipelineState(PipelineState state);
 	void ClearPrevStates();

@@ -162,6 +162,7 @@
   <ItemGroup>
     <None Include="..\Assets\Scripts\common\common.lua" />
     <None Include="..\Assets\Scripts\main.lua" />
+    <None Include="..\Assets\Scripts\scene.lua" />
     <None Include="postcompile.bat" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -18,6 +18,7 @@ TEXTRRECUBE(texture_global_env_map, float4, TEXTURE_SLOT_GLOBAL_ENV_MAP);
 TEXTURE2D(texture_0, TEXTURE_SLOT_0);
 TEXTURE2D(texture_1, TEXTURE_SLOT_1);
 TEXTURE2D(texture_2, TEXTURE_SLOT_2);
+TYPE_TEXTURE2D(texture_depth, float, TEXTURE_SLOT_DEPTH);
 
 // common sampler states
 SAMPLERSTATE(sampler_linear_clamp, SAMPLER_LINEAR_CLAMP_SLOT);
@@ -27,6 +28,7 @@ SAMPLERCOMPARISONSTATE(sampler_comparison_depth, SAMPLER_COMPARISON_SLOT);
 // common structred buffer
 STRUCTUREDBUFFER(LightArray, ShaderLight, SBSLOT_SHADER_LIGHT_ARRAY);
 STRUCTUREDBUFFER(MatrixArray, float4x4, SBSLOT_MATRIX_ARRAY);
+STRUCTUREDBUFFER(TiledLights, uint, SBSLOT_TILED_LIGHTS);
 
 // alpha test
 #ifdef _ENABLE_ALPHATEST_
@@ -34,6 +36,11 @@ STRUCTUREDBUFFER(MatrixArray, float4x4, SBSLOT_MATRIX_ARRAY);
 #else
 #define ALPHATEST(x)
 #endif
+
+inline float2 GetScreenSize()
+{
+    return gFrameScreenSize;
+}
 
 // 计算法线切线空间变换矩阵
 inline float3x3 ComputeTangateTransform(float3 N, float3 P, float2 UV)
@@ -101,6 +108,52 @@ inline uint SetNormalIntoNumber(float3 nor)
     norNumber |= ((uint) ((nor.y * 0.5f + 0.5f) * 255.0f)) << 8;
     norNumber |= ((uint) ((nor.z * 0.5f + 0.5f) * 255.0f)) << 16;
     return norNumber;
+}
+
+inline uint Flatten(uint2 input, uint2 params)
+{
+    return input.y * params.x + input.x;
+}
+
+inline uint2 UnFlatten(uint input, uint2 params)
+{
+    return uint2(
+        input % params.y,
+        input / params.y
+    );
+}
+
+struct Plane
+{
+    float3 normal;
+    float distance;
+};
+
+inline Plane ComputePlane(float3 pos1, float3 pos2, float3 pos3)
+{
+    Plane plane;
+    
+    float3 v1 = pos2 - pos1;
+    float3 v2 = pos3 - pos1;
+
+    plane.normal = normalize(cross(v1, v2));
+    plane.distance = dot(plane.normal, pos1); // use dot to compute distance to origin
+    return plane;
+}
+
+struct AABB
+{
+    float3 center;
+    float3 extents;
+    
+    float3 GetMin() { return center - extents; }
+    float3 GetMax() { return center + extents; }
+};
+
+void CreateAABBFromMinMax(inout AABB aabb, float3 minV, float3 maxV)
+{
+    aabb.center  = (minV + maxV) * 0.5f;
+    aabb.extents = (maxV - aabb.center);
 }
 
 #endif

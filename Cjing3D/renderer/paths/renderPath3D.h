@@ -30,17 +30,21 @@ namespace Cjing3D {
 		void SetFXAAEnable(bool enableFXAA) { mEnableFXAA = enableFXAA; }
 		bool IsShadowEnable()const { return mEnableShadow; }
 		void SetShadowEnable(bool enableShadow) { mEnableShadow = enableShadow; }
-
+		U32 GetMSAASampleCount()const { return mMSAASampleCount; }
+	
 	protected:
 		Texture2D* GetLastPostprocessRT() {
 			return &mRTPostprocessLDR2;
 		}
-
-		virtual Texture2D* GetDepthBuffer() {
+		Texture2D* GetDepthBuffer() {
 			return &mDepthBuffer;
+		}
+		Texture2D* GetDepthBufferTemp() {
+			return &mDepthBufferTemp;
 		}
 
 		Texture2D mDepthBuffer;
+		Texture2D mDepthBufferTemp;
 		Texture2D mRTPostprocessLDR1;
 		Texture2D mRTPostprocessLDR2;
 
@@ -48,6 +52,7 @@ namespace Cjing3D {
 		F32 mExposure = 1.0f;				
 		bool mEnableFXAA = false;
 		bool mEnableShadow = true;
+		U32 mMSAASampleCount = 0;
 	};
 
 }
