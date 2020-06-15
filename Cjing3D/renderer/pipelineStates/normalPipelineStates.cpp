@@ -22,6 +22,7 @@ namespace Cjing3D
 			switch (renderPass)
 			{
 			case RenderPassType_Forward:
+			case RenderPassType_TiledForward:
 				ret = shaderLib.GetVertexLayout(InputLayoutType_ObjectAll);
 				break;
 			case RenderPassType_Shadow:
@@ -45,6 +46,7 @@ namespace Cjing3D
 			switch (renderPass)
 			{
 			case RenderPassType_Forward:
+			case RenderPassType_TiledForward:
 				ret = shaderLib.GetVertexShader(VertexShaderType_ObjectAll);
 				break;
 			case RenderPassType_Shadow:
@@ -76,6 +78,14 @@ namespace Cjing3D
 					ret = shaderLib.GetPixelShader(PixelShaderType_Object_Forward);
 				}
 				break;
+			case RenderPassType_TiledForward:
+				if (transparent) {
+					ret = shaderLib.GetPixelShader(PixelShaderType_Object_TiledForward_Transparent);
+				}
+				else {
+					ret = shaderLib.GetPixelShader(PixelShaderType_Object_TiledForward);
+				}
+				break;
 			case RenderPassType_Depth:
 				ret = alphaTest == true ?
 					shaderLib.GetPixelShader(PixelShaderType_Object_AlphaTest) : nullptr;
@@ -94,9 +104,10 @@ namespace Cjing3D
 		NormalRenderParams params = {};
 
 		// base object rendering
-		std::vector<RenderPassType> renderPasses = 
+		const std::vector<RenderPassType> renderPasses = 
 		{ 
 			RenderPassType_Forward, 
+			RenderPassType_TiledForward,
 			RenderPassType_Depth, 
 			RenderPassType_Shadow,
 			RenderPassType_ShadowCube
@@ -144,6 +155,7 @@ namespace Cjing3D
 					switch (renderPass)
 					{
 					case RenderPassType_Forward:
+					case RenderPassType_TiledForward:
 						if (transparent)
 						{
 							infoState.mDepthStencilState = stateManager.GetDepthStencilState(DepthStencilStateID_GreaterEqualReadWrite);

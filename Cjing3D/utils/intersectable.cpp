@@ -141,7 +141,7 @@ namespace Cjing3D
 
 	bool Sphere::Intersects(const AABB& other) const
 	{
-		XMFLOAT3 closestPoint = XMFloat3Min(XMFloat3Max(other.mMin, mCenter), mCenter);
+		XMFLOAT3 closestPoint = XMFloat3Min(XMFloat3Max(other.mMin, mCenter), other.mMax);
 		return XMDistance(mCenter, closestPoint) < mRadius;
 	}
 

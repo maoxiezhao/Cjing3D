@@ -34,6 +34,18 @@ namespace Cjing3D {
 		return result;
 	}
 
+	inline const XMVECTOR XM_CALLCONV XMLoad(const U32x2& src) {
+		return XMLoadUInt2(reinterpret_cast<const XMUINT2*>(&src));
+	}
+
+	inline const XMVECTOR XM_CALLCONV XMLoad(const U32x3& src) {
+		return XMLoadUInt3(reinterpret_cast<const XMUINT3*>(&src));
+	}
+
+	inline const XMVECTOR XM_CALLCONV XMLoad(const U32x4& src) {
+		return XMLoadUInt4(reinterpret_cast<const XMUINT4*>(&src));
+	}
+
 	inline const XMVECTOR XM_CALLCONV XMLoad(const F32x2& src) {
 		XMVECTOR result = XMVectorZero();
 		result = XMVectorSetX(result, src[0]);
@@ -55,15 +67,34 @@ namespace Cjing3D {
 		return result;
 	}
 
-	inline const XMFLOAT4 XM_CALLCONV XMConvert(const F32x4& src){
+	inline const XMFLOAT3 XM_CALLCONV XMConvert(const F32x3& src) {
+		XMFLOAT3 result;
+		XMStoreFloat3(&result, XMLoad(src));
+		return result;
+	}
+
+	inline const XMFLOAT4 XM_CALLCONV XMConvert(const F32x4& src) {
 		XMFLOAT4 result;
 		XMStoreFloat4(&result, XMLoad(src));
 		return result;
 	}
 
-	inline const XMFLOAT3 XM_CALLCONV XMConvert(const F32x3& src) {
-		XMFLOAT3 result;
-		XMStoreFloat3(&result, XMLoad(src));
+
+	inline const XMUINT2 XM_CALLCONV XMConvert(const U32x2& src) {
+		XMUINT2 result;
+		XMStoreUInt2(&result, XMLoad(src));
+		return result;
+	}
+
+	inline const XMUINT3 XM_CALLCONV XMConvert(const U32x3& src) {
+		XMUINT3 result;
+		XMStoreUInt3(&result, XMLoad(src));
+		return result;
+	}
+
+	inline const XMUINT4 XM_CALLCONV XMConvert(const U32x4& src) {
+		XMUINT4 result;
+		XMStoreUInt4(&result, XMLoad(src));
 		return result;
 	}
 

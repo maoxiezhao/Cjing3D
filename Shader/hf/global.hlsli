@@ -28,6 +28,7 @@ SAMPLERCOMPARISONSTATE(sampler_comparison_depth, SAMPLER_COMPARISON_SLOT);
 // common structred buffer
 STRUCTUREDBUFFER(LightArray, ShaderLight, SBSLOT_SHADER_LIGHT_ARRAY);
 STRUCTUREDBUFFER(MatrixArray, float4x4, SBSLOT_MATRIX_ARRAY);
+STRUCTUREDBUFFER(TiledLights, uint, SBSLOT_TILED_LIGHTS);
 
 // alpha test
 #ifdef _ENABLE_ALPHATEST_
@@ -138,6 +139,21 @@ inline Plane ComputePlane(float3 pos1, float3 pos2, float3 pos3)
     plane.normal = normalize(cross(v1, v2));
     plane.distance = dot(plane.normal, pos1); // use dot to compute distance to origin
     return plane;
+}
+
+struct AABB
+{
+    float3 center;
+    float3 extents;
+    
+    float3 GetMin() { return center - extents; }
+    float3 GetMax() { return center + extents; }
+};
+
+void CreateAABBFromMinMax(inout AABB aabb, float3 minV, float3 maxV)
+{
+    aabb.center  = (minV + maxV) * 0.5f;
+    aabb.extents = (maxV - aabb.center);
 }
 
 #endif

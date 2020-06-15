@@ -117,7 +117,7 @@ namespace Cjing3D
 			vp.mMaxDepth = 1.0f;
 			device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
 
-			mRenderer.RenderSceneOpaque(camera, RenderPassType_Forward);
+			mRenderer.RenderSceneOpaque(camera, RenderPassType_TiledForward);
 			mRenderer.RenderSky();
 
 			device.EndRenderBehavior();
@@ -126,7 +126,7 @@ namespace Cjing3D
 		}
 
 		// transparent
-		RenderTransparents(mRBTransparent, RenderPassType_Forward);
+		RenderTransparents(mRBTransparent, RenderPassType_TiledForward);
 
 		// postprocess
 		RenderPostprocess(mRTMain);

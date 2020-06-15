@@ -30,6 +30,13 @@ struct Sphere
     float radius;
 };
 
+bool CheckSphereIntersectsAABB(Sphere sphere, AABB aabb)
+{
+    // find closest v
+    float3 v = max(0, abs(aabb.center - sphere.center) - aabb.extents);
+    return dot(v, v) <= sphere.radius * sphere.radius;
+}
+
 bool CheckSphereInsidePlane(Sphere sphere, Plane plane)
 {
     return !(dot(plane.normal, sphere.center) - plane.distance < -sphere.radius);

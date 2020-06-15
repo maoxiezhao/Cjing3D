@@ -20,7 +20,7 @@ CBUFFER(FrameCB, CBSLOT_RENDERER_FRAME)
 	float3 gFrameAmbient;
 	float  gFrameGamma;
 	uint   gFrameShadowCascadeCount;
-	float2 gFramePadding;
+	uint2  gFrameTileCullingCount;
 };
 
 CBUFFER(CameraCB, CBSLOT_RENDERER_CAMERA)
@@ -74,7 +74,8 @@ static const uint SHADER_LIGHT_TYPE_SPOT = 2;
 
 // tile definitions
 static const uint LIGHT_CULLING_TILED_BLOCK_SIZE = 16;
-static const uint LIGHT_CULLING_THREAD_SIZE = 16;
+static const uint LIGHT_CULLING_THREAD_SIZE = 8;
+static const uint LIGHT_CULLING_GRANULARITY = LIGHT_CULLING_TILED_BLOCK_SIZE / LIGHT_CULLING_THREAD_SIZE;
 
 CBUFFER(CSParamsCB, CBSLOT_CS_PARAMS)
 {

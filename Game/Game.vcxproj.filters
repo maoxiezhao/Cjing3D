@@ -74,5 +74,8 @@
       <Filter>scripts\common</Filter>
     </None>
     <None Include="postcompile.bat" />
+    <None Include="..\Assets\Scripts\scene.lua">
+      <Filter>scripts</Filter>
+    </None>
   </ItemGroup>
 </Project>

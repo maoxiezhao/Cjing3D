@@ -101,6 +101,12 @@
     <FxCompile Include="cs\lightTiledCullingCS.hlsl">
       <Filter>cs</Filter>
     </FxCompile>
+    <FxCompile Include="ps\objectTiledForwardPS.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
+    <FxCompile Include="ps\objectTiledForwardTransparentPS.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="hf\objectInput.hlsli">

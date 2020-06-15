@@ -29,9 +29,9 @@ function MainScene:onStart()
     -- transform:Translate(Vector:new(20, 30, -18));
 	-- transform:Update();
 
-    local light = scene:CreateLight(entity);
-	light:SetLightType(LightType_Directional);
-	light:SetEnergy(1);
+    -- local light = scene:CreateLight(entity);
+	-- light:SetLightType(LightType_Directional);
+	-- light:SetEnergy(1);
 
 	------------------------
 

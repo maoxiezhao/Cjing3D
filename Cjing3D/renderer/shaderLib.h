@@ -36,6 +36,8 @@ enum PixelShaderType
 {
 	PixelShaderType_Object_Forward = 0,
 	PixelShaderType_Object_Forward_Transparent,
+	PixelShaderType_Object_TiledForward,
+	PixelShaderType_Object_TiledForward_Transparent,
 	PixelShaderType_Object_AlphaTest,
 	PixelShaderType_FullScreen,
 	PixelShaderType_Image,

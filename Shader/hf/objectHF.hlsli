@@ -14,12 +14,72 @@ TEXTURE2D(texture_basecolormap, TEXTURE_BASECOLOR_MAP);
 TEXTURE2D(texture_normalmap, TEXTURE_NORMAL_MAP);
 TEXTURE2D(texture_surfacemap, TEXTURE_SURFACE_MAP);
  
-float4 ForwardLighting(in Surface surface)
+/////////////////////////////////////////////////////////////////////
+// Tiled forward lighting
+////////////////////////////////////////////////////////////////////
+#ifdef _TILED_FORWRAD_LIGHTING_
+float4 TiledForwardLighting(in float2 pixel, in Surface surface)
 {
-	return float4(1, 1, 1, 1);
-}
+    const uint2 tilePos = uint2(floor(pixel / LIGHT_CULLING_TILED_BLOCK_SIZE));
+    const uint tileIndex = Flatten(tilePos, gFrameTileCullingCount);
+    const uint tileBucketAddress = tileIndex * SHADER_LIGHT_TILE_BUCKET_COUNT;
+    
+    // 对于每个tile获取对应的tileBucket,每个tileBucket为U32整型，每一位1or0表示是否受对应光源影响
+    float3 color = GetAmbientLight().rgb;
+    [branch]
+    if (gShaderLightArrayCount > 0)
+    {
+        const uint firstBucket = 0;
+        const uint lastBucket = min(gShaderLightArrayCount / 32, max(0, SHADER_LIGHT_TILE_BUCKET_COUNT - 1));
+        
+        [loop]
+        for (uint bucket = firstBucket; bucket <= lastBucket; bucket++)
+        {
+            uint bucketBits = TiledLights[tileBucketAddress + bucket];
+            
+            [loop]
+            while(bucketBits != 0)
+            {
+                const uint firstBitlow = firstbitlow(bucketBits);
+                const uint lightIndex = firstBitlow + bucket * 32;
+                bucketBits ^= 1 << firstBitlow;
 
-float4 SimpleLighting(in Surface surface)
+                [branch]
+                if (lightIndex < gShaderLightArrayCount)
+                {
+                    ShaderLight light = LightArray[lightIndex];
+		
+                    switch (light.GetLightType())
+                    {
+                        case SHADER_LIGHT_TYPE_DIRECTIONAL:
+                            color += DirectionalLight(light, surface);
+                            break;
+                        case SHADER_LIGHT_TYPE_POINT:
+                            color += PointLight(light, surface);
+                            break;
+                        case SHADER_LIGHT_TYPE_SPOT:
+                            break;
+                    }
+                }
+                else
+                {
+                    bucket = SHADER_LIGHT_TILE_BUCKET_COUNT;
+                    break;
+                }
+            }
+        }
+        
+    }
+
+    return float4(color.rgb, 1.0f);
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////
+// Simple lighting
+////////////////////////////////////////////////////////////////////
+#ifdef _FORWRAD_LIGHTING_
+float4 ForwardLighting(in Surface surface)
 {
 	float3 color = GetAmbientLight().rgb;
 
@@ -43,8 +103,13 @@ float4 SimpleLighting(in Surface surface)
 
 	return float4(color.rgb, 1.0f);
 }
+#endif
 
 #if !defined(_DISABLE_OBJECT_PS_)
+
+/////////////////////////////////////////////////////////////////////
+// Main
+////////////////////////////////////////////////////////////////////
 
 float4 main(PixelInputType input) : SV_TARGET
 {
@@ -95,10 +160,12 @@ float4 main(PixelInputType input) : SV_TARGET
 	    spcularIntensity
 	);
 
-#ifndef _SIMPLE_BASE_LIGHT_
+#ifdef _TILED_FORWRAD_LIGHTING_
+    color *= TiledForwardLighting(input.pos.xy, surface);
+#endif
+    
+#ifdef _FORWRAD_LIGHTING_
     color *= ForwardLighting(surface);
-#else
-	color *= SimpleLighting(surface);
 #endif
 		
 	return color;

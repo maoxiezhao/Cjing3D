@@ -13,6 +13,7 @@ groupshared uint uMinDepth;
 groupshared uint uMaxDepth;
 groupshared uint uTiledLights[SHADER_LIGHT_TILE_BUCKET_COUNT];
 groupshared uint uDebugTiledLightCount;
+groupshared AABB uTileAABB;
 
 inline void AddTiledLight(uint index)
 {
@@ -33,14 +34,14 @@ void main(uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchThreadID, uint3 GTid :
     // SV_GroupThreadID可以最终计算出对应UV，从depthBuffer中得到深度
  
     const uint tileIndex = Flatten(Gid.xy, gCSNumThreadGroups);
-    TiledFrustum tiledFrustum = TiledFrustums[tileIndex];   
     const uint lightBucketAddress = tileIndex * SHADER_LIGHT_TILE_BUCKET_COUNT;
- 
+    TiledFrustum tiledFrustum = TiledFrustums[tileIndex];
+    
     // 1. 初始化
     uint bucketIndex = groupIndex;
     uint i = 0;
     uint step = LIGHT_CULLING_THREAD_SIZE * LIGHT_CULLING_THREAD_SIZE;
-    for (i = bucketIndex; i < SHADER_LIGHT_COUNT; i += step)
+    for (i = bucketIndex; i < SHADER_LIGHT_TILE_BUCKET_COUNT; i += step)
     {
         uTiledLights[i] = 0;
     }
@@ -59,11 +60,18 @@ void main(uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchThreadID, uint3 GTid :
     float currentMaxDepth = -10000000;
     float currentDepth = 0.0f;
     
-    uint2 pixel = DTid.xy;
-    pixel = min(pixel, GetScreenSize() - 1.0f);
-    currentDepth = texture_depth[pixel];
-    currentMaxDepth = max(currentMaxDepth, currentDepth);
-    currentMinDepth = min(currentMinDepth, currentDepth);
+    // 通过粒度控制减少所需的threadCount
+    uint granularity = 0;
+    uint granularityStep = LIGHT_CULLING_GRANULARITY * LIGHT_CULLING_GRANULARITY;
+    [unroll]
+    for (granularity = 0; granularity < granularityStep; granularity++)
+    {
+        uint2 pixel = DTid.xy * uint2(LIGHT_CULLING_GRANULARITY, LIGHT_CULLING_GRANULARITY) + UnFlatten(granularity, LIGHT_CULLING_GRANULARITY);
+        pixel = min(pixel, GetScreenSize() - 1.0f);
+        currentDepth = texture_depth[pixel];
+        currentMaxDepth = max(currentMaxDepth, currentDepth);
+        currentMinDepth = min(currentMinDepth, currentDepth);
+    }
     
     GroupMemoryBarrierWithGroupSync();
     
@@ -73,12 +81,39 @@ void main(uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchThreadID, uint3 GTid :
     GroupMemoryBarrierWithGroupSync();
     
     // reversed zbuffer
-    float zMinDepth = uMaxDepth;
-    float zMaxDepth = uMinDepth;
+    float zMinDepth = asfloat(uMaxDepth);
+    float zMaxDepth = asfloat(uMinDepth);
     
     float viewMinDepth = ScreenToView(float4(0.0f, 0.0f, zMinDepth, 1.0f)).z;
     float viewMaxDepth = ScreenToView(float4(0.0f, 0.0f, zMaxDepth, 1.0f)).z;
     float viewNearClip = ScreenToView(float4(0.0f, 0.0f, 1.0f, 1.0f)).z;
+    
+    // 大量非对称frustum导致culling精度过低，这里对每个tile构建更紧密的包围盒
+    if(groupIndex == 0)
+    {
+        float3 viewCorners[8];
+        viewCorners[0] = ScreenToView(float4(float2(Gid.x, Gid.y) * LIGHT_CULLING_TILED_BLOCK_SIZE, zMinDepth, 1.0f)).xyz;
+        viewCorners[1] = ScreenToView(float4(float2(Gid.x + 1, Gid.y) * LIGHT_CULLING_TILED_BLOCK_SIZE, zMinDepth, 1.0f)).xyz;
+        viewCorners[2] = ScreenToView(float4(float2(Gid.x, Gid.y + 1) * LIGHT_CULLING_TILED_BLOCK_SIZE, zMinDepth, 1.0f)).xyz;
+        viewCorners[3] = ScreenToView(float4(float2(Gid.x + 1, Gid.y + 1) * LIGHT_CULLING_TILED_BLOCK_SIZE, zMinDepth, 1.0f)).xyz;
+        
+        viewCorners[4] = ScreenToView(float4(float2(Gid.x, Gid.y) * LIGHT_CULLING_TILED_BLOCK_SIZE, zMaxDepth, 1.0f)).xyz;
+        viewCorners[5] = ScreenToView(float4(float2(Gid.x + 1, Gid.y) * LIGHT_CULLING_TILED_BLOCK_SIZE, zMaxDepth, 1.0f)).xyz;
+        viewCorners[6] = ScreenToView(float4(float2(Gid.x, Gid.y + 1) * LIGHT_CULLING_TILED_BLOCK_SIZE, zMaxDepth, 1.0f)).xyz;
+        viewCorners[7] = ScreenToView(float4(float2(Gid.x + 1, Gid.y + 1) * LIGHT_CULLING_TILED_BLOCK_SIZE, zMaxDepth, 1.0f)).xyz;
+        
+        float3 minV = 10000000;
+        float3 maxV = -10000000;
+        [unroll]
+        for (int i = 0; i < 8; i++)
+        {
+            minV = min(minV, viewCorners[i]);
+            maxV = max(maxV, viewCorners[i]);
+        }
+        CreateAABBFromMinMax(uTileAABB, minV, maxV);
+    }
+    
+    GroupMemoryBarrierWithGroupSync();
     
     // 3.遍历所有light，判断是否和frustum相交
     // 每个groupThread只处理（lightCount / step)个light
@@ -96,7 +131,10 @@ void main(uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchThreadID, uint3 GTid :
                 Sphere sphere = { light.viewPosition, light.range };
                 if (CheckSphereInsideFrustum(sphere, tiledFrustum, viewNearClip, viewMaxDepth))
                 {
-                    AddTiledLight(i);
+                    if (CheckSphereIntersectsAABB(sphere, uTileAABB))
+                    {
+                        AddTiledLight(i);
+                    }
                 }
             }
             break;
@@ -106,31 +144,34 @@ void main(uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchThreadID, uint3 GTid :
     GroupMemoryBarrierWithGroupSync();
     
     // 4. 写入rwTiledLights
-    for (i = bucketIndex; i < SHADER_LIGHT_COUNT; i += step)
+    for (i = bucketIndex; i < SHADER_LIGHT_TILE_BUCKET_COUNT; i += step)
     {
         RWTiledLights[lightBucketAddress + i] = uTiledLights[i];
     }
     
     // debug
 #ifdef TILED_CULLING_DEBUG
-    uint2 debugPixel = DTid.xy;
-    const float3 mapTex[] =
+    for (granularity = 0; granularity < granularityStep; granularity++)
     {
-        float3(0, 0, 0),
-		float3(0, 0, 1),
-		float3(0, 1, 1),
-		float3(0, 1, 0),
-		float3(1, 1, 0),
-		float3(1, 0, 0),
-    };
-    const uint mapTexLen = 5;
-    const uint maxHeat = 5;
-    float p = saturate((float) uDebugTiledLightCount / maxHeat);
-    float l = p * mapTexLen;
-    float3 a = mapTex[floor(l)];
-    float3 b = mapTex[ceil(l)];
-    float4 heatmap = float4(lerp(a, b, l - floor(l)), p);
-    RWDebugTexture[debugPixel] = heatmap;
-    
+        uint2 debugPixel = DTid.xy * uint2(LIGHT_CULLING_GRANULARITY, LIGHT_CULLING_GRANULARITY) + UnFlatten(granularity, LIGHT_CULLING_GRANULARITY);
+        
+        const float3 mapTex[] =
+        {
+            float3(0, 0, 0),
+		    float3(0, 0, 1),
+		    float3(0, 1, 1),
+		    float3(0, 1, 0),
+		    float3(1, 1, 0),
+		    float3(1, 0, 0),
+        };
+        const uint mapTexLen = 5;
+        const uint maxHeat = 50;
+        float p = saturate((float) uDebugTiledLightCount / maxHeat);
+        float l = p * mapTexLen;
+        float3 a = mapTex[floor(l)];
+        float3 b = mapTex[ceil(l)];
+        float4 heatmap = float4(lerp(a, b, l - floor(l)), p);
+        RWDebugTexture[debugPixel] = heatmap;
+    }
 #endif    
 }

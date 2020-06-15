@@ -137,6 +137,9 @@ void ShaderLib::LoadPixelShaders()
 		mPixelShader[PixelShaderType_Object_Forward] = LoadShader(SHADERSTAGES_PS, shaderPath + "objectForwardPS.cso");
 		mPixelShader[PixelShaderType_Object_Forward_Transparent] = LoadShader(SHADERSTAGES_PS, shaderPath + "objectForwardTransparentPS.cso");
 		mPixelShader[PixelShaderType_Object_AlphaTest] = LoadShader(SHADERSTAGES_PS, shaderPath + "objectAlphaTestPS.cso");
+		mPixelShader[PixelShaderType_Object_TiledForward] = LoadShader(SHADERSTAGES_PS, shaderPath + "objectTiledForwardPS.cso");
+		mPixelShader[PixelShaderType_Object_TiledForward_Transparent] = LoadShader(SHADERSTAGES_PS, shaderPath + "objectTiledForwardTransparentPS.cso");
+
 		// full screen ps
 		mPixelShader[PixelShaderType_FullScreen] = LoadShader(SHADERSTAGES_PS, shaderPath + "screenPS.cso");
 		// image ps
