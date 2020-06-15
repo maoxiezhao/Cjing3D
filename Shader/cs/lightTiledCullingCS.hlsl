@@ -1,6 +1,6 @@
 #include "..\hf\tiledCullingHF.hlsli"
 
-#define TILED_CULLING_DEBUG
+//#define TILED_CULLING_DEBUG
 
 STRUCTUREDBUFFER(TiledFrustums, TiledFrustum, SBSLOT_TILED_FRUSTUMS);
 RWSTRUCTUREDBUFFER(RWTiledLights, uint, 0);
@@ -14,6 +14,24 @@ groupshared uint uMaxDepth;
 groupshared uint uTiledLights[SHADER_LIGHT_TILE_BUCKET_COUNT];
 groupshared uint uDebugTiledLightCount;
 groupshared AABB uTileAABB;
+groupshared uint uDepthMask;
+
+// 2.5D Culling： 因为深度不是连续的，当光源在深度中相交，且部分像素中间未中间深度，该Culling可以进一步剔除
+// 将光源Sphere构建到DepthMask:
+// 计算sphere的最大最小深度，映射到DepthMask上0000111100000
+inline uint ConstructDepthMask(Sphere sphere, float viewMinDepth, float invDepthRange)
+{
+    float minDepth = sphere.center.z - sphere.radius;
+    float maxDepth = sphere.center.z + sphere.radius;
+    uint depthMaskStart = max(0.0f, min(31.0f, (minDepth - viewMinDepth) * invDepthRange));
+    uint depthMaskEnd = max(0.0f, min(31.0f, (maxDepth - viewMinDepth) * invDepthRange));
+    
+    uint depthMask = 0xffffffff;
+    depthMask >>= (31 - (depthMaskEnd - depthMaskStart));
+    depthMask <<= depthMaskStart;
+    
+    return depthMask;
+}
 
 inline void AddTiledLight(uint index)
 {
@@ -49,7 +67,7 @@ void main(uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchThreadID, uint3 GTid :
     {
         uMaxDepth = 0;
         uMinDepth = 0xffffffff;
-        
+        uDepthMask = 0;
 #ifdef TILED_CULLING_DEBUG
         uDebugTiledLightCount = 0;
 #endif
@@ -58,7 +76,7 @@ void main(uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchThreadID, uint3 GTid :
     // 2.计算tile最大和最小深度
     float currentMinDepth =  10000000;
     float currentMaxDepth = -10000000;
-    float currentDepth = 0.0f;
+    float currentDepth[LIGHT_CULLING_THREAD_SIZE * LIGHT_CULLING_THREAD_SIZE];
     
     // 通过粒度控制减少所需的threadCount
     uint granularity = 0;
@@ -68,9 +86,9 @@ void main(uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchThreadID, uint3 GTid :
     {
         uint2 pixel = DTid.xy * uint2(LIGHT_CULLING_GRANULARITY, LIGHT_CULLING_GRANULARITY) + UnFlatten(granularity, LIGHT_CULLING_GRANULARITY);
         pixel = min(pixel, GetScreenSize() - 1.0f);
-        currentDepth = texture_depth[pixel];
-        currentMaxDepth = max(currentMaxDepth, currentDepth);
-        currentMinDepth = min(currentMinDepth, currentDepth);
+        currentDepth[granularity] = texture_depth[pixel];
+        currentMaxDepth = max(currentMaxDepth, currentDepth[granularity]);
+        currentMinDepth = min(currentMinDepth, currentDepth[granularity]);
     }
     
     GroupMemoryBarrierWithGroupSync();
@@ -88,6 +106,19 @@ void main(uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchThreadID, uint3 GTid :
     float viewMaxDepth = ScreenToView(float4(0.0f, 0.0f, zMaxDepth, 1.0f)).z;
     float viewNearClip = ScreenToView(float4(0.0f, 0.0f, 1.0f, 1.0f)).z;
     
+    // 2.5D Culling
+    // 将minDepth到maxDepth之间划分为32部分[0-31]，当存在当前深度时，则将对应为设置为1 
+    const float invDepthRange = 31.0f / (viewMaxDepth - viewMinDepth);
+    uint currentDepthMask = 0;
+    [unroll]
+    for (granularity = 0; granularity < granularityStep; granularity++)
+    {
+        float viewDepth = ScreenToView(float4(0.0f, 0.0f, currentDepth[granularity], 1.0f)).z;
+        uint bitPlace = max(0.0f, min(31.0f, (viewDepth - viewMinDepth) * invDepthRange));
+        currentDepthMask |= 1 << bitPlace;
+    }
+    InterlockedOr(uDepthMask, currentDepthMask);
+        
     // 大量非对称frustum导致culling精度过低，这里对每个tile构建更紧密的包围盒
     if(groupIndex == 0)
     {
@@ -133,7 +164,10 @@ void main(uint3 Gid : SV_GroupID, uint3 DTid : SV_DispatchThreadID, uint3 GTid :
                 {
                     if (CheckSphereIntersectsAABB(sphere, uTileAABB))
                     {
-                        AddTiledLight(i);
+                        // 2.5D Culling
+                        if (uDepthMask & ConstructDepthMask(sphere, viewMinDepth, invDepthRange)) {
+                            AddTiledLight(i);
+                        }
                     }
                 }
             }

@@ -291,7 +291,7 @@ U32 lastScreenWidth = 0;
 U32 lastScreenHeight = 0;
 XMMATRIX lastCameraViewMatrix;
 
-bool bIsTiledCullingDebug = true;
+bool bIsTiledCullingDebug = false;
 Texture2D tiledCullingDebugTexture;
 void UpdateTiledCullingDebugTexture(GraphicsDevice& device, U32 width, U32 height)
 {
@@ -1703,8 +1703,7 @@ void Renderer::RenderDirLightShadowmap(LightComponent& light, CameraComponent& c
 			}
 		}
 
-		U32 resourceIndex = light.GetShadowMapIndex() + cascadeLevel;
-
+		I32 resourceIndex = light.GetShadowMapIndex() + cascadeLevel;
 		// 对于每个级联绘制包含物体的深度贴图
 		if (!renderQueue.IsEmpty())
 		{
@@ -1720,7 +1719,7 @@ void Renderer::RenderDirLightShadowmap(LightComponent& light, CameraComponent& c
 
 			frameAllocator.Free(renderQueue.GetBatchCount() * sizeof(RenderBatch));
 		}
-		else if (shadowMapDirtyTable[resourceIndex])
+		else if (resourceIndex >= 0 && shadowMapDirtyTable[resourceIndex])
 		{
 			shadowMapDirtyTable[resourceIndex] = false;
 			device.ClearDepthStencil(shadowMapArray2D, CLEAR_DEPTH, 0.0f, 0, resourceIndex);
@@ -1823,7 +1822,7 @@ void Renderer::RenderPointLightShadowmap(LightComponent& light, CameraComponent&
 
 		frameAllocator.Free(renderQueue.GetBatchCount() * sizeof(RenderBatch));
 	}
-	else if (shadowCubeMapDirtyTable[resourceIndex])
+	else if (resourceIndex >=0 && shadowCubeMapDirtyTable[resourceIndex])
 	{
 		shadowCubeMapDirtyTable[resourceIndex] = false;
 		device.ClearDepthStencil(shadowMapArrayCube, CLEAR_DEPTH, 0.0f, 0, resourceIndex);
