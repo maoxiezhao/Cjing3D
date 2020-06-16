@@ -69,3 +69,7 @@ namespace Cjing3D
 	using F32 = float;
 	using F64 = double;
 }
+
+#include <wrl.h>
+template<typename T>
+using ComPtr = Microsoft::WRL::ComPtr<T>;

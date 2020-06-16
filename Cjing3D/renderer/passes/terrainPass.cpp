@@ -109,7 +109,7 @@ void TerrainPass::InitializeShader()
 	};
 
 	ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
-	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resrouce_VertexShader);
+	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_Shader);
 
 	auto vsinfo = mRenderer.LoadVertexShaderInfo(shaderPath + "terrainVS.cso", shadowLayout, ARRAYSIZE(shadowLayout));
 	mTerrainVS = vsinfo.mVertexShader;

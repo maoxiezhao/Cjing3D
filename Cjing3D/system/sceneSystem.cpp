@@ -174,6 +174,11 @@ namespace Cjing3D
 		return entity;
 	}
 
+	ECS::Entity Scene::CreateSound(const std::string& name, const std::string& filePath, const F32x3& pos)
+	{
+		return ECS::Entity();
+	}
+
 	NameComponent& Scene::GetOrCreateNameByEntity(ECS::Entity entity)
 	{
 		auto nameComponentPtr = mNames.GetComponent(entity);
@@ -352,7 +357,8 @@ namespace Cjing3D
 			&mTerrains,
 			&mArmatures,
 			&mAnimations,
-			&mWeathers
+			&mWeathers,
+			&mSounds
 		);
 		return t;
 	}
@@ -372,7 +378,8 @@ namespace Cjing3D
 			&mTerrains,
 			&mArmatures,
 			&mAnimations,
-			&mWeathers
+			&mWeathers,
+			&mSounds
 		);
 		return t;
 	}

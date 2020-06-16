@@ -36,7 +36,7 @@ void ShaderLib::Uninitialize()
 void ShaderLib::LoadVertexShaders()
 {
 	auto& resourceManager = mRenderer.GetResourceManager();
-	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resrouce_VertexShader);
+	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_Shader);
 	{
 		// object all
 		{
@@ -131,7 +131,7 @@ void ShaderLib::LoadVertexShaders()
 void ShaderLib::LoadPixelShaders()
 {
 	auto& resourceManager = mRenderer.GetResourceManager();
-	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resrouce_PixelShader);
+	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_Shader);
 	{
 		// object
 		mPixelShader[PixelShaderType_Object_Forward] = LoadShader(SHADERSTAGES_PS, shaderPath + "objectForwardPS.cso");
@@ -152,7 +152,7 @@ void ShaderLib::LoadPixelShaders()
 void ShaderLib::LoadComputeShaders()
 {
 	auto& resourceManager = mRenderer.GetResourceManager();
-	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_ComputeShader);
+	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_Shader);
 	{
 		mComputeShader[ComputeShaderType_Tonemapping]       = LoadShader(SHADERSTAGES_CS, shaderPath + "toneMapping.cso");
 		mComputeShader[ComputeShaderType_MipmapGenerate]    = LoadShader(SHADERSTAGES_CS, shaderPath + "mipmapGenerate.cso");

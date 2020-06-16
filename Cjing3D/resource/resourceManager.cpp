@@ -13,14 +13,9 @@ namespace Cjing3D
 {
 void ResourceManager::Initialize()
 {
-	AddStandardResourceDirectory(Resrouce_VertexShader, "Shaders/");
-	AddStandardResourceDirectory(Resrouce_PixelShader, "Shaders/");
-	AddStandardResourceDirectory(Resource_ComputeShader, "Shaders/");
-	AddStandardResourceDirectory(Resource_HullShader, "Shaders/");
-	AddStandardResourceDirectory(Resource_DomainShader, "Shaders/");
-
+	AddStandardResourceDirectory(Resource_Shader, "Shaders/");
 	AddStandardResourceDirectory(Resource_Model, "Models/");
-
+	AddStandardResourceDirectory(Resource_Sound, "Sounds/");
 }
 
 void ResourceManager::Uninitialize()

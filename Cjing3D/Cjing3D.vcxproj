@@ -148,6 +148,9 @@
     <ClInclude Include="..\ThirdParty\imgui\imgui_internal.h" />
     <ClInclude Include="..\ThirdParty\optick\optick.config.h" />
     <ClInclude Include="..\ThirdParty\optick\optick.h" />
+    <ClInclude Include="audio\audio.h" />
+    <ClInclude Include="audio\audioDevice.h" />
+    <ClInclude Include="audio\audioDeviceX.h" />
     <ClInclude Include="common\common.h" />
     <ClInclude Include="common\definitions.h" />
     <ClInclude Include="common\version.h" />
@@ -278,11 +281,13 @@
     <ClInclude Include="system\component\material.h" />
     <ClInclude Include="system\component\mesh.h" />
     <ClInclude Include="system\component\object.h" />
+    <ClInclude Include="system\component\sound.h" />
     <ClInclude Include="system\component\terrain.h" />
     <ClInclude Include="system\component\transform.h" />
     <ClInclude Include="system\component\weather.h" />
     <ClInclude Include="system\ecsSystem.h" />
     <ClInclude Include="system\sceneSystem.h" />
+    <ClInclude Include="system\sceneSystemInclude.h" />
     <ClInclude Include="utils\allocator\linearAllocator.h" />
     <ClInclude Include="utils\allocator\tlsfAllocator.h" />
     <ClInclude Include="utils\array.h" />
@@ -316,6 +321,9 @@
     <ClCompile Include="..\ThirdParty\imgui\imgui_impl_dx11.cpp" />
     <ClCompile Include="..\ThirdParty\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="..\ThirdParty\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="audio\audio.cpp" />
+    <ClCompile Include="audio\audioDevice.cpp" />
+    <ClCompile Include="audio\audioDeviceX.cpp" />
     <ClCompile Include="core\allocator.cpp" />
     <ClCompile Include="core\eventSystem.cpp" />
     <ClCompile Include="core\gameComponent.cpp" />
@@ -430,6 +438,7 @@
     <ClCompile Include="system\component\material.cpp" />
     <ClCompile Include="system\component\mesh.cpp" />
     <ClCompile Include="system\component\object.cpp" />
+    <ClCompile Include="system\component\sound.cpp" />
     <ClCompile Include="system\component\terrain.cpp" />
     <ClCompile Include="system\component\transform.cpp" />
     <ClCompile Include="system\component\weather.cpp" />

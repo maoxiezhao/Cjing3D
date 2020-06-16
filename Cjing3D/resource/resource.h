@@ -10,17 +10,10 @@ namespace Cjing3D
 	enum Resource_Type
 	{
 		Resource_Unknown,
-		Resrouce_VertexShader,
-		Resrouce_PixelShader,
-		Resource_ComputeShader,
-		Resource_HullShader,
-		Resource_DomainShader,
-		Resource_InputLayout,
 		Resource_Texture,
-		Resource_Model
-
-		//Resource_Mesh,
-		//Resource_Material
+		Resource_Shader,
+		Resource_Model,
+		Resource_Sound,
 	};
 
 	/**

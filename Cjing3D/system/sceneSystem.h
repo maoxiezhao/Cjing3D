@@ -1,56 +1,8 @@
 #pragma once
 
-#include "common\common.h"
-#include "system\component\genericType.h"
-#include "system\component\transform.h"
-#include "system\component\camera.h"
-#include "system\component\mesh.h"
-#include "system\component\object.h"
-#include "system\component\material.h"
-#include "system\component\light.h"
-#include "system\component\terrain.h"
-#include "system\component\animation.h"
-#include "system\component\weather.h"
-
-#include "helper\archive.h"
-
-#include <map>
-#include <tuple>
+#include "sceneSystemInclude.h"
 
 namespace Cjing3D {
-
-	// TODO
-	using ComponentManagerTypesConst = std::tuple<
-		const ECS::ComponentManager<NameComponent>*,
-		const ECS::ComponentManager<TransformComponent>*,
-		const ECS::ComponentManager<HierarchyComponent>*,
-		const ECS::ComponentManager<MaterialComponent>*,
-		const ECS::ComponentManager<MeshComponent>*,
-		const ECS::ComponentManager<ObjectComponent>*,
-		const ECS::ComponentManager<AABBComponent>*,
-		const ECS::ComponentManager<LightComponent>*,
-		const ECS::ComponentManager<AABBComponent>*,
-		const ECS::ComponentManager<TerrainComponent>*,
-		const ECS::ComponentManager<ArmatureComponent>*,
-		const ECS::ComponentManager<AnimationComponent>*,
-		const ECS::ComponentManager<WeatherComponent>*
-	>;
-
-	using ComponentManagerTypes = std::tuple<
-		ECS::ComponentManager<NameComponent>*,
-		ECS::ComponentManager<TransformComponent>*,
-		ECS::ComponentManager<HierarchyComponent>*,
-		ECS::ComponentManager<MaterialComponent>*,
-		ECS::ComponentManager<MeshComponent>*,
-		ECS::ComponentManager<ObjectComponent>*,
-		ECS::ComponentManager<AABBComponent>*,
-		ECS::ComponentManager<LightComponent>*,
-		ECS::ComponentManager<AABBComponent>*,
-		ECS::ComponentManager<TerrainComponent>*,
-		ECS::ComponentManager<ArmatureComponent>*,
-		ECS::ComponentManager<AnimationComponent>*,
-		ECS::ComponentManager<WeatherComponent>*
-	>;
 
 	class Scene
 	{
@@ -78,6 +30,7 @@ namespace Cjing3D {
 		ECS::Entity CreateArmature(const std::string& name);
 		ECS::Entity CreateAnimation(const std::string& name);
 		ECS::Entity CreateWeather(const std::string& name);
+		ECS::Entity CreateSound(const std::string& name, const std::string& filePath, const F32x3& pos = { 0.0f, 0.0f, 0.0f });
 
 		// create by entity
 		NameComponent& GetOrCreateNameByEntity(ECS::Entity entity);
@@ -151,6 +104,7 @@ namespace Cjing3D {
 		ECS::ComponentManager<ArmatureComponent> mArmatures;
 		ECS::ComponentManager<AnimationComponent> mAnimations;
 		ECS::ComponentManager<WeatherComponent> mWeathers;
+		ECS::ComponentManager<SoundComponent> mSounds;
 
 		AABB mSceneAABB;
 

@@ -7,6 +7,7 @@
 #include "system\sceneSystem.h"
 #include "renderer\paths\renderPath_tiledForward.h"
 #include "gui\guiStage.h"
+#include "audio\audio.h"
 
 #include "editor\guiEditor.h"
 #include "editor\guiEditorScene.h"
@@ -24,6 +25,9 @@ namespace Cjing3D
 	{
 	}
 
+	SoundResource soundResource;
+	SoundInstance soundInstance;
+
 	void GameEditor::Initialize()
 	{
 		auto& renderer = GlobalGetSubSystem<Renderer>();
@@ -39,6 +43,8 @@ namespace Cjing3D
 
 	void GameEditor::Update(EngineTime time)
 	{
+
+#ifdef _ENABLE_GAME_EDITOR_
 		auto systemContext = GetGameContext();
 		auto& inputManager = systemContext->GetSubSystem<InputManager>();
 		auto& renderer = systemContext->GetSubSystem<Renderer>();
@@ -67,6 +73,8 @@ namespace Cjing3D
 		{
 			renderer.GetMainScene().Clear();
 		}
+#endif // _ENABLE_GAME_EDITOR_
+
 	}
 
 	void GameEditor::Uninitialize()

@@ -107,6 +107,12 @@
     <Filter Include="gui\guiWidgets">
       <UniqueIdentifier>{bc7a284d-7f86-48ae-ae01-8734129f031b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="audio">
+      <UniqueIdentifier>{904f1bc8-65fc-4722-a765-6f6b7e81189e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="audio\device">
+      <UniqueIdentifier>{89e36919-ef9c-49e1-8cee-cb6ef76ce9ff}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine.cpp" />
@@ -514,6 +520,18 @@
     </ClCompile>
     <ClCompile Include="gui\widgets.cpp">
       <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="audio\audio.cpp">
+      <Filter>audio</Filter>
+    </ClCompile>
+    <ClCompile Include="audio\audioDeviceX.cpp">
+      <Filter>audio\device</Filter>
+    </ClCompile>
+    <ClCompile Include="system\component\sound.cpp">
+      <Filter>system\component</Filter>
+    </ClCompile>
+    <ClCompile Include="audio\audioDevice.cpp">
+      <Filter>audio\device</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1013,6 +1031,21 @@
     </ClInclude>
     <ClInclude Include="gui\widgets.h">
       <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="system\sceneSystemInclude.h">
+      <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="audio\audio.h">
+      <Filter>audio</Filter>
+    </ClInclude>
+    <ClInclude Include="audio\audioDeviceX.h">
+      <Filter>audio\device</Filter>
+    </ClInclude>
+    <ClInclude Include="audio\audioDevice.h">
+      <Filter>audio\device</Filter>
+    </ClInclude>
+    <ClInclude Include="system\component\sound.h">
+      <Filter>system\component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -10,6 +10,8 @@
 #include "scripts\luaContext.h"
 #include "gui\guiStage.h"
 #include "system\sceneSystem.h"
+#include "audio\audio.h"
+#include "audio\audioDeviceX.h"
 
 namespace Cjing3D
 {
@@ -77,6 +79,11 @@ void Engine::Initialize()
 	auto inputSystem = new InputManager(*mSystemContext);
 	mSystemContext->RegisterSubSystem(inputSystem);
 	inputSystem->Initialize((HWND)mWindowHwnd, (HINSTANCE)mWindowHinstance);
+
+	// initialize audio system
+	auto audioManager = new AudioManager(*mSystemContext);
+	mSystemContext->RegisterSubSystem(audioManager);
+	audioManager->Initialize(CJING_MEM_NEW(AudioDeviceX));
 
 	// setup gamecomponent 
 	mGameComponent->Setup();
@@ -183,6 +190,7 @@ void Engine::Uninitialize()
 	mSystemContext->GetSubSystem<Renderer>().Uninitialize();
 	mSystemContext->GetSubSystem<ResourceManager>().Uninitialize();
 	mSystemContext->GetSubSystem<InputManager>().Uninitialize();
+	mSystemContext->GetSubSystem<AudioManager>().Uninitialize();
 	mSystemContext->GetSubSystem<JobSystem>().Uninitialize();
 
 	FileData::CloseData();

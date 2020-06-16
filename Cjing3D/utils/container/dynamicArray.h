@@ -337,6 +337,11 @@ namespace Container
 			}
 		}
 
+		T* data()
+		{
+			return mData;
+		}
+
 		const T& operator[](U32 index) const
 		{
 			assert(index < mSize);

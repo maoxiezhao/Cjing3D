@@ -7,7 +7,6 @@
 #include "utils\color.h"
 #include "helper\stringID.h"
 
-#include <wrl.h>
 #include <memory>
 #include <vector>
 #include <string>
@@ -15,9 +14,6 @@
 
 #include "hf\shaderInterop.h"
 #include "hf\shaderInteropRender.h"
-
-template<typename T>
-using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 enum BlendType
 {
