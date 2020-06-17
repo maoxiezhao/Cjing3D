@@ -3,9 +3,30 @@
 #include "renderer\renderableCommon.h"
 #include "renderer\renderer.h"
 #include "renderer\RHI\rhiResource.h"
+#include "renderer\RHI\rhiShader.h"
 
 namespace Cjing3D
 {
+	enum StructuredBufferType
+	{
+		StructuredBufferType_ShaderLight = 0,
+		StructuredBufferType_MatrixArray,
+		StructuredBufferType_Count,
+	};
+
+	enum ConstantBufferType
+	{
+		ConstantBufferType_Common = 0,
+		ConstantBufferType_Camera,
+		ConstantBufferType_Frame,
+		ConstantBufferType_Image,
+		ConstantBufferType_Postprocess,
+		ConstantBufferType_MipmapGenerate,
+		ConstantBufferType_CubeMap,
+		ConstantBufferType_CSParams,
+		ConstantBufferType_Count,
+	};
+
 	// depthStencilState
 	enum DepthStencilStateID {
 		DepthStencilStateID_DepthNone = 0,
@@ -46,14 +67,14 @@ namespace Cjing3D
 		SamplerStateID_Count
 	};
 
-	class StateManager
+	class RhiResourceManager
 	{
 	public:
-		StateManager(GraphicsDevice& device);
-		~StateManager();
+		RhiResourceManager(GraphicsDevice& device);
+		~RhiResourceManager();
 
 		void Initialize();
-		void Uninitalize();
+		void Uninitialize();
 
 		std::shared_ptr<DepthStencilState> GetDepthStencilState(DepthStencilStateID id);
 		std::shared_ptr<BlendState> GetBlendState(BlendStateID id);
@@ -62,11 +83,23 @@ namespace Cjing3D
 
 		std::vector<std::shared_ptr<SamplerState> > GetCommonSampleStates();
 
+		inline GPUBuffer& GetConstantBuffer(ConstantBufferType bufferType) {
+			return mConstantBuffer[static_cast<int>(bufferType)];
+		}
+
+		inline GPUBuffer& GetStructuredBuffer(StructuredBufferType bufferType) {
+			return mStructuredBuffer[static_cast<int>(bufferType)];
+		}
+
+		GPUBuffer& GetOrCreateCustomBuffer(const StringID& name);
+
 	private:
 		void SetupDepthStencilStates();
 		void SetupBlendStates();
 		void SetupRasterizerStates();
 		void SetupSamplerStates();
+		void LoadConstantBuffers();
+		void LoadStructuredBuffers();
 
 	private:
 		GraphicsDevice & mDevice;
@@ -75,6 +108,11 @@ namespace Cjing3D
 		std::shared_ptr<BlendState> mBlendStates[BlendStateID_Count];
 		std::shared_ptr<RasterizerState> mRasterizerStates[RasterizerStateID_Count];
 		std::shared_ptr<SamplerState> mSamplerStates[SamplerStateID_Count];
+
+		GPUBuffer mConstantBuffer[ConstantBufferType_Count];
+		GPUBuffer mStructuredBuffer[StructuredBufferType_Count];
+
+		std::map<StringID, GPUBuffer> mCustomBufferMap;
 
 	};
 }

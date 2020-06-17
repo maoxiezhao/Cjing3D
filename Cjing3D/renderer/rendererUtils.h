@@ -25,15 +25,15 @@ namespace Cjing3D
 
 		DeferredMIPGenerator(Renderer& renderer);
 
-		void AddTexture(RhiTexture2D& texture);
+		void AddTexture(Texture2D& texture);
 		void UpdateMipGenerating();
-		void GenerateMipChain(RhiTexture2D& texture, MIPGENFILTER filter);
+		void GenerateMipChain(Texture2D& texture, MIPGENFILTER filter);
 
 	private:
 		Renderer& mRenderer;
 
 		// TODO; 可能存在某些纹理提前释放问题
-		std::vector<RhiTexture2D*> mMipGenDeferredArray;
+		std::vector<Texture2D*> mMipGenDeferredArray;
 	};
 	struct alignas(16) RenderInstance 
 	{

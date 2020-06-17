@@ -17,7 +17,7 @@ namespace Cjing3D {
 		void SetTerrainSize(U32 width, U32 height);
 		U32x2 GetTerrainSize()const { return { mTerrainWidth, mTerrainHeight }; }
 		void LoadHeightMap(const std::string& name);
-		Texture2DPtr GetHeightMap();
+		TextureResourcePtr GetHeightMap();
 		void LoadDetailMap(const std::string& weightMapName, const std::string& detailName1, const std::string& detailName2, const std::string& detailName3);
 		TerrainMaterial& GetTextureMaterial();
 
@@ -34,7 +34,7 @@ namespace Cjing3D {
 		U32 mTerrainHeight = 512;
 		U32 mTerrainElevation = 0;
 		std::string mHeightMapName;
-		Texture2DPtr mHeightMap = nullptr;
+		TextureResourcePtr mHeightMap = nullptr;
 
 		std::string mWeightTextureName;
 		std::string mDetailTextureName1;

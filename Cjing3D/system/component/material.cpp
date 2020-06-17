@@ -48,17 +48,17 @@ void Cjing3D::MaterialComponent::Serialize(Archive& archive, U32 seed)
 	if (mBaseColorMapName.empty() == false)
 	{
 		auto texPath = FileData::ConvertToAvailablePath(parentPath + mBaseColorMapName);
-		mBaseColorMap = resourceManager.GetOrCreate<RhiTexture2D>(StringID(texPath));
+		mBaseColorMap = resourceManager.GetOrCreate<TextureResource>(StringID(texPath));
 	}
 	if (mNormalMapName.empty() == false)
 	{
 		auto texPath = FileData::ConvertToAvailablePath(parentPath + mNormalMapName);
-		mNormalMap = resourceManager.GetOrCreate<RhiTexture2D>(StringID(texPath));
+		mNormalMap = resourceManager.GetOrCreate<TextureResource>(StringID(texPath));
 	}
 	if (mSurfaceMapName.empty() == false)
 	{
 		auto texPath = FileData::ConvertToAvailablePath(parentPath + mSurfaceMapName);
-		mSurfaceMap = resourceManager.GetOrCreate<RhiTexture2D>(StringID(texPath));
+		mSurfaceMap = resourceManager.GetOrCreate<TextureResource>(StringID(texPath));
 	}
 
 	// renderer will setup render data

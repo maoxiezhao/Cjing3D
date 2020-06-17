@@ -8,26 +8,6 @@
 namespace Cjing3D
 {
 
-enum StructuredBufferType
-{
-	StructuredBufferType_ShaderLight = 0,
-	StructuredBufferType_MatrixArray,
-	StructuredBufferType_Count,
-};
-
-enum ConstantBufferType
-{
-	ConstantBufferType_Common = 0,
-	ConstantBufferType_Camera,
-	ConstantBufferType_Frame,
-	ConstantBufferType_Image,
-	ConstantBufferType_Postprocess,
-	ConstantBufferType_MipmapGenerate,
-	ConstantBufferType_CubeMap,
-	ConstantBufferType_CSParams,
-	ConstantBufferType_Count,
-};
-
 class BufferManager
 {
 public:
@@ -47,15 +27,7 @@ public:
 	}
 
 private:
-	void LoadConstantBuffers();
-	void LoadStructuredBuffers();
 
-	Renderer & mRenderer;
-
-	GPUBuffer mConstantBuffer[ConstantBufferType_Count];
-	GPUBuffer mStructuredBuffer[StructuredBufferType_Count];
-	
-	std::map<StringID, GPUBuffer> mCustomBufferMap;
 };
 
 }

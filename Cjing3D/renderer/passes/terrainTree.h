@@ -90,8 +90,8 @@ namespace Cjing3D
 		virtual void Render();
 
 		void LoadHeightMap(const std::string& path);
-		void LoadHeightMap(Texture2DPtr heightMap);
-		Texture2DPtr GetHeightMap();
+		void LoadHeightMap(TextureResourcePtr heightMap);
+		TextureResourcePtr GetHeightMap();
 		void LoadTerrainMaterial(TerrainMaterial material);
 
 		U32 GetElevation()const { return mTerrainElevation; }
@@ -141,7 +141,7 @@ namespace Cjing3D
 		TerrainMaterial mTerrainMaterial;
 		GPUBuffer mTerrainBuffer;
 		bool mTerrainBufferDirty = true;
-		Texture2DPtr mHeightMap = nullptr;
+		TextureResourcePtr mHeightMap = nullptr;
 
 		TerrainTileManager mTerrainTileManager;
 

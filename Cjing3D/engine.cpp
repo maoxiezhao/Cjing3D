@@ -81,9 +81,9 @@ void Engine::Initialize()
 	inputSystem->Initialize((HWND)mWindowHwnd, (HINSTANCE)mWindowHinstance);
 
 	// initialize audio system
-	auto audioManager = new AudioManager(*mSystemContext);
+	auto audioManager = new Audio::AudioManager(*mSystemContext);
 	mSystemContext->RegisterSubSystem(audioManager);
-	audioManager->Initialize(CJING_MEM_NEW(AudioDeviceX));
+	audioManager->Initialize(CJING_MEM_NEW(Audio::AudioDeviceX));
 
 	// setup gamecomponent 
 	mGameComponent->Setup();
@@ -190,7 +190,7 @@ void Engine::Uninitialize()
 	mSystemContext->GetSubSystem<Renderer>().Uninitialize();
 	mSystemContext->GetSubSystem<ResourceManager>().Uninitialize();
 	mSystemContext->GetSubSystem<InputManager>().Uninitialize();
-	mSystemContext->GetSubSystem<AudioManager>().Uninitialize();
+	mSystemContext->GetSubSystem<Audio::AudioManager>().Uninitialize();
 	mSystemContext->GetSubSystem<JobSystem>().Uninitialize();
 
 	FileData::CloseData();

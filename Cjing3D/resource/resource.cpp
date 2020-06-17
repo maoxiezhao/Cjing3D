@@ -5,19 +5,36 @@
 
 namespace Cjing3D {
 
-template<typename T>
-Resource_Type Resource::DeduceResourceType()
-{
-	return Resource_Unknown;
-}
 
-#define ADDTORESOURCETYPE(T, enumT) template<> Resource_Type Resource::DeduceResourceType<T>() { return enumT; }
-
-Resource::Resource(Resource_Type type) :
+Resource::Resource(ResourceType type) :
 	mType(type),
 	mGUID(GENERATE_ID)
 {
 }
 
+
+TextureResource::TextureResource() :
+	Resource(Resource_Texture)
+{
+	mTexture = CJING_MEM_NEW(Texture2D);
+}
+
+TextureResource::~TextureResource()
+{
+	if (mTexture != nullptr)
+	{
+		mTexture->Clear();
+		CJING_MEM_DELETE(mTexture);
+	}
+}
+
+SoundResource::SoundResource() :
+	Resource(Resource_Sound)
+{
+}
+
+SoundResource::~SoundResource()
+{
+}
 
 }

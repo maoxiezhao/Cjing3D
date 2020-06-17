@@ -15,7 +15,7 @@ namespace Cjing3D
 	void WeatherComponent::LoadSkyMap(const std::string& name)
 	{
 		ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
-		mSkyMap = resourceManager.GetOrCreate<RhiTexture2D>(StringID(name));
+		mSkyMap = resourceManager.GetOrCreate<TextureResource>(StringID(name));
 		mSkyMapName = name;
 	}
 
@@ -26,7 +26,7 @@ namespace Cjing3D
 		ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
 		if (mSkyMapName.empty() == false)
 		{
-			mSkyMap = resourceManager.GetOrCreate<RhiTexture2D>(StringID(mSkyMapName));
+			mSkyMap = resourceManager.GetOrCreate<TextureResource>(StringID(mSkyMapName));
 		}
 	}
 

@@ -1,6 +1,6 @@
 #include "PipelineStateManager.h"
 #include "renderer\shaderLib.h"
-#include "renderer\stateManager.h"
+#include "renderer\rhiResourceManager.h"
 
 namespace Cjing3D
 {
@@ -17,7 +17,7 @@ namespace Cjing3D
 	void PipelineStateManager::SetupImagePipelineStates()
 	{
 		ShaderLib& shaderLib = mRenderer.GetShaderLib();
-		StateManager& stateManager = mRenderer.GetStateManager();
+		RhiResourceManager& rhiResourceManager = mRenderer.GetStateManager();
 		RenderImage::ImageParams params = {};
 
 		for (U32 blendTypeIndex = 0; blendTypeIndex < BlendType::BlendType_Count; blendTypeIndex++)
@@ -38,18 +38,18 @@ namespace Cjing3D
 			{
 				infoState.mVertexShader = shaderLib.GetVertexShader(VertexShaderType_Image);
 				infoState.mPixelShader = shaderLib.GetPixelShader(PixelShaderType_Image);
-				infoState.mDepthStencilState = stateManager.GetDepthStencilState(DepthStencilStateID_DepthNone);
-				infoState.mRasterizerState = stateManager.GetRasterizerState(RasterizerStateID_Image);
+				infoState.mDepthStencilState = rhiResourceManager.GetDepthStencilState(DepthStencilStateID_DepthNone);
+				infoState.mRasterizerState = rhiResourceManager.GetRasterizerState(RasterizerStateID_Image);
 			}
 
 			if (params.mBlendType == BlendType_Opaque) {
-				infoState.mBlendState = stateManager.GetBlendState(BlendStateID_Opaque);
+				infoState.mBlendState = rhiResourceManager.GetBlendState(BlendStateID_Opaque);
 			}
 			else if (params.mBlendType == BlendType_Alpha) {
-				infoState.mBlendState = stateManager.GetBlendState(BlendStateID_Transpranent);
+				infoState.mBlendState = rhiResourceManager.GetBlendState(BlendStateID_Transpranent);
 			}
 			else {
-				infoState.mBlendState = stateManager.GetBlendState(BlendStateID_PreMultiplied);
+				infoState.mBlendState = rhiResourceManager.GetBlendState(BlendStateID_PreMultiplied);
 			}
 
 			RegisterPipelineState(params, infoState);

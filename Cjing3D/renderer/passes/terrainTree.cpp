@@ -2,7 +2,7 @@
 #include "terrainPass.h"
 #include "system\sceneSystem.h"
 #include "resource\resourceManager.h"
-#include "renderer\stateManager.h"
+#include "renderer\rhiResourceManager.h"
 #include "renderer\RHI\rhiFactory.h"
 
 #include <stack>
@@ -149,15 +149,15 @@ void TerrainTree::Render()
 void TerrainTree::LoadHeightMap(const std::string& path)
 {
 	ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
-	mHeightMap = resourceManager.GetOrCreate<RhiTexture2D>(path, FORMAT_R8_UNORM, 1);
+	mHeightMap = resourceManager.GetOrCreate<TextureResource>(path, FORMAT_R8_UNORM, 1);
 }
 
-void TerrainTree::LoadHeightMap(Texture2DPtr heightMap)
+void TerrainTree::LoadHeightMap(TextureResourcePtr heightMap)
 {
 	mHeightMap = heightMap;
 }
 
-Texture2DPtr TerrainTree::GetHeightMap()
+TextureResourcePtr TerrainTree::GetHeightMap()
 {
 	return mHeightMap;
 }
@@ -264,17 +264,17 @@ void TerrainTree::ProcessTerrainRenderQueue(TerrrainRenderQueue& renderQueue)
 
 		// bind domain shader resource
 		GPUResource* vsResources[] = {
-			mHeightMap.get(),
+			mHeightMap != nullptr ? mHeightMap->mTexture : nullptr,
 		};
 		device.BindGPUResources(SHADERSTAGES_DS, vsResources, TEXTURE_SLOT_0, 1);
 
 		// bind pixel shader resources
 		GPUResource* psResources[] = {
-			mHeightMap.get(),
-			mTerrainMaterial.weightTexture.get(),
-			mTerrainMaterial.detailTexture1.get(),
-			mTerrainMaterial.detailTexture2.get(),
-			mTerrainMaterial.detailTexture3.get(),
+			mHeightMap != nullptr ? mHeightMap->mTexture : nullptr,
+			mTerrainMaterial.weightTexture != nullptr  ? mTerrainMaterial.weightTexture->mTexture : nullptr,
+			mTerrainMaterial.detailTexture1 != nullptr ? mTerrainMaterial.detailTexture1->mTexture : nullptr,
+			mTerrainMaterial.detailTexture2 != nullptr ? mTerrainMaterial.detailTexture2->mTexture : nullptr,
+			mTerrainMaterial.detailTexture3 != nullptr ? mTerrainMaterial.detailTexture3->mTexture : nullptr,
 		};
 		device.BindGPUResources(SHADERSTAGES_PS, psResources, TEXTURE_SLOT_0, ARRAYSIZE(psResources));
 

@@ -194,7 +194,6 @@
     <ClInclude Include="input\directInput.h" />
     <ClInclude Include="input\InputSystem.h" />
     <ClInclude Include="note.h" />
-    <ClInclude Include="renderer\bufferManager.h" />
     <ClInclude Include="renderer\includeD3D11.h" />
     <ClInclude Include="renderer\passes\note.h" />
     <ClInclude Include="renderer\passes\renderPass.h" />
@@ -221,9 +220,8 @@
     <ClInclude Include="renderer\RHI\device.h" />
     <ClInclude Include="renderer\RHI\deviceD3D11.h" />
     <ClInclude Include="renderer\RHI\rhiDefinition.h" />
-    <ClInclude Include="renderer\RHI\rhiStructure.h" />
     <ClInclude Include="renderer\RHI\swapChainD3D11.h" />
-    <ClInclude Include="renderer\stateManager.h" />
+    <ClInclude Include="renderer\rhiResourceManager.h" />
     <ClInclude Include="renderer\textureHelper.h" />
     <ClInclude Include="resource\modelImporter.h" />
     <ClInclude Include="resource\resource.h" />
@@ -354,7 +352,6 @@
     <ClCompile Include="helper\timer.cpp" />
     <ClCompile Include="input\directInput.cpp" />
     <ClCompile Include="input\InputSystem.cpp" />
-    <ClCompile Include="renderer\bufferManager.cpp" />
     <ClCompile Include="renderer\passes\terrainPass.cpp" />
     <ClCompile Include="renderer\passes\terrainTree.cpp" />
     <ClCompile Include="renderer\paths\renderPath2D.cpp" />
@@ -374,7 +371,7 @@
     <ClCompile Include="renderer\RHI\device.cpp" />
     <ClCompile Include="renderer\RHI\deviceD3D11.cpp" />
     <ClCompile Include="renderer\RHI\swapChainD3D11.cpp" />
-    <ClCompile Include="renderer\stateManager.cpp" />
+    <ClCompile Include="renderer\rhiResourceManager.cpp" />
     <ClCompile Include="renderer\textureHelper.cpp" />
     <ClCompile Include="resource\modelImporter\modelImporterGLTF.cpp" />
     <ClCompile Include="resource\modelImporter\modelImporterObj.cpp" />
@@ -448,6 +445,7 @@
     <ClCompile Include="system\sceneSystem.cpp" />
     <ClCompile Include="system\sceneTransformSystem.cpp" />
     <ClCompile Include="system\systems\sceneAnimationSystem.cpp" />
+    <ClCompile Include="system\systems\sceneSoundSystem.cpp" />
     <ClCompile Include="system\systems\sceneTerrainSystem.cpp" />
     <ClCompile Include="utils\allocator\tlsfAllocator.cpp" />
     <ClCompile Include="utils\baseWindow.cpp" />

@@ -4,6 +4,8 @@
 
 namespace Cjing3D
 {
+namespace Audio
+{
 	enum AUDIO_SUBMIX_TYPE
 	{
 		AUDIO_SUBMIX_TYPE_SOUNDEFFECT,
@@ -31,6 +33,19 @@ namespace Cjing3D
 		inline void Clear() { mInst = nullptr; }
 	};
 
+	struct SoundInstance3D
+	{
+		XMFLOAT3 listenerPos = XMFLOAT3(0, 0, 0);
+		XMFLOAT3 listenerUp = XMFLOAT3(0, 1, 0);
+		XMFLOAT3 listenerFront = XMFLOAT3(0, 0, 1);
+		XMFLOAT3 listenerVelocity = XMFLOAT3(0, 0, 0);
+		XMFLOAT3 emitterPos = XMFLOAT3(0, 0, 0);
+		XMFLOAT3 emitterUp = XMFLOAT3(0, 1, 0);
+		XMFLOAT3 emitterFront = XMFLOAT3(0, 0, 1);
+		XMFLOAT3 emitterVelocity = XMFLOAT3(0, 0, 0);
+		float emitterRadius = 0;
+	};
+
 	class AudioDevice
 	{
 	public:
@@ -50,8 +65,10 @@ namespace Cjing3D
 		virtual void SetVolume(SoundInstance& inst, F32 volume) = 0;
 		virtual void SetMasteringVolume(F32 volume) = 0;
 
+		virtual void Update3D(SoundInstance& instance, const SoundInstance3D& instance3D) = 0;
+
 	protected:
 		virtual bool LoadSoundImpl(const char* data, size_t length, SoundResource& resource) = 0;
 	};
-
+}
 }

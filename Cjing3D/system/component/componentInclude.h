@@ -5,6 +5,7 @@
 #include "system\component\component.h"
 #include "renderer\renderableCommon.h"
 #include "renderer\RHI\device.h"
+#include "resource\resource.h"
 
 namespace Cjing3D
 {

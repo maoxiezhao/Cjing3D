@@ -1,6 +1,6 @@
 #pragma once
 
-#include "renderer\RHI\rhiStructure.h"
+#include "renderer\RHI\rhiDefinition.h"
 #include "renderer\includeD3D11.h"
 
 namespace Cjing3D

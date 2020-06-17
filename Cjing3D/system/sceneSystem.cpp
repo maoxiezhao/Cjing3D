@@ -1,4 +1,5 @@
 #include "sceneSystem.h"
+#include "resource\resourceManager.h"
 
 namespace Cjing3D
 {
@@ -53,6 +54,7 @@ namespace Cjing3D
 		UpdateSceneLightSystem(*this);
 		UpdateSceneObjectSystem(*this);
 		UpdateSceneTerrainSystem(*this);
+		UpdateSceneSoundSystem(*this);
 	}
 
 	void Scene::Merge(Scene & scene)
@@ -176,7 +178,20 @@ namespace Cjing3D
 
 	ECS::Entity Scene::CreateSound(const std::string& name, const std::string& filePath, const F32x3& pos)
 	{
-		return ECS::Entity();
+		auto entity = CreateEntityByName(name);
+		TransformComponent& transform = *mTransforms.Create(entity);
+		transform.Translate(XMConvert(pos));
+		transform.Update();
+
+		SoundComponent& sound = *mSounds.Create(entity);
+		sound.mFileName = filePath;
+		sound.mSoundResource = GlobalGetSubSystem<ResourceManager>().GetOrCreate<SoundResource>(filePath);
+
+		if (sound.mSoundResource->mSound.IsValid()) {
+			GlobalGetSubSystem<Audio::AudioManager>().CreateInstance(sound.mSoundResource->mSound, sound.mSoundInstance);
+		}
+
+		return entity;
 	}
 
 	NameComponent& Scene::GetOrCreateNameByEntity(ECS::Entity entity)

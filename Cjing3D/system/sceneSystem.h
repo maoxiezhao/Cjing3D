@@ -128,5 +128,6 @@ namespace Cjing3D {
 	void UpdateSceneTerrainSystem(Scene& scene);
 	void UpdateSceneArmatureSystem(Scene& scene);
 	void UpdateSceneAnimationSystem(Scene& scene);
+	void UpdateSceneSoundSystem(Scene& scene);
 }
 	

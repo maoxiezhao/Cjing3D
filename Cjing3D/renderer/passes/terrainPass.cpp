@@ -1,7 +1,7 @@
 #include "terrainPass.h"
 #include "system\sceneSystem.h"
 #include "resource\resourceManager.h"
-#include "renderer\stateManager.h"
+#include "renderer\rhiResourceManager.h"
 #include "renderer\RHI\rhiFactory.h"
 
 namespace Cjing3D{
@@ -59,7 +59,7 @@ void TerrainPass::Initialize()
 
 	// initialize pso
 	ShaderLib& shaderLib = mRenderer.GetShaderLib();
-	StateManager& stateManager = mRenderer.GetStateManager();
+	RhiResourceManager& rhiResourceManager = mRenderer.GetStateManager();
 
 	PipelineStateDesc desc = {};
 	desc.mInputLayout = mTerrainIL;
@@ -68,9 +68,9 @@ void TerrainPass::Initialize()
 	desc.mHullShader = mTerrainHS;
 	desc.mDomainShader = mTerrainDS;
 	desc.mPrimitiveTopology = PATCHLIST_4;
-	desc.mBlendState = stateManager.GetBlendState(BlendStateID_Opaque);
-	desc.mDepthStencilState = stateManager.GetDepthStencilState(DepthStencilStateID_GreaterEqualReadWrite);
-	desc.mRasterizerState = stateManager.GetRasterizerState(RasterizerStateID_Front);
+	desc.mBlendState = rhiResourceManager.GetBlendState(BlendStateID_Opaque);
+	desc.mDepthStencilState = rhiResourceManager.GetDepthStencilState(DepthStencilStateID_GreaterEqualReadWrite);
+	desc.mRasterizerState = rhiResourceManager.GetRasterizerState(RasterizerStateID_Front);
 
 	mRenderer.GetDevice().CreatePipelineState(desc, terrainPSO);
 
@@ -89,10 +89,10 @@ void TerrainPass::InitializeTestData()
 	
 	ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
 	TerrainMaterial material;
-	material.weightTexture  = resourceManager.GetOrCreate<RhiTexture2D>("Textures/TerrainWeights.dds", FORMAT_R8G8B8A8_UNORM, 1);
-	material.detailTexture1 = resourceManager.GetOrCreate<RhiTexture2D>("Textures/TerrainDetail1.dds", FORMAT_R8G8B8A8_UNORM, 1);
-	material.detailTexture2 = resourceManager.GetOrCreate<RhiTexture2D>("Textures/TerrainDetail2.dds", FORMAT_R8G8B8A8_UNORM, 1);
-	material.detailTexture3 = resourceManager.GetOrCreate<RhiTexture2D>("Textures/TerrainDetail3.dds", FORMAT_R8G8B8A8_UNORM, 1);
+	material.weightTexture  = resourceManager.GetOrCreate<TextureResource>("Textures/TerrainWeights.dds", FORMAT_R8G8B8A8_UNORM, 1);
+	material.detailTexture1 = resourceManager.GetOrCreate<TextureResource>("Textures/TerrainDetail1.dds", FORMAT_R8G8B8A8_UNORM, 1);
+	material.detailTexture2 = resourceManager.GetOrCreate<TextureResource>("Textures/TerrainDetail2.dds", FORMAT_R8G8B8A8_UNORM, 1);
+	material.detailTexture3 = resourceManager.GetOrCreate<TextureResource>("Textures/TerrainDetail3.dds", FORMAT_R8G8B8A8_UNORM, 1);
 	mTerrainTree.LoadTerrainMaterial(material);
 #endif
 }

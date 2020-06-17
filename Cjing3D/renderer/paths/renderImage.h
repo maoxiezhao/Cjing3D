@@ -48,6 +48,6 @@ namespace RenderImage
 		void EnableFullScreen() { mFlags |= FLAGS::FULLSCREEN; }
 	};
 
-	void Render(RhiTexture2D & texture, ImageParams params, Renderer& renderer);
+	void Render(Texture2D & texture, ImageParams params, Renderer& renderer);
 }
 }

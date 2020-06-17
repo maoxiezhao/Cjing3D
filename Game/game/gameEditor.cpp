@@ -25,9 +25,6 @@ namespace Cjing3D
 	{
 	}
 
-	SoundResource soundResource;
-	SoundInstance soundInstance;
-
 	void GameEditor::Initialize()
 	{
 		auto& renderer = GlobalGetSubSystem<Renderer>();

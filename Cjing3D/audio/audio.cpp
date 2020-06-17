@@ -1,7 +1,12 @@
 #include "audio.h"
+#include "resource\resourceManager.h"
 
 namespace Cjing3D
 {
+namespace Audio
+{
+	SoundResourcePtr currentSoundResource = nullptr;
+
 	AudioManager::AudioManager(SystemContext& systemContext) :
 		SubSystem(systemContext)
 	{
@@ -69,13 +74,29 @@ namespace Cjing3D
 
 	void AudioManager::PlayMusic(const std::string& name)
 	{
+		auto& resourceManager = GlobalGetSubSystem<ResourceManager>();
+		auto soundResource = resourceManager.GetOrCreate<Cjing3D::SoundResource>(name);
+		if (soundResource != currentSoundResource)
+		{
+			currentSoundResource = soundResource;
+			CreateInstance(soundResource->mSound, mMusicInst);
+			Play(mMusicInst);
+		}
 	}
 
 	void AudioManager::PauseMusic()
 	{
+		Pause(mMusicInst);
 	}
-	
+
 	void AudioManager::StopMusic()
 	{
+		Stop(mMusicInst);
 	}
+
+	void AudioManager::Update3D(SoundInstance& instance, const SoundInstance3D& instance3D)
+	{
+		mAudioDevice->Update3D(instance, instance3D);
+	}
+}
 }

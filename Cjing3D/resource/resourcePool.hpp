@@ -18,7 +18,7 @@ namespace Cjing3D {
 	public:
 		class AutoResource;
 		using KeyType = KeyT;
-		using ResourceType = ResourceT;
+		using PoolResourceType = ResourceT;
 
 		ResourcePool() = default;
 		~ResourcePool() {
@@ -102,14 +102,14 @@ namespace Cjing3D {
 
 	private:
 		// 用于实现未引用资源自动释放
-		class AutoResource : public ResourceType
+		class AutoResource : public PoolResourceType
 		{
 		public:
 			template<typename... Args>
 			AutoResource(ResourcePool& resourcePool,
 				const KeyT& key,
 				Args&&... args) :
-				ResourceType(std::forward<Args>(args)...),
+				PoolResourceType(std::forward<Args>(args)...),
 				mResourcePool(resourcePool),
 				mKey(key) {}
 
@@ -135,7 +135,7 @@ namespace Cjing3D {
 	{
 	public:
 		using KeyType = KeyT;
-		using ResourceType = ResourceT;
+		using PoolResourceType = ResourceT;
 
 		PersistentResourcePool() = default;
 		~PersistentResourcePool() {

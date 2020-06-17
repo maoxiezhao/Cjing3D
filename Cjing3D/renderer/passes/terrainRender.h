@@ -1,6 +1,7 @@
 #pragma once
 
 #include "renderer\RHI\rhiResource.h"
+#include "resource\resource.h"
 #include "utils\math.h"
 
 namespace Cjing3D
@@ -45,10 +46,10 @@ namespace Cjing3D
 	// 地形材质结构
 	struct TerrainMaterial
 	{
-		Texture2DPtr weightTexture;
-		Texture2DPtr detailTexture1;
-		Texture2DPtr detailTexture2;
-		Texture2DPtr detailTexture3;
+		TextureResourcePtr weightTexture;
+		TextureResourcePtr detailTexture1;
+		TextureResourcePtr detailTexture2;
+		TextureResourcePtr detailTexture3;
 
 		void Clear();
 	};

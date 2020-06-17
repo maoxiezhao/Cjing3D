@@ -3,6 +3,7 @@
 #include "utils\utilsCommon.h"
 #include "renderer\renderer.h"
 #include "core\systemContext.hpp"
+#include "audio\audio.h"
 
 #include "utils\stb_image_include.h"
 
@@ -22,12 +23,12 @@ void ResourceManager::Uninitialize()
 {
 }
 
-void ResourceManager::AddStandardResourceDirectory(Resource_Type type, const std::string & path)
+void ResourceManager::AddStandardResourceDirectory(ResourceType type, const std::string & path)
 {
 	mResourceDirectories[type] = path;
 }
 
-const std::string & ResourceManager::GetStandardResourceDirectory(Resource_Type type) const
+const std::string & ResourceManager::GetStandardResourceDirectory(ResourceType type) const
 {
 	auto findIt = mResourceDirectories.find(type);
 	if (findIt != mResourceDirectories.end())
@@ -36,12 +37,12 @@ const std::string & ResourceManager::GetStandardResourceDirectory(Resource_Type 
 	}
 }
 
-ResourcePtr ResourceManager::GetOrCreateByType(const StringID & name, Resource_Type type)
+ResourcePtr ResourceManager::GetOrCreateByType(const StringID & name, ResourceType type)
 {
 	return ResourcePtr();
 }
 
-void ResourceManager::LoadTextureFromFilePath(const std::filesystem::path& filePath, RhiTexture2D& texture, FORMAT textureFormat, U32 channelCount, U32 bindFlag, bool generateMipmap)
+void ResourceManager::LoadTextureFromFilePath(const std::filesystem::path& filePath, Texture2D& texture, FORMAT textureFormat, U32 channelCount, U32 bindFlag, bool generateMipmap)
 {
 	Logger::Info("LoadTextureFromFilePath:" + filePath.string());
 
@@ -202,6 +203,19 @@ void ResourceManager::LoadTextureFromFilePath(const std::filesystem::path& fileP
 		if (data != nullptr) {
 			delete[] data;
 		}
+	}
+}
+
+void ResourceManager::LoadSoundFromFilePath(const std::filesystem::path& filePath, SoundResource& soundResource)
+{
+	Logger::Info("LoadSoundFromFilePath:" + filePath.string());
+
+	Audio::AudioManager& manger = GlobalGetSubSystem<Audio::AudioManager>();
+	if (!manger.LoadSound(filePath.string(), soundResource.mSound))
+	{
+		soundResource.mSound.Clear();
+		Debug::Warning("LoadSoundFromFilePath failed:" + filePath.string());
+		return;
 	}
 }
 

@@ -6,6 +6,8 @@
 
 namespace Cjing3D
 {
+namespace Audio
+{
 	class AudioManager : public SubSystem
 	{
 	public:
@@ -29,9 +31,11 @@ namespace Cjing3D
 		void PauseMusic();
 		void StopMusic();
 
+		void Update3D(SoundInstance& instance, const SoundInstance3D& instance3D);
+
 	private:
 		AudioDevice* mAudioDevice = nullptr;
 		SoundInstance mMusicInst;
 	};
-
+}
 }

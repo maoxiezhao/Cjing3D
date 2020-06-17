@@ -1,6 +1,8 @@
 #include "audioDeviceX.h"
 #include "utils\container\dynamicArray.h"
 
+#include <vector>
+
 #define fourccRIFF 'FFIR'
 #define fourccDATA 'atad'
 #define fourccFMT ' tmf'
@@ -8,11 +10,14 @@
 #define fourccXWMA 'AMWX'
 #define fourccDPDS 'sdpd'
 
+// TODO：流式加载支持
+
 namespace Cjing3D
 {
-	namespace {
-		X3DAUDIO_HANDLE mAudio3D = {};
-
+namespace Audio
+{
+	namespace
+	{
 		struct SoundResourceImpl
 		{
 			WAVEFORMATEX mWfx = {};
@@ -24,12 +29,19 @@ namespace Cjing3D
 			IXAudio2SourceVoice* mSourceVoice = nullptr;
 			XAUDIO2_BUFFER mBuffer = {};
 
+			XAUDIO2_VOICE_DETAILS mVoiceDetails = {};
+			Container::DynamicArray<float> mOutputMatrix;
+			Container::DynamicArray<float> mChannelAzimuths;
+
 			~SoundInstantceImpl()
 			{
 				if (mSourceVoice != nullptr) {
 					mSourceVoice->Stop();
 					mSourceVoice->DestroyVoice();
 				}
+
+				mOutputMatrix.clear();
+				mChannelAzimuths.clear();
 			}
 		};
 
@@ -155,7 +167,7 @@ namespace Cjing3D
 		DWORD dwChunkSize;
 		DWORD dwChunkPosition;
 		const U8* audioData = reinterpret_cast<const U8*>(data);
-		
+
 		// check file type
 		if (!FindChunk(audioData, fourccRIFF, dwChunkSize, dwChunkPosition))
 		{
@@ -164,12 +176,12 @@ namespace Cjing3D
 		}
 		DWORD filetype;
 		memcpy(&filetype, audioData + dwChunkPosition, sizeof(DWORD));
-		if (filetype != fourccWAVE) 
+		if (filetype != fourccWAVE)
 		{
 			Debug::Warning("Faild to open sound resource: invalid file type.");
 			return false;
 		}
-		
+
 		// write WAVEFORMAT
 		if (!FindChunk(audioData, fourccFMT, dwChunkSize, dwChunkPosition))
 		{
@@ -202,13 +214,13 @@ namespace Cjing3D
 			{ XAUDIO2_SEND_USEFILTER, mSubmixVoices[static_cast<int>(inst.mType)] },
 		};
 		XAUDIO2_VOICE_SENDS sfxSendLists = { ARRAYSIZE(sfxSends), sfxSends };
-		
+
 		HRESULT hr = mAudioDevice->CreateSourceVoice(
 			&soundInst->mSourceVoice,
-			&resourceInst->mWfx, 
-			0, 
-			XAUDIO2_DEFAULT_FREQ_RATIO, 
-			nullptr, 
+			&resourceInst->mWfx,
+			0,
+			XAUDIO2_DEFAULT_FREQ_RATIO,
+			nullptr,
 			&sfxSendLists,
 			nullptr
 		);
@@ -218,6 +230,16 @@ namespace Cjing3D
 			return false;
 		}
 
+		// get details
+		soundInst->mSourceVoice->GetVoiceDetails(&soundInst->mVoiceDetails);
+		soundInst->mOutputMatrix.resize(soundInst->mVoiceDetails.InputChannels * mMasteringVoiceDetails.InputChannels);
+		// The table values must be within 0.0f to X3DAUDIO_2PI
+		soundInst->mChannelAzimuths.resize(soundInst->mVoiceDetails.InputChannels);
+		for (size_t i = 0; i < soundInst->mVoiceDetails.InputChannels; ++i)
+		{
+			soundInst->mChannelAzimuths[i] = X3DAUDIO_2PI * F32(i) / F32(soundInst->mVoiceDetails.InputChannels);
+		}
+
 		// initialize buffer
 		auto& soundBuffer = soundInst->mBuffer;
 		soundBuffer = {};
@@ -225,7 +247,7 @@ namespace Cjing3D
 		soundBuffer.pAudioData = resourceInst->mAudioData.data();
 		soundBuffer.Flags = XAUDIO2_END_OF_STREAM;
 		soundBuffer.LoopCount = XAUDIO2_LOOP_INFINITE;
-		soundBuffer.LoopBegin =  U32(inst.mLoopBegin  * mMasteringVoiceDetails.InputSampleRate);
+		soundBuffer.LoopBegin = U32(inst.mLoopBegin * mMasteringVoiceDetails.InputSampleRate);
 		soundBuffer.LoopLength = U32(inst.mLoopLength * mMasteringVoiceDetails.InputSampleRate);
 
 		hr = soundInst->mSourceVoice->SubmitSourceBuffer(&soundBuffer);
@@ -282,4 +304,76 @@ namespace Cjing3D
 	{
 		mMasteringVoice->SetVolume(volume);
 	}
+
+	void AudioDeviceX::Update3D(SoundInstance& instance, const SoundInstance3D& instance3D)
+	{
+		if (instance.IsValid())
+		{
+			auto soundInst = std::static_pointer_cast<SoundInstantceImpl>(instance.mInst);
+
+			// listener config
+			X3DAUDIO_LISTENER listener = {};
+			listener.Position    = instance3D.listenerPos;
+			listener.OrientFront = instance3D.listenerFront;
+			listener.OrientTop   = instance3D.listenerUp;
+			listener.Velocity    = instance3D.listenerVelocity;
+
+			// emitter config
+			X3DAUDIO_EMITTER emitter = {};
+			emitter.Position = instance3D.emitterPos;
+			emitter.OrientFront = instance3D.emitterFront;
+			emitter.OrientTop = instance3D.emitterUp;
+			emitter.Velocity = instance3D.emitterVelocity;
+			emitter.InnerRadius = instance3D.emitterRadius;
+			emitter.InnerRadiusAngle = X3DAUDIO_PI / 4.0f;
+			emitter.ChannelCount = soundInst->mVoiceDetails.InputChannels;
+			emitter.pChannelAzimuths = soundInst->mChannelAzimuths.data();
+			emitter.ChannelRadius = 0.1f;
+			emitter.CurveDistanceScaler = 1;
+			emitter.DopplerScaler = 1;
+
+			UINT32 flags = 0;
+			flags |= X3DAUDIO_CALCULATE_MATRIX;
+			flags |= X3DAUDIO_CALCULATE_LPF_DIRECT;
+			flags |= X3DAUDIO_CALCULATE_DOPPLER;
+			flags |= X3DAUDIO_CALCULATE_REVERB;
+			flags |= X3DAUDIO_CALCULATE_LPF_REVERB;
+
+			X3DAUDIO_DSP_SETTINGS settings = {};
+			settings.SrcChannelCount = soundInst->mVoiceDetails.InputChannels;
+			settings.DstChannelCount = mMasteringVoiceDetails.InputChannels;
+			settings.pMatrixCoefficients = soundInst->mOutputMatrix.data();
+
+			// Calculates DSP settings with respect to 3D parameters.
+			X3DAudioCalculate(mAudio3D, &listener, &emitter, flags, &settings);
+
+			HRESULT hr = soundInst->mSourceVoice->SetFrequencyRatio(settings.DopplerFactor);
+			if (FAILED(hr))
+			{
+				Debug::Warning("Failed to SetFrequencyRatio.");
+				return;
+			}
+
+			hr = soundInst->mSourceVoice->SetOutputMatrix(
+				mSubmixVoices[instance.mType],
+				settings.SrcChannelCount,
+				settings.DstChannelCount,
+				settings.pMatrixCoefficients
+			);
+			if (FAILED(hr))
+			{
+				Debug::Warning("Failed to SetOutputMatrix.");
+				return;
+			}
+
+			XAUDIO2_FILTER_PARAMETERS FilterParametersDirect = { LowPassFilter, 2.0f * sinf(X3DAUDIO_PI / 6.0f * settings.LPFDirectCoefficient), 1.0f };
+			hr = soundInst->mSourceVoice->SetOutputFilterParameters(mSubmixVoices[instance.mType], &FilterParametersDirect);
+			if (FAILED(hr))
+			{
+				Debug::Warning("Failed to SetOutputFilterParameters.");
+				return;
+			}
+		}
+	}
+}
 }

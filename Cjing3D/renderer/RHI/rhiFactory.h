@@ -129,7 +129,7 @@ namespace Cjing3D
 	/**************************************************************
 	*	\brief Texture Creating Method
 	**************************************************************/
-	HRESULT CreateDefaultTexture2D(GraphicsDevice& device, RhiTexture2D& texture, U32x2 size, U32 mipMapLevel, BIND_FLAG flag);
+	HRESULT CreateDefaultTexture2D(GraphicsDevice& device, Texture2D& texture, U32x2 size, U32 mipMapLevel, BIND_FLAG flag);
 
 	
 

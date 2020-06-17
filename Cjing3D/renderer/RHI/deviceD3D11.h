@@ -41,15 +41,15 @@ public:
 	virtual HRESULT CreateSamplerState(const SamplerDesc* desc, SamplerState& state);
 	virtual void BindSamplerState(SHADERSTAGES stage, SamplerState& state, U32 slot);
 
-	virtual HRESULT CreateTexture2D(const TextureDesc* desc, const SubresourceData* data, RhiTexture2D& texture2D);
-	virtual I32 CreateRenderTargetView(RhiTexture2D& texture);
-	virtual I32 CreateShaderResourceView(RhiTexture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1, U32 firstMip = 0, U32 mipLevel = -1);
-	virtual I32 CreateDepthStencilView(RhiTexture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1);
-	virtual I32 CreateUnordereddAccessView(RhiTexture2D& texture, U32 firstMip = 0);
+	virtual HRESULT CreateTexture2D(const TextureDesc* desc, const SubresourceData* data, Texture2D& texture2D);
+	virtual I32 CreateRenderTargetView(Texture2D& texture);
+	virtual I32 CreateShaderResourceView(Texture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1, U32 firstMip = 0, U32 mipLevel = -1);
+	virtual I32 CreateDepthStencilView(Texture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1);
+	virtual I32 CreateUnordereddAccessView(Texture2D& texture, U32 firstMip = 0);
 
-	virtual void BindRenderTarget(UINT numView, RhiTexture2D* const* texture2D, RhiTexture2D* depthStencilTexture, I32 subresourceIndex = -1);
-	virtual void ClearRenderTarget(RhiTexture2D& texture, F32x4 color);
-	virtual void ClearDepthStencil(RhiTexture2D& texture, UINT clearFlag, F32 depth, U8 stencil, I32 subresourceIndex = -1);
+	virtual void BindRenderTarget(UINT numView, Texture2D* const* texture2D, Texture2D* depthStencilTexture, I32 subresourceIndex = -1);
+	virtual void ClearRenderTarget(Texture2D& texture, F32x4 color);
+	virtual void ClearDepthStencil(Texture2D& texture, UINT clearFlag, F32 depth, U8 stencil, I32 subresourceIndex = -1);
 
 	virtual void BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot, I32 subresourceIndex = -1);
 	virtual void BindGPUResources(SHADERSTAGES stage, GPUResource* const* resource, U32 slot, U32 count);

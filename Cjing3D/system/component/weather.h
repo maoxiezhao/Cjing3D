@@ -11,8 +11,7 @@ namespace Cjing3D {
 		~WeatherComponent();
 
 		std::string mSkyMapName;
-		Texture2DPtr mSkyMap = nullptr;
-
+		TextureResourcePtr mSkyMap = nullptr;
 
 		void LoadSkyMap(const std::string& name);
 

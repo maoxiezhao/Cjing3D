@@ -13,11 +13,10 @@ namespace Cjing3D
 
 class GraphicsDevice;
 class ShaderLib;
-class StateManager;
+class RhiResourceManager;
 class ResourceManager;
 class CameraComponent;
 class LightComponent;
-class BufferManager;
 class Scene;
 class MaterialComponent;
 class PipelineStateManager;
@@ -51,8 +50,7 @@ public:
 	ResourceManager& GetResourceManager();
 	CameraComponent& GetCamera();
 	ShaderLib& GetShaderLib();
-	StateManager& GetStateManager();
-	BufferManager& GetBufferManager();
+	RhiResourceManager& GetStateManager();
 	Scene& GetMainScene();
 	PipelineStateManager& GetPipelineStateManager();
 	Renderer2D& GetRenderer2D();
@@ -236,8 +234,7 @@ private:
 	// base member
 	std::unique_ptr<GraphicsDevice> mGraphicsDevice;
 	std::unique_ptr<ShaderLib> mShaderLib;
-	std::unique_ptr<StateManager> mStateManager;
-	std::unique_ptr<BufferManager> mBufferManager;
+	std::unique_ptr<RhiResourceManager> mRhiResourceManager;
 	std::unique_ptr<DeferredMIPGenerator> mDeferredMIPGenerator;
 	std::unique_ptr<PipelineStateManager> mPipelineStateManager;
 	std::unique_ptr<Renderer2D> mRenderer2D;

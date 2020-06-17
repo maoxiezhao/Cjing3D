@@ -35,6 +35,8 @@ namespace Cjing3D {
 		F32 GetFarPlane() { return mFarPlane; }
 		Frustum GetFrustum()const { return mFrustum; }
 		F32x3 GetCameraPos()const { return mEye; }
+		F32x3 GetCameraUP()const { return mUp; }
+		F32x3 GetCameraFront()const { return mAt; }
 
 		void SetupPerspective(F32 width, F32 height, F32 nearPlane, F32 farPlane, F32 fov = XM_PI/3.0f);
 		void SetCameraStatus(F32x3 eye, F32x3 at, F32x3 up = { 0.0f, 1.0f, 0.0f });

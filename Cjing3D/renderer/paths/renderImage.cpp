@@ -1,10 +1,9 @@
 #include "renderImage.h"
 #include "renderer\renderer.h"
 #include "renderer\RHI\device.h"
-#include "renderer\stateManager.h"
+#include "renderer\rhiResourceManager.h"
 #include "renderer\shaderLib.h"
 #include "renderer\pipelineStates\pipelineStateManager.h"
-#include "renderer\bufferManager.h"
 
 namespace Cjing3D
 {
@@ -18,15 +17,14 @@ namespace RenderImage
 	{
 	}
 
-	void Render(RhiTexture2D & texture, ImageParams params, Renderer& renderer)
+	void Render(Texture2D & texture, ImageParams params, Renderer& renderer)
 	{
 		auto& device = renderer.GetDevice();
 		auto& shaderLib = renderer.GetShaderLib();
-		auto& stateManager = renderer.GetStateManager();
+		auto& rhiResourceManager = renderer.GetStateManager();
 		auto& pipelineStateManager = renderer.GetPipelineStateManager();
-		auto& bufferManager = renderer.GetBufferManager();
 
-		device.BindSamplerState(SHADERSTAGES_PS, *stateManager.GetSamplerState(SamplerStateID_LinearClampGreater), SAMPLER_LINEAR_CLAMP_SLOT);
+		device.BindSamplerState(SHADERSTAGES_PS, *rhiResourceManager.GetSamplerState(SamplerStateID_LinearClampGreater), SAMPLER_LINEAR_CLAMP_SLOT);
 		device.BindGPUResource(SHADERSTAGES_PS, texture, TEXTURE_SLOT_0);
 
 		if (params.IsFullScreenEnabled()) 
@@ -41,7 +39,7 @@ namespace RenderImage
 				* XMMatrixTranslation(params.mPos[0], params.mPos[1], 0)
 				* device.GetScreenProjection();
 
-			auto& buffer = bufferManager.GetConstantBuffer(ConstantBufferType_Image);
+			auto& buffer = rhiResourceManager.GetConstantBuffer(ConstantBufferType_Image);
 			ImageCB cb;
 			cb.gImageColor = XMConvert(params.mColor);
 

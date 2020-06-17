@@ -3,6 +3,8 @@
 
 namespace Cjing3D
 {
+namespace Audio
+{
 	bool AudioDevice::LoadSound(const std::string& name, SoundResource& resource)
 	{
 		if (!FileData::IsFileExists(name))
@@ -26,4 +28,5 @@ namespace Cjing3D
 	{
 		return LoadSoundImpl(data, length, resource);
 	}
+}
 }

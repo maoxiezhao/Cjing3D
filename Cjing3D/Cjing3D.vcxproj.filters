@@ -152,9 +152,6 @@
     <ClCompile Include="renderer\shaderLib.cpp">
       <Filter>renderer</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\stateManager.cpp">
-      <Filter>renderer</Filter>
-    </ClCompile>
     <ClCompile Include="core\threadSafeSystem.cpp">
       <Filter>core</Filter>
     </ClCompile>
@@ -389,9 +386,6 @@
     <ClCompile Include="system\sceneLightSystem.cpp">
       <Filter>system\systems</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\bufferManager.cpp">
-      <Filter>renderer</Filter>
-    </ClCompile>
     <ClCompile Include="scripts\api\sceneApi.cpp">
       <Filter>scripts\api</Filter>
     </ClCompile>
@@ -533,6 +527,12 @@
     <ClCompile Include="audio\audioDevice.cpp">
       <Filter>audio\device</Filter>
     </ClCompile>
+    <ClCompile Include="system\systems\sceneSoundSystem.cpp">
+      <Filter>system\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\rhiResourceManager.cpp">
+      <Filter>renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -584,13 +584,7 @@
     <ClInclude Include="renderer\RHI\swapChainD3D11.h">
       <Filter>renderer\rhi\d3d11</Filter>
     </ClInclude>
-    <ClInclude Include="renderer\RHI\rhiStructure.h">
-      <Filter>renderer\rhi</Filter>
-    </ClInclude>
     <ClInclude Include="renderer\shaderLib.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\stateManager.h">
       <Filter>renderer</Filter>
     </ClInclude>
     <ClInclude Include="renderer\RHI\rhiResource.h">
@@ -846,9 +840,6 @@
     <ClInclude Include="system\component\light.h">
       <Filter>system\component</Filter>
     </ClInclude>
-    <ClInclude Include="renderer\bufferManager.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
     <ClInclude Include="renderer\renderNote.h">
       <Filter>renderer</Filter>
     </ClInclude>
@@ -1046,6 +1037,9 @@
     </ClInclude>
     <ClInclude Include="system\component\sound.h">
       <Filter>system\component</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\rhiResourceManager.h">
+      <Filter>renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

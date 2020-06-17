@@ -62,17 +62,17 @@ namespace ModelImporter
 			if (material->mBaseColorMapName.empty() == false)
 			{
 				auto texPath = FileData::ConvertToAvailablePath(parentPath + material->mBaseColorMapName);
-				material->mBaseColorMap = resourceManager.GetOrCreate<RhiTexture2D>(StringID(texPath));
+				material->mBaseColorMap = resourceManager.GetOrCreate<TextureResource>(StringID(texPath));
 			}
 			if (material->mNormalMapName.empty() == false)
 			{
 				auto texPath = FileData::ConvertToAvailablePath(parentPath + material->mNormalMapName);
-				material->mNormalMap = resourceManager.GetOrCreate<RhiTexture2D>(StringID(texPath));
+				material->mNormalMap = resourceManager.GetOrCreate<TextureResource>(StringID(texPath));
 			}
 			if (material->mSurfaceMapName.empty() == false)
 			{
 				auto texPath = FileData::ConvertToAvailablePath(parentPath + material->mSurfaceMapName);
-				material->mSurfaceMap = resourceManager.GetOrCreate<RhiTexture2D>(StringID(texPath));
+				material->mSurfaceMap = resourceManager.GetOrCreate<TextureResource>(StringID(texPath));
 			}
 
 			materialArray.push_back(materialEntity);

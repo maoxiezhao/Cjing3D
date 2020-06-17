@@ -1431,7 +1431,7 @@ void GraphicsDeviceD3D11::BindSamplerState(SHADERSTAGES stage, SamplerState & st
 }
 
 // 创建2D纹理
-HRESULT GraphicsDeviceD3D11::CreateTexture2D(const TextureDesc * desc, const SubresourceData * data, RhiTexture2D & texture2D)
+HRESULT GraphicsDeviceD3D11::CreateTexture2D(const TextureDesc * desc, const SubresourceData * data, Texture2D & texture2D)
 {
 	auto rhiState = RegisterGraphicsDeviceChild<TextureD3D11>(texture2D);
 	texture2D.mCurrType = GPU_RESOURCE_TYPE::TEXTURE_2D;
@@ -1481,7 +1481,7 @@ void GraphicsDeviceD3D11::CopyGPUResource(GPUResource& texDst, GPUResource& texS
 	GetDeviceContext(GraphicsThread_IMMEDIATE).CopyResource(dstResource, srcResource);
 }
 
-void GraphicsDeviceD3D11::BindRenderTarget(UINT numView, RhiTexture2D* const *texture2D, RhiTexture2D* depthStencilTexture, I32 subresourceIndex)
+void GraphicsDeviceD3D11::BindRenderTarget(UINT numView, Texture2D* const *texture2D, Texture2D* depthStencilTexture, I32 subresourceIndex)
 {
 	// get renderTargetView
 	ID3D11RenderTargetView* renderTargetViews[8] = {};
@@ -1511,7 +1511,7 @@ void GraphicsDeviceD3D11::BindRenderTarget(UINT numView, RhiTexture2D* const *te
 	GetDeviceContext(GraphicsThread_IMMEDIATE).OMSetRenderTargets(curNum, renderTargetViews, depthStencilView);
 }
 
-I32 GraphicsDeviceD3D11::CreateRenderTargetView(RhiTexture2D & texture)
+I32 GraphicsDeviceD3D11::CreateRenderTargetView(Texture2D & texture)
 {
 	auto rhiState = GetGraphicsDeviceChildState<TextureD3D11>(texture);
 	if (rhiState == nullptr) {
@@ -1560,7 +1560,7 @@ I32 GraphicsDeviceD3D11::CreateRenderTargetView(RhiTexture2D & texture)
 	return subresourceIndex;
 }
 
-I32 GraphicsDeviceD3D11::CreateShaderResourceView(RhiTexture2D & texture, U32 arraySlice, U32 arrayCount, U32 firstMip, U32 mipLevel)
+I32 GraphicsDeviceD3D11::CreateShaderResourceView(Texture2D & texture, U32 arraySlice, U32 arrayCount, U32 firstMip, U32 mipLevel)
 {
 	auto rhiState = GetGraphicsDeviceChildState<TextureD3D11>(texture);
 	if (rhiState == nullptr) {
@@ -1644,7 +1644,7 @@ I32 GraphicsDeviceD3D11::CreateShaderResourceView(RhiTexture2D & texture, U32 ar
 
 // arraySlice和arrayCount仅用于当texture.ArraySize > 0时使用
 // arraySlice表示textureArray的第几部分，arrayCount表示这部分的数量
-I32 GraphicsDeviceD3D11::CreateDepthStencilView(RhiTexture2D & texture, U32 arraySlice, U32 arrayCount)
+I32 GraphicsDeviceD3D11::CreateDepthStencilView(Texture2D & texture, U32 arraySlice, U32 arrayCount)
 {
 	auto rhiState = GetGraphicsDeviceChildState<TextureD3D11>(texture);
 	if (rhiState == nullptr) {
@@ -1703,7 +1703,7 @@ I32 GraphicsDeviceD3D11::CreateDepthStencilView(RhiTexture2D & texture, U32 arra
 	return subresourceIndex;
 }
 
-I32 GraphicsDeviceD3D11::CreateUnordereddAccessView(RhiTexture2D& texture, U32 firstMip)
+I32 GraphicsDeviceD3D11::CreateUnordereddAccessView(Texture2D& texture, U32 firstMip)
 {
 	auto rhiState = GetGraphicsDeviceChildState<TextureD3D11>(texture);
 	if (rhiState == nullptr) {
@@ -1754,7 +1754,7 @@ I32 GraphicsDeviceD3D11::CreateUnordereddAccessView(RhiTexture2D& texture, U32 f
 	return subresourceIndex;
 }
 
-void GraphicsDeviceD3D11::ClearRenderTarget(RhiTexture2D & texture, F32x4 color)
+void GraphicsDeviceD3D11::ClearRenderTarget(Texture2D & texture, F32x4 color)
 {
 	auto rhiState = GetGraphicsDeviceChildState<TextureD3D11>(texture);
 	if (rhiState == nullptr) {
@@ -1764,7 +1764,7 @@ void GraphicsDeviceD3D11::ClearRenderTarget(RhiTexture2D & texture, F32x4 color)
 	GetDeviceContext(GraphicsThread_IMMEDIATE).ClearRenderTargetView(rhiState->mRTV.Get(), color.data());
 }
 
-void GraphicsDeviceD3D11::ClearDepthStencil(RhiTexture2D& texture, UINT clearFlag, F32 depth, U8 stencil, I32 subresourceIndex)
+void GraphicsDeviceD3D11::ClearDepthStencil(Texture2D& texture, UINT clearFlag, F32 depth, U8 stencil, I32 subresourceIndex)
 {
 	auto rhiState = GetGraphicsDeviceChildState<TextureD3D11>(texture);
 	if (rhiState == nullptr) {

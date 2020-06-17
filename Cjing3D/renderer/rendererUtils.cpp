@@ -1,8 +1,7 @@
 #include "rendererUtils.h"
 #include "renderer\renderer.h"
 #include "renderer\shaderLib.h"
-#include "renderer\bufferManager.h"
-#include "renderer\stateManager.h"
+#include "renderer\rhiResourceManager.h"
 
 namespace Cjing3D
 {
@@ -11,7 +10,7 @@ namespace Cjing3D
 	{
 	}
 
-	void DeferredMIPGenerator::AddTexture(RhiTexture2D& texture)
+	void DeferredMIPGenerator::AddTexture(Texture2D& texture)
 	{
 		mMipGenDeferredArray.push_back(&texture);
 	}
@@ -25,7 +24,7 @@ namespace Cjing3D
 		mMipGenDeferredArray.clear();
 	}
 
-	void DeferredMIPGenerator::GenerateMipChain(RhiTexture2D & texture, MIPGENFILTER filter)
+	void DeferredMIPGenerator::GenerateMipChain(Texture2D & texture, MIPGENFILTER filter)
 	{
 		auto desc = texture.GetDesc();
 		if (desc.mMipLevels <= 1) {
@@ -33,9 +32,8 @@ namespace Cjing3D
 		}
 
 		GraphicsDevice& device = mRenderer.GetDevice();
-		BufferManager& bufferManger = mRenderer.GetBufferManager();
 		ShaderLib& shaderLib = mRenderer.GetShaderLib();
-		StateManager& stateManager = mRenderer.GetStateManager();
+		RhiResourceManager& rhiResourceManager = mRenderer.GetStateManager();
 
 		// generate mipmap by compute shader
 		switch (filter)
@@ -43,13 +41,13 @@ namespace Cjing3D
 		case MIPGENFILTER_POINT:
 			device.BeginEvent("GenerateMipChain-FilterPoint");
 			device.BindComputeShader(shaderLib.GetComputeShader(ComputeShaderType_MipmapGenerate));
-			device.BindSamplerState(SHADERSTAGES_CS, *stateManager.GetSamplerState(SamplerStateID_PointClampGreater), SAMPLER_SLOT_0);
+			device.BindSamplerState(SHADERSTAGES_CS, *rhiResourceManager.GetSamplerState(SamplerStateID_PointClampGreater), SAMPLER_SLOT_0);
 
 			break;
 		case MIPGENFILTER_LINEAR:
 			device.BeginEvent("GenerateMipChain-FilterLinear");
 			device.BindComputeShader(shaderLib.GetComputeShader(ComputeShaderType_MipmapGenerate));
-			device.BindSamplerState(SHADERSTAGES_CS, *stateManager.GetSamplerState(SamplerStateID_LinearClampGreater), SAMPLER_SLOT_0);
+			device.BindSamplerState(SHADERSTAGES_CS, *rhiResourceManager.GetSamplerState(SamplerStateID_LinearClampGreater), SAMPLER_SLOT_0);
 
 			break;
 		default:
@@ -77,7 +75,7 @@ namespace Cjing3D
 			cb.gMipmapGenResolution.y = currentHeight;
 			cb.gMipmapInverseResolution.x = (1.0f / currentWidth);
 			cb.gMipmapInverseResolution.y = (1.0f / currentHeight);
-			GPUBuffer& mipgenBuffer = bufferManger.GetConstantBuffer(ConstantBufferType_MipmapGenerate);
+			GPUBuffer& mipgenBuffer = rhiResourceManager.GetConstantBuffer(ConstantBufferType_MipmapGenerate);
 			device.UpdateBuffer(mipgenBuffer, &cb, sizeof(MipmapGenerateCB));
 			device.BindConstantBuffer(SHADERSTAGES_CS, mipgenBuffer, CB_GETSLOT_NAME(MipmapGenerateCB));
 

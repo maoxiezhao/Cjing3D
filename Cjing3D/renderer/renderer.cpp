@@ -1,7 +1,6 @@
 #include "renderer.h"
 #include "shaderLib.h"
-#include "stateManager.h"
-#include "bufferManager.h"
+#include "rhiResourceManager.h"
 #include "renderer2D.h"
 #include "textureHelper.h"
 #include "renderer\RHI\device.h"
@@ -344,7 +343,7 @@ void Renderer::TiledLightCulling(Texture2D& depthBuffer)
 	}
 
 	U32x2 cullingTiledCount = GetCullingTiledCount();
-	GPUBuffer& frustumBuffer = mBufferManager->GetOrCreateCustomBuffer(frustumBufferName);
+	GPUBuffer& frustumBuffer = mRhiResourceManager->GetOrCreateCustomBuffer(frustumBufferName);
 	if (isScreenSizeChanged || !frustumBuffer.IsValid())
 	{
 		GPUBufferDesc desc = {};
@@ -361,7 +360,7 @@ void Renderer::TiledLightCulling(Texture2D& depthBuffer)
 	}
 
 	// 2. 如果分辨率发生改变，意味着tileCount发生改变，需要重新构建每个tile的light列表
-	GPUBuffer& tiledLightBuffer = mBufferManager->GetOrCreateCustomBuffer(tiledLightBufferName);
+	GPUBuffer& tiledLightBuffer = mRhiResourceManager->GetOrCreateCustomBuffer(tiledLightBufferName);
 	if (isScreenSizeChanged || !tiledLightBuffer.IsValid())
 	{
 		GPUBufferDesc desc = {};
@@ -397,7 +396,7 @@ void Renderer::TiledLightCulling(Texture2D& depthBuffer)
 		cb.gCSNumThreads.x = cullingTiledCount[0];
 		cb.gCSNumThreads.y = cullingTiledCount[1];
 
-		GPUBuffer& buffer = mBufferManager->GetConstantBuffer(ConstantBufferType_CSParams);
+		GPUBuffer& buffer = mRhiResourceManager->GetConstantBuffer(ConstantBufferType_CSParams);
 		mGraphicsDevice->UpdateBuffer(buffer, &cb, sizeof(CSParamsCB));
 		mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, buffer, CB_GETSLOT_NAME(CSParamsCB));
 
@@ -430,7 +429,7 @@ void Renderer::TiledLightCulling(Texture2D& depthBuffer)
 		cb.gCSNumThreadGroups.y = cullingTiledCount[1];
 		cb.gCSNumLights = frameCulling.mCulledLights.size();
 
-		GPUBuffer& buffer = mBufferManager->GetConstantBuffer(ConstantBufferType_CSParams);
+		GPUBuffer& buffer = mRhiResourceManager->GetConstantBuffer(ConstantBufferType_CSParams);
 		mGraphicsDevice->UpdateBuffer(buffer, &cb, sizeof(CSParamsCB));
 		mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, buffer, CB_GETSLOT_NAME(CSParamsCB));
 
@@ -464,7 +463,7 @@ Renderer::Renderer(SystemContext& gameContext, RenderingDeviceType deviceType, H
 	SubSystem(gameContext),
 	mGraphicsDevice(nullptr),
 	mShaderLib(nullptr),
-	mStateManager(nullptr),
+	mRhiResourceManager(nullptr),
 	mPipelineStateManager(nullptr),
 	mIsInitialized(false),
 	mIsRendering(false),
@@ -498,16 +497,12 @@ void Renderer::Initialize()
 	);
 
 	// initialize states
-	mStateManager = std::make_unique<StateManager>(*mGraphicsDevice);
-	mStateManager->Initialize();
+	mRhiResourceManager = std::make_unique<RhiResourceManager>(*mGraphicsDevice);
+	mRhiResourceManager->Initialize();
 
 	// initialize shader
 	mShaderLib = std::make_unique<ShaderLib>(*this);
 	mShaderLib->Initialize();
-
-	// initialize resource manager
-	mBufferManager = std::make_unique<BufferManager>(*this);
-	mBufferManager->Initialize();
 
 	// initialize mip generator
 	mDeferredMIPGenerator = std::make_unique<DeferredMIPGenerator>(*this);
@@ -562,14 +557,11 @@ void Renderer::Uninitialize()
 	mPipelineStateManager->Uninitialize();
 	mPipelineStateManager.reset();
 
-	mBufferManager->Uninitialize();
-	mBufferManager.reset();
+	mRhiResourceManager->Uninitialize();
+	mRhiResourceManager.reset();
 
 	mShaderLib->Uninitialize();
 	mShaderLib.reset();
-
-	mStateManager->Uninitalize();
-	mStateManager.reset();
 
 	mGraphicsDevice->Uninitialize();
 	mGraphicsDevice = nullptr;
@@ -813,9 +805,9 @@ void Renderer::RefreshRenderData()
 	mFrameData.mShaderLightArrayCount = lightCount;
 
 	// update buffer
-	mGraphicsDevice->UpdateBuffer(mBufferManager->GetStructuredBuffer(StructuredBufferType_ShaderLight), 
+	mGraphicsDevice->UpdateBuffer(mRhiResourceManager->GetStructuredBuffer(StructuredBufferType_ShaderLight), 
 		shaderLights, sizeof(ShaderLight) * lightCount);
-	mGraphicsDevice->UpdateBuffer(mBufferManager->GetStructuredBuffer(StructuredBufferType_MatrixArray),
+	mGraphicsDevice->UpdateBuffer(mRhiResourceManager->GetStructuredBuffer(StructuredBufferType_MatrixArray),
 		shaderMatrixs, sizeof(XMMATRIX) * currentMatrixIndex);
 
 	frameAllocator.Free(sizeof(XMMATRIX) * SHADER_MATRIX_COUNT);
@@ -905,14 +897,9 @@ ShaderLib & Renderer::GetShaderLib()
 	return *mShaderLib;
 }
 
-StateManager & Renderer::GetStateManager()
+RhiResourceManager & Renderer::GetStateManager()
 {
-	return *mStateManager;
-}
-
-BufferManager& Renderer::GetBufferManager()
-{
-	return *mBufferManager;
+	return *mRhiResourceManager;
 }
 
 U32 Renderer::GetShadowCascadeCount() const
@@ -941,7 +928,7 @@ void Renderer::SetAlphaCutRef(F32 alpha)
 	if (newAlphaRef != mCommonCB.gCommonAlphaCutRef)
 	{
 		mCommonCB.gCommonAlphaCutRef = newAlphaRef;
-		mGraphicsDevice->UpdateBuffer(mBufferManager->GetConstantBuffer(ConstantBufferType_Common), &mCommonCB, sizeof(CommonCB));
+		mGraphicsDevice->UpdateBuffer(mRhiResourceManager->GetConstantBuffer(ConstantBufferType_Common), &mCommonCB, sizeof(CommonCB));
 	}
 }
 
@@ -1002,7 +989,7 @@ void Renderer::RenderSceneOpaque(CameraComponent& camera, RenderPassType renderP
 
 	if (renderPassType == RenderPassType_TiledForward) 
 	{
-		GPUBuffer& tiledLightBuffer = mBufferManager->GetOrCreateCustomBuffer(tiledLightBufferName);
+		GPUBuffer& tiledLightBuffer = mRhiResourceManager->GetOrCreateCustomBuffer(tiledLightBufferName);
 		if (tiledLightBuffer.IsValid()) {
 			mGraphicsDevice->BindGPUResource(SHADERSTAGES_PS, tiledLightBuffer, SBSLOT_TILED_LIGHTS);
 		}
@@ -1115,10 +1102,14 @@ void Renderer::RenderSky()
 		if (currentWeather->mSkyMap != nullptr)
 		{
 			PipelineState pso = mPipelineStateManager->GetPipelineStateByID(PipelineStateID_SkyRendering);
-			if (pso.IsValid())
+			if (pso.IsValid() && currentWeather->mSkyMap != nullptr)
 			{
 				mGraphicsDevice->BindPipelineState(pso);
-				mGraphicsDevice->BindGPUResource(SHADERSTAGES_PS, *currentWeather->mSkyMap, TEXTURE_SLOT_GLOBAL_ENV_MAP);
+				mGraphicsDevice->BindGPUResource(
+					SHADERSTAGES_PS, 
+					*currentWeather->mSkyMap->mTexture,
+					TEXTURE_SLOT_GLOBAL_ENV_MAP
+				);
 			}
 		}
 
@@ -1149,7 +1140,7 @@ void Renderer::PostprocessTonemap(Texture2D& input, Texture2D& output, F32 expos
 	cb.gPPInverseResolution.y = (1.0f / desc.mHeight);
 	cb.gPPParam1 = exposure;
 
-	GPUBuffer& postprocessBuffer = mBufferManager->GetConstantBuffer(ConstantBufferType_Postprocess);
+	GPUBuffer& postprocessBuffer = mRhiResourceManager->GetConstantBuffer(ConstantBufferType_Postprocess);
 	mGraphicsDevice->UpdateBuffer(postprocessBuffer, &cb, sizeof(PostprocessCB));
 	mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, postprocessBuffer, CB_GETSLOT_NAME(PostprocessCB));
 
@@ -1185,7 +1176,7 @@ void Renderer::PostprocessFXAA(Texture2D& input, Texture2D& output)
 	cb.gPPInverseResolution.x = (1.0f / desc.mWidth);
 	cb.gPPInverseResolution.y = (1.0f / desc.mHeight);
 
-	GPUBuffer& postprocessBuffer = mBufferManager->GetConstantBuffer(ConstantBufferType_Postprocess);
+	GPUBuffer& postprocessBuffer = mRhiResourceManager->GetConstantBuffer(ConstantBufferType_Postprocess);
 	mGraphicsDevice->UpdateBuffer(postprocessBuffer, &cb, sizeof(PostprocessCB));
 	mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, postprocessBuffer, CB_GETSLOT_NAME(PostprocessCB));
 
@@ -1203,9 +1194,9 @@ void Renderer::PostprocessFXAA(Texture2D& input, Texture2D& output)
 
 void Renderer::BindCommonResource()
 {
-	SamplerState& linearClampGreater = *mStateManager->GetSamplerState(SamplerStateID_LinearClampGreater);
-	SamplerState& anisotropicSampler = *mStateManager->GetSamplerState(SamplerStateID_ANISOTROPIC);
-	SamplerState& cmpDepthSampler = *mStateManager->GetSamplerState(SamplerStateID_Comparision_depth);
+	SamplerState& linearClampGreater = *mRhiResourceManager->GetSamplerState(SamplerStateID_LinearClampGreater);
+	SamplerState& anisotropicSampler = *mRhiResourceManager->GetSamplerState(SamplerStateID_ANISOTROPIC);
+	SamplerState& cmpDepthSampler = *mRhiResourceManager->GetSamplerState(SamplerStateID_Comparision_depth);
 
 	for (int stageIndex = 0; stageIndex < SHADERSTAGES_COUNT; stageIndex++)
 	{
@@ -1217,8 +1208,8 @@ void Renderer::BindCommonResource()
 
 	// bind shader light resource
 	GPUResource* resources[] = {
-		&mBufferManager->GetStructuredBuffer(StructuredBufferType_ShaderLight),
-		&mBufferManager->GetStructuredBuffer(StructuredBufferType_MatrixArray)
+		&mRhiResourceManager->GetStructuredBuffer(StructuredBufferType_ShaderLight),
+		&mRhiResourceManager->GetStructuredBuffer(StructuredBufferType_MatrixArray)
 	};
 	mGraphicsDevice->BindGPUResources(SHADERSTAGES_PS, resources, SBSLOT_SHADER_LIGHT_ARRAY, ARRAYSIZE(resources));
 	mGraphicsDevice->BindGPUResources(SHADERSTAGES_CS, resources, SBSLOT_SHADER_LIGHT_ARRAY, ARRAYSIZE(resources));
@@ -1236,7 +1227,7 @@ void Renderer::UpdateCameraCB(CameraComponent & camera)
 
 	cb.gCameraPos = XMConvert(camera.GetCameraPos());
 
-	GPUBuffer& cameraBuffer = mBufferManager->GetConstantBuffer(ConstantBufferType_Camera);
+	GPUBuffer& cameraBuffer = mRhiResourceManager->GetConstantBuffer(ConstantBufferType_Camera);
 	GetDevice().UpdateBuffer(cameraBuffer, &cb, sizeof(CameraCB));
 }
 
@@ -1251,7 +1242,7 @@ void Renderer::UpdateFrameCB()
 	frameCB.gFrameShadowCascadeCount = shadowCascadeCount;
 	frameCB.gFrameTileCullingCount = XMConvert(GetCullingTiledCount());
 
-	GPUBuffer& frameBuffer = mBufferManager->GetConstantBuffer(ConstantBufferType_Frame);
+	GPUBuffer& frameBuffer = mRhiResourceManager->GetConstantBuffer(ConstantBufferType_Frame);
 	mGraphicsDevice->UpdateBuffer(frameBuffer, &frameCB, sizeof(FrameCB));
 }
 
@@ -1620,16 +1611,16 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPass
 			if (simpleBindTexture)
 			{
 				GPUResource* resources[] = {
-					material->mBaseColorMap.get(),
+					material->mBaseColorMap != nullptr ? material->mBaseColorMap->mTexture : nullptr,
 				};
 				mGraphicsDevice->BindGPUResources(SHADERSTAGES_PS, resources, TEXTURE_SLOT_0, 1);
 			}
 			else
 			{
 				GPUResource* resources[] = {
-					material->mBaseColorMap.get(),
-					material->mNormalMap.get(),
-					material->mSurfaceMap.get(),
+					material->mBaseColorMap != nullptr ? material->mBaseColorMap->mTexture : nullptr,
+					material->mNormalMap    != nullptr ? material->mNormalMap->mTexture : nullptr,
+					material->mSurfaceMap   != nullptr ? material->mSurfaceMap->mTexture : nullptr,
 				};
 				mGraphicsDevice->BindGPUResources(SHADERSTAGES_PS, resources, TEXTURE_SLOT_0, 3);
 			}
@@ -1648,9 +1639,9 @@ void Renderer::ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPass
 
 void Renderer::BindConstanceBuffer(SHADERSTAGES stage)
 {
-	mGraphicsDevice->BindConstantBuffer(stage, mBufferManager->GetConstantBuffer(ConstantBufferType_Common), CB_GETSLOT_NAME(CommonCB));
-	mGraphicsDevice->BindConstantBuffer(stage, mBufferManager->GetConstantBuffer(ConstantBufferType_Camera), CB_GETSLOT_NAME(CameraCB));
-	mGraphicsDevice->BindConstantBuffer(stage, mBufferManager->GetConstantBuffer(ConstantBufferType_Frame),  CB_GETSLOT_NAME(FrameCB));
+	mGraphicsDevice->BindConstantBuffer(stage, mRhiResourceManager->GetConstantBuffer(ConstantBufferType_Common), CB_GETSLOT_NAME(CommonCB));
+	mGraphicsDevice->BindConstantBuffer(stage, mRhiResourceManager->GetConstantBuffer(ConstantBufferType_Camera), CB_GETSLOT_NAME(CameraCB));
+	mGraphicsDevice->BindConstantBuffer(stage, mRhiResourceManager->GetConstantBuffer(ConstantBufferType_Frame),  CB_GETSLOT_NAME(FrameCB));
 }
 
 void Renderer::BindShadowMaps(SHADERSTAGES stage)
@@ -1669,7 +1660,7 @@ void Renderer::RenderDirLightShadowmap(LightComponent& light, CameraComponent& c
 	LinearAllocator& frameAllocator = GetFrameAllocator(FrameAllocatorType_Render);
 	Scene& mainScene = GetMainScene();
 	GraphicsDevice& device = GetDevice();
-	GPUBuffer& cameraBuffer = mBufferManager->GetConstantBuffer(ConstantBufferType_Camera);
+	GPUBuffer& cameraBuffer = mRhiResourceManager->GetConstantBuffer(ConstantBufferType_Camera);
 
 	ViewPort vp;
 	vp.mWidth = (F32)shadowRes2DResolution;
@@ -1789,7 +1780,7 @@ void Renderer::RenderPointLightShadowmap(LightComponent& light, CameraComponent&
 		for (int i = 0; i < ARRAYSIZE(cams); i++) {
 			XMStoreFloat4x4(&cb.gCubeMapVP[i], cams[i].mViewProjection);
 		}
-		auto buffer = mBufferManager->GetConstantBuffer(ConstantBufferType_CubeMap);
+		auto buffer = mRhiResourceManager->GetConstantBuffer(ConstantBufferType_CubeMap);
 		mGraphicsDevice->UpdateBuffer(buffer, &cb, sizeof(CubeMapCB));
 		mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_VS, buffer, CB_GETSLOT_NAME(CubeMapCB));
 
