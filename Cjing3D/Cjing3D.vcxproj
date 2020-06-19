@@ -167,6 +167,7 @@
     <ClInclude Include="engine.h" />
     <ClInclude Include="gui\guiCore\guiDispatcher.h" />
     <ClInclude Include="gui\guiCore\guiDispatcher_impl.h" />
+    <ClInclude Include="gui\guiCore\guiDistributor.h" />
     <ClInclude Include="gui\guiCore\guiEvents.h" />
     <ClInclude Include="gui\guiEditor\guiEditorInclude.h" />
     <ClInclude Include="gui\guiFactory.h" />
@@ -332,6 +333,7 @@
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="generates\luabind_registers.cpp" />
     <ClCompile Include="gui\guiCore\guiDispatcher.cpp" />
+    <ClCompile Include="gui\guiCore\guiDistributor.cpp" />
     <ClCompile Include="gui\guiFactory.cpp" />
     <ClCompile Include="gui\guiRenderer.cpp" />
     <ClCompile Include="gui\guiWidgets\widgetHierarchy.cpp" />

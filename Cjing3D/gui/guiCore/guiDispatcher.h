@@ -30,7 +30,8 @@ namespace Gui {
 		void DisconnectSignal(UI_EVENT_TYPE eventType, const SignalFunction& func);
 		bool HasEventSignal(UI_EVENT_TYPE eventType) const;
 
-		bool Fire(UI_EVENT_TYPE eventType, Dispatcher* target, VariantArray vairants);
+		bool Fire(UI_EVENT_TYPE eventType, Dispatcher* target, const VariantArray& vairants);
+		bool Fire(UI_EVENT_TYPE eventType, const VariantArray& variants);
 
 	public:
 		// 响应信号列表，目前只是简单的list

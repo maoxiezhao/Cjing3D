@@ -2,6 +2,7 @@
 
 #include "gui\guiInclude.h"
 #include "gui\guiWidgets\widgets.h"
+#include "gui\guiCore\guiDistributor.h"
 
 namespace Cjing3D
 {
@@ -21,12 +22,15 @@ namespace Gui
 		void FixedUpdate();
 		void Render();
 		void HandleInputEvents(const GUIInputEvent& inputEvent);
+		void RefreshWidgets();
 
-		WidgetPtr GetRootWidget() { return mRootWidget; }
+		WidgetPtr GetRootWidget() { return nullptr; }
 
 	public:
 		GUIStage& mGUIStage;
-		WidgetPtr mRootWidget = nullptr;
+		std::vector<WidgetPtr> mSubscribeRequests;
+		std::vector<WidgetPtr> mWidgets;
+		EventDistributor mEventDistributor;
 	};
 }
 }

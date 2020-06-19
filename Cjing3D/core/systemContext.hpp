@@ -62,6 +62,11 @@ public:
 		return mTime;
 	}
 
+	F32 GetCurrentTime()
+	{
+		return F32(mTime.totalDeltaTime / 1000.0f);
+	}
+
 	F32 GetDelatTime()
 	{
 		return F32(mTime.deltaTime / 1000.0f);
@@ -83,5 +88,16 @@ inline T& GlobalGetSubSystem()
 {
 	return SystemContext::GetSystemContext().GetSubSystem<T>();
 }
+
+inline F32 GlobalGetCurrentTime()
+{
+	return SystemContext::GetSystemContext().GetCurrentTime();
+}
+
+inline F32 GlobalGetDeltaTime()
+{
+	return SystemContext::GetSystemContext().GetDelatTime();
+}
+
 
 }

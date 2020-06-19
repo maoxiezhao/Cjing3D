@@ -39,6 +39,8 @@ namespace Cjing3D
 		Gui::WidgetPtr LoadWidgetFromXML(Gui::WidgetPtr parent, const StringID& name, const std::string& filePath, LuaRef scriptHandler = LuaRef::NULL_REF);
 
 		void AddRegisterKeyBoardKey(KeyCode key);
+		bool IsGUIVisible()const { return mGUIVisible; }
+		void SetGUIVisible(bool visible) { mGUIVisible = visible; }
 
 		// imgui
 		void SetImGUIStageVisible(bool visible);
@@ -62,5 +64,6 @@ namespace Cjing3D
 		std::queue<Gui::GUIInputEvent> mInputEventQueue;
 
 		I32x2 mPrevMousePos;
+		bool mGUIVisible = true;
 	};
 }

@@ -69,18 +69,26 @@ namespace Cjing3D
 
 	void GUIStage::Update(F32 deltaTime)
 	{
-		PROFILER_BEGIN_CPU_BLOCK("GuiUpdate");
-
 #ifdef CJING_IMGUI_ENABLE
+		PROFILER_BEGIN_CPU_BLOCK("ImGuiFixedUpdate");
 		mImGuiStage.Update(deltaTime);
+		PROFILER_END_BLOCK();
 #endif
-		mWidgetHierarchy->Update(deltaTime);
+		if (!IsGUIVisible()) {
+			return;
+		}
 
+		PROFILER_BEGIN_CPU_BLOCK("GuiUpdate");
+		mWidgetHierarchy->Update(deltaTime);
 		PROFILER_END_BLOCK();
 	}
 
 	void GUIStage::FixedUpdate()
 	{
+		if (!IsGUIVisible()) {
+			return;
+		}
+
 		PROFILER_BEGIN_CPU_BLOCK("GuiFixedUpdate");
 
 		// notify input
@@ -212,6 +220,10 @@ namespace Cjing3D
 	// 仅由GUIRenderer调用 
 	void GUIStage::RenderImpl()
 	{
+		if (!IsGUIVisible()) {
+			return;
+		}
+
 		mWidgetHierarchy->Render();
 	}
 }

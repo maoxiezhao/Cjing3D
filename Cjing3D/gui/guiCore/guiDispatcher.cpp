@@ -27,9 +27,14 @@ namespace Gui {
 		return mSignalQueue.HasConnectSignal(eventType);
 	}
 
-	bool Dispatcher::Fire(UI_EVENT_TYPE eventType, Dispatcher* target, VariantArray vairants)
+	bool Dispatcher::Fire(UI_EVENT_TYPE eventType, Dispatcher* target, const VariantArray& vairants)
 	{
 		return FireEvent<SignalFunction>(eventType, this, target, vairants);
+	}
+
+	bool Dispatcher::Fire(UI_EVENT_TYPE eventType, const VariantArray& variants)
+	{
+		return false;
 	}
 }
 }

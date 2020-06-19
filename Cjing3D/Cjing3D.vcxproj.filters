@@ -536,6 +536,9 @@
     <ClCompile Include="gui\guiFactory.cpp">
       <Filter>gui</Filter>
     </ClCompile>
+    <ClCompile Include="gui\guiCore\guiDistributor.cpp">
+      <Filter>gui\guiCore</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -1043,6 +1046,9 @@
     </ClInclude>
     <ClInclude Include="gui\guiFactory.h">
       <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiCore\guiDistributor.h">
+      <Filter>gui\guiCore</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

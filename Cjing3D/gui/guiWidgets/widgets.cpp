@@ -117,6 +117,11 @@ namespace Gui {
 		mArea = rect;
 	}
 
+	bool Widget::CanMouseFocus() const
+	{
+		return true;
+	}
+
 	std::shared_ptr<Widget> Widget::FindChildByName(const StringID& name)
 	{
 		return Find(name)->GetNodePtr();
@@ -147,6 +152,16 @@ namespace Gui {
 	void Widget::RemoveChildByName(const StringID& name)
 	{
 		Remove(name);
+	}
+
+	Widget* Widget::GetRoot()
+	{
+		Widget* root = this;
+		while (root->GetParent() != nullptr)
+		{
+			root = root->GetParent();
+		}
+		return root;
 	}
 
 	LuaRef Widget::GetScriptHandler()
