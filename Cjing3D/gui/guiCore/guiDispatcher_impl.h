@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gui\widgets.h"
+#include "gui\guiWidgets\widgets.h"
 
 #include <map>
 #include <list>

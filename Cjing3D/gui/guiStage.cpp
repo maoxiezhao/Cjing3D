@@ -1,11 +1,11 @@
-#include "guiStage.h"
-#include "guiRenderer.h"
-#include "imguiStage.h"
-#include "widgetManager.h"
-#include "engine.h"
-#include "core\systemContext.hpp"
+#include "gui\guiStage.h"
+#include "gui\guiRenderer.h"
+#include "gui\imguiStage.h"
+#include "gui\guiCore\guiEvents.h"
 #include "renderer\renderer.h"
 #include "helper\logger.h"
+
+#include "gui\guiWidgets\widgetManager.h"
 
 namespace Cjing3D
 {
@@ -31,29 +31,25 @@ namespace Cjing3D
 	void GUIStage::Initialize()
 	{
 		mRenderer = std::make_unique<GUIRenderer>(*this);
-
-		mWidgetManager = std::make_unique<WidgetManager>(*this);
+		mWidgetManager = std::make_unique<Gui::WidgetManager>(*this);
 		mWidgetManager->Initialize();
 
 #ifdef CJING_IMGUI_ENABLE
 		mImGuiStage.Initialize();
 		mRenderer->SetImGuiStage(&mImGuiStage);
 #endif
-
 		SystemContext& systemContext = SystemContext::GetSystemContext();
 		Renderer& renderer = systemContext.GetSubSystem<Renderer>();
 		U32x2 screenSize = renderer.GetScreenSize();
-		
-		// initialize root widget
-		mRootWidget = std::make_shared<Widget>(*this, STRING_ID(root));
-		mRootWidget->SetArea(Rect(
-			0.0f, 0.0f,
-			(F32)screenSize[0], (F32)screenSize[1]
-		));
-		mRootWidget->SetVisible(true);
 
+		// initialize widget hierarchy		
+		mWidgetHierarchy = std::make_unique<Gui::WidgetHierarchy>(*this);
+		mWidgetHierarchy->Initialize(screenSize);
+
+		// load registered keys
 		LoadRegisteredKeys();
 
+		// save previous mouse pos
 		InputManager& inputManager = systemContext.GetSubSystem<InputManager>();
 		mPrevMousePos = inputManager.GetMousePos();
 
@@ -65,10 +61,8 @@ namespace Cjing3D
 #ifdef CJING_IMGUI_ENABLE
 		mImGuiStage.Uninitialize();
 #endif
+		mWidgetHierarchy->Uninitialize();
 		mWidgetManager->Uninitialize();
-		mWidgetManager.reset();
-
-		mRootWidget.reset();
 
 		Logger::Info("GUI Stage uninitialized");
 	}
@@ -80,6 +74,15 @@ namespace Cjing3D
 #ifdef CJING_IMGUI_ENABLE
 		mImGuiStage.Update(deltaTime);
 #endif
+		mWidgetHierarchy->Update(deltaTime);
+
+		PROFILER_END_BLOCK();
+	}
+
+	void GUIStage::FixedUpdate()
+	{
+		PROFILER_BEGIN_CPU_BLOCK("GuiFixedUpdate");
+
 		// notify input
 		NotifyInput();
 
@@ -87,14 +90,14 @@ namespace Cjing3D
 		HandleInputEvents();
 
 		// update all widgets
-		mRootWidget->Update(deltaTime);
+		mWidgetHierarchy->FixedUpdate();
 
 		PROFILER_END_BLOCK();
 	}
 
 	WidgetPtr GUIStage::LoadWidgetFromXML(const StringID& name, const std::string& filePath, LuaRef scriptHandler)
 	{
-		return LoadWidgetFromXML(mRootWidget, name, filePath, scriptHandler);
+		return LoadWidgetFromXML(mWidgetHierarchy->GetRootWidget(), name, filePath, scriptHandler);
 	}
 
 	WidgetPtr GUIStage::LoadWidgetFromXML(WidgetPtr parent, const StringID& name, const std::string& filePath, LuaRef scriptHandler)
@@ -151,13 +154,13 @@ namespace Cjing3D
 		for (auto keyCode : mRegisteredMouseKeys)
 		{
 			if (inputManager.IsKeyDown(keyCode)) {
-				GUIInputEvent e = {};
+				Gui::GUIInputEvent e = {};
 				e.type = GUI_INPUT_EVENT_TYPE_MOUSE_BUTTONDOWN;
 				e.key = keyCode;
 				mInputEventQueue.push(e);
 			}
 			else if (inputManager.IsKeyUp(keyCode)) {
-				GUIInputEvent e = {};
+				Gui::GUIInputEvent e = {};
 				e.type = GUI_INPUT_EVENT_TYPE_MOUSE_BUTTONUP;
 				e.key = keyCode;
 				mInputEventQueue.push(e);
@@ -168,7 +171,7 @@ namespace Cjing3D
 		if (mousePos != mPrevMousePos)
 		{
 			mPrevMousePos = mousePos;
-			GUIInputEvent e = {};
+			Gui::GUIInputEvent e = {};
 			e.type = GUI_INPUT_EVENT_TYPE_MOUSE_MOTION;
 			e.pos = mousePos;
 			mInputEventQueue.push(e);
@@ -178,13 +181,13 @@ namespace Cjing3D
 		for (auto keyCode : mRegisteredKeyBoardKeys)
 		{
 			if (inputManager.IsKeyDown(keyCode)) {
-				GUIInputEvent e = {};
+				Gui::GUIInputEvent e = {};
 				e.type = GUI_INPUT_EVENT_TYPE_KEYBOARD_KEYDOWN;
 				e.key = keyCode;
 				mInputEventQueue.push(e);
 			}
 			else if (inputManager.IsKeyUp(keyCode)) {
-				GUIInputEvent e = {};
+				Gui::GUIInputEvent e = {};
 				e.type = GUI_INPUT_EVENT_TYPE_KEYBOARD_KEYUP;
 				e.key = keyCode;
 				mInputEventQueue.push(e);
@@ -199,145 +202,16 @@ namespace Cjing3D
 	{
 		while (!mInputEventQueue.empty())
 		{
-			GUIInputEvent e = mInputEventQueue.front();
+			Gui::GUIInputEvent e = mInputEventQueue.front();
 			mInputEventQueue.pop();
 
-			switch (e.type)
-			{
-			case GUI_INPUT_EVENT_TYPE_KEYBOARD_KEYDOWN:
-				HandldKeyboardButton(e.key, GUI_INPUT_KEY_STATE_KEYDOWN);
-				break;
-			case GUI_INPUT_EVENT_TYPE_KEYBOARD_KEYUP:
-				HandldKeyboardButton(e.key, GUI_INPUT_KEY_STATE_KEYUP);
-				break;
-			case GUI_INPUT_EVENT_TYPE_MOUSE_MOTION:
-				HandleMouseMove(e.pos);
-				break;
-			case GUI_INPUT_EVENT_TYPE_MOUSE_BUTTONDOWN:
-				HandleMouseButton(e.key, GUI_INPUT_KEY_STATE_KEYDOWN);
-				break;
-			case GUI_INPUT_EVENT_TYPE_MOUSE_BUTTONUP:
-				HandleMouseButton(e.key, GUI_INPUT_KEY_STATE_KEYUP);
-				break;
-			default:
-				break;
-			}
-		}
-	}
-
-	void GUIStage::HandldKeyboardButton(KeyCode key, GUI_INPUT_KEY_STATE state)
-	{
-		if (mCaptureWidget != nullptr) {
-			HandleKeyboardButtonEvent(*mRootWidget, mCaptureWidget, key, state);
-			return;
-		}
-
-		if (mRootWidget == nullptr) {
-			return;
-		}
-
-		WidgetPtr targetWidget = mMouseFocusWidget;
-		if (targetWidget == nullptr) {
-			targetWidget = mRootWidget;
-		}
-
-		HandleKeyboardButtonEvent(*mRootWidget, targetWidget, key, state);
-	}
-
-	void GUIStage::HandleMouseButton(KeyCode key, GUI_INPUT_KEY_STATE state)
-	{
-		if (mCaptureWidget != nullptr) {
-			HandleMouseButtonEvent(*mRootWidget, mCaptureWidget, key, state);
-			return;
-		}
-
-		if (mRootWidget == nullptr) {
-			return;
-		}
-
-		WidgetPtr targetWidget = mMouseFocusWidget;
-		if (targetWidget == nullptr) {
-			targetWidget = mRootWidget;
-		}
-
-		HandleMouseButtonEvent(*mRootWidget, targetWidget, key, state);
-
-		mLastClickWidget = targetWidget;
-		mLastClickTime;
-	}
-
-	void GUIStage::HandleMouseMove(I32x2 mousePos)
-	{
-		if (mCaptureWidget != nullptr) {
-			mCaptureWidget->Fire(UI_EVENT_TYPE::UI_EVENT_MOUSE_MOTION, mMouseFocusWidget.get(), VariantArray());
-			return;
-		}
-
-		if (mRootWidget == nullptr) {
-			return;
-		}
-
-		F32x2 fMousePos = { (F32)mousePos[0], (F32)mousePos[1] };
-		WidgetPtr targetWidget = mRootWidget->GetChildWidgetByGlobalCoords(fMousePos);
-		if (targetWidget != mMouseFocusWidget)
-		{
-			if (mMouseFocusWidget != nullptr) {
-				mRootWidget->Fire(UI_EVENT_TYPE::UI_EVENT_MOUSE_LEAVE, mMouseFocusWidget.get(), VariantArray());
-			}
-
-			mMouseFocusWidget = targetWidget;
-				
-			if (mMouseFocusWidget != nullptr){
-				mRootWidget->Fire(UI_EVENT_TYPE::UI_EVENT_MOUSE_ENTER, mMouseFocusWidget.get(), VariantArray());
-			}
-		}
-
-		if (targetWidget == nullptr) {
-			targetWidget = mRootWidget;
-		}
-
-		mRootWidget->Fire(UI_EVENT_TYPE::UI_EVENT_MOUSE_MOTION, mMouseFocusWidget.get(), VariantArray());
-	}
-
-	void GUIStage::HandleKeyboardButtonEvent(Widget& dispatcher, WidgetPtr targetWidget, KeyCode key, GUI_INPUT_KEY_STATE state)
-	{
-		if (state == GUI_INPUT_KEY_STATE_KEYDOWN)
-		{
-			VariantArray variants;
-			variants.push_back(Variant(static_cast<U32>(key)));
-
-			dispatcher.Fire(UI_EVENT_TYPE::UI_EVENT_KEYBOARD_KEYDOWN, targetWidget.get(), variants);
-		}
-		else
-		{
-			VariantArray variants;
-			variants.push_back(Variant(static_cast<U32>(key)));
-
-			dispatcher.Fire(UI_EVENT_TYPE::UI_EVENT_KEYBOARD_KEYUP, targetWidget.get(), variants);
-		}
-	}
-
-	void GUIStage::HandleMouseButtonEvent(Widget& dispatcher, WidgetPtr targetWidget, KeyCode key, GUI_INPUT_KEY_STATE state)
-	{
-		if (state == GUI_INPUT_KEY_STATE_KEYDOWN)
-		{
-			VariantArray variants;
-			variants.push_back(Variant(static_cast<U32>(key - KeyCode::Click_Left)));
-
-			dispatcher.Fire(UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_DOWN, targetWidget.get(), variants);
-		}
-		else
-		{
-			VariantArray variants;
-			variants.push_back(Variant(static_cast<U32>(key - KeyCode::Click_Left)));
-
-			dispatcher.Fire(UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_UP, targetWidget.get(), variants);
+			mWidgetHierarchy->HandleInputEvents(e);
 		}
 	}
 
 	// 仅由GUIRenderer调用 
 	void GUIStage::RenderImpl()
 	{
-		mRootWidget->Render({0.0f, 0.0f});
+		mWidgetHierarchy->Render();
 	}
 }

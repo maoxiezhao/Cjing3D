@@ -3,6 +3,9 @@
 
 namespace Cjing3D
 {
+namespace Gui
+{
+
 	namespace {
 		bool StringToBool(tinyxml2::XMLElement& setting, bool defaultValue = true)
 		{
@@ -21,7 +24,7 @@ namespace Cjing3D
 
 			return Rect({ x, y }, { w, h });
 		};
-	
+
 		F32x2 StringToF32x2(tinyxml2::XMLElement& setting, F32x2 defaultValue = { 0.0f, 0.0f })
 		{
 			const std::string string = setting.GetText();
@@ -32,7 +35,7 @@ namespace Cjing3D
 			F32 x, y = 0.0f;
 			sscanf_s(string.data(), "%f %f", &x, &y);
 
-			return {x, y};
+			return { x, y };
 		}
 	}
 
@@ -85,4 +88,5 @@ namespace Cjing3D
 			childNode = childNode->NextSiblingElement();
 		}
 	}
+}
 }

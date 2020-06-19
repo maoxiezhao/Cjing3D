@@ -1,5 +1,5 @@
-#include "gui/guiStage.h"
-#include "gui/widgets.h"
+#include "gui\guiStage.h"
+#include "gui\guiWidgets\widgets.h"
 #include "helper/stringID.h"
 #include "input/InputSystem.h"
 #include "system/component/camera.h"
@@ -62,15 +62,6 @@ LuaBinder(l)
 .AddMethod("GetTranslationLocal", &TransformComponent::GetTranslationLocal)
 .AddMethod("GetScaleLocal", &TransformComponent::GetScaleLocal)
 .EndClass();
-
-LuaBinder(l)
-.BeginClass<Widget>("Widget")
-.AddConstructor(_LUA_ARGS_(GUIStage&, StringID&))
-.AddMethod("SetVisible", &Widget::SetVisible)
-.AddMethod("IsVisible", &Widget::IsVisible)
-.AddMethod("ClearSelf", &Widget::ClearSelf)
-.EndClass();
-
 	
 }
 LUA_FUNCTION_AUTO_BINDER(luabind_registers_auto_binder,luabind_registers_AutoBindFunction)

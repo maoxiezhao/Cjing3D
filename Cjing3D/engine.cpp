@@ -220,6 +220,7 @@ void Engine::FixedUpdate()
 
 	mGameComponent->FixedUpdate();
 	mLuaContext->FixedUpdate();
+	mGuiStage->FixedUpdate();
 	mRenderer->FixedUpdate();
 
 	PROFILER_END_BLOCK();

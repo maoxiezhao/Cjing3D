@@ -113,6 +113,9 @@
     <Filter Include="audio\device">
       <UniqueIdentifier>{89e36919-ef9c-49e1-8cee-cb6ef76ce9ff}</UniqueIdentifier>
     </Filter>
+    <Filter Include="utils\signal">
+      <UniqueIdentifier>{0ec41af1-72f5-4e41-b58e-91c2306f2b26}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine.cpp" />
@@ -431,9 +434,6 @@
     <ClCompile Include="helper\archive.cpp">
       <Filter>helper</Filter>
     </ClCompile>
-    <ClCompile Include="gui\guiWidgets\Panel.cpp">
-      <Filter>gui\guiWidgets</Filter>
-    </ClCompile>
     <ClCompile Include="gui\guiCore\guiDispatcher.cpp">
       <Filter>gui\guiCore</Filter>
     </ClCompile>
@@ -503,18 +503,6 @@
     <ClCompile Include="renderer\paths\renderPath_tiledForward.cpp">
       <Filter>renderer\paths</Filter>
     </ClCompile>
-    <ClCompile Include="gui\guiFactory.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="gui\widget_properties.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="gui\widgetManager.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="gui\widgets.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
     <ClCompile Include="audio\audio.cpp">
       <Filter>audio</Filter>
     </ClCompile>
@@ -532,6 +520,21 @@
     </ClCompile>
     <ClCompile Include="renderer\rhiResourceManager.cpp">
       <Filter>renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\widgets.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\widget_properties.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\widgetManager.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\widgetHierarchy.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiFactory.cpp">
+      <Filter>gui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -894,16 +897,7 @@
     <ClInclude Include="common\definitions.h">
       <Filter>common</Filter>
     </ClInclude>
-    <ClInclude Include="gui\guiWidgets\Panel.h">
-      <Filter>gui\guiWidgets</Filter>
-    </ClInclude>
     <ClInclude Include="gui\guiCore\guiDispatcher.h">
-      <Filter>gui\guiCore</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\guiCore\guiDispatcher_impl.h">
-      <Filter>gui\guiCore</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\guiCore\guiEvents.h">
       <Filter>gui\guiCore</Filter>
     </ClInclude>
     <ClInclude Include="scripts\api\uiApi.h">
@@ -1011,18 +1005,6 @@
     <ClInclude Include="common\version.h">
       <Filter>common</Filter>
     </ClInclude>
-    <ClInclude Include="gui\guiFactory.h">
-      <Filter>gui</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\widget_properties.h">
-      <Filter>gui</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\widgetManager.h">
-      <Filter>gui</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\widgets.h">
-      <Filter>gui</Filter>
-    </ClInclude>
     <ClInclude Include="system\sceneSystemInclude.h">
       <Filter>system</Filter>
     </ClInclude>
@@ -1040,6 +1022,27 @@
     </ClInclude>
     <ClInclude Include="renderer\rhiResourceManager.h">
       <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\widgets.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiCore\guiDispatcher_impl.h">
+      <Filter>gui\guiCore</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiCore\guiEvents.h">
+      <Filter>gui\guiCore</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\widgetHierarchy.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\widget_properties.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\widgetManager.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiFactory.h">
+      <Filter>gui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,6 +1,9 @@
 #include "uiApi.h"
 
 namespace Cjing3D {
+
+	using namespace Gui;
+
 	namespace LuaApi {
 
 		int LoadWidgetFromXML(lua_State* l)

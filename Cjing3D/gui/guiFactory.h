@@ -1,14 +1,17 @@
 #pragma once
 
 #include "gui\guiInclude.h"
-#include "gui\widgets.h"
+#include "gui\guiWidgets\widgets.h"
 
 #include <map>
 #include <set>
 
 namespace Cjing3D
 {
-	class GUIStage;
+class GUIStage;
+
+namespace Gui 
+{
 
 	inline StringID ConvertToWidgetTypeStrByWidgetType(WidgetType widgetType) {
 		const std::string widgetTypeStr = EnumToString(widgetType, "");
@@ -22,7 +25,7 @@ namespace Cjing3D
 	class BaseWidgetCreator
 	{
 	public:
-		BaseWidgetCreator(GUIStage& guiStage, const StringID& typeName) : 
+		BaseWidgetCreator(GUIStage& guiStage, const StringID& typeName) :
 			mGUIStage(guiStage), mType(typeName) {};
 		virtual ~BaseWidgetCreator() {}
 
@@ -39,7 +42,7 @@ namespace Cjing3D
 	class WidgetCreator : public BaseWidgetCreator
 	{
 	public:
-		WidgetCreator(GUIStage& guiStage) : BaseWidgetCreator(guiStage, ConvertToWidgetTypeStrByWidgetType(T::GetWidgetType()) ) {}
+		WidgetCreator(GUIStage& guiStage) : BaseWidgetCreator(guiStage, ConvertToWidgetTypeStrByWidgetType(T::GetWidgetType())) {}
 
 		virtual WidgetPtr Create(const StringID& name)
 		{
@@ -87,4 +90,5 @@ namespace Cjing3D
 		std::set<StringID> mRegisteredWidgetTypes;
 		std::map<StringID, WidgetCreatorPtr> mRegisteredWidgetCreators;
 	};
+}
 }

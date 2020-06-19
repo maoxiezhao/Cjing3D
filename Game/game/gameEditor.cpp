@@ -40,6 +40,10 @@ namespace Cjing3D
 
 	void GameEditor::Update(EngineTime time)
 	{
+	}
+
+	void GameEditor::FixedUpdate()
+	{
 
 #ifdef _ENABLE_GAME_EDITOR_
 		auto systemContext = GetGameContext();

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "gui\guiInclude.h"
-#include "gui\widgets.h"
+#include "gui\guiWidgets\widgets.h"
 
 namespace Cjing3D
 {

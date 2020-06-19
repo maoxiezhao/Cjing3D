@@ -1,25 +1,20 @@
 #include "widgets.h"
-#include "guiStage.h"
-#include "widget_properties.h"
-
-#include "renderer\paths\renderImage.h"
-#include "renderer\textureHelper.h"
-#include "renderer\renderer.h"
-#include "core\systemContext.hpp"
-#include "helper\random.h"
-#include "widget_properties.h"
-#include "Scripts\api\utilsApi.h"
-
+#include "gui\guiStage.h"
+#include "gui\guiRenderer.h"
+#include "scripts\luaTools.h"
+#include "scripts\api\uiApi.h"
+#include "scripts\api\utilsApi.h"
 
 namespace Cjing3D
 {
-	const std::string EnumInfoTraits<WidgetType>::enumName = "widget_type";
-	const EnumInfo<WidgetType>::EnumType EnumInfoTraits<WidgetType>::enumInfos =
-	{
-		{WidgetType::WidgetType_BaseWidget, "BaseWidget"},
-		{WidgetType::WidgetType_Panel, "Panel"},
-	};
+const std::string EnumInfoTraits<WidgetType>::enumName = "widget_type";
+const EnumInfo<WidgetType>::EnumType EnumInfoTraits<WidgetType>::enumInfos =
+{
+	{WidgetType::WidgetType_BaseWidget, "BaseWidget"},
+	{WidgetType::WidgetType_Panel, "Panel"},
+};
 
+namespace Gui {
 	const StringID GUIScriptEventHandlers::OnLoaded = STRING_ID(OnLoaded);
 	const StringID GUIScriptEventHandlers::OnUnloaded = STRING_ID(OnUnloaded);
 
@@ -33,29 +28,20 @@ namespace Cjing3D
 		Dispatcher(),
 		mStage(stage)
 	{
-#ifdef CJING_GUI_DEBUG
-		mDebugColor.SetA(255);
-		mDebugColor.SetR(Random::GetRandomInt(255));
-		mDebugColor.SetG(Random::GetRandomInt(255));
-		mDebugColor.SetB(Random::GetRandomInt(255));
-#endif
 	}
 
 	Widget::~Widget()
 	{
 	}
 
-	void Widget::InitProperties(tinyxml2::XMLElement& element)
-	{
-		WidgetPropertiesInitializer().InitProperties(*this, element);
-	}
-
-	void Widget::ParseEventHandlers(tinyxml2::XMLElement& element)
-	{
-		WidgetPropertiesInitializer().ParseEventHandlers(*this, element);
-	}
-
 	void Widget::Update(F32 dt)
+	{
+		if (!IsVisible()) {
+			return;
+		}
+	}
+
+	void Widget::FixedUpdate()
 	{
 		if (!IsVisible()) {
 			return;
@@ -72,11 +58,16 @@ namespace Cjing3D
 		destRect.Offset(offset);
 
 		RenderImpl(destRect);
-	
+
 		F32x2 childOffset = destRect.GetPos();
-		for (auto& child : mChildren){
+		for (auto& child : mChildren) {
 			child->Render(childOffset);
 		}
+	}
+
+	GUIRenderer& Widget::GetGUIRenderer()
+	{
+		return mStage.GetGUIRenderer();
 	}
 
 	F32x2 Widget::TransfromToLocalCoord(const F32x2 point) const
@@ -158,15 +149,6 @@ namespace Cjing3D
 		Remove(name);
 	}
 
-	void Widget::ClearSelf()
-	{
-		ClearChildren();
-
-		if (mParent != nullptr) {
-			mParent->Remove(GetName());
-		}
-	}
-
 	LuaRef Widget::GetScriptHandler()
 	{
 		if (mScriptHandler != LuaRef::NULL_REF) {
@@ -236,7 +218,7 @@ namespace Cjing3D
 		std::string eventHandler = it->second;
 		if (eventHandler.empty()) {
 			return;
-		}		
+		}
 
 		lua_State* l = scriptHandler.GetLuaState();
 		scriptHandler.Push();
@@ -256,29 +238,7 @@ namespace Cjing3D
 			return;
 		}
 
-		SystemContext& systemContext = SystemContext::GetSystemContext();
-		Renderer& renderer = systemContext.GetSubSystem<Renderer>();
-
-#ifdef CJING_GUI_DEBUG
-		F32x2 pos = destRect.GetPos();
-		F32x2 size = destRect.GetSize();
-
-		RenderImage::ImageParams params(pos[0], pos[1], size[0], size[1], mDebugColor.ToFloat4());
-		RenderImage::Render(*TextureHelper::GetWhite(), params, renderer);
-#endif
-
-	}
-
-	void Widget::OnParentChanged(Widget* old_parent)
-	{
-	}
-
-	void Widget::OnChildAdded(std::shared_ptr<Widget>& node)
-	{
-	}
-
-	void Widget::OnChildRemoved(std::shared_ptr<Widget>& node)
-	{
+		GUIRenderer& renderer = GetGUIRenderer();
 	}
 
 	void Widget::OnLoaded()
@@ -307,4 +267,5 @@ namespace Cjing3D
 
 		mArea = rect;
 	}
+}
 }

@@ -1,15 +1,19 @@
 #pragma once
 
 #include "gui\guiInclude.h"
-#include "gui\widgets.h"
+#include "gui\guiWidgets\widgets.h"
 #include "gui\guiFactory.h"
+
+#include "utils\tinyxml2\tinyxml2.h"
 
 #include <map>
 #include <set>
 
 namespace Cjing3D
 {
-	class GUIStage;
+class GUIStage;
+
+namespace Gui {
 
 	// WidgetManager 负责Widget的实例创建，包括从定义中创建和从xml文件中创建
 	class WidgetManager
@@ -46,4 +50,5 @@ namespace Cjing3D
 		std::map<StringID, tinyxml2::XMLElement*> mDefinitionMap;
 		std::unique_ptr<GUIFactory> mGUIFactory;
 	};
+}
 } 

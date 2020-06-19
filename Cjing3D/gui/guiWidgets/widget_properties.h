@@ -5,6 +5,8 @@
 
 namespace Cjing3D
 {
+namespace Gui
+{
 	class Widget;
 
 	class WidgetPropertiesInitializer
@@ -16,4 +18,5 @@ namespace Cjing3D
 		void InitProperties(Widget& widget, tinyxml2::XMLElement& element);
 		void ParseEventHandlers(Widget& widget, tinyxml2::XMLElement& element);
 	};
+}
 }

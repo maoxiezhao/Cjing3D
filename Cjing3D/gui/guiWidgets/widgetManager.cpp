@@ -1,12 +1,11 @@
-#include "widgetManager.h"
-#include "guiStage.h"
+#include "gui\guiWidgets\widgetManager.h"
+#include "gui\guiWidgets\widget_properties.h"
+#include "gui\guiStage.h"
 #include "helper\fileSystem.h"
-
-#include "guiWidgets\Panel.h"
 
 namespace Cjing3D
 {
-	using namespace Gui;
+namespace Gui {
 
 	const std::string xmlDataType = "Data";
 	const std::string xmlRootType = "Root";
@@ -15,7 +14,7 @@ namespace Cjing3D
 	const std::string xmlEventHandlers = "Events";
 	const std::string xmlChildrenType = "Children";
 
-	WidgetManager::WidgetManager(GUIStage& guiStage):
+	WidgetManager::WidgetManager(GUIStage& guiStage) :
 		mGUIStage(guiStage),
 		mGUIFactory(nullptr)
 	{
@@ -29,9 +28,8 @@ namespace Cjing3D
 	{
 		mGUIFactory = std::make_unique<GUIFactory>(mGUIStage);
 
-		mGUIFactory->RegisterWidgetType(StringID("Root"), WidgetCreatorPtr(new DefaultWidgetCreator(mGUIStage)) );
+		mGUIFactory->RegisterWidgetType(StringID("Root"), WidgetCreatorPtr(new DefaultWidgetCreator(mGUIStage)));
 		mGUIFactory->RegisterWidgetType<Widget>();
-		mGUIFactory->RegisterWidgetType<Panel>();
 	}
 
 	void WidgetManager::Uninitialize()
@@ -50,7 +48,7 @@ namespace Cjing3D
 		// 根节点名字必须是data
 		auto dataNode = xmlPtr->FirstChildElement();
 		if (dataNode == nullptr &&
-			dataNode->Name() != xmlRootType ) {
+			dataNode->Name() != xmlRootType) {
 			return nullptr;
 		}
 
@@ -74,7 +72,7 @@ namespace Cjing3D
 		if (rootNode != nullptr) {
 			newWidget = CreateWidgetFromXMLElement(nullptr, *rootNode, &newWidgets);
 		}
-		
+
 		// 事先设置script handler, 仅设置root节点
 		if (newWidget != nullptr && scriptHandler != LuaRef::NULL_REF) {
 			newWidget->SetScriptHandler(scriptHandler);
@@ -110,9 +108,9 @@ namespace Cjing3D
 					return widget;
 				}
 			}
-			
+
 			widget = CreateWidget(StringID(type), name);
-	
+
 			return widget;
 		};
 
@@ -166,7 +164,7 @@ namespace Cjing3D
 	{
 		auto propertiesElement = element.FirstChildElement(xmlPropertiesType.c_str());
 		if (propertiesElement != nullptr) {
-			widget.InitProperties(*propertiesElement);
+			WidgetPropertiesInitializer().InitProperties(widget, *propertiesElement);
 		}
 	}
 
@@ -174,7 +172,7 @@ namespace Cjing3D
 	{
 		auto propertiesElement = element.FirstChildElement(xmlEventHandlers.c_str());
 		if (propertiesElement != nullptr) {
-			widget.ParseEventHandlers(*propertiesElement);
+			WidgetPropertiesInitializer().ParseEventHandlers(widget, *propertiesElement);
 		}
 	}
 
@@ -272,4 +270,5 @@ namespace Cjing3D
 			mDefinitionMap.erase(name);
 		}
 	}
+}
 }
