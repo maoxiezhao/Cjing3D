@@ -101,12 +101,6 @@ namespace Cjing3D
 			return;
 		}
 
-		Renderer2D& renderer2D = Renderer::GetRenderer2D();
-		RenderPath2D* path = renderer2D.GetCurrentRenderPath();
-		if (path == nullptr) {
-			return;
-		}
-
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();

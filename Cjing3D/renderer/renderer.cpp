@@ -844,8 +844,6 @@ void Render()
 {
 	mIsRendering = true;
 
-	mRenderer2D->Render();
-
 	if (mCurrentRenderPath != nullptr) {
 		mCurrentRenderPath->Render();
 	}
@@ -885,6 +883,11 @@ void SetScreenSize(U32 width, U32 height)
 U32x2 GetScreenSize()
 {
 	return mScreenSize;
+}
+
+XMMATRIX GetScreenProjection()
+{
+	return XMMatrixOrthographicOffCenterLH(0, (F32)mScreenSize[0], (F32)mScreenSize[1], 0, -1, 1);
 }
 
 GraphicsDevice & GetDevice()
@@ -1824,7 +1827,7 @@ void RenderPointLightShadowmap(LightComponent& light, CameraComponent& camera)
 		};
 		instanceHandler.processInstance_ = [cams](U32 subIndex, RenderInstance& instance) 
 		{
-			instance.userdata.x = (F32)subIndex;
+			instance.userdata.x = subIndex;
 		};
 
 		// rendering

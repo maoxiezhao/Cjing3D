@@ -79,7 +79,6 @@ namespace Cjing3D {
 		return result;
 	}
 
-
 	inline const XMUINT2 XM_CALLCONV XMConvert(const U32x2& src) {
 		XMUINT2 result;
 		XMStoreUInt2(&result, XMLoad(src));

@@ -2,9 +2,13 @@
 
 #include "renderer\renderableCommon.h"
 #include "renderer\paths\renderPath2D.h"
+#include "renderer\rendererUtils.h"
+#include "renderer\sprite.h"
 
 namespace Cjing3D
 {
+	class SpritieRenderBatchQueue;
+
 	class Renderer2D
 	{
 	public:
@@ -14,11 +18,12 @@ namespace Cjing3D
 		void Initialize();
 		void Uninitialize();
 		void Render();
-		void SetCurrentRenderPath(RenderPath2D* path) { mRenderPath = path; }
-		RenderPath2D* GetCurrentRenderPath() { return mRenderPath; }
 
+		void AddSprite(Sprite* sprite);
+		void RemoveSprite(Sprite* sprite);
+		
 	private:
-		RenderPath2D* mRenderPath;
+		std::vector<Sprite*> mSprites;
 	};
 
 }

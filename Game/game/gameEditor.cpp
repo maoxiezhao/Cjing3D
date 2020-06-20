@@ -15,6 +15,9 @@
 #include <thread>
 #include <Windows.h>
 
+// test
+#include "renderer\sprite.h"
+
 namespace Cjing3D
 {
 	GameEditor::GameEditor()
@@ -25,18 +28,21 @@ namespace Cjing3D
 	{
 	}
 
+
+	Sprite* testSprite = nullptr;
 	void GameEditor::Initialize()
 	{
 		RenderPathTiledForward* path = new RenderPathTiledForward();
 		Renderer::SetCurrentRenderPath(path);
-		Renderer::GetRenderer2D().SetCurrentRenderPath(path);
 
 #ifdef _ENABLE_GAME_EDITOR_
 		auto& guiStage = GlobalGetSubSystem<GUIStage>();
 		Editor::InitializeEditor(guiStage.GetImGUIStage());
 #endif // _ENABLE_GAME_EDITOR_
 
-		auto& guiRenderer = guiStage.GetGUIRenderer();
+		testSprite = CJING_MEM_NEW(Sprite("Textures/logo.png"));
+		testSprite->SetSize(100, 100);
+		Renderer::GetRenderer2D().AddSprite(testSprite);
 	}
 
 	void GameEditor::Update(EngineTime time)
@@ -78,5 +84,6 @@ namespace Cjing3D
 
 	void GameEditor::Uninitialize()
 	{
+		CJING_MEM_DELETE(testSprite);
 	}
 }

@@ -3,6 +3,7 @@
 #include "renderer\paths\renderImage.h"
 #include "core\systemContext.hpp"
 #include "gui\guiStage.h"
+#include "renderer\renderer2D.h"
 
 namespace Cjing3D
 {
@@ -74,6 +75,8 @@ namespace Cjing3D
 			device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
 
 			RenderGUI();
+
+			Renderer::GetRenderer2D().Render();
 
 			device.EndRenderBehavior();
 		}

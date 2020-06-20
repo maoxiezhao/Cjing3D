@@ -24,7 +24,6 @@ class Renderer2D;
 class RenderPass;
 class TerrainTree;
 
-// TODO: change to renderer namesapce
 // Renderer被设计为一个仅仅提供各种渲染方法的集合（namespace)，具体的调用方式应该由renderPath决定
 namespace Renderer
 {
@@ -61,6 +60,7 @@ namespace Renderer
 	void ResetAlphaCutRef();
 	void SetScreenSize(U32 width, U32 height);
 	U32x2 GetScreenSize();
+	XMMATRIX GetScreenProjection();
 
 	// Render Method
 	void RenderShadowmaps(CameraComponent& camera);

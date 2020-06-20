@@ -9,7 +9,7 @@ struct InputInstance
     float4 wi0 : INSTANCEMAT0;
     float4 wi1 : INSTANCEMAT1;
     float4 wi2 : INSTANCEMAT2;
-    float4 userdata : INSTANCEUSERDATA;
+    uint4 userdata : INSTANCEUSERDATA;
 };
 
 struct InputObjectPos

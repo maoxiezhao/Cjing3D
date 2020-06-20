@@ -5,9 +5,7 @@
 
 namespace Cjing3D
 {
-
-                                                                                                   
-	
+                                                                                             
 namespace RenderImage
 {
 	struct ImageParams
@@ -30,6 +28,10 @@ namespace RenderImage
 			{0.0f, 1.0f},
 			{1.0f, 1.0f}
 		};
+		F32x4 mTexSource = { 0.0f, 0.0f, 1.0f, 1.0f };
+		F32x2 mPivot = { 0.0f, 0.0f };
+		float mRotation = 0.0f;
+		float mLayerDepth = 0.0f;	// WARNING: depth Buffer暂时未设置写入，目前该值无效
 
 		ImageParams()
 		{

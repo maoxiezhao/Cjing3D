@@ -49,12 +49,6 @@ CBUFFER(MaterialCB, CBSLOT_RENDERER_MATERIAL)
 	ShaderMaterial gMaterial;
 };
 
-CBUFFER(ImageCB, CBSLOT_IMAGE)
-{
-	float4 gImageCorners[4];
-	float4 gImageColor;
-};
-
 CBUFFER(CubeMapCB, CBSLOT_CUBEMAP)
 {
 	float4x4 gCubeMapVP[6];
