@@ -23,8 +23,7 @@ namespace
 	PipelineState terrainPSO;
 }
 
-TerrainPass::TerrainPass(Renderer& renderer) :
-	RenderPass(renderer)
+TerrainPass::TerrainPass()
 {
 }
 
@@ -58,8 +57,8 @@ void TerrainPass::Initialize()
 	InitializeShader();
 
 	// initialize pso
-	ShaderLib& shaderLib = mRenderer.GetShaderLib();
-	RhiResourceManager& rhiResourceManager = mRenderer.GetStateManager();
+	ShaderLib& shaderLib = Renderer::GetShaderLib();
+	RhiResourceManager& rhiResourceManager = Renderer::GetStateManager();
 
 	PipelineStateDesc desc = {};
 	desc.mInputLayout = mTerrainIL;
@@ -72,7 +71,7 @@ void TerrainPass::Initialize()
 	desc.mDepthStencilState = rhiResourceManager.GetDepthStencilState(DepthStencilStateID_GreaterEqualReadWrite);
 	desc.mRasterizerState = rhiResourceManager.GetRasterizerState(RasterizerStateID_Front);
 
-	mRenderer.GetDevice().CreatePipelineState(desc, terrainPSO);
+	Renderer::GetDevice().CreatePipelineState(desc, terrainPSO);
 
 #ifdef _TERRAIN_DEBUG_
 	// TEST
@@ -111,12 +110,12 @@ void TerrainPass::InitializeShader()
 	ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
 	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_Shader);
 
-	auto vsinfo = mRenderer.LoadVertexShaderInfo(shaderPath + "terrainVS.cso", shadowLayout, ARRAYSIZE(shadowLayout));
+	auto vsinfo = Renderer::LoadVertexShaderInfo(shaderPath + "terrainVS.cso", shadowLayout, ARRAYSIZE(shadowLayout));
 	mTerrainVS = vsinfo.mVertexShader;
 	mTerrainIL = vsinfo.mInputLayout;
-	mTerrainPS = mRenderer.LoadShader(SHADERSTAGES_PS, shaderPath + "terrainPS.cso");
-	mTerrainHS = mRenderer.LoadShader(SHADERSTAGES_HS, shaderPath + "terrainHS.cso");
-	mTerrainDS = mRenderer.LoadShader(SHADERSTAGES_DS, shaderPath + "terrainDS.cso");
+	mTerrainPS = Renderer::LoadShader(SHADERSTAGES_PS, shaderPath + "terrainPS.cso");
+	mTerrainHS = Renderer::LoadShader(SHADERSTAGES_HS, shaderPath + "terrainHS.cso");
+	mTerrainDS = Renderer::LoadShader(SHADERSTAGES_DS, shaderPath + "terrainDS.cso");
 }
 
 void TerrainPass::UpdatePerFrameData(F32 deltaTime)
@@ -128,8 +127,7 @@ void TerrainPass::UpdatePerFrameData(F32 deltaTime)
 	}
 
 	// refresh current terrain map
-	Renderer& renderer = GlobalGetSubSystem<Renderer>();
-	Scene& scene = renderer.GetMainScene();
+	Scene& scene = Scene::GetScene();
 	for (auto& kvp : mTerrainTreeMap) 
 	{
 		bool needRemove = false;
@@ -157,9 +155,7 @@ void TerrainPass::UpdatePerFrameData(F32 deltaTime)
 
 void TerrainPass::RefreshRenderData()
 {
-	Renderer& renderer = GlobalGetSubSystem<Renderer>();
-	Scene& scene = renderer.GetMainScene();
-
+	Scene& scene = Scene::GetScene();
 	for (auto& kvp : mTerrainTreeMap) {
 		if (kvp.second != nullptr) {
 			ECS::Entity entity = kvp.first;
@@ -176,7 +172,7 @@ void TerrainPass::RefreshRenderData()
 void TerrainPass::Render()
 {
 
-	GraphicsDevice& device = mRenderer.GetDevice();
+	GraphicsDevice& device = Renderer::GetDevice();
 	device.BeginEvent("RenderTerrains");
 
 	for (auto& kvp : mTerrainTreeMap) {
@@ -184,7 +180,6 @@ void TerrainPass::Render()
 			kvp.second->Render();
 		}
 	}
-
 	device.EndEvent();
 }
 

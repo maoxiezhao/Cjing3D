@@ -10,8 +10,7 @@ namespace Cjing3D {
 		int BindLuaScene::GetMainScene(lua_State* l)
 		{
 			return LuaTools::ExceptionBoundary(l, [&] {
-				Renderer& renderer = SystemContext::GetSystemContext().GetSubSystem<Renderer>();
-				Scene& scene = renderer.GetMainScene();
+				Scene& scene = Scene::GetScene();
 				BindLuaScene bindLuaScene(scene);
 
 				LuaTools::Push<BindLuaScene>(l, bindLuaScene);

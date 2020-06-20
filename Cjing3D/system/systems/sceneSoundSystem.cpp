@@ -5,8 +5,7 @@ namespace Cjing3D
 	void UpdateSceneSoundSystem(Scene& scene)
 	{
 		auto& audioManager = GlobalGetSubSystem<Audio::AudioManager>();
-		Renderer& renderer = GlobalGetSubSystem<Renderer>();
-		CameraComponent& camera = renderer.GetCamera();
+		CameraComponent& camera = Renderer::GetCamera();
 
 		Audio::SoundInstance3D instance3D;
 		instance3D.listenerPos   = XMConvert(camera.GetCameraPos());

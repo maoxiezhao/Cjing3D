@@ -5,9 +5,7 @@ namespace Cjing3D
 {
 	void UpdateSceneLightSystem(Scene& scene)
 	{
-		SystemContext& systemContext = SystemContext::GetSystemContext();
-		Renderer& renderer = systemContext.GetSubSystem<Renderer>();
-		CameraComponent& camera = renderer.GetCamera();
+		CameraComponent& camera = Renderer::GetCamera();
 
 		ECS::ComponentManager<LightComponent > & lights = scene.mLights;
 		ECS::ComponentManager<AABBComponent>& lightAABBs = scene.mLightAABBs;

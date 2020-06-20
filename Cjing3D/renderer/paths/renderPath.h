@@ -7,12 +7,12 @@
 
 namespace Cjing3D {
 
-	class Renderer;
+	
 
 	class RenderPath
 	{
 	public:
-		RenderPath(Renderer& renderer);
+		RenderPath();
 		virtual ~RenderPath();
 
 		virtual void Initialize() {};
@@ -23,9 +23,6 @@ namespace Cjing3D {
 		virtual void Render() {};
 		virtual void Compose() {};
 		virtual void ResizeBuffers() {}
-
-	protected:
-		Renderer& mRenderer;
 
 	private:
 		bool mIsBufferInitialized = false;

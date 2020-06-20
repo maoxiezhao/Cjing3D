@@ -76,12 +76,11 @@ TerrainTree::~TerrainTree()
 
 void TerrainTree::Initialize(U32 width, U32 height)
 {
-	Renderer& renderer = GlobalGetSubSystem<Renderer>();
 	mTerrainWidth = width;
 	mTerrainHeight = height;
 
 	// initialize constant buffer
-	GraphicsDevice& device = renderer.GetDevice();
+	GraphicsDevice& device = Renderer::GetDevice();
 	GPUBufferDesc desc = {};
 	desc.mUsage = USAGE_DEFAULT;
 	desc.mCPUAccessFlags = 0;
@@ -115,8 +114,7 @@ void TerrainTree::Uninitialize()
 void TerrainTree::UpdatePerFrameData(F32 deltaTime)
 {
 	// update terrain tree
-	Renderer& renderer = GlobalGetSubSystem<Renderer>();
-	UpdateTerrainTree(renderer.GetCamera());
+	UpdateTerrainTree(Renderer::GetCamera());
 }
 
 void TerrainTree::RefreshRenderData(TransformComponent& transform)
@@ -128,8 +126,7 @@ void TerrainTree::RefreshRenderData(TransformComponent& transform)
 
 void TerrainTree::Render()
 {
-	Renderer& renderer = GlobalGetSubSystem<Renderer>();
-	GraphicsDevice& device = renderer.GetDevice();
+	GraphicsDevice& device = Renderer::GetDevice();
 	device.BeginEvent("RenderTerrainTree");
 
 	TerrrainRenderQueue renderQueue;
@@ -175,11 +172,10 @@ void TerrainTree::SetElevation(U32 elevation)
 
 void TerrainTree::ProcessTerrainRenderQueue(TerrrainRenderQueue& renderQueue)
 {
-	Renderer& renderer = GlobalGetSubSystem<Renderer>();
-	GraphicsDevice& device = renderer.GetDevice();
+	GraphicsDevice& device = Renderer::GetDevice();
 
 	U32 batchCount = renderQueue.GetCount();
-	LinearAllocator& frameAllocator = renderer.GetFrameAllocator(Renderer::FrameAllocatorType_Render);
+	LinearAllocator& frameAllocator = Renderer::GetFrameAllocator(Renderer::FrameAllocatorType_Render);
 	size_t instanceSize = sizeof(RenderTerrainInstance);
 	GraphicsDevice::GPUAllocation instances = device.AllocateGPU(batchCount * instanceSize);
 
@@ -234,7 +230,7 @@ void TerrainTree::ProcessTerrainRenderQueue(TerrrainRenderQueue& renderQueue)
 	}
 
 	// TODO： 现在的绘制过程太过繁琐，后续会优化封装
-	renderer.BindConstanceBuffer(SHADERSTAGES_DS);
+	Renderer::BindConstanceBuffer(SHADERSTAGES_DS);
 
 	device.BindConstantBuffer(SHADERSTAGES_VS, mTerrainBuffer, CBSLOT_TERRAIN);
 	device.BindConstantBuffer(SHADERSTAGES_DS, mTerrainBuffer, CBSLOT_TERRAIN);
@@ -297,8 +293,7 @@ void TerrainTree::UpdateConstantBuffer(TransformComponent& transform)
 	cb.gTerrainElevation = (F32)mTerrainElevation;
 	cb.gTerrainHaveWeightDetailMap = (mTerrainMaterial.weightTexture != nullptr) ? 1 : 0;
 
-	Renderer& renderer = GlobalGetSubSystem<Renderer>();
-	renderer.GetDevice().UpdateBuffer(mTerrainBuffer, &cb, sizeof(TerrainCB));
+	Renderer::GetDevice().UpdateBuffer(mTerrainBuffer, &cb, sizeof(TerrainCB));
 }
 
 void TerrainTree::UpdateTerrainTree(CameraComponent& camera)
@@ -306,9 +301,7 @@ void TerrainTree::UpdateTerrainTree(CameraComponent& camera)
 	mTerrainQuadTree.Clear();
 	U32 treeNodeCount = 0;
 
-	// 这里暂时
-	Renderer& renderer = GlobalGetSubSystem<Renderer>();
-	LinearAllocator& frameAllocator = renderer.GetFrameAllocator(Renderer::FrameAllocatorType_Render);
+	LinearAllocator& frameAllocator = Renderer::GetFrameAllocator(Renderer::FrameAllocatorType_Render);
 
 	std::stack<TerrainTreeNode*> currentTreeNodes;
 	auto& rootNode = mTerrainQuadTree.GetRootNode();
@@ -353,7 +346,7 @@ void TerrainTree::UpdateTerrainTree(CameraComponent& camera)
 		U32x2 localPos = node->GetLocalPos();
 		U32 edgeLodLevel = node->GetData().GetAllEdgeLodLevel();
 		
-		TerrainTilePtr tilePtr = mTerrainTileManager.GetTerrainTile(renderer, localPos, level, rect, edgeLodLevel);
+		TerrainTilePtr tilePtr = mTerrainTileManager.GetTerrainTile(localPos, level, rect, edgeLodLevel);
 		node->GetData().mTilePtr = tilePtr;
 
 		mCulledTerrainTiles.push_back(&(*tilePtr));
@@ -529,7 +522,7 @@ void TerrainTileManager::Uninitialize()
 	mIndices.clear();
 }
 
-TerrainTilePtr TerrainTileManager::GetTerrainTile(Renderer& renderer, const U32x2& locaPos, U32 depth, const Rect& rect, U32 edgeLodLevel)
+TerrainTilePtr TerrainTileManager::GetTerrainTile(const U32x2& locaPos, U32 depth, const Rect& rect, U32 edgeLodLevel)
 {
 	const U32 key = (depth * 1000000000) + (locaPos[1] * 10000) + locaPos[0];
 
@@ -564,8 +557,7 @@ void TerrainTileManager::Clear()
 
 void TerrainTileManager::UpdateGeometryBuffer()
 {
-	Renderer& renderer = GlobalGetSubSystem<Renderer>();
-	GraphicsDevice& device = renderer.GetDevice();
+	GraphicsDevice& device = Renderer::GetDevice();
 	{
 		const auto result = CreateStaticIndexBuffer(device, mIndexBuffer, mIndices);
 		Debug::ThrowIfFailed(result, "Failed to create index buffer:%08x", result);

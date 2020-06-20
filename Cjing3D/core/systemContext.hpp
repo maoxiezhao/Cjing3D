@@ -99,5 +99,9 @@ inline F32 GlobalGetDeltaTime()
 	return SystemContext::GetSystemContext().GetDelatTime();
 }
 
+inline Engine* GlobalGetEngine()
+{
+	return SystemContext::GetSystemContext().GetEngine();
+}
 
 }

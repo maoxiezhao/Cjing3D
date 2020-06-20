@@ -5,9 +5,6 @@ namespace Cjing3D
 {
 	void UpdateSceneTerrainSystem(Scene& scene)
 	{
-		SystemContext& systemContext = SystemContext::GetSystemContext();
-		Renderer& renderer = systemContext.GetSubSystem<Renderer>();
-
 		ECS::ComponentManager<TerrainComponent >& terrains = scene.mTerrains;
 		ECS::ComponentManager<TransformComponent>& transforms = scene.mTransforms;
 
@@ -25,9 +22,9 @@ namespace Cjing3D
 			U32 elevation = terrain->GetElevation();
 
 			// check is registered
-			TerrainTreePtr terrainTree = renderer.GetTerrainTree(entity);
+			TerrainTreePtr terrainTree = Renderer::GetTerrainTree(entity);
 			if (terrainTree == nullptr) {
-				terrainTree = renderer.RegisterTerrain(entity, terrainSize[0], terrainSize[1], elevation);
+				terrainTree = Renderer::RegisterTerrain(entity, terrainSize[0], terrainSize[1], elevation);
 			}
 			else
 			{

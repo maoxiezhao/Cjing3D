@@ -295,10 +295,7 @@ namespace Editor {
 
 	void ShowRenderAttribute()
 	{
-		SystemContext& systemContext = SystemContext::GetSystemContext();
-		Renderer& renderer = systemContext.GetSubSystem<Renderer>();
-
-		RenderPath* renderPath = renderer.GetRenderPath();
+		RenderPath* renderPath = Renderer::GetRenderPath();
 		if (renderPath == nullptr) return;
 
 		// tone mapping exposure
@@ -318,11 +315,11 @@ namespace Editor {
 		}
 
 		// ambient light
-		F32x3 ambientColor = renderer.GetAmbientColor();
+		F32x3 ambientColor = Renderer::GetAmbientColor();
 		F32* ambientColors = ambientColor.data();
 		if (ImGui::ColorEdit3("color", ambientColors))
 		{
-			renderer.SetAmbientColor(ambientColor);
+			Renderer::SetAmbientColor(ambientColor);
 		}
 	}
 

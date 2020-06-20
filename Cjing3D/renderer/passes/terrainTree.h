@@ -9,7 +9,7 @@
 
 namespace Cjing3D
 {
-	class Renderer;
+	
 	class TerrainPass;
 
 	//--------------------------------------------------------------------
@@ -63,7 +63,7 @@ namespace Cjing3D
 		void UpdateGeometryBuffer();
 
 		U32 GetTerrainTileVertexCount()const { return mTerrainTileVertexCount; }
-		TerrainTilePtr GetTerrainTile(Renderer& renderer, const U32x2& locaPos, U32 depth, const Rect& rect, U32 edgeLodLevel);
+		TerrainTilePtr GetTerrainTile(const U32x2& locaPos, U32 depth, const Rect& rect, U32 edgeLodLevel);
 
 	private:
 		std::map<U32, TerrainTilePtr> mTerrainTileMap;

@@ -8,7 +8,7 @@ namespace Cjing3D {
 	class RenderPath2D : public RenderPath
 	{
 	public:
-		RenderPath2D(Renderer& renderer);
+		RenderPath2D();
 		~RenderPath2D();
 
 		virtual void Initialize();

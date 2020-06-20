@@ -23,9 +23,10 @@ namespace Gui
 		void Render();
 		void HandleInputEvents(const GUIInputEvent& inputEvent);
 		void RefreshWidgets();
+		void CaptureFocuseWidget(bool captured);
 
 		WidgetPtr GetRootWidget() { return nullptr; }
-
+		
 	public:
 		GUIStage& mGUIStage;
 		std::vector<WidgetPtr> mSubscribeRequests;

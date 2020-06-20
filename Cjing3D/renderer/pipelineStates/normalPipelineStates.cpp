@@ -99,8 +99,8 @@ namespace Cjing3D
 
 	void PipelineStateManager::SetupNormalPipelineStates()
 	{
-		ShaderLib& shaderLib = mRenderer.GetShaderLib();
-		RhiResourceManager& rhiResourceManager = mRenderer.GetStateManager();
+		ShaderLib& shaderLib = Renderer::GetShaderLib();
+		RhiResourceManager& rhiResourceManager = Renderer::GetStateManager();
 		NormalRenderParams params = {};
 
 		// base object rendering

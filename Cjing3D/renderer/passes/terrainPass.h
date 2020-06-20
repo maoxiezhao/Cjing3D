@@ -8,7 +8,7 @@ namespace Cjing3D
 	class TerrainPass : public RenderPass
 	{
 	public:
-		TerrainPass(Renderer& renderer);
+		TerrainPass();
 		virtual ~TerrainPass();
 
 		virtual void Initialize();

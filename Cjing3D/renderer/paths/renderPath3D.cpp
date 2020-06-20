@@ -5,8 +5,7 @@
 
 namespace Cjing3D
 {
-	RenderPath3D::RenderPath3D(Renderer & renderer):
-		RenderPath2D(renderer)
+	RenderPath3D::RenderPath3D()
 	{
 	}
 
@@ -18,15 +17,16 @@ namespace Cjing3D
 	{
 		RenderPath2D::Update(dt);
 
-		mRenderer.UpdatePerFrameData(dt);
+		Renderer::UpdatePerFrameData(dt);
 	}
 
 	void RenderPath3D::ResizeBuffers()
 	{
 		RenderPath2D::ResizeBuffers();
 
-		FORMAT backBufferFormat = mRenderer.GetDevice().GetBackBufferFormat();
-		const auto screenSize = mRenderer.GetDevice().GetScreenSize();
+		auto& device = Renderer::GetDevice();
+		FORMAT backBufferFormat = device.GetBackBufferFormat();
+		const auto screenSize = device.GetScreenSize();
 
 		// depth buffer
 		{
@@ -36,10 +36,10 @@ namespace Cjing3D
 			desc.mFormat = RenderPath3D::DepthStencilFormatAlias;
 			desc.mBindFlags = BIND_DEPTH_STENCIL | BIND_SHADER_RESOURCE;
 
-			const auto result = mRenderer.GetDevice().CreateTexture2D(&desc, nullptr, mDepthBuffer);
+			const auto result = device.CreateTexture2D(&desc, nullptr, mDepthBuffer);
 			Debug::ThrowIfFailed(result, "Failed to create depth buffer:%08x", result);
 
-			const auto tempResult = mRenderer.GetDevice().CreateTexture2D(&desc, nullptr, mDepthBufferTemp);
+			const auto tempResult = device.CreateTexture2D(&desc, nullptr, mDepthBufferTemp);
 			Debug::ThrowIfFailed(tempResult, "Failed to create temp depth buffer:%08x", result);
 		}
 
@@ -51,19 +51,19 @@ namespace Cjing3D
 			desc.mFormat = backBufferFormat;
 			desc.mBindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE | BIND_UNORDERED_ACCESS;
 
-			HRESULT result = mRenderer.GetDevice().CreateTexture2D(&desc, nullptr, mRTPostprocessLDR1);
+			HRESULT result = device.CreateTexture2D(&desc, nullptr, mRTPostprocessLDR1);
 			Debug::ThrowIfFailed(result, "Failed to create postprocess render target:%08x", result);
-			mRenderer.GetDevice().SetResourceName(mRTPostprocessLDR1, "RTPostprocessLDR1");
+			device.SetResourceName(mRTPostprocessLDR1, "RTPostprocessLDR1");
 
-			result = mRenderer.GetDevice().CreateTexture2D(&desc, nullptr, mRTPostprocessLDR2);
+			result = device.CreateTexture2D(&desc, nullptr, mRTPostprocessLDR2);
 			Debug::ThrowIfFailed(result, "Failed to create postprocess render target:%08x", result);
-			mRenderer.GetDevice().SetResourceName(mRTPostprocessLDR2, "RTPostprocessLDR2");
+			device.SetResourceName(mRTPostprocessLDR2, "RTPostprocessLDR2");
 		}
 	}
 
 	void RenderPath3D::Compose()
 	{
-		GraphicsDevice& device = mRenderer.GetDevice();
+		GraphicsDevice& device = Renderer::GetDevice();
 		device.BeginEvent("Composition");
 
 		Texture2D* lastTexture = GetLastPostprocessRT();
@@ -73,7 +73,7 @@ namespace Cjing3D
 			params.EnableFullScreen();
 			params.mBlendType = BlendType_Opaque;
 
-			RenderImage::Render(*lastTexture, params, mRenderer);
+			RenderImage::Render(*lastTexture, params);
 		}
 
 		RenderPath2D::Compose();
@@ -87,13 +87,13 @@ namespace Cjing3D
 			return;
 		}
 
-		mRenderer.RenderShadowmaps(mRenderer.GetCamera());
+		Renderer::RenderShadowmaps(Renderer::GetCamera());
 	}
 
 	void RenderPath3D::RenderTransparents(RenderBehavior& renderBehavior, RenderPassType renderType)
 	{
 		PROFILER_BEGIN_GPU_BLOCK("RenderTransparents");
-		GraphicsDevice& device = mRenderer.GetDevice();
+		GraphicsDevice& device = Renderer::GetDevice();
 		// transparent scene
 		{
 			device.BeginRenderBehavior(renderBehavior);
@@ -106,7 +106,7 @@ namespace Cjing3D
 			vp.mMaxDepth = 1.0f;
 			device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
 
-			mRenderer.RenderSceneTransparent(mRenderer.GetCamera(), renderType);
+			Renderer::RenderSceneTransparent(Renderer::GetCamera(), renderType);
 
 			device.EndRenderBehavior();
 		}
@@ -119,7 +119,7 @@ namespace Cjing3D
 		Texture2D* rtWrite = GetLastPostprocessRT();
 
 		// HDR-> LDR
-		mRenderer.PostprocessTonemap(*rtRead, *rtWrite, GetExposure());
+		Renderer::PostprocessTonemap(*rtRead, *rtWrite, GetExposure());
 
 		// FXAA
 		if (IsFXAAEnable())
@@ -127,7 +127,7 @@ namespace Cjing3D
 			rtRead = rtWrite;
 			rtWrite = &mRTPostprocessLDR1;
 
-			mRenderer.PostprocessFXAA(*rtRead, *rtWrite);
+			Renderer::PostprocessFXAA(*rtRead, *rtWrite);
 		}
 
 		if (rtWrite != GetLastPostprocessRT()) {

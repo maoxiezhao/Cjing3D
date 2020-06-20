@@ -102,6 +102,7 @@ namespace Gui {
 		bool mIsIgnoreInputEvent = false;
 
 		Rect mArea;
+
 		LuaRef mScriptHandler;
 		std::map<StringID, std::string> mScriptEventHandlers;
 

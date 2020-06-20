@@ -22,8 +22,7 @@ namespace Cjing3D
 		desc.mByteWidth = sizeof(BonePose) * mSkinningBones.size();
 		desc.mStructureByteStride = sizeof(BonePose);
 
-		Renderer& renderer = GlobalGetSubSystem<Renderer>();
-		const auto result = renderer.GetDevice().CreateBuffer(&desc, mBufferBonePoses, nullptr);
+		const auto result = Renderer::GetDevice().CreateBuffer(&desc, mBufferBonePoses, nullptr);
 		Debug::ThrowIfFailed(result, "failed to create bone poses buffer:%08x", result);
 	}
 

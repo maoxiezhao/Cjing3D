@@ -59,9 +59,7 @@ namespace Cjing3D
 			return nullptr;
 		}
 
-		SystemContext& systemContext = SystemContext::GetSystemContext();
-		Renderer& renderer = systemContext.GetSubSystem<Renderer>();
-		renderer.GetDevice().SetResourceName(*texture, "mColorTexture");
+		Renderer::GetDevice().SetResourceName(*texture, "mColorTexture");
 
 		mColorTextureMap[color.mRGBA] = texture;
 
@@ -70,9 +68,7 @@ namespace Cjing3D
 
 	HRESULT TextureHelper::CreateTexture(Texture2D& texture, const uint8_t* data, U32 width, U32 height, FORMAT format)
 	{
-		SystemContext& systemContext = SystemContext::GetSystemContext();
-		Renderer& renderer = systemContext.GetSubSystem<Renderer>();
-		GraphicsDevice& device = renderer.GetDevice();
+		GraphicsDevice& device = Renderer::GetDevice();
 
 		TextureDesc desc = {};
 		desc.mWidth = width;

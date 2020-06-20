@@ -7,8 +7,7 @@
 namespace Cjing3D
 {
 
-ShaderLib::ShaderLib(Renderer & renderer) :
-	mRenderer(renderer)
+ShaderLib::ShaderLib()
 {
 }
 
@@ -21,7 +20,6 @@ void ShaderLib::Initialize()
 
 void ShaderLib::Uninitialize()
 {
-	auto& resourceManager = mRenderer.GetResourceManager();
 	for (int i = 0; i < VertexShaderType_Count; i++) {
 		mVertexShader[i] = nullptr;
 	}
@@ -35,7 +33,7 @@ void ShaderLib::Uninitialize()
 
 void ShaderLib::LoadVertexShaders()
 {
-	auto& resourceManager = mRenderer.GetResourceManager();
+	auto& resourceManager = GlobalGetSubSystem<ResourceManager>();
 	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_Shader);
 	{
 		// object all
@@ -113,7 +111,7 @@ void ShaderLib::LoadVertexShaders()
 		mInputLayout[InputLayoutType_Shadow] = shadowVSInfo.mInputLayout;
 
 		// cube shadow vs
-		if (!mRenderer.GetDevice().CheckGraphicsFeatureSupport(GraphicsFeatureSupport::VIEWPORT_AND_RENDERTARGET_ARRAYINDEX_WITHOUT_GS))
+		if (!Renderer::GetDevice().CheckGraphicsFeatureSupport(GraphicsFeatureSupport::VIEWPORT_AND_RENDERTARGET_ARRAYINDEX_WITHOUT_GS))
 		{
 			Debug::Warning("Failed to load cubeShadowVS: Feature not support: VIEWPORT_AND_RENDERTARGET_ARRAYINDEX_WITHOUT_GS");
 		}
@@ -130,7 +128,7 @@ void ShaderLib::LoadVertexShaders()
 
 void ShaderLib::LoadPixelShaders()
 {
-	auto& resourceManager = mRenderer.GetResourceManager();
+	auto& resourceManager = GlobalGetSubSystem<ResourceManager>();
 	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_Shader);
 	{
 		// object
@@ -151,7 +149,7 @@ void ShaderLib::LoadPixelShaders()
 
 void ShaderLib::LoadComputeShaders()
 {
-	auto& resourceManager = mRenderer.GetResourceManager();
+	auto& resourceManager = GlobalGetSubSystem<ResourceManager>();
 	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_Shader);
 	{
 		mComputeShader[ComputeShaderType_Tonemapping]       = LoadShader(SHADERSTAGES_CS, shaderPath + "toneMapping.cso");
@@ -191,8 +189,7 @@ InputLayoutPtr ShaderLib::LoadInputLayout(ShaderPtr Shader, VertexLayoutDesc* de
 	InputLayoutPtr inputLayoutPtr = CJING_MAKE_SHARED<InputLayout>();
 	if (Shader != nullptr && desc != nullptr)
 	{
-		auto& device = mRenderer.GetDevice();
-		const HRESULT result = device.CreateInputLayout(desc, numElements, *Shader, *inputLayoutPtr);
+		const HRESULT result = Renderer::GetDevice().CreateInputLayout(desc, numElements, *Shader, *inputLayoutPtr);
 		Debug::ThrowIfFailed(result, "Failed to create input layout: %08X", result);
 	}
 	return inputLayoutPtr;
@@ -226,9 +223,8 @@ ShaderPtr ShaderLib::LoadShader(SHADERSTAGES stages, const std::string& path)
 ShaderPtr ShaderLib::LoadShader(SHADERSTAGES stages, const void*data, size_t length)
 { 
 	ShaderPtr shaderPtr = CJING_MAKE_SHARED<Shader>();
-	auto& device = mRenderer.GetDevice();
 	{
-		const HRESULT result = device.CreateShader(stages, data, length, *shaderPtr);
+		const HRESULT result = Renderer::GetDevice().CreateShader(stages, data, length, *shaderPtr);
 		Debug::ThrowIfFailed(result, "Failed to create vertex shader: %08X", result);
 	}
 	return shaderPtr;

@@ -8,7 +8,7 @@ namespace Cjing3D
 	class Renderer2D
 	{
 	public:
-		Renderer2D(Renderer& renderer);
+		Renderer2D();
 		~Renderer2D();
 
 		void Initialize();
@@ -18,7 +18,6 @@ namespace Cjing3D
 		RenderPath2D* GetCurrentRenderPath() { return mRenderPath; }
 
 	private:
-		Renderer & mRenderer;
 		RenderPath2D* mRenderPath;
 	};
 

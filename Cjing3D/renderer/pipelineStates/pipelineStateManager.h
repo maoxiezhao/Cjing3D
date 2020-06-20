@@ -24,7 +24,7 @@ struct NormalRenderParams
 class PipelineStateManager
 {
 public:
-	PipelineStateManager(Renderer& renderer);
+	PipelineStateManager();
 	~PipelineStateManager();
 
 	void Initialize();
@@ -44,8 +44,6 @@ private:
 	void SetupNormalPipelineStates();
 	void SetupImagePipelineStates();
 	void SetupPipelineStateIDs();
-
-	Renderer & mRenderer;
 
 	std::vector<PipelineState> mPipelineStates;	
 

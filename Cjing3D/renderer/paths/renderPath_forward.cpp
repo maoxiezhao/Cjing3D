@@ -4,8 +4,7 @@
 
 namespace Cjing3D {
 
-	RenderPathForward::RenderPathForward(Renderer& renderer) :
-		RenderPath3D(renderer)
+	RenderPathForward::RenderPathForward() 
 	{
 	}
 
@@ -16,8 +15,9 @@ namespace Cjing3D {
 	void RenderPathForward::ResizeBuffers()
 	{
 		RenderPath3D::ResizeBuffers();
-
-		const auto screenSize = mRenderer.GetDevice().GetScreenSize();
+		
+		auto& device = Renderer::GetDevice();
+		const auto screenSize = device.GetScreenSize();
 		{
 			TextureDesc desc = {};
 			desc.mWidth = screenSize[0];
@@ -26,10 +26,10 @@ namespace Cjing3D {
 			desc.mSampleDesc.mCount = 1;
 			desc.mBindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE | BIND_UNORDERED_ACCESS;
 			{
-				const auto result = mRenderer.GetDevice().CreateTexture2D(&desc, nullptr, mRTMain);
+				const auto result = device.CreateTexture2D(&desc, nullptr, mRTMain);
 				Debug::ThrowIfFailed(result, "Failed to create render target:%08x", result);
 
-				mRenderer.GetDevice().SetResourceName(mRTMain, "RTMain");
+				device.SetResourceName(mRTMain, "RTMain");
 			}
 		}
 		//////////////////////////////////////////////////////////////////////////////////////////
@@ -37,42 +37,42 @@ namespace Cjing3D {
 			RenderBehaviorDesc desc = {};
 			desc.mParams.push_back({ RenderBehaviorParam::RenderType_DepthStencil, GetDepthBuffer(), -1, RenderBehaviorParam::RenderOperation_Clear });
 
-			mRenderer.GetDevice().CreateRenderBehavior(desc, mRBDepthPrepass);
+			device.CreateRenderBehavior(desc, mRBDepthPrepass);
 		}
 		{
 			RenderBehaviorDesc desc = {};
 			desc.mParams.push_back({ RenderBehaviorParam::RenderType_RenderTarget, &mRTMain,         -1, RenderBehaviorParam::RenderOperation_Clear });
 			desc.mParams.push_back({ RenderBehaviorParam::RenderType_DepthStencil, GetDepthBuffer(), -1, RenderBehaviorParam::RenderOperation_Load });
 
-			mRenderer.GetDevice().CreateRenderBehavior(desc, mRBMain);
+			device.CreateRenderBehavior(desc, mRBMain);
 		}
 		{
 			RenderBehaviorDesc desc = {};
 			desc.mParams.push_back({ RenderBehaviorParam::RenderType_RenderTarget, &mRTMain,         -1, RenderBehaviorParam::RenderOperation_Load });
 			desc.mParams.push_back({ RenderBehaviorParam::RenderType_DepthStencil, GetDepthBuffer(), -1, RenderBehaviorParam::RenderOperation_Load });
 
-			mRenderer.GetDevice().CreateRenderBehavior(desc, mRBTransparent);
+			device.CreateRenderBehavior(desc, mRBTransparent);
 		}
 	}
 
 	void RenderPathForward::Render()
 	{
-		GraphicsDevice& device = mRenderer.GetDevice();
-		CameraComponent& camera = mRenderer.GetCamera();
+		GraphicsDevice& device = Renderer::GetDevice();
+		CameraComponent& camera = Renderer::GetCamera();
 
 		// update and bind common resources
-		mRenderer.RefreshRenderData();
+		Renderer::RefreshRenderData();
 
 		// bind constant buffer
-		mRenderer.BindCommonResource();
-		mRenderer.BindConstanceBuffer(SHADERSTAGES_VS);
-		mRenderer.BindConstanceBuffer(SHADERSTAGES_PS);
+		Renderer::BindCommonResource();
+		Renderer::BindConstanceBuffer(SHADERSTAGES_VS);
+		Renderer::BindConstanceBuffer(SHADERSTAGES_PS);
 		
 		// shadowmaps
 		RenderShadowmaps();
 
 		// update main camera constant buffer
-		mRenderer.UpdateCameraCB(camera);
+		Renderer::UpdateCameraCB(camera);
 
 		// depth prepass
 		{
@@ -85,7 +85,7 @@ namespace Cjing3D {
 			vp.mHeight = (F32)mDepthBuffer.GetDesc().mHeight;
 			device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
 
-			mRenderer.RenderSceneOpaque(camera, RenderPassType_Depth);
+			Renderer::RenderSceneOpaque(camera, RenderPassType_Depth);
 
 			device.EndRenderBehavior();
 			device.EndEvent();
@@ -104,8 +104,8 @@ namespace Cjing3D {
 			vp.mMaxDepth = 1.0f;
 			device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
 
-			mRenderer.RenderSceneOpaque(camera, RenderPassType_Forward);
-			mRenderer.RenderSky();
+			Renderer::RenderSceneOpaque(camera, RenderPassType_Forward);
+			Renderer::RenderSky();
 
 			device.EndRenderBehavior();
 			device.EndEvent();

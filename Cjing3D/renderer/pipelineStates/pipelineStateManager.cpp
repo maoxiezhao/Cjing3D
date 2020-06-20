@@ -4,8 +4,7 @@
 
 namespace Cjing3D {
 
-PipelineStateManager::PipelineStateManager(Renderer & renderer):
-	mRenderer(renderer)
+PipelineStateManager::PipelineStateManager()
 {
 }
 
@@ -15,8 +14,8 @@ PipelineStateManager::~PipelineStateManager()
 
 void PipelineStateManager::SetupPipelineStateIDs()
 {
-	ShaderLib& shaderLib = mRenderer.GetShaderLib();
-	RhiResourceManager& rhiResourceManager = mRenderer.GetStateManager();
+	ShaderLib& shaderLib = Renderer::GetShaderLib();
+	RhiResourceManager& rhiResourceManager = Renderer::GetStateManager();
 	{
 		PipelineStateDesc desc = {};
 		desc.mVertexShader      = shaderLib.GetVertexShader(VertexShaderType_Sky);
@@ -61,7 +60,7 @@ U32 PipelineStateManager::RegisterPipelineState(PipelineStateDesc desc)
 {
 	U32 index = mPipelineStates.size();
 	auto& state = mPipelineStates.emplace_back();
-	mRenderer.GetDevice().CreatePipelineState(desc, state);
+	Renderer::GetDevice().CreatePipelineState(desc, state);
 
 	return index;
 }

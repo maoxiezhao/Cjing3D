@@ -24,30 +24,24 @@ class Renderer2D;
 class RenderPass;
 class TerrainTree;
 
-
 // TODO: change to renderer namesapce
 // Renderer被设计为一个仅仅提供各种渲染方法的集合（namespace)，具体的调用方式应该由renderPath决定
-class Renderer : public SubSystem
+namespace Renderer
 {
-public:
-	Renderer(SystemContext& gameContext, RenderingDeviceType deviceType, HWND window);
-	~Renderer();
+	void Initialize(RenderingDeviceType deviceType, HWND window);
+	void Uninitialize();
 
-	virtual void FixedUpdate();
-	virtual void Update(F32 deltaTime);
+	void Render();
+	void Compose();
+	void Present();
+	void FixedUpdate();
+	void Update(F32 deltaTime);
 
 	void UpdatePerFrameData(F32 deltaTime);
 	void RefreshRenderData();
 
-	void Initialize();
-	void Uninitialize();
-	void Render();
-	void Compose();
-	void Present();
-	
 	// getter
 	GraphicsDevice& GetDevice();
-	ResourceManager& GetResourceManager();
 	CameraComponent& GetCamera();
 	ShaderLib& GetShaderLib();
 	RhiResourceManager& GetStateManager();
@@ -57,16 +51,16 @@ public:
 	RenderPath* GetRenderPath();
 
 	// base status
-	void SetGamma(F32 gamma) { mGamma = gamma; }
-	F32 GetGamma()const { return mGamma; }
-	U32 GetShadowCascadeCount()const;
-	U32 GetShadowRes2DResolution()const;
-	F32x3 GetAmbientColor()const;
+	void SetGamma(F32 gamma);
+	F32 GetGamma();
+	U32 GetShadowCascadeCount();
+	U32 GetShadowRes2DResolution();
+	F32x3 GetAmbientColor();
 	void SetAmbientColor(F32x3 color);
 	void SetAlphaCutRef(F32 alpha);
-	void ResetAlphaCutRef() { SetAlphaCutRef(1.0f); }
+	void ResetAlphaCutRef();
 	void SetScreenSize(U32 width, U32 height);
-	U32x2 GetScreenSize()const;
+	U32x2 GetScreenSize();
 
 	// Render Method
 	void RenderShadowmaps(CameraComponent& camera);
@@ -75,8 +69,8 @@ public:
 	void RenderImpostor(CameraComponent& camera, RenderPassType renderPassType);
 	void RenderSky();
 
-	bool IsTiledCullingDebug()const;
-	U32x2 GetCullingTiledCount()const;
+	bool IsTiledCullingDebug();
+	U32x2 GetCullingTiledCount();
 	void TiledLightCulling(Texture2D& depthBuffer);
 
 	// postprocess
@@ -111,7 +105,6 @@ public:
 	ShaderPtr LoadShader(SHADERSTAGES stages, const std::string& path);
 	VertexShaderInfo LoadVertexShaderInfo(const std::string& path, VertexLayoutDesc* desc, U32 numElements);
 
-private:
 	void InitializeRenderPasses();
 	void UninitializeRenderPasses();
 
@@ -130,9 +123,7 @@ private:
 
 		void Clear();
 	};
-	std::unordered_map<const CameraComponent*, FrameCullings> mFrameCullings;
 
-public:
 	// 每帧所用的线性分配器
 	enum FrameAllocatorType
 	{
@@ -153,7 +144,6 @@ public:
 
 		void Clear();
 	};
-	RenderFrameData mFrameData;
 
 	// GPU Query, latency为延迟读取的数量，避免在同一帧中请求/读取同一个query
 	template<I32 latency>
@@ -163,7 +153,7 @@ public:
 		GPUQueryHandler() {};
 		~GPUQueryHandler() { Uninitialize(); }
 
-		void Initialize(Renderer& renderer, GPUQueryDesc& desc)
+		void Initialize(GPUQueryDesc& desc)
 		{
 			if (IsInitialized()) {
 				return;
@@ -171,7 +161,7 @@ public:
 
 			for (int i = 0; i < latency; i++)
 			{
-				renderer.GetDevice().CreateQuery(desc, mQueries[i]);
+				GetDevice().CreateQuery(desc, mQueries[i]);
 				mActiveTable[i] = false;
 			}
 			currentIndex = 0;
@@ -220,28 +210,6 @@ public:
 		I32 currentIndex = 0;
 		bool mActiveTable[latency];
 	};
-
-private:
-	bool mIsInitialized;
-	bool mIsRendering;
-	U32 mFrameNum = 0;
-	U32x2 mScreenSize;
-	F32 mGamma = 2.2f;
-	CommonCB mCommonCB;
-	std::vector<int> mPendingUpdateMaterials;
-	LinearAllocator mFrameAllocator[FrameAllocatorType_Count];
-
-	// base member
-	std::unique_ptr<GraphicsDevice> mGraphicsDevice;
-	std::unique_ptr<ShaderLib> mShaderLib;
-	std::unique_ptr<RhiResourceManager> mRhiResourceManager;
-	std::unique_ptr<DeferredMIPGenerator> mDeferredMIPGenerator;
-	std::unique_ptr<PipelineStateManager> mPipelineStateManager;
-	std::unique_ptr<Renderer2D> mRenderer2D;
-	std::unique_ptr<RenderPath> mCurrentRenderPath;
-
-	// render pass
-	std::map<StringID, std::shared_ptr<RenderPass>> mRenderPassMap;
 };
 
 }

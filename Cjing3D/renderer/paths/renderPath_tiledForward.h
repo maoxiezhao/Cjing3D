@@ -7,7 +7,7 @@ namespace Cjing3D {
 	class RenderPathTiledForward : public RenderPath3D
 	{
 	public:
-		RenderPathTiledForward(Renderer& renderer);
+		RenderPathTiledForward();
 		~RenderPathTiledForward();
 
 		virtual void ResizeBuffers();

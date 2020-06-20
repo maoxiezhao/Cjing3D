@@ -11,7 +11,7 @@ namespace Cjing3D {
 		static const FORMAT DepthStencilFormat = FORMAT_D32_FLOAT_S8X24_UINT;
 		static const FORMAT DepthStencilFormatAlias = FORMAT_R32G8X24_TYPELESS;
 
-		RenderPath3D(Renderer& renderer);
+		RenderPath3D();
 		~RenderPath3D();
 
 		virtual void Update(F32 dt);

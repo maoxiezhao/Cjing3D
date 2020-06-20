@@ -20,8 +20,7 @@ namespace ModelImporter
 	{
 		std::filesystem::path path(fileName);
 
-		auto& renderer = GlobalGetSubSystem<Renderer>();
-		auto& device = renderer.GetDevice();
+		auto& device = Renderer::GetDevice();
 		auto& resourceManager = GlobalGetSubSystem<ResourceManager>();
 
 		tinyobj::attrib_t objAttrib;

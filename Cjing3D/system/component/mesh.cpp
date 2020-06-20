@@ -145,9 +145,7 @@ namespace Cjing3D
 			}
 		}
 
-		SystemContext& systemContext = SystemContext::GetSystemContext();
-		Renderer& renderer = systemContext.GetSubSystem<Renderer>();
-		SetupRenderData(renderer.GetDevice());
+		SetupRenderData(Renderer::GetDevice());
 	}
 
 	void MeshComponent::Unserialize(Archive& archive) const

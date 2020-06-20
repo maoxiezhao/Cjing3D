@@ -38,9 +38,7 @@ namespace Cjing3D
 		mImGuiStage.Initialize();
 		mRenderer->SetImGuiStage(&mImGuiStage);
 #endif
-		SystemContext& systemContext = SystemContext::GetSystemContext();
-		Renderer& renderer = systemContext.GetSubSystem<Renderer>();
-		U32x2 screenSize = renderer.GetScreenSize();
+		U32x2 screenSize = Renderer::GetScreenSize();
 
 		// initialize widget hierarchy		
 		mWidgetHierarchy = std::make_unique<Gui::WidgetHierarchy>(*this);
@@ -50,7 +48,7 @@ namespace Cjing3D
 		LoadRegisteredKeys();
 
 		// save previous mouse pos
-		InputManager& inputManager = systemContext.GetSubSystem<InputManager>();
+		InputManager& inputManager = GlobalGetSubSystem<InputManager>();
 		mPrevMousePos = inputManager.GetMousePos();
 
 		Logger::Info("GUI Stage initialized");
@@ -156,7 +154,7 @@ namespace Cjing3D
 	{
 		// 响应输入，并将其以事件的形式分发给widgets
 		SystemContext& systemContext = SystemContext::GetSystemContext();
-		InputManager& inputManager = systemContext.GetSubSystem<InputManager>();
+		InputManager& inputManager = GlobalGetSubSystem<InputManager>();
 
 		// notify mouse event
 		for (auto keyCode : mRegisteredMouseKeys)

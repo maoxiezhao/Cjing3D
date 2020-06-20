@@ -27,15 +27,16 @@ namespace Cjing3D
 
 	void GameEditor::Initialize()
 	{
-		auto& renderer = GlobalGetSubSystem<Renderer>();
-		RenderPathTiledForward* path = new RenderPathTiledForward(renderer);
-		renderer.SetCurrentRenderPath(path);
-		renderer.GetRenderer2D().SetCurrentRenderPath(path);
+		RenderPathTiledForward* path = new RenderPathTiledForward();
+		Renderer::SetCurrentRenderPath(path);
+		Renderer::GetRenderer2D().SetCurrentRenderPath(path);
 
 #ifdef _ENABLE_GAME_EDITOR_
 		auto& guiStage = GlobalGetSubSystem<GUIStage>();
 		Editor::InitializeEditor(guiStage.GetImGUIStage());
 #endif // _ENABLE_GAME_EDITOR_
+
+		auto& guiRenderer = guiStage.GetGUIRenderer();
 	}
 
 	void GameEditor::Update(EngineTime time)
@@ -46,17 +47,14 @@ namespace Cjing3D
 	{
 
 #ifdef _ENABLE_GAME_EDITOR_
-		auto systemContext = GetGameContext();
-		auto& inputManager = systemContext->GetSubSystem<InputManager>();
-		auto& renderer = systemContext->GetSubSystem<Renderer>();
-
+		auto& inputManager = GlobalGetSubSystem<InputManager>();
 		if (inputManager.IsKeyDown(KeyCode::Esc)) {
-			systemContext->GetEngine()->SetIsExiting(true);
+			GlobalGetEngine()->SetIsExiting(true);
 		}
 
 		if (inputManager.IsKeyDown(KeyCode::F4))
 		{
-			auto& guiStage = systemContext->GetSubSystem<GUIStage>();
+			auto& guiStage = GlobalGetSubSystem<GUIStage>();
 			bool show = guiStage.IsImGUIStageVisible();
 			guiStage.SetImGUIStageVisible(!show);
 		}
@@ -72,7 +70,7 @@ namespace Cjing3D
 		}
 		else if (inputManager.IsKeyDown(KeyCode::F7))
 		{
-			renderer.GetMainScene().Clear();
+			Scene::GetScene().Clear();
 		}
 #endif // _ENABLE_GAME_EDITOR_
 

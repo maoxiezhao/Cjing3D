@@ -6,8 +6,7 @@
 
 namespace Cjing3D
 {
-	RenderPath2D::RenderPath2D(Renderer & renderer):
-		RenderPath(renderer)
+	RenderPath2D::RenderPath2D()
 	{
 	}
 
@@ -19,8 +18,9 @@ namespace Cjing3D
 	{
 		RenderPath::ResizeBuffers();
 
-		const auto screenSize = mRenderer.GetDevice().GetScreenSize();
-		FORMAT format = mRenderer.GetDevice().GetBackBufferFormat();
+		auto& device = Renderer::GetDevice();
+		const auto screenSize = device.GetScreenSize();
+		FORMAT format = device.GetBackBufferFormat();
 
 		TextureDesc desc = {};
 		desc.mWidth = screenSize[0];
@@ -29,10 +29,9 @@ namespace Cjing3D
 		desc.mBindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
 		desc.mClearValue.color[3] = 0.0f;
 		{
-			const auto result = mRenderer.GetDevice().CreateTexture2D(&desc, nullptr, mRTFinal);
+			const auto result = device.CreateTexture2D(&desc, nullptr, mRTFinal);
 			Debug::ThrowIfFailed(result, "Failed to create render target:%08x", result);
-
-			mRenderer.GetDevice().SetResourceName(mRTFinal, "mRTFinal");
+			device.SetResourceName(mRTFinal, "mRTFinal");
 		}
 
 		//////////////////////////////////////////////////////////////////////////////////////////
@@ -41,7 +40,7 @@ namespace Cjing3D
 			desc.mParams.push_back({ RenderBehaviorParam::RenderType_RenderTarget, &mRTFinal,         -1, RenderBehaviorParam::RenderOperation_Clear });
 			desc.mParams.push_back({ RenderBehaviorParam::RenderType_DepthStencil, GetDepthBuffer(),  -1, RenderBehaviorParam::RenderOperation_Load });
 
-			mRenderer.GetDevice().CreateRenderBehavior(desc, mRBFinal);
+			device.CreateRenderBehavior(desc, mRBFinal);
 		}
 	}
 
@@ -62,7 +61,7 @@ namespace Cjing3D
 
 	void RenderPath2D::Render()
 	{
-		GraphicsDevice& device = mRenderer.GetDevice();
+		GraphicsDevice& device = Renderer::GetDevice();
 		device.BeginEvent("Render2D");
 		{
 			device.BeginRenderBehavior(mRBFinal);
@@ -86,7 +85,7 @@ namespace Cjing3D
 
 	void RenderPath2D::RenderGUI()
 	{
-		GraphicsDevice& device = mRenderer.GetDevice();
+		GraphicsDevice& device = Renderer::GetDevice();
 		device.BeginEvent("RenderGUI");
 
 		// 从guiStage中获取guiRenderer执行渲染过程
@@ -104,7 +103,7 @@ namespace Cjing3D
 			params.EnableFullScreen();
 			params.mBlendType = BlendType_PreMultiplied;
 
-			RenderImage::Render(mRTFinal, params, mRenderer);
+			RenderImage::Render(mRTFinal, params);
 		}
 
 		RenderPath::Compose();

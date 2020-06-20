@@ -9,20 +9,12 @@ namespace Cjing3D
 {
 namespace RenderImage
 {
-	void Initialize()
+	void Render(Texture2D & texture, ImageParams params)
 	{
-	}
-
-	void Uninitialize()
-	{
-	}
-
-	void Render(Texture2D & texture, ImageParams params, Renderer& renderer)
-	{
-		auto& device = renderer.GetDevice();
-		auto& shaderLib = renderer.GetShaderLib();
-		auto& rhiResourceManager = renderer.GetStateManager();
-		auto& pipelineStateManager = renderer.GetPipelineStateManager();
+		auto& device = Renderer::GetDevice();
+		auto& shaderLib = Renderer::GetShaderLib();
+		auto& rhiResourceManager = Renderer::GetStateManager();
+		auto& pipelineStateManager = Renderer::GetPipelineStateManager();
 
 		device.BindSamplerState(SHADERSTAGES_PS, *rhiResourceManager.GetSamplerState(SamplerStateID_LinearClampGreater), SAMPLER_LINEAR_CLAMP_SLOT);
 		device.BindGPUResource(SHADERSTAGES_PS, texture, TEXTURE_SLOT_0);

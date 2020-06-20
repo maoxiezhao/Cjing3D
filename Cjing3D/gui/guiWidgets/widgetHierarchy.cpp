@@ -99,5 +99,10 @@ namespace Gui
 				});
 		}
 	}
+
+	void WidgetHierarchy::CaptureFocuseWidget(bool captured)
+	{
+		mEventDistributor.SetMouseCaptured(captured);
+	}
 }
 }

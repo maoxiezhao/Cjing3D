@@ -5,8 +5,7 @@
 
 namespace Cjing3D
 {
-	DeferredMIPGenerator::DeferredMIPGenerator(Renderer& renderer):
-		mRenderer(renderer)
+	DeferredMIPGenerator::DeferredMIPGenerator()
 	{
 	}
 
@@ -31,9 +30,9 @@ namespace Cjing3D
 			return;
 		}
 
-		GraphicsDevice& device = mRenderer.GetDevice();
-		ShaderLib& shaderLib = mRenderer.GetShaderLib();
-		RhiResourceManager& rhiResourceManager = mRenderer.GetStateManager();
+		GraphicsDevice& device = Renderer::GetDevice();
+		ShaderLib& shaderLib = Renderer::GetShaderLib();
+		RhiResourceManager& rhiResourceManager = Renderer::GetStateManager();
 
 		// generate mipmap by compute shader
 		switch (filter)

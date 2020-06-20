@@ -140,10 +140,9 @@ void ResourceManager::LoadTextureFromFilePath(const std::filesystem::path& fileP
 				return;
 			}
 
-			Renderer& renderer = GlobalGetSubSystem<Renderer>();
-			const auto result = renderer.GetDevice().CreateTexture2D(&desc, resourceData.data(), texture);
+			const auto result = Renderer::GetDevice().CreateTexture2D(&desc, resourceData.data(), texture);
 			Debug::ThrowIfFailed(result, "Failed to create texture:%08x", result);
-			renderer.GetDevice().SetResourceName(texture, path.c_str());
+			Renderer::GetDevice().SetResourceName(texture, path.c_str());
 		}
 
 		SAFE_DELETE_ARRAY(data);
@@ -159,8 +158,7 @@ void ResourceManager::LoadTextureFromFilePath(const std::filesystem::path& fileP
 		if (rgb != nullptr)
 		{
 			SystemContext& systemContext = SystemContext::GetSystemContext();
-			Renderer& renderer = systemContext.GetSubSystem<Renderer>();
-			GraphicsDevice& device = renderer.GetDevice();
+			GraphicsDevice& device = Renderer::GetDevice();
 
 			TextureDesc desc = {};
 			desc.mWidth = width;
@@ -182,19 +180,19 @@ void ResourceManager::LoadTextureFromFilePath(const std::filesystem::path& fileP
 				mipWidth = std::max(1u, mipWidth / 2);
 			}
 
-			const auto result = renderer.GetDevice().CreateTexture2D(&desc, resourceData.data(), texture);
+			const auto result = device.CreateTexture2D(&desc, resourceData.data(), texture);
 			Debug::ThrowIfFailed(result, "Failed to create texture:%08x", result);
-			renderer.GetDevice().SetResourceName(texture, path.c_str());
+			device.SetResourceName(texture, path.c_str());
 
 			// 创建各个subresource的srv和uav,用于deferred generate mipmap
 			for (int mipLevel = 0; mipLevel < desc.mMipLevels; mipLevel++)
 			{
-				renderer.GetDevice().CreateShaderResourceView(texture, 0, -1, mipLevel, 1);
-				renderer.GetDevice().CreateUnordereddAccessView(texture, mipLevel);
+				device.CreateShaderResourceView(texture, 0, -1, mipLevel, 1);
+				device.CreateUnordereddAccessView(texture, mipLevel);
 			}
 
 			if (desc.mMipLevels > 1) {
-				renderer.AddDeferredTextureMipGen(texture);
+				Renderer::AddDeferredTextureMipGen(texture);
 			}
 		}
 

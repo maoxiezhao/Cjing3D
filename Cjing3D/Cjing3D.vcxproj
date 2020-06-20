@@ -223,6 +223,7 @@
     <ClInclude Include="renderer\RHI\rhiDefinition.h" />
     <ClInclude Include="renderer\RHI\swapChainD3D11.h" />
     <ClInclude Include="renderer\rhiResourceManager.h" />
+    <ClInclude Include="renderer\sprite.h" />
     <ClInclude Include="renderer\textureHelper.h" />
     <ClInclude Include="resource\modelImporter.h" />
     <ClInclude Include="resource\resource.h" />
@@ -374,6 +375,7 @@
     <ClCompile Include="renderer\RHI\deviceD3D11.cpp" />
     <ClCompile Include="renderer\RHI\swapChainD3D11.cpp" />
     <ClCompile Include="renderer\rhiResourceManager.cpp" />
+    <ClCompile Include="renderer\sprite.cpp" />
     <ClCompile Include="renderer\textureHelper.cpp" />
     <ClCompile Include="resource\modelImporter\modelImporterGLTF.cpp" />
     <ClCompile Include="resource\modelImporter\modelImporterObj.cpp" />

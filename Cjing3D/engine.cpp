@@ -16,7 +16,6 @@
 namespace Cjing3D
 {
 namespace {
-	Renderer* mRenderer = nullptr;
 	LuaContext* mLuaContext = nullptr;
 	GUIStage* mGuiStage = nullptr;
 	InputManager* mInputManager = nullptr;
@@ -94,9 +93,7 @@ void Engine::Initialize()
 	resourceManager->Initialize();
 
 	// initialize renderer
-	auto renderer = new Renderer(*mSystemContext, mRenderingDeviceType, (HWND)mWindowHwnd);
-	mSystemContext->RegisterSubSystem(renderer);
-	renderer->Initialize();
+	Renderer::Initialize(mRenderingDeviceType, (HWND)mWindowHwnd);
 
 	// initialize gui stage
 	auto guiStage = new GUIStage(*mSystemContext);
@@ -115,7 +112,6 @@ void Engine::Initialize()
 	mGameComponent->Initialize();
 	luaContext->OnMainStart();
 
-	mRenderer = renderer;
 	mLuaContext = luaContext;
 	mGuiStage = guiStage;
 	mInputManager = inputSystem;
@@ -187,7 +183,9 @@ void Engine::Uninitialize()
 
 	mSystemContext->GetSubSystem<GUIStage>().Uninitialize();
 	mSystemContext->GetSubSystem<LuaContext>().Uninitialize();
-	mSystemContext->GetSubSystem<Renderer>().Uninitialize();
+
+	Renderer::Uninitialize();
+
 	mSystemContext->GetSubSystem<ResourceManager>().Uninitialize();
 	mSystemContext->GetSubSystem<InputManager>().Uninitialize();
 	mSystemContext->GetSubSystem<Audio::AudioManager>().Uninitialize();
@@ -221,7 +219,8 @@ void Engine::FixedUpdate()
 	mGameComponent->FixedUpdate();
 	mLuaContext->FixedUpdate();
 	mGuiStage->FixedUpdate();
-	mRenderer->FixedUpdate();
+
+	Renderer::FixedUpdate();
 
 	PROFILER_END_BLOCK();
 }
@@ -234,7 +233,8 @@ void Engine::Update(F32 deltaTime)
 	mLuaContext->Update(deltaTime);
 	mGameComponent->Update(mEngineTime);
 	mGuiStage->Update(deltaTime);
-	mRenderer->Update(deltaTime);
+	
+	Renderer::Update(deltaTime);
 
 	PROFILER_END_BLOCK();
 }
@@ -250,13 +250,13 @@ void Engine::Render()
 {
 	PROFILER_BEGIN_CPU_BLOCK("Render");
 	FIRE_EVENT(EventType::EVENT_RENDER);
-	mRenderer->Render();
+	Renderer::Render();
 	PROFILER_END_BLOCK();
 }
 
 void Engine::EndFrame()
 {
-	mRenderer->Present();
+	Renderer::Present();
 	mLuaContext->GC();
 }
 

@@ -16,8 +16,8 @@ namespace Cjing3D
 
 	void PipelineStateManager::SetupImagePipelineStates()
 	{
-		ShaderLib& shaderLib = mRenderer.GetShaderLib();
-		RhiResourceManager& rhiResourceManager = mRenderer.GetStateManager();
+		ShaderLib& shaderLib = Renderer::GetShaderLib();
+		RhiResourceManager& rhiResourceManager = Renderer::GetStateManager();
 		RenderImage::ImageParams params = {};
 
 		for (U32 blendTypeIndex = 0; blendTypeIndex < BlendType::BlendType_Count; blendTypeIndex++)

@@ -74,17 +74,16 @@ void Profiler::BeginFrame()
 		return;
 	}
 
-	Renderer& renderer = GlobalGetSubSystem<Renderer>();
 	if (!disjoint.IsInitialized()) 
 	{
 		GPUQueryDesc desc = {};
 		desc.mGPUQueryType = GPU_QUERY_TYPE_TIMESTAMP_DISJOINT;
-		disjoint.Initialize(renderer, desc);
+		disjoint.Initialize(desc);
 	}
 
 	// 查询GPU时钟频率时需要调用BeginQuery/EndQuery
-	renderer.GetDevice().BeginQuery(*disjoint.GetQueryForGPU());
-	renderer.GetDevice().EndQuery(*disjoint.GetQueryForGPU());
+	Renderer::GetDevice().BeginQuery(*disjoint.GetQueryForGPU());
+	Renderer::GetDevice().EndQuery(*disjoint.GetQueryForGPU());
 
 	// begin frame
 	BeginCPUBlock(STRING_ID(CPU_FRAME));
@@ -97,7 +96,6 @@ void Profiler::EndFrame()
 		return;
 	}
 
-	Renderer& renderer = GlobalGetSubSystem<Renderer>();
 	// end gpu frame block
 	EndBlock();
 	// end cpu frame block
@@ -109,7 +107,7 @@ void Profiler::EndFrame()
 	if (disjointQuery != nullptr)
 	{
 		GPUQueryResult result;
-		while (renderer.GetDevice().ReadQuery(*disjointQuery, result) == S_FALSE);
+		while (Renderer::GetDevice().ReadQuery(*disjointQuery, result) == S_FALSE);
 		gpuTimestampFrequency = result.mTimetampFrequency;
 	}
 
@@ -129,8 +127,8 @@ void Profiler::EndFrame()
 			if (beginQuery != nullptr && endQuery != nullptr)
 			{
 				GPUQueryResult beginResult, endResult;
-				while (renderer.GetDevice().ReadQuery(*beginQuery, beginResult) == S_FALSE);
-				while (renderer.GetDevice().ReadQuery(*endQuery, endResult) == S_FALSE);
+				while (Renderer::GetDevice().ReadQuery(*beginQuery, beginResult) == S_FALSE);
+				while (Renderer::GetDevice().ReadQuery(*endQuery, endResult) == S_FALSE);
 
 				block.time = std::abs(F32(endResult.mTimestamp - beginResult.mTimestamp) / (F32)gpuTimestampFrequency * 1000.0f);
 			}
@@ -169,8 +167,6 @@ void Profiler::BeginGPUBlock(const StringID& name)
 		return;
 	}
 
-	Renderer& renderer = GlobalGetSubSystem<Renderer>();
-
 	U32 hashValue = name.HashValue();
 	if (currentBlocks.find(hashValue) == currentBlocks.end())
 	{
@@ -183,8 +179,8 @@ void Profiler::BeginGPUBlock(const StringID& name)
 
 		GPUQueryDesc desc = {};
 		desc.mGPUQueryType = GPU_QUERY_TYPE_TIMESTAMP;
-		cpuBlock.gpuBegin.Initialize(renderer, desc);
-		cpuBlock.gpuEnd.Initialize(renderer, desc);
+		cpuBlock.gpuBegin.Initialize(desc);
+		cpuBlock.gpuEnd.Initialize(desc);
 
 		blockQueue.push_back(hashValue);
 	}
@@ -192,7 +188,7 @@ void Profiler::BeginGPUBlock(const StringID& name)
 
 	// 获取时间戳只要只执行QueryEnd即可
 	auto& gpuBegin = currentBlocks[hashValue].gpuBegin;
-	renderer.GetDevice().EndQuery(*gpuBegin.GetQueryForGPU());
+	Renderer::GetDevice().EndQuery(*gpuBegin.GetQueryForGPU());
 }
 
 void Profiler::EndBlock()
@@ -224,7 +220,7 @@ void Profiler::EndBlock()
 		{
 			// 获取时间戳只要只执行QueryEnd即可
 			auto& gpuEnd = block.gpuEnd;
-			GlobalGetSubSystem<Renderer>().GetDevice().EndQuery(*gpuEnd.GetQueryForGPU());
+			Renderer::GetDevice().EndQuery(*gpuEnd.GetQueryForGPU());
 		}
 	}
 }

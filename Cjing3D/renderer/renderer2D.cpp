@@ -2,8 +2,7 @@
 
 namespace Cjing3D
 {
-	Renderer2D::Renderer2D(Renderer & renderer) :
-		mRenderer(renderer)
+	Renderer2D::Renderer2D()
 	{
 	}
 
@@ -18,6 +17,7 @@ namespace Cjing3D
 	void Renderer2D::Uninitialize()
 	{
 	}
+
 	void Renderer2D::Render()
 	{
 	}

@@ -116,6 +116,9 @@
     <Filter Include="utils\signal">
       <UniqueIdentifier>{0ec41af1-72f5-4e41-b58e-91c2306f2b26}</UniqueIdentifier>
     </Filter>
+    <Filter Include="renderer\2D">
+      <UniqueIdentifier>{d1da0dec-f5e0-420b-ade2-5316744cbf7d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine.cpp" />
@@ -380,9 +383,6 @@
     <ClCompile Include="scripts\api\matrixApi.cpp">
       <Filter>scripts\api</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\renderer2D.cpp">
-      <Filter>renderer</Filter>
-    </ClCompile>
     <ClCompile Include="system\component\light.cpp">
       <Filter>system\component</Filter>
     </ClCompile>
@@ -538,6 +538,12 @@
     </ClCompile>
     <ClCompile Include="gui\guiCore\guiDistributor.cpp">
       <Filter>gui\guiCore</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\sprite.cpp">
+      <Filter>renderer\2D</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\renderer2D.cpp">
+      <Filter>renderer\2D</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -834,9 +840,6 @@
     <ClInclude Include="scripts\api\matrixApi.h">
       <Filter>scripts\api</Filter>
     </ClInclude>
-    <ClInclude Include="renderer\renderer2D.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
     <ClInclude Include="utils\tinyddsloader.h">
       <Filter>utils</Filter>
     </ClInclude>
@@ -1049,6 +1052,12 @@
     </ClInclude>
     <ClInclude Include="gui\guiCore\guiDistributor.h">
       <Filter>gui\guiCore</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\sprite.h">
+      <Filter>renderer\2D</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\renderer2D.h">
+      <Filter>renderer\2D</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

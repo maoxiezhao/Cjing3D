@@ -59,7 +59,7 @@ enum ComputeShaderType
 class ShaderLib
 {
 public:
-	ShaderLib(Renderer& renderer);
+	ShaderLib();
 
 	void Initialize();
 	void Uninitialize();
@@ -81,8 +81,6 @@ private:
 	ShaderPtr LoadShader(SHADERSTAGES stages, const void* data, size_t length);
 
 private:
-	Renderer & mRenderer;
-
 	std::shared_ptr<InputLayout> mInputLayout[InputLayoutType_Count];
 	std::shared_ptr<Shader> mVertexShader[VertexShaderType_Count];
 	std::shared_ptr<Shader> mPixelShader[PixelShaderType_Count];

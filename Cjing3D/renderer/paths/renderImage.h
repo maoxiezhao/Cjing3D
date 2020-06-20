@@ -6,7 +6,7 @@
 namespace Cjing3D
 {
 
-class Renderer;                                                                                                   
+                                                                                                   
 	
 namespace RenderImage
 {
@@ -48,6 +48,6 @@ namespace RenderImage
 		void EnableFullScreen() { mFlags |= FLAGS::FULLSCREEN; }
 	};
 
-	void Render(Texture2D & texture, ImageParams params, Renderer& renderer);
+	void Render(Texture2D & texture, ImageParams params);
 }
 }

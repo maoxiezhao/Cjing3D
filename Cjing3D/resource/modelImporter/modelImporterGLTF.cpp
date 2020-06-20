@@ -89,9 +89,7 @@ namespace ModelImporter {
 			int height = image.height;
 			int channelCount = image.component;
 
-			Renderer& renderer = GlobalGetSubSystem<Renderer>();
-			GraphicsDevice& device = renderer.GetDevice();
-
+			GraphicsDevice& device = Renderer::GetDevice();
 			TextureDesc desc = {};
 			desc.mWidth = width;
 			desc.mHeight = height;
@@ -120,7 +118,7 @@ namespace ModelImporter {
 			}
 
 			Texture2D& texture = *textureResource->mTexture;
-			const auto result = renderer.GetDevice().CreateTexture2D(&desc, resourceData.data(), texture);
+			const auto result = device.CreateTexture2D(&desc, resourceData.data(), texture);
 			if (FAILED(result))
 			{
 				resourceManager.ClearResource<TextureResource>(StringID(image.uri));
@@ -128,17 +126,17 @@ namespace ModelImporter {
 				return;
 			}
 
-			renderer.GetDevice().SetResourceName(texture, image.uri);
+			device.SetResourceName(texture, image.uri);
 
 			// 创建各个subresource的srv和uav
 			for (int mipLevel = 0; mipLevel < desc.mMipLevels; mipLevel++)
 			{
-				renderer.GetDevice().CreateShaderResourceView(texture, 0, -1, mipLevel, 1);
-				renderer.GetDevice().CreateUnordereddAccessView(texture, mipLevel);
+				device.CreateShaderResourceView(texture, 0, -1, mipLevel, 1);
+				device.CreateUnordereddAccessView(texture, mipLevel);
 			}
 
 			if (desc.mMipLevels > 1) {
-				renderer.AddDeferredTextureMipGen(texture);
+				Renderer::AddDeferredTextureMipGen(texture);
 			}
 
 			// add texture ref count, it will clear in the end.
@@ -246,8 +244,7 @@ namespace ModelImporter {
 
 	void LoadMeshes(LoaderInfo& loaderInfo)
 	{
-		auto& renderer = GlobalGetSubSystem<Renderer>();
-		auto& device = renderer.GetDevice();
+		auto& device = Renderer::GetDevice();
 
 		tinygltf::Model& gltfModel = loaderInfo.gltfModel;
 		Scene& newScene = loaderInfo.scene;
@@ -609,8 +606,7 @@ namespace ModelImporter {
 	{
 		std::filesystem::path path(fileName);
 
-		auto& renderer = GlobalGetSubSystem<Renderer>();
-		auto& device = renderer.GetDevice();
+		GraphicsDevice& device = Renderer::GetDevice();
 
 		tinygltf::TinyGLTF loader;
 		loader.SetImageLoader(tinygltf::LoadImageData, nullptr);

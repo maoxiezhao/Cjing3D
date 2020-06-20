@@ -9,7 +9,7 @@ namespace Cjing3D
 {
 	class Scene;
 	class GraphicsDevice;
-	class Renderer;
+	
 
 	// 延迟的Mip生成器
 	class DeferredMIPGenerator
@@ -23,15 +23,13 @@ namespace Cjing3D
 			MIPGENFILTER_GAUSSIAN,
 		};
 
-		DeferredMIPGenerator(Renderer& renderer);
+		DeferredMIPGenerator();
 
 		void AddTexture(Texture2D& texture);
 		void UpdateMipGenerating();
 		void GenerateMipChain(Texture2D& texture, MIPGENFILTER filter);
 
 	private:
-		Renderer& mRenderer;
-
 		// TODO; 可能存在某些纹理提前释放问题
 		std::vector<Texture2D*> mMipGenDeferredArray;
 	};

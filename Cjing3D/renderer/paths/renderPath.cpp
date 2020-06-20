@@ -4,8 +4,7 @@
 
 namespace Cjing3D {
 
-	RenderPath::RenderPath(Renderer& renderer) :
-		mRenderer(renderer)
+	RenderPath::RenderPath()
 	{
 	}
 

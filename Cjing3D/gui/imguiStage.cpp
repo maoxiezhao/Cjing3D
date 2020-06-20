@@ -44,10 +44,7 @@ namespace Cjing3D
 
 	void IMGUIStage::Initialize()
 	{
-		SystemContext& systemContext = SystemContext::GetSystemContext();
-		Renderer& renderer = systemContext.GetSubSystem<Renderer>();
-		
-		GraphicsDevice& graphicsDevice = renderer.GetDevice();
+		GraphicsDevice& graphicsDevice = Renderer::GetDevice();
 		if (graphicsDevice.GetGraphicsDeviceType() != GraphicsDeviceType::GraphicsDeviceType_directx11) {
 			return;
 		}
@@ -66,7 +63,7 @@ namespace Cjing3D
 		ImGui_ImplWin32_Init(hwnd);
 		ImGui_ImplDX11_Init(&device, &deviceContext);
 
-		BaseWindow* window = systemContext.GetEngine()->GetWindow();
+		BaseWindow* window = GlobalGetEngine()->GetWindow();
 		if (window != nullptr) {
 			mMessageHandler = std::make_shared<IMGUIMessageHandler>();
 			window->AddMessageHandler(mMessageHandler);
@@ -85,7 +82,7 @@ namespace Cjing3D
 		mRegisteredWindows.clear();
 
 		SystemContext& systemContext = SystemContext::GetSystemContext();
-		BaseWindow* window = systemContext.GetEngine()->GetWindow();
+		BaseWindow* window = GlobalGetEngine()->GetWindow();
 		if (window != nullptr) {
 			mMessageHandler = std::make_shared<IMGUIMessageHandler>();
 			window->RemoveHandler(mMessageHandler);
@@ -104,10 +101,7 @@ namespace Cjing3D
 			return;
 		}
 
-		SystemContext& systemContext = SystemContext::GetSystemContext();
-		Renderer& renderer = systemContext.GetSubSystem<Renderer>();
-
-		Renderer2D& renderer2D = renderer.GetRenderer2D();
+		Renderer2D& renderer2D = Renderer::GetRenderer2D();
 		RenderPath2D* path = renderer2D.GetCurrentRenderPath();
 		if (path == nullptr) {
 			return;
@@ -131,10 +125,7 @@ namespace Cjing3D
 
 	void IMGUIStage::RenderImpl()
 	{
-		SystemContext& systemContext = SystemContext::GetSystemContext();
-		Renderer& renderer = systemContext.GetSubSystem<Renderer>();
-		GraphicsDevice& device = renderer.GetDevice();
-
+		GraphicsDevice& device = Renderer::GetDevice();
 		device.BeginEvent("RenderIMGUI");
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
