@@ -28,8 +28,6 @@ namespace Cjing3D
 	{
 	}
 
-
-	Sprite* testSprite = nullptr;
 	void GameEditor::Initialize()
 	{
 		RenderPathTiledForward* path = new RenderPathTiledForward();
@@ -39,10 +37,6 @@ namespace Cjing3D
 		auto& guiStage = GlobalGetSubSystem<GUIStage>();
 		Editor::InitializeEditor(guiStage.GetImGUIStage());
 #endif // _ENABLE_GAME_EDITOR_
-
-		testSprite = CJING_MEM_NEW(Sprite("Textures/logo.png"));
-		testSprite->SetSize(100, 100);
-		Renderer::GetRenderer2D().AddSprite(testSprite);
 	}
 
 	void GameEditor::Update(EngineTime time)
@@ -84,6 +78,5 @@ namespace Cjing3D
 
 	void GameEditor::Uninitialize()
 	{
-		CJING_MEM_DELETE(testSprite);
 	}
 }

@@ -6,6 +6,7 @@
 
 namespace Cjing3D
 {
+namespace Renderer2D {
 	// sprite batch rendering v0.1
 	// TODO: 
 	// 1. support layer
@@ -17,6 +18,9 @@ namespace Cjing3D
 		PipelineState mSpriteBatchPSO;
 
 		size_t MaxBatchSize = 2048;
+
+		std::vector<Sprite*> mPersistentSprites;
+		std::vector<Sprite*> mRenderRequestSprites;
 	}
 
 	namespace {
@@ -35,14 +39,14 @@ namespace Cjing3D
 			XMFLOAT4 color;
 			XMFLOAT4 inverseTextureSize;
 
-			void Setup(Sprite * sprite)
+			void Setup(Sprite* sprite)
 			{
 				RenderImage::ImageParams& params = sprite->GetImageParams();
 				translation = XMFLOAT4(
 					params.mPos[0],
 					params.mPos[1],
-					params.mScale[0], 
-					params.mScale[1]
+					params.mScale[0] * params.mSize[0],
+					params.mScale[1] * params.mSize[1]
 				);
 
 				sourceRect = XMConvert(params.mTexSource);
@@ -121,7 +125,7 @@ namespace Cjing3D
 				{
 					if (sortMethod == FrontToBack)
 					{
-						std::sort(mRenderBatchQueue.begin(), mRenderBatchQueue.end(), 
+						std::sort(mRenderBatchQueue.begin(), mRenderBatchQueue.end(),
 							[](const SpriteRenderBatch* a, const SpriteRenderBatch* b) {
 								return a->GetHash() < b->GetHash();
 							});
@@ -170,14 +174,14 @@ namespace Cjing3D
 			const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_Shader);
 			VertexLayoutDesc posLayout[] =
 			{
-				{ "POSITION_TEXCOORD", 0u, VertexPosTex::format, 0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
+				{ "POSITION_TEXCOORD",     0u, VertexPosTex::format, 0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
 
 				// instance
-				{ "TRANSLATION",     0u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-				{ "BINORMAL",        0u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-				{ "NORMAL",			 0u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-				{ "COLOR",			 0u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-				{ "TEXCOORD0",		 0u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u }
+				{ "TRANSLATION",           0u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
+				{ "SOURCERECT",            0u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
+				{ "ORIGIN_ROTATION_DEPTH", 0u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
+				{ "COLOR",			       0u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
+				{ "INVERSE_SIZE",		   0u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u }
 			};
 			auto vsinfo = Renderer::LoadVertexShaderInfo(shaderPath + "spriteVS.cso", posLayout, ARRAYSIZE(posLayout));
 			PipelineStateDesc desc = {};
@@ -286,15 +290,7 @@ namespace Cjing3D
 		///////////////////////////////////////////////////////////////////////////////////
 	}
 
-	Renderer2D::Renderer2D()
-	{
-	}
-
-	Renderer2D::~Renderer2D()
-	{
-	}
-
-	void Renderer2D::Initialize()
+	void Initialize()
 	{
 		Logger::Info("Renderer2D Initialized");
 
@@ -302,7 +298,7 @@ namespace Cjing3D
 		{
 			std::vector<U32> indices = {
 				0, 1, 2,
-				2, 3, 0
+				1, 3, 2
 			};
 			const auto result = CreateStaticIndexBuffer(device, mIndexBuffer, indices);
 			Debug::ThrowIfFailed(result, "Failed to create index buffer:%08x", result);
@@ -322,11 +318,11 @@ namespace Cjing3D
 		InitializePipelineState();
 	}
 
-	void Renderer2D::Uninitialize()
+	void Uninitialize()
 	{
 		Logger::Info("Renderer2D Uninitialized");
 
-		mSprites.clear();
+		mPersistentSprites.clear();
 		mSpriteRenderBatchQueue.Clear();
 
 		mSpriteBuffer.Clear();
@@ -335,8 +331,16 @@ namespace Cjing3D
 		mSpriteBatchPSO.Clear();
 	}
 
-	void Renderer2D::Render()
+	void RenderSprites()
 	{
+		// 先将presistent sprite添加到renderRequestSpriteS中
+		for (Sprite* sprite : mPersistentSprites)
+		{
+			if (sprite != nullptr) {
+				mRenderRequestSprites.push_back(sprite);
+			}
+		}
+
 		LinearAllocator& frameAllocator = Renderer::GetFrameAllocator(Renderer::FrameAllocatorType_Render);
 		auto flushQueue = [&]()->void
 		{
@@ -354,9 +358,9 @@ namespace Cjing3D
 		Renderer::GetDevice().BindConstantBuffer(SHADERSTAGES_VS, mSpriteBuffer, CB_GETSLOT_NAME(SpriteCB));
 
 		// render sprites
-		for (Sprite* sprite : mSprites)
+		for (Sprite* sprite : mRenderRequestSprites)
 		{
-			if (sprite != nullptr)
+			if (sprite != nullptr && sprite->IsVisible())
 			{
 				SpriteRenderBatch* renderBatch = (SpriteRenderBatch*)frameAllocator.Allocate(sizeof(SpriteRenderBatch));
 				renderBatch->Init(sprite);
@@ -371,18 +375,26 @@ namespace Cjing3D
 		if (!mSpriteRenderBatchQueue.IsEmpty()) {
 			flushQueue();
 		}
+
+		mRenderRequestSprites.clear();
 	}
 
-	void Renderer2D::AddSprite(Sprite* sprite)
+	void AddSprite(Sprite* sprite)
 	{
-		mSprites.push_back(sprite);
+		mPersistentSprites.push_back(sprite);
 	}
 
-	void Renderer2D::RemoveSprite(Sprite* sprite)
+	void RemoveSprite(Sprite* sprite)
 	{
-		auto it = std::find(mSprites.begin(), mSprites.end(), sprite);
-		if (it != mSprites.end()) {
-			mSprites.erase(it);
+		auto it = std::find(mPersistentSprites.begin(), mPersistentSprites.end(), sprite);
+		if (it != mPersistentSprites.end()) {
+			mPersistentSprites.erase(it);
 		}
 	}
+
+	void RequestRenderSprite(Sprite* sprite)
+	{
+		mRenderRequestSprites.push_back(sprite);
+	}
+}
 }

@@ -10,13 +10,13 @@ struct SpriteInputInstance
     // per Instance
     // {xy__} = {rect.xy}
     // {__zw} = {rect.width, rect.height}
-    float4 SourceRect          : BINORMAL;
+    float4 SourceRect          : SOURCERECT;
 
     // per Instance
     // {xy__} = originPivot.xy
     // {__z_} = rotation
     // {___w} = layerDepth
-    float4 OriginRotationDepth : NORMAL;
+    float4 OriginRotationDepth : ORIGIN_ROTATION_DEPTH;
 
     // per Instance
     // {xyzw} = color.rgba
@@ -26,7 +26,7 @@ struct SpriteInputInstance
     // {xy__} = {1.0f / textureWidth, 1.0f / textureHeight}
     // {__z_} = unused
     // {___w} = unused
-    float4 InverseTextureSize  : TEXCOORD0;
+    float4 InverseTextureSize  : INVERSE_SIZE;
 };
 
 struct SpriteInputPosTex
@@ -39,8 +39,8 @@ struct SpriteInputPosTex
 float3x3 MakeWorldMatrixFromInstance(SpriteInputInstance input)
 {
     float3x3 scaling = float3x3(
-        float3(input.Translation.z * input.SourceRect.z, 0.0f, 0.0f),
-        float3(0.0f, input.Translation.w * input.SourceRect.w, 0.0f),
+        float3(input.Translation.z, 0.0f, 0.0f),
+        float3(0.0f, input.Translation.w, 0.0f),
         float3(0.0f, 0.0f, 1.0f));
 
     float cosRotation = cos(input.OriginRotationDepth.z);

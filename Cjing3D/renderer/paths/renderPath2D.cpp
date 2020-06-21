@@ -75,8 +75,7 @@ namespace Cjing3D
 			device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
 
 			RenderGUI();
-
-			Renderer::GetRenderer2D().Render();
+			RenderSprites();
 
 			device.EndRenderBehavior();
 		}
@@ -96,6 +95,13 @@ namespace Cjing3D
 		guiStage.GetGUIRenderer().Render();
 	
 		device.EndEvent();
+	}
+
+	void RenderPath2D::RenderSprites()
+	{
+		Renderer::GetDevice().BeginEvent("RenderSprites");
+		Renderer2D::RenderSprites();
+		Renderer::GetDevice().EndEvent();
 	}
 
 	void RenderPath2D::Compose()

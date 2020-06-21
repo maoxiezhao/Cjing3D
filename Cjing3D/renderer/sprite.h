@@ -21,10 +21,17 @@ namespace Cjing3D
 		Texture2D* GetTexture();
 		TextureResourcePtr GetTextureResource() { return mTextureResource; }
 		RenderImage::ImageParams& GetImageParams() { return mImageParams; }
-		U32x2 GetTextureSize()const { return mTextureSize; }
+		F32x2 GetTextureSize()const { return mTextureSize; }
 		F32x2 GetInverseTextureSize()const { return mInverseTextureSize; }
 
+		void SetVisible(bool isVisible) { mIsVisible = isVisible; }
 		void SetSize(F32 w, F32 h);
+		void SetSize(const F32x2& size);
+		void SetPos(const F32x2& pos);
+		void SetColor(const Color4& color);
+		void SetColor(const F32x4& color);
+
+		bool IsVisible()const { return mIsVisible; }
 
 	private:
 		void SetCurrentTextureInfo(Texture2D& info);
@@ -34,7 +41,8 @@ namespace Cjing3D
 		TextureResourcePtr mTextureResource;
 		RenderImage::ImageParams mImageParams;
 
-		U32x2 mTextureSize = {1u, 1u};
+		bool mIsVisible = true;
+		F32x2 mTextureSize = {1.0f, 1.0f};
 		F32x2 mInverseTextureSize = {1.0f, 1.0f};
 	};
 }

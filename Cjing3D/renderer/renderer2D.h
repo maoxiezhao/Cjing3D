@@ -9,21 +9,16 @@ namespace Cjing3D
 {
 	class SpritieRenderBatchQueue;
 
-	class Renderer2D
+	namespace Renderer2D
 	{
-	public:
-		Renderer2D();
-		~Renderer2D();
-
 		void Initialize();
 		void Uninitialize();
-		void Render();
 
+		void RenderSprites();
 		void AddSprite(Sprite* sprite);
 		void RemoveSprite(Sprite* sprite);
 		
-	private:
-		std::vector<Sprite*> mSprites;
+		void RequestRenderSprite(Sprite* sprite);
 	};
 
 }

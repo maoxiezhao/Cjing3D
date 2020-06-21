@@ -20,7 +20,6 @@ class LightComponent;
 class Scene;
 class MaterialComponent;
 class PipelineStateManager;
-class Renderer2D;
 class RenderPass;
 class TerrainTree;
 
@@ -46,7 +45,6 @@ namespace Renderer
 	RhiResourceManager& GetStateManager();
 	Scene& GetMainScene();
 	PipelineStateManager& GetPipelineStateManager();
-	Renderer2D& GetRenderer2D();
 	RenderPath* GetRenderPath();
 
 	// base status

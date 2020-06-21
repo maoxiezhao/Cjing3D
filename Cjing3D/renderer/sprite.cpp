@@ -51,14 +51,32 @@ namespace Cjing3D
 		mImageParams.mSize[1] = h;
 	}
 
+	void Sprite::SetSize(const F32x2& size)
+	{
+		mImageParams.mSize = size;
+	}
+
+	void Sprite::SetPos(const F32x2& pos)
+	{
+		mImageParams.mPos[0] = pos[0];
+		mImageParams.mPos[1] = pos[1];
+	}
+
+	void Sprite::SetColor(const Color4& color)
+	{
+		mImageParams.mColor = color.ToFloat4();
+	}
+
+	void Sprite::SetColor(const F32x4& color)
+	{
+		mImageParams.mColor = color;
+	}
+
 	void Sprite::SetCurrentTextureInfo(Texture2D& info)
 	{
 		const TextureDesc& desc = mTextureResource->mTexture->GetDesc();
-		mImageParams.mTexSource[2] = (F32)desc.mWidth;
-		mImageParams.mTexSource[3] = (F32)desc.mHeight;
-
-		mTextureSize[0] = desc.mWidth;
-		mTextureSize[1] = desc.mHeight;
+		mImageParams.mTexSource[2] = mImageParams.mSize[0] = mTextureSize[0] = (F32)desc.mWidth;
+		mImageParams.mTexSource[3] = mImageParams.mSize[1] = mTextureSize[1] = (F32)desc.mHeight;
 
 		mInverseTextureSize[0] = 1.0f / (F32)desc.mWidth;
 		mInverseTextureSize[1] = 1.0f / (F32)desc.mHeight;

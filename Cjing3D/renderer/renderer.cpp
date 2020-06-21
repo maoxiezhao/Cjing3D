@@ -38,7 +38,6 @@ namespace {
 	std::unique_ptr<RhiResourceManager> mRhiResourceManager = nullptr;
 	std::unique_ptr<DeferredMIPGenerator> mDeferredMIPGenerator = nullptr;
 	std::unique_ptr<PipelineStateManager> mPipelineStateManager = nullptr;
-	std::unique_ptr<Renderer2D> mRenderer2D = nullptr;
 	std::unique_ptr<RenderPath> mCurrentRenderPath = nullptr;
 
 	// frame data
@@ -519,8 +518,7 @@ void Initialize(RenderingDeviceType deviceType, HWND window)
 	mDeferredMIPGenerator = std::make_unique<DeferredMIPGenerator>();
 
 	// initialize 2d renderer
-	mRenderer2D = std::make_unique<Renderer2D>();
-	mRenderer2D->Initialize();
+	Renderer2D::Initialize();
 
 	// initialize texture helper
 	TextureHelper::Initialize();
@@ -561,9 +559,7 @@ void Uninitialize()
 	}
 
 	TextureHelper::Uninitialize();
-
-	mRenderer2D->Uninitialize();
-	mRenderer2D.reset();
+	Renderer2D::Uninitialize();
 
 	mPipelineStateManager->Uninitialize();
 	mPipelineStateManager.reset();
@@ -1278,11 +1274,6 @@ Scene & GetMainScene()
 PipelineStateManager & GetPipelineStateManager()
 {
 	return *mPipelineStateManager;
-}
-
-Renderer2D & GetRenderer2D()
-{
-	return *mRenderer2D;
 }
 
 RenderPath* GetRenderPath()
