@@ -122,6 +122,8 @@ namespace Cjing3D
 			void* data = nullptr;
 			GPUBuffer* buffer = nullptr;
 			U32 offset = 0;
+
+			bool IsValid()const { return data != nullptr && buffer != nullptr; }
 		};
 		virtual GPUAllocation AllocateGPU(size_t dataSize) = 0;
 		virtual void UnAllocateGPU() = 0;

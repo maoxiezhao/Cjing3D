@@ -14,4 +14,10 @@ CBUFFER(SpriteCB, CBSLOT_SPRITE)
 	float4x4 gSpriteCameraVP;
 };
 
+CBUFFER(FontCB, CBSLOT_FONT)
+{
+	float4x4 gFontTransform;
+	float4 gFontColor;
+};
+
 #endif

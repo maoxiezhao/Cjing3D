@@ -1,11 +1,10 @@
 #include "resourceManager.h"
 #include "helper\fileSystem.h"
-#include "utils\utilsCommon.h"
 #include "renderer\renderer.h"
 #include "core\systemContext.hpp"
 #include "audio\audio.h"
-
-#include "utils\stb_image_include.h"
+#include "utils\utilsCommon.h"
+#include "utils\stb_utils\stb_image_include.h"
 
 #define TINYDDSLOADER_IMPLEMENTATION
 #include "utils\tinyddsloader.h"

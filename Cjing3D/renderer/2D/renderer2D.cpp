@@ -1,7 +1,7 @@
 #include "renderer2D.h"
 #include "renderer\renderer.h"
 #include "renderer\RHI\rhiFactory.h"
-#include "renderer\rhiResourceManager.h"
+#include "renderer\preset\renderPreset.h"
 #include "renderer\pipelineStates\pipelineStateManager.h"
 
 namespace Cjing3D
@@ -168,7 +168,7 @@ namespace Renderer2D {
 
 		void InitializePipelineState()
 		{
-			RhiResourceManager& rhiResourceManager = Renderer::GetStateManager();
+			RenderPreset& renderPreset = Renderer::GetRenderPreset();
 			ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
 
 			const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_Shader);
@@ -189,9 +189,9 @@ namespace Renderer2D {
 			desc.mVertexShader = vsinfo.mVertexShader;
 			desc.mPixelShader = Renderer::LoadShader(SHADERSTAGES_PS, shaderPath + "spritePS.cso");
 			desc.mPrimitiveTopology = TRIANGLELIST;
-			desc.mBlendState = rhiResourceManager.GetBlendState(BlendStateID_Transpranent);
-			desc.mDepthStencilState = rhiResourceManager.GetDepthStencilState(DepthStencilStateID_DepthNone);
-			desc.mRasterizerState = rhiResourceManager.GetRasterizerState(RasterizerStateID_Image);
+			desc.mBlendState = renderPreset.GetBlendState(BlendStateID_Transpranent);
+			desc.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_DepthNone);
+			desc.mRasterizerState = renderPreset.GetRasterizerState(RasterizerStateID_Image);
 
 			Renderer::GetDevice().CreatePipelineState(desc, mSpriteBatchPSO);
 		}
@@ -247,7 +247,7 @@ namespace Renderer2D {
 
 			if (mRenderBatchInstances.size() > 0)
 			{
-				graphicsDevice.BindSamplerState(SHADERSTAGES_PS, *Renderer::GetStateManager().GetSamplerState(SamplerStateID_LinearClampGreater), SAMPLER_LINEAR_CLAMP_SLOT);
+				graphicsDevice.BindSamplerState(SHADERSTAGES_PS, *Renderer::GetRenderPreset().GetSamplerState(SamplerStateID_LinearClampGreater), SAMPLER_LINEAR_CLAMP_SLOT);
 			}
 
 			for (auto& bathInstance : mRenderBatchInstances)
@@ -294,6 +294,8 @@ namespace Renderer2D {
 	{
 		Logger::Info("Renderer2D Initialized");
 
+		Font::Initialize();
+
 		GraphicsDevice& device = Renderer::GetDevice();
 		{
 			std::vector<U32> indices = {
@@ -329,6 +331,8 @@ namespace Renderer2D {
 		mVertexBuffer.Clear();
 		mIndexBuffer.Clear();
 		mSpriteBatchPSO.Clear();
+
+		Font::Uninitialize();
 	}
 
 	void RenderSprites()
@@ -395,6 +399,10 @@ namespace Renderer2D {
 	void RequestRenderSprite(Sprite* sprite)
 	{
 		mRenderRequestSprites.push_back(sprite);
+	}
+
+	void RenderFonts()
+	{
 	}
 }
 }

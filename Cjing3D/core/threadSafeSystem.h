@@ -1,26 +1,11 @@
 #pragma once
 
 #include "common\common.h"
+#include "utils\thread\spinLock.h"
 
-#include <mutex>
-#include <atomic>
 
 namespace Cjing3D
 {
-
-class SpinLock
-{
-public:
-	SpinLock();
-	~SpinLock();
-
-	void Lock();
-	bool TryLock();
-	void UnLock();
-
-private:
-	std::atomic_flag mFlag;
-};
 
 // 线程安全系统，所有系统从该类派生
 class ThreadSafeSystem

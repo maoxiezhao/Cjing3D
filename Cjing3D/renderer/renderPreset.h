@@ -67,30 +67,33 @@ namespace Cjing3D
 		SamplerStateID_Count
 	};
 
-	class RhiResourceManager
+	class RenderPreset
 	{
 	public:
-		RhiResourceManager(GraphicsDevice& device);
-		~RhiResourceManager();
+		RenderPreset(GraphicsDevice& device);
+		~RenderPreset();
 
 		void Initialize();
 		void Uninitialize();
 
-		std::shared_ptr<DepthStencilState> GetDepthStencilState(DepthStencilStateID id);
-		std::shared_ptr<BlendState> GetBlendState(BlendStateID id);
-		std::shared_ptr<RasterizerState> GetRasterizerState(RasterizerStateID id);
-		std::shared_ptr<SamplerState> GetSamplerState(SamplerStateID id);
-
-		std::vector<std::shared_ptr<SamplerState> > GetCommonSampleStates();
-
+		inline std::shared_ptr<DepthStencilState> GetDepthStencilState(DepthStencilStateID id) {
+			return mDepthStencilStates[(size_t)id];
+		}
+		inline std::shared_ptr<BlendState> GetBlendState(BlendStateID id) {
+			return mBlendStates[(size_t)id];
+		}
+		inline std::shared_ptr<RasterizerState> GetRasterizerState(RasterizerStateID id) {
+			return mRasterizerStates[(size_t)id];
+		}
+		inline std::shared_ptr<SamplerState> GetSamplerState(SamplerStateID id) {
+			return mSamplerStates[(size_t)id];
+		}
 		inline GPUBuffer& GetConstantBuffer(ConstantBufferType bufferType) {
 			return mConstantBuffer[static_cast<int>(bufferType)];
 		}
-
 		inline GPUBuffer& GetStructuredBuffer(StructuredBufferType bufferType) {
 			return mStructuredBuffer[static_cast<int>(bufferType)];
 		}
-
 		GPUBuffer& GetOrCreateCustomBuffer(const StringID& name);
 
 	private:
@@ -108,7 +111,6 @@ namespace Cjing3D
 		std::shared_ptr<BlendState> mBlendStates[BlendStateID_Count];
 		std::shared_ptr<RasterizerState> mRasterizerStates[RasterizerStateID_Count];
 		std::shared_ptr<SamplerState> mSamplerStates[SamplerStateID_Count];
-
 		GPUBuffer mConstantBuffer[ConstantBufferType_Count];
 		GPUBuffer mStructuredBuffer[StructuredBufferType_Count];
 

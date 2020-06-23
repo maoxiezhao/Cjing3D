@@ -17,7 +17,7 @@ namespace Gui {
 		Dispatcher& dispatcher,
 		bool& halt,
 		bool& handle,
-		VariantArray vairants
+		const VariantArray& vairants
 	)>;
 
 	class Dispatcher

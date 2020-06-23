@@ -113,6 +113,12 @@
     <FxCompile Include="ps\spritePS.hlsl">
       <Filter>ps</Filter>
     </FxCompile>
+    <FxCompile Include="vs\fontVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="ps\fontPS.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="hf\objectInput.hlsli">

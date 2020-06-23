@@ -74,9 +74,6 @@
     <Filter Include="utils\json">
       <UniqueIdentifier>{279d324f-8fea-4bf5-9564-f5e482f90caa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="utils\stb_image">
-      <UniqueIdentifier>{f0c695a9-8838-4b8e-b9fd-a1bee47eeb3e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="gui\guiEditor">
       <UniqueIdentifier>{1afb078f-fe5b-411a-9efc-e22e3f5c00db}</UniqueIdentifier>
     </Filter>
@@ -118,6 +115,21 @@
     </Filter>
     <Filter Include="renderer\2D">
       <UniqueIdentifier>{d1da0dec-f5e0-420b-ade2-5316744cbf7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils\thread">
+      <UniqueIdentifier>{18589298-8313-4d4b-826a-65c902c587db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils\rectPacker">
+      <UniqueIdentifier>{709f17da-7a9f-494a-b134-34b1180ac055}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils\stb_utils">
+      <UniqueIdentifier>{501f3a92-a105-46f6-9020-1fb8ee3ce238}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\preset">
+      <UniqueIdentifier>{850b745a-0e94-4574-80d9-e2a5b2378960}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\preset\graphicsChild">
+      <UniqueIdentifier>{10f40064-119a-4284-b204-4a95de426db0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -518,9 +530,6 @@
     <ClCompile Include="system\systems\sceneSoundSystem.cpp">
       <Filter>system\systems</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\rhiResourceManager.cpp">
-      <Filter>renderer</Filter>
-    </ClCompile>
     <ClCompile Include="gui\guiWidgets\widgets.cpp">
       <Filter>gui\guiWidgets</Filter>
     </ClCompile>
@@ -539,10 +548,49 @@
     <ClCompile Include="gui\guiCore\guiDistributor.cpp">
       <Filter>gui\guiCore</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\sprite.cpp">
+    <ClCompile Include="gui\guiWidgets\stackPanel.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\button.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\signal\connection.cpp">
+      <Filter>utils\signal</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\signal\connectionList.cpp">
+      <Filter>utils\signal</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\2D\renderer2D.cpp">
       <Filter>renderer\2D</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\renderer2D.cpp">
+    <ClCompile Include="renderer\2D\sprite.cpp">
+      <Filter>renderer\2D</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\2D\font.cpp">
+      <Filter>renderer\2D</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\preset\renderPreset.cpp">
+      <Filter>renderer\preset</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\preset\blendState.cpp">
+      <Filter>renderer\preset\graphicsChild</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\preset\constantBuffer.cpp">
+      <Filter>renderer\preset\graphicsChild</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\preset\depthStencilState.cpp">
+      <Filter>renderer\preset\graphicsChild</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\preset\rasterizerState.cpp">
+      <Filter>renderer\preset\graphicsChild</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\preset\samplerState.cpp">
+      <Filter>renderer\preset\graphicsChild</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\preset\structuredBuffer.cpp">
+      <Filter>renderer\preset\graphicsChild</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\2D\textDrawable.cpp">
       <Filter>renderer\2D</Filter>
     </ClCompile>
   </ItemGroup>
@@ -936,15 +984,6 @@
     <ClInclude Include="utils\json\json.hpp">
       <Filter>utils\json</Filter>
     </ClInclude>
-    <ClInclude Include="utils\stb_image_include.h">
-      <Filter>utils\stb_image</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\stb_image.h">
-      <Filter>utils\stb_image</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\stb_truetype.h">
-      <Filter>utils\stb_image</Filter>
-    </ClInclude>
     <ClInclude Include="renderer\RHI\d3d11\rhiResourceD3D11.h">
       <Filter>renderer\rhi\d3d11</Filter>
     </ClInclude>
@@ -1026,9 +1065,6 @@
     <ClInclude Include="system\component\sound.h">
       <Filter>system\component</Filter>
     </ClInclude>
-    <ClInclude Include="renderer\rhiResourceManager.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
     <ClInclude Include="gui\guiWidgets\widgets.h">
       <Filter>gui\guiWidgets</Filter>
     </ClInclude>
@@ -1053,10 +1089,70 @@
     <ClInclude Include="gui\guiCore\guiDistributor.h">
       <Filter>gui\guiCore</Filter>
     </ClInclude>
-    <ClInclude Include="renderer\sprite.h">
+    <ClInclude Include="gui\guiWidgets\stackPanel.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\widgetInclude.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\button.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\thread\spinLock.h">
+      <Filter>utils\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\signal\signal.h">
+      <Filter>utils\signal</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\signal\connection.h">
+      <Filter>utils\signal</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\signal\signalInclude.h">
+      <Filter>utils\signal</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\signal\connectionList.h">
+      <Filter>utils\signal</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\2D\font.h">
       <Filter>renderer\2D</Filter>
     </ClInclude>
-    <ClInclude Include="renderer\renderer2D.h">
+    <ClInclude Include="renderer\2D\renderer2D.h">
+      <Filter>renderer\2D</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\2D\sprite.h">
+      <Filter>renderer\2D</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\reckPacker\best_bin_finder.h">
+      <Filter>utils\rectPacker</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\reckPacker\empty_space_allocators.h">
+      <Filter>utils\rectPacker</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\reckPacker\empty_spaces.h">
+      <Filter>utils\rectPacker</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\reckPacker\finders_interface.h">
+      <Filter>utils\rectPacker</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\reckPacker\insert_and_split.h">
+      <Filter>utils\rectPacker</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\reckPacker\rect_structs.h">
+      <Filter>utils\rectPacker</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\stb_utils\stb_image.h">
+      <Filter>utils\stb_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\stb_utils\stb_image_include.h">
+      <Filter>utils\stb_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\stb_utils\stb_truetype.h">
+      <Filter>utils\stb_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\preset\renderPreset.h">
+      <Filter>renderer\preset</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\2D\textDrawable.h">
       <Filter>renderer\2D</Filter>
     </ClInclude>
   </ItemGroup>

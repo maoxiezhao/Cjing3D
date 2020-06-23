@@ -1,12 +1,39 @@
-#include "guiRenderer.h"
-#include "guiStage.h"
-#include "imguiStage.h"
+#include "gui\guiRenderer.h"
+#include "gui\guiStage.h"
+#include "gui\imguiStage.h"
+#include "renderer\2D\renderer2D.h"
 
 namespace Cjing3D
 {
+	StringID GUIScheme::PanelBackground = StringID("PanelBackground");
+	StringID GUIScheme::ButtonBackgroundBase = StringID("ButtonBackgroundBase");
+	StringID GUIScheme::ButtonBackgroundClick = StringID("ButtonBackgroundClick");
+	StringID GUIScheme::ButtonBackgroundHovered = StringID("ButtonBackgroundHovered");
+
+	void GUIScheme::RegisterColor(const StringID& name, const Color4& color)
+	{
+		mRegisteredColor[name] = color;
+	}
+
+	void GUIScheme::RegisterImg(const StringID& name)
+	{
+		// TODO
+	}
+
+	Color4 GUIScheme::GetColor(const StringID& name) const
+	{
+		auto it = mRegisteredColor.find(name);
+		if (it != mRegisteredColor.end())
+		{
+			return it->second;
+		}
+		return Color4::White();
+	}
+
 	GUIRenderer::GUIRenderer(GUIStage& guiStage):
 		mGUIStage(guiStage)
 	{
+		InitDefaultScheme();
 	}
 
 	GUIRenderer::~GUIRenderer()
@@ -29,5 +56,24 @@ namespace Cjing3D
 	void GUIRenderer::SetImGuiStage(IMGUIStage* imGuiStage)
 	{
 		mImGuiStage = imGuiStage;
+	}
+
+	void GUIRenderer::InitDefaultScheme()
+	{
+		mGUIScheme.RegisterColor(GUIScheme::PanelBackground, Color4(45, 45, 48, 225));
+
+		mGUIScheme.RegisterColor(GUIScheme::ButtonBackgroundBase, Color4(0, 132, 190, 255));
+		mGUIScheme.RegisterColor(GUIScheme::ButtonBackgroundClick, Color4(0, 107, 162, 255));
+		mGUIScheme.RegisterColor(GUIScheme::ButtonBackgroundHovered, Color4(0, 123, 182, 255));
+	}
+
+	const GUIScheme& GUIRenderer::GetGUIScheme() const
+	{
+		return mGUIScheme;
+	}
+
+	void GUIRenderer::RenderSprite(Sprite& sprite)
+	{
+		Renderer2D::RequestRenderSprite(&sprite);
 	}
 }

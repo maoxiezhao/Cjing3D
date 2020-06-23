@@ -13,7 +13,7 @@ namespace Cjing3D
 
 class GraphicsDevice;
 class ShaderLib;
-class RhiResourceManager;
+class RenderPreset;
 class ResourceManager;
 class CameraComponent;
 class LightComponent;
@@ -42,7 +42,7 @@ namespace Renderer
 	GraphicsDevice& GetDevice();
 	CameraComponent& GetCamera();
 	ShaderLib& GetShaderLib();
-	RhiResourceManager& GetStateManager();
+	RenderPreset& GetRenderPreset();
 	Scene& GetMainScene();
 	PipelineStateManager& GetPipelineStateManager();
 	RenderPath* GetRenderPath();

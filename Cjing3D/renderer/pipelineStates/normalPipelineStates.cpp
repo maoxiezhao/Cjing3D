@@ -1,6 +1,6 @@
 #include "PipelineStateManager.h"
 #include "renderer\shaderLib.h"
-#include "renderer\rhiResourceManager.h"
+#include "renderer\preset\renderPreset.h"
 #include "system\component\material.h"
 
 namespace Cjing3D
@@ -100,7 +100,7 @@ namespace Cjing3D
 	void PipelineStateManager::SetupNormalPipelineStates()
 	{
 		ShaderLib& shaderLib = Renderer::GetShaderLib();
-		RhiResourceManager& rhiResourceManager = Renderer::GetStateManager();
+		RenderPreset& renderPreset = Renderer::GetRenderPreset();
 		NormalRenderParams params = {};
 
 		// base object rendering
@@ -132,13 +132,13 @@ namespace Cjing3D
 					switch (blendType)
 					{
 					case BlendType_Opaque:
-						infoState.mBlendState = rhiResourceManager.GetBlendState(BlendStateID_Opaque);
+						infoState.mBlendState = renderPreset.GetBlendState(BlendStateID_Opaque);
 						break;
 					case BlendType_Alpha:
-						infoState.mBlendState = rhiResourceManager.GetBlendState(BlendStateID_Transpranent);
+						infoState.mBlendState = renderPreset.GetBlendState(BlendStateID_Transpranent);
 						break;
 					case BlendType_PreMultiplied:
-						infoState.mBlendState = rhiResourceManager.GetBlendState(BlendStateID_PreMultiplied);
+						infoState.mBlendState = renderPreset.GetBlendState(BlendStateID_PreMultiplied);
 						break;
 					default:
 						assert(0);
@@ -148,7 +148,7 @@ namespace Cjing3D
 						renderPass == RenderPassType_Depth && 
 						renderPass == RenderPassType_Shadow &&
 						renderPass == RenderPassType_ShadowCube) {
-						infoState.mBlendState = rhiResourceManager.GetBlendState(BlendStateID_ColorWriteDisable);
+						infoState.mBlendState = renderPreset.GetBlendState(BlendStateID_ColorWriteDisable);
 					}
 
 					// depthStencilState
@@ -158,21 +158,21 @@ namespace Cjing3D
 					case RenderPassType_TiledForward:
 						if (transparent)
 						{
-							infoState.mDepthStencilState = rhiResourceManager.GetDepthStencilState(DepthStencilStateID_GreaterEqualReadWrite);
+							infoState.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_GreaterEqualReadWrite);
 						}
 						else
 						{
 							// 因为非透明物体在depth prepass中已经写入了depthBuffer(支持alphaTest，减少overdraw)，
 							// 这里只需要读取depthBuffer，且相等时绘制
-							infoState.mDepthStencilState = rhiResourceManager.GetDepthStencilState(DepthStencilStateID_DepthReadEqual);
+							infoState.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_DepthReadEqual);
 						}
 						break;
 					case RenderPassType_Shadow:
 					case RenderPassType_ShadowCube:
-						infoState.mDepthStencilState = rhiResourceManager.GetDepthStencilState(DepthStencilStateID_Shadow);
+						infoState.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_Shadow);
 						break;
 					default:
-						infoState.mDepthStencilState = rhiResourceManager.GetDepthStencilState(DepthStencilStateID_GreaterEqualReadWrite);
+						infoState.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_GreaterEqualReadWrite);
 						break;
 					}
 
@@ -181,10 +181,10 @@ namespace Cjing3D
 					{
 					case RenderPassType_Shadow:
 					case RenderPassType_ShadowCube:
-						infoState.mRasterizerState = rhiResourceManager.GetRasterizerState(RasterizerStateID_Shadow);
+						infoState.mRasterizerState = renderPreset.GetRasterizerState(RasterizerStateID_Shadow);
 						break;
 					default:
-						infoState.mRasterizerState = rhiResourceManager.GetRasterizerState(RasterizerStateID_Front);
+						infoState.mRasterizerState = renderPreset.GetRasterizerState(RasterizerStateID_Front);
 						break;
 					}
 	

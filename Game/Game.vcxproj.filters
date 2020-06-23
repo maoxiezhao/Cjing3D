@@ -22,6 +22,9 @@
     <ClCompile Include="game\gameEditor.cpp">
       <Filter>game</Filter>
     </ClCompile>
+    <ClCompile Include="editor\guiEditorGUI.cpp">
+      <Filter>editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="game">
@@ -64,6 +67,9 @@
     </ClInclude>
     <ClInclude Include="game\gameEditor.h">
       <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\guiEditorGUI.h">
+      <Filter>editor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

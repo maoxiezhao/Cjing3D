@@ -3,7 +3,8 @@
 #include "renderer\renderableCommon.h"
 #include "renderer\paths\renderPath2D.h"
 #include "renderer\rendererUtils.h"
-#include "renderer\sprite.h"
+#include "renderer\2D\sprite.h"
+#include "renderer\2D\textDrawable.h"
 
 namespace Cjing3D
 {
@@ -14,11 +15,14 @@ namespace Cjing3D
 		void Initialize();
 		void Uninitialize();
 
+		// sprite
 		void RenderSprites();
 		void AddSprite(Sprite* sprite);
 		void RemoveSprite(Sprite* sprite);
-		
 		void RequestRenderSprite(Sprite* sprite);
+
+		// font
+		void RenderFonts();
 	};
 
 }

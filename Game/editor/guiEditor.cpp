@@ -2,6 +2,7 @@
 #include "guiEditorLight.h"
 #include "guiEditorProfier.h"
 #include "guiEditorScene.h"
+#include "guiEditorGUI.h"
 
 #include "gui\guiEditor\guiEditorInclude.h"
 
@@ -602,6 +603,7 @@ namespace Editor {
 			if (ImGui::BeginMenu("Prop"))
 			{
 				if (ImGui::MenuItem("Animations")) { showAnimationWindow = true; }
+				if (ImGui::MenuItem("GUI")) {  ShowGUIWindow(); }
 				if (ImGui::MenuItem("Properties")) { showRenderWindow = true; }
 				ImGui::EndMenu();
 			}
@@ -643,6 +645,7 @@ namespace Editor {
 
 		InitializeEditorProfiler(imguiStage);
 		InitializeEditorLight(imguiStage);
+		InitializeEditorGUI(imguiStage);
 #endif
 	}
 }

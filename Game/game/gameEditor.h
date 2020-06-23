@@ -2,6 +2,7 @@
 
 #include "definitions\definitions.h"
 #include "core\gameComponent.h"
+#include "utils\signal\connectionList.h"
 
 namespace Cjing3D
 {
@@ -16,6 +17,8 @@ namespace Cjing3D
 		virtual void FixedUpdate();
 		virtual void Uninitialize();
 
+	private:
+		ConnectionList mConnections;
 	};
 
 }

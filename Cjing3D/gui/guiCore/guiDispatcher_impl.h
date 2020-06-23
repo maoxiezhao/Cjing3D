@@ -33,7 +33,7 @@ namespace Gui {
 				bool halt = false;
 				bool handle = false;
 
-				Dispatcher::SignalList<T>& signalList = Implementation::GetEventSignalList<T>(dispatcher, eventType);
+				Dispatcher::SignalList<T>& signalList = Implementation::GetEventSignalList<T>(target, eventType);
 				for (auto& func : signalList.mList)
 				{
 					func(dispatcher, halt, handle, std::forward<F>(params)...);
@@ -49,7 +49,7 @@ namespace Gui {
 
 			// TODO: handle post signal
 
-			return true;
+			return false;
 		}
 
 		inline void BuildEventChain(UI_EVENT_TYPE eventType, Widget* dispatcher, Widget* target, std::vector<std::pair<Dispatcher*, UI_EVENT_TYPE>>& eventChain)

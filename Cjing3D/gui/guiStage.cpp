@@ -67,11 +67,6 @@ namespace Cjing3D
 
 	void GUIStage::Update(F32 deltaTime)
 	{
-#ifdef CJING_IMGUI_ENABLE
-		PROFILER_BEGIN_CPU_BLOCK("ImGuiFixedUpdate");
-		mImGuiStage.Update(deltaTime);
-		PROFILER_END_BLOCK();
-#endif
 		if (!IsGUIVisible()) {
 			return;
 		}
@@ -87,8 +82,13 @@ namespace Cjing3D
 			return;
 		}
 
-		PROFILER_BEGIN_CPU_BLOCK("GuiFixedUpdate");
+#ifdef CJING_IMGUI_ENABLE
+		PROFILER_BEGIN_CPU_BLOCK("ImGuiFixedUpdate");
+		mImGuiStage.FixedUpdate();
+		PROFILER_END_BLOCK();
+#endif
 
+		PROFILER_BEGIN_CPU_BLOCK("GuiFixedUpdate");
 		// notify input
 		NotifyInput();
 
@@ -97,13 +97,12 @@ namespace Cjing3D
 
 		// update all widgets
 		mWidgetHierarchy->FixedUpdate();
-
 		PROFILER_END_BLOCK();
 	}
 
 	WidgetPtr GUIStage::LoadWidgetFromXML(const StringID& name, const std::string& filePath, LuaRef scriptHandler)
 	{
-		return LoadWidgetFromXML(mWidgetHierarchy->GetRootWidget(), name, filePath, scriptHandler);
+		return LoadWidgetFromXML(nullptr, name, filePath, scriptHandler);
 	}
 
 	WidgetPtr GUIStage::LoadWidgetFromXML(WidgetPtr parent, const StringID& name, const std::string& filePath, LuaRef scriptHandler)
@@ -116,8 +115,13 @@ namespace Cjing3D
 
 		widget->SetName(name);
 
-		if (parent != nullptr) {
+		if (parent != nullptr) 
+		{
 			parent->Add(widget);
+		}
+		else
+		{
+			mWidgetHierarchy->AddWidget(widget);
 		}
 
 		return widget;
@@ -157,23 +161,25 @@ namespace Cjing3D
 		InputManager& inputManager = GlobalGetSubSystem<InputManager>();
 
 		// notify mouse event
+		I32x2 mousePos = inputManager.GetMousePos();
 		for (auto keyCode : mRegisteredMouseKeys)
 		{
 			if (inputManager.IsKeyDown(keyCode)) {
 				Gui::GUIInputEvent e = {};
 				e.type = GUI_INPUT_EVENT_TYPE_MOUSE_BUTTONDOWN;
 				e.key = keyCode;
+				e.pos = mousePos;
 				mInputEventQueue.push(e);
 			}
 			else if (inputManager.IsKeyUp(keyCode)) {
 				Gui::GUIInputEvent e = {};
 				e.type = GUI_INPUT_EVENT_TYPE_MOUSE_BUTTONUP;
 				e.key = keyCode;
+				e.pos = mousePos;
 				mInputEventQueue.push(e);
 			}
 		}
 
-		I32x2 mousePos = inputManager.GetMousePos();
 		if (mousePos != mPrevMousePos)
 		{
 			mPrevMousePos = mousePos;

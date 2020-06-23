@@ -21,6 +21,7 @@ namespace Cjing3D {
 	private:
 		virtual void RenderGUI();
 		virtual void RenderSprites();
+		virtual void RenderFonts();
 
 	protected:
 		virtual Texture2D* GetDepthBuffer() {

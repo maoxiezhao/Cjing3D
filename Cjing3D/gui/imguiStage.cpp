@@ -7,7 +7,7 @@
 #include "utils\baseWindow.h"
 #include "core\systemContext.hpp"
 #include "renderer\renderer.h"
-#include "renderer\renderer2D.h"
+#include "renderer\2D\renderer2D.h"
 #include "renderer\RHI\deviceD3D11.h"
 #include "renderer\paths\renderPath3D.h"
 
@@ -101,11 +101,25 @@ namespace Cjing3D
 			return;
 		}
 
-		ImGui_ImplDX11_NewFrame();
-		ImGui_ImplWin32_NewFrame();
-		ImGui::NewFrame();
 
-		UpdateImpl(deltaTime);
+	}
+
+	void IMGUIStage::FixedUpdate()
+	{
+		if (mIsInitialized == false) {
+			return;
+		}
+
+		if (!mIsNeedRender)
+		{
+			ImGui_ImplDX11_NewFrame();
+			ImGui_ImplWin32_NewFrame();
+			ImGui::NewFrame();
+
+			mIsNeedRender = true;
+
+			UpdateImpl(GlobalGetDeltaTime());
+		}
 	}
 
 	void IMGUIStage::Render(GUIRenderer& renderer)
@@ -121,8 +135,19 @@ namespace Cjing3D
 	{
 		GraphicsDevice& device = Renderer::GetDevice();
 		device.BeginEvent("RenderIMGUI");
-		ImGui::Render();
-		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+		
+		if (mIsNeedRender) 
+		{
+			mIsNeedRender = false;
+			ImGui::Render();
+			ImGui::EndFrame();
+		}
+
+		auto drawData = ImGui::GetDrawData();
+		if (drawData != nullptr) {
+			ImGui_ImplDX11_RenderDrawData(drawData);
+		}
+
 		device.EndEvent();
 	}
 

@@ -1,12 +1,9 @@
 #pragma once
 
 #include "gui\guiInclude.h"
-#include "utils\treeNode.h"
-#include "utils\geometry.h"
-#include "helper\enumInfo.h"
-#include "scripts\luaContext.h"
-
 #include "gui\guiCore\guiDispatcher.h"
+#include "scripts\luaRef.h"
+#include "renderer\2D\sprite.h"
 
 #include <set>
 

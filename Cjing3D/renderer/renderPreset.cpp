@@ -1,4 +1,4 @@
-#include "rhiResourceManager.h"
+#include "renderer\renderPreset.h"
 #include "renderer\RHI\device.h"
 #include "renderer\RHI\rhiFactory.h"
 #include "helper\debug.h"
@@ -18,7 +18,7 @@ namespace {
 
 }
 
-RhiResourceManager::RhiResourceManager(GraphicsDevice& device) :
+RenderPreset::RenderPreset(GraphicsDevice& device) :
 		mDevice(device)
 {
 	for (int i = 0; i < DepthStencilStateID::DepthStencilStateID_Count; i++){
@@ -38,11 +38,11 @@ RhiResourceManager::RhiResourceManager(GraphicsDevice& device) :
 	}
 }
 
-RhiResourceManager::~RhiResourceManager()
+RenderPreset::~RenderPreset()
 {
 }
 
-void RhiResourceManager::Initialize()
+void RenderPreset::Initialize()
 {
 	SetupDepthStencilStates();
 	SetupBlendStates();
@@ -53,7 +53,7 @@ void RhiResourceManager::Initialize()
 	LoadStructuredBuffers();
 }
 
-void RhiResourceManager::Uninitialize()
+void RenderPreset::Uninitialize()
 {
 	for (int i = 0; i < DepthStencilStateID::DepthStencilStateID_Count; i++) {
 		mDepthStencilStates[static_cast<U32>(i)].reset();
@@ -81,36 +81,7 @@ void RhiResourceManager::Uninitialize()
 	}
 }
 
-std::shared_ptr<DepthStencilState> RhiResourceManager::GetDepthStencilState(DepthStencilStateID id)
-{
-	Debug::CheckAssertion(id < DepthStencilStateID::DepthStencilStateID_Count);
-	return mDepthStencilStates[static_cast<U32>(id)];
-}
-
-std::shared_ptr<BlendState> RhiResourceManager::GetBlendState(BlendStateID id)
-{
-	Debug::CheckAssertion(id < BlendStateID::BlendStateID_Count);
-	return mBlendStates[static_cast<U32>(id)];
-}
-
-std::shared_ptr<RasterizerState> RhiResourceManager::GetRasterizerState(RasterizerStateID id)
-{
-	Debug::CheckAssertion(id < RasterizerStateID::RasterizerStateID_Count);
-	return mRasterizerStates[static_cast<U32>(id)];
-}
-
-std::shared_ptr<SamplerState> RhiResourceManager::GetSamplerState(SamplerStateID id)
-{
-	Debug::CheckAssertion(id < SamplerStateID::SamplerStateID_Count);
-	return mSamplerStates[static_cast<U32>(id)];
-}
-
-std::vector<std::shared_ptr<SamplerState>> RhiResourceManager::GetCommonSampleStates()
-{
-	return std::vector<std::shared_ptr<SamplerState>>();
-}
-
-void RhiResourceManager::SetupDepthStencilStates()
+void RenderPreset::SetupDepthStencilStates()
 {
 	{
 		DepthStencilStateDesc desc;
@@ -176,7 +147,7 @@ void RhiResourceManager::SetupDepthStencilStates()
 	}
 }
 
-void RhiResourceManager::SetupBlendStates()
+void RenderPreset::SetupBlendStates()
 {
 	{
 		BlendStateDesc desc = {};
@@ -235,7 +206,7 @@ void RhiResourceManager::SetupBlendStates()
 	}
 }
 
-void RhiResourceManager::SetupRasterizerStates()
+void RenderPreset::SetupRasterizerStates()
 {
 	{
 		RasterizerStateDesc desc = {};
@@ -322,7 +293,7 @@ void RhiResourceManager::SetupRasterizerStates()
 	}
 }
 
-void RhiResourceManager::SetupSamplerStates()
+void RenderPreset::SetupSamplerStates()
 {
 	{
 		const auto result = CreateDefaultSamplerState(mDevice, *mSamplerStates[SamplerStateID_PointClampAlways],
@@ -361,7 +332,7 @@ void RhiResourceManager::SetupSamplerStates()
 	}
 }
 
-GPUBuffer& RhiResourceManager::GetOrCreateCustomBuffer(const StringID & name)
+GPUBuffer& RenderPreset::GetOrCreateCustomBuffer(const StringID & name)
 {
 	auto it = mCustomBufferMap.find(name);
 	if (it == mCustomBufferMap.end())
@@ -372,7 +343,7 @@ GPUBuffer& RhiResourceManager::GetOrCreateCustomBuffer(const StringID & name)
 	return it->second;
 }
 
-void RhiResourceManager::LoadConstantBuffers()
+void RenderPreset::LoadConstantBuffers()
 {
 	auto& device = mDevice;
 	// common buffer
@@ -443,7 +414,7 @@ void RhiResourceManager::LoadConstantBuffers()
 	}
 }
 
-void RhiResourceManager::LoadStructuredBuffers()
+void RenderPreset::LoadStructuredBuffers()
 {
 	auto& device = mDevice;
 	// shader light array

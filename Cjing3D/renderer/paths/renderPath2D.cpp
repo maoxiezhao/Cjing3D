@@ -3,7 +3,7 @@
 #include "renderer\paths\renderImage.h"
 #include "core\systemContext.hpp"
 #include "gui\guiStage.h"
-#include "renderer\renderer2D.h"
+#include "renderer\2D\renderer2D.h"
 
 namespace Cjing3D
 {
@@ -76,6 +76,7 @@ namespace Cjing3D
 
 			RenderGUI();
 			RenderSprites();
+			RenderFonts();
 
 			device.EndRenderBehavior();
 		}
@@ -101,6 +102,13 @@ namespace Cjing3D
 	{
 		Renderer::GetDevice().BeginEvent("RenderSprites");
 		Renderer2D::RenderSprites();
+		Renderer::GetDevice().EndEvent();
+	}
+
+	void RenderPath2D::RenderFonts()
+	{
+		Renderer::GetDevice().BeginEvent("RenderFonts");
+		Renderer2D::RenderFonts();
 		Renderer::GetDevice().EndEvent();
 	}
 

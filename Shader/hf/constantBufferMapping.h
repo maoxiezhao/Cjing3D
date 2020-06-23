@@ -14,5 +14,6 @@
 #define CBSLOT_CUBEMAP              8
 #define CBSLOT_CS_PARAMS            9
 #define CBSLOT_SPRITE               10
+#define CBSLOT_FONT                 11
 
 #endif

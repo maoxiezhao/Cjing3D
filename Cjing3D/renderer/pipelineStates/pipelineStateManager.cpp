@@ -1,6 +1,6 @@
 #include "PipelineStateManager.h"
 #include "renderer\shaderLib.h"
-#include "renderer\rhiResourceManager.h"
+#include "renderer\preset\renderPreset.h"
 
 namespace Cjing3D {
 
@@ -15,14 +15,14 @@ PipelineStateManager::~PipelineStateManager()
 void PipelineStateManager::SetupPipelineStateIDs()
 {
 	ShaderLib& shaderLib = Renderer::GetShaderLib();
-	RhiResourceManager& rhiResourceManager = Renderer::GetStateManager();
+	RenderPreset& renderPreset = Renderer::GetRenderPreset();
 	{
 		PipelineStateDesc desc = {};
 		desc.mVertexShader      = shaderLib.GetVertexShader(VertexShaderType_Sky);
 		desc.mPixelShader       = shaderLib.GetPixelShader(PixelShaderType_Sky);
-		desc.mBlendState	    = rhiResourceManager.GetBlendState(BlendStateID_Opaque);
-		desc.mDepthStencilState = rhiResourceManager.GetDepthStencilState(DepthStencilStateID_DepthRead);
-		desc.mRasterizerState   = rhiResourceManager.GetRasterizerState(RasterizerStateID_Sky);
+		desc.mBlendState	    = renderPreset.GetBlendState(BlendStateID_Opaque);
+		desc.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_DepthRead);
+		desc.mRasterizerState   = renderPreset.GetRasterizerState(RasterizerStateID_Sky);
 		desc.mPrimitiveTopology = TRIANGLESTRIP;
 
 		RegisterPipelineState(PipelineStateID_SkyRendering, desc);

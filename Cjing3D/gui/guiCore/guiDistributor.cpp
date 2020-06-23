@@ -40,6 +40,20 @@ namespace Gui {
 
 		bool BaseDistributor::FireMouseEvent(Widget* targetWidget, UI_EVENT_TYPE eventType, const I32x2& pos)
 		{
+#ifdef CJING_GUI_DEBUG
+			switch (eventType)
+			{
+			case Cjing3D::Gui::UI_EVENT_TYPE::UI_EVENT_MOUSE_ENTER:
+				Logger::Info("[GUI DEBUG] OnMouseEnter:" + targetWidget->GetName().GetString());
+				break;
+			case Cjing3D::Gui::UI_EVENT_TYPE::UI_EVENT_MOUSE_LEAVE:
+				Logger::Info("[GUI DEBUG] OnMouseLeave:" + targetWidget->GetName().GetString());
+				break;
+			case Cjing3D::Gui::UI_EVENT_TYPE::UI_EVENT_MOUSE_MOTION:
+				Logger::Info("[GUI DEBUG] OnMouseMotion:" + targetWidget->GetName().GetString());
+				break;
+			}
+#endif
 			VariantArray variants;
 			variants.push_back(Variant((I32)pos[0]));
 			variants.push_back(Variant((I32)pos[1]));
@@ -69,8 +83,15 @@ namespace Gui {
 
 		void MouseMotion::OnMouseEnter(Widget* widget)
 		{
-			mMouseFocusWidget = widget->GetNodePtr();
-			FireMouseEvent(widget, UI_EVENT_TYPE::UI_EVENT_MOUSE_ENTER, mCoords);
+			if (widget != nullptr)
+			{
+				mMouseFocusWidget = widget->GetNodePtr();
+				FireMouseEvent(widget, UI_EVENT_TYPE::UI_EVENT_MOUSE_ENTER, mCoords);
+			}
+			else
+			{
+				mMouseFocusWidget = nullptr;
+			}
 		}
 
 		void MouseMotion::OnMouseLeave()
@@ -136,7 +157,7 @@ namespace Gui {
 			{
 				Widget* targetWidget = FindAndGetMouseEnableWidget(coords, widgets);
 				if (mMouseFocusWidget.get() != targetWidget) {
-					mMouseFocusWidget = targetWidget->GetNodePtr();
+					mMouseFocusWidget = targetWidget != nullptr ? targetWidget->GetNodePtr() : nullptr;
 				}
 
 				if (targetWidget != nullptr) {

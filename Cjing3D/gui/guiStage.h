@@ -34,6 +34,7 @@ namespace Cjing3D
 		GUIRenderer& GetGUIRenderer() { return *mRenderer; }
 		const GUIRenderer& GetGUIRenderer()const { return *mRenderer; }
 		Gui::WidgetManager& GetWidgetManager() { return *mWidgetManager; }
+		Gui::WidgetHierarchy& GetWidgetHierarchy() { return *mWidgetHierarchy; }
 
 		Gui::WidgetPtr LoadWidgetFromXML(const StringID& name, const std::string& filePath, LuaRef scriptHandler = LuaRef::NULL_REF);
 		Gui::WidgetPtr LoadWidgetFromXML(Gui::WidgetPtr parent, const StringID& name, const std::string& filePath, LuaRef scriptHandler = LuaRef::NULL_REF);

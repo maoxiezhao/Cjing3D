@@ -18,6 +18,7 @@ namespace Cjing3D
 		void Initialize();
 		void Uninitialize();
 		void Update(F32 deltaTime);
+		void FixedUpdate();
 		void Render(GUIRenderer& renderer);
 
 		void RegisterCustomWindow(CustomWindowFunc func);
@@ -33,6 +34,7 @@ namespace Cjing3D
 	private:
 		bool mIsInitialized = false;
 		bool mIsVisible = true;
+		bool mIsNeedRender = false;
 
 		std::vector <CustomWindowFunc> mRegisteredWindows;
 	};

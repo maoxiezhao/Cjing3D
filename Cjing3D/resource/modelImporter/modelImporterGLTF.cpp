@@ -2,8 +2,7 @@
 #include "core\systemContext.hpp"
 #include "resource\resourceManager.h"
 #include "system\sceneSystem.h"
-
-#include "utils\stb_image.h"
+#include "utils\stb_utils\stb_image.h"
 
 #define TINYGLTF_IMPLEMENTATION
 #define TINYGLTF_NO_STB_IMAGE

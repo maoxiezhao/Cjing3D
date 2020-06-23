@@ -23,7 +23,12 @@ namespace Gui
 		void Render();
 		void HandleInputEvents(const GUIInputEvent& inputEvent);
 		void RefreshWidgets();
-		void CaptureFocuseWidget(bool captured);
+
+		void CaptureFocusWidget(bool captured);
+		WidgetPtr GetCurrentFocusdWidget();
+
+		void AddWidget(WidgetPtr widget);
+		void RemoveWidget(WidgetPtr widget);
 
 		WidgetPtr GetRootWidget() { return nullptr; }
 		

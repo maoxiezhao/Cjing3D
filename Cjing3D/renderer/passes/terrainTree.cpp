@@ -2,7 +2,7 @@
 #include "terrainPass.h"
 #include "system\sceneSystem.h"
 #include "resource\resourceManager.h"
-#include "renderer\rhiResourceManager.h"
+#include "renderer\preset\renderPreset.h"
 #include "renderer\RHI\rhiFactory.h"
 
 #include <stack>

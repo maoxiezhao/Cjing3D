@@ -38,6 +38,8 @@ namespace Gui
 
 	void WidgetHierarchy::FixedUpdate()
 	{
+		RefreshWidgets();
+
 		for (auto& widget : mWidgets)
 		{
 			if (widget != nullptr)
@@ -100,9 +102,46 @@ namespace Gui
 		}
 	}
 
-	void WidgetHierarchy::CaptureFocuseWidget(bool captured)
+	void WidgetHierarchy::CaptureFocusWidget(bool captured)
 	{
 		mEventDistributor.SetMouseCaptured(captured);
+	}
+
+	WidgetPtr WidgetHierarchy::GetCurrentFocusdWidget()
+	{
+		return mEventDistributor.GetMouseFocusWidget();
+	}
+
+	void WidgetHierarchy::AddWidget(WidgetPtr widget)
+	{
+		if (widget == nullptr) {
+			return;
+		}
+
+		mSubscribeRequests.push_back(widget);
+	}
+
+	void WidgetHierarchy::RemoveWidget(WidgetPtr widget)
+	{
+		if (widget == nullptr) {
+			return;
+		}
+
+		auto findFunc = [&](const WidgetPtr p) { 
+			return p.get() == widget.get(); 
+		};
+
+		auto it = std::find_if(std::begin(mWidgets), std::end(mWidgets), findFunc);
+		if (it != std::end(mWidgets)) {
+			it->reset();
+			return;
+		}
+
+		it = std::find_if(std::begin(mSubscribeRequests), std::end(mSubscribeRequests), findFunc);
+		if (it != std::end(mSubscribeRequests)) {
+			it->reset();
+			return;
+		}
 	}
 }
 }
