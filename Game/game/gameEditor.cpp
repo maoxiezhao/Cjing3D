@@ -16,6 +16,9 @@
 #include <thread>
 #include <Windows.h>
 
+#include "utils\string\utf8String.h"
+#include "renderer\2D\textDrawable.h"
+
 // test
 #include "utils\signal\signal.h"
 #include "gui\guiWidgets\stackPanel.h"
@@ -31,6 +34,8 @@ namespace Cjing3D
 	GameEditor::~GameEditor()
 	{
 	}
+
+	TextDrawable textDrawable;
 
 	void GameEditor::Initialize()
 	{
@@ -53,11 +58,12 @@ namespace Cjing3D
 
 		std::shared_ptr<Gui::Button> button = std::make_shared<Gui::Button>(guiStage, StringID("button"));
 		button->SetPos({ 10.0f, 10.0f });
+		button->SetText("Test");
 		button->SetVisible(true);
 		stack->Add(button);
-
-		mConnections(button->mClickCallback, [this]() {
+		mConnections(button->mClickCallback, [button]() {
 			Logger::Info("CLICK!!!!");
+			button->SetText(u8"Test2");
 		});
 	}
 

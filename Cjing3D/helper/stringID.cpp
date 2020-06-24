@@ -1,5 +1,6 @@
 #include "stringID.h"
 #include "utils\math.h"
+#include "utils\string\utf8String.h"
 #include "helper\archive.h"
 
 namespace Cjing3D {
@@ -30,6 +31,11 @@ namespace Cjing3D {
 	}
 
 	StringID::StringID(StringID && rhs) = default;
+
+	StringID::StringID(const UTF8String & str) :
+		StringID(str.String())
+	{
+	}
 
 	StringID::~StringID() = default;
 

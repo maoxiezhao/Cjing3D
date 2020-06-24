@@ -131,6 +131,9 @@
     <Filter Include="renderer\preset\graphicsChild">
       <UniqueIdentifier>{10f40064-119a-4284-b204-4a95de426db0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="utils\string">
+      <UniqueIdentifier>{31f4c37e-8304-4036-9f61-21a24d37bd5d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine.cpp" />
@@ -592,6 +595,12 @@
     </ClCompile>
     <ClCompile Include="renderer\2D\textDrawable.cpp">
       <Filter>renderer\2D</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\string\utf8String.cpp">
+      <Filter>utils\string</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\string\utf8StringIt.cpp">
+      <Filter>utils\string</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1154,6 +1163,15 @@
     </ClInclude>
     <ClInclude Include="renderer\2D\textDrawable.h">
       <Filter>renderer\2D</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\string\utf8.h">
+      <Filter>utils\string</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\string\utf8String.h">
+      <Filter>utils\string</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\string\utf8StringIt.h">
+      <Filter>utils\string</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

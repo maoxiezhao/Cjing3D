@@ -24,14 +24,13 @@ namespace Cjing3D
 		F32x2 GetTextureSize()const { return mTextureSize; }
 		F32x2 GetInverseTextureSize()const { return mInverseTextureSize; }
 
+		bool IsVisible()const { return mIsVisible; }
 		void SetVisible(bool isVisible) { mIsVisible = isVisible; }
 		void SetSize(F32 w, F32 h);
 		void SetSize(const F32x2& size);
 		void SetPos(const F32x2& pos);
 		void SetColor(const Color4& color);
 		void SetColor(const F32x4& color);
-
-		bool IsVisible()const { return mIsVisible; }
 
 	private:
 		void SetCurrentTextureInfo(Texture2D& info);

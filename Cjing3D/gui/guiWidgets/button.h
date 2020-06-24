@@ -8,6 +8,13 @@ namespace Cjing3D {
 		class Button : public Widget
 		{
 		public:
+			enum ButtonState
+			{
+				ButtonState_Base = 1 << 1,
+				ButtonState_Hovered = 1 << 2,
+				ButtonState_Pressed = 1 << 3
+			};
+
 			Button(GUIStage& stage, const StringID& name = StringID::EMPTY);
 			virtual ~Button();
 
@@ -16,12 +23,10 @@ namespace Cjing3D {
 			virtual void Update(F32 dt);
 			virtual void FixedUpdate();
 
-			enum ButtonState
-			{
-				ButtonState_Base    = 1 << 1,
-				ButtonState_Hovered = 1 << 2,
-				ButtonState_Pressed = 1 << 3
-			};
+			void SetText(const UTF8String& text);
+			void SetTextAlignment(Font::FontParams::TextAlignH align);
+			UTF8String GetText()const;
+			TextDrawable& GetButtonLable();
 
 			Signal<void()> mClickCallback;
 
@@ -36,6 +41,7 @@ namespace Cjing3D {
 
 			U32 mButtonState = ButtonState_Base;
 			Sprite mBgSprite;
+			TextDrawable mLabel;
 		};
 
 	}

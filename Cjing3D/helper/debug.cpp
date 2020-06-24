@@ -1,6 +1,8 @@
 #include "debug.h"
 #include "logger.h"
 
+#include <stdexcept>
+
 namespace Cjing3D
 {
 	Exception::Exception() :
@@ -153,6 +155,16 @@ namespace Cjing3D
 
 				throw exception;
 			}
+		}
+
+		void ThrowInvalidArgument(const char* format, ...)
+		{
+			char msg[128];
+			va_list args;
+			va_start(args, format);
+			vsnprintf_s(msg, std::size(msg), format, args);
+			va_end(args);
+			throw std::invalid_argument(msg);
 		}
 
 		void Die(const std::string & dieMsg)

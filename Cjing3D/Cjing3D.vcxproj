@@ -321,6 +321,9 @@
     <ClInclude Include="utils\stb_utils\stb_image.h" />
     <ClInclude Include="utils\stb_utils\stb_image_include.h" />
     <ClInclude Include="utils\stb_utils\stb_truetype.h" />
+    <ClInclude Include="utils\string\utf8String.h" />
+    <ClInclude Include="utils\string\utf8.h" />
+    <ClInclude Include="utils\string\utf8StringIt.h" />
     <ClInclude Include="utils\threadSafeBuffer.h" />
     <ClInclude Include="utils\thread\spinLock.h" />
     <ClInclude Include="utils\tinyddsloader.h" />
@@ -483,6 +486,8 @@
     <ClCompile Include="utils\intersectable.cpp" />
     <ClCompile Include="utils\signal\connection.cpp" />
     <ClCompile Include="utils\signal\connectionList.cpp" />
+    <ClCompile Include="utils\string\utf8String.cpp" />
+    <ClCompile Include="utils\string\utf8StringIt.cpp" />
     <ClCompile Include="utils\tinyxml2\tinyxml2.cpp" />
     <ClCompile Include="utils\tlsf\tlsf.c" />
   </ItemGroup>

@@ -108,7 +108,7 @@ namespace Cjing3D
 	void RenderPath2D::RenderFonts()
 	{
 		Renderer::GetDevice().BeginEvent("RenderFonts");
-		Renderer2D::RenderFonts();
+		Renderer2D::RenderTextDrawables();
 		Renderer::GetDevice().EndEvent();
 	}
 

@@ -4,6 +4,7 @@
 #include "gui\guiCore\guiDispatcher.h"
 #include "scripts\luaRef.h"
 #include "renderer\2D\sprite.h"
+#include "renderer\2D\textDrawable.h"
 
 #include <set>
 

@@ -44,6 +44,7 @@ namespace Cjing3D {
 		void ThrowIfFailed(bool result, const char* format, ...);
 		void ThrowIfFailed(HRESULT result);
 		void ThrowIfFailed(HRESULT result, const char* format, ...);
+		void ThrowInvalidArgument(const char* format, ...);
 	}
 
 #define ERR_FAIL_COND(mCond)																		\

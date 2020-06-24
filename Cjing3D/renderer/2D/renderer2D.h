@@ -14,15 +14,18 @@ namespace Cjing3D
 	{
 		void Initialize();
 		void Uninitialize();
+		void RenderSprites();
+		void RenderTextDrawables();
 
 		// sprite
-		void RenderSprites();
 		void AddSprite(Sprite* sprite);
 		void RemoveSprite(Sprite* sprite);
 		void RequestRenderSprite(Sprite* sprite);
 
 		// font
-		void RenderFonts();
+		void AddTextDrawable(TextDrawable* text);
+		void RemoveTextDrawable(TextDrawable* text);
+		void RequestRenderextDrawable(TextDrawable* text);
 	};
 
 }

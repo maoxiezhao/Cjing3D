@@ -16,11 +16,13 @@ namespace Renderer2D {
 		GPUBuffer mVertexBuffer;
 		GPUBuffer mIndexBuffer;
 		PipelineState mSpriteBatchPSO;
-
 		size_t MaxBatchSize = 2048;
 
 		std::vector<Sprite*> mPersistentSprites;
 		std::vector<Sprite*> mRenderRequestSprites;
+
+		std::vector<TextDrawable*> mPersistentTexts;
+		std::vector<TextDrawable*> mRenderRequestTexts;
 	}
 
 	namespace {
@@ -326,6 +328,8 @@ namespace Renderer2D {
 
 		mPersistentSprites.clear();
 		mSpriteRenderBatchQueue.Clear();
+		mPersistentTexts.clear();
+		mRenderRequestTexts.clear();
 
 		mSpriteBuffer.Clear();
 		mVertexBuffer.Clear();
@@ -401,8 +405,42 @@ namespace Renderer2D {
 		mRenderRequestSprites.push_back(sprite);
 	}
 
-	void RenderFonts()
+	void RenderTextDrawables()
 	{
+		// 先将presistent texts添加到renderRequestTexts中
+		for (TextDrawable* text : mPersistentTexts)
+		{
+			if (text != nullptr) {
+				mRenderRequestTexts.push_back(text);
+			}
+		}
+
+		// render text
+		for (TextDrawable* text : mRenderRequestTexts)
+		{
+			if (text != nullptr && text->IsVisible()) {
+				text->Draw();
+			}
+		}
+		mRenderRequestTexts.clear();
+	}
+
+	void AddTextDrawable(TextDrawable* text)
+	{
+		mPersistentTexts.push_back(text);
+	}
+
+	void RemoveTextDrawable(TextDrawable* text)
+	{
+		auto it = std::find(mPersistentTexts.begin(), mPersistentTexts.end(), text);
+		if (it != mPersistentTexts.end()) {
+			mPersistentTexts.erase(it);
+		}
+	}
+
+	void RequestRenderextDrawable(TextDrawable* text)
+	{
+		mRenderRequestTexts.push_back(text);
 	}
 }
 }

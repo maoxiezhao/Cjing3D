@@ -272,7 +272,7 @@ namespace Font {
 					FontInfo& fontInfo = mLoadedFontInfos[fontIndex];
 
 					FontGlyph& fontGlyph = mFontGlyphsLookup[hash];
-					rectpack2D::rect_xywh& fontRect = mFontGlyphsRects[it.second];
+					rectpack2D::rect_xywh fontRect = mFontGlyphsRects[it.second];
 
 					// remove border padding
 					fontRect.x += GlyphsRectBorderPadding;
@@ -313,10 +313,18 @@ namespace Font {
 				U32 fontHeight = GetFontHeightFromGlyphHash(hash);
 				FontInfo& fontInfo = mLoadedFontInfos[fontIndex];
 
+				if (stbtt_FindGlyphIndex(&fontInfo.mStbFontInfo, fontCode) == 0) {
+					continue;
+				}
+
 				float fontScaling = stbtt_ScaleForPixelHeight(&fontInfo.mStbFontInfo, (F32)fontHeight);
 				fontInfo.mFontScaling = fontScaling;
 				int top, left, right, bottom;
 				stbtt_GetCodepointBitmapBox(&fontInfo.mStbFontInfo, fontCode, fontScaling, fontScaling, &left, &top, &right, &bottom);
+
+				if ((bottom - top) <= 0.0f || (right - left) <= 0.0f) {
+					continue;
+				}
 
 				FontGlyph& fontGlyph = mFontGlyphsLookup[hash];
 				fontGlyph.x = (F32)left;
@@ -349,21 +357,10 @@ namespace Font {
 			F32 currentPosX = 0;
 			U32 prevCode = 0;
 			size_t i = 0;
-			while (text[i] != 0)
+			while (text[i] != 0 && i < length)
 			{
 				U32 code = (U32)text[i++];
 				if (code <= 0) {
-					continue;
-				}
-
-				U32 glyphHash = MakeFontGlyphHash(code, params.mFontStyleIndex, params.mFontSize);
-				if (mFontGlyphsLookup.count(glyphHash) == 0)
-				{
-					// 对于当前未添加的Glyph，则延迟添加渲染
-					{
-						GuardSpinLock lock(mFontLock);
-						mPendingUpdateFontGlyphs.push_back(glyphHash);
-					}
 					continue;
 				}
 
@@ -385,6 +382,17 @@ namespace Font {
 				}
 				else
 				{
+					U32 glyphHash = MakeFontGlyphHash(code, params.mFontStyleIndex, params.mFontSize);
+					if (mFontGlyphsLookup.count(glyphHash) == 0)
+					{
+						// 对于当前未添加的Glyph，则延迟添加渲染
+						{
+							GuardSpinLock lock(mFontLock);
+							mPendingUpdateFontGlyphs.push_back(glyphHash);
+						}
+						continue;
+					}
+
 					const FontGlyph& glyph = mFontGlyphsLookup.at(glyphHash);
 					if (prevCode != 0)
 					{
@@ -432,10 +440,10 @@ namespace Font {
 			switch (currentFontParams.mTextAlignH)
 			{
 			case FontParams::TextAlignH_Center:
-				currentFontParams.mPos[0] += GetTextWidth(text, length, currentFontParams) / 2.0f;
+				currentFontParams.mPos[0] -= GetTextWidth(text, length, currentFontParams) / 2.0f;
 				break;
 			case FontParams::TextAlignH_Right:
-				currentFontParams.mPos[0] += GetTextWidth(text, length, currentFontParams);
+				currentFontParams.mPos[0] -= GetTextWidth(text, length, currentFontParams);
 				break;
 			default:
 				break;
@@ -444,10 +452,10 @@ namespace Font {
 			switch (currentFontParams.mTextAlignV)
 			{
 			case FontParams::TextAlignV_Center:
-				currentFontParams.mPos[1] += GetTextHeight(text, length, currentFontParams) / 2.0f;
+				currentFontParams.mPos[1] -= GetTextHeight(text, length, currentFontParams) / 2.0f;
 				break;
 			case FontParams::TextAlignV_Bottom:
-				currentFontParams.mPos[1] += GetTextHeight(text, length, currentFontParams);
+				currentFontParams.mPos[1] -= GetTextHeight(text, length, currentFontParams);
 				break;
 			default:
 				break;
@@ -497,6 +505,18 @@ namespace Font {
 		LoadFontTTFImpl(ttfFile, mLoadedFontInfos);
 	}
 
+	void ClearCurrentGlyphs()
+	{
+		mFontGlyphsLookup.clear();
+		mFontGlyphsRectLookup.clear();
+		mFontGlyphsRects.clear();
+	}
+
+	void Refresh()
+	{
+
+	}
+
 	void Draw(const std::string& text, const FontParams& params)
 	{
 		if (!mIsInitialized) {
@@ -511,6 +531,15 @@ namespace Font {
 			return;
 		}
 		DrawImpl(text.c_str(), text.length(), params);
+	}
+
+	void Draw(const UTF8String& text, const FontParams& params)
+	{
+		if (!mIsInitialized) {
+			return;
+		}
+		auto codepoints = text.GetCodePoints();
+		DrawImpl(codepoints.data(), codepoints.size(), params);
 	}
 
 	void Initialize()

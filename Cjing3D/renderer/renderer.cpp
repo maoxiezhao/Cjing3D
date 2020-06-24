@@ -277,14 +277,14 @@ namespace {
 			}
 
 			XMVECTOR vRadius = XMVectorReplicate(-radius);
-			XMVECTOR vMin = center - vRadius;
-			XMVECTOR vMax = center + vRadius;
+			XMVECTOR vMin = XMVectorSubtract(center, vRadius);
+			XMVECTOR vMax = XMVectorAdd(center, vRadius);
 
 			// 对齐到纹理网格上
 			const XMVECTOR texelSize = XMVectorSubtract(vMax, vMin) / (F32)shadowRes2DResolution;
 			vMin = XMVectorFloor(vMin / texelSize) * texelSize;
 			vMax = XMVectorFloor(vMax / texelSize) * texelSize;
-			XMVECTOR vCenter = (vMax + vMax) * 0.5f;
+			XMVECTOR vCenter = XMVectorAdd(vMax, vMax) * 0.5f;
 			
 			// 子视锥体本身包围盒在z轴方向过小，拉伸包围盒以包含更多的物体（例如视锥体之外的物体，但在光源方向中也可能产生阴影）
 			XMFLOAT3 _min, _max, _center;
