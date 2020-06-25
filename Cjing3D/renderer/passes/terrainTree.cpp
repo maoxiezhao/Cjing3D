@@ -520,6 +520,8 @@ void TerrainTileManager::Uninitialize()
 	Clear();
 	mVertexPositions.clear();
 	mIndices.clear();
+	mVertexBufferPos.Clear();
+	mIndexBuffer.Clear();
 }
 
 TerrainTilePtr TerrainTileManager::GetTerrainTile(const U32x2& locaPos, U32 depth, const Rect& rect, U32 edgeLodLevel)

@@ -43,6 +43,10 @@ namespace Cjing3D
 		void Uninitialize();
 		void LoadFontTTF(const std::string& ttfFile);
 		void ClearCurrentGlyphs();
+		void PrepareFonts(const UTF8String& text);
+
+		F32 GetTextWidth(const UTF8String& text, const FontParams& params);
+		F32 GetTextHeight(const UTF8String& text, const FontParams& params);
 
 		// TODO
 		void Draw(const std::string& text,  const FontParams& params);

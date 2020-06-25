@@ -72,6 +72,11 @@ namespace Cjing3D
 		mImageParams.mColor = color;
 	}
 
+	Color4 Sprite::GetColor() const
+	{
+		return Color4(mImageParams.mColor);
+	}
+
 	void Sprite::SetCurrentTextureInfo(Texture2D& info)
 	{
 		const TextureDesc& desc = mTextureResource->mTexture->GetDesc();

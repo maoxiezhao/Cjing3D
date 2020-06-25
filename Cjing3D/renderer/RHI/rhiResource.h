@@ -37,6 +37,10 @@ namespace Cjing3D
 	class GPUBuffer : public GPUResource
 	{
 	public:
+		~GPUBuffer() {
+			Clear();
+		}
+
 		GPUBufferDesc mDesc;
 		GPUBufferDesc GetDesc() { return mDesc; }
 		void SetDesc(GPUBufferDesc desc) {	mDesc = desc;}

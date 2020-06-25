@@ -134,6 +134,12 @@
     <Filter Include="utils\string">
       <UniqueIdentifier>{31f4c37e-8304-4036-9f61-21a24d37bd5d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="gui\guiWidgets\layout">
+      <UniqueIdentifier>{f7d0b891-f900-4583-bbbb-e72dd75269ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui\guiAnimation">
+      <UniqueIdentifier>{85384a10-a290-4162-9734-7cb72edf0e21}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine.cpp" />
@@ -601,6 +607,15 @@
     </ClCompile>
     <ClCompile Include="utils\string\utf8StringIt.cpp">
       <Filter>utils\string</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\verticalLayout.cpp">
+      <Filter>gui\guiWidgets\layout</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\label.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\listPanel.cpp">
+      <Filter>gui\guiWidgets</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1172,6 +1187,15 @@
     </ClInclude>
     <ClInclude Include="utils\string\utf8StringIt.h">
       <Filter>utils\string</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\verticalLayout.h">
+      <Filter>gui\guiWidgets\layout</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\label.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\listPanel.h">
+      <Filter>gui\guiWidgets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

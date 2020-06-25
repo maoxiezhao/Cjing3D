@@ -570,12 +570,21 @@ void Uninitialize()
 	mShaderLib->Uninitialize();
 	mShaderLib.reset();
 
-	mGraphicsDevice->Uninitialize();
-	mGraphicsDevice = nullptr;
-
 	GetFrameAllocator(FrameAllocatorType_Render).FreeBuffer();
 
+	UninitializeDevice();
+
 	mIsInitialized = false;
+}
+
+// Device从uninitialize中分离，在程序结束最后调用
+void UninitializeDevice()
+{
+	if (mGraphicsDevice != nullptr)
+	{
+		mGraphicsDevice->Uninitialize();
+		mGraphicsDevice = nullptr;
+	}
 }
 
 void FixedUpdate()

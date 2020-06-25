@@ -174,7 +174,10 @@
     <ClInclude Include="gui\guiInclude.h" />
     <ClInclude Include="gui\guiRenderer.h" />
     <ClInclude Include="gui\guiWidgets\button.h" />
+    <ClInclude Include="gui\guiWidgets\label.h" />
+    <ClInclude Include="gui\guiWidgets\listPanel.h" />
     <ClInclude Include="gui\guiWidgets\stackPanel.h" />
+    <ClInclude Include="gui\guiWidgets\verticalLayout.h" />
     <ClInclude Include="gui\guiWidgets\widgetHierarchy.h" />
     <ClInclude Include="gui\guiWidgets\widgetInclude.h" />
     <ClInclude Include="gui\guiWidgets\widgetManager.h" />
@@ -357,7 +360,10 @@
     <ClCompile Include="gui\guiFactory.cpp" />
     <ClCompile Include="gui\guiRenderer.cpp" />
     <ClCompile Include="gui\guiWidgets\button.cpp" />
+    <ClCompile Include="gui\guiWidgets\label.cpp" />
+    <ClCompile Include="gui\guiWidgets\listPanel.cpp" />
     <ClCompile Include="gui\guiWidgets\stackPanel.cpp" />
+    <ClCompile Include="gui\guiWidgets\verticalLayout.cpp" />
     <ClCompile Include="gui\guiWidgets\widgetHierarchy.cpp" />
     <ClCompile Include="gui\guiWidgets\widgetManager.cpp" />
     <ClCompile Include="gui\guiWidgets\widgets.cpp" />

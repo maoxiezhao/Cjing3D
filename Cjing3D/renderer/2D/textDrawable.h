@@ -25,6 +25,8 @@ namespace Cjing3D
 		void SetFontSizeScale(U32 size);
 		void SetTextAlignV(Font::FontParams::TextAlignV align);
 		void SetTextAlignH(Font::FontParams::TextAlignH align);
+		F32 GetTextWidth()const;
+		F32 GetTextHeight()const;
 
 		void SetText(const UTF8String& text);
 		void SetText(const char* text);

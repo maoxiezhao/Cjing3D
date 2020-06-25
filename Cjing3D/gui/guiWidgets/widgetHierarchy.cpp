@@ -27,10 +27,8 @@ namespace Gui
 
 	void WidgetHierarchy::Update(F32 deltaTime)
 	{
-		for (auto& widget : mWidgets)
-		{
-			if (widget != nullptr)
-			{
+		for (auto& widget : mWidgets) {
+			if (widget != nullptr) {
 				widget->Update(deltaTime);
 			}
 		}
@@ -40,11 +38,18 @@ namespace Gui
 	{
 		RefreshWidgets();
 
-		for (auto& widget : mWidgets)
-		{
-			if (widget != nullptr)
-			{
+		// fixed update
+		for (auto& widget : mWidgets) {
+			if (widget != nullptr) {
 				widget->FixedUpdate();
+			}
+		}
+
+		// update layout
+		F32x2 offset = { 0.0f, 0.0f };
+		for (auto& widget : mWidgets) {
+			if (widget != nullptr) {
+				widget->UpdateLayout(offset);
 			}
 		}
 	}
@@ -52,10 +57,8 @@ namespace Gui
 	void WidgetHierarchy::Render()
 	{
 		F32x2 offset = { 0.0f, 0.0f };
-		for (auto& widget : mWidgets)
-		{
-			if (widget != nullptr)
-			{
+		for (auto& widget : mWidgets) {
+			if (widget != nullptr) {
 				widget->Render(offset);
 			}
 		}

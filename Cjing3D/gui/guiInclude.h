@@ -10,6 +10,7 @@
 #include "utils\signal\signal.h"
 #include "utils\treeNode.h"
 #include "utils\geometry.h"
+#include "utils\container\dynamicArray.h"
 
 namespace Cjing3D
 {

@@ -68,6 +68,18 @@ namespace Cjing3D
 		mFontParams.mTextAlignH = align;
 	}
 
+	// 获取文字宽度性能较差
+	F32 TextDrawable::GetTextWidth() const
+	{
+		return Font::GetTextWidth(mText, mFontParams);
+	}
+
+	// 获取文字高度性能较差
+	F32 TextDrawable::GetTextHeight() const
+	{
+		return Font::GetTextHeight(mText, mFontParams);
+	}
+
 	void TextDrawable::SetText(const UTF8String& text)
 	{
 		mText = text;

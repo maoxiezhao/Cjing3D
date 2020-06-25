@@ -1,4 +1,3 @@
-#include "stackPanel.h"
 #include "widgetInclude.h"
 #include "button.h"
 
@@ -27,14 +26,6 @@ namespace Gui {
 	}
 
 	void Button::OnUnloaded()
-	{
-	}
-
-	void Button::Update(F32 dt)
-	{
-	}
-
-	void Button::FixedUpdate()
 	{
 	}
 

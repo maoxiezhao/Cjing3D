@@ -23,6 +23,8 @@
 #include "utils\signal\signal.h"
 #include "gui\guiWidgets\stackPanel.h"
 #include "gui\guiWidgets\button.h"
+#include "gui\guiWidgets\label.h"
+#include "gui\guiWidgets\listPanel.h"
 
 
 namespace Cjing3D
@@ -41,10 +43,11 @@ namespace Cjing3D
 	{
 		RenderPathTiledForward* path = new RenderPathTiledForward();
 		Renderer::SetCurrentRenderPath(path);
-
 		Font::LoadFontTTF("Fonts/arial.ttf");
 
 		auto& guiStage = GlobalGetSubSystem<GUIStage>();
+		//guiStage.SetIsDebugDraw(true);
+
 #ifdef _ENABLE_GAME_EDITOR_
 		Editor::InitializeEditor(guiStage.GetImGUIStage());
 #endif // _ENABLE_GAME_EDITOR_
@@ -52,19 +55,37 @@ namespace Cjing3D
 		Gui::WidgetHierarchy& widgetHierarchy = guiStage.GetWidgetHierarchy();
 		// Test GUI
 		Gui::WidgetPtr stack = std::make_shared<Gui::StackPanel>(guiStage, StringID("test"), 200.0f, 200.0f);
-		stack->SetPos({ 500.0f, 200.0f });
+		stack->SetPos({ 500.0f, 400.0f });
 		stack->SetVisible(true);
 		widgetHierarchy.AddWidget(stack);
 
 		std::shared_ptr<Gui::Button> button = std::make_shared<Gui::Button>(guiStage, StringID("button"));
-		button->SetPos({ 10.0f, 10.0f });
 		button->SetText("Test");
+		button->SetStick(Gui::WidgetAlignment::HCenter);
 		button->SetVisible(true);
 		stack->Add(button);
 		mConnections(button->mClickCallback, [button]() {
 			Logger::Info("CLICK!!!!");
 			button->SetText(u8"Test2");
 		});
+
+		std::shared_ptr<Gui::Button> button1 = std::make_shared<Gui::Button>(guiStage, StringID("button2"));
+		button1->SetText("Test2");
+		button1->SetStick(Gui::WidgetAlignment::HCenter);
+		button1->SetVisible(true);
+		stack->Add(button1);
+
+		auto label1 = std::make_shared<Gui::Label>(guiStage, StringID("lable1"), u8"Hello");
+		label1->SetVisible(true);
+		label1->SetTextAlignH(Font::FontParams::TextAlignH_Center);
+		label1->SetStick(Gui::WidgetAlignment::HCenter);
+		//stack->Add(label1);
+
+		auto item1 = std::make_shared<Gui::ListItem>(guiStage);
+		item1->SetStick(Gui::WidgetAlignment::HCenter);
+		item1->SetVisible(true);
+		item1->SetWidget(label1);
+		stack->Add(item1);
 	}
 
 	void GameEditor::Update(EngineTime time)

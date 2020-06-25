@@ -5,16 +5,20 @@
 
 namespace Cjing3D
 {
-#define REGISTER_SCHEME_NAME(name) StringID name = StringID(#name);
-		// panel
-		REGISTER_SCHEME_NAME(GUIScheme::PanelBackground)
-		// button
-		REGISTER_SCHEME_NAME(GUIScheme::ButtonBackgroundBase)
-		REGISTER_SCHEME_NAME(GUIScheme::ButtonBackgroundClick)
-		REGISTER_SCHEME_NAME(GUIScheme::ButtonBackgroundHovered)
-		REGISTER_SCHEME_NAME(GUIScheme::ButtonTextBase)
-		REGISTER_SCHEME_NAME(GUIScheme::ButtonTextClick)
-		REGISTER_SCHEME_NAME(GUIScheme::ButtonTextHovered)
+#define REGISTER_SCHEME_NAME(name) StringID name = StringID(#name)
+	// panel
+	REGISTER_SCHEME_NAME(GUIScheme::PanelBackground);
+	// button
+	REGISTER_SCHEME_NAME(GUIScheme::ButtonBackgroundBase);
+	REGISTER_SCHEME_NAME(GUIScheme::ButtonBackgroundClick);
+	REGISTER_SCHEME_NAME(GUIScheme::ButtonBackgroundHovered);
+	REGISTER_SCHEME_NAME(GUIScheme::ButtonTextBase);
+	REGISTER_SCHEME_NAME(GUIScheme::ButtonTextClick);
+	REGISTER_SCHEME_NAME(GUIScheme::ButtonTextHovered);
+	// list item
+	REGISTER_SCHEME_NAME(GUIScheme::ListItemBackgroundHovered);
+	REGISTER_SCHEME_NAME(GUIScheme::ListItemBackgroundPressed);
+	REGISTER_SCHEME_NAME(GUIScheme::ListItemBackgroundSelected);
 
 #undef  REGISTER_SCHEME_NAME
 
@@ -70,7 +74,6 @@ namespace Cjing3D
 	{
 		// panel
 		mGUIScheme.RegisterColor(GUIScheme::PanelBackground, Color4(45, 45, 48, 225));
-
 		// button
 		mGUIScheme.RegisterColor(GUIScheme::ButtonBackgroundBase, Color4(0, 132, 190, 255));
 		mGUIScheme.RegisterColor(GUIScheme::ButtonBackgroundClick, Color4(0, 107, 162, 255));
@@ -78,7 +81,10 @@ namespace Cjing3D
 		mGUIScheme.RegisterColor(GUIScheme::ButtonTextBase, Color4(251, 250, 248, 255));
 		mGUIScheme.RegisterColor(GUIScheme::ButtonTextClick, Color4(251, 250, 248, 255));
 		mGUIScheme.RegisterColor(GUIScheme::ButtonTextHovered, Color4(251, 250, 248, 255));
-
+		// list item
+		mGUIScheme.RegisterColor(GUIScheme::ListItemBackgroundHovered, Color4(68, 67, 65, 255));
+		mGUIScheme.RegisterColor(GUIScheme::ListItemBackgroundPressed, Color4(0, 123, 182, 255));
+		mGUIScheme.RegisterColor(GUIScheme::ListItemBackgroundSelected, Color4(110, 108, 109, 255));
 	}
 
 	const GUIScheme& GUIRenderer::GetGUIScheme() const

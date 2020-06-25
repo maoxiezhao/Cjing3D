@@ -14,6 +14,18 @@ class GUIStage;
 class GUIRenderer;
 
 namespace Gui {
+	enum WidgetAlignment
+	{
+		None = 0,
+		Left = 1 << 0,
+		Top = 1 << 1,
+		Right = 1 << 2,
+		Bottom = 1 << 3,
+		HCenter = 1 << 4,
+		VCenter = 1 << 5,
+		Horizontal = Left | HCenter | Right,
+		Vertical = Top | VCenter | Bottom
+	};
 
 	enum class HierarchySortOrder 
 	{
@@ -22,12 +34,20 @@ namespace Gui {
 		Back = 2,
 	};
 
+	struct WidgetMargin final {
+		F32 left = 0.0f;
+		F32 top = 0.0f;
+		F32 right = 0.0f;
+		F32 bottom = 0.0f;
+	};
+
 	struct GUIScriptEventHandlers
 	{
 		static const StringID OnLoaded;
 		static const StringID OnUnloaded;
 
 		static std::set<StringID> registeredScriptEventHandlers;
+		static StringID GetScriptEventHandlerByUIEventType(UI_EVENT_TYPE eventType);
 	};
 
 	class Widget : public TreeNode<Widget>, public Gui::Dispatcher
@@ -51,15 +71,19 @@ namespace Gui {
 		// script handler
 		LuaRef GetScriptHandler();
 		void SetScriptHandler(LuaRef handler);
+		bool HaveScriptEventHandler(const StringID& eventName)const;
 		void AddScriptEventHandler(const StringID& eventName, const std::string& handler);
 		void CallScriptEventHandler(const StringID& eventName);
 		void CallScriptEventHandlerWithVariants(const StringID& eventName, VariantArray variants);
 
 		// basic status
+		Widget* GetRoot();
 		void SetPos(const F32x2 pos);
 		F32x2 GetPos()const;
 		void SetSize(const F32x2 size);
 		F32x2 GetSize()const;
+		F32 GetWidth()const;
+		F32 GetHeight()const;
 		void SetArea(const Rect& rect);
 		Rect GetArea()const { return mArea; }
 		void SetEnabled(bool enabled) { mIsEnabled = enabled; }
@@ -74,6 +98,16 @@ namespace Gui {
 		void SetOrderValue(F32 value) { mOrderValue = value; }
 		F32 GetOrderValue()const { return mOrderValue; }
 
+		// layout 
+		virtual void UpdateLayout(const F32x2& offset);
+		virtual bool IsNeedLayout()const;
+		void SetIsNeedLayout(bool isNeedLayout);
+		void SetIsAlwaysLayout(bool isAlwaysLayout);
+		void UpdateAlignment(U32 alignMask);
+		U32 GetStick()const { return mStick; }
+		void SetStick(U32 stick) { mStick = stick; }
+
+		// widget type
 		virtual WidgetType GetSelfWidgetType() const {
 			return Widget::GetWidgetType();
 		}
@@ -86,11 +120,15 @@ namespace Gui {
 		std::shared_ptr<Widget> GetChildWidgetByGlobalCoords(F32x2 pos);
 		void RemoveChildByName(const StringID& name);
 
-		Widget* GetRoot();
-
 	protected:
 		virtual void RenderImpl(const Rect& destRect);
-		virtual void RefreshPlacement();
+		virtual void UpdateLayoutImpl(const Rect& destRect);
+		virtual void OnParentChanged(Widget* old_parent) {}
+		virtual void OnChildAdded(std::shared_ptr<Widget>& node) {}
+		virtual void OnChildRemoved(std::shared_ptr<Widget>& node) {}
+		virtual bool onWidgetMoved(void);
+		virtual void UpdateImpl(F32 dt);
+		virtual void FixedUpdateImpl();
 
 	private:
 		GUIStage& mStage;
@@ -98,14 +136,20 @@ namespace Gui {
 		bool mIsVisible = false;
 		bool mIsRoot = false;
 		bool mIsIgnoreInputEvent = false;
-
-		Rect mArea;
+		bool mIsNeedLayout = false;
+		bool mIsAlwaysLayout = false;
+		Rect mArea; 
+		Rect mAlignRect;
+		U32 mAlignment = WidgetAlignment::None;
+		U32 mStick = WidgetAlignment::Left | WidgetAlignment::Top;
 
 		LuaRef mScriptHandler;
 		std::map<StringID, std::string> mScriptEventHandlers;
 
 		HierarchySortOrder mHierarchySortOrder = HierarchySortOrder::Sortable;
 		F32 mOrderValue = 0.0f;	// the small one is in front
+
+		Sprite mDebugSprite;
 	};
 	using WidgetPtr = std::shared_ptr<Widget>;
 }

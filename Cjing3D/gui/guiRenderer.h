@@ -22,6 +22,10 @@ namespace Cjing3D
 		static StringID ButtonTextBase;
 		static StringID ButtonTextClick;
 		static StringID ButtonTextHovered;
+		// list item
+		static StringID ListItemBackgroundHovered;
+		static StringID ListItemBackgroundPressed;
+		static StringID ListItemBackgroundSelected;
 
 		void RegisterColor(const StringID& name, const Color4& color);
 		void RegisterImg(const StringID& name);

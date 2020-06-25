@@ -19,6 +19,34 @@ namespace Gui {
 		GUIScriptEventHandlers::OnUnloaded
 	};
 
+	StringID GUIScriptEventHandlers::GetScriptEventHandlerByUIEventType(UI_EVENT_TYPE eventType)
+	{
+		StringID ret;
+		switch (eventType)
+		{
+		case UI_EVENT_TYPE::UI_EVENT_MOUSE_ENTER:
+			break;
+		case UI_EVENT_TYPE::UI_EVENT_MOUSE_LEAVE:
+			break;
+		case UI_EVENT_TYPE::UI_EVENT_MOUSE_MOTION:
+			break;
+		case UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_DOWN:
+			break;
+		case UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_UP:
+			break;
+		case UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_CLICK:
+			break;
+		case UI_EVENT_TYPE::UI_EVENT_KEYBOARD_KEYDOWN:
+			break;
+		case UI_EVENT_TYPE::UI_EVENT_KEYBOARD_KEYUP:
+			break;
+		default:
+			break;
+		}
+
+		return ret;
+	}
+
 	Widget::Widget(GUIStage& stage, const StringID& name) :
 		TreeNode<Widget>(name),
 		Dispatcher(),
@@ -35,12 +63,24 @@ namespace Gui {
 		if (!IsVisible()) {
 			return;
 		}
+
+		UpdateImpl(dt);
+
+		for (auto& child : mChildren) {
+			child->Update(dt);
+		}
 	}
 
 	void Widget::FixedUpdate()
 	{
 		if (!IsVisible()) {
 			return;
+		}
+
+		FixedUpdateImpl();
+
+		for (auto& child : mChildren) {
+			child->FixedUpdate();
 		}
 	}
 
@@ -52,6 +92,22 @@ namespace Gui {
 
 		Rect destRect(mArea);
 		destRect.Offset(offset);
+
+		if (GetGUIStage().IsDebugDraw())
+		{
+			if (mDebugSprite.GetColor() == Color4::White()) {
+				Color4 randomColor;
+				randomColor.SetA(255);
+				randomColor.SetR(Random::GetRandomInt(255));
+				randomColor.SetG(Random::GetRandomInt(255));
+				randomColor.SetB(Random::GetRandomInt(255));
+				mDebugSprite.SetColor(randomColor);
+			}
+
+			mDebugSprite.SetPos(destRect.GetPos());
+			mDebugSprite.SetSize(destRect.GetSize());
+			GetGUIRenderer().RenderSprite(mDebugSprite);
+		}
 
 		RenderImpl(destRect);
 
@@ -91,6 +147,7 @@ namespace Gui {
 	void Widget::SetPos(const F32x2 pos)
 	{
 		mArea.SetPos(pos);
+		onWidgetMoved();
 	}
 
 	F32x2 Widget::GetPos() const
@@ -108,14 +165,107 @@ namespace Gui {
 		return mArea.GetSize();
 	}
 
+	F32 Widget::GetWidth() const
+	{
+		return mArea.GetWidth();
+	}
+
+	F32 Widget::GetHeight() const
+	{
+		return mArea.GetHeight();
+	}
+
 	void Widget::SetArea(const Rect& rect)
 	{
 		mArea = rect;
+		onWidgetMoved();
 	}
 
 	bool Widget::CanMouseFocus() const
 	{
 		return true;
+	}
+
+	bool Widget::IsNeedLayout() const
+	{
+		return mIsNeedLayout || mIsAlwaysLayout;
+	}
+
+	void Widget::SetIsNeedLayout(bool isNeedLayout)
+	{
+		mIsNeedLayout = isNeedLayout;
+	}
+
+	void Widget::SetIsAlwaysLayout(bool isAlwaysLayout)
+	{
+		mIsAlwaysLayout = isAlwaysLayout;
+	}
+
+	void Widget::UpdateAlignment(U32 alignMask)
+	{
+		if (mParent == nullptr) {
+			return;
+		}
+
+		if (mAlignment == WidgetAlignment::None) {
+			return;
+		}
+
+		// horizontal
+		if (alignMask & WidgetAlignment::Horizontal)
+		{
+			F32x2 pos = mArea.GetPos();
+			F32x2 parentSize = mParent->GetSize();
+			F32x2 ChildSize = GetSize();
+
+			if (mAlignment & HCenter)
+			{
+				F32 originalWidth = mAlignRect.mLeft + mAlignRect.mRight;
+				float x = 0.f;
+				if (originalWidth > 0.f)
+				{
+					float width = parentSize[0] - ChildSize[0];
+					x = width * mAlignRect.mLeft / originalWidth;
+				}
+				mArea.SetPos({ x, pos[1] });
+			}
+			else if (mAlignment & Left)
+			{
+				mArea.SetPos({ mAlignRect.mLeft, pos[1] });
+			}
+			else if (mAlignment & Right)
+			{
+				mArea.SetPos({ parentSize[0] - ChildSize[0] - mAlignRect.mRight, pos[1] });
+			}
+		}
+
+		// vertical
+		if (alignMask & WidgetAlignment::Vertical)
+		{
+			F32x2 pos = mArea.GetPos();
+			F32x2 parentSize = mParent->GetSize();
+			F32x2 ChildSize = GetSize();
+
+			if (mAlignment & VCenter)
+			{
+				F32 originalHeight = mAlignRect.mTop + mAlignRect.mBottom;
+				float y = 0.f;
+				if (originalHeight > 0.f)
+				{
+					float height = parentSize[1] - ChildSize[1];
+					y = height * mAlignRect.mTop / originalHeight;
+				}
+				mArea.SetPos({ pos[0], y });
+			}
+			else if (mAlignment & Top)
+			{
+				mArea.SetPos({ pos[0], mAlignRect.mTop });
+			}
+			else if (mAlignment & Bottom)
+			{
+				mArea.SetPos({ pos[0], parentSize[1] - ChildSize[1] - mAlignRect.mBottom });
+			}
+		}
 	}
 
 	std::shared_ptr<Widget> Widget::FindChildByName(const StringID& name)
@@ -173,6 +323,11 @@ namespace Gui {
 	{
 		// strong ref?
 		mScriptHandler = handler;
+	}
+
+	bool Widget::HaveScriptEventHandler(const StringID& eventName) const
+	{
+		return mScriptEventHandlers.find(eventName) != mScriptEventHandlers.end();
 	}
 
 	void Widget::AddScriptEventHandler(const StringID& eventName, const std::string& handler)
@@ -252,13 +407,39 @@ namespace Gui {
 		GUIRenderer& renderer = GetGUIRenderer();
 	}
 
+	void Widget::UpdateLayoutImpl(const Rect& destRect)
+	{
+		SetIsNeedLayout(false);
+	}
+
+	bool Widget::onWidgetMoved(void)
+	{
+		if (mParent != nullptr)
+		{
+			const Rect& parentRect = mParent->GetArea();
+			Rect childRect(mArea);
+			childRect.Offset(parentRect.GetPos());
+
+			mAlignRect.mLeft   = childRect.mLeft - parentRect.mLeft;
+			mAlignRect.mTop    = childRect.mTop  - parentRect.mTop;
+			mAlignRect.mRight  = parentRect.mRight  - childRect.mRight;
+			mAlignRect.mBottom = parentRect.mBottom - childRect.mBottom;
+		}
+		return true;
+	}
+
+	void Widget::UpdateImpl(F32 dt)
+	{
+	}
+
+	void Widget::FixedUpdateImpl()
+	{
+	}
+
 	void Widget::OnLoaded()
 	{
 		// 在lua中执行初始化，需要传入properties，可能有自定义的属性
 		CallScriptEventHandler(GUIScriptEventHandlers::OnLoaded);
-
-		// 重新根据位置和大小刷新布局
-		RefreshPlacement();
 	}
 
 	void Widget::OnUnloaded()
@@ -266,17 +447,23 @@ namespace Gui {
 		CallScriptEventHandler(GUIScriptEventHandlers::OnUnloaded);
 	}
 
-	void Widget::RefreshPlacement()
+	void Widget::UpdateLayout(const F32x2& offset)
 	{
-		// 暂时不处理mask
-		Rect rect = GetArea();
-		for (auto& child : mChildren) {
-			child->RefreshPlacement();
-
-			rect.Union(child->GetArea());
+		if (!IsVisible()) {
+			return;
 		}
 
-		mArea = rect;
+		Rect parentRect = GetArea();
+		F32x2 childOffset = offset + parentRect.GetPos();
+		for (auto& child : mChildren) {
+			child->UpdateLayout(childOffset);
+
+			parentRect.Union(child->GetArea());
+		}
+
+		if (IsNeedLayout()) {
+			UpdateLayoutImpl(parentRect);
+		}
 	}
 }
 }

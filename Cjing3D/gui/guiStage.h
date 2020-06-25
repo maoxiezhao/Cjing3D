@@ -42,6 +42,8 @@ namespace Cjing3D
 		void AddRegisterKeyBoardKey(KeyCode key);
 		bool IsGUIVisible()const { return mGUIVisible; }
 		void SetGUIVisible(bool visible) { mGUIVisible = visible; }
+		bool IsDebugDraw()const { return mIsDebugDraw; }
+		void SetIsDebugDraw(bool isDebugDraw) { mIsDebugDraw = isDebugDraw; }
 
 		// imgui
 		void SetImGUIStageVisible(bool visible);
@@ -66,5 +68,6 @@ namespace Cjing3D
 
 		I32x2 mPrevMousePos;
 		bool mGUIVisible = true;
+		bool mIsDebugDraw = false;
 	};
 }

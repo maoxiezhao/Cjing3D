@@ -8,3 +8,5 @@
 #include "scripts\luaTools.h"
 #include "scripts\api\uiApi.h"
 #include "scripts\api\utilsApi.h"
+
+#include "helper\random.h"

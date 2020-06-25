@@ -512,9 +512,27 @@ namespace Font {
 		mFontGlyphsRects.clear();
 	}
 
-	void Refresh()
+	void PrepareFonts(const UTF8String& text)
 	{
+		// TODO
+	}
 
+	F32 GetTextWidth(const UTF8String& text, const FontParams& params)
+	{
+		if (!mIsInitialized) {
+			return 0.0f;
+		}
+		auto codepoints = text.GetCodePoints();
+		return GetTextWidth(codepoints.data(), codepoints.size(), params);
+	}
+
+	F32 GetTextHeight(const UTF8String& text, const FontParams& params)
+	{
+		if (!mIsInitialized) {
+			return 0.0f;
+		}
+		auto codepoints = text.GetCodePoints();
+		return GetTextHeight(codepoints.data(), codepoints.size(), params);
 	}
 
 	void Draw(const std::string& text, const FontParams& params)

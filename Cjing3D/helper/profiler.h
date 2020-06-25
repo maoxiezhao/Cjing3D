@@ -22,6 +22,7 @@ public:
 
 	void Initialize();
 	void Uninitialize();
+	void Clear();
 
 	void BeginFrame();
 	void EndFrame();

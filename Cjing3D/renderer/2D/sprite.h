@@ -31,6 +31,7 @@ namespace Cjing3D
 		void SetPos(const F32x2& pos);
 		void SetColor(const Color4& color);
 		void SetColor(const F32x4& color);
+		Color4 GetColor()const;
 
 	private:
 		void SetCurrentTextureInfo(Texture2D& info);

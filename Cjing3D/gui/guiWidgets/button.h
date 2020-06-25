@@ -20,8 +20,6 @@ namespace Cjing3D {
 
 			virtual void OnLoaded();
 			virtual void OnUnloaded();
-			virtual void Update(F32 dt);
-			virtual void FixedUpdate();
 
 			void SetText(const UTF8String& text);
 			void SetTextAlignment(Font::FontParams::TextAlignH align);

@@ -28,6 +28,7 @@ namespace Renderer
 {
 	void Initialize(RenderingDeviceType deviceType, HWND window);
 	void Uninitialize();
+	void UninitializeDevice();
 
 	void Render();
 	void Compose();
