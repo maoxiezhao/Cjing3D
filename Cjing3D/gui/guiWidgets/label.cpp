@@ -30,14 +30,20 @@ namespace Gui {
 		mTextDrawable.SetFontSizeScale(size);
 	}
 
-	void Label::SetTextAlignV(Font::FontParams::TextAlignV align)
+	void Label::SetTextAlignV(Font::TextAlignV align)
 	{
 		mTextDrawable.SetTextAlignV(align);
 	}
 
-	void Label::SetTextAlignH(Font::FontParams::TextAlignH align)
+	void Label::SetTextAlignH(Font::TextAlignH align)
 	{
 		mTextDrawable.SetTextAlignH(align);
+	}
+
+	void Label::SetBoundingSize(F32 w, F32 h)
+	{
+		Widget::SetFixedSize({ w, h });
+		mTextDrawable.SetBoundingSize(w, h);
 	}
 
 	void Label::SetText(const UTF8String& text)
@@ -45,7 +51,6 @@ namespace Gui {
 		if (text != mTextDrawable.GetText())
 		{
 			mTextDrawable.SetText(text);
-			mIsTextChanged = true;
 		}
 	}
 
@@ -69,33 +74,52 @@ namespace Gui {
 		return mTextDrawable.GetText();
 	}
 
-	void Label::OnTextChanged()
+	F32x2 Label::CalculateBestSize() const
 	{
-		if (!mIsTextChanged || mTextDrawable.GetText().Empty()) {
-			return;
+		F32x2 fixedSize = GetFixedSize();
+		if (mTextDrawable.GetText().Empty()) {
+			return fixedSize;
+		}
+
+		if (fixedSize[0] > 0.0f || fixedSize[1] > 0.0f) {
+			if (IsF32EqualZero(fixedSize[1]))
+			{
+				F32 h = mTextDrawable.GetTextHeight();
+				fixedSize[1] = h;
+				return fixedSize;
+			}
+			else
+			{
+				return fixedSize;
+			}
 		}
 
 		F32 w = mTextDrawable.GetTextWidth();
 		F32 h = mTextDrawable.GetTextHeight();
-		if (w <= 0.0f || h <= 0.0f) {
-			return;
-		}
-
-		SetSize({ w, h });
-		mIsTextChanged = true;
+		return F32x2(w, h);
 	}
 
 	void Label::RenderImpl(const Rect& destRect)
 	{
 		GUIRenderer& renderer = GetGUIRenderer();
-	
-		mTextDrawable.SetPos(destRect.GetPos());
-		renderer.RenderText(&mTextDrawable);
-	}
+		
+		F32x2 targetPos = destRect.GetPos();
+		switch (mTextDrawable.GetParams().mTextAlignH)
+		{
+		case Font::TextAlignH_LEFT:
+			break;
+		case Font::TextAlignH_Center:
+			targetPos[0] += GetSize()[0] * 0.5f;
+			break;
+		case Font::TextAlignH_Right:
+			targetPos[0] += GetSize()[0];
+			break;
+		default:
+			break;
+		}
 
-	void Label::FixedUpdateImpl()
-	{
-		OnTextChanged();
+		mTextDrawable.SetPos(targetPos);
+		renderer.RenderText(&mTextDrawable);
 	}
 }
 }

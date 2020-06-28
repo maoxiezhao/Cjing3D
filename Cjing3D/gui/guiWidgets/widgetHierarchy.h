@@ -26,6 +26,7 @@ namespace Gui
 
 		void CaptureFocusWidget(bool captured);
 		WidgetPtr GetCurrentFocusdWidget();
+		WidgetPtr GetCurrentDragWidget();
 
 		void AddWidget(WidgetPtr widget);
 		void RemoveWidget(WidgetPtr widget);

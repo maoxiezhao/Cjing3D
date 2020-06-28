@@ -1,4 +1,4 @@
-#include "gameEditor.h"
+﻿#include "gameEditor.h"
 
 #include "engine.h"
 #include "scripts\luaContext.h"
@@ -25,7 +25,9 @@
 #include "gui\guiWidgets\button.h"
 #include "gui\guiWidgets\label.h"
 #include "gui\guiWidgets\listPanel.h"
-
+#include "gui\guiWidgets\checkBox.h"
+#include "gui\guiWidgets\layouts\boxLayout.h"
+#include "gui\guiWidgets\window.h"
 
 namespace Cjing3D
 {
@@ -43,7 +45,8 @@ namespace Cjing3D
 	{
 		RenderPathTiledForward* path = new RenderPathTiledForward();
 		Renderer::SetCurrentRenderPath(path);
-		Font::LoadFontTTF("Fonts/arial.ttf");
+		Font::LoadFontTTF("Fonts/NotoSans-Regular.ttf");
+		Font::LoadFontTTF("Fonts/NotoSans-Bold.ttf");
 
 		auto& guiStage = GlobalGetSubSystem<GUIStage>();
 		//guiStage.SetIsDebugDraw(true);
@@ -54,38 +57,45 @@ namespace Cjing3D
 
 		Gui::WidgetHierarchy& widgetHierarchy = guiStage.GetWidgetHierarchy();
 		// Test GUI
-		Gui::WidgetPtr stack = std::make_shared<Gui::StackPanel>(guiStage, StringID("test"), 200.0f, 200.0f);
-		stack->SetPos({ 500.0f, 400.0f });
-		stack->SetVisible(true);
-		widgetHierarchy.AddWidget(stack);
+		//Gui::WidgetPtr stack = std::make_shared<Gui::StackPanel>(guiStage, StringID("test"), 200.0f, 300.0f);
+		//stack->SetPos({ 500.0f, 400.0f });
+		//widgetHierarchy.AddWidget(stack);
 
-		std::shared_ptr<Gui::Button> button = std::make_shared<Gui::Button>(guiStage, StringID("button"));
-		button->SetText("Test");
-		button->SetStick(Gui::WidgetAlignment::HCenter);
-		button->SetVisible(true);
-		stack->Add(button);
-		mConnections(button->mClickCallback, [button]() {
-			Logger::Info("CLICK!!!!");
-			button->SetText(u8"Test2");
-		});
+		//// button
+		//std::shared_ptr<Gui::Button> button1 = std::make_shared<Gui::Button>(guiStage, StringID("button"));
+		//button1->SetText("Button");
+		//stack->Add(button1);
 
-		std::shared_ptr<Gui::Button> button1 = std::make_shared<Gui::Button>(guiStage, StringID("button2"));
-		button1->SetText("Test2");
-		button1->SetStick(Gui::WidgetAlignment::HCenter);
-		button1->SetVisible(true);
-		stack->Add(button1);
+		//// list panel
+		//auto listPanel = std::make_shared<Gui::ListPanel>(guiStage, "ListPane", 160.0f, 200.0f);
+		//listPanel->SetLayoutSpacing(2);
 
-		auto label1 = std::make_shared<Gui::Label>(guiStage, StringID("lable1"), u8"Hello");
-		label1->SetVisible(true);
-		label1->SetTextAlignH(Font::FontParams::TextAlignH_Center);
-		label1->SetStick(Gui::WidgetAlignment::HCenter);
-		//stack->Add(label1);
+		//for (int i = 0; i < 6; i++)
+		//{
+		//	const std::string name = "label" + std::to_string(i);
+		//	auto label = std::make_shared<Gui::Label>(guiStage, StringID(name), "ListItem" + std::to_string(i));
+		//	listPanel->Add(label);
+		//}
+		//stack->Add(listPanel);
 
-		auto item1 = std::make_shared<Gui::ListItem>(guiStage);
-		item1->SetStick(Gui::WidgetAlignment::HCenter);
-		item1->SetVisible(true);
-		item1->SetWidget(label1);
-		stack->Add(item1);
+		//// label
+		//auto label = std::make_shared<Gui::Label>(guiStage, StringID("label"), "MotherFuck");
+		//label->SetTextAlignH(Font::TextAlignH_Center);
+		//stack->Add(label);
+
+
+		// check box
+		//auto widget = std::make_shared<Gui::Widget>(guiStage, "checkBoxPanel");
+		//widget->SetLayout(std::make_shared<Gui::BoxLayout>(Gui::AlignmentOrien::AlignmentOrien_Horizontal, Gui::AlignmentMode::AlignmentMode_Center, Gui::WidgetMargin(), 10.0f));
+		//
+		//auto label = std::make_shared<Gui::Label>(guiStage, StringID("checkBoxlabel"), "checkBox");
+		//widget->Add(label);
+
+		// window
+		auto window = std::make_shared<Gui::Window>(guiStage, StringID("checkBoxlabel1"), u8"GUI Test Window", F32x2{200.0f, 300.0f});	
+		window->SetPos({ Renderer::GetScreenSize()[0] - 200.0f - 5.0f, 200.0f});
+		window->GetTitleTextDrawable().SetFontStyle("Fonts/NotoSans-Bold.ttf");
+		widgetHierarchy.AddWidget(window);
 	}
 
 	void GameEditor::Update(EngineTime time)

@@ -1,5 +1,6 @@
 #include "stackPanel.h"
 #include "widgetInclude.h"
+#include "gui\guiWidgets\layouts\boxLayout.h"
 
 namespace Cjing3D{
 namespace Gui {
@@ -8,28 +9,11 @@ namespace Gui {
 		Widget(stage, name)
 	{
 		SetSize(F32x2(width, height));
-		SetIsAlwaysLayout(true);
-
-		mLayout = std::make_shared<VerticalLayout>(stage, "verticalLayout", width, height);
-		mLayout->SetLayoutSpacing(10.0f);
-		mLayout->SetMargin(2.0f, 2.0f, 2.0f, 2.0f);
-		mLayout->SetVisible(true);
-
-		Widget::Add(mLayout);
+		SetLayout(std::make_shared<BoxLayout>(AlignmentOrien::AlignmentOrien_Vertical, AlignmentMode::AlignmentMode_Center));
 	}
 
 	StackPanel::~StackPanel()
 	{
-	}
-
-	void StackPanel::Add(WidgetPtr node)
-	{
-		mLayout->AddChild(node);
-	}
-
-	void StackPanel::Remove(WidgetPtr node)
-	{
-		mLayout->RemoveChild(node);
 	}
 
 	void StackPanel::RenderImpl(const Rect& destRect)

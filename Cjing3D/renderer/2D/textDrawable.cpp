@@ -58,14 +58,27 @@ namespace Cjing3D
 		mFontParams.mScale = (F32)size / (F32)mFontParams.mFontSize;
 	}
 
-	void TextDrawable::SetTextAlignV(Font::FontParams::TextAlignV align)
+	void TextDrawable::SetTextAlignV(Font::TextAlignV align)
 	{
 		mFontParams.mTextAlignV = align;
 	}
 
-	void TextDrawable::SetTextAlignH(Font::FontParams::TextAlignH align)
+	void TextDrawable::SetTextAlignH(Font::TextAlignH align)
 	{
 		mFontParams.mTextAlignH = align;
+	}
+
+	void TextDrawable::SetBoundingSize(F32 w, F32 h)
+	{
+		mFontParams.mBoundingSize = { w, h };
+	}
+
+	void TextDrawable::SetFontStyle(const std::string& name)
+	{
+		I32 index = Font::GetFontStyleIndexByName(name);
+		if (index >= 0) {
+			mFontParams.mFontStyleIndex = index;
+		}
 	}
 
 	// 获取文字宽度性能较差

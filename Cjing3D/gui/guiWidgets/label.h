@@ -14,8 +14,9 @@ namespace Gui {
 		void SetColor(const F32x4& color);
 		void SetFontSize(U32 size);
 		void SetFontSizeScale(U32 size);
-		void SetTextAlignV(Font::FontParams::TextAlignV align);
-		void SetTextAlignH(Font::FontParams::TextAlignH align);
+		void SetTextAlignV(Font::TextAlignV align);
+		void SetTextAlignH(Font::TextAlignH align);
+		void SetBoundingSize(F32 w, F32 h);
 
 		void SetText(const UTF8String& text);
 		void SetText(const char* text);
@@ -24,15 +25,13 @@ namespace Gui {
 		const UTF8String& GetText()const;
 		UTF8String& GetText();
 
+		virtual F32x2 CalculateBestSize()const;
+
 	protected:
 		virtual void RenderImpl(const Rect& destRect);
-		virtual void FixedUpdateImpl();
-
-		void OnTextChanged();
 
 	private:
 		TextDrawable mTextDrawable;
-		bool mIsTextChanged = true;
 	};
 
 }

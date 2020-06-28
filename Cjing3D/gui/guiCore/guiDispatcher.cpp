@@ -12,19 +12,19 @@ namespace Gui {
 	{
 	}
 
-	void Dispatcher::ConnectSignal(UI_EVENT_TYPE eventType, const SignalFunction& func)
+	void Dispatcher::ConnectSignal(UI_EVENT_TYPE eventType, const SignalFunction& func, SignalQueueposition pos)
 	{
-		mSignalQueue.ConnectSignal(eventType, func);
+		mSignalQueue.ConnectSignal(eventType, func, pos);
 	}
 
-	void Dispatcher::DisconnectSignal(UI_EVENT_TYPE eventType, const SignalFunction& func)
+	void Dispatcher::DisconnectSignal(UI_EVENT_TYPE eventType, const SignalFunction& func, SignalQueueposition pos)
 	{
-		mSignalQueue.DisconnectSignal(eventType, func);
+		mSignalQueue.DisconnectSignal(eventType, func, pos);
 	}
 
-	bool Dispatcher::HasEventSignal(UI_EVENT_TYPE eventType) const
+	bool Dispatcher::HasEventSignal(UI_EVENT_TYPE eventType, U32 queueType) const
 	{
-		return mSignalQueue.HasConnectSignal(eventType);
+		return mSignalQueue.HasConnectSignal(eventType, queueType);
 	}
 
 	bool Dispatcher::Fire(UI_EVENT_TYPE eventType, Dispatcher* target, const VariantArray& vairants)

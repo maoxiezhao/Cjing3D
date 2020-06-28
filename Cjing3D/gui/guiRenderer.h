@@ -2,6 +2,7 @@
 
 #include "gui\guiInclude.h"
 #include "gui\guiWidgets\widgets.h"
+#include "gui\guiScheme.h"
 #include "renderer\2D\sprite.h"
 #include "renderer\2D\textDrawable.h"
 
@@ -9,32 +10,6 @@ namespace Cjing3D
 {
 	class GUIStage;
 	class IMGUIStage;
-
-	class GUIScheme
-	{
-	public:
-		// panel
-		static StringID PanelBackground;
-		// button	
-		static StringID ButtonBackgroundBase;
-		static StringID ButtonBackgroundClick;
-		static StringID ButtonBackgroundHovered;
-		static StringID ButtonTextBase;
-		static StringID ButtonTextClick;
-		static StringID ButtonTextHovered;
-		// list item
-		static StringID ListItemBackgroundHovered;
-		static StringID ListItemBackgroundPressed;
-		static StringID ListItemBackgroundSelected;
-
-		void RegisterColor(const StringID& name, const Color4& color);
-		void RegisterImg(const StringID& name);
-
-		Color4 GetColor(const StringID& name)const;
-
-	private:
-		std::map<StringID, Color4> mRegisteredColor;
-	};
 
 	class GUIRenderer
 	{
@@ -47,8 +22,7 @@ namespace Cjing3D
 		void SetImGuiStage(IMGUIStage* imGuiStage);
 
 		// gui scheme
-		void InitDefaultScheme();
-		const GUIScheme& GetGUIScheme()const;
+		const Gui::GUIScheme& GetGUIScheme()const;
 
 		// render
 		void RenderSprite(Sprite& sprite);
@@ -57,6 +31,6 @@ namespace Cjing3D
 	private:
 		GUIStage& mGUIStage;
 		IMGUIStage* mImGuiStage = nullptr;
-		GUIScheme mGUIScheme;
+		Gui::GUIScheme mGUIScheme;
 	};
 }

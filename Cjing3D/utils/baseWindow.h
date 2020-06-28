@@ -24,8 +24,12 @@ namespace Cjing3D {
 		void RemoveHandler(WindowMessageHandlerPtr handler);
 		virtual bool IsWindowActive() const;
 
+		I32 GetDPI()const { return mDPI; }
+		void SetDPI(I32 dpi) { mDPI = dpi; }
+
 	protected:
 		std::vector<WindowMessageHandlerPtr> mHandlers;
+		I32 mDPI = 96;
 	};
 
 

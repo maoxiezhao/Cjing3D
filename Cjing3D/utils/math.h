@@ -137,6 +137,27 @@ namespace Cjing3D {
 		return c + (hash << 6) + (hash << 16) - hash;
 	}
 
+	inline bool IsF32EqualZero(F32 v)
+	{
+		return abs(v) < 0.000001f;
+	}
+
+	inline F32x2 F32x2Max(F32x2 a, F32x2 b)
+	{
+		return F32x2(
+			std::max(a[0], b[0]),
+			std::max(a[1], b[1])
+		);
+	}
+
+	inline F32x2 F32x2Min(F32x2 a, F32x2 b)
+	{
+		return F32x2(
+			std::min(a[0], b[0]),
+			std::min(a[1], b[1])
+		);
+	}
+
 	inline F32x3 F32x3Max(F32x3 a, F32x3 b)
 	{
 		return F32x3(

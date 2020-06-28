@@ -25,10 +25,36 @@ namespace Gui {
 		template<typename T, typename... F>
 		inline bool FireEvent(const UI_EVENT_TYPE eventType, std::vector<std::pair<Dispatcher*, UI_EVENT_TYPE>>& eventChain, Dispatcher& dispatcher, Dispatcher& target,  F&&... params)
 		{
-			// TODO: handle pre signal
+			// handle pre signal
+			std::vector<std::pair<Dispatcher*, UI_EVENT_TYPE> > reverseEventChain = eventChain;
+			std::reverse(reverseEventChain.begin(), reverseEventChain.end());
+
+			for (auto& pair : reverseEventChain)
+			{
+				Dispatcher* widget = pair.first;
+				UI_EVENT_TYPE eventType = pair.second;
+				if (widget != nullptr && widget->HasEventSignal(eventType, Dispatcher::pre))
+				{
+					bool halt = false;
+					bool handle = false;
+
+					Dispatcher::SignalList<T>& signalList = Implementation::GetEventSignalList<T>(*widget, eventType);
+					for (auto& func : signalList.mPreList)
+					{
+						func(dispatcher, halt, handle, std::forward<F>(params)...);
+						if (halt) {
+							break;
+						}
+					}
+
+					if (handle) {
+						return true;
+					}
+				}
+			}
 
 			// handle current signal
-			if (target.HasEventSignal(eventType))
+			if (target.HasEventSignal(eventType, Dispatcher::child))
 			{
 				bool halt = false;
 				bool handle = false;
@@ -48,6 +74,29 @@ namespace Gui {
 			}
 
 			// TODO: handle post signal
+			for (auto& pair : eventChain)
+			{
+				Dispatcher* widget = pair.first;
+				UI_EVENT_TYPE eventType = pair.second;
+				if (widget != nullptr && widget->HasEventSignal(eventType, Dispatcher::post))
+				{
+					bool halt = false;
+					bool handle = false;
+
+					Dispatcher::SignalList<T>& signalList = Implementation::GetEventSignalList<T>(*widget, eventType);
+					for (auto& func : signalList.mPostList)
+					{
+						func(dispatcher, halt, handle, std::forward<F>(params)...);
+						if (halt) {
+							break;
+						}
+					}
+
+					if (handle) {
+						return true;
+					}
+				}
+			}
 
 			return false;
 		}
@@ -58,14 +107,20 @@ namespace Gui {
 				return;
 			}
 
-			//Widget* widget = target;
-			//while (true)
-			//{
-			//	// 当存在preSignal和postSignal时都加入队列
-			//	if (widget->HasEventSignal(eventType)) {
-			//		eventChain.emplace_back(widget, eventType);
-			//	}
-			//}
+			Widget* widget = target;
+			while (widget != nullptr)
+			{
+				// 当存在preSignal和postSignal时都加入队列
+				if (widget->HasEventSignal(eventType, Dispatcher::pre | Dispatcher::post)) {
+					eventChain.emplace_back(widget, eventType);
+				}
+
+				if (widget == dispatcher) {
+					break;
+				}
+
+				widget = widget->GetParent();
+			}
 		}
 	}
 

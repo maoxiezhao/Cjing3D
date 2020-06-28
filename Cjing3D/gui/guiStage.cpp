@@ -228,6 +228,8 @@ namespace Cjing3D
 			return;
 		}
 
+		PROFILER_BEGIN_CPU_BLOCK("GuiRender");
 		mWidgetHierarchy->Render();
+		PROFILER_END_BLOCK();
 	}
 }

@@ -608,14 +608,23 @@
     <ClCompile Include="utils\string\utf8StringIt.cpp">
       <Filter>utils\string</Filter>
     </ClCompile>
-    <ClCompile Include="gui\guiWidgets\verticalLayout.cpp">
-      <Filter>gui\guiWidgets\layout</Filter>
-    </ClCompile>
     <ClCompile Include="gui\guiWidgets\label.cpp">
       <Filter>gui\guiWidgets</Filter>
     </ClCompile>
     <ClCompile Include="gui\guiWidgets\listPanel.cpp">
       <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\checkBox.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\layouts\boxLayout.cpp">
+      <Filter>gui\guiWidgets\layout</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\window.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiScheme.cpp">
+      <Filter>gui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1188,13 +1197,25 @@
     <ClInclude Include="utils\string\utf8StringIt.h">
       <Filter>utils\string</Filter>
     </ClInclude>
-    <ClInclude Include="gui\guiWidgets\verticalLayout.h">
-      <Filter>gui\guiWidgets\layout</Filter>
-    </ClInclude>
     <ClInclude Include="gui\guiWidgets\label.h">
       <Filter>gui\guiWidgets</Filter>
     </ClInclude>
     <ClInclude Include="gui\guiWidgets\listPanel.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\checkBox.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\layouts\layout.h">
+      <Filter>gui\guiWidgets\layout</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\layouts\boxLayout.h">
+      <Filter>gui\guiWidgets\layout</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiScheme.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\window.h">
       <Filter>gui\guiWidgets</Filter>
     </ClInclude>
   </ItemGroup>

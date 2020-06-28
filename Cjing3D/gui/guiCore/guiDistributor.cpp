@@ -54,21 +54,60 @@ namespace Gui {
 				break;
 			}
 #endif
+			if (targetWidget == nullptr) {
+				return false;
+			}
+
 			VariantArray variants;
 			variants.push_back(Variant((I32)pos[0]));
 			variants.push_back(Variant((I32)pos[1]));
 
-			return targetWidget->GetRoot()->Fire(eventType, targetWidget, variants);
+			auto parent = targetWidget->GetRoot();
+			if (parent != nullptr) {
+				return parent->Fire(eventType, targetWidget, variants);
+			}
+			else {
+				return targetWidget->Fire(eventType, targetWidget, variants);
+			}
 		}
 
 		bool BaseDistributor::FireMouseButtonEvent(Widget* targetWidget, UI_EVENT_TYPE eventType, const I32x2& pos, U32 buttonIndex)
 		{
+			if (targetWidget == nullptr) {
+				return false;
+			}
+
 			VariantArray variants;
 			variants.push_back(Variant((I32)pos[0]));
 			variants.push_back(Variant((I32)pos[1]));
 			variants.push_back(Variant((I32)buttonIndex));
 
-			return targetWidget->GetRoot()->Fire(eventType, targetWidget, variants);
+			auto parent = targetWidget->GetRoot();
+			if (parent != nullptr) {
+				return parent->Fire(eventType, targetWidget, variants);
+			}
+			else {
+				return targetWidget->Fire(eventType, targetWidget, variants);
+			}
+		}
+
+		bool BaseDistributor::FireMouseDragEvent(Widget* targetWidget, UI_EVENT_TYPE eventType, const I32x2& offset)
+		{
+			if (targetWidget == nullptr) {
+				return false;
+			}
+
+			VariantArray variants;
+			variants.push_back(Variant((I32)offset[0]));
+			variants.push_back(Variant((I32)offset[1]));
+
+			auto parent = targetWidget->GetRoot();
+			if (parent != nullptr) {
+				return parent->Fire(UI_EVENT_TYPE::UI_EVENT_MOUSE_DRAG, targetWidget, variants);
+			}
+			else {
+				return targetWidget->Fire(UI_EVENT_TYPE::UI_EVENT_MOUSE_DRAG, targetWidget, variants);
+			}
 		}
 
 		Widget* BaseDistributor::FindAndGetMouseEnableWidget(const I32x2& pos, std::vector<WidgetPtr>& widgets)
@@ -85,19 +124,19 @@ namespace Gui {
 		{
 			if (widget != nullptr)
 			{
-				mMouseFocusWidget = widget->GetNodePtr();
+				SetMouseFocusedWidget(widget->GetNodePtr());
 				FireMouseEvent(widget, UI_EVENT_TYPE::UI_EVENT_MOUSE_ENTER, mCoords);
 			}
 			else
 			{
-				mMouseFocusWidget = nullptr;
+				SetMouseFocusedWidget(nullptr);
 			}
 		}
 
 		void MouseMotion::OnMouseLeave()
 		{
 			FireMouseEvent(mMouseFocusWidget.get(), UI_EVENT_TYPE::UI_EVENT_MOUSE_LEAVE, mCoords);
-			mMouseFocusWidget = nullptr;
+			SetMouseFocusedWidget(nullptr);
 		}
 
 		void MouseMotion::OnMouseHover(Widget* widget)
@@ -107,6 +146,11 @@ namespace Gui {
 
 		void MouseMotion::SignalHandleMouseMotion(const I32x2& pos, std::vector<WidgetPtr>& widgets)
 		{
+			if (mDragWidget != nullptr)
+			{
+				FireMouseDragEvent(mDragWidget.get(), UI_EVENT_TYPE::UI_EVENT_MOUSE_DRAG, pos - mCoords);
+			}
+
 			mCoords = pos;
 
 			if (mMouseCaptured && mMouseFocusWidget != nullptr)
@@ -141,6 +185,24 @@ namespace Gui {
 			}
 		}
 
+		void MouseMotion::SetDragWidget(WidgetPtr widget)
+		{
+			mDragWidget = widget;
+		}
+
+		void MouseMotion::SetMouseFocusedWidget(WidgetPtr widget)
+		{
+			if (mMouseFocusWidget != nullptr) {
+				mMouseFocusWidget->SetFocused(false);
+			}
+
+			mMouseFocusWidget = widget;
+
+			if (widget != nullptr) {
+				widget->SetFocused(true);
+			}
+		}
+
 		void MouseButtonDistributor::SignalHandlerButtonDown(const I32x2& coords, std::vector<WidgetPtr>& widgets)
 		{
 			if (mIsPressed) {
@@ -157,7 +219,11 @@ namespace Gui {
 			{
 				Widget* targetWidget = FindAndGetMouseEnableWidget(coords, widgets);
 				if (mMouseFocusWidget.get() != targetWidget) {
-					mMouseFocusWidget = targetWidget != nullptr ? targetWidget->GetNodePtr() : nullptr;
+					SetMouseFocusedWidget(targetWidget != nullptr ? targetWidget->GetNodePtr() : nullptr);
+				}
+
+				if (mDragWidget == nullptr && targetWidget != nullptr) {
+					mDragWidget = targetWidget->GetNodePtr();
 				}
 
 				if (targetWidget != nullptr) {
@@ -178,13 +244,31 @@ namespace Gui {
 			}
 			mIsPressed = false;
 
-			if (mButtonFocuseWidget != nullptr)
-			{
+			// handle button focused
+			if (mButtonFocuseWidget != nullptr) {
 				FireMouseEvent(mButtonFocuseWidget, UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_UP, mCoords);
 			}
 
 			Widget* targetWidget = FindAndGetMouseEnableWidget(coords, widgets);
-			if (mMouseCaptured)
+			// handle drag widget
+			if (mDragWidget != nullptr)
+			{
+				if (mDragWidget.get() == targetWidget)
+				{
+					MouseButtonClick(targetWidget);
+				}
+				else
+				{
+					OnMouseLeave();
+					if (targetWidget != nullptr) {
+						OnMouseEnter(targetWidget);
+					}
+				}
+				SetDragWidget(nullptr);
+			}
+
+			// handle mouse captured
+			if (mMouseCaptured )
 			{
 				SetMouseCaptured(false);
 				if (mMouseFocusWidget.get() == targetWidget)

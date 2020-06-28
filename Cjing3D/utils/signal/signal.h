@@ -210,7 +210,7 @@ namespace Cjing3D
 			return Connection(mSignalBody->Connect(std::move(func)));
 		}
 
-		void operator()(Args&&... args)
+		void operator()(Args... args)
 		{
 			mSignalBody->Call(std::forward<Args>(args)...);
 		}

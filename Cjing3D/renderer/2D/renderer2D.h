@@ -10,22 +10,48 @@ namespace Cjing3D
 {
 	class SpritieRenderBatchQueue;
 
+	struct RenderItem2D
+	{
+		enum RenderItemType
+		{
+			RenderItemType_None,
+			RenderItemType_Sprite,
+			RenderItemType_Font,
+		};
+		RenderItemType mType = RenderItemType_None;
+		Sprite* mSprite = nullptr;
+		TextDrawable* mText = nullptr;
+		bool mIsPersistent = false;
+	};
+
+	struct RenderLayer2D 
+	{
+		std::vector<RenderItem2D> mItems;
+		StringID mLayerName;
+		U32 mSort = 0;
+	};
+
 	namespace Renderer2D
 	{
 		void Initialize();
 		void Uninitialize();
-		void RenderSprites();
-		void RenderTextDrawables();
+		void Render2D();
 
 		// sprite
-		void AddSprite(Sprite* sprite);
+		void AddSprite(Sprite* sprite, bool isPersistent = true, const StringID& layerName = "");
 		void RemoveSprite(Sprite* sprite);
-		void RequestRenderSprite(Sprite* sprite);
+		void RemoveSprite(Sprite* sprite, const StringID& layerName = "");
 
 		// font
-		void AddTextDrawable(TextDrawable* text);
+		void AddTextDrawable(TextDrawable* text, bool isPersistent = true, const StringID& layerName = "");
 		void RemoveTextDrawable(TextDrawable* text);
-		void RequestRenderextDrawable(TextDrawable* text);
+		void RemoveTextDrawable(TextDrawable* text, const StringID& layerName = "");
+
+		// render layer
+		void AddLayer(const StringID& name);
+		void RemoveLayer(const StringID& name);
+		void SortLayers();
+		void CleanLayers();
 	};
 
 }

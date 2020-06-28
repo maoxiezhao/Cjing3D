@@ -64,6 +64,7 @@ namespace Cjing3D
 		SamplerStateID_LinearWrapGreater,
 		SamplerStateID_ANISOTROPIC,
 		SamplerStateID_Comparision_depth,
+		SamplerStateID_Font,
 		SamplerStateID_Count
 	};
 

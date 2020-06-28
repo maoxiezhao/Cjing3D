@@ -44,14 +44,6 @@ namespace Gui
 				widget->FixedUpdate();
 			}
 		}
-
-		// update layout
-		F32x2 offset = { 0.0f, 0.0f };
-		for (auto& widget : mWidgets) {
-			if (widget != nullptr) {
-				widget->UpdateLayout(offset);
-			}
-		}
 	}
 
 	void WidgetHierarchy::Render()
@@ -113,6 +105,11 @@ namespace Gui
 	WidgetPtr WidgetHierarchy::GetCurrentFocusdWidget()
 	{
 		return mEventDistributor.GetMouseFocusWidget();
+	}
+
+	WidgetPtr WidgetHierarchy::GetCurrentDragWidget()
+	{
+		return mEventDistributor.GetMouseDragWidget();
 	}
 
 	void WidgetHierarchy::AddWidget(WidgetPtr widget)

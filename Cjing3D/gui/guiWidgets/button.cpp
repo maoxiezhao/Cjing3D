@@ -8,7 +8,7 @@ namespace Gui {
 		Widget(stage, name)
 	{
 		SetSize({ 74.0f, 24.0f });
-		mLabel.SetTextAlignH(Font::FontParams::TextAlignH_Center);
+		mLabel.SetTextAlignH(Font::TextAlignH_Center);
 
 		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_ENTER, std::bind(&Button::OnMouseEnter, this, std::placeholders::_4));
 		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_LEAVE, std::bind(&Button::OnMouseLeave, this, std::placeholders::_4));
@@ -17,24 +17,12 @@ namespace Gui {
 		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_CLICK, std::bind(&Button::OnMouseClick, this, std::placeholders::_4));
 	}
 
-	Button::~Button()
-	{
-	}
-
-	void Button::OnLoaded()
-	{
-	}
-
-	void Button::OnUnloaded()
-	{
-	}
-
 	void Button::SetText(const UTF8String& text)
 	{
 		mLabel.SetText(text);
 	}
 
-	void Button::SetTextAlignment(Font::FontParams::TextAlignH align)
+	void Button::SetTextAlignment(Font::TextAlignH align)
 	{
 		mLabel.SetTextAlignH(align);
 	}
@@ -83,13 +71,13 @@ namespace Gui {
 			F32x2 padding = { 0.0f, horizontalPadding };
 			switch (mLabel.GetParams().mTextAlignH)
 			{
-			case Font::FontParams::TextAlignH_LEFT:
+			case Font::TextAlignH_LEFT:
 				padding[0] = horizontalPadding;
 				break;
-			case Font::FontParams::TextAlignH_Center:
+			case Font::TextAlignH_Center:
 				privot = 0.5f;
 				break;
-			case Font::FontParams::TextAlignH_Right:
+			case Font::TextAlignH_Right:
 				privot = 1.0f;
 				padding[0] = -horizontalPadding;
 				break;
@@ -132,7 +120,7 @@ namespace Gui {
 		if (!IsEnabled()) {
 			return;
 		}
-		mClickCallback();
+		OnClickCallback();
 	}
 
 }

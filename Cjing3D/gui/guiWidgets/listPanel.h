@@ -1,7 +1,8 @@
 #pragma once
 
 #include "gui\guiWidgets\widgets.h"
-#include "gui\guiWidgets\verticalLayout.h"
+
+#include <optional>
 
 namespace Cjing3D {
 namespace Gui {
@@ -32,7 +33,6 @@ namespace Gui {
 		void OnMouseClick(const VariantArray& variants);
 
 		virtual void RenderImpl(const Rect& destRect);
-		virtual void UpdateLayoutImpl(const Rect& destRect);
 
 	private:
 		U32 mListItemIndex = 0;
@@ -52,14 +52,21 @@ namespace Gui {
 
 		void SetCurrentIndex(U32 index);
 		U32 GetListItemCount()const;
+		std::optional<U32> GetCurrentIndex()const;
+		WidgetPtr GetChildAt(U32 index);
+		void SetMargin(F32 left, F32 top, F32 right, F32 bottom);
+		void SetLayoutSpacing(F32 spacing);
+
+		Signal<void(std::optional<U32> index)> OnCurrentIndexChangedCallback;
 
 	protected:
 		virtual void RenderImpl(const Rect& destRect);
 
 	private:
 		Sprite mBgSprite;
-		std::shared_ptr<VerticalLayout> mLayout = nullptr;
-		U32 mCurrentIndex = 0;
+		WidgetMargin mMargin;
+		std::vector<std::shared_ptr<ListItem>> mListItems;
+		std::optional<U32> mCurrentIndex;
 	};
 }
 }

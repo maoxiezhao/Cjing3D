@@ -165,6 +165,39 @@ namespace Gui {
 		return mArea.GetSize();
 	}
 
+	void Widget::SetFixedSize(F32x2 size)
+	{
+		mFixedSize = size;
+	}
+
+	F32x2 Widget::CalculateBestSize() const
+	{
+		if (mLayout != nullptr) {
+			return mLayout->CalculateBestSize(this);
+		}
+		return mArea.GetSize();
+	}
+
+	F32x2 Widget::GetBestSize() const
+	{
+		F32x2 ps = CalculateBestSize();
+		F32x2 fs = GetFixedSize();
+		return {
+			fs[0] ? fs[0] : ps[0],
+			fs[1] ? fs[1] : ps[1]
+		};
+	}
+
+	F32x2 Widget::GetAvailableSize() const
+	{
+		F32x2 ps = mArea.GetSize();
+		F32x2 fs = GetFixedSize();
+		return {
+			fs[0] ? fs[0] : ps[0],
+			fs[1] ? fs[1] : ps[1]
+		};
+	}
+
 	F32 Widget::GetWidth() const
 	{
 		return mArea.GetWidth();
@@ -184,21 +217,6 @@ namespace Gui {
 	bool Widget::CanMouseFocus() const
 	{
 		return true;
-	}
-
-	bool Widget::IsNeedLayout() const
-	{
-		return mIsNeedLayout || mIsAlwaysLayout;
-	}
-
-	void Widget::SetIsNeedLayout(bool isNeedLayout)
-	{
-		mIsNeedLayout = isNeedLayout;
-	}
-
-	void Widget::SetIsAlwaysLayout(bool isAlwaysLayout)
-	{
-		mIsAlwaysLayout = isAlwaysLayout;
 	}
 
 	void Widget::UpdateAlignment(U32 alignMask)
@@ -409,7 +427,6 @@ namespace Gui {
 
 	void Widget::UpdateLayoutImpl(const Rect& destRect)
 	{
-		SetIsNeedLayout(false);
 	}
 
 	bool Widget::onWidgetMoved(void)
@@ -447,23 +464,36 @@ namespace Gui {
 		CallScriptEventHandler(GUIScriptEventHandlers::OnUnloaded);
 	}
 
-	void Widget::UpdateLayout(const F32x2& offset)
+	void Widget::UpdateLayout()
 	{
 		if (!IsVisible()) {
 			return;
 		}
 
-		Rect parentRect = GetArea();
-		F32x2 childOffset = offset + parentRect.GetPos();
-		for (auto& child : mChildren) {
-			child->UpdateLayout(childOffset);
-
-			parentRect.Union(child->GetArea());
+		if (mLayout != nullptr) {
+			mLayout->UpdateLayout(this);
+		}
+		else
+		{
+			for (auto& child : mChildren)
+			{
+				F32x2 fixedSize = child->GetFixedSize();
+				if (fixedSize[0] == 0.0f || fixedSize[1] == 0.0f) {
+					F32x2 bestSize = child->CalculateBestSize();
+					child->SetSize({
+						fixedSize[0] != 0.0f ? fixedSize[0] : bestSize[0],
+						fixedSize[1] != 0.0f ? fixedSize[1] : bestSize[1]
+					});
+				}
+				else
+				{
+					child->SetSize({ fixedSize[0], fixedSize[1]});
+				}
+				child->UpdateLayout();
+			}
 		}
 
-		if (IsNeedLayout()) {
-			UpdateLayoutImpl(parentRect);
-		}
+		UpdateLayoutImpl(GetArea());
 	}
 }
 }

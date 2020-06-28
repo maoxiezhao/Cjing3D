@@ -23,8 +23,11 @@ namespace Cjing3D
 		void SetColor(const F32x4& color);
 		void SetFontSize(U32 size);
 		void SetFontSizeScale(U32 size);
-		void SetTextAlignV(Font::FontParams::TextAlignV align);
-		void SetTextAlignH(Font::FontParams::TextAlignH align);
+		void SetFontStyle(const std::string& name);
+		void SetTextAlignV(Font::TextAlignV align);
+		void SetTextAlignH(Font::TextAlignH align);
+		void SetBoundingSize(F32 w, F32 h);
+
 		F32 GetTextWidth()const;
 		F32 GetTextHeight()const;
 

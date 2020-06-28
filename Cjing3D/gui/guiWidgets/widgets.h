@@ -14,6 +14,8 @@ class GUIStage;
 class GUIRenderer;
 
 namespace Gui {
+	class Layout;
+
 	enum WidgetAlignment
 	{
 		None = 0,
@@ -82,6 +84,10 @@ namespace Gui {
 		F32x2 GetPos()const;
 		void SetSize(const F32x2 size);
 		F32x2 GetSize()const;
+		void SetFixedSize(F32x2 size);
+		F32x2 GetFixedSize()const { return mFixedSize; }
+		F32x2 GetBestSize()const;
+		F32x2 GetAvailableSize()const;
 		F32 GetWidth()const;
 		F32 GetHeight()const;
 		void SetArea(const Rect& rect);
@@ -97,15 +103,15 @@ namespace Gui {
 		HierarchySortOrder GetHierarchySortOrder()const { return mHierarchySortOrder; }
 		void SetOrderValue(F32 value) { mOrderValue = value; }
 		F32 GetOrderValue()const { return mOrderValue; }
+		bool IsFocused()const { return mIsFocused; }
+		void SetFocused(bool isFocused) { mIsFocused = isFocused; }
 
 		// layout 
-		virtual void UpdateLayout(const F32x2& offset);
-		virtual bool IsNeedLayout()const;
-		void SetIsNeedLayout(bool isNeedLayout);
-		void SetIsAlwaysLayout(bool isAlwaysLayout);
+		virtual F32x2 CalculateBestSize()const;
+		virtual void UpdateLayout();
 		void UpdateAlignment(U32 alignMask);
-		U32 GetStick()const { return mStick; }
-		void SetStick(U32 stick) { mStick = stick; }
+		std::shared_ptr<Layout> GetLayout() { return mLayout; }
+		void SetLayout(const std::shared_ptr<Layout>& layout) { mLayout = layout; }
 
 		// widget type
 		virtual WidgetType GetSelfWidgetType() const {
@@ -118,6 +124,7 @@ namespace Gui {
 
 		std::shared_ptr<Widget> FindChildByName(const StringID& name);
 		std::shared_ptr<Widget> GetChildWidgetByGlobalCoords(F32x2 pos);
+		
 		void RemoveChildByName(const StringID& name);
 
 	protected:
@@ -133,23 +140,23 @@ namespace Gui {
 	private:
 		GUIStage& mStage;
 		bool mIsEnabled = true;
-		bool mIsVisible = false;
+		bool mIsVisible = true;
 		bool mIsRoot = false;
 		bool mIsIgnoreInputEvent = false;
-		bool mIsNeedLayout = false;
-		bool mIsAlwaysLayout = false;
+		bool mIsFocused = false;
 		Rect mArea; 
+		F32x2 mFixedSize;
 		Rect mAlignRect;
 		U32 mAlignment = WidgetAlignment::None;
-		U32 mStick = WidgetAlignment::Left | WidgetAlignment::Top;
-
-		LuaRef mScriptHandler;
-		std::map<StringID, std::string> mScriptEventHandlers;
-
 		HierarchySortOrder mHierarchySortOrder = HierarchySortOrder::Sortable;
 		F32 mOrderValue = 0.0f;	// the small one is in front
 
+		LuaRef mScriptHandler;
+		std::map<StringID, std::string> mScriptEventHandlers;
 		Sprite mDebugSprite;
+
+		// layout
+		std::shared_ptr<Layout> mLayout = nullptr;
 	};
 	using WidgetPtr = std::shared_ptr<Widget>;
 }

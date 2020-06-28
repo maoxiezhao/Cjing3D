@@ -5,6 +5,8 @@
 #include "helper\fileSystem.h"
 #include "utils\reckPacker\finders_interface.h"
 #include "utils\thread\spinLock.h"
+#include "utils\baseWindow.h"
+#include "engine.h"
 
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "utils\stb_utils\stb_truetype.h"
@@ -116,6 +118,7 @@ namespace Font {
 		Texture2D mFontGlyphsTexture;
 
 		// font glyphs
+		I32 currentFontDPI = 96;
 		const U32 GlyphsRectBorderPadding = 1;
 		std::unordered_map<U32, FontGlyph> mFontGlyphsLookup;
 		std::vector<U32> mPendingUpdateFontGlyphs;
@@ -178,7 +181,7 @@ namespace Font {
 			F32 currentWidth = 0;
 			F32 maxWidth = 0;
 			size_t i = 0;
-			while (text[i] != 0)
+			while (text[i] != 0 && i < length)
 			{
 				U32 code = (U32)text[i++];
 				if (code <= 0) {
@@ -186,7 +189,15 @@ namespace Font {
 				}
 
 				U32 glyphHash = MakeFontGlyphHash(code, params.mFontStyleIndex, params.mFontSize);
-				if (mFontGlyphsLookup.count(glyphHash) == 0) {
+				if (mFontGlyphsLookup.count(glyphHash) == 0) 
+				{
+					FontInfo& fontInfo = mLoadedFontInfos[params.mFontStyleIndex];
+					float fontScaling = stbtt_ScaleForPixelHeight(&fontInfo.mStbFontInfo, (F32)params.mFontSize);
+					int top, left, right, bottom;
+					stbtt_GetCodepointBitmapBox(&fontInfo.mStbFontInfo, code, fontScaling, fontScaling, &left, &top, &right, &bottom);
+
+					currentWidth += (F32)((right - left) * params.mScale + params.mColSpacing);
+					maxWidth = std::max(maxWidth, currentWidth);
 					continue;
 				}
 
@@ -218,7 +229,7 @@ namespace Font {
 			F32 lineHeight = ((F32(params.mFontSize) + params.mLineSpacing) * params.mScale);
 			F32 currentHeight = lineHeight;
 			size_t i = 0;
-			while (text[i] != 0)
+			while (text[i] != 0 && i < length)
 			{
 				U32 code = (U32)text[i++];
 				if (code <= 0) {
@@ -300,10 +311,25 @@ namespace Font {
 		{
 			GuardSpinLock lock(mFontLock);
 
+			// 检查当前dpi，如果dpi发生变化需要重新生成字体纹理
+			I32 dpi = GlobalGetEngine()->GetWindow()->GetDPI();
+			if (dpi != currentFontDPI)
+			{
+				currentFontDPI = dpi;
+
+				for (auto it : mFontGlyphsRectLookup)
+				{
+					const U32 hash = it.first;
+					mPendingUpdateFontGlyphs.push_back(hash);
+				}
+				mFontGlyphsLookup.clear();
+				mFontGlyphsRectLookup.clear();
+				mFontGlyphsRects.clear();
+			}
+
 			if (mPendingUpdateFontGlyphs.empty()) {
 				return;
 			}
-			// TODO:需要处理DPI的缩放
 
 			// 1.首先为每个pendingGlyhps构建RECT,用于下一步rectPacking
 			for (const auto& hash : mPendingUpdateFontGlyphs)
@@ -356,6 +382,22 @@ namespace Font {
 			F32 currentPosY = 0;
 			F32 currentPosX = 0;
 			U32 prevCode = 0;
+
+			F32 boundingWidth = params.mBoundingSize[0];
+			F32 boundingHeight = params.mBoundingSize[1];
+			auto checkBoundingWidth = [&](F32 width)
+			{
+				if (boundingWidth > 0.0f && currentPosX + width > boundingWidth)
+				{
+					currentPosY += lineHeight;
+					currentPosX = 0;
+					prevCode = 0;
+					return false;
+				}
+				return true;
+			};
+
+
 			size_t i = 0;
 			while (text[i] != 0 && i < length)
 			{
@@ -366,19 +408,29 @@ namespace Font {
 
 				if (code == '\n')
 				{
+					if (boundingHeight > 0.0f && currentPosY + lineHeight > boundingHeight) {
+						return quadCount;
+					}
+
 					currentPosY += lineHeight;
 					currentPosX = 0;
 					prevCode = 0;
 				}
 				else if (code == ' ')
 				{
-					currentPosX += spaceWidth;
-					prevCode = 0;
+					if (checkBoundingWidth(spaceWidth))
+					{
+						currentPosX += spaceWidth;
+						prevCode = 0;
+					}
 				}
 				else if (code == '\t')
 				{
-					currentPosX += tabWidth;
-					prevCode = 0;
+					if (checkBoundingWidth(tabWidth))
+					{
+						currentPosX += tabWidth;
+						prevCode = 0;
+					}
 				}
 				else
 				{
@@ -393,19 +445,34 @@ namespace Font {
 						continue;
 					}
 
-					const FontGlyph& glyph = mFontGlyphsLookup.at(glyphHash);
+					F32 glyphWidth = 0.0f;
 					if (prevCode != 0)
 					{
 						auto& fontInfo = mLoadedFontInfos[params.mFontStyleIndex];
 						int kern = stbtt_GetCodepointKernAdvance(&fontInfo.mStbFontInfo, prevCode, code);
-						currentPosX += kern * fontInfo.mFontScaling;
+						glyphWidth += kern * fontInfo.mFontScaling;
 					}
 					prevCode = code;
 
-					F32 left   = currentPosX + glyph.x * params.mScale;
-					F32 top    = currentPosY + glyph.y * params.mScale;
-					F32 right  = left + glyph.width  * params.mScale;
-					F32 bottom = top  + glyph.height * params.mScale;
+					const FontGlyph& glyph = mFontGlyphsLookup.at(glyphHash);
+					const F32 x = glyph.x * params.mScale;
+					const F32 y = glyph.y * params.mScale;
+					const F32 width = glyph.width * params.mScale;
+					const F32 height = glyph.height * params.mScale;
+
+					// check bounding
+					if (checkBoundingWidth(glyphWidth + x + width)) {
+						currentPosX += glyphWidth;
+					}
+					if (boundingHeight > 0.0f && currentPosY + y + height > boundingHeight) {
+						return quadCount;
+					} 
+
+					// get glyph rect
+					F32 left   = currentPosX + x;
+					F32 top    = currentPosY + y;
+					F32 right  = left + width;
+					F32 bottom = top  + height;
 
 					size_t index = (size_t)quadCount * 4;
 					quadBuffer[index + 0].mPos = { left,  top };
@@ -439,10 +506,10 @@ namespace Font {
 			// text align Horizonal
 			switch (currentFontParams.mTextAlignH)
 			{
-			case FontParams::TextAlignH_Center:
+			case TextAlignH_Center:
 				currentFontParams.mPos[0] -= GetTextWidth(text, length, currentFontParams) / 2.0f;
 				break;
-			case FontParams::TextAlignH_Right:
+			case TextAlignH_Right:
 				currentFontParams.mPos[0] -= GetTextWidth(text, length, currentFontParams);
 				break;
 			default:
@@ -451,10 +518,10 @@ namespace Font {
 			// text align vertical
 			switch (currentFontParams.mTextAlignV)
 			{
-			case FontParams::TextAlignV_Center:
+			case TextAlignV_Center:
 				currentFontParams.mPos[1] -= GetTextHeight(text, length, currentFontParams) / 2.0f;
 				break;
-			case FontParams::TextAlignV_Bottom:
+			case TextAlignV_Bottom:
 				currentFontParams.mPos[1] -= GetTextHeight(text, length, currentFontParams);
 				break;
 			default:
@@ -471,12 +538,14 @@ namespace Font {
 
 			device.BeginEvent("RenderFontInst");
 			device.BindPipelineState(mFontPSO);
-			device.BindSamplerState(SHADERSTAGES_PS, *Renderer::GetRenderPreset().GetSamplerState(SamplerStateID_LinearClampGreater), SAMPLER_LINEAR_CLAMP_SLOT);
+			device.BindSamplerState(SHADERSTAGES_PS, *Renderer::GetRenderPreset().GetSamplerState(SamplerStateID_Font), SAMPLER_SLOT_0);
 			device.BindGPUResource(SHADERSTAGES_PS, mFontGlyphsTexture, TEXTURE_SLOT_0);
 
 			FontCB cb = {};
 			cb.gFontColor = XMConvert(currentFontParams.mColor.ToFloat4());
-			XMStoreFloat4x4(&cb.gFontTransform, XMMatrixTranslation(currentFontParams.mPos[0], currentFontParams.mPos[1], 0.0f) * Renderer::GetScreenProjection());
+			XMStoreFloat4x4(&cb.gFontTransform, 
+				XMMatrixTranslation(currentFontParams.mPos[0], currentFontParams.mPos[1], 0.0f) * 
+				Renderer::GetScreenProjection());
 			device.UpdateBuffer(mFontBuffer, &cb, sizeof(FontCB));
 			device.BindConstantBuffer(SHADERSTAGES_VS, mFontBuffer, CB_GETSLOT_NAME(FontCB));
 			device.BindConstantBuffer(SHADERSTAGES_PS, mFontBuffer, CB_GETSLOT_NAME(FontCB));
@@ -515,6 +584,19 @@ namespace Font {
 	void PrepareFonts(const UTF8String& text)
 	{
 		// TODO
+	}
+
+	I32 GetFontStyleIndexByName(const std::string& ttfFile)
+	{
+		const StringID filePathStringID = StringID(ttfFile);
+		auto it = std::find_if(mLoadedFontInfos.begin(), mLoadedFontInfos.end(), [filePathStringID](FontInfo& fontInfo) {
+			return fontInfo.mFileName == filePathStringID;
+			});
+		if (it == mLoadedFontInfos.end()) {
+			return -1;
+		}
+
+		return it - mLoadedFontInfos.begin();
 	}
 
 	F32 GetTextWidth(const UTF8String& text, const FontParams& params)

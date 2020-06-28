@@ -1,5 +1,6 @@
 #include "listPanel.h"
 #include "widgetInclude.h"
+#include "gui\guiWidgets\layouts\boxLayout.h"
 
 namespace Cjing3D {
 namespace Gui {
@@ -7,13 +8,13 @@ namespace Gui {
 	ListItem::ListItem(GUIStage& stage) :
 		Widget(stage)
 	{
-		SetSize({ 74.0f, 22.0f });
-
 		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_ENTER, std::bind(&ListItem::OnMouseEnter, this, std::placeholders::_4));
 		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_LEAVE, std::bind(&ListItem::OnMouseLeave, this, std::placeholders::_4));
 		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_DOWN, std::bind(&ListItem::OnMousePressed, this, std::placeholders::_4));
 		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_UP, std::bind(&ListItem::OnMouseReleased, this, std::placeholders::_4));
 		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_CLICK, std::bind(&ListItem::OnMouseClick, this, std::placeholders::_4));
+
+		SetLayout(std::make_shared<BoxLayout>(AlignmentOrien::AlignmentOrien_Horizontal, AlignmentMode::AlignmentMode_Center));
 	}
 
 	void ListItem::SetListPanel(const std::weak_ptr<Widget>& listPanel)
@@ -127,22 +128,11 @@ namespace Gui {
 		}
 	}
 
-	void ListItem::UpdateLayoutImpl(const Rect& destRect)
-	{
-	}
-
 	ListPanel::ListPanel(GUIStage& stage, const StringID& name, F32 width, F32 height) :
 		Widget(stage, name)
 	{
 		SetSize(F32x2(width, height));
-		SetIsAlwaysLayout(true);
-
-		mLayout = std::make_shared<VerticalLayout>(stage, "verticalLayout", width, height);
-		mLayout->SetLayoutSpacing(10.0f);
-		mLayout->SetMargin(2.0f, 2.0f, 2.0f, 2.0f);
-		mLayout->SetVisible(true);
-
-		Widget::Add(mLayout);
+		SetLayout(std::make_shared<BoxLayout>(AlignmentOrien::AlignmentOrien_Vertical, AlignmentMode::AlignmentMode_Center));
 	}
 
 	void ListPanel::Add(WidgetPtr node)
@@ -150,9 +140,11 @@ namespace Gui {
 		auto item = std::make_shared<ListItem>(GetGUIStage());
 		item->SetWidget(node);
 		item->SetListPanel(GetNodePtr());
-		item->SetListItemIndex(mLayout->GetChildrenCount());
+		item->SetListItemIndex(mListItems.size());
+		item->SetVisible(true);
 
-		mLayout->AddChild(node);
+		Widget::Add(item);
+		mListItems.push_back(item);
 	}
 
 	void ListPanel::Remove(WidgetPtr node)
@@ -160,10 +152,17 @@ namespace Gui {
 		if (node == nullptr) {
 			return;
 		}
-		mLayout->RemoveChild(node);
+		auto it = std::find_if(mListItems.begin(), mListItems.end(), [node](const std::shared_ptr<ListItem>& item) {
+			return item->GetWidget() == node;
+			});
+		if (it == mListItems.end()) {
+			return;
+		}
+		mListItems.erase(it);
+		Widget::Remove(node);
 
 		U32 currentIndex = 0;
-		for (auto child : mLayout->GetChildren())
+		for (auto child : mListItems)
 		{
 			if (child != nullptr)
 			{
@@ -175,16 +174,81 @@ namespace Gui {
 
 	void ListPanel::SetCurrentIndex(U32 index)
 	{
+		if (*mCurrentIndex == index || index >= GetListItemCount()) {
+			return;
+		}
+
+		if (mCurrentIndex != std::nullopt)
+		{
+			for (auto child : mListItems)
+			{
+				if (child != nullptr)
+				{
+					auto item = std::static_pointer_cast<ListItem>(child);
+					item->SetSelected(false);
+				}
+			}
+		}
+
+		WidgetPtr widget = mListItems[index];
+		if (widget == nullptr) {
+			mCurrentIndex = std::nullopt;
+			return;
+		}
+
+		auto item = std::static_pointer_cast<ListItem>(widget);
+		item->SetSelected(true);
+
 		mCurrentIndex = index;
+		OnCurrentIndexChangedCallback(mCurrentIndex);
 	}
 
 	U32 ListPanel::GetListItemCount() const
 	{
-		return mLayout->GetChildrenCount();
+		return mListItems.size();
+	}
+
+	std::optional<U32> ListPanel::GetCurrentIndex() const
+	{
+		return mCurrentIndex;
+	}
+
+	WidgetPtr ListPanel::GetChildAt(U32 index)
+	{
+		auto widget = mListItems[index];
+		if (widget == nullptr) {
+			return nullptr;
+		}
+
+		auto item = std::static_pointer_cast<ListItem>(widget);
+		if (item == nullptr) {
+			return nullptr;
+		}
+
+		return item->GetWidget();
+	}
+
+	void ListPanel::SetMargin(F32 left, F32 top, F32 right, F32 bottom)
+	{
+		mMargin = { left , top, right, bottom };
+		std::dynamic_pointer_cast<BoxLayout>(GetLayout())->SetMargin(mMargin);
+	}
+
+	void ListPanel::SetLayoutSpacing(F32 spacing)
+	{
+		std::dynamic_pointer_cast<BoxLayout>(GetLayout())->SetSpacing(spacing);
 	}
 
 	void ListPanel::RenderImpl(const Rect& destRect)
 	{
+		GUIRenderer& renderer = GetGUIRenderer();
+		const GUIScheme& scheme = renderer.GetGUIScheme();
+
+		mBgSprite.SetPos(destRect.GetPos());
+		mBgSprite.SetSize(destRect.GetSize());
+		mBgSprite.SetColor(scheme.GetColor(GUIScheme::ListPanelBackground));
+
+		renderer.RenderSprite(mBgSprite);
 	}
 }
 }

@@ -102,6 +102,16 @@ namespace Cjing3D
 			mChildrenNameMap.clear();
 		}
 
+		const ChildrenType& GetChildren() const
+		{
+			return mChildren;
+		}
+
+		ChildrenType& GetChildren()
+		{
+			return mChildren;
+		}
+
 		bool HaveChild(NodePtr node)const
 		{
 			if (node == nullptr) {

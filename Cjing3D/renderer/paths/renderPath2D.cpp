@@ -75,8 +75,7 @@ namespace Cjing3D
 			device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
 
 			RenderGUI();
-			RenderSprites();
-			RenderFonts();
+			Render2D();
 
 			device.EndRenderBehavior();
 		}
@@ -98,17 +97,10 @@ namespace Cjing3D
 		device.EndEvent();
 	}
 
-	void RenderPath2D::RenderSprites()
+	void RenderPath2D::Render2D()
 	{
-		Renderer::GetDevice().BeginEvent("RenderSprites");
-		Renderer2D::RenderSprites();
-		Renderer::GetDevice().EndEvent();
-	}
-
-	void RenderPath2D::RenderFonts()
-	{
-		Renderer::GetDevice().BeginEvent("RenderFonts");
-		Renderer2D::RenderTextDrawables();
+		Renderer::GetDevice().BeginEvent("2D");
+		Renderer2D::Render2D();
 		Renderer::GetDevice().EndEvent();
 	}
 

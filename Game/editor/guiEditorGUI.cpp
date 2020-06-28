@@ -58,6 +58,19 @@ namespace Editor {
 			ImGui::Text("Current mouse focus widget: NULL");
 		}
 
+		// current mouse drage widget
+		Gui::WidgetPtr dragWidget = widgetHierachy.GetCurrentDragWidget();
+		if (dragWidget != nullptr)
+		{
+			std::string text = "Current mouse drag widget:" + dragWidget->GetName().GetString();
+			ImGui::Text(text.c_str());
+		}
+		else
+		{
+			ImGui::Text("Current mouse drag widget: NULL");
+		}
+
+
 		ImGui::End();
 	}
 

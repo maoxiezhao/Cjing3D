@@ -16,17 +16,13 @@ namespace Cjing3D {
 			};
 
 			Button(GUIStage& stage, const StringID& name = StringID::EMPTY);
-			virtual ~Button();
-
-			virtual void OnLoaded();
-			virtual void OnUnloaded();
 
 			void SetText(const UTF8String& text);
-			void SetTextAlignment(Font::FontParams::TextAlignH align);
+			void SetTextAlignment(Font::TextAlignH align);
 			UTF8String GetText()const;
 			TextDrawable& GetButtonLable();
 
-			Signal<void()> mClickCallback;
+			Signal<void()> OnClickCallback;
 
 		private:
 			virtual void RenderImpl(const Rect& destRect);

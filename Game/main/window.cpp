@@ -1,3 +1,4 @@
+#include "..\..\Cjing3D\gui\guiWidgets\window.h"
 #include "window.h"
 
 namespace Cjing3D {
@@ -96,6 +97,8 @@ namespace Cjing3D {
 
 		if (!mHwnd)
 			return false;
+
+		SetDPI((I32)GetDpiForWindow(mHwnd));
 
 		mIsInitialized = true;
 		return true;

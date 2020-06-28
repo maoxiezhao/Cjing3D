@@ -161,6 +161,11 @@ namespace Cjing3D {
 			}
 			return result;
 		}
+
+		void x()const { return this->at(0); }
+		void y()const { return this->at(1); }
+		void z()const { return this->at(2); }
+		void w()const { return this->at(3); }
 	};
 
 }

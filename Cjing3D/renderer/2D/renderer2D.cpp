@@ -18,11 +18,12 @@ namespace Renderer2D {
 		PipelineState mSpriteBatchPSO;
 		size_t MaxBatchSize = 2048;
 
-		std::vector<Sprite*> mPersistentSprites;
 		std::vector<Sprite*> mRenderRequestSprites;
 
 		std::vector<TextDrawable*> mPersistentTexts;
 		std::vector<TextDrawable*> mRenderRequestTexts;
+
+		std::vector<RenderLayer2D> mRenderLayers{ 1 };
 	}
 
 	namespace {
@@ -284,10 +285,51 @@ namespace Renderer2D {
 			frameAllocator.Free(instancedBatchCount * sizeof(SpriteBatchInstance));
 		}
 
+
+
 		///////////////////////////////////////////////////////////////////////////////////
 
-
 		SpriteRenderBatchQueue mSpriteRenderBatchQueue;
+
+		void RenderSprites()
+		{
+			LinearAllocator& frameAllocator = Renderer::GetFrameAllocator(Renderer::FrameAllocatorType_Render);
+			auto flushQueue = [&]()->void
+			{
+				//mSpriteRenderBatchQueue.Sort(SpriteRenderBatchQueue::BackToFront);
+				ProcessRenderQueue(mSpriteRenderBatchQueue);
+				mSpriteRenderBatchQueue.Clear();
+
+				frameAllocator.Free(mSpriteRenderBatchQueue.mRenderBatchQueue.size() * sizeof(RenderBatch));
+			};
+
+			// update sprite buffer
+			SpriteCB cb = {};
+			DirectX::XMStoreFloat4x4(&cb.gSpriteCameraVP, Renderer::GetScreenProjection());
+			Renderer::GetDevice().UpdateBuffer(mSpriteBuffer, &cb, sizeof(SpriteCB));
+			Renderer::GetDevice().BindConstantBuffer(SHADERSTAGES_VS, mSpriteBuffer, CB_GETSLOT_NAME(SpriteCB));
+
+			// render sprites
+			for (Sprite* sprite : mRenderRequestSprites)
+			{
+				if (sprite != nullptr && sprite->IsVisible())
+				{
+					SpriteRenderBatch* renderBatch = (SpriteRenderBatch*)frameAllocator.Allocate(sizeof(SpriteRenderBatch));
+					renderBatch->Init(sprite);
+					mSpriteRenderBatchQueue.AddBatch(renderBatch);
+
+					if (mSpriteRenderBatchQueue.GetBatchCount() >= MaxBatchSize) {
+						flushQueue();
+					}
+				}
+			}
+
+			if (!mSpriteRenderBatchQueue.IsEmpty()) {
+				flushQueue();
+			}
+
+			mRenderRequestSprites.clear();
+		}
 
 		///////////////////////////////////////////////////////////////////////////////////
 	}
@@ -326,10 +368,10 @@ namespace Renderer2D {
 	{
 		Logger::Info("Renderer2D Uninitialized");
 
-		mPersistentSprites.clear();
 		mSpriteRenderBatchQueue.Clear();
 		mPersistentTexts.clear();
 		mRenderRequestTexts.clear();
+		mRenderLayers.clear();
 
 		mSpriteBuffer.Clear();
 		mVertexBuffer.Clear();
@@ -339,70 +381,86 @@ namespace Renderer2D {
 		Font::Uninitialize();
 	}
 
-	void RenderSprites()
+	void Render2D()
 	{
-		// 先将presistent sprite添加到renderRequestSpriteS中
-		for (Sprite* sprite : mPersistentSprites)
+		for (auto& layer : mRenderLayers)
 		{
-			if (sprite != nullptr) {
-				mRenderRequestSprites.push_back(sprite);
+			if (layer.mItems.empty()) {
+				continue;
 			}
-		}
 
-		LinearAllocator& frameAllocator = Renderer::GetFrameAllocator(Renderer::FrameAllocatorType_Render);
-		auto flushQueue = [&]()->void
-		{
-			mSpriteRenderBatchQueue.Sort(SpriteRenderBatchQueue::BackToFront);
-			ProcessRenderQueue(mSpriteRenderBatchQueue);
-			mSpriteRenderBatchQueue.Clear();
-
-			frameAllocator.Free(mSpriteRenderBatchQueue.mRenderBatchQueue.size() * sizeof(RenderBatch));
-		};
-
-		// update sprite buffer
-		SpriteCB cb = {};
-		DirectX::XMStoreFloat4x4(&cb.gSpriteCameraVP, Renderer::GetScreenProjection());
-		Renderer::GetDevice().UpdateBuffer(mSpriteBuffer, &cb, sizeof(SpriteCB));
-		Renderer::GetDevice().BindConstantBuffer(SHADERSTAGES_VS, mSpriteBuffer, CB_GETSLOT_NAME(SpriteCB));
-
-		// render sprites
-		for (Sprite* sprite : mRenderRequestSprites)
-		{
-			if (sprite != nullptr && sprite->IsVisible())
+			for (auto& item : layer.mItems)
 			{
-				SpriteRenderBatch* renderBatch = (SpriteRenderBatch*)frameAllocator.Allocate(sizeof(SpriteRenderBatch));
-				renderBatch->Init(sprite);
-				mSpriteRenderBatchQueue.AddBatch(renderBatch);
+				if (item.mSprite != nullptr && item.mSprite->IsVisible()) {
+					mRenderRequestSprites.push_back(item.mSprite);
+				}
 
-				if (mSpriteRenderBatchQueue.GetBatchCount() >= MaxBatchSize) {
-					flushQueue();
+				if (item.mText != nullptr && item.mText->IsVisible()) 
+				{
+					if (!mRenderRequestSprites.empty()) {
+						RenderSprites();
+					}
+
+					item.mText->Draw();
 				}
 			}
+
+			if (!mRenderRequestSprites.empty()) {
+				RenderSprites();
+			}
 		}
 
-		if (!mSpriteRenderBatchQueue.IsEmpty()) {
-			flushQueue();
-		}
-
-		mRenderRequestSprites.clear();
+		// clear nullptr and temp items
+		CleanLayers();
 	}
 
-	void AddSprite(Sprite* sprite)
+	void AddSprite(Sprite* sprite, bool isPersistent, const StringID& layerName)
 	{
-		mPersistentSprites.push_back(sprite);
+		auto it = std::find_if(mRenderLayers.begin(), mRenderLayers.end(), [layerName](RenderLayer2D& layer) {
+			return layer.mLayerName == layerName;
+			});
+		if (it == mRenderLayers.end()) {
+			return;
+		}
+
+		auto& item = (*it).mItems.emplace_back();
+		item.mIsPersistent = isPersistent;
+		item.mSprite = sprite;
+		item.mType = RenderItem2D::RenderItemType_Sprite;
 	}
 
 	void RemoveSprite(Sprite* sprite)
 	{
-		auto it = std::find(mPersistentSprites.begin(), mPersistentSprites.end(), sprite);
-		if (it != mPersistentSprites.end()) {
-			mPersistentSprites.erase(it);
+		if (sprite == nullptr) {
+			return;
+		}
+
+		for (auto& layer : mRenderLayers)
+		{
+			for (auto& item : layer.mItems)
+			{
+				if (item.mSprite == sprite) {
+					item.mSprite = nullptr;
+				}
+			}
 		}
 	}
 
-	void RequestRenderSprite(Sprite* sprite)
+	void RemoveSprite(Sprite* sprite, const StringID& layerName)
 	{
-		mRenderRequestSprites.push_back(sprite);
+		auto it = std::find_if(mRenderLayers.begin(), mRenderLayers.end(), [layerName](RenderLayer2D& layer) {
+			return layer.mLayerName == layerName;
+			});
+		if (it == mRenderLayers.end()) {
+			return;
+		}
+
+		for (auto& item : (*it).mItems)
+		{
+			if (item.mSprite == sprite) {
+				item.mSprite = nullptr;
+			}
+		}
 	}
 
 	void RenderTextDrawables()
@@ -425,22 +483,108 @@ namespace Renderer2D {
 		mRenderRequestTexts.clear();
 	}
 
-	void AddTextDrawable(TextDrawable* text)
+	void AddTextDrawable(TextDrawable* text, bool isPersistent, const StringID& layerName)
 	{
-		mPersistentTexts.push_back(text);
+		auto it = std::find_if(mRenderLayers.begin(), mRenderLayers.end(), [layerName](RenderLayer2D& layer) {
+			return layer.mLayerName == layerName;
+			});
+		if (it == mRenderLayers.end()) {
+			return;
+		}
+
+		auto& item = (*it).mItems.emplace_back();
+		item.mIsPersistent = isPersistent;
+		item.mText = text;
+		item.mType = RenderItem2D::RenderItemType_Font;
 	}
 
 	void RemoveTextDrawable(TextDrawable* text)
 	{
-		auto it = std::find(mPersistentTexts.begin(), mPersistentTexts.end(), text);
-		if (it != mPersistentTexts.end()) {
-			mPersistentTexts.erase(it);
+		if (text == nullptr) {
+			return;
+		}
+
+		for (auto& layer : mRenderLayers)
+		{
+			for (auto& item : layer.mItems)
+			{
+				if (item.mText == text) {
+					item.mText = nullptr;
+				}
+			}
 		}
 	}
 
-	void RequestRenderextDrawable(TextDrawable* text)
+	void RemoveTextDrawable(TextDrawable* text, const StringID& layerName)
 	{
-		mRenderRequestTexts.push_back(text);
+		auto it = std::find_if(mRenderLayers.begin(), mRenderLayers.end(), [layerName](RenderLayer2D& layer) {
+			return layer.mLayerName == layerName;
+			});
+		if (it == mRenderLayers.end()) {
+			return;
+		}
+
+		for (auto& item : (*it).mItems)
+		{
+			if (item.mText == text) {
+				item.mText = nullptr;
+			}
+		}
+	}
+
+	void AddLayer(const StringID& name)
+	{
+		auto it = std::find_if(mRenderLayers.begin(), mRenderLayers.end(), [name](RenderLayer2D& layer) {
+			return layer.mLayerName == name;
+			});
+		if (it != mRenderLayers.end()) {
+			return;
+		}
+
+		RenderLayer2D& layer = mRenderLayers.emplace_back();
+		layer.mLayerName = name;
+		layer.mSort = (U32)mRenderLayers.size() - 1;
+	}
+
+	void RemoveLayer(const StringID& name)
+	{
+		auto it = std::find_if(mRenderLayers.begin(), mRenderLayers.end(), [name](RenderLayer2D& layer) {
+			return layer.mLayerName == name;
+			});
+		if (it != mRenderLayers.end()) {
+			mRenderLayers.erase(it);
+		}
+	}
+
+	void SortLayers()
+	{
+		if (mRenderLayers.empty()) {
+			return;
+		}
+
+		std::sort(mRenderLayers.begin(), mRenderLayers.end(), [](RenderLayer2D& l1, RenderLayer2D& l2) {
+			return l1.mSort < l2.mSort;
+		});
+	}
+
+	void CleanLayers()
+	{
+		for (auto& layer : mRenderLayers)
+		{
+			if (layer.mItems.empty()) {
+				continue;
+			}
+
+			std::vector<RenderItem2D> itemsToRetain(0);
+			for (auto& item : layer.mItems)
+			{
+				if (item.mIsPersistent && (item.mSprite != nullptr || item.mText != nullptr)) {
+					itemsToRetain.push_back(item);
+				}
+			}
+			layer.mItems.clear();
+			layer.mItems = itemsToRetain;
+		}
 	}
 }
 }
