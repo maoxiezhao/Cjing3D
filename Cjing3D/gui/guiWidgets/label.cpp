@@ -8,6 +8,8 @@ namespace Gui {
 		Widget(stage, name)
 	{
 		SetText(text);
+		mTextDrawable.SetTextAlignH(Font::TextAlignH_Center);
+		mTextDrawable.SetTextAlignV(Font::TextAlignV_Center);
 	}
 
 	void Label::SetColor(const Color4& color)
@@ -113,6 +115,19 @@ namespace Gui {
 			break;
 		case Font::TextAlignH_Right:
 			targetPos[0] += GetSize()[0];
+			break;
+		default:
+			break;
+		}
+		switch (mTextDrawable.GetParams().mTextAlignV)
+		{
+		case Font::TextAlignV_Up:
+			break;
+		case Font::TextAlignV_Center:
+			targetPos[1] += GetSize()[1] * 0.5f;
+			break;
+		case Font::TextAlignV_Bottom:
+			targetPos[1] += GetSize()[1];
 			break;
 		default:
 			break;

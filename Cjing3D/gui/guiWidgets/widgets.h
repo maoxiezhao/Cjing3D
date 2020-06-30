@@ -15,6 +15,7 @@ class GUIRenderer;
 
 namespace Gui {
 	class Layout;
+	class WidgetHierarchy;
 
 	enum WidgetAlignment
 	{
@@ -41,6 +42,11 @@ namespace Gui {
 		F32 top = 0.0f;
 		F32 right = 0.0f;
 		F32 bottom = 0.0f;
+
+		WidgetMargin() {}
+		WidgetMargin(F32 margin) : left(margin), top(margin), right(margin), bottom(margin) {}
+		WidgetMargin(F32 left, F32 top, F32 right, F32 bottom) :
+			left(left), top(top), right(right), bottom(bottom) {}
 	};
 
 	struct GUIScriptEventHandlers
@@ -66,9 +72,11 @@ namespace Gui {
 
 		GUIRenderer& GetGUIRenderer();
 		GUIStage& GetGUIStage();
+		WidgetHierarchy& GetWidgetHierarchy();
 
 		bool HitTest(const F32x2& point)const;
-		F32x2 TransfromToLocalCoord(const F32x2 point)const;
+		F32x2 TransformToLocalCoord(const F32x2 point)const;
+		F32x2 TransformToGlobalCoord(const F32x2 point)const;
 
 		// script handler
 		LuaRef GetScriptHandler();
@@ -82,10 +90,12 @@ namespace Gui {
 		Widget* GetRoot();
 		void SetPos(const F32x2 pos);
 		F32x2 GetPos()const;
+		F32x2 GetGlobalPos()const;
 		void SetSize(const F32x2 size);
 		F32x2 GetSize()const;
 		void SetFixedSize(F32x2 size);
 		F32x2 GetFixedSize()const { return mFixedSize; }
+		void SetSizeAndFixedSize(F32x2 size);
 		F32x2 GetBestSize()const;
 		F32x2 GetAvailableSize()const;
 		F32 GetWidth()const;
@@ -109,7 +119,7 @@ namespace Gui {
 		// layout 
 		virtual F32x2 CalculateBestSize()const;
 		virtual void UpdateLayout();
-		void UpdateAlignment(U32 alignMask);
+		virtual F32x2 GetLayoutOffset()const;
 		std::shared_ptr<Layout> GetLayout() { return mLayout; }
 		void SetLayout(const std::shared_ptr<Layout>& layout) { mLayout = layout; }
 
@@ -133,7 +143,7 @@ namespace Gui {
 		virtual void OnParentChanged(Widget* old_parent) {}
 		virtual void OnChildAdded(std::shared_ptr<Widget>& node) {}
 		virtual void OnChildRemoved(std::shared_ptr<Widget>& node) {}
-		virtual bool onWidgetMoved(void);
+		virtual bool OnWidgetMoved(void);
 		virtual void UpdateImpl(F32 dt);
 		virtual void FixedUpdateImpl();
 

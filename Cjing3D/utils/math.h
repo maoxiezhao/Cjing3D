@@ -142,6 +142,11 @@ namespace Cjing3D {
 		return abs(v) < 0.000001f;
 	}
 
+	inline bool IsF32EqualF32(F32 v1, F32 v2)
+	{
+		return abs(v2 - v1) < 0.000001f;
+	}
+
 	inline F32x2 F32x2Max(F32x2 a, F32x2 b)
 	{
 		return F32x2(

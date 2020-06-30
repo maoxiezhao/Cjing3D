@@ -122,13 +122,25 @@ namespace Gui {
 		return mStage.GetGUIRenderer();
 	}
 
-	F32x2 Widget::TransfromToLocalCoord(const F32x2 point) const
+	F32x2 Widget::TransformToLocalCoord(const F32x2 point) const
 	{
 		F32x2 result = point;
 		if (mParent != nullptr)
 		{
 			result -= mParent->GetArea().GetPos();
-			result = mParent->TransfromToLocalCoord(result);
+			result = mParent->TransformToLocalCoord(result);
+		}
+
+		return result;
+	}
+
+	F32x2 Widget::TransformToGlobalCoord(const F32x2 point) const
+	{
+		F32x2 result = point;
+		if (mParent != nullptr)
+		{
+			result += mParent->GetArea().GetPos();
+			result = mParent->TransformToLocalCoord(result);
 		}
 
 		return result;
@@ -141,18 +153,23 @@ namespace Gui {
 			return false;
 		}
 
-		return mArea.Intersects(TransfromToLocalCoord(point));
+		return mArea.Intersects(TransformToLocalCoord(point));
 	}
 
 	void Widget::SetPos(const F32x2 pos)
 	{
 		mArea.SetPos(pos);
-		onWidgetMoved();
+		OnWidgetMoved();
 	}
 
 	F32x2 Widget::GetPos() const
 	{
 		return mArea.GetPos();
+	}
+
+	F32x2 Widget::GetGlobalPos() const
+	{
+		return TransformToGlobalCoord(mArea.GetPos());
 	}
 
 	void Widget::SetSize(const F32x2 size)
@@ -178,14 +195,24 @@ namespace Gui {
 		return mArea.GetSize();
 	}
 
+	void Widget::SetSizeAndFixedSize(F32x2 size)
+	{
+		SetSize(size);
+		SetFixedSize(size);
+	}
+
 	F32x2 Widget::GetBestSize() const
 	{
-		F32x2 ps = CalculateBestSize();
 		F32x2 fs = GetFixedSize();
-		return {
-			fs[0] ? fs[0] : ps[0],
-			fs[1] ? fs[1] : ps[1]
-		};
+		if (fs[0] == 0.0f || fs[1] == 0.0f) 
+		{
+			F32x2 ps = CalculateBestSize();
+			fs = {
+				fs[0] ? fs[0] : ps[0],
+				fs[1] ? fs[1] : ps[1]
+			};
+		}
+		return fs;
 	}
 
 	F32x2 Widget::GetAvailableSize() const
@@ -211,79 +238,12 @@ namespace Gui {
 	void Widget::SetArea(const Rect& rect)
 	{
 		mArea = rect;
-		onWidgetMoved();
+		OnWidgetMoved();
 	}
 
 	bool Widget::CanMouseFocus() const
 	{
 		return true;
-	}
-
-	void Widget::UpdateAlignment(U32 alignMask)
-	{
-		if (mParent == nullptr) {
-			return;
-		}
-
-		if (mAlignment == WidgetAlignment::None) {
-			return;
-		}
-
-		// horizontal
-		if (alignMask & WidgetAlignment::Horizontal)
-		{
-			F32x2 pos = mArea.GetPos();
-			F32x2 parentSize = mParent->GetSize();
-			F32x2 ChildSize = GetSize();
-
-			if (mAlignment & HCenter)
-			{
-				F32 originalWidth = mAlignRect.mLeft + mAlignRect.mRight;
-				float x = 0.f;
-				if (originalWidth > 0.f)
-				{
-					float width = parentSize[0] - ChildSize[0];
-					x = width * mAlignRect.mLeft / originalWidth;
-				}
-				mArea.SetPos({ x, pos[1] });
-			}
-			else if (mAlignment & Left)
-			{
-				mArea.SetPos({ mAlignRect.mLeft, pos[1] });
-			}
-			else if (mAlignment & Right)
-			{
-				mArea.SetPos({ parentSize[0] - ChildSize[0] - mAlignRect.mRight, pos[1] });
-			}
-		}
-
-		// vertical
-		if (alignMask & WidgetAlignment::Vertical)
-		{
-			F32x2 pos = mArea.GetPos();
-			F32x2 parentSize = mParent->GetSize();
-			F32x2 ChildSize = GetSize();
-
-			if (mAlignment & VCenter)
-			{
-				F32 originalHeight = mAlignRect.mTop + mAlignRect.mBottom;
-				float y = 0.f;
-				if (originalHeight > 0.f)
-				{
-					float height = parentSize[1] - ChildSize[1];
-					y = height * mAlignRect.mTop / originalHeight;
-				}
-				mArea.SetPos({ pos[0], y });
-			}
-			else if (mAlignment & Top)
-			{
-				mArea.SetPos({ pos[0], mAlignRect.mTop });
-			}
-			else if (mAlignment & Bottom)
-			{
-				mArea.SetPos({ pos[0], parentSize[1] - ChildSize[1] - mAlignRect.mBottom });
-			}
-		}
 	}
 
 	std::shared_ptr<Widget> Widget::FindChildByName(const StringID& name)
@@ -415,6 +375,11 @@ namespace Gui {
 		return mStage;
 	}
 
+	WidgetHierarchy& Widget::GetWidgetHierarchy()
+	{
+		return mStage.GetWidgetHierarchy();
+	}
+
 	void Widget::RenderImpl(const Rect& destRect)
 	{
 		F32x2 rectSize = destRect.GetSize();
@@ -429,7 +394,7 @@ namespace Gui {
 	{
 	}
 
-	bool Widget::onWidgetMoved(void)
+	bool Widget::OnWidgetMoved(void)
 	{
 		if (mParent != nullptr)
 		{
@@ -494,6 +459,11 @@ namespace Gui {
 		}
 
 		UpdateLayoutImpl(GetArea());
+	}
+
+	F32x2 Widget::GetLayoutOffset() const
+	{
+		return F32x2();
 	}
 }
 }

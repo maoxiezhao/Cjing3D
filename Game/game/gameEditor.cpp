@@ -28,6 +28,9 @@
 #include "gui\guiWidgets\checkBox.h"
 #include "gui\guiWidgets\layouts\boxLayout.h"
 #include "gui\guiWidgets\window.h"
+#include "gui\guiWidgets\layouts\gridLayout.h"
+#include "gui\guiWidgets\popup.h"
+#include "gui\guiWidgets\scrollView.h"
 
 namespace Cjing3D
 {
@@ -45,8 +48,7 @@ namespace Cjing3D
 	{
 		RenderPathTiledForward* path = new RenderPathTiledForward();
 		Renderer::SetCurrentRenderPath(path);
-		Font::LoadFontTTF("Fonts/NotoSans-Regular.ttf");
-		Font::LoadFontTTF("Fonts/NotoSans-Bold.ttf");
+		Font::LoadFontTTF("Fonts/arial.ttf");
 
 		auto& guiStage = GlobalGetSubSystem<GUIStage>();
 		//guiStage.SetIsDebugDraw(true);
@@ -56,46 +58,79 @@ namespace Cjing3D
 #endif // _ENABLE_GAME_EDITOR_
 
 		Gui::WidgetHierarchy& widgetHierarchy = guiStage.GetWidgetHierarchy();
-		// Test GUI
-		//Gui::WidgetPtr stack = std::make_shared<Gui::StackPanel>(guiStage, StringID("test"), 200.0f, 300.0f);
-		//stack->SetPos({ 500.0f, 400.0f });
-		//widgetHierarchy.AddWidget(stack);
-
-		//// button
-		//std::shared_ptr<Gui::Button> button1 = std::make_shared<Gui::Button>(guiStage, StringID("button"));
-		//button1->SetText("Button");
-		//stack->Add(button1);
-
-		//// list panel
-		//auto listPanel = std::make_shared<Gui::ListPanel>(guiStage, "ListPane", 160.0f, 200.0f);
-		//listPanel->SetLayoutSpacing(2);
-
-		//for (int i = 0; i < 6; i++)
-		//{
-		//	const std::string name = "label" + std::to_string(i);
-		//	auto label = std::make_shared<Gui::Label>(guiStage, StringID(name), "ListItem" + std::to_string(i));
-		//	listPanel->Add(label);
-		//}
-		//stack->Add(listPanel);
-
-		//// label
-		//auto label = std::make_shared<Gui::Label>(guiStage, StringID("label"), "MotherFuck");
-		//label->SetTextAlignH(Font::TextAlignH_Center);
-		//stack->Add(label);
-
-
-		// check box
-		//auto widget = std::make_shared<Gui::Widget>(guiStage, "checkBoxPanel");
-		//widget->SetLayout(std::make_shared<Gui::BoxLayout>(Gui::AlignmentOrien::AlignmentOrien_Horizontal, Gui::AlignmentMode::AlignmentMode_Center, Gui::WidgetMargin(), 10.0f));
-		//
-		//auto label = std::make_shared<Gui::Label>(guiStage, StringID("checkBoxlabel"), "checkBox");
-		//widget->Add(label);
-
 		// window
-		auto window = std::make_shared<Gui::Window>(guiStage, StringID("checkBoxlabel1"), u8"GUI Test Window", F32x2{200.0f, 300.0f});	
+		auto window = std::make_shared<Gui::Window>(guiStage, StringID("checkBoxlabel1"), u8"GUI Test", F32x2{200.0f, 300.0f});	
 		window->SetPos({ Renderer::GetScreenSize()[0] - 200.0f - 5.0f, 200.0f});
-		window->GetTitleTextDrawable().SetFontStyle("Fonts/NotoSans-Bold.ttf");
 		widgetHierarchy.AddWidget(window);
+
+		auto baseWindow = std::make_shared<Gui::Window>(guiStage, StringID("checkBoxlabel1"), u8"Base Widget", F32x2{ 300.0f, 300.0f });
+		baseWindow->SetPos({ (Renderer::GetScreenSize()[0] - 300.0f - 5.0f) * 0.5f, 200.0f });
+		auto layout = std::make_shared<Gui::SimpleGridLayout>(
+			Gui::AlignmentOrien_Horizontal,
+			Gui::AlignmentMode_Center,
+			2,
+			Gui::WidgetMargin(5.0f, 5.0f, 5.0f, 5.0f),
+			10.0f
+		);
+		layout->SetColAlignment({ Gui::AlignmentMode_End, Gui::AlignmentMode_Begin });
+		layout->SetDefaultRowAlignment(Gui::AlignmentMode_Center);
+		baseWindow->SetLayout(layout);
+		{
+			// label
+			auto labelLabel = std::make_shared<Gui::Label>(guiStage, StringID("label11"), "Label");
+			baseWindow->Add(labelLabel);
+			auto labelLabe2 = std::make_shared<Gui::Label>(guiStage, StringID("label22"), "Hello World!");
+			baseWindow->Add(labelLabe2);
+
+			// button
+			auto label = std::make_shared<Gui::Label>(guiStage, StringID("label"), "Button");
+			baseWindow->Add(label);
+			std::shared_ptr<Gui::Button> button1 = std::make_shared<Gui::Button>(guiStage, StringID("Push"), "Push");
+			baseWindow->Add(button1);		
+
+			// check box
+			label = std::make_shared<Gui::Label>(guiStage, StringID("label1"), "CheckBox");
+			baseWindow->Add(label);
+			auto widget = std::make_shared<Gui::CheckBox>(guiStage, StringID("checkBox"));
+			baseWindow->Add(widget);
+
+			// popup box
+			label = std::make_shared<Gui::Label>(guiStage, StringID("label2"), "Popup");
+			baseWindow->Add(label);
+			auto popupButton = std::make_shared<Gui::PopupButton>(guiStage, StringID("Popup") , "Popup");
+			baseWindow->Add(popupButton);
+
+			auto popup = popupButton->GetPopup();
+			popup->SetLayout(std::make_shared<Gui::BoxLayout>(
+				Gui::AlignmentOrien_Vertical,
+				Gui::AlignmentMode_Center,
+				Gui::WidgetMargin(5.0f),
+				5.0f
+			));
+			for (int i = 0; i < 3; i++) {
+				auto button = std::make_shared<Gui::Button>(guiStage, StringID("Push" + std::to_string(i)), "Push" + std::to_string(i));
+				popup->Add(button);
+			}
+		}
+		//widgetHierarchy.AddWidget(baseWindow);
+
+		// list
+		auto stackPanel = std::make_shared<Gui::StackPanel>(guiStage, StringID("StackPanel"));
+		stackPanel->SetMargin(Gui::WidgetMargin(5.0f));
+		stackPanel->SetSpacing(5.0f);
+		for (int i = 0; i < 10; i++)
+		{
+			auto button = std::make_shared<Gui::Button>(guiStage, StringID("Button" + std::to_string(i)), "Button" + std::to_string(i));
+			stackPanel->Add(button);
+		}
+	
+		// scroll view
+		auto scrollView = std::make_shared<Gui::ScrollView>(guiStage, StringID("ScrollView"), F32x2(100.0f, 100.0f));
+		scrollView->SetPos({ 400.0f, 50.0f });
+		scrollView->SetWidget(stackPanel);
+		widgetHierarchy.AddWidget(scrollView);
+
+		widgetHierarchy.UpdateLayout();
 	}
 
 	void GameEditor::Update(EngineTime time)

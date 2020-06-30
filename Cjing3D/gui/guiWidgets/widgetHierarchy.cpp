@@ -49,7 +49,9 @@ namespace Gui
 	void WidgetHierarchy::Render()
 	{
 		F32x2 offset = { 0.0f, 0.0f };
-		for (auto& widget : mWidgets) {
+		for (auto it = mWidgets.rbegin(); it != mWidgets.rend(); it++)
+		{
+			auto widget = *it;
 			if (widget != nullptr) {
 				widget->Render(offset);
 			}
@@ -63,10 +65,9 @@ namespace Gui
 
 	void WidgetHierarchy::RefreshWidgets()
 	{
-		bool isHierarchySortDirty = false;
 		if (!mSubscribeRequests.empty()) 
 		{
-			isHierarchySortDirty = true;
+			mIsHierarchySortDirty = true;
 
 			if (mWidgets.empty()) 
 			{
@@ -84,8 +85,10 @@ namespace Gui
 		mWidgets.erase( std::remove_if(std::begin(mWidgets), std::end(mWidgets),
 			[](const WidgetPtr& p) { return p == nullptr; }), std::end(mWidgets));
 		
-		if (isHierarchySortDirty)
+		if (mIsHierarchySortDirty)
 		{
+			mIsHierarchySortDirty = false;
+
 			std::stable_sort(std::begin(mWidgets), std::end(mWidgets),
 				[&](const std::shared_ptr<Widget>& a, const std::shared_ptr<Widget>& b) -> bool 
 				{
@@ -97,12 +100,35 @@ namespace Gui
 		}
 	}
 
+	void WidgetHierarchy::UpdateLayout()
+	{
+		for (auto it = mSubscribeRequests.begin(); it != mSubscribeRequests.end(); it++)
+		{
+			auto widget = *it;
+			if (widget != nullptr) {
+				F32x2 bestSize = widget->GetBestSize();
+				widget->SetSize(bestSize);
+				widget->UpdateLayout();
+			}
+		}
+
+		for (auto it = mWidgets.begin(); it != mWidgets.end(); it++)
+		{
+			auto widget = *it;
+			if (widget != nullptr) {
+				F32x2 bestSize = widget->GetBestSize();
+				widget->SetSize(bestSize);
+				widget->UpdateLayout();
+			}
+		}
+	}
+
 	void WidgetHierarchy::CaptureFocusWidget(bool captured)
 	{
 		mEventDistributor.SetMouseCaptured(captured);
 	}
 
-	WidgetPtr WidgetHierarchy::GetCurrentFocusdWidget()
+	WidgetPtr WidgetHierarchy::GetCurrentMouseFocusdWidget()
 	{
 		return mEventDistributor.GetMouseFocusWidget();
 	}
@@ -110,6 +136,30 @@ namespace Gui
 	WidgetPtr WidgetHierarchy::GetCurrentDragWidget()
 	{
 		return mEventDistributor.GetMouseDragWidget();
+	}
+
+	WidgetPtr WidgetHierarchy::GetCurrentFocusdWidget()
+	{
+		return mEventDistributor.GetCurrentFocusdWidget();
+	}
+
+	void WidgetHierarchy::SetCurrentFocusedWidget(WidgetPtr widget)
+	{
+		mEventDistributor.SetCurrentFocusedWidget(widget);
+	}
+
+	void WidgetHierarchy::SetWidgetHierarchySort(Widget& widget, HierarchySortOrder order)
+	{
+		if (widget.GetHierarchySortOrder() != order)
+		{
+			widget.SetHierarchySortOrder(order);
+			mIsHierarchySortDirty = true;
+		}
+	}
+
+	Connection WidgetHierarchy::ConnectFocusedWidgetChanged(std::function<void(WidgetPtr oldWidget, WidgetPtr newWidge)> func)
+	{
+		return mEventDistributor.OnFocusedChanged.Connect(func);
 	}
 
 	void WidgetHierarchy::AddWidget(WidgetPtr widget)

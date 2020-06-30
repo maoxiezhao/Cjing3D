@@ -93,4 +93,27 @@ namespace Cjing3D
 		std::unique_ptr<ConnectionType> mConnection = nullptr;
 
 	};
+
+	class ScopedConnection
+	{
+	public:
+		ScopedConnection() = default;
+		ScopedConnection(const ScopedConnection&) = delete;
+		ScopedConnection(ScopedConnection&&) = default;
+		ScopedConnection(const Connection & connection);
+		ScopedConnection(Connection && connection);
+
+		~ScopedConnection();
+
+		ScopedConnection& operator=(const ScopedConnection&) = delete;
+		ScopedConnection& operator=(ScopedConnection&&) = default;
+		ScopedConnection& operator=(const Connection & rhs);
+		ScopedConnection& operator=(Connection && rhs);
+
+		void Disconnect();
+		bool IsConnected() const;
+
+	private:
+		Connection mConnection;
+	};
 }

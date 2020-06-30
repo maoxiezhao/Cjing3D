@@ -16,6 +16,8 @@ namespace Gui {
 		static StringID WindowHeadBackground;
 		// panel
 		static StringID PanelBackground;
+		// popup
+		static StringID PopupPanelBackground;
 		// button	
 		static StringID ButtonBackgroundBase;
 		static StringID ButtonBackgroundClick;
@@ -31,6 +33,8 @@ namespace Gui {
 		// check box
 		static StringID CheckBoxBackground;
 		static StringID CheckBoxBackgroundOn;
+		// scroll
+		static StringID ScrollBarBase;
 
 		void InitDefaultScheme();
 		void RegisterColor(const StringID& name, const Color4& color);

@@ -1083,7 +1083,7 @@ HRESULT GraphicsDeviceD3D11::CreateRasterizerState(const RasterizerStateDesc & d
 	rasterizerDesc.SlopeScaledDepthBias = desc.mSlopeScaleDepthBias;
 
 	rasterizerDesc.DepthClipEnable = desc.mDepthClipEnable;
-	rasterizerDesc.ScissorEnable = false;
+	rasterizerDesc.ScissorEnable = true;
 	rasterizerDesc.MultisampleEnable = desc.mMultisampleEnable;
 	rasterizerDesc.AntialiasedLineEnable = desc.mAntialiaseLineEnable;
 
@@ -1949,6 +1949,18 @@ void GraphicsDeviceD3D11::BeginRenderBehavior(RenderBehavior& behavior)
 void GraphicsDeviceD3D11::EndRenderBehavior()
 {
 	GetDeviceContext(GraphicsThread_IMMEDIATE).OMSetRenderTargets(0, nullptr, nullptr);
+}
+
+void GraphicsDeviceD3D11::BindScissorRects(U32 num, const RectInt* rects)
+{
+	D3D11_RECT pRects[8];
+	for (uint32_t i = 0; i < num; ++i) {
+		pRects[i].left = (LONG)rects[i].mLeft;
+		pRects[i].top = (LONG)rects[i].mTop;
+		pRects[i].right = (LONG)rects[i].mRight;
+		pRects[i].bottom = (LONG)rects[i].mBottom;
+	}
+	GetDeviceContext(GraphicsThread_IMMEDIATE).RSSetScissorRects(num, pRects);
 }
 
 void GraphicsDeviceD3D11::BindComputeShader(ShaderPtr computeShader)

@@ -8,6 +8,8 @@
 #include "utils\baseWindow.h"
 #include "engine.h"
 
+#include <DirectXPackedVector.h>
+
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "utils\stb_utils\stb_truetype.h"
 
@@ -35,7 +37,7 @@ namespace Font {
 		struct FontVertexPosTex
 		{
 			F32x2 mPos = F32x2(0.0f, 0.0f);
-			F32x2 mTex = F32x2(0.0f, 0.0f);
+			DirectX::PackedVector::XMHALF2 mTex;
 		};
 
 		void LoadFontTTFImpl(const std::string& filePath, std::vector<FontInfo>& loadedFontInfos)
@@ -94,14 +96,15 @@ namespace Font {
 		}
 		struct FontGlyph
 		{
+			F32 advance = 0.0f;
 			F32 x = 0.0f;
 			F32 y = 0.0f;
 			F32 width = 0.0f;
 			F32 height = 0.0f;
-			F32 texLeft = 0.0f;
-			F32 texRight = 0.0f;
-			F32 texTop = 0.0f;
-			F32 texBottom = 0.0f;
+			U16 texLeft = 0;
+			U16 texRight = 0;
+			U16 texTop = 0;
+			U16 texBottom = 0;
 		};
 	}
 
@@ -155,8 +158,8 @@ namespace Font {
 			const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_Shader);
 			VertexLayoutDesc posLayout[] =
 			{
-				{ "POSITION", 0u, FORMAT_R32G32_FLOAT, 0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
-				{ "TEXCOORD",  0u, FORMAT_R32G32_FLOAT, 0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
+				{ "POSITION",  0u, FORMAT_R32G32_FLOAT, 0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
+				{ "TEXCOORD",  0u, FORMAT_R16G16_FLOAT, 0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
 			};
 			auto vsinfo = Renderer::LoadVertexShaderInfo(shaderPath + "fontVS.cso", posLayout, ARRAYSIZE(posLayout));
 			PipelineStateDesc desc = {};
@@ -192,6 +195,10 @@ namespace Font {
 				if (mFontGlyphsLookup.count(glyphHash) == 0) 
 				{
 					FontInfo& fontInfo = mLoadedFontInfos[params.mFontStyleIndex];
+					if (stbtt_FindGlyphIndex(&fontInfo.mStbFontInfo, code) == 0) {
+						continue;
+					}
+
 					float fontScaling = stbtt_ScaleForPixelHeight(&fontInfo.mStbFontInfo, (F32)params.mFontSize);
 					int top, left, right, bottom;
 					stbtt_GetCodepointBitmapBox(&fontInfo.mStbFontInfo, code, fontScaling, fontScaling, &left, &top, &right, &bottom);
@@ -297,10 +304,15 @@ namespace Font {
 					stbtt_MakeCodepointBitmap(&fontInfo.mStbFontInfo, glyphsBuffer.data() + offset, fontRect.w, fontRect.h, texWidth, fontScaling, fontScaling, fontCode);
 				
 					// 计算并保存当前glyph的texCoords
-					fontGlyph.texLeft = (F32)fontRect.x * invTexWidth;
-					fontGlyph.texRight = (F32)(fontRect.x + fontRect.w) * invTexWidth;
-					fontGlyph.texTop = (F32)fontRect.y * invTexHeight;
-					fontGlyph.texBottom = (F32)(fontRect.y + fontRect.h) * invTexHeight;
+					F32 texLeft = (F32)fontRect.x * invTexWidth;
+					F32 texRight = (F32)(fontRect.x + fontRect.w) * invTexWidth;
+					F32 texTop = (F32)fontRect.y * invTexHeight;
+					F32 texBottom = (F32)(fontRect.y + fontRect.h) * invTexHeight;
+
+					fontGlyph.texLeft = DirectX::PackedVector::XMConvertFloatToHalf(texLeft);
+					fontGlyph.texRight = DirectX::PackedVector::XMConvertFloatToHalf(texRight);
+					fontGlyph.texTop = DirectX::PackedVector::XMConvertFloatToHalf(texTop);
+					fontGlyph.texBottom = DirectX::PackedVector::XMConvertFloatToHalf(texBottom);
 				}
 
 				TextureHelper::CreateTexture(mFontGlyphsTexture, glyphsBuffer.data(), texWidth, texHeight, FORMAT_R8_UNORM);
@@ -352,11 +364,15 @@ namespace Font {
 					continue;
 				}
 
+				I32 advanceWidth, lsb = 0;
+				stbtt_GetCodepointHMetrics(&fontInfo.mStbFontInfo, fontCode, &advanceWidth, &lsb);
+
 				FontGlyph& fontGlyph = mFontGlyphsLookup[hash];
 				fontGlyph.x = (F32)left;
 				fontGlyph.y = (F32)top + (fontInfo.mAscent) * fontScaling; // 对齐基线
 				fontGlyph.width = (F32)(right - left);
 				fontGlyph.height = (F32)(bottom - top);
+				fontGlyph.advance = (F32)advanceWidth * fontScaling;
 
 				// create rect and add padding to the rect
 				bottom += GlyphsRectBorderPadding * 2;
@@ -445,28 +461,31 @@ namespace Font {
 						continue;
 					}
 
-					F32 glyphWidth = 0.0f;
+					F32 kernAdvance = 0.0f;
 					if (prevCode != 0)
 					{
 						auto& fontInfo = mLoadedFontInfos[params.mFontStyleIndex];
 						int kern = stbtt_GetCodepointKernAdvance(&fontInfo.mStbFontInfo, prevCode, code);
-						glyphWidth += kern * fontInfo.mFontScaling;
+						kernAdvance += kern * fontInfo.mFontScaling * params.mScale;
 					}
 					prevCode = code;
 
+					// check bounding
 					const FontGlyph& glyph = mFontGlyphsLookup.at(glyphHash);
 					const F32 x = glyph.x * params.mScale;
 					const F32 y = glyph.y * params.mScale;
 					const F32 width = glyph.width * params.mScale;
 					const F32 height = glyph.height * params.mScale;
-
-					// check bounding
-					if (checkBoundingWidth(glyphWidth + x + width)) {
-						currentPosX += glyphWidth;
+					
+					F32 glyphAdvance = glyph.advance * params.mScale;
+					if (!checkBoundingWidth(kernAdvance + glyphAdvance)) {
+						continue;
 					}
 					if (boundingHeight > 0.0f && currentPosY + y + height > boundingHeight) {
 						return quadCount;
-					} 
+					}
+
+					currentPosX += kernAdvance;
 
 					// get glyph rect
 					F32 left   = currentPosX + x;
@@ -485,7 +504,7 @@ namespace Font {
 					quadBuffer[index + 2].mTex = { glyph.texLeft,  glyph.texBottom };
 					quadBuffer[index + 3].mTex = { glyph.texRight, glyph.texBottom };
 
-					currentPosX += (right - left) + params.mColSpacing;
+					currentPosX += glyphAdvance + params.mColSpacing;
 					quadCount++;
 				}
 			}
@@ -539,7 +558,7 @@ namespace Font {
 			device.BeginEvent("RenderFontInst");
 			device.BindPipelineState(mFontPSO);
 			device.BindSamplerState(SHADERSTAGES_PS, *Renderer::GetRenderPreset().GetSamplerState(SamplerStateID_Font), SAMPLER_SLOT_0);
-			device.BindGPUResource(SHADERSTAGES_PS, mFontGlyphsTexture, TEXTURE_SLOT_0);
+			device.BindGPUResource(SHADERSTAGES_PS, mFontGlyphsTexture, TEXTURE_SLOT_FONT);
 
 			FontCB cb = {};
 			cb.gFontColor = XMConvert(currentFontParams.mColor.ToFloat4());
@@ -596,7 +615,7 @@ namespace Font {
 			return -1;
 		}
 
-		return it - mLoadedFontInfos.begin();
+		return (I32)(it - mLoadedFontInfos.begin());
 	}
 
 	F32 GetTextWidth(const UTF8String& text, const FontParams& params)

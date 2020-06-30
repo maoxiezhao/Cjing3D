@@ -4,14 +4,15 @@
 namespace Cjing3D {
 namespace Gui {
 
-	Button::Button(GUIStage& stage, const StringID& name) :
+	Button::Button(GUIStage& stage, const StringID& name, const UTF8String& text) :
 		Widget(stage, name)
 	{
 		SetSize({ 74.0f, 24.0f });
+		mLabel.SetText(text);
 		mLabel.SetTextAlignH(Font::TextAlignH_Center);
 
-		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_ENTER, std::bind(&Button::OnMouseEnter, this, std::placeholders::_4));
-		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_LEAVE, std::bind(&Button::OnMouseLeave, this, std::placeholders::_4));
+		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_ENTER, std::bind(&Button::OnMouseEnter, this, std::placeholders::_4), Dispatcher::back_pre_child);
+		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_LEAVE, std::bind(&Button::OnMouseLeave, this, std::placeholders::_4), Dispatcher::back_post_child);
 		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_DOWN,  std::bind(&Button::OnMousePressed, this, std::placeholders::_4));
 		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_UP,    std::bind(&Button::OnMouseReleased, this, std::placeholders::_4));
 		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_CLICK, std::bind(&Button::OnMouseClick, this, std::placeholders::_4));

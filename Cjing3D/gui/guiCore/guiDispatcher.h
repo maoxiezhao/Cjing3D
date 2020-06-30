@@ -43,8 +43,8 @@ namespace Gui {
 			post = 4
 		};
 
-		void ConnectSignal(UI_EVENT_TYPE eventType, const SignalFunction& func, SignalQueueposition pos = back_pre_child);
-		void DisconnectSignal(UI_EVENT_TYPE eventType, const SignalFunction& func, SignalQueueposition pos = back_pre_child);
+		void ConnectSignal(UI_EVENT_TYPE eventType, const SignalFunction& func, SignalQueueposition pos = back_post_child);
+		void DisconnectSignal(UI_EVENT_TYPE eventType, const SignalFunction& func, SignalQueueposition pos = back_post_child);
 		bool HasEventSignal(UI_EVENT_TYPE eventType, U32 queueType = SingalQueueType::pre) const;
 
 		bool Fire(UI_EVENT_TYPE eventType, Dispatcher* target, const VariantArray& vairants);

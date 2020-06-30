@@ -102,4 +102,13 @@ namespace Cjing3D {
 
 		Rect& Offset(const F32x2& offset);
 	};
+
+	struct RectInt
+	{
+	public:
+		I32 mLeft = 0;
+		I32 mTop = 0;
+		I32 mRight = 0;
+		I32 mBottom = 0;
+	};
 }

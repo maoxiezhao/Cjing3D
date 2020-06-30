@@ -626,6 +626,15 @@
     <ClCompile Include="gui\guiScheme.cpp">
       <Filter>gui</Filter>
     </ClCompile>
+    <ClCompile Include="gui\guiWidgets\layouts\gridLayout.cpp">
+      <Filter>gui\guiWidgets\layout</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\popup.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\scrollView.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -1216,6 +1225,15 @@
       <Filter>gui</Filter>
     </ClInclude>
     <ClInclude Include="gui\guiWidgets\window.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\layouts\gridLayout.h">
+      <Filter>gui\guiWidgets\layout</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\popup.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\scrollView.h">
       <Filter>gui\guiWidgets</Filter>
     </ClInclude>
   </ItemGroup>

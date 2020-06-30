@@ -178,8 +178,11 @@
     <ClInclude Include="gui\guiWidgets\checkBox.h" />
     <ClInclude Include="gui\guiWidgets\label.h" />
     <ClInclude Include="gui\guiWidgets\layouts\boxLayout.h" />
+    <ClInclude Include="gui\guiWidgets\layouts\gridLayout.h" />
     <ClInclude Include="gui\guiWidgets\layouts\layout.h" />
     <ClInclude Include="gui\guiWidgets\listPanel.h" />
+    <ClInclude Include="gui\guiWidgets\popup.h" />
+    <ClInclude Include="gui\guiWidgets\scrollView.h" />
     <ClInclude Include="gui\guiWidgets\stackPanel.h" />
     <ClInclude Include="gui\guiWidgets\widgetHierarchy.h" />
     <ClInclude Include="gui\guiWidgets\widgetInclude.h" />
@@ -368,7 +371,10 @@
     <ClCompile Include="gui\guiWidgets\checkBox.cpp" />
     <ClCompile Include="gui\guiWidgets\label.cpp" />
     <ClCompile Include="gui\guiWidgets\layouts\boxLayout.cpp" />
+    <ClCompile Include="gui\guiWidgets\layouts\gridLayout.cpp" />
     <ClCompile Include="gui\guiWidgets\listPanel.cpp" />
+    <ClCompile Include="gui\guiWidgets\popup.cpp" />
+    <ClCompile Include="gui\guiWidgets\scrollView.cpp" />
     <ClCompile Include="gui\guiWidgets\stackPanel.cpp" />
     <ClCompile Include="gui\guiWidgets\widgetHierarchy.cpp" />
     <ClCompile Include="gui\guiWidgets\widgetManager.cpp" />

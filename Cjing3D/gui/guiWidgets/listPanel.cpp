@@ -8,8 +8,8 @@ namespace Gui {
 	ListItem::ListItem(GUIStage& stage) :
 		Widget(stage)
 	{
-		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_ENTER, std::bind(&ListItem::OnMouseEnter, this, std::placeholders::_4));
-		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_LEAVE, std::bind(&ListItem::OnMouseLeave, this, std::placeholders::_4));
+		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_ENTER, std::bind(&ListItem::OnMouseEnter, this, std::placeholders::_4), Dispatcher::back_pre_child);
+		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_LEAVE, std::bind(&ListItem::OnMouseLeave, this, std::placeholders::_4), Dispatcher::back_post_child);
 		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_DOWN, std::bind(&ListItem::OnMousePressed, this, std::placeholders::_4));
 		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_UP, std::bind(&ListItem::OnMouseReleased, this, std::placeholders::_4));
 		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_CLICK, std::bind(&ListItem::OnMouseClick, this, std::placeholders::_4));

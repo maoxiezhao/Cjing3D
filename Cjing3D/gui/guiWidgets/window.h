@@ -20,9 +20,12 @@ namespace Gui {
 		TextDrawable& GetTitleTextDrawable() { return mTitleText; }
 
 		virtual F32x2 CalculateBestSize()const;
+		virtual F32x2 GetLayoutOffset()const;
 
 	protected:
-		void OnMouseDrag(const VariantArray& variants);
+		void OnMouseDrag(bool& handle, const VariantArray& variants);
+		void OnMousePressed(bool& handle, const VariantArray& variants);
+		void OnMouseReleased(bool& handle, const VariantArray& variants);
 
 		virtual void RenderImpl(const Rect& destRect);
 

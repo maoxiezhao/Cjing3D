@@ -15,7 +15,7 @@ namespace Cjing3D {
 				ButtonState_Pressed = 1 << 3
 			};
 
-			Button(GUIStage& stage, const StringID& name = StringID::EMPTY);
+			Button(GUIStage& stage, const StringID& name = StringID::EMPTY, const UTF8String& text = "");
 
 			void SetText(const UTF8String& text);
 			void SetTextAlignment(Font::TextAlignH align);
@@ -24,15 +24,16 @@ namespace Cjing3D {
 
 			Signal<void()> OnClickCallback;
 
-		private:
+		protected:
 			virtual void RenderImpl(const Rect& destRect);
 
-			void OnMouseEnter(const VariantArray& variants);
-			void OnMouseLeave(const VariantArray& variants);
-			void OnMousePressed(const VariantArray& variants);
-			void OnMouseReleased(const VariantArray& variants);
-			void OnMouseClick(const VariantArray& variants);
+			virtual void OnMouseEnter(const VariantArray& variants);
+			virtual void OnMouseLeave(const VariantArray& variants);
+			virtual void OnMousePressed(const VariantArray& variants);
+			virtual void OnMouseReleased(const VariantArray& variants);
+			virtual void OnMouseClick(const VariantArray& variants);
 
+		private:
 			U32 mButtonState = ButtonState_Base;
 			Sprite mBgSprite;
 			TextDrawable mLabel;

@@ -27,7 +27,8 @@ namespace Cjing3D
 			SignalBody(SignalBody&& rhs) = delete;
 			SignalBody& operator=(SignalBody&& rhs) = delete;
 
-			std::unique_ptr<ConnectionType> Connect(CallbackFunc&& func)
+			template <typename Function>
+			std::unique_ptr<ConnectionType> Connect(Function&& func)
 			{
 				U32 slotIndex = 0;
 				{
@@ -42,7 +43,7 @@ namespace Cjing3D
 							std::end(mAddedObservers),
 							[&](const auto& pair) { return pair.first == slotIndex; })
 					);
-					mAddedObservers.emplace_back(slotIndex, std::forward<CallbackFunc>(func));
+					mAddedObservers.emplace_back(slotIndex, std::forward<Function>(func));
 				}
 
 				std::weak_ptr<SignalBody> weakSignal = this->shared_from_this();

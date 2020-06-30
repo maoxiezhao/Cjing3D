@@ -403,6 +403,15 @@ namespace Renderer2D {
 
 					item.mText->Draw();
 				}
+
+				if (item.mType == RenderItem2D::RenderItemType_Scissor)
+				{
+					if (!mRenderRequestSprites.empty()) {
+						RenderSprites();
+					}
+
+					Renderer::GetDevice().BindScissorRects(1, &item.mScissorRect);
+				}
 			}
 
 			if (!mRenderRequestSprites.empty()) {
@@ -530,6 +539,21 @@ namespace Renderer2D {
 				item.mText = nullptr;
 			}
 		}
+	}
+
+	void AddScissorRect(const RectInt& rect, const StringID& layerName)
+	{
+		auto it = std::find_if(mRenderLayers.begin(), mRenderLayers.end(), [layerName](RenderLayer2D& layer) {
+			return layer.mLayerName == layerName;
+			});
+		if (it == mRenderLayers.end()) {
+			return;
+		}
+
+		auto& item = (*it).mItems.emplace_back();
+		item.mIsPersistent = false;
+		item.mScissorRect = rect;
+		item.mType = RenderItem2D::RenderItemType_Scissor;
 	}
 
 	void AddLayer(const StringID& name)

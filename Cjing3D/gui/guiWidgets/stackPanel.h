@@ -11,6 +11,9 @@ namespace Gui {
 		StackPanel(GUIStage& stage, const StringID& name = StringID::EMPTY, F32 width = 1.0f, F32 height = 1.0f);
 		virtual ~StackPanel();
 
+		void SetSpacing(F32 spacing);
+		void SetMargin(const WidgetMargin& margin);
+
 	protected:
 		virtual void RenderImpl(const Rect& destRect);
 

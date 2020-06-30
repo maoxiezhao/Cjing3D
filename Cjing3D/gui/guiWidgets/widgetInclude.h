@@ -2,6 +2,7 @@
 
 #include "gui\guiStage.h"
 #include "gui\guiRenderer.h"
+#include "gui\guiWidgets\widgetHierarchy.h"
 #include "gui\guiWidgets\layouts\layout.h"
 #include "renderer\2D\renderer2D.h"
 

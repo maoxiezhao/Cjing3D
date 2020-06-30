@@ -1,6 +1,7 @@
 #include "..\hf\imageHF.hlsli"
 
 SAMPLERSTATE(sampler_font, SAMPLER_SLOT_0);
+TYPE_TEXTURE2D(texture_font, float, TEXTURE_SLOT_FONT);
 
 struct FontPixelInput
 {
@@ -10,5 +11,5 @@ struct FontPixelInput
 
 float4 main(FontPixelInput input) : SV_TARGET
 {
-    return texture_base.SampleLevel(sampler_font, input.uv, 0).rrrr * gFontColor;
+    return texture_font.SampleLevel(sampler_font, input.uv, 0).rrrr * gFontColor;
 }

@@ -110,6 +110,26 @@ namespace Gui {
 			}
 		}
 
+		bool BaseDistributor::FireMouseScrollEvent(Widget* targetWidget, const I32x2& pos, I32 delta)
+		{
+			if (targetWidget == nullptr) {
+				return false;
+			}
+
+			VariantArray variants;
+			variants.push_back(Variant(pos[0]));
+			variants.push_back(Variant(pos[1]));
+			variants.push_back(Variant(delta));
+
+			auto parent = targetWidget->GetRoot();
+			if (parent != nullptr) {
+				return parent->Fire(UI_EVENT_TYPE::UI_EVENT_MOUSE_SCROLL, targetWidget, variants);
+			}
+			else {
+				return targetWidget->Fire(UI_EVENT_TYPE::UI_EVENT_MOUSE_SCROLL, targetWidget, variants);
+			}
+		}
+
 		Widget* BaseDistributor::FindAndGetMouseEnableWidget(const I32x2& pos, std::vector<WidgetPtr>& widgets)
 		{
 			Widget* targetWidget = FindWidget(pos, widgets);
@@ -148,7 +168,10 @@ namespace Gui {
 		{
 			if (mDragWidget != nullptr)
 			{
-				FireMouseDragEvent(mDragWidget.get(), UI_EVENT_TYPE::UI_EVENT_MOUSE_DRAG, pos - mCoords);
+				if (FireMouseDragEvent(mDragWidget.get(), UI_EVENT_TYPE::UI_EVENT_MOUSE_DRAG, pos - mCoords)) {
+					mCoords = pos;
+					return;
+				}
 			}
 
 			mCoords = pos;
@@ -192,14 +215,15 @@ namespace Gui {
 
 		void MouseMotion::SetMouseFocusedWidget(WidgetPtr widget)
 		{
-			if (mMouseFocusWidget != nullptr) {
-				mMouseFocusWidget->SetFocused(false);
-			}
-
 			mMouseFocusWidget = widget;
+		}
 
-			if (widget != nullptr) {
-				widget->SetFocused(true);
+		void MouseButtonDistributor::SetCurrentFocusedWidget(WidgetPtr widget)
+		{
+			if (widget != mCurrentFocusedWidget)
+			{
+				OnFocusedChanged(mCurrentFocusedWidget, widget);
+				mCurrentFocusedWidget = widget;
 			}
 		}
 
@@ -213,7 +237,7 @@ namespace Gui {
 			if (mMouseCaptured && mMouseFocusWidget != nullptr)
 			{
 				mButtonFocuseWidget = mMouseFocusWidget.get();
-				FireMouseEvent(mButtonFocuseWidget, UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_DOWN, mCoords);
+				FireMouseButtonEvent(mButtonFocuseWidget, UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_DOWN, mCoords, mCurrentButtonIndex);
 			}
 			else
 			{
@@ -227,13 +251,14 @@ namespace Gui {
 				}
 
 				if (targetWidget != nullptr) {
-					FireMouseEvent(targetWidget, UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_DOWN, mCoords);
+					FireMouseButtonEvent(targetWidget, UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_DOWN, mCoords, mCurrentButtonIndex);
 				}
 
 				mButtonFocuseWidget = targetWidget;		
 			}
 
-			mLastClickWidget = mButtonFocuseWidget;
+			mLastClickWidget = mButtonFocuseWidget != nullptr ? mButtonFocuseWidget->GetNodePtr() : nullptr;
+			SetCurrentFocusedWidget(mLastClickWidget);
 			mLastPressedTime = GlobalGetCurrentTime();
 		}
 
@@ -246,7 +271,7 @@ namespace Gui {
 
 			// handle button focused
 			if (mButtonFocuseWidget != nullptr) {
-				FireMouseEvent(mButtonFocuseWidget, UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_UP, mCoords);
+				FireMouseButtonEvent(mButtonFocuseWidget, UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_UP, mCoords, mCurrentButtonIndex);
 			}
 
 			Widget* targetWidget = FindAndGetMouseEnableWidget(coords, widgets);
@@ -287,8 +312,27 @@ namespace Gui {
 			{
 				MouseButtonClick(targetWidget);
 			}
-
+	
 			mButtonFocuseWidget = nullptr;
+		}
+
+		void MouseButtonDistributor::SignalHandlerMouseWheelChanged(I32 wheelDelta, const I32x2& coords, std::vector<WidgetPtr>& widgets)
+		{
+			if (wheelDelta == 0) {
+				return;
+			}
+		
+			if (mMouseCaptured && mMouseFocusWidget != nullptr)
+			{
+				FireMouseScrollEvent(mMouseFocusWidget.get(), mCoords, wheelDelta);
+			}
+			else
+			{
+				Widget* targetWidget = FindAndGetMouseEnableWidget(coords, widgets);
+				if (targetWidget != nullptr) {
+					FireMouseScrollEvent(targetWidget, mCoords, wheelDelta);
+				}
+			}
 		}
 
 		void MouseButtonDistributor::SetCurrentButtonIndex(U32 buttonIndex)
@@ -300,7 +344,7 @@ namespace Gui {
 		{
 			F32 currentTime = GlobalGetCurrentTime();
 			if (mLastPressedTime + mouseClickDeltaTime >= currentTime &&
-				widget == mLastClickWidget)
+				widget == mLastClickWidget.get())
 			{
 				mLastClickTime = currentTime;
 				mLastPressedTime = 0;
@@ -325,13 +369,18 @@ namespace Gui {
 			HandldKeyboardButton(event.key, GUI_INPUT_KEY_STATE_KEYUP, widgets);
 			break;
 		case GUI_INPUT_EVENT_TYPE_MOUSE_MOTION:
-			HandleMouseMove(event.pos, widgets);
+			SignalHandleMouseMotion(event.pos, widgets);
 			break;
 		case GUI_INPUT_EVENT_TYPE_MOUSE_BUTTONDOWN:
-			HandleMouseButton(event.pos, event.key, GUI_INPUT_KEY_STATE_KEYDOWN, widgets);
+			SetCurrentButtonIndex((U32)event.key - (U32)Click_Left);
+			SignalHandlerButtonDown(event.pos, widgets);
 			break;
 		case GUI_INPUT_EVENT_TYPE_MOUSE_BUTTONUP:
-			HandleMouseButton(event.pos, event.key, GUI_INPUT_KEY_STATE_KEYUP, widgets);
+			SetCurrentButtonIndex((U32)event.key - (U32)Click_Left);
+			SignalHandlerButtonUp(event.pos, widgets);
+			break;
+		case GUI_INPUT_EVENT_TYPE_MOUSE_WHEEL_CHANGED:
+			SignalHandlerMouseWheelChanged(event.delta, event.pos, widgets);
 			break;
 		default:
 			break;
@@ -341,24 +390,6 @@ namespace Gui {
 	void EventDistributor::HandldKeyboardButton(KeyCode key, GUI_INPUT_KEY_STATE state, std::vector<WidgetPtr>& widgets)
 	{
 
-	}
-
-	void EventDistributor::HandleMouseButton(I32x2 mousePos, KeyCode key, GUI_INPUT_KEY_STATE state, std::vector<WidgetPtr>& widgets)
-	{
-		SetCurrentButtonIndex((U32)key - (U32)Click_Left);
-		if (state == GUI_INPUT_KEY_STATE_KEYDOWN)
-		{
-			SignalHandlerButtonDown(mousePos, widgets);
-		}
-		else
-		{
-			SignalHandlerButtonUp(mousePos, widgets);
-		}
-	}
-
-	void EventDistributor::HandleMouseMove(I32x2 mousePos, std::vector<WidgetPtr>& widgets)
-	{
-		SignalHandleMouseMotion(mousePos, widgets);
 	}
 }
 }

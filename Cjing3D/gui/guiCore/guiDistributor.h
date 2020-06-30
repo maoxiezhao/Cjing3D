@@ -15,6 +15,7 @@ namespace Gui {
 			bool FireMouseEvent(Widget* targetWidget, UI_EVENT_TYPE eventType, const I32x2& pos);
 			bool FireMouseButtonEvent(Widget* targetWidget, UI_EVENT_TYPE eventType, const I32x2& pos, U32 buttonIndex);
 			bool FireMouseDragEvent(Widget* targetWidget, UI_EVENT_TYPE eventType, const I32x2& offset);
+			bool FireMouseScrollEvent(Widget* targetWidget, const I32x2& pos, I32 delta);
 
 			Widget* FindAndGetMouseEnableWidget(const I32x2& pos, std::vector<WidgetPtr>& widgets);
 		};
@@ -43,17 +44,25 @@ namespace Gui {
 
 		class MouseButtonDistributor : public MouseMotion
 		{
+		public:
+			WidgetPtr GetCurrentFocusdWidget() { return mCurrentFocusedWidget; }
+			void SetCurrentFocusedWidget(WidgetPtr widget);
+
+			Signal<void(WidgetPtr oldWidget, WidgetPtr newWidge)> OnFocusedChanged;
+
 		protected:
 			void SignalHandlerButtonDown(const I32x2& coords, std::vector<WidgetPtr>& widgets);
 			void SignalHandlerButtonUp(const I32x2& coords, std::vector<WidgetPtr>& widgets);
+			void SignalHandlerMouseWheelChanged(I32 wheelDelta, const I32x2& coords, std::vector<WidgetPtr>& widgets);
 
 			void SetCurrentButtonIndex(U32 buttonIndex);
 			void SetCanDrag(bool canDrag) { mCanDrag = canDrag; }
-
+		
 		private:
 			void MouseButtonClick(Widget* widget);
 
-			Widget* mLastClickWidget = nullptr;
+			WidgetPtr mLastClickWidget = nullptr;
+			WidgetPtr mCurrentFocusedWidget = nullptr;
 			Widget* mButtonFocuseWidget = nullptr;
 
 			bool mIsPressed = false;
@@ -73,8 +82,6 @@ namespace Gui {
 
 	private:
 		void HandldKeyboardButton(KeyCode key, GUI_INPUT_KEY_STATE state, std::vector<WidgetPtr>& widgets);
-		void HandleMouseButton(I32x2 mousePos, KeyCode key, GUI_INPUT_KEY_STATE state, std::vector<WidgetPtr>& widgets);
-		void HandleMouseMove(I32x2 mousePos, std::vector<WidgetPtr>& widgets);
 	};
 
 }

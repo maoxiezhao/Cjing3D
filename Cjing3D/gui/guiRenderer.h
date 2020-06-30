@@ -25,6 +25,8 @@ namespace Cjing3D
 		const Gui::GUIScheme& GetGUIScheme()const;
 
 		// render
+		void ApplyScissor(const Rect& rect);
+		void ResetScissor();
 		void RenderSprite(Sprite& sprite);
 		void RenderText(TextDrawable* text);
 

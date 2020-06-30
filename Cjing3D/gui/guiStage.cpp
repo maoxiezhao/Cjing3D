@@ -189,6 +189,16 @@ namespace Cjing3D
 			mInputEventQueue.push(e);
 		}
 
+		auto mouseWheelDelta = inputManager.GetMouseWheelDelta();
+		if (mouseWheelDelta != 0)
+		{
+			Gui::GUIInputEvent e = {};
+			e.type = GUI_INPUT_EVENT_TYPE_MOUSE_WHEEL_CHANGED;
+			e.delta = mouseWheelDelta;
+			e.pos = mousePos;
+			mInputEventQueue.push(e);
+		}
+
 		// notify keyboard event
 		for (auto keyCode : mRegisteredKeyBoardKeys)
 		{

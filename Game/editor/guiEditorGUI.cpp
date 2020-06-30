@@ -47,15 +47,15 @@ namespace Editor {
 		ImGui::Text("Current mouse pos: %d %d", mousePos[0], mousePos[1]);
 
 		// current mouse focuse widget
-		Gui::WidgetPtr focusedWidget = widgetHierachy.GetCurrentFocusdWidget();
-		if (focusedWidget != nullptr)
+		Gui::WidgetPtr mouseWidget = widgetHierachy.GetCurrentMouseFocusdWidget();
+		if (mouseWidget != nullptr)
 		{
-			std::string text = "Current mouse focus widget:" + focusedWidget->GetName().GetString();
+			std::string text = "Current mouse on widget:" + mouseWidget->GetName().GetString();
 			ImGui::Text(text.c_str());
 		}
 		else
 		{
-			ImGui::Text("Current mouse focus widget: NULL");
+			ImGui::Text("Current mouse on widget: NULL");
 		}
 
 		// current mouse drage widget
@@ -68,6 +68,18 @@ namespace Editor {
 		else
 		{
 			ImGui::Text("Current mouse drag widget: NULL");
+		}
+
+		// current mouse button focus widget
+		Gui::WidgetPtr focusedWidget = widgetHierachy.GetCurrentFocusdWidget();
+		if (focusedWidget != nullptr)
+		{
+			std::string text = "Current focused widget:" + focusedWidget->GetName().GetString();
+			ImGui::Text(text.c_str());
+		}
+		else
+		{
+			ImGui::Text("Current focused widget: NULL");
 		}
 
 

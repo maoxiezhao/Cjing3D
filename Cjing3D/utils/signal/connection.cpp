@@ -41,4 +41,43 @@ namespace Cjing3D
 	{
 		return mConnection != nullptr && mConnection->Valid();
 	}
+
+	ScopedConnection::ScopedConnection(const Connection& connection) :
+		mConnection(connection)
+	{
+	}
+
+	ScopedConnection::ScopedConnection(Connection&& connection) :
+		mConnection(std::move(connection))
+	{
+	}
+
+	ScopedConnection::~ScopedConnection()
+	{
+		mConnection.Disconnect();
+	}
+
+	ScopedConnection& ScopedConnection::operator=(const Connection& rhs)
+	{
+		mConnection.Disconnect();
+		mConnection = rhs;
+		return *this;
+	}
+
+	ScopedConnection& ScopedConnection::operator=(Connection&& rhs)
+	{
+		mConnection.Disconnect();
+		mConnection = std::move(rhs);
+		return *this;
+	}
+
+	void ScopedConnection::Disconnect()
+	{
+		mConnection.Disconnect();
+	}
+
+	bool ScopedConnection::IsConnected() const
+	{
+		return mConnection.IsConnected();
+	}
 }

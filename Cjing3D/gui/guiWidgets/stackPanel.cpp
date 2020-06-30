@@ -16,6 +16,16 @@ namespace Gui {
 	{
 	}
 
+	void StackPanel::SetSpacing(F32 spacing)
+	{
+		std::dynamic_pointer_cast<BoxLayout>(GetLayout())->SetSpacing(spacing);
+	}
+
+	void StackPanel::SetMargin(const WidgetMargin& margin)
+	{
+		std::dynamic_pointer_cast<BoxLayout>(GetLayout())->SetMargin(margin);
+	}
+
 	void StackPanel::RenderImpl(const Rect& destRect)
 	{
 		GUIRenderer& renderer = GetGUIRenderer();

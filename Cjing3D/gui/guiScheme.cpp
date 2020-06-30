@@ -13,6 +13,8 @@ namespace Gui
 	REGISTER_SCHEME_NAME(GUIScheme::WindowHeadBackground);
 	// panel
 	REGISTER_SCHEME_NAME(GUIScheme::PanelBackground);
+	// popup
+	REGISTER_SCHEME_NAME(GUIScheme::PopupPanelBackground);
 	// button
 	REGISTER_SCHEME_NAME(GUIScheme::ButtonBackgroundBase);
 	REGISTER_SCHEME_NAME(GUIScheme::ButtonBackgroundClick);
@@ -28,6 +30,8 @@ namespace Gui
 	// check box
 	REGISTER_SCHEME_NAME(GUIScheme::CheckBoxBackground);
 	REGISTER_SCHEME_NAME(GUIScheme::CheckBoxBackgroundOn);
+	// scroll
+	REGISTER_SCHEME_NAME(GUIScheme::ScrollBarBase);
 
 #undef  REGISTER_SCHEME_NAME
 
@@ -61,13 +65,15 @@ namespace Gui
 		RegisterColor(GUIScheme::WindowHeadBackground, Color4(74, 74, 74, 255));
 		// panel
 		RegisterColor(GUIScheme::PanelBackground, Color4(45, 45, 48, 225));
+		// popup
+		RegisterColor(GUIScheme::PopupPanelBackground, Color4(85, 85, 88, 225));	
 		// button
-		RegisterColor(GUIScheme::ButtonBackgroundBase, Color4(0, 132, 190, 255));
-		RegisterColor(GUIScheme::ButtonBackgroundClick, Color4(0, 107, 162, 255));
-		RegisterColor(GUIScheme::ButtonBackgroundHovered, Color4(0, 123, 182, 255));
-		RegisterColor(GUIScheme::ButtonTextBase, Color4(251, 250, 248, 255));
-		RegisterColor(GUIScheme::ButtonTextClick, Color4(251, 250, 248, 255));
-		RegisterColor(GUIScheme::ButtonTextHovered, Color4(251, 250, 248, 255));
+		RegisterColor(GUIScheme::ButtonBackgroundBase, Color4(58, 58, 58, 255));
+		RegisterColor(GUIScheme::ButtonBackgroundClick, Color4(31, 31, 31, 255));
+		RegisterColor(GUIScheme::ButtonBackgroundHovered, Color4(64, 64, 64, 255));
+		RegisterColor(GUIScheme::ButtonTextBase, Color4(255, 255, 255, 160));
+		RegisterColor(GUIScheme::ButtonTextClick, Color4(255, 255, 255, 160));
+		RegisterColor(GUIScheme::ButtonTextHovered, Color4(255, 255, 255, 160));
 		// list item
 		RegisterColor(GUIScheme::ListItemBackgroundHovered, Color4(68, 67, 65, 255));
 		RegisterColor(GUIScheme::ListItemBackgroundPressed, Color4(0, 123, 182, 255));
@@ -76,6 +82,8 @@ namespace Gui
 		// check box
 		RegisterColor(GUIScheme::CheckBoxBackground, Color4(120, 120, 100, 255));
 		RegisterColor(GUIScheme::CheckBoxBackgroundOn, Color4(200, 200, 189, 255));
+		// scroll
+		RegisterColor(GUIScheme::ScrollBarBase, Color4(220, 220, 220, 150));
 	}
 
 

@@ -76,6 +76,8 @@ namespace Cjing3D
 		virtual void BeginRenderBehavior(RenderBehavior& behavior) = 0;
 		virtual void EndRenderBehavior() = 0;
 
+		virtual void BindScissorRects(U32 num, const RectInt* rects) = 0;
+
 		// compute
 		virtual void BindComputeShader(ShaderPtr computeShader) = 0;
 		virtual void Dispatch(U32 threadGroupCountX, U32 threadGroupCountY, U32 threadGroupCountZ) = 0;

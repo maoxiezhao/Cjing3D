@@ -17,10 +17,12 @@ namespace Cjing3D
 			RenderItemType_None,
 			RenderItemType_Sprite,
 			RenderItemType_Font,
+			RenderItemType_Scissor,
 		};
 		RenderItemType mType = RenderItemType_None;
 		Sprite* mSprite = nullptr;
 		TextDrawable* mText = nullptr;
+		RectInt mScissorRect;
 		bool mIsPersistent = false;
 	};
 
@@ -46,6 +48,9 @@ namespace Cjing3D
 		void AddTextDrawable(TextDrawable* text, bool isPersistent = true, const StringID& layerName = "");
 		void RemoveTextDrawable(TextDrawable* text);
 		void RemoveTextDrawable(TextDrawable* text, const StringID& layerName = "");
+
+		// scissor
+		void AddScissorRect(const RectInt& rect, const StringID& layerName = "");
 
 		// render layer
 		void AddLayer(const StringID& name);

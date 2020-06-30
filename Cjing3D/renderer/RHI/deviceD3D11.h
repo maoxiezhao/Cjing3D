@@ -61,6 +61,8 @@ public:
 	virtual void BeginRenderBehavior(RenderBehavior& behavior);
 	virtual void EndRenderBehavior();
 
+	virtual void BindScissorRects(U32 num, const RectInt* rects);
+
 	// compute
 	virtual void BindComputeShader(ShaderPtr computeShader);
 	virtual void Dispatch(U32 threadGroupCountX, U32 threadGroupCountY, U32 threadGroupCountZ);
