@@ -28,6 +28,7 @@ namespace Cjing3D
 		void SetTextAlignH(Font::TextAlignH align);
 		void SetBoundingSize(F32 w, F32 h);
 
+		Color4 GetColor()const;
 		F32 GetTextWidth()const;
 		F32 GetTextHeight()const;
 

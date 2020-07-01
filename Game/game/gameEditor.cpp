@@ -31,6 +31,7 @@
 #include "gui\guiWidgets\layouts\gridLayout.h"
 #include "gui\guiWidgets\popup.h"
 #include "gui\guiWidgets\scrollView.h"
+#include "gui\guiWidgets\image.h"
 
 namespace Cjing3D
 {
@@ -107,29 +108,47 @@ namespace Cjing3D
 				Gui::WidgetMargin(5.0f),
 				5.0f
 			));
-			for (int i = 0; i < 3; i++) {
-				auto button = std::make_shared<Gui::Button>(guiStage, StringID("Push" + std::to_string(i)), "Push" + std::to_string(i));
-				popup->Add(button);
+			{
+				label = std::make_shared<Gui::Label>(guiStage, StringID("scrollViewLabel"), "ScrollView");
+				popup->Add(label);
+				// list
+				auto stackPanel = std::make_shared<Gui::StackPanel>(guiStage, StringID("StackPanel"));
+				stackPanel->SetMargin(Gui::WidgetMargin(5.0f));
+				stackPanel->SetSpacing(5.0f);
+				for (int i = 0; i < 10; i++)
+				{
+					auto button = std::make_shared<Gui::Button>(guiStage, StringID("Button" + std::to_string(i)), "Button" + std::to_string(i));
+					stackPanel->Add(button);
+				}
+				// scroll view
+				auto scrollView = std::make_shared<Gui::ScrollView>(guiStage, StringID("ScrollView"), F32x2(100.0f, 150.0f));
+				scrollView->SetPos({ 400.0f, 100.0f });
+				scrollView->SetWidget(stackPanel);
+				popup->Add(scrollView);
 			}
-		}
-		//widgetHierarchy.AddWidget(baseWindow);
 
-		// list
-		auto stackPanel = std::make_shared<Gui::StackPanel>(guiStage, StringID("StackPanel"));
-		stackPanel->SetMargin(Gui::WidgetMargin(5.0f));
-		stackPanel->SetSpacing(5.0f);
-		for (int i = 0; i < 10; i++)
-		{
-			auto button = std::make_shared<Gui::Button>(guiStage, StringID("Button" + std::to_string(i)), "Button" + std::to_string(i));
-			stackPanel->Add(button);
-		}
-	
-		// scroll view
-		auto scrollView = std::make_shared<Gui::ScrollView>(guiStage, StringID("ScrollView"), F32x2(100.0f, 100.0f));
-		scrollView->SetPos({ 400.0f, 50.0f });
-		scrollView->SetWidget(stackPanel);
-		widgetHierarchy.AddWidget(scrollView);
+			// image
+			label = std::make_shared<Gui::Label>(guiStage, StringID("imageLabel"), "Normal Image");
+			baseWindow->Add(label);
 
+			auto imagePanel = std::make_shared<Gui::Widget>(guiStage, StringID("imagePanel"));
+			imagePanel->SetLayout(std::make_shared<Gui::BoxLayout>(
+				Gui::AlignmentOrien_Horizontal,
+				Gui::AlignmentMode_Center,
+				Gui::WidgetMargin(5.0f),
+				5.0f));
+			for (int i = 0; i < 2; i++)
+			{
+				auto image = std::make_shared<Gui::Image>(guiStage, StringID("image" + std::to_string(i)));
+				image->SetTexture("Textures/logo.png");
+				image->SetSizeAndFixedSize({ 60.0f, 60.0f });
+				image->SetExpand(true);
+				image->SetStretchMode(Gui::Image::STRETCH_KEEP_ASPECT);
+				imagePanel->Add(image);
+			}
+			baseWindow->Add(imagePanel);
+		}
+		widgetHierarchy.AddWidget(baseWindow);
 		widgetHierarchy.UpdateLayout();
 	}
 

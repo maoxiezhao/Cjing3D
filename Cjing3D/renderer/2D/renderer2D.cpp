@@ -19,10 +19,7 @@ namespace Renderer2D {
 		size_t MaxBatchSize = 2048;
 
 		std::vector<Sprite*> mRenderRequestSprites;
-
-		std::vector<TextDrawable*> mPersistentTexts;
 		std::vector<TextDrawable*> mRenderRequestTexts;
-
 		std::vector<RenderLayer2D> mRenderLayers{ 1 };
 	}
 
@@ -100,6 +97,10 @@ namespace Renderer2D {
 			U32 GetHash() const
 			{
 				return mHash;
+			}
+			Texture2D* GetTexture()
+			{
+				return mSprite != nullptr ? mSprite->GetTexture() : nullptr;
 			}
 		};
 
@@ -213,7 +214,8 @@ namespace Renderer2D {
 			GraphicsDevice::GPUAllocation instances = graphicsDevice.AllocateGPU(allocSize);
 
 			U32 instancedBatchCount = 0;
-			U32 prevBatchHash = -1;
+			//U32 prevBatchHash = -1;
+			Texture2D* prevTexture = nullptr;
 			std::vector<SpriteBatchInstance*> mRenderBatchInstances;
 
 			// visist render batch queue
@@ -226,10 +228,12 @@ namespace Renderer2D {
 					continue;
 				}
 
-				U32 currentBatchHash = batch->GetHash();
-				if (currentBatchHash != prevBatchHash)
+				//U32 currentBatchHash = batch->GetHash();
+				//if (currentBatchHash != prevBatchHash)
+				Texture2D* currentTexture = batch->GetTexture();
+				if (currentTexture != prevTexture)
 				{
-					prevBatchHash = currentBatchHash;
+					prevTexture = currentTexture;
 					instancedBatchCount++;
 
 					SpriteBatchInstance* batchInstance = (SpriteBatchInstance*)frameAllocator.Allocate(sizeof(SpriteBatchInstance));
@@ -290,7 +294,6 @@ namespace Renderer2D {
 		///////////////////////////////////////////////////////////////////////////////////
 
 		SpriteRenderBatchQueue mSpriteRenderBatchQueue;
-
 		void RenderSprites()
 		{
 			LinearAllocator& frameAllocator = Renderer::GetFrameAllocator(Renderer::FrameAllocatorType_Render);
@@ -331,6 +334,42 @@ namespace Renderer2D {
 			mRenderRequestSprites.clear();
 		}
 
+		std::vector<UTF8String> mRenderUT8Strings;
+		std::vector<Font::FontParams> mRenderFontParams;
+		void RenderTextDrawables()
+		{
+			auto FlushQueue = [&]()->void
+			{
+				if (mRenderUT8Strings.size() <= 0 || mRenderFontParams.size() <= 0) {
+					return;
+				}
+				Font::Draw(mRenderUT8Strings, mRenderFontParams);
+
+				mRenderUT8Strings.clear();
+				mRenderFontParams.clear();
+			};
+
+			TextDrawable* prevTextDrawable = nullptr;
+			for (TextDrawable* text : mRenderRequestTexts)
+			{
+				if (text != nullptr && text->IsVisible() && !text->GetText().Empty()) 
+				{
+					if (prevTextDrawable != nullptr &&
+						prevTextDrawable->GetColor() != text->GetColor())
+					{
+						FlushQueue();
+					}
+
+					mRenderUT8Strings.push_back(text->GetText());
+					mRenderFontParams.push_back(text->GetParams());
+
+					prevTextDrawable = text;
+				}
+			}
+			mRenderRequestTexts.clear();
+			FlushQueue();
+		}
+
 		///////////////////////////////////////////////////////////////////////////////////
 	}
 
@@ -369,7 +408,6 @@ namespace Renderer2D {
 		Logger::Info("Renderer2D Uninitialized");
 
 		mSpriteRenderBatchQueue.Clear();
-		mPersistentTexts.clear();
 		mRenderRequestTexts.clear();
 		mRenderLayers.clear();
 
@@ -383,6 +421,7 @@ namespace Renderer2D {
 
 	void Render2D()
 	{
+		PROFILER_BEGIN_CPU_GPU_BLOCK("Render2D");
 		for (auto& layer : mRenderLayers)
 		{
 			if (layer.mItems.empty()) {
@@ -392,6 +431,9 @@ namespace Renderer2D {
 			for (auto& item : layer.mItems)
 			{
 				if (item.mSprite != nullptr && item.mSprite->IsVisible()) {
+					if (!mRenderRequestTexts.empty()) {
+						RenderTextDrawables();
+					}
 					mRenderRequestSprites.push_back(item.mSprite);
 				}
 
@@ -400,14 +442,16 @@ namespace Renderer2D {
 					if (!mRenderRequestSprites.empty()) {
 						RenderSprites();
 					}
-
-					item.mText->Draw();
+					mRenderRequestTexts.push_back(item.mText);
 				}
 
 				if (item.mType == RenderItem2D::RenderItemType_Scissor)
 				{
 					if (!mRenderRequestSprites.empty()) {
 						RenderSprites();
+					}
+					if (!mRenderRequestTexts.empty()) {
+						RenderTextDrawables();
 					}
 
 					Renderer::GetDevice().BindScissorRects(1, &item.mScissorRect);
@@ -417,7 +461,11 @@ namespace Renderer2D {
 			if (!mRenderRequestSprites.empty()) {
 				RenderSprites();
 			}
+			if (!mRenderRequestTexts.empty()) {
+				RenderTextDrawables();
+			}
 		}
+		PROFILER_END_CPU_GPU_BLOCK();
 
 		// clear nullptr and temp items
 		CleanLayers();
@@ -470,26 +518,6 @@ namespace Renderer2D {
 				item.mSprite = nullptr;
 			}
 		}
-	}
-
-	void RenderTextDrawables()
-	{
-		// 先将presistent texts添加到renderRequestTexts中
-		for (TextDrawable* text : mPersistentTexts)
-		{
-			if (text != nullptr) {
-				mRenderRequestTexts.push_back(text);
-			}
-		}
-
-		// render text
-		for (TextDrawable* text : mRenderRequestTexts)
-		{
-			if (text != nullptr && text->IsVisible()) {
-				text->Draw();
-			}
-		}
-		mRenderRequestTexts.clear();
 	}
 
 	void AddTextDrawable(TextDrawable* text, bool isPersistent, const StringID& layerName)

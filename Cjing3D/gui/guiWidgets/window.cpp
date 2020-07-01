@@ -86,7 +86,7 @@ namespace Gui
 		if (buttonIndex == 0)
 		{
 			F32 posY = TransformToLocalCoord({ 0.0f, (F32)variants[1].GetValue<I32>() })[1];
-			mIsDraging = (posY - GetPos()[1]) < windowHeadSize;
+			mIsDraging = posY < windowHeadSize;
 		}
 
 		handle = true;

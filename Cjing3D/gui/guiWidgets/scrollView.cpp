@@ -4,13 +4,111 @@
 namespace Cjing3D {
 namespace Gui {
 
+	namespace {
+	
+		F32 CalculateSliderHeight(F32 barHeight, F32 pageHeight, F32 minimum, F32 maximum)
+		{
+			return barHeight * (pageHeight / (maximum - minimum + pageHeight));
+		}
+	}
+
 	ScrollBar::ScrollBar(GUIStage& stage, const StringID& name) :
 		Widget(stage, name)
 	{
+		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_ENTER, std::bind(&ScrollBar::OnMouseEnter, this, std::placeholders::_4), Dispatcher::back_child);
+		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_LEAVE, std::bind(&ScrollBar::OnMouseLeave, this, std::placeholders::_4), Dispatcher::back_child);
+		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_DOWN, std::bind(&ScrollBar::OnMousePressed, this, std::placeholders::_4), Dispatcher::back_child);
+		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_UP, std::bind(&ScrollBar::OnMouseReleased, this, std::placeholders::_4), Dispatcher::back_child);
+		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_DRAG, std::bind(&ScrollBar::OnMouseDrag, this, std::placeholders::_3, std::placeholders::_4), Dispatcher::back_child);
 	}
 
-	void ScrollBar::SetValue(F32 value)
+	void ScrollBar::SetScrollValue(F32 value, bool ignoreParentEvent)
 	{
+		mScrollValue = value;
+
+		if (!ignoreParentEvent && GetParent() != nullptr) {
+			GetParent()->SetNeedLayout(true);
+		}
+	}
+
+	void ScrollBar::OnMouseEnter(const VariantArray& variants)
+	{
+		mState |= ScrollBarState_Hovered;
+	}
+
+	void ScrollBar::OnMouseLeave(const VariantArray& variants)
+	{
+		mState &= ~ScrollBarState_Hovered;
+	}
+
+	void ScrollBar::OnMousePressed(const VariantArray& variants)
+	{
+		U32 buttonIndex = variants[2].GetValue<I32>();
+		if (buttonIndex != 0) {
+			return;
+		}
+
+		F32x2 pos = {
+			(F32)variants[0].GetValue<I32>(),
+			(F32)variants[1].GetValue<I32>()
+		};
+		F32x2 localPos = TransformToLocalCoord(pos);
+		Rect thumbRect = CalculateThumbRect(F32x2());
+
+		// 如果点击位置在thumbRect范围内，则开始拖拽行为
+		if (thumbRect.Intersects(localPos))
+		{
+			mDraggingPosY = localPos.y();
+			mIsDragging = true;
+		}
+		else
+		{
+			F32 sliderHeght = CalculateSliderHeight(GetHeight(), mScrollPageHeight, mScrollMinimum, mScrollMaximum);
+			F32 ratio = (localPos.y() - sliderHeght * 0.5f) / (GetHeight() - sliderHeght);
+			F32 newValue = std::clamp(ratio * (mScrollMaximum - mScrollMinimum), mScrollMinimum, mScrollMaximum);
+			SetScrollValue(newValue);
+		}
+	}
+
+	void ScrollBar::OnMouseReleased(const VariantArray& variants)
+	{
+		mIsDragging = false;
+	}
+
+	void ScrollBar::OnMouseDrag(bool& handle, const VariantArray& variants)
+	{
+		if (!mIsDragging) {
+			return;
+		}
+
+		F32x2 pos = {
+			(F32)variants[2].GetValue<I32>(),
+			(F32)variants[3].GetValue<I32>()
+		};
+		F32x2 localPos = TransformToLocalCoord(pos);
+
+		F32 sliderHeght = CalculateSliderHeight(GetHeight(), mScrollPageHeight, mScrollMinimum, mScrollMaximum);
+		F32 ratio = (localPos.y() - mDraggingPosY) / (GetHeight() - sliderHeght);
+		F32 newValue = std::clamp(ratio * (mScrollMaximum - mScrollMinimum), mScrollMinimum, mScrollMaximum);
+		SetScrollValue(newValue);
+
+		handle = true;
+	}
+
+	Rect ScrollBar::CalculateThumbRect(F32x2 pos)
+	{
+		F32 sliderHeight = CalculateSliderHeight(GetHeight(), mScrollPageHeight, mScrollMinimum, mScrollMaximum);
+		sliderHeight = std::max(sliderHeight, mScrollSliderMinHeight);
+		F32 offsetY = (mScrollValue - mScrollMinimum) / (mScrollMaximum - mScrollMinimum) * (GetHeight() - sliderHeight);
+
+		F32 left = pos.x();
+		F32 top = pos.y() + offsetY;
+		return Rect(
+			left,
+			top,
+			left + GetWidth(),
+			top + sliderHeight
+		);
 	}
 
 	void ScrollBar::RenderImpl(const Rect& destRect)
@@ -18,27 +116,23 @@ namespace Gui {
 		GUIRenderer& renderer = GetGUIRenderer();
 		const GUIScheme& scheme = renderer.GetGUIScheme();
 
+		// scroll bar
 		mBarSprite.SetPos(destRect.GetPos());
 		mBarSprite.SetSize(destRect.GetSize());
 		mBarSprite.SetColor(scheme.GetColor(GUIScheme::ScrollBarBase));
-
 		renderer.RenderSprite(mBarSprite);
-	}
 
-	void ScrollBar::OnMouseEnter(const VariantArray& variants)
-	{
-	}
+		// scroll thumb
+		Color4 sliderColor = scheme.GetColor(GUIScheme::ScrollSliderBase);
+		if (mState & ScrollBarState_Hovered) {
+			sliderColor = scheme.GetColor(GUIScheme::ScrollSliderHovered);
+		}
 
-	void ScrollBar::OnMouseLeave(const VariantArray& variants)
-	{
-	}
-
-	void ScrollBar::OnMousePressed(const VariantArray& variants)
-	{
-	}
-
-	void ScrollBar::OnMouseReleased(const VariantArray& variants)
-	{
+		Rect thumbRect = CalculateThumbRect(destRect.GetPos());
+		mThumbSprite.SetPos(thumbRect.GetPos());
+		mThumbSprite.SetSize(thumbRect.GetSize());
+		mThumbSprite.SetColor(sliderColor);
+		renderer.RenderSprite(mThumbSprite);
 	}
 
 	ScrollView::ScrollView(GUIStage& stage, const StringID& name, F32x2 size, const WidgetMargin& margin) :
@@ -51,7 +145,7 @@ namespace Gui {
 		mScrollBar = std::make_shared<ScrollBar>(stage, "scrollBar");
 		mScrollBar->SetSizeAndFixedSize({10.0f, 20.0f});
 		mScrollBar->SetVisible(true);
-		mScrollBar->SetValue(0.0f);
+		mScrollBar->SetScrollValue(0.0f, true);
 		Widget::Add(mScrollBar);
 	}
 
@@ -63,7 +157,6 @@ namespace Gui {
 			return;
 		}
 
-
 		mWidget = widget;
 		Widget::Add(widget);
 	}
@@ -73,13 +166,28 @@ namespace Gui {
 		return mWidget;
 	}
 
+	void ScrollView::SetScrollSpeed(F32 speed)
+	{
+		mScrollBar->SetScrollSpeed(speed);
+	}
+
+	F32 ScrollView::GetScrollSpeed() const
+	{
+		return mScrollBar->GetScrollSpeed();
+	}
+
 	void ScrollView::SetScrollValue(F32 value)
 	{
-		if (!IsF32EqualF32(mScrollValue, value))
+		if (!IsF32EqualF32(mScrollBar->GetScrollValue(), value))
 		{
-			mScrollValue = value;
+			mScrollBar->SetScrollValue(value, true);
 			mNeedLayout = true;
 		}
+	}
+
+	F32 ScrollView::GetScrollValue() const
+	{
+		return mScrollBar->GetScrollValue();
 	}
 
 	void ScrollView::ScrollToTop()
@@ -88,7 +196,7 @@ namespace Gui {
 		{
 			F32x2 childSize = mWidget->GetBestSize();
 			if (childSize > GetSize()) {
-				SetScrollValue(mScrollMinimum);
+				SetScrollValue(mScrollBar->GetMinimum());
 			}
 		}
 	}
@@ -99,7 +207,7 @@ namespace Gui {
 		{
 			F32x2 childSize = mWidget->GetBestSize();
 			if (childSize > GetSize()) {
-				SetScrollValue(mScrollMaximum);
+				SetScrollValue(mScrollBar->GetMaximum());
 			}
 		}
 	}
@@ -107,8 +215,11 @@ namespace Gui {
 	void ScrollView::OnMouseScroll(const VariantArray& variants)
 	{
 		I32 delta = variants[2].GetValue<I32>();
-		const F32 newValue = -delta * mScrollSpeed / 400.0f + mScrollValue;
-		SetScrollValue(std::clamp(newValue, mScrollMinimum, mScrollMaximum));
+		const F32 newValue = -delta * mScrollBar->GetScrollSpeed() * mScrollBar->GetScrollPageHeight() / 400.0f + mScrollBar->GetScrollValue();
+		SetScrollValue(std::clamp(
+			newValue, 
+			mScrollBar->GetMinimum(), 
+			mScrollBar->GetMaximum()));
 	}
 
 	void ScrollView::Add(WidgetPtr node)
@@ -126,15 +237,18 @@ namespace Gui {
 		if (isConnected != mIsWheelScrollConnected)
 		{
 			mIsWheelScrollConnected = isConnected;
-			if (isConnected)
-			{
+			if (isConnected) {
 				ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_SCROLL, std::bind(&ScrollView::OnMouseScroll, this, std::placeholders::_4), Dispatcher::back_post_child);
 			}
-			else
-			{
+			else {
 				DisconnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_SCROLL, std::bind(&ScrollView::OnMouseScroll, this, std::placeholders::_4), Dispatcher::back_post_child);
 			}
 		}
+	}
+
+	void ScrollView::SetNeedLayout(bool needLayout)
+	{
+		mNeedLayout = needLayout;
 	}
 
 	F32x2 ScrollView::CalculateBestSize() const
@@ -160,22 +274,24 @@ namespace Gui {
 		F32x2 parentSize = GetSize();
 		if (childSize[1] > parentSize[1])
 		{
+			auto scrollValue = mScrollBar->GetScrollValue();
 			mWidget->SetSize({
 				parentSize[0] - mScrollBar->GetWidth() - marginSize[0],
 				childSize[1]
 			});
-			mWidget->SetPos({ mMargin.left, mMargin.top - mScrollValue });
+			mWidget->SetPos({ mMargin.left, mMargin.top - scrollValue });
 
-			F32 oldMaximum = mScrollMinimum;
-			mScrollSpeed = parentSize[1] * 0.5f;
-			mScrollMinimum = 0.0f;
-			mScrollMaximum = childSize[1] - parentSize[1];
+			F32 oldMaximum = mScrollBar->GetMaximum();
+			mScrollBar->SetScrollPageHeight(parentSize[1]);
+			mScrollBar->SetMinimum(0.0f);
+			mScrollBar->SetMaximum(childSize[1] - parentSize[1]);
 
-			if (oldMaximum > mScrollMaximum) {
-				mScrollValue = std::min(mScrollValue, mScrollMaximum);
+			if (oldMaximum > mScrollBar->GetMaximum()) {
+				mScrollBar->SetScrollValue(std::min(scrollValue, mScrollBar->GetMaximum()));
 			}
 
-			mScrollBar->SetPos({ parentSize[1] - mScrollBar->GetSize()[1], 0.0f });
+			mScrollBar->SetSize({ mScrollBar->GetWidth(), GetHeight() });
+			mScrollBar->SetPos({ parentSize[0] - mScrollBar->GetSize()[0], 0.0f });
 			mScrollBar->SetVisible(true);
 
 			ConnectWheelScrollSignal(true);
@@ -208,28 +324,6 @@ namespace Gui {
 
 		Rect destRect(GetArea());
 		destRect.Offset(offset);
-
-		if (GetGUIStage().IsDebugDraw())
-		{
-			if (mDebugSprite.GetColor() == Color4::White()) {
-				Color4 randomColor;
-				randomColor.SetA(255);
-				randomColor.SetR(Random::GetRandomInt(255));
-				randomColor.SetG(Random::GetRandomInt(255));
-				randomColor.SetB(Random::GetRandomInt(255));
-				mDebugSprite.SetColor(randomColor);
-			}
-
-			mDebugSprite.SetPos(destRect.GetPos());
-			mDebugSprite.SetSize(destRect.GetSize());
-			renderer.RenderSprite(mDebugSprite);
-		}
-
-		// render impl
-		mDebugSprite.SetPos(destRect.GetPos());
-		mDebugSprite.SetSize(destRect.GetSize());
-		mDebugSprite.SetColor(Color4::White());
-		renderer.RenderSprite(mDebugSprite);
 
 		// render children
 		renderer.ApplyScissor(destRect);

@@ -6,6 +6,39 @@
 namespace Cjing3D {
 namespace Gui {
 
+	////////////////////////////////////////////////////////////////////////////////////////
+	/// Event params description
+	////////////////////////////////////////////////////////////////////////////////////////
+	//
+	// UI_EVENT_MOUSE_ENTER
+	// UI_EVENT_MOUSE_LEAVE
+	// UI_EVENT_MOUSE_MOTION
+	// params:
+	//      variants[1] = mouseCoors[0]
+	//      variants[2] = mouseCoors[1]
+	//
+	// UI_EVENT_MOUSE_BUTTON_DOWN
+	// UI_EVENT_MOUSE_BUTTON_UP
+	// params:
+	//      variants[1] = mouseCoors[0]
+	//      variants[2] = mouseCoors[1]
+	//      variants[3] = buttonIndex
+	//
+	// UI_EVENT_MOUSE_DRAG
+	// params:
+	//      variants[1] = offsetX[0]
+	//      variants[2] = offsetY[1]
+	//      variants[3] = mouseCoors[0]
+	//      variants[4] = mouseCoors[1]
+	//
+	//	UI_EVENT_MOUSE_SCROLL
+	// params:
+	//      variants[1] = mouseCoors[0]
+	//      variants[2] = mouseCoors[1]
+	//      variants[3] = wheelDelta
+	//
+	////////////////////////////////////////////////////////////////////////////////////////
+
 	namespace Impl 
 	{
 		class BaseDistributor
@@ -14,7 +47,7 @@ namespace Gui {
 			bool FireKeyboardEvent(Widget* targetWidget, UI_EVENT_TYPE eventType, KeyCode key);
 			bool FireMouseEvent(Widget* targetWidget, UI_EVENT_TYPE eventType, const I32x2& pos);
 			bool FireMouseButtonEvent(Widget* targetWidget, UI_EVENT_TYPE eventType, const I32x2& pos, U32 buttonIndex);
-			bool FireMouseDragEvent(Widget* targetWidget, UI_EVENT_TYPE eventType, const I32x2& offset);
+			bool FireMouseDragEvent(Widget* targetWidget, UI_EVENT_TYPE eventType, const I32x2& offset, const I32x2& pos);
 			bool FireMouseScrollEvent(Widget* targetWidget, const I32x2& pos, I32 delta);
 
 			Widget* FindAndGetMouseEnableWidget(const I32x2& pos, std::vector<WidgetPtr>& widgets);

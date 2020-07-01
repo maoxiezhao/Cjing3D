@@ -12,7 +12,7 @@ namespace Gui {
 			F32x2 fPos = { (F32)pos[0], (F32)pos[1] };
 			for (const auto& widget : widgets) 
 			{
-				if ((widget == nullptr) || !widget->IsVisible()) {
+				if ((widget == nullptr) || !widget->IsVisible() || !widget->IsEnabled()) {
 					continue;
 				}
 
@@ -91,7 +91,7 @@ namespace Gui {
 			}
 		}
 
-		bool BaseDistributor::FireMouseDragEvent(Widget* targetWidget, UI_EVENT_TYPE eventType, const I32x2& offset)
+		bool BaseDistributor::FireMouseDragEvent(Widget* targetWidget, UI_EVENT_TYPE eventType, const I32x2& offset, const I32x2& pos)
 		{
 			if (targetWidget == nullptr) {
 				return false;
@@ -100,6 +100,8 @@ namespace Gui {
 			VariantArray variants;
 			variants.push_back(Variant((I32)offset[0]));
 			variants.push_back(Variant((I32)offset[1]));
+			variants.push_back(Variant((I32)pos[0]));
+			variants.push_back(Variant((I32)pos[1]));
 
 			auto parent = targetWidget->GetRoot();
 			if (parent != nullptr) {
@@ -168,7 +170,7 @@ namespace Gui {
 		{
 			if (mDragWidget != nullptr)
 			{
-				if (FireMouseDragEvent(mDragWidget.get(), UI_EVENT_TYPE::UI_EVENT_MOUSE_DRAG, pos - mCoords)) {
+				if (FireMouseDragEvent(mDragWidget.get(), UI_EVENT_TYPE::UI_EVENT_MOUSE_DRAG, pos - mCoords, mCoords)) {
 					mCoords = pos;
 					return;
 				}

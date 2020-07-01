@@ -911,12 +911,13 @@ void GraphicsDeviceD3D11::Initialize()
 	mViewport.mMaxDepth = 1.0f;
 
 	// 初始化gpu allocator
-	mGPUAllocatorDesc.mByteWidth = 4 * 1024 * 1024;
+	mGPUAllocatorDesc.mByteWidth = 1024 * 1024;
 	mGPUAllocatorDesc.mBindFlags = BIND_SHADER_RESOURCE | BIND_INDEX_BUFFER | BIND_VERTEX_BUFFER;
 	mGPUAllocatorDesc.mUsage = USAGE_DYNAMIC;
 	mGPUAllocatorDesc.mCPUAccessFlags = CPU_ACCESS_WRITE;
 	mGPUAllocatorDesc.mMiscFlags = RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
 	CreateBuffer(&mGPUAllocatorDesc, mGPUAllocator.buffer, nullptr);
+	SetResourceName(mGPUAllocator.buffer, "GPUAllocator");
 
 	// check graphics feature support
 	D3D11_FEATURE_DATA_D3D11_OPTIONS3 featureData;
@@ -2161,16 +2162,24 @@ GraphicsDevice::GPUAllocation GraphicsDeviceD3D11::AllocateGPU(size_t dataSize)
 		return result;
 	}
 
+	// 如果分配的大小大于buffer大小，则分配对应2倍大小
+	size_t allocDataSize = mGPUAllocator.GetDataSize();
+	if (allocDataSize <= dataSize)
+	{
+		mGPUAllocatorDesc.mByteWidth = (dataSize + 1) * 2;
+		CreateBuffer(&mGPUAllocatorDesc, mGPUAllocator.buffer, nullptr);
+		SetResourceName(mGPUAllocator.buffer, "GPUAllocator");
+		mGPUAllocator.byteOffset = 0;
+	}
+
 	auto rhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(mGPUAllocator.buffer);
 	if (rhiState == nullptr) {
 		return result;
 	}
 
-	size_t allocDataSize = std::min(mGPUAllocator.GetDataSize(), dataSize);
-	size_t position = mGPUAllocator.byteOffset;
-
 	// 如果分配的大小超过了最大大小或者分配时处于新的一帧，则覆盖
 	bool wrap = false;
+	size_t position = mGPUAllocator.byteOffset;
 	if (position + dataSize > mGPUAllocator.GetDataSize() ||
 		mGPUAllocator.residentFrame != mCurrentFrameCount) {
 		wrap = true;

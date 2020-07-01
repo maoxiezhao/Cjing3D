@@ -17,12 +17,17 @@ namespace Cjing3D
 
 		void DrawImage();
 		void DrawImage(const F32x2& pos);
+		bool LoadTexture(const std::string& path);
+		void SetTexture(TextureResourcePtr res);
+		void SetTexture(Texture2DPtr texture);
 
 		Texture2D* GetTexture();
+		const Texture2D* GetTexture()const;
 		TextureResourcePtr GetTextureResource() { return mTextureResource; }
 		RenderImage::ImageParams& GetImageParams() { return mImageParams; }
 		F32x2 GetTextureSize()const { return mTextureSize; }
 		F32x2 GetInverseTextureSize()const { return mInverseTextureSize; }
+		bool HasTexture()const;
 
 		bool IsVisible()const { return mIsVisible; }
 		void SetVisible(bool isVisible) { mIsVisible = isVisible; }
@@ -38,11 +43,13 @@ namespace Cjing3D
 
 	private:
 		std::string mFilePath;
-		TextureResourcePtr mTextureResource;
 		RenderImage::ImageParams mImageParams;
-
 		bool mIsVisible = true;
-		F32x2 mTextureSize = {1.0f, 1.0f};
-		F32x2 mInverseTextureSize = {1.0f, 1.0f};
+		F32x2 mTextureSize = { 1.0f, 1.0f };
+		F32x2 mInverseTextureSize = { 1.0f, 1.0f };
+
+		// TODO sprite 应该还是仅保持texturePtr指针
+		TextureResourcePtr mTextureResource = nullptr;
+		//Texture2DPtr mTexture = nullptr;
 	};
 }

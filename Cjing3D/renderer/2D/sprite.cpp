@@ -40,9 +40,47 @@ namespace Cjing3D
 
 		DrawImage();
 	}
+
+	bool Sprite::LoadTexture(const std::string& path)
+	{
+		mFilePath = path;
+		mTextureResource = GlobalGetSubSystem<ResourceManager>().GetOrCreate<TextureResource>(path);
+
+		if (mTextureResource->mTexture != nullptr) 
+		{
+			SetCurrentTextureInfo(*mTextureResource->mTexture);
+			return true;
+		}
+		return false;
+	}
+
+	void Sprite::SetTexture(TextureResourcePtr res)
+	{
+		mTextureResource = res;
+
+		if (mTextureResource->mTexture != nullptr) {
+			SetCurrentTextureInfo(*mTextureResource->mTexture);
+		}
+	}
+
+	void Sprite::SetTexture(Texture2DPtr texture)
+	{
+
+	}
+
 	Texture2D* Sprite::GetTexture()
 	{
 		return mTextureResource != nullptr ? mTextureResource->mTexture : TextureHelper::GetWhite();
+	}
+
+	const Texture2D* Sprite::GetTexture() const
+	{
+		return mTextureResource != nullptr ? mTextureResource->mTexture : TextureHelper::GetWhite();
+	}
+
+	bool Sprite::HasTexture() const
+	{
+		return mTextureResource != nullptr && mTextureResource->mTexture != nullptr;
 	}
 
 	void Sprite::SetSize(F32 w, F32 h)

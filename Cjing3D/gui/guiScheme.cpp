@@ -32,6 +32,9 @@ namespace Gui
 	REGISTER_SCHEME_NAME(GUIScheme::CheckBoxBackgroundOn);
 	// scroll
 	REGISTER_SCHEME_NAME(GUIScheme::ScrollBarBase);
+	REGISTER_SCHEME_NAME(GUIScheme::ScrollSliderBase);
+	REGISTER_SCHEME_NAME(GUIScheme::ScrollSliderHovered);
+	
 
 #undef  REGISTER_SCHEME_NAME
 
@@ -83,7 +86,10 @@ namespace Gui
 		RegisterColor(GUIScheme::CheckBoxBackground, Color4(120, 120, 100, 255));
 		RegisterColor(GUIScheme::CheckBoxBackgroundOn, Color4(200, 200, 189, 255));
 		// scroll
-		RegisterColor(GUIScheme::ScrollBarBase, Color4(220, 220, 220, 150));
+		RegisterColor(GUIScheme::ScrollBarBase, Color4(120, 120, 120, 150));
+		RegisterColor(GUIScheme::ScrollSliderBase, Color4(220, 220, 220, 150));
+		RegisterColor(GUIScheme::ScrollSliderHovered, Color4(240, 240, 240, 150));
+
 	}
 
 

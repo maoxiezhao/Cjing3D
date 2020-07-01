@@ -125,11 +125,13 @@ namespace Gui {
 	F32x2 Widget::TransformToLocalCoord(const F32x2 point) const
 	{
 		F32x2 result = point;
-		if (mParent != nullptr)
+		auto parent = GetParent();
+		while (parent != nullptr)
 		{
-			result -= mParent->GetArea().GetPos();
-			result = mParent->TransformToLocalCoord(result);
+			result -= parent->GetArea().GetPos();
+			parent = parent->GetParent();
 		}
+		result -= GetPos();
 
 		return result;
 	}
@@ -137,12 +139,14 @@ namespace Gui {
 	F32x2 Widget::TransformToGlobalCoord(const F32x2 point) const
 	{
 		F32x2 result = point;
-		if (mParent != nullptr)
+		auto parent = GetParent();
+		while (parent != nullptr)
 		{
 			result += mParent->GetArea().GetPos();
-			result = mParent->TransformToLocalCoord(result);
+			parent = parent->GetParent();
 		}
 
+		result += GetPos();
 		return result;
 	}
 
@@ -153,7 +157,7 @@ namespace Gui {
 			return false;
 		}
 
-		return mArea.Intersects(TransformToLocalCoord(point));
+		return mArea.Intersects(TransformToLocalCoord(point) + mArea.GetPos());
 	}
 
 	void Widget::SetPos(const F32x2 pos)
@@ -169,7 +173,7 @@ namespace Gui {
 
 	F32x2 Widget::GetGlobalPos() const
 	{
-		return TransformToGlobalCoord(mArea.GetPos());
+		return TransformToGlobalCoord(F32x2());
 	}
 
 	void Widget::SetSize(const F32x2 size)
@@ -193,6 +197,10 @@ namespace Gui {
 			return mLayout->CalculateBestSize(this);
 		}
 		return mArea.GetSize();
+	}
+
+	void Widget::SetNeedLayout(bool needLayout)
+	{
 	}
 
 	void Widget::SetSizeAndFixedSize(F32x2 size)
@@ -396,17 +404,6 @@ namespace Gui {
 
 	bool Widget::OnWidgetMoved(void)
 	{
-		if (mParent != nullptr)
-		{
-			const Rect& parentRect = mParent->GetArea();
-			Rect childRect(mArea);
-			childRect.Offset(parentRect.GetPos());
-
-			mAlignRect.mLeft   = childRect.mLeft - parentRect.mLeft;
-			mAlignRect.mTop    = childRect.mTop  - parentRect.mTop;
-			mAlignRect.mRight  = parentRect.mRight  - childRect.mRight;
-			mAlignRect.mBottom = parentRect.mBottom - childRect.mBottom;
-		}
 		return true;
 	}
 

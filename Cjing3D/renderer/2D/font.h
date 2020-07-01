@@ -54,5 +54,6 @@ namespace Cjing3D
 		void Draw(const std::string& text,  const FontParams& params);
 		void Draw(const std::wstring& text, const FontParams& params);
 		void Draw(const UTF8String& text,   const FontParams& params);
+		void Draw(const std::vector<UTF8String>& text, const std::vector<FontParams>& params);
 	}
 }

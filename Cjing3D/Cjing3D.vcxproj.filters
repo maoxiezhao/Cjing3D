@@ -635,6 +635,12 @@
     <ClCompile Include="gui\guiWidgets\scrollView.cpp">
       <Filter>gui\guiWidgets</Filter>
     </ClCompile>
+    <ClCompile Include="gui\guiWidgets\image.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\ninePatchImage.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -1234,6 +1240,12 @@
       <Filter>gui\guiWidgets</Filter>
     </ClInclude>
     <ClInclude Include="gui\guiWidgets\scrollView.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\image.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\ninePatchImage.h">
       <Filter>gui\guiWidgets</Filter>
     </ClInclude>
   </ItemGroup>

@@ -81,6 +81,11 @@ namespace Cjing3D
 		}
 	}
 
+	Color4 TextDrawable::GetColor() const
+	{
+		return mFontParams.mColor;
+	}
+
 	// 获取文字宽度性能较差
 	F32 TextDrawable::GetTextWidth() const
 	{

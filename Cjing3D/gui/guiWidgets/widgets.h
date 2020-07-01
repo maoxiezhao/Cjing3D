@@ -118,6 +118,7 @@ namespace Gui {
 
 		// layout 
 		virtual F32x2 CalculateBestSize()const;
+		virtual void SetNeedLayout(bool needLayout);
 		virtual void UpdateLayout();
 		virtual F32x2 GetLayoutOffset()const;
 		std::shared_ptr<Layout> GetLayout() { return mLayout; }
@@ -156,10 +157,8 @@ namespace Gui {
 		bool mIsFocused = false;
 		Rect mArea; 
 		F32x2 mFixedSize;
-		Rect mAlignRect;
-		U32 mAlignment = WidgetAlignment::None;
 		HierarchySortOrder mHierarchySortOrder = HierarchySortOrder::Sortable;
-		F32 mOrderValue = 0.0f;	// the small one is in front
+		F32 mOrderValue = 0.0f;
 
 		LuaRef mScriptHandler;
 		std::map<StringID, std::string> mScriptEventHandlers;

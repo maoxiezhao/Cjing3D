@@ -35,6 +35,8 @@ namespace Gui {
 		static StringID CheckBoxBackgroundOn;
 		// scroll
 		static StringID ScrollBarBase;
+		static StringID ScrollSliderBase;
+		static StringID ScrollSliderHovered;
 
 		void InitDefaultScheme();
 		void RegisterColor(const StringID& name, const Color4& color);

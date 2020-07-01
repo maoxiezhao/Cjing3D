@@ -73,6 +73,13 @@ namespace Cjing3D
 			vp.mMinDepth = 0.0f;
 			vp.mMaxDepth = 1.0f;
 			device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
+			
+			RectInt rect;
+			rect.mBottom = INT32_MAX;
+			rect.mLeft = INT32_MIN;
+			rect.mRight = INT32_MAX;
+			rect.mTop = INT32_MIN;
+			device.BindScissorRects(1, &rect);
 
 			RenderGUI();
 			Render2D();
