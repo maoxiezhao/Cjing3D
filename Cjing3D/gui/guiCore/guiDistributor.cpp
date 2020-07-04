@@ -170,7 +170,7 @@ namespace Gui {
 		{
 			if (mDragWidget != nullptr)
 			{
-				if (FireMouseDragEvent(mDragWidget.get(), UI_EVENT_TYPE::UI_EVENT_MOUSE_DRAG, pos - mCoords, mCoords)) {
+				if (FireMouseDragEvent(mDragWidget.get(), UI_EVENT_TYPE::UI_EVENT_MOUSE_DRAG, pos - mCoords, pos)) {
 					mCoords = pos;
 					return;
 				}
@@ -247,7 +247,7 @@ namespace Gui {
 			if (mMouseCaptured && mMouseFocusWidget != nullptr)
 			{
 				mButtonFocuseWidget = mMouseFocusWidget.get();
-				FireMouseButtonEvent(mButtonFocuseWidget, UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_DOWN, mCoords, mCurrentButtonIndex);
+				FireMouseButtonEvent(mButtonFocuseWidget, UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_DOWN, coords, mCurrentButtonIndex);
 			}
 			else
 			{
@@ -261,7 +261,7 @@ namespace Gui {
 				}
 
 				if (targetWidget != nullptr) {
-					FireMouseButtonEvent(targetWidget, UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_DOWN, mCoords, mCurrentButtonIndex);
+					FireMouseButtonEvent(targetWidget, UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_DOWN, coords, mCurrentButtonIndex);
 				}
 
 				mButtonFocuseWidget = targetWidget;		
@@ -281,18 +281,14 @@ namespace Gui {
 
 			// handle button focused
 			if (mButtonFocuseWidget != nullptr) {
-				FireMouseButtonEvent(mButtonFocuseWidget, UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_UP, mCoords, mCurrentButtonIndex);
+				FireMouseButtonEvent(mButtonFocuseWidget, UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_UP, coords, mCurrentButtonIndex);
 			}
 
 			Widget* targetWidget = FindAndGetMouseEnableWidget(coords, widgets);
 			// handle drag widget
 			if (mDragWidget != nullptr)
 			{
-				if (mDragWidget.get() == targetWidget)
-				{
-					MouseButtonClick(targetWidget);
-				}
-				else
+				if (mDragWidget.get() != targetWidget)
 				{
 					OnMouseLeave();
 					if (targetWidget != nullptr) {
@@ -308,7 +304,7 @@ namespace Gui {
 				SetMouseCaptured(false);
 				if (mMouseFocusWidget.get() == targetWidget)
 				{
-					MouseButtonClick(targetWidget);
+					MouseButtonClick(targetWidget, coords);
 				}
 				else
 				{
@@ -320,7 +316,7 @@ namespace Gui {
 			}
 			else if (mButtonFocuseWidget != nullptr && mButtonFocuseWidget == targetWidget)
 			{
-				MouseButtonClick(targetWidget);
+				MouseButtonClick(targetWidget, coords);
 			}
 	
 			mButtonFocuseWidget = nullptr;
@@ -334,13 +330,13 @@ namespace Gui {
 		
 			if (mMouseCaptured && mMouseFocusWidget != nullptr)
 			{
-				FireMouseScrollEvent(mMouseFocusWidget.get(), mCoords, wheelDelta);
+				FireMouseScrollEvent(mMouseFocusWidget.get(), coords, wheelDelta);
 			}
 			else
 			{
 				Widget* targetWidget = FindAndGetMouseEnableWidget(coords, widgets);
 				if (targetWidget != nullptr) {
-					FireMouseScrollEvent(targetWidget, mCoords, wheelDelta);
+					FireMouseScrollEvent(targetWidget, coords, wheelDelta);
 				}
 			}
 		}
@@ -350,7 +346,7 @@ namespace Gui {
 			mCurrentButtonIndex = buttonIndex;
 		}
 
-		void MouseButtonDistributor::MouseButtonClick(Widget* widget)
+		void MouseButtonDistributor::MouseButtonClick(Widget* widget, const I32x2& coords)
 		{
 			F32 currentTime = GlobalGetCurrentTime();
 			if (mLastPressedTime + mouseClickDeltaTime >= currentTime &&
@@ -359,7 +355,7 @@ namespace Gui {
 				mLastClickTime = currentTime;
 				mLastPressedTime = 0;
 
-				FireMouseButtonEvent(widget, UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_CLICK, mCoords, mCurrentButtonIndex);
+				FireMouseButtonEvent(widget, UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_CLICK, coords, mCurrentButtonIndex);
 			}
 		}
 	}

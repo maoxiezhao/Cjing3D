@@ -64,7 +64,7 @@ namespace Gui
 		return mTextEdit->GetText();
 	}
 
-	void TextField::UpdateLayoutImpl(const Rect& destRect)
+	void TextField::UpdateLayout()
 	{
 		F32 width = GetWidth() - mMargin.left - mMargin.right;
 		F32 height = GetHeight() - mMargin.top - mMargin.bottom;

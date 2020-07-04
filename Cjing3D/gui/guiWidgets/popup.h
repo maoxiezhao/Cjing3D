@@ -1,11 +1,11 @@
 #pragma once
 
-#include "gui\guiWidgets\widgets.h"
+#include "gui\guiWidgets\container.h"
 #include "gui\guiWidgets\button.h"
 
 namespace Cjing3D {
 	namespace Gui {
-		class Popup : public Widget
+		class Popup : public Container
 		{
 		public:
 			enum Side

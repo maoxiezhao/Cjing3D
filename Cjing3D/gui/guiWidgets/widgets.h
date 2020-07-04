@@ -5,6 +5,7 @@
 #include "scripts\luaRef.h"
 #include "renderer\2D\sprite.h"
 #include "renderer\2D\textDrawable.h"
+#include "utils\signal\connectionMap.h"
 
 #include <set>
 
@@ -19,7 +20,8 @@ namespace Gui {
 
 	enum AlignmentMode
 	{
-		AlignmentMode_Begin = 0,
+		AlignmentMode_None = 0,
+		AlignmentMode_Begin,
 		AlignmentMode_Center,
 		AlignmentMode_End,
 		AlignmentMode_Fill,
@@ -120,12 +122,18 @@ namespace Gui {
 		void SetFocused(bool isFocused) { mIsFocused = isFocused; }
 
 		// layout 
+		void UpdateBestSize();
 		virtual F32x2 CalculateBestSize()const;
 		virtual void UpdateLayout();
-		virtual void SetNeedLayout(bool needLayout);
-		virtual F32x2 GetLayoutOffset()const;
-		std::shared_ptr<Layout> GetLayout() { return mLayout; }
-		void SetLayout(const std::shared_ptr<Layout>& layout) { mLayout = layout; }
+		void SetLayoutOffset(F32x2 offset);
+		F32x2 GetLayoutOffset()const { return mLayoutOffset; }
+		void SetVerticalAlign(AlignmentMode mode);
+		AlignmentMode GetVerticalAlign()const { return mVerticalAlign; }
+		void SetHorizontalAlign(AlignmentMode mode);
+		AlignmentMode GetHorizontalAlign()const { return mHorizontalAlign; }
+		AlignmentMode GetAlignment(AlignmentOrien orien)const {
+			return orien == AlignmentOrien_Horizontal ? GetHorizontalAlign() : GetVerticalAlign();
+		}
 
 		// widget type
 		virtual WidgetType GetSelfWidgetType() const {
@@ -148,16 +156,24 @@ namespace Gui {
 		virtual void OnKeyDown(KeyCode key, int mod);
 		virtual void OnKeyUp(KeyCode key, int mod);
 
+		// signal
+		Signal<void()> OnBestSizeChanged;
+		Signal<void()> OnAlignModeChanged;
+
 	protected:
 		virtual void UpdateImpl(F32 dt);
 		virtual void FixedUpdateImpl();
 		virtual void RenderImpl(const Rect& destRect);
-		virtual void UpdateLayoutImpl(const Rect& destRect);
 
 		virtual void OnParentChanged(Widget* old_parent) {}
 		virtual void OnChildAdded(std::shared_ptr<Widget>& node) {}
 		virtual void OnChildRemoved(std::shared_ptr<Widget>& node) {}
 		virtual bool OnWidgetMoved(void);
+
+		//// 对于基础widget而言，Add/Remove仅内部使用
+		//virtual void Add(std::shared_ptr<Widget> node);
+		//virtual void Remove(const StringID& name);
+		//virtual void Remove(std::shared_ptr<Widget> node);
 
 	protected:
 		// base status
@@ -172,13 +188,16 @@ namespace Gui {
 		HierarchySortOrder mHierarchySortOrder = HierarchySortOrder::Sortable;
 		F32 mOrderValue = 0.0f;
 		Sprite mDebugSprite;
+		F32x2 mLayoutOffset = { 0.0f, 0.0f };
+		AlignmentMode mVerticalAlign = AlignmentMode_None;
+		AlignmentMode mHorizontalAlign = AlignmentMode_None;
+
+		// signal connection
+		ConnectionMap mConnectionMap;
 
 		// script
 		LuaRef mScriptHandler;
 		std::map<StringID, std::string> mScriptEventHandlers;
-
-		// layout
-		std::shared_ptr<Layout> mLayout = nullptr;
 	};
 	using WidgetPtr = std::shared_ptr<Widget>;
 }

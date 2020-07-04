@@ -1,13 +1,13 @@
 #pragma once
 
-#include "gui\guiWidgets\widgets.h"
+#include "gui\guiWidgets\container.h"
 
 #include <optional>
 
 namespace Cjing3D {
 namespace Gui {
 	
-	class ListItem : public Widget
+	class ListItem : public Container
 	{
 	public:
 		enum ListItemState
@@ -42,7 +42,7 @@ namespace Gui {
 		WidgetPtr mWidget = nullptr;
 	};
 
-	class ListPanel : public Widget
+	class ListPanel : public Container
 	{
 	public:
 		ListPanel(GUIStage& stage, const StringID& name = StringID::EMPTY, F32 width = 1.0f, F32 height = 1.0f);
@@ -54,8 +54,6 @@ namespace Gui {
 		U32 GetListItemCount()const;
 		std::optional<U32> GetCurrentIndex()const;
 		WidgetPtr GetChildAt(U32 index);
-		void SetMargin(F32 left, F32 top, F32 right, F32 bottom);
-		void SetLayoutSpacing(F32 spacing);
 
 		Signal<void(std::optional<U32> index)> OnCurrentIndexChangedCallback;
 
@@ -64,7 +62,6 @@ namespace Gui {
 
 	private:
 		Sprite mBgSprite;
-		WidgetMargin mMargin;
 		std::vector<std::shared_ptr<ListItem>> mListItems;
 		std::optional<U32> mCurrentIndex;
 	};

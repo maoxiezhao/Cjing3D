@@ -196,8 +196,8 @@ namespace Cjing3D
 	public:
 		Signal() : mSignalBody(std::make_shared<SignalBody>()) {}
 
-		Signal(const Signal& rhs) = delete;
-		Signal& operator=(const Signal& rhs) = delete;
+		Signal(const Signal& rhs) = default;				// note: Signal(const Signal& rhs) = delete;	
+		Signal& operator=(const Signal& rhs) = default;     // note: Signal(const Signal& rhs) = delete;	
 		Signal(Signal&& rhs) = default;
 		Signal& operator=(Signal&& rhs) = default;
 

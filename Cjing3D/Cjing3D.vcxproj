@@ -176,6 +176,7 @@
     <ClInclude Include="gui\guiScheme.h" />
     <ClInclude Include="gui\guiWidgets\button.h" />
     <ClInclude Include="gui\guiWidgets\checkBox.h" />
+    <ClInclude Include="gui\guiWidgets\container.h" />
     <ClInclude Include="gui\guiWidgets\image.h" />
     <ClInclude Include="gui\guiWidgets\label.h" />
     <ClInclude Include="gui\guiWidgets\layouts\boxLayout.h" />
@@ -331,6 +332,7 @@
     <ClInclude Include="utils\reckPacker\rect_structs.h" />
     <ClInclude Include="utils\signal\connection.h" />
     <ClInclude Include="utils\signal\connectionList.h" />
+    <ClInclude Include="utils\signal\connectionMap.h" />
     <ClInclude Include="utils\signal\signal.h" />
     <ClInclude Include="utils\signal\signalInclude.h" />
     <ClInclude Include="utils\stb_utils\stb_image.h" />
@@ -373,6 +375,7 @@
     <ClCompile Include="gui\guiScheme.cpp" />
     <ClCompile Include="gui\guiWidgets\button.cpp" />
     <ClCompile Include="gui\guiWidgets\checkBox.cpp" />
+    <ClCompile Include="gui\guiWidgets\container.cpp" />
     <ClCompile Include="gui\guiWidgets\image.cpp" />
     <ClCompile Include="gui\guiWidgets\inputField.cpp" />
     <ClCompile Include="gui\guiWidgets\label.cpp" />
@@ -515,6 +518,7 @@
     <ClCompile Include="utils\intersectable.cpp" />
     <ClCompile Include="utils\signal\connection.cpp" />
     <ClCompile Include="utils\signal\connectionList.cpp" />
+    <ClCompile Include="utils\signal\connectionMap.cpp" />
     <ClCompile Include="utils\string\utf8String.cpp" />
     <ClCompile Include="utils\string\utf8StringIt.cpp" />
     <ClCompile Include="utils\tinyxml2\tinyxml2.cpp" />

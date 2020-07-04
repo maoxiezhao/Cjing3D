@@ -73,6 +73,9 @@ namespace Gui
 					int axis = (axis1 + i) % 2;
 					int itemIndex = (i == 0) ? axis1Index : axis2Index;
 					AlignmentMode align = GetItemAlignment(AlignmentOrien(axis), itemIndex);
+					if (align == AlignmentMode_None) {
+						align = widget->GetAlignment(mAlignOri);
+					}
 					switch (align)
 					{
 					case Cjing3D::Gui::AlignmentMode_Begin:
@@ -92,7 +95,7 @@ namespace Gui
 
 				child->SetPos(childPos);
 				child->SetSize(bestSize);
-				child->UpdateLayout();
+				//child->UpdateLayout();
 				currentPos[axis1] += axisGridSize[axis1][axis1Index] + mSpacing[axis1];
 			}
 			currentPos[axis2] += axisGridSize[axis2][axis2Index] + mSpacing[axis2];

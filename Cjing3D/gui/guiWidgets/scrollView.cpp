@@ -25,10 +25,7 @@ namespace Gui {
 	void ScrollBar::SetScrollValue(F32 value, bool ignoreParentEvent)
 	{
 		mScrollValue = value;
-
-		if (!ignoreParentEvent && GetParent() != nullptr) {
-			GetParent()->SetNeedLayout(true);
-		}
+		OnScrollValueChanged(value);
 	}
 
 	void ScrollBar::OnMouseEnter(const VariantArray& variants)
@@ -136,10 +133,10 @@ namespace Gui {
 	}
 
 	ScrollView::ScrollView(GUIStage& stage, const StringID& name, F32x2 size, const WidgetMargin& margin) :
-		Widget(stage, name),
-		mMargin(margin)
+		Container(stage, name)
 	{
 		SetSizeAndFixedSize(size);
+		SetMargin(margin);
 
 		// init scroll bar
 		mScrollBar = std::make_shared<ScrollBar>(stage, "scrollBar");
@@ -147,6 +144,10 @@ namespace Gui {
 		mScrollBar->SetVisible(true);
 		mScrollBar->SetScrollValue(0.0f, true);
 		Widget::Add(mScrollBar);
+
+		mConnectionMap.Connect("OnScrollValueChanged", mScrollBar->OnScrollValueChanged, [this](F32 value) {
+			SetLayoutDirty();
+		});
 	}
 
 	void ScrollView::SetWidget(WidgetPtr widget)
@@ -157,8 +158,15 @@ namespace Gui {
 			return;
 		}
 
+		if (mWidget != nullptr) {
+			Container::Remove(mWidget);
+		}
+
 		mWidget = widget;
-		Widget::Add(widget);
+
+		if (widget != nullptr) {
+			Container::Add(widget);
+		}
 	}
 
 	WidgetPtr ScrollView::GetWidget()
@@ -181,7 +189,7 @@ namespace Gui {
 		if (!IsF32EqualF32(mScrollBar->GetScrollValue(), value))
 		{
 			mScrollBar->SetScrollValue(value, true);
-			mNeedLayout = true;
+			SetLayoutDirty();
 		}
 	}
 
@@ -209,6 +217,69 @@ namespace Gui {
 			if (childSize > GetSize()) {
 				SetScrollValue(mScrollBar->GetMaximum());
 			}
+		}
+	}
+
+	void ScrollView::UpdateLayoutImpl(const Rect& destRect)
+	{
+		if (!IsVisible()) {
+			return;
+		}
+
+		if (mWidget == nullptr)
+		{
+			mScrollBar->SetVisible(false);
+			return;
+		}
+
+		// child layout
+		F32x2 marginSize = { mMargin.left + mMargin.right, mMargin.top + mMargin.bottom };
+		F32x2 childSize = mWidget->GetBestSize();
+		F32x2 parentSize = GetSize();
+		if (childSize[1] > parentSize[1])
+		{
+			F32 targetX = mMargin.left;
+			F32 targetWidth = childSize[0];
+
+			// child horizontal placement
+			UpdateChildAlignment(AlignmentOrien_Horizontal, mWidget, mScrollBar->GetWidth(), targetX, targetWidth);
+
+			// set widget pos by scroll value
+			auto scrollValue = mScrollBar->GetScrollValue();
+			mWidget->SetSize({
+				targetWidth,
+				childSize[1]
+				});
+			mWidget->SetPos({ targetX, mMargin.top - scrollValue });
+
+			F32 oldMaximum = mScrollBar->GetMaximum();
+			mScrollBar->SetScrollPageHeight(parentSize[1]);
+			mScrollBar->SetMinimum(0.0f);
+			mScrollBar->SetMaximum(childSize[1] - parentSize[1]);
+
+			if (oldMaximum > mScrollBar->GetMaximum()) {
+				mScrollBar->SetScrollValue(std::min(scrollValue, mScrollBar->GetMaximum()));
+			}
+
+			mScrollBar->SetSize({ mScrollBar->GetWidth(), GetHeight() });
+			mScrollBar->SetPos({ parentSize[0] - mScrollBar->GetSize()[0], 0.0f });
+			mScrollBar->SetVisible(true);
+
+			ConnectWheelScrollSignal(true);
+		}
+		else
+		{
+			F32 targetX = mMargin.left;
+			F32 targetWidth = childSize[0];
+
+			// child horizontal placement
+			UpdateChildAlignment(AlignmentOrien_Horizontal, mWidget, 0.0f, targetX, targetWidth);
+
+			mWidget->SetSize({targetWidth, GetHeight()});
+			mWidget->SetPos({ targetX, mMargin.top });
+			mScrollBar->SetVisible(false);
+
+			ConnectWheelScrollSignal(false);
 		}
 	}
 
@@ -246,77 +317,15 @@ namespace Gui {
 		}
 	}
 
-	void ScrollView::SetNeedLayout(bool needLayout)
-	{
-		mNeedLayout = needLayout;
-	}
-
 	F32x2 ScrollView::CalculateBestSize() const
 	{
 		return F32x2();
-	}
-
-	void ScrollView::UpdateLayout()
-	{
-		if (!IsVisible()) {
-			return;
-		}
-
-		if (mWidget == nullptr)
-		{
-			mScrollBar->SetVisible(false);
-			return;
-		}
-
-		// child layout
-		F32x2 marginSize = {mMargin.left + mMargin.right, mMargin.top + mMargin.bottom};
-		F32x2 childSize = mWidget->GetBestSize();
-		F32x2 parentSize = GetSize();
-		if (childSize[1] > parentSize[1])
-		{
-			auto scrollValue = mScrollBar->GetScrollValue();
-			mWidget->SetSize({
-				parentSize[0] - mScrollBar->GetWidth() - marginSize[0],
-				childSize[1]
-			});
-			mWidget->SetPos({ mMargin.left, mMargin.top - scrollValue });
-
-			F32 oldMaximum = mScrollBar->GetMaximum();
-			mScrollBar->SetScrollPageHeight(parentSize[1]);
-			mScrollBar->SetMinimum(0.0f);
-			mScrollBar->SetMaximum(childSize[1] - parentSize[1]);
-
-			if (oldMaximum > mScrollBar->GetMaximum()) {
-				mScrollBar->SetScrollValue(std::min(scrollValue, mScrollBar->GetMaximum()));
-			}
-
-			mScrollBar->SetSize({ mScrollBar->GetWidth(), GetHeight() });
-			mScrollBar->SetPos({ parentSize[0] - mScrollBar->GetSize()[0], 0.0f });
-			mScrollBar->SetVisible(true);
-
-			ConnectWheelScrollSignal(true);
-		}
-		else
-		{
-			mWidget->SetSize(GetSize());
-			mWidget->SetPos({ mMargin.left, mMargin.top});
-			mScrollBar->SetVisible(false);
-
-			ConnectWheelScrollSignal(false);
-		}
-
-		mWidget->UpdateLayout();
-		mNeedLayout = false;
 	}
 
 	void ScrollView::Render(const F32x2& offset)
 	{
 		if (!IsVisible()) {
 			return;
-		}
-
-		if (mNeedLayout) {
-			UpdateLayout();
 		}
 
 		GUIRenderer& renderer = GetGUIRenderer();

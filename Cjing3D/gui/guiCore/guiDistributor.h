@@ -92,7 +92,7 @@ namespace Gui {
 			void SetCanDrag(bool canDrag) { mCanDrag = canDrag; }
 		
 		private:
-			void MouseButtonClick(Widget* widget);
+			void MouseButtonClick(Widget* widget, const I32x2& coords);
 
 			WidgetPtr mLastClickWidget = nullptr;
 			WidgetPtr mCurrentFocusedWidget = nullptr;

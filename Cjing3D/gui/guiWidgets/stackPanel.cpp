@@ -6,7 +6,7 @@ namespace Cjing3D{
 namespace Gui {
 
 	StackPanel::StackPanel(GUIStage& stage, const StringID& name, F32 width, F32 height) :
-		Widget(stage, name)
+		Container(stage, name)
 	{
 		SetSize(F32x2(width, height));
 		SetLayout(std::make_shared<BoxLayout>(AlignmentOrien::AlignmentOrien_Vertical, AlignmentMode::AlignmentMode_Center));
@@ -14,16 +14,6 @@ namespace Gui {
 
 	StackPanel::~StackPanel()
 	{
-	}
-
-	void StackPanel::SetSpacing(F32 spacing)
-	{
-		std::dynamic_pointer_cast<BoxLayout>(GetLayout())->SetSpacing(spacing);
-	}
-
-	void StackPanel::SetMargin(const WidgetMargin& margin)
-	{
-		std::dynamic_pointer_cast<BoxLayout>(GetLayout())->SetMargin(margin);
 	}
 
 	void StackPanel::RenderImpl(const Rect& destRect)

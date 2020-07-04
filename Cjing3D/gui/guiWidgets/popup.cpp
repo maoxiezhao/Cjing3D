@@ -6,7 +6,7 @@ namespace Cjing3D
 namespace Gui
 {
 	Popup::Popup(GUIStage& stage, const StringID& name, const F32x2& fixedSize) :
-		Widget(stage, name)
+		Container(stage, name)
 	{
 		SetSize(fixedSize);
 		SetFixedSize(fixedSize);

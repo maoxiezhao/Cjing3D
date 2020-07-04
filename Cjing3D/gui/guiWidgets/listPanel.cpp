@@ -6,7 +6,7 @@ namespace Cjing3D {
 namespace Gui {
 
 	ListItem::ListItem(GUIStage& stage) :
-		Widget(stage)
+		Container(stage)
 	{
 		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_ENTER, std::bind(&ListItem::OnMouseEnter, this, std::placeholders::_4), Dispatcher::back_pre_child);
 		ConnectSignal(UI_EVENT_TYPE::UI_EVENT_MOUSE_LEAVE, std::bind(&ListItem::OnMouseLeave, this, std::placeholders::_4), Dispatcher::back_post_child);
@@ -32,13 +32,13 @@ namespace Gui {
 		if (mWidget != widget)
 		{
 			if (mWidget != nullptr) {
-				Widget::Remove(mWidget);
+				Container::Remove(mWidget);
 			}
 
 			mWidget = widget;
 
 			if (widget != nullptr) {
-				Widget::Add(widget);
+				Container::Add(widget);
 			}
 		}
 	}
@@ -129,7 +129,7 @@ namespace Gui {
 	}
 
 	ListPanel::ListPanel(GUIStage& stage, const StringID& name, F32 width, F32 height) :
-		Widget(stage, name)
+		Container(stage, name)
 	{
 		SetSize(F32x2(width, height));
 		SetLayout(std::make_shared<BoxLayout>(AlignmentOrien::AlignmentOrien_Vertical, AlignmentMode::AlignmentMode_Center));
@@ -143,7 +143,7 @@ namespace Gui {
 		item->SetListItemIndex(mListItems.size());
 		item->SetVisible(true);
 
-		Widget::Add(item);
+		Container::Add(item);
 		mListItems.push_back(item);
 	}
 
@@ -159,7 +159,7 @@ namespace Gui {
 			return;
 		}
 		mListItems.erase(it);
-		Widget::Remove(node);
+		Container::Remove(node);
 
 		U32 currentIndex = 0;
 		for (auto child : mListItems)
@@ -226,17 +226,6 @@ namespace Gui {
 		}
 
 		return item->GetWidget();
-	}
-
-	void ListPanel::SetMargin(F32 left, F32 top, F32 right, F32 bottom)
-	{
-		mMargin = { left , top, right, bottom };
-		std::dynamic_pointer_cast<BoxLayout>(GetLayout())->SetMargin(mMargin);
-	}
-
-	void ListPanel::SetLayoutSpacing(F32 spacing)
-	{
-		std::dynamic_pointer_cast<BoxLayout>(GetLayout())->SetSpacing(spacing);
 	}
 
 	void ListPanel::RenderImpl(const Rect& destRect)

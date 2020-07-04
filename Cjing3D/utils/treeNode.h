@@ -112,6 +112,11 @@ namespace Cjing3D
 			return mChildren;
 		}
 
+		size_t GetChildrenCount()const
+		{
+			return mChildren.size();
+		}
+
 		bool HaveChild(NodePtr node)const
 		{
 			if (node == nullptr) {

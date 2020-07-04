@@ -21,8 +21,9 @@ namespace Gui {
 		void SetRegexString(const std::string& regexString);
 		const UTF8String& GetText()const;
 
+		virtual void UpdateLayout();
+
 	protected:
-		virtual void UpdateLayoutImpl(const Rect& destRect);
 		virtual void RenderImpl(const Rect& destRect);
 
 	private:

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "gui\guiWidgets\widgets.h"
+#include "gui\guiWidgets\container.h"
 
 namespace Cjing3D {
 namespace Gui {
 
-	class Window : public Widget
+	class Window : public Container
 	{
 	public:
 		Window(GUIStage& stage, const StringID& name = StringID::EMPTY, const UTF8String& title = "", F32x2 fixedSize = F32x2(0.0f, 0.0f));
@@ -20,7 +20,6 @@ namespace Gui {
 		TextDrawable& GetTitleTextDrawable() { return mTitleText; }
 
 		virtual F32x2 CalculateBestSize()const;
-		virtual F32x2 GetLayoutOffset()const;
 
 	protected:
 		void OnMouseDrag(bool& handle, const VariantArray& variants);

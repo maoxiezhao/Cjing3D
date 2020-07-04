@@ -178,6 +178,10 @@ namespace Font {
 		template<typename CharT>
 		F32 GetTextWidth(const CharT* text, size_t length, const FontParams& params, std::vector<F32>* widths = nullptr)
 		{
+			if (length <= 0) {
+				return 0.0f;
+			}
+
 			F32 spaceWidth = (F32(params.mFontSize) * params.mScale * 0.25f);
 			F32 tabWidth = 4.0f * spaceWidth;
 
@@ -263,6 +267,10 @@ namespace Font {
 		template<typename CharT>
 		F32 GetTextHeight(const CharT* text, size_t length, const FontParams& params)
 		{
+			if (length <= 0) {
+				return 0.0f;
+			}
+
 			F32 lineHeight = ((F32(params.mFontSize) + params.mLineSpacing) * params.mScale);
 			F32 currentHeight = lineHeight;
 			size_t i = 0;
@@ -420,6 +428,9 @@ namespace Font {
 		U32 GetFontQuadDataByText(const CharT* text, size_t length, const FontParams& params, FontVertexPosTex* quadBuffer)
 		{
 			U32 quadCount = 0;
+			if (length <= 0) {
+				return quadCount;
+			}
 
 			F32 lineHeight = ((F32(params.mFontSize) + params.mLineSpacing) * params.mScale);
 			F32 spaceWidth = (F32(params.mFontSize) * params.mScale * 0.25f);

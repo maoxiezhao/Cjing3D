@@ -203,16 +203,51 @@ namespace Gui {
 		mFixedSize = size;
 	}
 
+	void Widget::UpdateBestSize()
+	{
+		F32x2 bestSize = GetBestSize();
+		if (bestSize != GetSize())
+		{
+			SetSize(bestSize);
+			OnBestSizeChanged();
+		}
+	}
+
 	F32x2 Widget::CalculateBestSize() const
 	{
-		if (mLayout != nullptr) {
-			return mLayout->CalculateBestSize(this);
+		if (!IsVisible()) {
+			return F32x2(0.0f, 0.0f);
 		}
+
 		return mArea.GetSize();
 	}
 
-	void Widget::SetNeedLayout(bool needLayout)
+	void Widget::UpdateLayout()
 	{
+	}
+
+	void Widget::SetLayoutOffset(F32x2 offset)
+	{
+		mLayoutOffset = offset;
+		OnBestSizeChanged();
+	}
+
+	void Widget::SetVerticalAlign(AlignmentMode mode)
+	{
+		if (mVerticalAlign != mode)
+		{
+			mVerticalAlign = mode;
+			OnAlignModeChanged();
+		}
+	}
+
+	void Widget::SetHorizontalAlign(AlignmentMode mode)
+	{
+		if (mHorizontalAlign != mode)
+		{
+			mHorizontalAlign = mode;
+			OnAlignModeChanged();
+		}
 	}
 
 	void Widget::SetSizeAndFixedSize(F32x2 size)
@@ -420,10 +455,6 @@ namespace Gui {
 		GUIRenderer& renderer = GetGUIRenderer();
 	}
 
-	void Widget::UpdateLayoutImpl(const Rect& destRect)
-	{
-	}
-
 	bool Widget::OnWidgetMoved(void)
 	{
 		return true;
@@ -466,43 +497,6 @@ namespace Gui {
 	void Widget::OnUnloaded()
 	{
 		CallScriptEventHandler(GUIScriptEventHandlers::OnUnloaded);
-	}
-
-	void Widget::UpdateLayout()
-	{
-		if (!IsVisible()) {
-			return;
-		}
-
-		if (mLayout != nullptr) {
-			mLayout->UpdateLayout(this);
-		}
-		else
-		{
-			for (auto& child : mChildren)
-			{
-				F32x2 fixedSize = child->GetFixedSize();
-				if (fixedSize[0] == 0.0f || fixedSize[1] == 0.0f) {
-					F32x2 bestSize = child->CalculateBestSize();
-					child->SetSize({
-						fixedSize[0] != 0.0f ? fixedSize[0] : bestSize[0],
-						fixedSize[1] != 0.0f ? fixedSize[1] : bestSize[1]
-					});
-				}
-				else
-				{
-					child->SetSize({ fixedSize[0], fixedSize[1]});
-				}
-				child->UpdateLayout();
-			}
-		}
-
-		UpdateLayoutImpl(GetArea());
-	}
-
-	F32x2 Widget::GetLayoutOffset() const
-	{
-		return F32x2();
 	}
 }
 }

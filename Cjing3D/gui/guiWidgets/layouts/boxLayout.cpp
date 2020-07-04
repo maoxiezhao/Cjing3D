@@ -45,6 +45,11 @@ namespace Gui
 			F32x2 childTargetSize = child->GetBestSize();
 			F32x2 targetPos;
 			targetPos[axis1] = currentPosition;
+
+			AlignmentMode alignMode = mAlignMode;
+			if (alignMode == AlignmentMode_None) {
+				alignMode = widget->GetAlignment(mAlignOri);
+			}
 			switch (mAlignMode)
 			{
 			case AlignmentMode_Begin:
@@ -66,7 +71,7 @@ namespace Gui
 
 			child->SetPos(targetPos);
 			child->SetSize(childTargetSize);
-			child->UpdateLayout();
+			//child->UpdateLayout();
 
 			currentPosition += childTargetSize[axis1];
 		}

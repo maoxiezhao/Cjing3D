@@ -7,8 +7,9 @@ namespace Gui
 	const F32 windowHeadSize = 30.0f;
 
 	Window::Window(GUIStage& stage, const StringID& name, const UTF8String& title, F32x2 fixedSize) :
-		Widget(stage, name)
+		Container(stage, name)
 	{
+		SetLayoutOffset(F32x2(0.0f, windowHeadSize));
 		SetSize(fixedSize);
 		SetFixedSize(fixedSize);
 		mTitleText.SetText(title);
@@ -35,11 +36,6 @@ namespace Gui
 		F32x2 bestSize = Widget::CalculateBestSize();
 		F32x2 fontSize = { mTitleText.GetTextWidth(), mTitleText.GetTextHeight() };
 		return F32x2Max(bestSize, fontSize);
-	}
-
-	F32x2 Window::GetLayoutOffset() const
-	{
-		return F32x2(0.0f, windowHeadSize);
 	}
 
 	void Window::OnMouseDrag(bool& handle, const VariantArray& variants)

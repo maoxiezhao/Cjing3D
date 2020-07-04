@@ -43,6 +43,8 @@ namespace Gui
 				widget->FixedUpdate();
 			}
 		}
+
+		UpdateLayout();
 	}
 
 	void WidgetHierarchy::Render()

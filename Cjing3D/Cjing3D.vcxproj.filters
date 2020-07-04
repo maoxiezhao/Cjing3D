@@ -656,6 +656,12 @@
     <ClCompile Include="gui\guiWidgets\inputField.cpp">
       <Filter>gui\guiWidgets</Filter>
     </ClCompile>
+    <ClCompile Include="gui\guiWidgets\container.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\signal\connectionMap.cpp">
+      <Filter>utils\signal</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -1271,6 +1277,12 @@
     </ClInclude>
     <ClInclude Include="gui\guiWidgets\inputField.h">
       <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\container.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\signal\connectionMap.h">
+      <Filter>utils\signal</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

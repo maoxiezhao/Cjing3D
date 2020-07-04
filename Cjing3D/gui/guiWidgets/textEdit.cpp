@@ -295,7 +295,7 @@ namespace Gui
 			(F32)variants[1].GetValue<I32>()
 		};
 		F32x2 localPos = TransformToLocalCoord(pos);
-		I32 newCursorPos = mCursorPos;
+		I32 newCursorPos = 0;
 
 		// 依次当前行所有文本，取出每个文字的rect做相交判断
 		auto textSizeRects = Font::GetTextWidths(mText, mTextDrawable.GetParams());
@@ -321,12 +321,16 @@ namespace Gui
 
 	void TextEdit::OnMouseDrag(bool& handle, const VariantArray& variants)
 	{
+		if (mText.Empty()) {
+			return;
+		}
+
 		F32x2 pos = {
 			(F32)variants[2].GetValue<I32>(),
 			(F32)variants[3].GetValue<I32>()
 		};
 		F32x2 localPos = TransformToLocalCoord(pos);
-		I32 newCursorPos = mCursorPos;
+		I32 newCursorPos = 0;
 
 		// 依次当前行所有文本，取出每个文字的rect做相交判断
 		auto textSizeRects = Font::GetTextWidths(mText, mTextDrawable.GetParams());

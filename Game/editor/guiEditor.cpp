@@ -581,8 +581,7 @@ namespace Editor {
 		ImGui::Text("By ZZZZY");
 		ImGui::Separator();
 		ImGui::Text("");
-		ImGui::Text("F4-Show Debug; F5-Load scene;");
-		ImGui::Text("F6-Save scene; F7-Clear scene;");
+		ImGui::Text("F4-Show ImGUI Editor;");
 		ImGui::Text("WASD-Move camera;  RB-Rotate camera");
 		ImGui::Text("");
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", deltaTime, 1.0f / deltaTime);

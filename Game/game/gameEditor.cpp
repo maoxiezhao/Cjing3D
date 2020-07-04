@@ -33,8 +33,6 @@ namespace Cjing3D
 	{
 	}
 
-	TextDrawable textDrawable;
-
 	void GameEditor::Initialize()
 	{
 		RenderPathTiledForward* path = new RenderPathTiledForward();
@@ -71,19 +69,6 @@ namespace Cjing3D
 			guiStage.SetImGUIStageVisible(!show);
 		}
 
-		// test scene serializing
-		if (inputManager.IsKeyDown(KeyCode::F5)) 
-		{
-			//Editor::LoadSceneFromOpenFile();
-		}
-		else if (inputManager.IsKeyDown(KeyCode::F6)) 
-		{
-			Editor::SaveSceneToOpenFile();
-		}
-		else if (inputManager.IsKeyDown(KeyCode::F7))
-		{
-			Scene::GetScene().Clear();
-		}
 #endif // _ENABLE_GAME_EDITOR_
 
 	}

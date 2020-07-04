@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gui\guiWidgets\widgets.h"
+#include "gui\guiWidgets\container.h"
 
 namespace Cjing3D {
 namespace Gui {
@@ -28,6 +28,8 @@ namespace Gui {
 		void SetScrollPageHeight(F32 height) { mScrollPageHeight = height; }
 		F32 GetScrollPageHeight()const { return mScrollPageHeight; }
 
+		Signal<void(F32 value)> OnScrollValueChanged;
+
 	protected:
 		Rect CalculateThumbRect(F32x2 pos);
 
@@ -54,7 +56,7 @@ namespace Gui {
 		Sprite mThumbSprite;
 	};
 
-	class ScrollView : public Widget
+	class ScrollView : public Container
 	{
 	public:
 		ScrollView(GUIStage& stage, const StringID& name = StringID::EMPTY, F32x2 size = F32x2(0.0f, 0.0f), const WidgetMargin& margin = WidgetMargin());
@@ -68,14 +70,12 @@ namespace Gui {
 		F32 GetScrollValue()const;
 		void ScrollToTop();
 		void ScrollToEnd();
-		void SetMargin(const WidgetMargin& margin) { mMargin = margin; }
 
-		virtual void SetNeedLayout(bool needLayout);
 		virtual F32x2 CalculateBestSize()const;
-		virtual void UpdateLayout();
 		virtual void Render(const F32x2& offset);
 
 	protected:
+		virtual void UpdateLayoutImpl(const Rect& destRect);
 		virtual void OnMouseScroll(const VariantArray& variants);
 		virtual void Add(WidgetPtr node);
 		virtual void Remove(WidgetPtr node);
@@ -85,7 +85,6 @@ namespace Gui {
 		bool mIsWheelScrollConnected = false;
 
 		bool mNeedLayout = true;
-		WidgetMargin mMargin;
 		WidgetPtr mWidget = nullptr;
 		std::shared_ptr<ScrollBar> mScrollBar = nullptr;
 	};
