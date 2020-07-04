@@ -16,9 +16,6 @@ namespace Cjing3D
 		virtual void Update(EngineTime time);
 		virtual void FixedUpdate();
 		virtual void Uninitialize();
-
-	private:
-		ConnectionList mConnections;
 	};
 
 }

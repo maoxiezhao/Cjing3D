@@ -224,8 +224,16 @@ namespace Gui {
 		{
 			if (widget != mCurrentFocusedWidget)
 			{
+				if (mCurrentFocusedWidget != nullptr) {
+					mCurrentFocusedWidget->OnUnFocusd();
+				}
+
 				OnFocusedChanged(mCurrentFocusedWidget, widget);
 				mCurrentFocusedWidget = widget;
+
+				if (widget != nullptr) {
+					widget->OnFocusd();
+				}
 			}
 		}
 
@@ -365,10 +373,10 @@ namespace Gui {
 		switch (event.type)
 		{
 		case GUI_INPUT_EVENT_TYPE_KEYBOARD_KEYDOWN:
-			HandldKeyboardButton(event.key, GUI_INPUT_KEY_STATE_KEYDOWN, widgets);
+			HandldKeyboardButton(event.key, event.modifiers, GUI_INPUT_KEY_STATE_KEYDOWN, widgets);
 			break;
 		case GUI_INPUT_EVENT_TYPE_KEYBOARD_KEYUP:
-			HandldKeyboardButton(event.key, GUI_INPUT_KEY_STATE_KEYUP, widgets);
+			HandldKeyboardButton(event.key, event.modifiers, GUI_INPUT_KEY_STATE_KEYUP, widgets);
 			break;
 		case GUI_INPUT_EVENT_TYPE_MOUSE_MOTION:
 			SignalHandleMouseMotion(event.pos, widgets);
@@ -384,14 +392,34 @@ namespace Gui {
 		case GUI_INPUT_EVENT_TYPE_MOUSE_WHEEL_CHANGED:
 			SignalHandlerMouseWheelChanged(event.delta, event.pos, widgets);
 			break;
+		case GUI_INPUT_EVENT_TYPE_INPUT_TEXT:
+			SignalHandlerInputText(event.inputText, widgets);
+			break;
 		default:
 			break;
 		}
 	}
 
-	void EventDistributor::HandldKeyboardButton(KeyCode key, GUI_INPUT_KEY_STATE state, std::vector<WidgetPtr>& widgets)
+	void EventDistributor::SignalHandlerInputText(const UTF8String& inputText, std::vector<WidgetPtr>& widgets)
 	{
+		if (GetCurrentFocusdWidget() != nullptr && !inputText.Empty()) {
+			GetCurrentFocusdWidget()->OnTextInput(inputText);
+		}
+	}
 
+	void EventDistributor::HandldKeyboardButton(KeyCode key, int mod, GUI_INPUT_KEY_STATE state, std::vector<WidgetPtr>& widgets)
+	{
+		auto widget = GetCurrentFocusdWidget();
+		if (widget == nullptr) {
+			return;
+		}
+
+		if (state == GUI_INPUT_KEY_STATE_KEYDOWN) {
+			widget->OnKeyDown(key, mod);
+		}
+		else {
+			widget->OnKeyUp(key, mod);
+		}
 	}
 }
 }

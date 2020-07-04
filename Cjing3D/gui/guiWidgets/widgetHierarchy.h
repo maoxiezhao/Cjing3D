@@ -24,6 +24,7 @@ namespace Gui
 		void HandleInputEvents(const GUIInputEvent& inputEvent);
 		void RefreshWidgets();
 		void UpdateLayout();
+		void ClearWidgets();
 
 		void CaptureFocusWidget(bool captured);
 		WidgetPtr GetCurrentMouseFocusdWidget();
@@ -38,7 +39,8 @@ namespace Gui
 		void RemoveWidget(WidgetPtr widget);
 
 		WidgetPtr GetRootWidget() { return nullptr; }
-		
+		EventDistributor& GetEventDistributor() { return mEventDistributor; }
+
 	public:
 		GUIStage& mGUIStage;
 		std::vector<WidgetPtr> mSubscribeRequests;

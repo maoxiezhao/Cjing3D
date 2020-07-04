@@ -32,6 +32,7 @@ namespace RenderImage
 		F32x2 mPivot = { 0.0f, 0.0f };
 		float mRotation = 0.0f;
 		float mLayerDepth = 0.0f;	// WARNING: depth Buffer暂时未设置写入，目前该值无效
+		Rect mNinePatchRect;
 
 		ImageParams()
 		{

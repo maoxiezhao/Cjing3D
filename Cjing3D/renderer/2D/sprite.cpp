@@ -3,7 +3,8 @@
 
 namespace Cjing3D
 {
-	Sprite::Sprite(const std::string& filePath)
+	Sprite::Sprite(const std::string& filePath, SpriteType spriteType) :
+		mSpriteType(spriteType)
 	{
 		if (!filePath.empty())
 		{
@@ -113,6 +114,16 @@ namespace Cjing3D
 	Color4 Sprite::GetColor() const
 	{
 		return Color4(mImageParams.mColor);
+	}
+
+	void Sprite::SetNinePatch(const Rect& rect)
+	{
+		mImageParams.mNinePatchRect = rect;
+	}
+
+	Rect Sprite::GetNinePatch() const
+	{
+		return mImageParams.mNinePatchRect;
 	}
 
 	void Sprite::SetCurrentTextureInfo(Texture2D& info)

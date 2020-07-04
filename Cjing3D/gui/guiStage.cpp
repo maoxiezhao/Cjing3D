@@ -1,7 +1,6 @@
 #include "gui\guiStage.h"
 #include "gui\guiRenderer.h"
 #include "gui\imguiStage.h"
-#include "gui\guiCore\guiEvents.h"
 #include "renderer\renderer.h"
 #include "helper\logger.h"
 
@@ -132,6 +131,12 @@ namespace Cjing3D
 		mRegisteredKeyBoardKeys.push_back(key);
 	}
 
+
+	void GUIStage::PushInputEvent(const GUIInputEvent& ent)
+	{
+		mInputEventQueue.push(ent);
+	}
+
 	void GUIStage::SetImGUIStageVisible(bool visible)
 	{
 		mImGuiStage.SetVisible(visible);
@@ -152,6 +157,11 @@ namespace Cjing3D
 		mRegisteredMouseKeys.push_back(KeyCode::Click_Left);
 		mRegisteredMouseKeys.push_back(KeyCode::Click_Middle);
 		mRegisteredMouseKeys.push_back(KeyCode::Click_Right);
+
+		mRegisteredKeyBoardKeys.push_back(KeyCode::Arrow_Left);
+		mRegisteredKeyBoardKeys.push_back(KeyCode::Arrow_Right);
+		mRegisteredKeyBoardKeys.push_back(KeyCode::Arrow_Down);
+		mRegisteredKeyBoardKeys.push_back(KeyCode::Arrow_Up);
 	}
 
 	void GUIStage::NotifyInput()
@@ -202,16 +212,40 @@ namespace Cjing3D
 		// notify keyboard event
 		for (auto keyCode : mRegisteredKeyBoardKeys)
 		{
-			if (inputManager.IsKeyDown(keyCode)) {
+			if (inputManager.IsKeyDown(keyCode))
+			{
 				Gui::GUIInputEvent e = {};
 				e.type = GUI_INPUT_EVENT_TYPE_KEYBOARD_KEYDOWN;
 				e.key = keyCode;
+
+				if (inputManager.IsKeyHold(KeyCode::Shift_Left) || inputManager.IsKeyHold(KeyCode::Shift_Right)) {
+					e.modifiers |= GUI_INPUT_KEYBOARD_MODIFIER::mod_shift;
+				}
+				if (inputManager.IsKeyHold(KeyCode::Alt_Left) || inputManager.IsKeyHold(KeyCode::Alt_Right)) {
+					e.modifiers |= GUI_INPUT_KEYBOARD_MODIFIER::mod_alt;
+				}
+				if (inputManager.IsKeyHold(KeyCode::Ctrl_Left) || inputManager.IsKeyHold(KeyCode::Ctrl_Right)) {
+					e.modifiers |= GUI_INPUT_KEYBOARD_MODIFIER::mod_control;
+				}
+
 				mInputEventQueue.push(e);
 			}
-			else if (inputManager.IsKeyUp(keyCode)) {
+			else if (inputManager.IsKeyUp(keyCode)) 
+			{
 				Gui::GUIInputEvent e = {};
 				e.type = GUI_INPUT_EVENT_TYPE_KEYBOARD_KEYUP;
 				e.key = keyCode;
+
+				if (inputManager.IsKeyHold(KeyCode::Shift_Left) || inputManager.IsKeyHold(KeyCode::Shift_Right)) {
+					e.modifiers |= GUI_INPUT_KEYBOARD_MODIFIER::mod_shift;
+				}
+				if (inputManager.IsKeyHold(KeyCode::Alt_Left) || inputManager.IsKeyHold(KeyCode::Alt_Right)) {
+					e.modifiers |= GUI_INPUT_KEYBOARD_MODIFIER::mod_alt;
+				}
+				if (inputManager.IsKeyHold(KeyCode::Ctrl_Left) || inputManager.IsKeyHold(KeyCode::Ctrl_Right)) {
+					e.modifiers |= GUI_INPUT_KEYBOARD_MODIFIER::mod_control;
+				}
+
 				mInputEventQueue.push(e);
 			}
 		}
@@ -226,7 +260,6 @@ namespace Cjing3D
 		{
 			Gui::GUIInputEvent e = mInputEventQueue.front();
 			mInputEventQueue.pop();
-
 			mWidgetHierarchy->HandleInputEvents(e);
 		}
 	}

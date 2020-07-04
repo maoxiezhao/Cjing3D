@@ -4,6 +4,8 @@
 #include "renderer\preset\renderPreset.h"
 #include "renderer\pipelineStates\pipelineStateManager.h"
 
+#include<numeric>
+
 namespace Cjing3D
 {
 namespace Renderer2D {
@@ -50,6 +52,35 @@ namespace Renderer2D {
 				);
 
 				sourceRect = XMConvert(params.mTexSource);
+
+				originRotationDepth = XMFLOAT4(
+					params.mPivot[0],
+					params.mPivot[1],
+					params.mRotation,
+					params.mLayerDepth
+				);
+
+				color = XMConvert(params.mColor);
+
+				F32x2 invSize = sprite->GetInverseTextureSize();
+				inverseTextureSize = XMFLOAT4(
+					invSize[0],
+					invSize[1],
+					0.0f, 0.0f
+				);
+			}
+
+			void Setup(Sprite* sprite, const F32x2& pos, const F32x2& size, const F32x4& texRect)
+			{
+				RenderImage::ImageParams& params = sprite->GetImageParams();
+				translation = XMFLOAT4(
+					pos[0],
+					pos[1],
+					size[0],
+					size[1]
+				);
+
+				sourceRect = XMConvert(texRect);
 
 				originRotationDepth = XMFLOAT4(
 					params.mPivot[0],
@@ -210,16 +241,23 @@ namespace Renderer2D {
 			GraphicsDevice& graphicsDevice = Renderer::GetDevice();
 
 			size_t instanceSize = sizeof(SpriteRenderInstanceData);
-			size_t allocSize = queue.mRenderBatchQueue.size() * instanceSize;
-			GraphicsDevice::GPUAllocation instances = graphicsDevice.AllocateGPU(allocSize);
+			size_t instanceCount = 0;
+			for (size_t index = 0; index < queue.mRenderBatchQueue.size(); index++)
+			{
+				auto& batch = queue.mRenderBatchQueue[index];
+				if (batch->mSprite == nullptr) {
+					continue;
+				}
+				instanceCount += batch->mSprite->GetSpriteType() == Sprite::SpriteType_Normal ? 1 : 9;
+			}
 
+			GraphicsDevice::GPUAllocation instances = graphicsDevice.AllocateGPU(instanceCount * instanceSize);
 			U32 instancedBatchCount = 0;
-			//U32 prevBatchHash = -1;
-			Texture2D* prevTexture = nullptr;
-			std::vector<SpriteBatchInstance*> mRenderBatchInstances;
+			size_t currentInstanceCount = 0;
 
 			// visist render batch queue
-			size_t currentInstanceCount = 0;
+			Texture2D* prevTexture = nullptr;
+			std::vector<SpriteBatchInstance*> mRenderBatchInstances;
 			for (size_t index = 0; index < queue.mRenderBatchQueue.size(); index++)
 			{
 				auto& batch = queue.mRenderBatchQueue[index];
@@ -238,18 +276,62 @@ namespace Renderer2D {
 
 					SpriteBatchInstance* batchInstance = (SpriteBatchInstance*)frameAllocator.Allocate(sizeof(SpriteBatchInstance));
 					batchInstance->mTexture = sprite->GetTexture();
-					batchInstance->mDataOffset = instances.offset + index * instanceSize;
+					batchInstance->mDataOffset = instances.offset + currentInstanceCount * instanceSize;
 					batchInstance->mInstanceCount = 0;
 
 					mRenderBatchInstances.push_back(batchInstance);
 				}
-
+		
 				// setup instance data
-				((SpriteRenderInstanceData*)instances.data)[currentInstanceCount].Setup(sprite);
+				// TODO : 对9-patchRect单独处理，并且仅用16个顶点绘制
+				Rect ninePatchRect = sprite->GetImageParams().mNinePatchRect;
+				if (ninePatchRect.mLeft > 0.0f || ninePatchRect.mTop > 0.0f || ninePatchRect.mRight > 0.0f || ninePatchRect.mBottom > 0.0f)
+				{
+					RenderImage::ImageParams& params = sprite->GetImageParams();
+					F32x2 rectSize = {
+						params.mSize[0],
+						params.mSize[1]
+					};
 
-				// 当前batchInstance必然在array最后
-				mRenderBatchInstances.back()->mInstanceCount++;
-				currentInstanceCount++;
+					F32x3 widths  = { ninePatchRect.mLeft, rectSize[0] - (ninePatchRect.mLeft + ninePatchRect.mRight), ninePatchRect.mRight };
+					F32x3 heights = { ninePatchRect.mTop,  rectSize[1] - (ninePatchRect.mTop + ninePatchRect.mBottom), ninePatchRect.mBottom };		
+					F32x3 texWidths = { ninePatchRect.mLeft, (params.mTexSource[2] - params.mTexSource[0]) - (ninePatchRect.mLeft + ninePatchRect.mRight), ninePatchRect.mRight };
+					F32x3 texHeights= { ninePatchRect.mTop,  (params.mTexSource[3] - params.mTexSource[1]) - (ninePatchRect.mTop + ninePatchRect.mBottom), ninePatchRect.mBottom };
+
+					for (int i = 0; i < 9; i++)
+					{
+						size_t col = i % 3;
+						size_t row = i / 3;
+						if (widths[col] > 0 && heights[row] > 0)
+						{
+							F32x2 pos = {
+								params.mPos[0] + std::accumulate(widths.begin(),  widths.begin() + col, 0.0f) * params.mScale[0],
+								params.mPos[1] + std::accumulate(heights.begin(), heights.begin() + row, 0.0f) * params.mScale[1]
+							};
+							F32x2 size = { 
+								widths[col] * params.mScale[0],
+								heights[row] * params.mScale[1]
+							};
+							F32x4 texRect;
+							texRect[0] = params.mTexSource[0] + std::accumulate(texWidths.begin(), texWidths.begin() + col, 0.0f);
+							texRect[1] = params.mTexSource[1] + std::accumulate(texHeights.begin(), texHeights.begin() + row, 0.0f);
+							texRect[2] = texWidths[col];
+							texRect[3] = texHeights[row];
+
+							((SpriteRenderInstanceData*)instances.data)[currentInstanceCount].Setup(sprite, pos, size, texRect);
+
+							mRenderBatchInstances.back()->mInstanceCount++;
+							currentInstanceCount++;
+						}
+					}
+				}
+				else
+				{
+					((SpriteRenderInstanceData*)instances.data)[currentInstanceCount].Setup(sprite);
+
+					mRenderBatchInstances.back()->mInstanceCount++;
+					currentInstanceCount++;
+				}
 			}
 
 			if (mRenderBatchInstances.size() > 0)
@@ -428,33 +510,58 @@ namespace Renderer2D {
 				continue;
 			}
 
+			RenderItem2D::RenderItemType prevRenderItemType = RenderItem2D::RenderItemType::RenderItemType_None;
 			for (auto& item : layer.mItems)
 			{
+				RenderItem2D::RenderItemType currentRenderItemType = RenderItem2D::RenderItemType_None;
 				if (item.mSprite != nullptr && item.mSprite->IsVisible()) {
-					if (!mRenderRequestTexts.empty()) {
-						RenderTextDrawables();
+					currentRenderItemType = RenderItem2D::RenderItemType_Sprite;
+				}
+				else if (item.mText != nullptr && item.mText->IsVisible()) 
+				{
+					currentRenderItemType = RenderItem2D::RenderItemType_Font;
+				}
+				else if (item.mType == RenderItem2D::RenderItemType_Scissor) {
+					currentRenderItemType = RenderItem2D::RenderItemType_Scissor;
+
+				}
+
+				if (currentRenderItemType != RenderItem2D::RenderItemType_None && prevRenderItemType != currentRenderItemType)
+				{
+					// handle perv render item
+					switch (prevRenderItemType)
+					{
+					case RenderItem2D::RenderItemType_Sprite:
+						if (!mRenderRequestSprites.empty()) {
+							RenderSprites();
+						}
+						break;
+					case RenderItem2D::RenderItemType_Font:
+						if (!mRenderRequestTexts.empty()) {
+							RenderTextDrawables();
+						}
+						break;
+					default:
+						break;
 					}
+
+					prevRenderItemType = currentRenderItemType;
+				}
+
+				// handle render item
+				switch (currentRenderItemType)
+				{
+				case RenderItem2D::RenderItemType_Sprite:
 					mRenderRequestSprites.push_back(item.mSprite);
-				}
-
-				if (item.mText != nullptr && item.mText->IsVisible()) 
-				{
-					if (!mRenderRequestSprites.empty()) {
-						RenderSprites();
-					}
+					break;
+				case RenderItem2D::RenderItemType_Font:
 					mRenderRequestTexts.push_back(item.mText);
-				}
-
-				if (item.mType == RenderItem2D::RenderItemType_Scissor)
-				{
-					if (!mRenderRequestSprites.empty()) {
-						RenderSprites();
-					}
-					if (!mRenderRequestTexts.empty()) {
-						RenderTextDrawables();
-					}
-
+					break;
+				case RenderItem2D::RenderItemType_Scissor:
 					Renderer::GetDevice().BindScissorRects(1, &item.mScissorRect);
+					break;
+				default:
+					break;
 				}
 			}
 

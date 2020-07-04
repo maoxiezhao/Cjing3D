@@ -37,6 +37,11 @@ namespace Gui {
 		static StringID ScrollBarBase;
 		static StringID ScrollSliderBase;
 		static StringID ScrollSliderHovered;
+		// text
+		static StringID BaseTextColor;
+		// input field
+		static StringID TextFieldBorder;
+		static StringID TextFieldBackground;
 
 		void InitDefaultScheme();
 		void RegisterColor(const StringID& name, const Color4& color);

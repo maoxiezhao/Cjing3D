@@ -1,11 +1,10 @@
 #pragma once
 
+#include "common\definitions.h"
+
 #include <string>
-#include <windows.h>
 #include <exception>
 #include <sstream>
-
-#include "common\definitions.h"
 
 namespace Cjing3D {
 

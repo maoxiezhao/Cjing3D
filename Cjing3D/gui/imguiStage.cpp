@@ -4,7 +4,7 @@
 #include "imgui\imgui_impl_dx11.h"
 
 #include "engine.h"
-#include "utils\baseWindow.h"
+#include "platform\gameWindow.h"
 #include "core\systemContext.hpp"
 #include "renderer\renderer.h"
 #include "renderer\2D\renderer2D.h"
@@ -63,7 +63,7 @@ namespace Cjing3D
 		ImGui_ImplWin32_Init(hwnd);
 		ImGui_ImplDX11_Init(&device, &deviceContext);
 
-		BaseWindow* window = GlobalGetEngine()->GetWindow();
+		GameWindow* window = GlobalGetEngine()->GetWindow();
 		if (window != nullptr) {
 			mMessageHandler = std::make_shared<IMGUIMessageHandler>();
 			window->AddMessageHandler(mMessageHandler);
@@ -82,7 +82,7 @@ namespace Cjing3D
 		mRegisteredWindows.clear();
 
 		SystemContext& systemContext = SystemContext::GetSystemContext();
-		BaseWindow* window = GlobalGetEngine()->GetWindow();
+		GameWindow* window = GlobalGetEngine()->GetWindow();
 		if (window != nullptr) {
 			mMessageHandler = std::make_shared<IMGUIMessageHandler>();
 			window->RemoveHandler(mMessageHandler);

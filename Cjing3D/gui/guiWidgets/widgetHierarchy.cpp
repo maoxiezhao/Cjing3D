@@ -21,8 +21,7 @@ namespace Gui
 
 	void WidgetHierarchy::Uninitialize()
 	{
-		mSubscribeRequests.clear();
-		mWidgets.clear();
+		ClearWidgets();
 	}
 
 	void WidgetHierarchy::Update(F32 deltaTime)
@@ -121,6 +120,25 @@ namespace Gui
 				widget->UpdateLayout();
 			}
 		}
+	}
+
+	void WidgetHierarchy::ClearWidgets()
+	{
+		for (auto it = mSubscribeRequests.begin(); it != mSubscribeRequests.end(); it++)
+		{
+			if ((*it) != nullptr) {
+				(*it)->Clear();
+			}
+		}
+		mSubscribeRequests.clear();
+
+		for (auto it = mWidgets.begin(); it != mWidgets.end(); it++)
+		{
+			if ((*it) != nullptr) {
+				(*it)->Clear();
+			}
+		}
+		mWidgets.clear();
 	}
 
 	void WidgetHierarchy::CaptureFocusWidget(bool captured)

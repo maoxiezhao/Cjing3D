@@ -1,5 +1,6 @@
 #include "debug.h"
 #include "logger.h"
+#include "platform\gameWindow.h"
 
 #include <stdexcept>
 
@@ -170,10 +171,13 @@ namespace Cjing3D
 		void Die(const std::string & dieMsg)
 		{
 			Logger::Fatal(dieMsg);
-			if (ShowMsgBox)
-				MessageBox(NULL, TEXT(dieMsg.c_str()), NULL, MB_OK);
-			if (AbortOnDie)
+			if (ShowMsgBox) {
+				GameWindow::ShowMessageBox(dieMsg);
+			}
+
+			if (AbortOnDie) {
 				std::abort();
+			}
 
 			Exception exception(dieMsg.c_str());
 			throw exception;

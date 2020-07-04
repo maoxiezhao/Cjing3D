@@ -38,7 +38,7 @@ namespace Cjing3D
 
 		const UTF8String& GetText()const { return mText; }
 		UTF8String& GetText() { return mText; }
-		Font::FontParams GetParams() { return mFontParams; }
+		Font::FontParams& GetParams() { return mFontParams; }
 
 	private:
 		UTF8String mText;

@@ -44,6 +44,7 @@ namespace Cjing3D
 		void SetGUIVisible(bool visible) { mGUIVisible = visible; }
 		bool IsDebugDraw()const { return mIsDebugDraw; }
 		void SetIsDebugDraw(bool isDebugDraw) { mIsDebugDraw = isDebugDraw; }
+		void PushInputEvent(const Gui::GUIInputEvent& ent);
 
 		// imgui
 		void SetImGUIStageVisible(bool visible);

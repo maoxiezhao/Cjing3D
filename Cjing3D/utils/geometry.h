@@ -71,6 +71,14 @@ namespace Cjing3D {
 	class Rect
 	{
 	public:
+		enum RectMargin
+		{
+			LEFT,
+			TOP,
+			RIGHT,
+			BOTTOM
+		};
+
 		F32 mLeft = 0.0f;
 		F32 mTop = 0.0f;
 		F32 mRight = 0.0f;
@@ -98,6 +106,27 @@ namespace Cjing3D {
 			mTop = std::min(mTop, rect.mTop);
 			mRight = std::max(mRight, rect.mRight);
 			mBottom = std::max(mBottom, rect.mBottom);
+		}
+
+		inline void SetMargin(RectMargin margin, F32 v)
+		{
+			switch (margin)
+			{
+			case LEFT:
+				mLeft = v;
+				break;
+			case TOP:
+				mTop = v;
+				break;
+			case RIGHT:
+				mRight = v;
+				break;
+			case BOTTOM:
+				mBottom = v;
+				break;
+			default:
+				break;
+			}
 		}
 
 		Rect& Offset(const F32x2& offset);

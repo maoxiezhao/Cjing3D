@@ -114,7 +114,8 @@ namespace Gui {
 		void HandleInpueEvent(const GUIInputEvent& event, std::vector<WidgetPtr>& widgets);
 
 	private:
-		void HandldKeyboardButton(KeyCode key, GUI_INPUT_KEY_STATE state, std::vector<WidgetPtr>& widgets);
+		void HandldKeyboardButton(KeyCode key, int mod, GUI_INPUT_KEY_STATE state, std::vector<WidgetPtr>& widgets);
+		void SignalHandlerInputText(const UTF8String& inputText, std::vector<WidgetPtr>& widgets);
 	};
 
 }

@@ -38,6 +38,11 @@ namespace Cjing3D
 			F32 mColSpacing = 0.0f;
 			F32 mScale = 1.0f;
 			F32x2 mBoundingSize;
+
+			F32 GetLineHeight()
+			{
+				return ((F32(mFontSize) + mLineSpacing) * mScale);
+			}
 		};
 
 		void Initialize();
@@ -49,6 +54,7 @@ namespace Cjing3D
 
 		F32 GetTextWidth(const UTF8String& text, const FontParams& params);
 		F32 GetTextHeight(const UTF8String& text, const FontParams& params);
+		std::vector<F32> GetTextWidths(const UTF8String& text, const FontParams& params);
 
 		// TODO
 		void Draw(const std::string& text,  const FontParams& params);

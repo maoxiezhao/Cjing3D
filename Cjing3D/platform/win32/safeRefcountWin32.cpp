@@ -1,6 +1,7 @@
-#include "safeRefcount.h"
+#ifdef _WIN32
 
-#include <windows.h>
+#include "core\safeRefcount.h"
+#include "platform\win32\gameWindowWin32.h"
 
 uint32_t Cjing3D::atomicDecrement(volatile uint32_t* pw)
 {
@@ -71,3 +72,5 @@ uint64_t Cjing3D::atomicExchangeIfGreater(volatile uint64_t* pw, volatile uint64
 		}
 	}
 }
+
+#endif

@@ -72,7 +72,7 @@ namespace Editor
 				filePath = filePath + ".c3dscene";
 			}
 			Scene::GetScene().SaveSceneToArchive(filePath);
-			MessageBoxA(NULL, TEXT("Scene saved successfully"), TEXT("Info"), MB_OK);
+			MessageBoxW(NULL, TEXT("Scene saved successfully"), TEXT("Info"), MB_OK);
 		}
 	}
 }

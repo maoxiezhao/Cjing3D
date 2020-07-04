@@ -57,7 +57,7 @@ namespace Cjing3D
 		}
 		const XMVECTOR XM_CALLCONV GetCenter()const {
 
-			return 0.5f * (GetMin() + GetMax());
+			return (GetMin() + GetMax()) * 0.5f;
 		}
 		const XMVECTOR XM_CALLCONV GetDiagonal()const {
 			return (GetMax() - GetMin());

@@ -42,7 +42,7 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -186,6 +186,8 @@
     <ClInclude Include="gui\guiWidgets\popup.h" />
     <ClInclude Include="gui\guiWidgets\scrollView.h" />
     <ClInclude Include="gui\guiWidgets\stackPanel.h" />
+    <ClInclude Include="gui\guiWidgets\textEdit.h" />
+    <ClInclude Include="gui\guiWidgets\inputField.h" />
     <ClInclude Include="gui\guiWidgets\widgetHierarchy.h" />
     <ClInclude Include="gui\guiWidgets\widgetInclude.h" />
     <ClInclude Include="gui\guiWidgets\widgetManager.h" />
@@ -210,6 +212,8 @@
     <ClInclude Include="input\directInput.h" />
     <ClInclude Include="input\InputSystem.h" />
     <ClInclude Include="note.h" />
+    <ClInclude Include="platform\gameWindow.h" />
+    <ClInclude Include="platform\win32\gameWindowWin32.h" />
     <ClInclude Include="renderer\2D\font.h" />
     <ClInclude Include="renderer\2D\renderer2D.h" />
     <ClInclude Include="renderer\2D\sprite.h" />
@@ -308,7 +312,6 @@
     <ClInclude Include="utils\allocator\linearAllocator.h" />
     <ClInclude Include="utils\allocator\tlsfAllocator.h" />
     <ClInclude Include="utils\array.h" />
-    <ClInclude Include="utils\baseWindow.h" />
     <ClInclude Include="utils\color.h" />
     <ClInclude Include="utils\container\dynamicArray.h" />
     <ClInclude Include="utils\container\hashMap.h" />
@@ -360,7 +363,6 @@
     <ClCompile Include="core\gameComponent.cpp" />
     <ClCompile Include="core\jobSystem.cpp" />
     <ClCompile Include="core\memory.cpp" />
-    <ClCompile Include="core\safeRefcount.cpp" />
     <ClCompile Include="core\threadSafeSystem.cpp" />
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="generates\luabind_registers.cpp" />
@@ -372,6 +374,7 @@
     <ClCompile Include="gui\guiWidgets\button.cpp" />
     <ClCompile Include="gui\guiWidgets\checkBox.cpp" />
     <ClCompile Include="gui\guiWidgets\image.cpp" />
+    <ClCompile Include="gui\guiWidgets\inputField.cpp" />
     <ClCompile Include="gui\guiWidgets\label.cpp" />
     <ClCompile Include="gui\guiWidgets\layouts\boxLayout.cpp" />
     <ClCompile Include="gui\guiWidgets\layouts\gridLayout.cpp" />
@@ -380,6 +383,7 @@
     <ClCompile Include="gui\guiWidgets\popup.cpp" />
     <ClCompile Include="gui\guiWidgets\scrollView.cpp" />
     <ClCompile Include="gui\guiWidgets\stackPanel.cpp" />
+    <ClCompile Include="gui\guiWidgets\textEdit.cpp" />
     <ClCompile Include="gui\guiWidgets\widgetHierarchy.cpp" />
     <ClCompile Include="gui\guiWidgets\widgetManager.cpp" />
     <ClCompile Include="gui\guiWidgets\widgets.cpp" />
@@ -399,6 +403,9 @@
     <ClCompile Include="helper\timer.cpp" />
     <ClCompile Include="input\directInput.cpp" />
     <ClCompile Include="input\InputSystem.cpp" />
+    <ClCompile Include="platform\gameWindow.cpp" />
+    <ClCompile Include="platform\win32\gameWindowWin32.cpp" />
+    <ClCompile Include="platform\win32\safeRefcountWin32.cpp" />
     <ClCompile Include="renderer\2D\font.cpp" />
     <ClCompile Include="renderer\2D\renderer2D.cpp" />
     <ClCompile Include="renderer\2D\sprite.cpp" />
@@ -504,7 +511,6 @@
     <ClCompile Include="system\systems\sceneSoundSystem.cpp" />
     <ClCompile Include="system\systems\sceneTerrainSystem.cpp" />
     <ClCompile Include="utils\allocator\tlsfAllocator.cpp" />
-    <ClCompile Include="utils\baseWindow.cpp" />
     <ClCompile Include="utils\geometry.cpp" />
     <ClCompile Include="utils\intersectable.cpp" />
     <ClCompile Include="utils\signal\connection.cpp" />

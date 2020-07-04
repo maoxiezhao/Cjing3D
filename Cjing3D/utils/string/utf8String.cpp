@@ -1,6 +1,7 @@
 #include "utils\string\utf8String.h"
 #include "utils\string\utf8.h"
 #include "helper\debug.h"
+#include "common\definitions.h"
 
 #include <algorithm>
 
@@ -47,6 +48,22 @@ namespace Cjing3D
 				v += size;
 			}
 			return result;
+		}
+
+		size_t GetUTF8PosAndSize(const std::string& str, size_t index, size_t count, size_t& totalSize)
+		{
+			totalSize = 0;
+			size_t pos = 0;
+			const char* v = str.data();
+			for (size_t i = 0; i < (index + count) && *v; i++)
+			{
+				size_t size = utf8codepointcalcsize(v);
+				pos += i < index ? size : 0;
+				totalSize += size;
+				v += size;
+			}
+			totalSize -= pos;
+			return pos;
 		}
 
 		size_t FindUTF8String(const std::string& hayStack, const std::string& needle, size_t startPos = 0)
@@ -106,6 +123,14 @@ namespace Cjing3D
 		mString = std::move(rhs.mString);
 		mLength = rhs.mLength;
 		return *this;
+	}
+
+	UTF8String::UTF8String(int32_t code)
+	{
+		size_t size = utf8codepointsize(code);
+		mString.resize(mString.size() + size, 0);
+		utf8catcodepoint(mString.data(), code, size);
+		mLength = 1;
 	}
 
 	UTF8String& UTF8String::operator=(const char* str)
@@ -174,7 +199,7 @@ namespace Cjing3D
 	UTF8String::U8String UTF8String::At(const size_t index) const
 	{
 		size_t pos = GetUTF8PosAt(mString, index);
-		return mString.substr(pos, utf8codepointcalcsize(mString.data()));
+		return mString.substr(pos, utf8codepointcalcsize(mString.data() + pos));
 	}
 
 	UTF8String UTF8String::AtUTF8(const size_t index) const
@@ -192,7 +217,7 @@ namespace Cjing3D
 		return mString;
 	}
 
-	const char* UTF8String::C_Str()
+	const char* UTF8String::C_Str() const
 	{
 		return mString.c_str();
 	}
@@ -230,7 +255,7 @@ namespace Cjing3D
 		mLength--;
 	}
 
-	UTF8String UTF8String::Substr(size_t pos, size_t len)
+	UTF8String UTF8String::Substr(size_t pos, size_t len)const
 	{
 		if (pos >= mLength) {
 			return UTF8String();
@@ -238,6 +263,31 @@ namespace Cjing3D
 
 		size_t substrCount = (len == npos || (pos + len > mLength)) ? mLength - pos : len;
 		return UTF8String(SubstrUTF8String(mString, pos, pos + substrCount));
+	}
+
+	void UTF8String::Insert(size_t pos, int32_t code)
+	{
+		size_t size = utf8codepointsize(code);
+		if (size <= 0) {
+			return;
+		}
+		mString.resize(mString.size() + size, 0);
+
+		pos = std::min(pos, mLength);
+		size_t utf8Pos = GetUTF8PosAt(mString, pos);
+		char* strData = mString.data() + utf8Pos;
+		memcpy(strData + size, strData, mString.size() - size - utf8Pos);
+
+		auto result = utf8catcodepoint(strData, code, size);
+		if (!result) {
+			return;
+		}
+
+		mLength++;
+	}
+
+	void UTF8String::Insert(size_t pos, const UTF8String& str)
+	{
 	}
 
 	size_t UTF8String::Find(const UTF8String& str, size_t pos)
@@ -255,13 +305,31 @@ namespace Cjing3D
 			return *this;
 		}
 
-		const size_t eraseCount = std::max((size_t)0, std::min(len, mLength - pos));
+		const size_t eraseCount = std::max((size_t)0, (size_t)std::min(len, mLength - pos));
 		if (eraseCount <= 0) {
 			return *this;
 		}
 
-		mString = SubstrUTF8String(mString, pos, pos + eraseCount);
-		mLength = eraseCount;
+		size_t totalSize = 0;
+		size_t utf8Pos = GetUTF8PosAndSize(mString, pos, eraseCount, totalSize);
+		if (totalSize <= 0) {
+			return * this;
+		}
+
+		size_t leftSize = mString.size() - (utf8Pos + totalSize);
+		if (leftSize > 0)
+		{
+			char* strData = mString.data() + utf8Pos;
+			memcpy(strData, strData + totalSize, leftSize);
+			mString.resize(utf8Pos + leftSize);
+		}
+		else
+		{
+			mString.resize(utf8Pos);
+		}
+
+		mLength = mLength - eraseCount;
+		return *this;
 	}
 
 	UTF8String& UTF8String::Assign(const char* str)

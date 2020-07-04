@@ -1,16 +1,20 @@
 #pragma once
 
-#include <DirectXMath.h>
-#include <algorithm>
-
 #include "common\definitions.h"
 #include "array.h"
 
-#undef min
-#undef max
+#if __has_include("DirectXMath.h")
+#include <DirectXMath.h>
+#include <DirectXPackedVector.h>
+#include <DirectXCollision.h>
+#else
+
+#endif
+
+using namespace DirectX;
+using namespace DirectX::PackedVector;
 
 namespace Cjing3D {
-	using namespace DirectX;
 
 	using U32x2 = Array<U32, 2>;
 	using U32x3 = Array<U32, 3>;

@@ -5,7 +5,7 @@
 #include "helper\fileSystem.h"
 #include "utils\reckPacker\finders_interface.h"
 #include "utils\thread\spinLock.h"
-#include "utils\baseWindow.h"
+#include "platform\gameWindow.h"
 #include "engine.h"
 
 #include <DirectXPackedVector.h>
@@ -176,11 +176,12 @@ namespace Font {
 		///////////////////////////////////////////////////////////////////////////////////
 
 		template<typename CharT>
-		F32 GetTextWidth(const CharT* text, size_t length, const FontParams& params)
+		F32 GetTextWidth(const CharT* text, size_t length, const FontParams& params, std::vector<F32>* widths = nullptr)
 		{
 			F32 spaceWidth = (F32(params.mFontSize) * params.mScale * 0.25f);
 			F32 tabWidth = 4.0f * spaceWidth;
 
+			U32 prevCode = 0;
 			F32 currentWidth = 0;
 			F32 maxWidth = 0;
 			size_t i = 0;
@@ -199,32 +200,61 @@ namespace Font {
 						continue;
 					}
 
-					float fontScaling = stbtt_ScaleForPixelHeight(&fontInfo.mStbFontInfo, (F32)params.mFontSize);
-					int top, left, right, bottom;
-					stbtt_GetCodepointBitmapBox(&fontInfo.mStbFontInfo, code, fontScaling, fontScaling, &left, &top, &right, &bottom);
+					F32 fontScaling = stbtt_ScaleForPixelHeight(&fontInfo.mStbFontInfo, (F32)params.mFontSize);
+					F32 kernAdvance = 0.0f;
+					if (prevCode != 0)
+					{
+						int kern = stbtt_GetCodepointKernAdvance(&fontInfo.mStbFontInfo, prevCode, code);
+						kernAdvance += kern * fontScaling * params.mScale;
+					}
+					prevCode = code;
 
-					currentWidth += (F32)((right - left) * params.mScale + params.mColSpacing);
+					I32 advanceWidth, lsb = 0;
+					stbtt_GetCodepointHMetrics(&fontInfo.mStbFontInfo, code, &advanceWidth, &lsb);
+
+					currentWidth += kernAdvance + (F32)advanceWidth * fontScaling * params.mScale + params.mColSpacing;
 					maxWidth = std::max(maxWidth, currentWidth);
+
+					if (widths != nullptr) {
+						widths->push_back(currentWidth);
+					}
+
 					continue;
 				}
 
 				if (code == '\n')
 				{
 					currentWidth = 0.0f;
+					prevCode = 0;
 				}
 				else if (code == ' ')
 				{
 					currentWidth += spaceWidth;
+					prevCode = 0;
 				}
 				else if (code == '\t')
 				{
 					currentWidth += tabWidth;
+					prevCode = 0;
 				}
 				else
 				{
 					const FontGlyph& glyph = mFontGlyphsLookup.at(glyphHash);
-					currentWidth += (F32)(glyph.width * params.mScale + params.mColSpacing);
+					F32 kernAdvance = 0.0f;
+					if (prevCode != 0)
+					{
+						auto& fontInfo = mLoadedFontInfos[params.mFontStyleIndex];
+						int kern = stbtt_GetCodepointKernAdvance(&fontInfo.mStbFontInfo, prevCode, code);
+						kernAdvance += kern * fontInfo.mFontScaling * params.mScale;
+					}
+					prevCode = code;
+					currentWidth += kernAdvance + glyph.advance * params.mScale + params.mColSpacing;
 				}
+
+				if (widths != nullptr) {
+					widths->push_back(currentWidth);
+				}
+
 				maxWidth = std::max(maxWidth, currentWidth);
 			}
 			return maxWidth;
@@ -715,6 +745,18 @@ namespace Font {
 		}
 		auto codepoints = text.GetCodePoints();
 		return GetTextHeight(codepoints.data(), codepoints.size(), params);
+	}
+
+	std::vector<F32> GetTextWidths(const UTF8String& text, const FontParams& params)
+	{
+		if (!mIsInitialized) {
+			std::vector<F32>();
+		}
+
+		std::vector<F32> ret;
+		auto codepoints = text.GetCodePoints();
+		GetTextWidth(codepoints.data(), codepoints.size(), params, &ret);
+		return ret;
 	}
 
 	void Draw(const std::string& text, const FontParams& params)

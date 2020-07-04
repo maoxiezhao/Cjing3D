@@ -9,7 +9,13 @@ namespace Cjing3D
 	class Sprite
 	{
 	public:
-		Sprite(const std::string& filePath = "");
+		enum SpriteType
+		{
+			SpriteType_Normal,
+			SpriteType_NinePatch,
+		};
+
+		Sprite(const std::string& filePath = "", SpriteType spriteType = SpriteType_Normal);
 		~Sprite();
 
 		virtual void Update(F32 deltaTime);
@@ -37,11 +43,17 @@ namespace Cjing3D
 		void SetColor(const Color4& color);
 		void SetColor(const F32x4& color);
 		Color4 GetColor()const;
+		void SetNinePatch(const Rect& rect);
+		Rect GetNinePatch()const;
+
+		void SetSpriteType(SpriteType type) { mSpriteType = type; }
+		SpriteType GetSpriteType()const { return mSpriteType; }
 
 	private:
 		void SetCurrentTextureInfo(Texture2D& info);
 
 	private:
+		SpriteType mSpriteType = SpriteType_Normal;
 		std::string mFilePath;
 		RenderImage::ImageParams mImageParams;
 		bool mIsVisible = true;

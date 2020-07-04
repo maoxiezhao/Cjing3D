@@ -17,17 +17,17 @@ namespace Gui {
 	class Layout;
 	class WidgetHierarchy;
 
-	enum WidgetAlignment
+	enum AlignmentMode
 	{
-		None = 0,
-		Left = 1 << 0,
-		Top = 1 << 1,
-		Right = 1 << 2,
-		Bottom = 1 << 3,
-		HCenter = 1 << 4,
-		VCenter = 1 << 5,
-		Horizontal = Left | HCenter | Right,
-		Vertical = Top | VCenter | Bottom
+		AlignmentMode_Begin = 0,
+		AlignmentMode_Center,
+		AlignmentMode_End,
+		AlignmentMode_Fill,
+	};
+	enum AlignmentOrien
+	{
+		AlignmentOrien_Horizontal = 0,
+		AlignmentOrien_Vertical
 	};
 
 	enum class HierarchySortOrder 
@@ -69,6 +69,7 @@ namespace Gui {
 		virtual void Update(F32 dt);
 		virtual void FixedUpdate();
 		virtual void Render(const F32x2& offset);
+		virtual void Clear();
 
 		GUIRenderer& GetGUIRenderer();
 		GUIStage& GetGUIStage();
@@ -98,7 +99,9 @@ namespace Gui {
 		void SetSizeAndFixedSize(F32x2 size);
 		F32x2 GetBestSize()const;
 		F32x2 GetAvailableSize()const;
+		void SetWidth(F32 width);
 		F32 GetWidth()const;
+		void SetHeight(F32 height);
 		F32 GetHeight()const;
 		void SetArea(const Rect& rect);
 		Rect GetArea()const { return mArea; }
@@ -118,8 +121,8 @@ namespace Gui {
 
 		// layout 
 		virtual F32x2 CalculateBestSize()const;
-		virtual void SetNeedLayout(bool needLayout);
 		virtual void UpdateLayout();
+		virtual void SetNeedLayout(bool needLayout);
 		virtual F32x2 GetLayoutOffset()const;
 		std::shared_ptr<Layout> GetLayout() { return mLayout; }
 		void SetLayout(const std::shared_ptr<Layout>& layout) { mLayout = layout; }
@@ -138,17 +141,26 @@ namespace Gui {
 		
 		void RemoveChildByName(const StringID& name);
 
+		// special event, 这些事件没有冒泡特性，暂时不通过Signal实现
+		virtual void OnFocusd();
+		virtual void OnUnFocusd();
+		virtual void OnTextInput(const UTF8String& text);
+		virtual void OnKeyDown(KeyCode key, int mod);
+		virtual void OnKeyUp(KeyCode key, int mod);
+
 	protected:
+		virtual void UpdateImpl(F32 dt);
+		virtual void FixedUpdateImpl();
 		virtual void RenderImpl(const Rect& destRect);
 		virtual void UpdateLayoutImpl(const Rect& destRect);
+
 		virtual void OnParentChanged(Widget* old_parent) {}
 		virtual void OnChildAdded(std::shared_ptr<Widget>& node) {}
 		virtual void OnChildRemoved(std::shared_ptr<Widget>& node) {}
 		virtual bool OnWidgetMoved(void);
-		virtual void UpdateImpl(F32 dt);
-		virtual void FixedUpdateImpl();
 
-	private:
+	protected:
+		// base status
 		GUIStage& mStage;
 		bool mIsEnabled = true;
 		bool mIsVisible = true;
@@ -159,10 +171,11 @@ namespace Gui {
 		F32x2 mFixedSize;
 		HierarchySortOrder mHierarchySortOrder = HierarchySortOrder::Sortable;
 		F32 mOrderValue = 0.0f;
+		Sprite mDebugSprite;
 
+		// script
 		LuaRef mScriptHandler;
 		std::map<StringID, std::string> mScriptEventHandlers;
-		Sprite mDebugSprite;
 
 		// layout
 		std::shared_ptr<Layout> mLayout = nullptr;

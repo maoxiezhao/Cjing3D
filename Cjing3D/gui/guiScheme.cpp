@@ -34,6 +34,11 @@ namespace Gui
 	REGISTER_SCHEME_NAME(GUIScheme::ScrollBarBase);
 	REGISTER_SCHEME_NAME(GUIScheme::ScrollSliderBase);
 	REGISTER_SCHEME_NAME(GUIScheme::ScrollSliderHovered);
+	// text
+	REGISTER_SCHEME_NAME(GUIScheme::BaseTextColor);
+	// text field
+	REGISTER_SCHEME_NAME(GUIScheme::TextFieldBorder);
+	REGISTER_SCHEME_NAME(GUIScheme::TextFieldBackground);
 	
 
 #undef  REGISTER_SCHEME_NAME
@@ -89,7 +94,11 @@ namespace Gui
 		RegisterColor(GUIScheme::ScrollBarBase, Color4(120, 120, 120, 150));
 		RegisterColor(GUIScheme::ScrollSliderBase, Color4(220, 220, 220, 150));
 		RegisterColor(GUIScheme::ScrollSliderHovered, Color4(240, 240, 240, 150));
-
+		// text
+		RegisterColor(GUIScheme::BaseTextColor, Color4(255, 255, 255, 200));
+		// text field
+		RegisterColor(GUIScheme::TextFieldBorder, Color4(194, 190, 191, 255));
+		RegisterColor(GUIScheme::TextFieldBackground, Color4(122, 120, 121, 255));
 	}
 
 

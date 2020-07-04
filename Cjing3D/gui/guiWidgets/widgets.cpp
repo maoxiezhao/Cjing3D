@@ -117,6 +117,18 @@ namespace Gui {
 		}
 	}
 
+	void Widget::Clear()
+	{
+		for (auto& child : mChildren)
+		{
+			if (child != nullptr) {
+				child->Clear();
+			}
+		}
+
+		ClearChildren();
+	}
+
 	GUIRenderer& Widget::GetGUIRenderer()
 	{
 		return mStage.GetGUIRenderer();
@@ -233,9 +245,19 @@ namespace Gui {
 		};
 	}
 
+	void Widget::SetWidth(F32 width)
+	{
+		SetSize({ width, GetHeight() });
+	}
+
 	F32 Widget::GetWidth() const
 	{
 		return mArea.GetWidth();
+	}
+
+	void Widget::SetHeight(F32 height)
+	{
+		SetSize({ GetWidth(), height});
 	}
 
 	F32 Widget::GetHeight() const
@@ -405,6 +427,26 @@ namespace Gui {
 	bool Widget::OnWidgetMoved(void)
 	{
 		return true;
+	}
+
+	void Widget::OnFocusd()
+	{
+	}
+
+	void Widget::OnUnFocusd()
+	{
+	}
+
+	void Widget::OnTextInput(const UTF8String& text)
+	{
+	}
+
+	void Widget::OnKeyDown(KeyCode key, int mod)
+	{
+	}
+
+	void Widget::OnKeyUp(KeyCode key, int mod)
+	{
 	}
 
 	void Widget::UpdateImpl(F32 dt)

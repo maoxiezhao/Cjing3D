@@ -1448,7 +1448,7 @@ void ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPassType, Rend
 
 			RenderBatchInstance* batchInstance = (RenderBatchInstance*)frameAllocator.Allocate(sizeof(RenderBatchInstance));
 			batchInstance->mMeshEntity = meshEntity;
-			batchInstance->mDataOffset = instances.offset + index * instanceSize;
+			batchInstance->mDataOffset = instances.offset + currentInstanceCount * instanceSize;
 			batchInstance->mInstanceCount = 0;
 
 			mRenderBatchInstances.push_back(batchInstance);

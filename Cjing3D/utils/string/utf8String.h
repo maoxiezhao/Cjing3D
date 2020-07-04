@@ -25,6 +25,8 @@ namespace Cjing3D
 		UTF8String& operator=(const UTF8String& rhs) noexcept;
 		UTF8String& operator=(UTF8String&& rhs) noexcept;
 
+		explicit UTF8String(int32_t code);
+
 		UTF8String& operator=(const char* str);
 		UTF8String& operator=(const U8String& str);
 		const UTF8String& operator+=(const char* str);
@@ -41,11 +43,13 @@ namespace Cjing3D
 		UTF8String AtUTF8(const size_t index)const;
 		void Pop();
 		UTF8String& Erase(size_t pos, size_t len = npos);
-		UTF8String Substr(size_t pos, size_t len = npos);
+		UTF8String Substr(size_t pos, size_t len = npos)const;
+		void Insert(size_t pos, int32_t code);
+		void Insert(size_t pos, const UTF8String& str);
 		size_t Find(const UTF8String& str, size_t pos = 0);
 		U8String& String();
 		const U8String& String()const;
-		const char* C_Str();
+		const char* C_Str()const;
 
 		UTF8Iterator iterator()const;
 		UTF8Iterator begin()const;
@@ -53,6 +57,18 @@ namespace Cjing3D
 
 		std::vector<int32_t> GetCodePoints()const;
 
+		friend UTF8String operator +(const UTF8String& str1, const UTF8String& str2);
+		friend UTF8String operator +(const UTF8String& str1, const std::string& str2);
+		friend UTF8String operator +(const std::string& str1, const UTF8String& str2);
+		friend UTF8String operator +(const UTF8String& str1, const char* str2);
+		friend UTF8String operator +(const char* str1, const UTF8String& str2);
+
+		friend bool operator ==(const UTF8String& str1, const UTF8String& str2) noexcept;
+		friend bool operator !=(const UTF8String& str1, const UTF8String& str2) noexcept;
+		friend bool operator <(const UTF8String& str1, const UTF8String& str2) noexcept;
+		friend bool operator <=(const UTF8String& str1, const UTF8String& str2) noexcept;
+		friend bool operator >(const UTF8String& str1, const UTF8String& str2) noexcept;
+		friend bool operator >=(const UTF8String& str1, const UTF8String& str2) noexcept;
 	private:
 		UTF8String& Assign(const char* str);
 		UTF8String& Assign(const U8String& str);
@@ -61,19 +77,6 @@ namespace Cjing3D
 		U8String mString;
 		size_t mLength = 0;
 	};
-
-	bool operator ==(const UTF8String& str1, const UTF8String& str2) noexcept;
-	bool operator !=(const UTF8String& str1, const UTF8String& str2) noexcept;
-	bool operator <(const UTF8String& str1, const UTF8String& str2) noexcept;
-	bool operator <=(const UTF8String& str1, const UTF8String& str2) noexcept;
-	bool operator >(const UTF8String& str1, const UTF8String& str2) noexcept;
-	bool operator >=(const UTF8String& str1, const UTF8String& str2) noexcept;
-
-	UTF8String operator +(const UTF8String& str1, const UTF8String& str2);
-	UTF8String operator +(const UTF8String& str1, const std::string& str2);
-	UTF8String operator +(const std::string& str1, const UTF8String& str2);
-	UTF8String operator +(const UTF8String& str1, const char* str2);
-	UTF8String operator +(const char* str1, const UTF8String& str2);
 }
 
 #include "utf8StringIt.h"

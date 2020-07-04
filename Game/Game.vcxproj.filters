@@ -4,9 +4,6 @@
     <ClCompile Include="main\main.cpp">
       <Filter>main</Filter>
     </ClCompile>
-    <ClCompile Include="main\window.cpp">
-      <Filter>main</Filter>
-    </ClCompile>
     <ClCompile Include="editor\guiEditorLight.cpp">
       <Filter>editor</Filter>
     </ClCompile>
@@ -24,6 +21,9 @@
     </ClCompile>
     <ClCompile Include="editor\guiEditorGUI.cpp">
       <Filter>editor</Filter>
+    </ClCompile>
+    <ClCompile Include="test\guiTest.cpp">
+      <Filter>test</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -45,11 +45,11 @@
     <Filter Include="definitions">
       <UniqueIdentifier>{1a1b3995-17d9-4a1c-8628-b1b958915558}</UniqueIdentifier>
     </Filter>
+    <Filter Include="test">
+      <UniqueIdentifier>{935d5c86-d440-4c29-b608-a4e337f4539b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="main\window.h">
-      <Filter>main</Filter>
-    </ClInclude>
     <ClInclude Include="editor\guiEditorLight.h">
       <Filter>editor</Filter>
     </ClInclude>
@@ -70,6 +70,9 @@
     </ClInclude>
     <ClInclude Include="editor\guiEditorGUI.h">
       <Filter>editor</Filter>
+    </ClInclude>
+    <ClInclude Include="test\guiTest.h">
+      <Filter>test</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

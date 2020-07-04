@@ -140,6 +140,12 @@
     <Filter Include="gui\guiAnimation">
       <UniqueIdentifier>{85384a10-a290-4162-9734-7cb72edf0e21}</UniqueIdentifier>
     </Filter>
+    <Filter Include="platform">
+      <UniqueIdentifier>{4e9e644e-9d1b-4fea-8625-73cc82937024}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="platform\win32">
+      <UniqueIdentifier>{7d271ea0-b108-44a9-966e-80998299b231}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine.cpp" />
@@ -437,9 +443,6 @@
     <ClCompile Include="..\ThirdParty\imgui\imgui_impl_win32.cpp">
       <Filter>gui\guiEditor\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="utils\baseWindow.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
     <ClCompile Include="gui\guiRenderer.cpp">
       <Filter>gui</Filter>
     </ClCompile>
@@ -504,9 +507,6 @@
       <Filter>utils\tlsf</Filter>
     </ClCompile>
     <ClCompile Include="core\allocator.cpp">
-      <Filter>core</Filter>
-    </ClCompile>
-    <ClCompile Include="core\safeRefcount.cpp">
       <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="utils\allocator\tlsfAllocator.cpp">
@@ -639,6 +639,21 @@
       <Filter>gui\guiWidgets</Filter>
     </ClCompile>
     <ClCompile Include="gui\guiWidgets\ninePatchImage.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\gameWindow.cpp">
+      <Filter>platform</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\win32\gameWindowWin32.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\win32\safeRefcountWin32.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\textEdit.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\inputField.cpp">
       <Filter>gui\guiWidgets</Filter>
     </ClCompile>
   </ItemGroup>
@@ -972,9 +987,6 @@
     <ClInclude Include="..\ThirdParty\imgui\imgui_impl_win32.h">
       <Filter>gui\guiEditor\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="utils\baseWindow.h">
-      <Filter>utils</Filter>
-    </ClInclude>
     <ClInclude Include="gui\guiRenderer.h">
       <Filter>gui</Filter>
     </ClInclude>
@@ -1246,6 +1258,18 @@
       <Filter>gui\guiWidgets</Filter>
     </ClInclude>
     <ClInclude Include="gui\guiWidgets\ninePatchImage.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\textEdit.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\gameWindow.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\win32\gameWindowWin32.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\inputField.h">
       <Filter>gui\guiWidgets</Filter>
     </ClInclude>
   </ItemGroup>
