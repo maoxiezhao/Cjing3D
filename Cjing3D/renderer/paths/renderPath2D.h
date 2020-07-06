@@ -19,7 +19,8 @@ namespace Cjing3D {
 		virtual void ResizeBuffers();
 
 	private:
-		void RenderGUI();
+		virtual void RenderGUI();
+		virtual void Render2D();
 
 	protected:
 		virtual Texture2D* GetDepthBuffer() {

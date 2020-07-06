@@ -438,7 +438,7 @@ namespace Cjing3D
 	{
 		bool mAlphaToCoverageEnable;
 		bool mIndependentBlendEnable;
-		BlendTargetBlendStateDesc mRenderTarget[8];
+		BlendTargetBlendStateDesc mRenderTarget[8] = {};
 
 		BlendStateDesc() :
 			mAlphaToCoverageEnable(false),

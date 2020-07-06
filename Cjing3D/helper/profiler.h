@@ -22,6 +22,7 @@ public:
 
 	void Initialize();
 	void Uninitialize();
+	void Clear();
 
 	void BeginFrame();
 	void EndFrame();
@@ -55,5 +56,6 @@ private:
 #define PROFILER_BEGIN_CPU_BLOCK(name) Profiler::GetInstance().BeginCPUBlock(StringID(name));
 #define PROFILER_BEGIN_GPU_BLOCK(name) Profiler::GetInstance().BeginGPUBlock(StringID(name));
 #define PROFILER_END_BLOCK() Profiler::GetInstance().EndBlock();
-
+#define PROFILER_BEGIN_CPU_GPU_BLOCK(name)  Profiler::GetInstance().BeginGPUBlock(StringID(std::string("GPU_") + name));Profiler::GetInstance().BeginCPUBlock(StringID(std::string("CPU_") + name));
+#define PROFILER_END_CPU_GPU_BLOCK() Profiler::GetInstance().EndBlock();Profiler::GetInstance().EndBlock();
 }

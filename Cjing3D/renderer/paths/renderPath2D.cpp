@@ -3,6 +3,7 @@
 #include "renderer\paths\renderImage.h"
 #include "core\systemContext.hpp"
 #include "gui\guiStage.h"
+#include "renderer\2D\renderer2D.h"
 
 namespace Cjing3D
 {
@@ -72,8 +73,16 @@ namespace Cjing3D
 			vp.mMinDepth = 0.0f;
 			vp.mMaxDepth = 1.0f;
 			device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
+			
+			RectInt rect;
+			rect.mBottom = INT32_MAX;
+			rect.mLeft = INT32_MIN;
+			rect.mRight = INT32_MAX;
+			rect.mTop = INT32_MIN;
+			device.BindScissorRects(1, &rect);
 
 			RenderGUI();
+			Render2D();
 
 			device.EndRenderBehavior();
 		}
@@ -93,6 +102,13 @@ namespace Cjing3D
 		guiStage.GetGUIRenderer().Render();
 	
 		device.EndEvent();
+	}
+
+	void RenderPath2D::Render2D()
+	{
+		Renderer::GetDevice().BeginEvent("2D");
+		Renderer2D::Render2D();
+		Renderer::GetDevice().EndEvent();
 	}
 
 	void RenderPath2D::Compose()

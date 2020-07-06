@@ -172,9 +172,9 @@ namespace Cjing3D
 			mCurrentKeyStatus[mouseStartIndex + 1] = mMouseState.rgbButtons[3] & 0x80;
 			mCurrentKeyStatus[mouseStartIndex + 2] = mMouseState.rgbButtons[1] & 0x80;
 
-			mMouseDelta[0] = static_cast<F32>(mMouseState.lX);
-			mMouseDelta[1] = static_cast<F32>(mMouseState.lY);
-			mMouseWheelDelta = static_cast<F32>(mMouseState.lZ);
+			mMouseDelta[0] = static_cast<I32>(mMouseState.lX);
+			mMouseDelta[1] = static_cast<I32>(mMouseState.lY);
+			mMouseWheelDelta = static_cast<I32>(mMouseState.lZ);
 
 			POINT mouseScreenPos;
 			if (GetCursorPos(&mouseScreenPos))
@@ -197,9 +197,9 @@ namespace Cjing3D
 			mCurrentKeyStatus[mouseStartIndex + 1] = false;
 			mCurrentKeyStatus[mouseStartIndex + 2] = false;
 
-			mMouseDelta[0] = 0.0f;
-			mMouseDelta[1] = 0.0f;
-			mMouseWheelDelta = 0.0f;
+			mMouseDelta[0] = 0;
+			mMouseDelta[1] = 0;
+			mMouseWheelDelta = 0;
 			mMousePos[0] = 0;
 			mMousePos[1] = 0;
 		}
@@ -246,10 +246,5 @@ namespace Cjing3D
 	bool DirectInput::IsKeyHold(const KeyCode key)const
 	{
 		return mCurrentKeyStatus[key];
-	}
-
-	I32x2 DirectInput::GetMousePos() const
-	{
-		return mMousePos;
 	}
 }

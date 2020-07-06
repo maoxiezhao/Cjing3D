@@ -1,9 +1,5 @@
 #include "widgets.h"
-#include "gui\guiStage.h"
-#include "gui\guiRenderer.h"
-#include "scripts\luaTools.h"
-#include "scripts\api\uiApi.h"
-#include "scripts\api\utilsApi.h"
+#include "widgetInclude.h"
 
 namespace Cjing3D
 {
@@ -23,6 +19,34 @@ namespace Gui {
 		GUIScriptEventHandlers::OnUnloaded
 	};
 
+	StringID GUIScriptEventHandlers::GetScriptEventHandlerByUIEventType(UI_EVENT_TYPE eventType)
+	{
+		StringID ret;
+		switch (eventType)
+		{
+		case UI_EVENT_TYPE::UI_EVENT_MOUSE_ENTER:
+			break;
+		case UI_EVENT_TYPE::UI_EVENT_MOUSE_LEAVE:
+			break;
+		case UI_EVENT_TYPE::UI_EVENT_MOUSE_MOTION:
+			break;
+		case UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_DOWN:
+			break;
+		case UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_UP:
+			break;
+		case UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_CLICK:
+			break;
+		case UI_EVENT_TYPE::UI_EVENT_KEYBOARD_KEYDOWN:
+			break;
+		case UI_EVENT_TYPE::UI_EVENT_KEYBOARD_KEYUP:
+			break;
+		default:
+			break;
+		}
+
+		return ret;
+	}
+
 	Widget::Widget(GUIStage& stage, const StringID& name) :
 		TreeNode<Widget>(name),
 		Dispatcher(),
@@ -39,6 +63,12 @@ namespace Gui {
 		if (!IsVisible()) {
 			return;
 		}
+
+		UpdateImpl(dt);
+
+		for (auto& child : mChildren) {
+			child->Update(dt);
+		}
 	}
 
 	void Widget::FixedUpdate()
@@ -46,6 +76,16 @@ namespace Gui {
 		if (!IsVisible()) {
 			return;
 		}
+
+		FixedUpdateImpl();
+
+		for (auto& child : mChildren) {
+			child->FixedUpdate();
+		}
+	}
+
+	void Widget::UpdateAnimation()
+	{
 	}
 
 	void Widget::Render(const F32x2& offset)
@@ -57,6 +97,22 @@ namespace Gui {
 		Rect destRect(mArea);
 		destRect.Offset(offset);
 
+		if (GetGUIStage().IsDebugDraw())
+		{
+			if (mDebugSprite.GetColor() == Color4::White()) {
+				Color4 randomColor;
+				randomColor.SetA(255);
+				randomColor.SetR(Random::GetRandomInt(255));
+				randomColor.SetG(Random::GetRandomInt(255));
+				randomColor.SetB(Random::GetRandomInt(255));
+				mDebugSprite.SetColor(randomColor);
+			}
+
+			mDebugSprite.SetPos(destRect.GetPos());
+			mDebugSprite.SetSize(destRect.GetSize());
+			GetGUIRenderer().RenderSprite(mDebugSprite);
+		}
+
 		RenderImpl(destRect);
 
 		F32x2 childOffset = destRect.GetPos();
@@ -65,20 +121,48 @@ namespace Gui {
 		}
 	}
 
+	void Widget::Clear()
+	{
+		for (auto& child : mChildren)
+		{
+			if (child != nullptr) {
+				child->Clear();
+			}
+		}
+
+		ClearChildren();
+	}
+
 	GUIRenderer& Widget::GetGUIRenderer()
 	{
 		return mStage.GetGUIRenderer();
 	}
 
-	F32x2 Widget::TransfromToLocalCoord(const F32x2 point) const
+	F32x2 Widget::TransformToLocalCoord(const F32x2 point) const
 	{
 		F32x2 result = point;
-		if (mParent != nullptr)
+		auto parent = GetParent();
+		while (parent != nullptr)
 		{
-			result -= mParent->GetArea().GetPos();
-			result = mParent->TransfromToLocalCoord(result);
+			result -= parent->GetArea().GetPos();
+			parent = parent->GetParent();
+		}
+		result -= GetPos();
+
+		return result;
+	}
+
+	F32x2 Widget::TransformToGlobalCoord(const F32x2 point) const
+	{
+		F32x2 result = point;
+		auto parent = GetParent();
+		while (parent != nullptr)
+		{
+			result += mParent->GetArea().GetPos();
+			parent = parent->GetParent();
 		}
 
+		result += GetPos();
 		return result;
 	}
 
@@ -89,17 +173,23 @@ namespace Gui {
 			return false;
 		}
 
-		return mArea.Intersects(TransfromToLocalCoord(point));
+		return mArea.Intersects(TransformToLocalCoord(point) + mArea.GetPos());
 	}
 
 	void Widget::SetPos(const F32x2 pos)
 	{
 		mArea.SetPos(pos);
+		OnWidgetMoved();
 	}
 
 	F32x2 Widget::GetPos() const
 	{
 		return mArea.GetPos();
+	}
+
+	F32x2 Widget::GetGlobalPos() const
+	{
+		return TransformToGlobalCoord(F32x2());
 	}
 
 	void Widget::SetSize(const F32x2 size)
@@ -112,9 +202,112 @@ namespace Gui {
 		return mArea.GetSize();
 	}
 
+	void Widget::SetFixedSize(F32x2 size)
+	{
+		mFixedSize = size;
+	}
+
+	void Widget::UpdateBestSize()
+	{
+		F32x2 bestSize = GetBestSize();
+		if (bestSize != GetSize())
+		{
+			SetSize(bestSize);
+			OnBestSizeChanged();
+		}
+	}
+
+	F32x2 Widget::CalculateBestSize() const
+	{
+		if (!IsVisible()) {
+			return F32x2(0.0f, 0.0f);
+		}
+
+		return mArea.GetSize();
+	}
+
+	void Widget::UpdateLayout()
+	{
+	}
+
+	void Widget::SetLayoutOffset(F32x2 offset)
+	{
+		mLayoutOffset = offset;
+		OnBestSizeChanged();
+	}
+
+	void Widget::SetVerticalAlign(AlignmentMode mode)
+	{
+		if (mVerticalAlign != mode)
+		{
+			mVerticalAlign = mode;
+			OnAlignModeChanged();
+		}
+	}
+
+	void Widget::SetHorizontalAlign(AlignmentMode mode)
+	{
+		if (mHorizontalAlign != mode)
+		{
+			mHorizontalAlign = mode;
+			OnAlignModeChanged();
+		}
+	}
+
+	void Widget::SetSizeAndFixedSize(F32x2 size)
+	{
+		SetSize(size);
+		SetFixedSize(size);
+	}
+
+	F32x2 Widget::GetBestSize() const
+	{
+		F32x2 fs = GetFixedSize();
+		if (fs[0] == 0.0f || fs[1] == 0.0f) 
+		{
+			F32x2 ps = CalculateBestSize();
+			fs = {
+				fs[0] ? fs[0] : ps[0],
+				fs[1] ? fs[1] : ps[1]
+			};
+		}
+		return fs;
+	}
+
+	F32x2 Widget::GetAvailableSize() const
+	{
+		F32x2 ps = mArea.GetSize();
+		F32x2 fs = GetFixedSize();
+		return {
+			fs[0] ? fs[0] : ps[0],
+			fs[1] ? fs[1] : ps[1]
+		};
+	}
+
+	void Widget::SetWidth(F32 width)
+	{
+		SetSize({ width, GetHeight() });
+	}
+
+	F32 Widget::GetWidth() const
+	{
+		return mArea.GetWidth();
+	}
+
+	void Widget::SetHeight(F32 height)
+	{
+		SetSize({ GetWidth(), height});
+	}
+
+	F32 Widget::GetHeight() const
+	{
+		return mArea.GetHeight();
+	}
+
 	void Widget::SetArea(const Rect& rect)
 	{
 		mArea = rect;
+		OnWidgetMoved();
 	}
 
 	bool Widget::CanMouseFocus() const
@@ -177,6 +370,11 @@ namespace Gui {
 	{
 		// strong ref?
 		mScriptHandler = handler;
+	}
+
+	bool Widget::HaveScriptEventHandler(const StringID& eventName) const
+	{
+		return mScriptEventHandlers.find(eventName) != mScriptEventHandlers.end();
 	}
 
 	void Widget::AddScriptEventHandler(const StringID& eventName, const std::string& handler)
@@ -246,6 +444,11 @@ namespace Gui {
 		return mStage;
 	}
 
+	WidgetHierarchy& Widget::GetWidgetHierarchy()
+	{
+		return mStage.GetWidgetHierarchy();
+	}
+
 	void Widget::RenderImpl(const Rect& destRect)
 	{
 		F32x2 rectSize = destRect.GetSize();
@@ -256,31 +459,48 @@ namespace Gui {
 		GUIRenderer& renderer = GetGUIRenderer();
 	}
 
+	bool Widget::OnWidgetMoved(void)
+	{
+		return true;
+	}
+
+	void Widget::OnFocusd()
+	{
+	}
+
+	void Widget::OnUnFocusd()
+	{
+	}
+
+	void Widget::OnTextInput(const UTF8String& text)
+	{
+	}
+
+	void Widget::OnKeyDown(KeyCode key, int mod)
+	{
+	}
+
+	void Widget::OnKeyUp(KeyCode key, int mod)
+	{
+	}
+
+	void Widget::UpdateImpl(F32 dt)
+	{
+	}
+
+	void Widget::FixedUpdateImpl()
+	{
+	}
+
 	void Widget::OnLoaded()
 	{
 		// 在lua中执行初始化，需要传入properties，可能有自定义的属性
 		CallScriptEventHandler(GUIScriptEventHandlers::OnLoaded);
-
-		// 重新根据位置和大小刷新布局
-		RefreshPlacement();
 	}
 
 	void Widget::OnUnloaded()
 	{
 		CallScriptEventHandler(GUIScriptEventHandlers::OnUnloaded);
-	}
-
-	void Widget::RefreshPlacement()
-	{
-		// 暂时不处理mask
-		Rect rect = GetArea();
-		for (auto& child : mChildren) {
-			child->RefreshPlacement();
-
-			rect.Union(child->GetArea());
-		}
-
-		mArea = rect;
 	}
 }
 }

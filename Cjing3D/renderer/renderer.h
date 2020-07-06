@@ -13,23 +13,22 @@ namespace Cjing3D
 
 class GraphicsDevice;
 class ShaderLib;
-class RhiResourceManager;
+class RenderPreset;
 class ResourceManager;
 class CameraComponent;
 class LightComponent;
 class Scene;
 class MaterialComponent;
 class PipelineStateManager;
-class Renderer2D;
 class RenderPass;
 class TerrainTree;
 
-// TODO: change to renderer namesapce
 // Renderer被设计为一个仅仅提供各种渲染方法的集合（namespace)，具体的调用方式应该由renderPath决定
 namespace Renderer
 {
 	void Initialize(RenderingDeviceType deviceType, HWND window);
 	void Uninitialize();
+	void UninitializeDevice();
 
 	void Render();
 	void Compose();
@@ -44,10 +43,9 @@ namespace Renderer
 	GraphicsDevice& GetDevice();
 	CameraComponent& GetCamera();
 	ShaderLib& GetShaderLib();
-	RhiResourceManager& GetStateManager();
+	RenderPreset& GetRenderPreset();
 	Scene& GetMainScene();
 	PipelineStateManager& GetPipelineStateManager();
-	Renderer2D& GetRenderer2D();
 	RenderPath* GetRenderPath();
 
 	// base status
@@ -61,6 +59,7 @@ namespace Renderer
 	void ResetAlphaCutRef();
 	void SetScreenSize(U32 width, U32 height);
 	U32x2 GetScreenSize();
+	XMMATRIX GetScreenProjection();
 
 	// Render Method
 	void RenderShadowmaps(CameraComponent& camera);

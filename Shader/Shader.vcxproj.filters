@@ -107,6 +107,18 @@
     <FxCompile Include="ps\objectTiledForwardTransparentPS.hlsl">
       <Filter>ps</Filter>
     </FxCompile>
+    <FxCompile Include="vs\spriteVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="ps\spritePS.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
+    <FxCompile Include="vs\fontVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="ps\fontPS.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="hf\objectInput.hlsli">
@@ -152,6 +164,9 @@
     </ClInclude>
     <ClInclude Include="hf\resourceMapping.h">
       <Filter>shaderInterop\gpuMapping</Filter>
+    </ClInclude>
+    <ClInclude Include="hf\shaderInteropImage.h">
+      <Filter>shaderInterop</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

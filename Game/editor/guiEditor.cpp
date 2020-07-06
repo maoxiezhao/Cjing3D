@@ -2,6 +2,7 @@
 #include "guiEditorLight.h"
 #include "guiEditorProfier.h"
 #include "guiEditorScene.h"
+#include "guiEditorGUI.h"
 
 #include "gui\guiEditor\guiEditorInclude.h"
 
@@ -580,8 +581,7 @@ namespace Editor {
 		ImGui::Text("By ZZZZY");
 		ImGui::Separator();
 		ImGui::Text("");
-		ImGui::Text("F4-Show Debug; F5-Load scene;");
-		ImGui::Text("F6-Save scene; F7-Clear scene;");
+		ImGui::Text("F4-Show ImGUI Editor;");
 		ImGui::Text("WASD-Move camera;  RB-Rotate camera");
 		ImGui::Text("");
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", deltaTime, 1.0f / deltaTime);
@@ -602,6 +602,7 @@ namespace Editor {
 			if (ImGui::BeginMenu("Prop"))
 			{
 				if (ImGui::MenuItem("Animations")) { showAnimationWindow = true; }
+				if (ImGui::MenuItem("GUI")) {  ShowGUIWindow(); }
 				if (ImGui::MenuItem("Properties")) { showRenderWindow = true; }
 				ImGui::EndMenu();
 			}
@@ -643,6 +644,7 @@ namespace Editor {
 
 		InitializeEditorProfiler(imguiStage);
 		InitializeEditorLight(imguiStage);
+		InitializeEditorGUI(imguiStage);
 #endif
 	}
 }

@@ -12,7 +12,7 @@ VSOutType main(InputObjectPos input)
     VertexSurface surface = MakeVertexSurfaceFromInput(input);
 
     VSOutType vsOut;
-    vsOut.rtIndex = (uint) input.instance.userdata.x;
+    vsOut.rtIndex = input.instance.userdata.x;
     vsOut.pos = mul(gCubeMapVP[vsOut.rtIndex], mul(surface.position, worldMat));
     
     return vsOut;

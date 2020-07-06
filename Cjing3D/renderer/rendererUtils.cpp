@@ -1,7 +1,7 @@
 #include "rendererUtils.h"
 #include "renderer\renderer.h"
 #include "renderer\shaderLib.h"
-#include "renderer\rhiResourceManager.h"
+#include "renderer\preset\renderPreset.h"
 
 namespace Cjing3D
 {
@@ -32,7 +32,7 @@ namespace Cjing3D
 
 		GraphicsDevice& device = Renderer::GetDevice();
 		ShaderLib& shaderLib = Renderer::GetShaderLib();
-		RhiResourceManager& rhiResourceManager = Renderer::GetStateManager();
+		RenderPreset& renderPreset = Renderer::GetRenderPreset();
 
 		// generate mipmap by compute shader
 		switch (filter)
@@ -40,13 +40,13 @@ namespace Cjing3D
 		case MIPGENFILTER_POINT:
 			device.BeginEvent("GenerateMipChain-FilterPoint");
 			device.BindComputeShader(shaderLib.GetComputeShader(ComputeShaderType_MipmapGenerate));
-			device.BindSamplerState(SHADERSTAGES_CS, *rhiResourceManager.GetSamplerState(SamplerStateID_PointClampGreater), SAMPLER_SLOT_0);
+			device.BindSamplerState(SHADERSTAGES_CS, *renderPreset.GetSamplerState(SamplerStateID_PointClampGreater), SAMPLER_SLOT_0);
 
 			break;
 		case MIPGENFILTER_LINEAR:
 			device.BeginEvent("GenerateMipChain-FilterLinear");
 			device.BindComputeShader(shaderLib.GetComputeShader(ComputeShaderType_MipmapGenerate));
-			device.BindSamplerState(SHADERSTAGES_CS, *rhiResourceManager.GetSamplerState(SamplerStateID_LinearClampGreater), SAMPLER_SLOT_0);
+			device.BindSamplerState(SHADERSTAGES_CS, *renderPreset.GetSamplerState(SamplerStateID_LinearClampGreater), SAMPLER_SLOT_0);
 
 			break;
 		default:
@@ -74,7 +74,7 @@ namespace Cjing3D
 			cb.gMipmapGenResolution.y = currentHeight;
 			cb.gMipmapInverseResolution.x = (1.0f / currentWidth);
 			cb.gMipmapInverseResolution.y = (1.0f / currentHeight);
-			GPUBuffer& mipgenBuffer = rhiResourceManager.GetConstantBuffer(ConstantBufferType_MipmapGenerate);
+			GPUBuffer& mipgenBuffer = renderPreset.GetConstantBuffer(ConstantBufferType_MipmapGenerate);
 			device.UpdateBuffer(mipgenBuffer, &cb, sizeof(MipmapGenerateCB));
 			device.BindConstantBuffer(SHADERSTAGES_CS, mipgenBuffer, CB_GETSLOT_NAME(MipmapGenerateCB));
 

@@ -1,16 +1,20 @@
 #pragma once
 
-#include <DirectXMath.h>
-#include <algorithm>
-
 #include "common\definitions.h"
 #include "array.h"
 
-#undef min
-#undef max
+#if __has_include("DirectXMath.h")
+#include <DirectXMath.h>
+#include <DirectXPackedVector.h>
+#include <DirectXCollision.h>
+#else
+
+#endif
+
+using namespace DirectX;
+using namespace DirectX::PackedVector;
 
 namespace Cjing3D {
-	using namespace DirectX;
 
 	using U32x2 = Array<U32, 2>;
 	using U32x3 = Array<U32, 3>;
@@ -79,7 +83,6 @@ namespace Cjing3D {
 		return result;
 	}
 
-
 	inline const XMUINT2 XM_CALLCONV XMConvert(const U32x2& src) {
 		XMUINT2 result;
 		XMStoreUInt2(&result, XMLoad(src));
@@ -136,6 +139,32 @@ namespace Cjing3D {
 	inline unsigned int SDBMHash(unsigned int hash, unsigned char c)
 	{
 		return c + (hash << 6) + (hash << 16) - hash;
+	}
+
+	inline bool IsF32EqualZero(F32 v)
+	{
+		return abs(v) < 0.000001f;
+	}
+
+	inline bool IsF32EqualF32(F32 v1, F32 v2)
+	{
+		return abs(v2 - v1) < 0.000001f;
+	}
+
+	inline F32x2 F32x2Max(F32x2 a, F32x2 b)
+	{
+		return F32x2(
+			std::max(a[0], b[0]),
+			std::max(a[1], b[1])
+		);
+	}
+
+	inline F32x2 F32x2Min(F32x2 a, F32x2 b)
+	{
+		return F32x2(
+			std::min(a[0], b[0]),
+			std::min(a[1], b[1])
+		);
 	}
 
 	inline F32x3 F32x3Max(F32x3 a, F32x3 b)

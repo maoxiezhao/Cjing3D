@@ -1,14 +1,15 @@
 #include "logger.h"
+#include "platform\gameWindow.h"
 
 #include <fstream>
 #include <chrono>
-#include <windows.h>
 #include <iostream>
-
-using std::string;
+#include <stdarg.h>
 
 namespace Cjing3D {
 	namespace Logger {
+		using std::string;
+
 		namespace {
 			const string errorLogFileName = "error.txt";
 			std::ofstream errorFile;
@@ -29,17 +30,6 @@ namespace Cjing3D {
 				sprintf_s(date, "%02d:%02d:%02d ",
 					(int)ptm.tm_hour, (int)ptm.tm_min, (int)ptm.tm_sec);
 				return std::string(date);
-			}
-
-			const int CONSOLE_FONT_WHITE = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
-			const int CONSOLE_FONT_BLUE = FOREGROUND_BLUE;
-			const int CONSOLE_FONT_YELLOW = FOREGROUND_RED | FOREGROUND_GREEN;
-			const int CONSOLE_FONT_GREEN = FOREGROUND_GREEN;
-			const int CONSOLE_FONT_RED = FOREGROUND_RED;
-			void SetLoggerConsoleFontColor(int fontColor)
-			{
-				HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
-				SetConsoleTextAttribute(handle, FOREGROUND_INTENSITY | static_cast<WORD>(fontColor));
 			}
 		}
 
@@ -63,9 +53,9 @@ namespace Cjing3D {
 
 		void Logger::Info(const string & msg)
 		{
-			SetLoggerConsoleFontColor(CONSOLE_FONT_GREEN);
+			GameWindow::GameWindow::SetLoggerConsoleFontColor(CONSOLE_FONT_GREEN);
 			Print("[Info]  " + msg);
-			SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
+			GameWindow::GameWindow::SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
 		}
 
 		void InfoEx(const char* format, ...)
@@ -76,32 +66,32 @@ namespace Cjing3D {
 			vsnprintf_s(msg, std::size(msg), format, args);
 			va_end(args);
 
-			SetLoggerConsoleFontColor(CONSOLE_FONT_GREEN);
+			GameWindow::SetLoggerConsoleFontColor(CONSOLE_FONT_GREEN);
 			Print("[Info]  " + std::string(msg));
-			SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
+			GameWindow::SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
 		}
 
 		void Logger::Warning(const string & msg)
 		{
-			SetLoggerConsoleFontColor(CONSOLE_FONT_YELLOW);
+			GameWindow::SetLoggerConsoleFontColor(CONSOLE_FONT_YELLOW);
 			string warningMsg = "[Warning]  " + msg;
 			Print(warningMsg);
 			Print(warningMsg, GetErrorFile());
-			SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
+			GameWindow::SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
 		}
 
 		void Logger::Error(const string & msg)
 		{
-			SetLoggerConsoleFontColor(CONSOLE_FONT_RED);
+			GameWindow::SetLoggerConsoleFontColor(CONSOLE_FONT_RED);
 			string warningMsg = "[Error]  " + msg;
 			Print(warningMsg);
 			Print(warningMsg, GetErrorFile());
-			SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
+			GameWindow::SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
 		}
 
 		void Fatal(const string& msg)
 		{
-			SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
+			GameWindow::SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
 			string warningMsg = "[Fatal]  " + msg;
 			Print(warningMsg);
 			Print(warningMsg, GetErrorFile());

@@ -4,10 +4,10 @@
 #include "imgui\imgui_impl_dx11.h"
 
 #include "engine.h"
-#include "utils\baseWindow.h"
+#include "platform\gameWindow.h"
 #include "core\systemContext.hpp"
 #include "renderer\renderer.h"
-#include "renderer\renderer2D.h"
+#include "renderer\2D\renderer2D.h"
 #include "renderer\RHI\deviceD3D11.h"
 #include "renderer\paths\renderPath3D.h"
 
@@ -63,7 +63,7 @@ namespace Cjing3D
 		ImGui_ImplWin32_Init(hwnd);
 		ImGui_ImplDX11_Init(&device, &deviceContext);
 
-		BaseWindow* window = GlobalGetEngine()->GetWindow();
+		GameWindow* window = GlobalGetEngine()->GetWindow();
 		if (window != nullptr) {
 			mMessageHandler = std::make_shared<IMGUIMessageHandler>();
 			window->AddMessageHandler(mMessageHandler);
@@ -82,7 +82,7 @@ namespace Cjing3D
 		mRegisteredWindows.clear();
 
 		SystemContext& systemContext = SystemContext::GetSystemContext();
-		BaseWindow* window = GlobalGetEngine()->GetWindow();
+		GameWindow* window = GlobalGetEngine()->GetWindow();
 		if (window != nullptr) {
 			mMessageHandler = std::make_shared<IMGUIMessageHandler>();
 			window->RemoveHandler(mMessageHandler);
@@ -101,17 +101,25 @@ namespace Cjing3D
 			return;
 		}
 
-		Renderer2D& renderer2D = Renderer::GetRenderer2D();
-		RenderPath2D* path = renderer2D.GetCurrentRenderPath();
-		if (path == nullptr) {
+
+	}
+
+	void IMGUIStage::FixedUpdate()
+	{
+		if (mIsInitialized == false) {
 			return;
 		}
 
-		ImGui_ImplDX11_NewFrame();
-		ImGui_ImplWin32_NewFrame();
-		ImGui::NewFrame();
+		if (!mIsNeedRender)
+		{
+			ImGui_ImplDX11_NewFrame();
+			ImGui_ImplWin32_NewFrame();
+			ImGui::NewFrame();
 
-		UpdateImpl(deltaTime);
+			mIsNeedRender = true;
+
+			UpdateImpl(GlobalGetDeltaTime());
+		}
 	}
 
 	void IMGUIStage::Render(GUIRenderer& renderer)
@@ -127,8 +135,19 @@ namespace Cjing3D
 	{
 		GraphicsDevice& device = Renderer::GetDevice();
 		device.BeginEvent("RenderIMGUI");
-		ImGui::Render();
-		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+		
+		if (mIsNeedRender) 
+		{
+			mIsNeedRender = false;
+			ImGui::Render();
+			ImGui::EndFrame();
+		}
+
+		auto drawData = ImGui::GetDrawData();
+		if (drawData != nullptr) {
+			ImGui_ImplDX11_RenderDrawData(drawData);
+		}
+
 		device.EndEvent();
 	}
 

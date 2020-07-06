@@ -42,7 +42,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -135,12 +135,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="editor\guiEditor.cpp" />
+    <ClCompile Include="editor\guiEditorGUI.cpp" />
     <ClCompile Include="editor\guiEditorLight.cpp" />
     <ClCompile Include="editor\guiEditorProfier.cpp" />
     <ClCompile Include="editor\guiEditorScene.cpp" />
     <ClCompile Include="game\gameEditor.cpp" />
     <ClCompile Include="main\main.cpp" />
-    <ClCompile Include="main\window.cpp" />
+    <ClCompile Include="test\guiTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cjing3D\Cjing3D.vcxproj">
@@ -153,11 +154,12 @@
   <ItemGroup>
     <ClInclude Include="definitions\definitions.h" />
     <ClInclude Include="editor\guiEditor.h" />
+    <ClInclude Include="editor\guiEditorGUI.h" />
     <ClInclude Include="editor\guiEditorLight.h" />
     <ClInclude Include="editor\guiEditorProfier.h" />
     <ClInclude Include="editor\guiEditorScene.h" />
     <ClInclude Include="game\gameEditor.h" />
-    <ClInclude Include="main\window.h" />
+    <ClInclude Include="test\guiTest.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Assets\Scripts\common\common.lua" />

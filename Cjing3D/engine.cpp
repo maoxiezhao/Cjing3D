@@ -184,6 +184,7 @@ void Engine::Uninitialize()
 	mSystemContext->GetSubSystem<GUIStage>().Uninitialize();
 	mSystemContext->GetSubSystem<LuaContext>().Uninitialize();
 
+	Profiler::GetInstance().Clear();
 	Renderer::Uninitialize();
 
 	mSystemContext->GetSubSystem<ResourceManager>().Uninitialize();
@@ -192,14 +193,12 @@ void Engine::Uninitialize()
 	mSystemContext->GetSubSystem<JobSystem>().Uninitialize();
 
 	FileData::CloseData();
-
 	mTimer.Stop();
 
 #ifdef CJING_DEBUG
 	Debug::UninitializeDebugConsolse();
 #endif
 	Profiler::GetInstance().Uninitialize();
-
 	Memory::Uninitialize();
 
 	mIsInitialized = false;

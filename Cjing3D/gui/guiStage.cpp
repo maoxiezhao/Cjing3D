@@ -1,7 +1,6 @@
 #include "gui\guiStage.h"
 #include "gui\guiRenderer.h"
 #include "gui\imguiStage.h"
-#include "gui\guiCore\guiEvents.h"
 #include "renderer\renderer.h"
 #include "helper\logger.h"
 
@@ -31,13 +30,15 @@ namespace Cjing3D
 	void GUIStage::Initialize()
 	{
 		mRenderer = std::make_unique<GUIRenderer>(*this);
-		mWidgetManager = std::make_unique<Gui::WidgetManager>(*this);
-		mWidgetManager->Initialize();
 
 #ifdef CJING_IMGUI_ENABLE
 		mImGuiStage.Initialize();
 		mRenderer->SetImGuiStage(&mImGuiStage);
 #endif
+		// initialize widget manager
+		mWidgetManager = std::make_unique<Gui::WidgetManager>(*this);
+		mWidgetManager->Initialize();
+
 		U32x2 screenSize = Renderer::GetScreenSize();
 
 		// initialize widget hierarchy		
@@ -67,11 +68,6 @@ namespace Cjing3D
 
 	void GUIStage::Update(F32 deltaTime)
 	{
-#ifdef CJING_IMGUI_ENABLE
-		PROFILER_BEGIN_CPU_BLOCK("ImGuiFixedUpdate");
-		mImGuiStage.Update(deltaTime);
-		PROFILER_END_BLOCK();
-#endif
 		if (!IsGUIVisible()) {
 			return;
 		}
@@ -87,8 +83,13 @@ namespace Cjing3D
 			return;
 		}
 
-		PROFILER_BEGIN_CPU_BLOCK("GuiFixedUpdate");
+#ifdef CJING_IMGUI_ENABLE
+		PROFILER_BEGIN_CPU_BLOCK("ImGuiFixedUpdate");
+		mImGuiStage.FixedUpdate();
+		PROFILER_END_BLOCK();
+#endif
 
+		PROFILER_BEGIN_CPU_BLOCK("GuiFixedUpdate");
 		// notify input
 		NotifyInput();
 
@@ -98,12 +99,15 @@ namespace Cjing3D
 		// update all widgets
 		mWidgetHierarchy->FixedUpdate();
 
+		// update all animations
+		mWidgetHierarchy->UpdateAnimation();
+
 		PROFILER_END_BLOCK();
 	}
 
 	WidgetPtr GUIStage::LoadWidgetFromXML(const StringID& name, const std::string& filePath, LuaRef scriptHandler)
 	{
-		return LoadWidgetFromXML(mWidgetHierarchy->GetRootWidget(), name, filePath, scriptHandler);
+		return LoadWidgetFromXML(nullptr, name, filePath, scriptHandler);
 	}
 
 	WidgetPtr GUIStage::LoadWidgetFromXML(WidgetPtr parent, const StringID& name, const std::string& filePath, LuaRef scriptHandler)
@@ -116,8 +120,13 @@ namespace Cjing3D
 
 		widget->SetName(name);
 
-		if (parent != nullptr) {
+		if (parent != nullptr) 
+		{
 			parent->Add(widget);
+		}
+		else
+		{
+			mWidgetHierarchy->AddWidget(widget);
 		}
 
 		return widget;
@@ -126,6 +135,12 @@ namespace Cjing3D
 	void GUIStage::AddRegisterKeyBoardKey(KeyCode key)
 	{
 		mRegisteredKeyBoardKeys.push_back(key);
+	}
+
+
+	void GUIStage::PushInputEvent(const GUIInputEvent& ent)
+	{
+		mInputEventQueue.push(ent);
 	}
 
 	void GUIStage::SetImGUIStageVisible(bool visible)
@@ -148,6 +163,11 @@ namespace Cjing3D
 		mRegisteredMouseKeys.push_back(KeyCode::Click_Left);
 		mRegisteredMouseKeys.push_back(KeyCode::Click_Middle);
 		mRegisteredMouseKeys.push_back(KeyCode::Click_Right);
+
+		mRegisteredKeyBoardKeys.push_back(KeyCode::Arrow_Left);
+		mRegisteredKeyBoardKeys.push_back(KeyCode::Arrow_Right);
+		mRegisteredKeyBoardKeys.push_back(KeyCode::Arrow_Down);
+		mRegisteredKeyBoardKeys.push_back(KeyCode::Arrow_Up);
 	}
 
 	void GUIStage::NotifyInput()
@@ -157,23 +177,25 @@ namespace Cjing3D
 		InputManager& inputManager = GlobalGetSubSystem<InputManager>();
 
 		// notify mouse event
+		I32x2 mousePos = inputManager.GetMousePos();
 		for (auto keyCode : mRegisteredMouseKeys)
 		{
 			if (inputManager.IsKeyDown(keyCode)) {
 				Gui::GUIInputEvent e = {};
 				e.type = GUI_INPUT_EVENT_TYPE_MOUSE_BUTTONDOWN;
 				e.key = keyCode;
+				e.pos = mousePos;
 				mInputEventQueue.push(e);
 			}
 			else if (inputManager.IsKeyUp(keyCode)) {
 				Gui::GUIInputEvent e = {};
 				e.type = GUI_INPUT_EVENT_TYPE_MOUSE_BUTTONUP;
 				e.key = keyCode;
+				e.pos = mousePos;
 				mInputEventQueue.push(e);
 			}
 		}
 
-		I32x2 mousePos = inputManager.GetMousePos();
 		if (mousePos != mPrevMousePos)
 		{
 			mPrevMousePos = mousePos;
@@ -183,19 +205,53 @@ namespace Cjing3D
 			mInputEventQueue.push(e);
 		}
 
+		auto mouseWheelDelta = inputManager.GetMouseWheelDelta();
+		if (mouseWheelDelta != 0)
+		{
+			Gui::GUIInputEvent e = {};
+			e.type = GUI_INPUT_EVENT_TYPE_MOUSE_WHEEL_CHANGED;
+			e.delta = mouseWheelDelta;
+			e.pos = mousePos;
+			mInputEventQueue.push(e);
+		}
+
 		// notify keyboard event
 		for (auto keyCode : mRegisteredKeyBoardKeys)
 		{
-			if (inputManager.IsKeyDown(keyCode)) {
+			if (inputManager.IsKeyDown(keyCode))
+			{
 				Gui::GUIInputEvent e = {};
 				e.type = GUI_INPUT_EVENT_TYPE_KEYBOARD_KEYDOWN;
 				e.key = keyCode;
+
+				if (inputManager.IsKeyHold(KeyCode::Shift_Left) || inputManager.IsKeyHold(KeyCode::Shift_Right)) {
+					e.modifiers |= GUI_INPUT_KEYBOARD_MODIFIER::mod_shift;
+				}
+				if (inputManager.IsKeyHold(KeyCode::Alt_Left) || inputManager.IsKeyHold(KeyCode::Alt_Right)) {
+					e.modifiers |= GUI_INPUT_KEYBOARD_MODIFIER::mod_alt;
+				}
+				if (inputManager.IsKeyHold(KeyCode::Ctrl_Left) || inputManager.IsKeyHold(KeyCode::Ctrl_Right)) {
+					e.modifiers |= GUI_INPUT_KEYBOARD_MODIFIER::mod_control;
+				}
+
 				mInputEventQueue.push(e);
 			}
-			else if (inputManager.IsKeyUp(keyCode)) {
+			else if (inputManager.IsKeyUp(keyCode)) 
+			{
 				Gui::GUIInputEvent e = {};
 				e.type = GUI_INPUT_EVENT_TYPE_KEYBOARD_KEYUP;
 				e.key = keyCode;
+
+				if (inputManager.IsKeyHold(KeyCode::Shift_Left) || inputManager.IsKeyHold(KeyCode::Shift_Right)) {
+					e.modifiers |= GUI_INPUT_KEYBOARD_MODIFIER::mod_shift;
+				}
+				if (inputManager.IsKeyHold(KeyCode::Alt_Left) || inputManager.IsKeyHold(KeyCode::Alt_Right)) {
+					e.modifiers |= GUI_INPUT_KEYBOARD_MODIFIER::mod_alt;
+				}
+				if (inputManager.IsKeyHold(KeyCode::Ctrl_Left) || inputManager.IsKeyHold(KeyCode::Ctrl_Right)) {
+					e.modifiers |= GUI_INPUT_KEYBOARD_MODIFIER::mod_control;
+				}
+
 				mInputEventQueue.push(e);
 			}
 		}
@@ -210,7 +266,6 @@ namespace Cjing3D
 		{
 			Gui::GUIInputEvent e = mInputEventQueue.front();
 			mInputEventQueue.pop();
-
 			mWidgetHierarchy->HandleInputEvents(e);
 		}
 	}
@@ -222,6 +277,8 @@ namespace Cjing3D
 			return;
 		}
 
+		PROFILER_BEGIN_CPU_BLOCK("GuiRender");
 		mWidgetHierarchy->Render();
+		PROFILER_END_BLOCK();
 	}
 }

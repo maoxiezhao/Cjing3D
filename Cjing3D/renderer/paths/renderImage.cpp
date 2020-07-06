@@ -1,7 +1,7 @@
 #include "renderImage.h"
 #include "renderer\renderer.h"
 #include "renderer\RHI\device.h"
-#include "renderer\rhiResourceManager.h"
+#include "renderer\preset\renderPreset.h"
 #include "renderer\shaderLib.h"
 #include "renderer\pipelineStates\pipelineStateManager.h"
 
@@ -13,10 +13,10 @@ namespace RenderImage
 	{
 		auto& device = Renderer::GetDevice();
 		auto& shaderLib = Renderer::GetShaderLib();
-		auto& rhiResourceManager = Renderer::GetStateManager();
+		auto& renderPreset = Renderer::GetRenderPreset();
 		auto& pipelineStateManager = Renderer::GetPipelineStateManager();
 
-		device.BindSamplerState(SHADERSTAGES_PS, *rhiResourceManager.GetSamplerState(SamplerStateID_LinearClampGreater), SAMPLER_LINEAR_CLAMP_SLOT);
+		device.BindSamplerState(SHADERSTAGES_PS, *renderPreset.GetSamplerState(SamplerStateID_LinearClampGreater), SAMPLER_LINEAR_CLAMP_SLOT);
 		device.BindGPUResource(SHADERSTAGES_PS, texture, TEXTURE_SLOT_0);
 
 		if (params.IsFullScreenEnabled()) 
@@ -31,7 +31,7 @@ namespace RenderImage
 				* XMMatrixTranslation(params.mPos[0], params.mPos[1], 0)
 				* device.GetScreenProjection();
 
-			auto& buffer = rhiResourceManager.GetConstantBuffer(ConstantBufferType_Image);
+			auto& buffer = renderPreset.GetConstantBuffer(ConstantBufferType_Image);
 			ImageCB cb;
 			cb.gImageColor = XMConvert(params.mColor);
 

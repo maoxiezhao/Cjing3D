@@ -1,7 +1,7 @@
 #include "terrainPass.h"
 #include "system\sceneSystem.h"
 #include "resource\resourceManager.h"
-#include "renderer\rhiResourceManager.h"
+#include "renderer\preset\renderPreset.h"
 #include "renderer\RHI\rhiFactory.h"
 
 namespace Cjing3D{
@@ -58,7 +58,7 @@ void TerrainPass::Initialize()
 
 	// initialize pso
 	ShaderLib& shaderLib = Renderer::GetShaderLib();
-	RhiResourceManager& rhiResourceManager = Renderer::GetStateManager();
+	RenderPreset& renderPreset = Renderer::GetRenderPreset();
 
 	PipelineStateDesc desc = {};
 	desc.mInputLayout = mTerrainIL;
@@ -67,9 +67,9 @@ void TerrainPass::Initialize()
 	desc.mHullShader = mTerrainHS;
 	desc.mDomainShader = mTerrainDS;
 	desc.mPrimitiveTopology = PATCHLIST_4;
-	desc.mBlendState = rhiResourceManager.GetBlendState(BlendStateID_Opaque);
-	desc.mDepthStencilState = rhiResourceManager.GetDepthStencilState(DepthStencilStateID_GreaterEqualReadWrite);
-	desc.mRasterizerState = rhiResourceManager.GetRasterizerState(RasterizerStateID_Front);
+	desc.mBlendState = renderPreset.GetBlendState(BlendStateID_Opaque);
+	desc.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_GreaterEqualReadWrite);
+	desc.mRasterizerState = renderPreset.GetRasterizerState(RasterizerStateID_Front);
 
 	Renderer::GetDevice().CreatePipelineState(desc, terrainPSO);
 

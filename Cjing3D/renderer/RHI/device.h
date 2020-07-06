@@ -76,6 +76,8 @@ namespace Cjing3D
 		virtual void BeginRenderBehavior(RenderBehavior& behavior) = 0;
 		virtual void EndRenderBehavior() = 0;
 
+		virtual void BindScissorRects(U32 num, const RectInt* rects) = 0;
+
 		// compute
 		virtual void BindComputeShader(ShaderPtr computeShader) = 0;
 		virtual void Dispatch(U32 threadGroupCountX, U32 threadGroupCountY, U32 threadGroupCountZ) = 0;
@@ -122,6 +124,8 @@ namespace Cjing3D
 			void* data = nullptr;
 			GPUBuffer* buffer = nullptr;
 			U32 offset = 0;
+
+			bool IsValid()const { return data != nullptr && buffer != nullptr; }
 		};
 		virtual GPUAllocation AllocateGPU(size_t dataSize) = 0;
 		virtual void UnAllocateGPU() = 0;

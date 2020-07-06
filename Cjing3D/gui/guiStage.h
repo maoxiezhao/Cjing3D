@@ -34,6 +34,7 @@ namespace Cjing3D
 		GUIRenderer& GetGUIRenderer() { return *mRenderer; }
 		const GUIRenderer& GetGUIRenderer()const { return *mRenderer; }
 		Gui::WidgetManager& GetWidgetManager() { return *mWidgetManager; }
+		Gui::WidgetHierarchy& GetWidgetHierarchy() { return *mWidgetHierarchy; }
 
 		Gui::WidgetPtr LoadWidgetFromXML(const StringID& name, const std::string& filePath, LuaRef scriptHandler = LuaRef::NULL_REF);
 		Gui::WidgetPtr LoadWidgetFromXML(Gui::WidgetPtr parent, const StringID& name, const std::string& filePath, LuaRef scriptHandler = LuaRef::NULL_REF);
@@ -41,6 +42,9 @@ namespace Cjing3D
 		void AddRegisterKeyBoardKey(KeyCode key);
 		bool IsGUIVisible()const { return mGUIVisible; }
 		void SetGUIVisible(bool visible) { mGUIVisible = visible; }
+		bool IsDebugDraw()const { return mIsDebugDraw; }
+		void SetIsDebugDraw(bool isDebugDraw) { mIsDebugDraw = isDebugDraw; }
+		void PushInputEvent(const Gui::GUIInputEvent& ent);
 
 		// imgui
 		void SetImGUIStageVisible(bool visible);
@@ -59,11 +63,13 @@ namespace Cjing3D
 		std::unique_ptr<GUIRenderer> mRenderer = nullptr;
 		std::unique_ptr<Gui::WidgetManager> mWidgetManager = nullptr;
 		std::unique_ptr<Gui::WidgetHierarchy> mWidgetHierarchy = nullptr;
+
 		std::vector<KeyCode> mRegisteredKeyBoardKeys;
 		std::vector<KeyCode> mRegisteredMouseKeys;
 		std::queue<Gui::GUIInputEvent> mInputEventQueue;
 
 		I32x2 mPrevMousePos;
 		bool mGUIVisible = true;
+		bool mIsDebugDraw = false;
 	};
 }

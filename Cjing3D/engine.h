@@ -5,7 +5,7 @@
 #include "core\systemContext.hpp"
 #include "core\gameComponent.h"
 #include "renderer\renderableCommon.h"
-#include "utils\baseWindow.h"
+#include "platform\gameWindow.h"
 
 namespace Cjing3D 
 {
@@ -24,9 +24,9 @@ namespace Cjing3D
 		void SetIsExiting(bool isExiting) { mIsExiting = isExiting; }
 		bool GetIsExiting()const { return mIsExiting; }
 		void SetHandles(void* windowHwnd, void* windowInstance);
-		void SetWindow(BaseWindow* window) { mBaseWindow = window; }
+		void SetWindow(GameWindow* window) { mBaseWindow = window; }
 
-		BaseWindow* GetWindow() { return mBaseWindow; }
+		GameWindow* GetWindow() { return mBaseWindow; }
 		void* GetWindowInstance() { return mWindowHinstance; }
 		void* GetWindowHwnd() { return mWindowHwnd; }
 
@@ -43,7 +43,7 @@ namespace Cjing3D
 		bool mIsInitialized = false;
 		bool mIsExiting = false;
 
-		BaseWindow* mBaseWindow;
+		GameWindow* mBaseWindow;
 		void* mWindowHinstance;
 		void* mWindowHwnd;
 

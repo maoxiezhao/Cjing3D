@@ -162,4 +162,12 @@ I32x2 InputManager::GetMousePos() const
 	return I32x2();
 }
 
+I32 InputManager::GetMouseWheelDelta() const
+{
+	if (mDirectInput != nullptr) {
+		return mDirectInput->GetMouseWheelDelta();
+	}
+	return 0;
+}
+
 }

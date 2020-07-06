@@ -62,10 +62,13 @@ void Profiler::Initialize()
 
 void Profiler::Uninitialize()
 {
+	OPTICK_SHUTDOWN();
+}
+
+void Profiler::Clear()
+{
 	disjoint.Uninitialize();
 	currentBlocks.clear();
-
-	OPTICK_SHUTDOWN();
 }
 
 void Profiler::BeginFrame()
