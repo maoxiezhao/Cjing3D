@@ -3,6 +3,7 @@
 #include "definitions\definitions.h"
 #include "core\gameComponent.h"
 #include "utils\signal\connectionList.h"
+#include "gui\guiAnimation\guiTimeline.h"
 
 namespace Cjing3D
 {
@@ -13,6 +14,7 @@ namespace Cjing3D
 		void DoTest();
 
 	private:
+		Gui::TimeLine mTimeLine;
 		ConnectionList mConnections;
 	};
 }

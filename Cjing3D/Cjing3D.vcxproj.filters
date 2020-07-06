@@ -146,6 +146,12 @@
     <Filter Include="platform\win32">
       <UniqueIdentifier>{7d271ea0-b108-44a9-966e-80998299b231}</UniqueIdentifier>
     </Filter>
+    <Filter Include="utils\tween">
+      <UniqueIdentifier>{e569ab70-750b-46dc-9afa-90e461d92f9e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui\guiAnimation\animations">
+      <UniqueIdentifier>{426dedc7-ccee-4c2d-8bb8-26e91992c803}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine.cpp" />
@@ -661,6 +667,12 @@
     </ClCompile>
     <ClCompile Include="utils\signal\connectionMap.cpp">
       <Filter>utils\signal</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiAnimation\guiTimeline.cpp">
+      <Filter>gui\guiAnimation</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiAnimation\guiAnimation.cpp">
+      <Filter>gui\guiAnimation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1284,6 +1296,45 @@
     <ClInclude Include="utils\signal\connectionMap.h">
       <Filter>utils\signal</Filter>
     </ClInclude>
+    <ClInclude Include="utils\tween\dispatcher.h">
+      <Filter>utils\tween</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tween\easing.h">
+      <Filter>utils\tween</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tween\easingresolve.h">
+      <Filter>utils\tween</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tween\int2type.h">
+      <Filter>utils\tween</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tween\tween.h">
+      <Filter>utils\tween</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tween\tweenpoint.h">
+      <Filter>utils\tween</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tween\tweentraits.h">
+      <Filter>utils\tween</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tween\tweeny.h">
+      <Filter>utils\tween</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiAnimation\guiTimeline.h">
+      <Filter>gui\guiAnimation</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiAnimation\guiAnimation.h">
+      <Filter>gui\guiAnimation</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiAnimation\valueAnimation.h">
+      <Filter>gui\guiAnimation</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiAnimation\valueAnimation_impl.h">
+      <Filter>gui\guiAnimation</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiAnimation\guiAnimaionOptions.h">
+      <Filter>gui\guiAnimation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resource\resourceManager.inl">
@@ -1299,5 +1350,17 @@
       <Filter>helper</Filter>
     </None>
     <None Include="precompile.bat" />
+    <None Include="utils\tween\tween.tcc">
+      <Filter>utils\tween</Filter>
+    </None>
+    <None Include="utils\tween\tweenone.tcc">
+      <Filter>utils\tween</Filter>
+    </None>
+    <None Include="utils\tween\tweenpoint.tcc">
+      <Filter>utils\tween</Filter>
+    </None>
+    <None Include="utils\tween\tweeny.tcc">
+      <Filter>utils\tween</Filter>
+    </None>
   </ItemGroup>
 </Project>

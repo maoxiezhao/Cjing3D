@@ -47,6 +47,15 @@ namespace Gui
 		UpdateLayout();
 	}
 
+	void WidgetHierarchy::UpdateAnimation()
+	{
+		for (auto& widget : mWidgets) {
+			if (widget != nullptr) {
+				widget->UpdateAnimation();
+			}
+		}
+	}
+
 	void WidgetHierarchy::Render()
 	{
 		F32x2 offset = { 0.0f, 0.0f };

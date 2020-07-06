@@ -20,6 +20,7 @@ namespace Gui
 		void Uninitialize();
 		void Update(F32 deltaTime);
 		void FixedUpdate();
+		void UpdateAnimation();
 		void Render();
 		void HandleInputEvents(const GUIInputEvent& inputEvent);
 		void RefreshWidgets();

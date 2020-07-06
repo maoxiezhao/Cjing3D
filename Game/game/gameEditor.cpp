@@ -18,6 +18,7 @@
 
 // test
 #include "test\guiTest.h"
+#include "utils\tween\tween.h"
 
 namespace Cjing3D
 {
@@ -45,8 +46,9 @@ namespace Cjing3D
 #endif // _ENABLE_GAME_EDITOR_
 
 		// gui test
-		mGUITest = std::make_unique<GUITest>();
-		mGUITest->DoTest();
+		//mGUITest = std::make_unique<GUITest>();
+		//mGUITest->DoTest();
+
 	}
 
 	void GameEditor::Update(EngineTime time)

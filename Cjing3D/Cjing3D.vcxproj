@@ -165,6 +165,11 @@
     <ClInclude Include="core\subSystem.hpp" />
     <ClInclude Include="core\threadSafeSystem.h" />
     <ClInclude Include="engine.h" />
+    <ClInclude Include="gui\guiAnimation\guiAnimaionOptions.h" />
+    <ClInclude Include="gui\guiAnimation\guiAnimation.h" />
+    <ClInclude Include="gui\guiAnimation\guiTimeline.h" />
+    <ClInclude Include="gui\guiAnimation\valueAnimation.h" />
+    <ClInclude Include="gui\guiAnimation\valueAnimation_impl.h" />
     <ClInclude Include="gui\guiCore\guiDispatcher.h" />
     <ClInclude Include="gui\guiCore\guiDispatcher_impl.h" />
     <ClInclude Include="gui\guiCore\guiDistributor.h" />
@@ -349,6 +354,14 @@
     <ClInclude Include="utils\tinyxml2\tinyxml2.h" />
     <ClInclude Include="utils\tlsf\tlsf.h" />
     <ClInclude Include="utils\treeNode.h" />
+    <ClInclude Include="utils\tween\dispatcher.h" />
+    <ClInclude Include="utils\tween\easing.h" />
+    <ClInclude Include="utils\tween\easingresolve.h" />
+    <ClInclude Include="utils\tween\int2type.h" />
+    <ClInclude Include="utils\tween\tween.h" />
+    <ClInclude Include="utils\tween\tweenpoint.h" />
+    <ClInclude Include="utils\tween\tweentraits.h" />
+    <ClInclude Include="utils\tween\tweeny.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ThirdParty\imgui\imgui.cpp" />
@@ -368,6 +381,8 @@
     <ClCompile Include="core\threadSafeSystem.cpp" />
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="generates\luabind_registers.cpp" />
+    <ClCompile Include="gui\guiAnimation\guiAnimation.cpp" />
+    <ClCompile Include="gui\guiAnimation\guiTimeline.cpp" />
     <ClCompile Include="gui\guiCore\guiDispatcher.cpp" />
     <ClCompile Include="gui\guiCore\guiDistributor.cpp" />
     <ClCompile Include="gui\guiFactory.cpp" />
@@ -530,6 +545,10 @@
     <None Include="resource\resourceManager.inl" />
     <None Include="scripts\luaContext.inl" />
     <None Include="system\sceneSystem.inl" />
+    <None Include="utils\tween\tween.tcc" />
+    <None Include="utils\tween\tweenone.tcc" />
+    <None Include="utils\tween\tweenpoint.tcc" />
+    <None Include="utils\tween\tweeny.tcc" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.vcxproj">

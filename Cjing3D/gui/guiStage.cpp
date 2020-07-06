@@ -30,13 +30,15 @@ namespace Cjing3D
 	void GUIStage::Initialize()
 	{
 		mRenderer = std::make_unique<GUIRenderer>(*this);
-		mWidgetManager = std::make_unique<Gui::WidgetManager>(*this);
-		mWidgetManager->Initialize();
 
 #ifdef CJING_IMGUI_ENABLE
 		mImGuiStage.Initialize();
 		mRenderer->SetImGuiStage(&mImGuiStage);
 #endif
+		// initialize widget manager
+		mWidgetManager = std::make_unique<Gui::WidgetManager>(*this);
+		mWidgetManager->Initialize();
+
 		U32x2 screenSize = Renderer::GetScreenSize();
 
 		// initialize widget hierarchy		
@@ -96,6 +98,10 @@ namespace Cjing3D
 
 		// update all widgets
 		mWidgetHierarchy->FixedUpdate();
+
+		// update all animations
+		mWidgetHierarchy->UpdateAnimation();
+
 		PROFILER_END_BLOCK();
 	}
 

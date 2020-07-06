@@ -63,6 +63,7 @@ namespace Cjing3D
 		std::unique_ptr<GUIRenderer> mRenderer = nullptr;
 		std::unique_ptr<Gui::WidgetManager> mWidgetManager = nullptr;
 		std::unique_ptr<Gui::WidgetHierarchy> mWidgetHierarchy = nullptr;
+
 		std::vector<KeyCode> mRegisteredKeyBoardKeys;
 		std::vector<KeyCode> mRegisteredMouseKeys;
 		std::queue<Gui::GUIInputEvent> mInputEventQueue;

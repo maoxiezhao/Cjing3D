@@ -266,3 +266,5 @@ __pycache__/
 /Cjing3D/renderer/passes/note.h
 /Assets/Textures
 /Assets/Fonts/SourceHanSansCN-Regular.ttf
+/Cjing3D/gui/guiAnimation/guiAnimationManager.h
+/Cjing3D/gui/guiAnimation/guiAnimationManager.cpp

@@ -70,6 +70,7 @@ namespace Gui {
 		virtual void OnUnloaded();
 		virtual void Update(F32 dt);
 		virtual void FixedUpdate();
+		virtual void UpdateAnimation();
 		virtual void Render(const F32x2& offset);
 		virtual void Clear();
 

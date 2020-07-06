@@ -20,6 +20,8 @@
 
 namespace Cjing3D
 {
+	Gui::SamplerOutputValue<I32> outputValue(0);
+
 	void GUITest::DoTest()
 	{
 		auto& guiStage = GlobalGetSubSystem<GUIStage>();
@@ -137,5 +139,14 @@ namespace Cjing3D
 
 
 		widgetHierarchy.UpdateLayout();
+
+		// test animation
+		auto animation = mTimeLine.CreateAnimation(&outputValue);
+		animation
+			.AddSampler<Gui::EaseSamplerFunc>(100, 5.0f, tweeny::easing::linearEasing())
+			.AddSampler<Gui::EaseSamplerFunc>(0, 5.0f, tweeny::easing::linearEasing())
+			.SetUpdateCallback([]() {
+			Logger::Info(std::to_string(outputValue.Value()));
+				});
 	}
 }

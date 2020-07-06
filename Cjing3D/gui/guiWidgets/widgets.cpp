@@ -84,6 +84,10 @@ namespace Gui {
 		}
 	}
 
+	void Widget::UpdateAnimation()
+	{
+	}
+
 	void Widget::Render(const F32x2& offset)
 	{
 		if (!IsVisible()) {

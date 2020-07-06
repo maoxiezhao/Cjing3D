@@ -21,11 +21,17 @@ namespace Cjing3D
 		void operator+=(Connection&& connection);
 
 		template <typename... Args, typename Func>
-		Connection operator()(Signal<void(Args...)>& signal, Func&& func)
+		void operator()(Signal<void(Args...)>& signal, Func&& func)
 		{
 			auto connection = signal.Connect(std::forward<Func>(func));
 			mConnections.push_back(connection);
-			return connection;
+		}
+
+		template <typename... Args, typename Func>
+		void Connect(Signal<void(Args...)>& signal, Func&& func)
+		{
+			auto connection = signal.Connect(std::forward<Func>(func));
+			mConnections.push_back(connection);
 		}
 
 		void Disconnect();
