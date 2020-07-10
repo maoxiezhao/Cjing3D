@@ -1570,6 +1570,10 @@ I32 GraphicsDeviceD3D11::CreateShaderResourceView(Texture2D & texture, U32 array
 
 	I32 subresourceIndex = -1;
 	const auto& desc = texture.GetDesc();
+	if (desc.mMipLevels > mipLevel) {
+		return -1;
+	}
+
 	if (desc.mBindFlags & BIND_SHADER_RESOURCE)
 	{
 		U32 arraySize = desc.mArraySize;

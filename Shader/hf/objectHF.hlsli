@@ -14,6 +14,8 @@ TEXTURE2D(texture_basecolormap, TEXTURE_BASECOLOR_MAP);
 TEXTURE2D(texture_normalmap, TEXTURE_NORMAL_MAP);
 TEXTURE2D(texture_surfacemap, TEXTURE_SURFACE_MAP);
  
+TEXTURE2D(texture_ao, TEXTURE_SLOT_AO);
+
 /////////////////////////////////////////////////////////////////////
 // Tiled forward lighting
 ////////////////////////////////////////////////////////////////////
@@ -26,6 +28,10 @@ float4 TiledForwardLighting(in float2 pixel, in Surface surface)
     
     // 对于每个tile获取对应的tileBucket,每个tileBucket为U32整型，每一位1or0表示是否受对应光源影响
     float3 color = GetAmbientLight().rgb;
+
+    // 暂时在这里对ambient处理occlusion
+    color *= surface.occlusion;
+
     [branch]
     if (gShaderLightArrayCount > 0)
     {
@@ -83,6 +89,9 @@ float4 ForwardLighting(in Surface surface)
 {
 	float3 color = GetAmbientLight().rgb;
 
+    // 暂时在这里对ambient处理occlusion
+    color *= surface.occlusion;
+
 	// 简单光照下，不考虑光源的culling,直接遍历传递过来的所有光源并执行对应光照计算
 	for (uint lightIndex = 0; lightIndex < gShaderLightArrayCount; lightIndex++)
 	{
@@ -126,7 +135,11 @@ float4 main(PixelInputType input) : SV_TARGET
     
     ALPHATEST(color.a);
 
+    // 除以w(viewZ) => NCD
+    input.pos2D.xy /= input.pos2D.w;
+    
 	float3 pos3D = input.pos3D.xyz;
+    float2 screenPos = input.pos2D.xy * float2(0.5f, -0.5f) + float2(0.5f, 0.5f); // NDC => Screen
 	float3 view = gCameraPos - pos3D;
 	float dist = length(view);
 
@@ -152,12 +165,16 @@ float4 main(PixelInputType input) : SV_TARGET
         spcularIntensity = texture_surfacemap.Sample(sampler_linear_clamp, input.tex).rgb;
     }
 	
+    // SSAO
+    float occlusion = texture_ao.SampleLevel(sampler_linear_clamp, screenPos, 0.0f).r;
+    
     surface = CreateSurface(
 		surface.position,
 		surface.normal,
 		surface.view,
 		input.color,
-	    spcularIntensity
+	    spcularIntensity,
+        occlusion
 	);
 
 #ifdef _TILED_FORWRAD_LIGHTING_

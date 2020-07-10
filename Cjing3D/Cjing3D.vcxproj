@@ -168,6 +168,7 @@
     <ClInclude Include="gui\guiAnimation\guiAnimaionOptions.h" />
     <ClInclude Include="gui\guiAnimation\guiAnimation.h" />
     <ClInclude Include="gui\guiAnimation\guiTimeline.h" />
+    <ClInclude Include="gui\guiAnimation\note.h" />
     <ClInclude Include="gui\guiAnimation\valueAnimation.h" />
     <ClInclude Include="gui\guiAnimation\valueAnimation_impl.h" />
     <ClInclude Include="gui\guiCore\guiDispatcher.h" />

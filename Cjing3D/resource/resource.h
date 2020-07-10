@@ -42,13 +42,18 @@ namespace Cjing3D
 
 	using ResourcePtr = std::shared_ptr<Resource>;
 
+	// TODO: texture pointer的管理问题
 	class TextureResource : public Resource
 	{
 	public:
 		TextureResource();
 		~TextureResource();
 
+		Texture2D* CreateNewTexture();
 		Texture2D* mTexture = nullptr;
+
+	private:
+		bool mAutoRelease = false;
 	};
 	using TextureResourcePtr = std::shared_ptr<TextureResource>;
 

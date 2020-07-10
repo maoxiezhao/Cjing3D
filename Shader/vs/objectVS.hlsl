@@ -20,6 +20,7 @@ PixelInputType main(InputObjectAll input)
     Out.nor = surface.normal;
     Out.tex = surface.uv;
     Out.color = surface.color;
-
+    Out.pos2D = Out.pos;
+    
 	return Out;
 }

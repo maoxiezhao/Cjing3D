@@ -149,8 +149,8 @@
     <Filter Include="utils\tween">
       <UniqueIdentifier>{e569ab70-750b-46dc-9afa-90e461d92f9e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="gui\guiAnimation\animations">
-      <UniqueIdentifier>{426dedc7-ccee-4c2d-8bb8-26e91992c803}</UniqueIdentifier>
+    <Filter Include="animation">
+      <UniqueIdentifier>{bf5f259c-212e-499f-a15c-cc0eb634e765}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -1333,6 +1333,9 @@
       <Filter>gui\guiAnimation</Filter>
     </ClInclude>
     <ClInclude Include="gui\guiAnimation\guiAnimaionOptions.h">
+      <Filter>gui\guiAnimation</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiAnimation\note.h">
       <Filter>gui\guiAnimation</Filter>
     </ClInclude>
   </ItemGroup>

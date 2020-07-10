@@ -336,7 +336,7 @@ namespace Renderer2D {
 
 			if (mRenderBatchInstances.size() > 0)
 			{
-				graphicsDevice.BindSamplerState(SHADERSTAGES_PS, *Renderer::GetRenderPreset().GetSamplerState(SamplerStateID_LinearClampGreater), SAMPLER_LINEAR_CLAMP_SLOT);
+				graphicsDevice.BindSamplerState(SHADERSTAGES_PS, *Renderer::GetRenderPreset().GetSamplerState(SamplerStateID_LinearClamp), SAMPLER_LINEAR_CLAMP_SLOT);
 			}
 
 			for (auto& bathInstance : mRenderBatchInstances)

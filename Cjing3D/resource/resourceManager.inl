@@ -20,11 +20,13 @@ ResourceManager::GetOrCreate(const StringID& filePath, FORMAT textureFormat, U32
 	PoolType<TextureResource>& texturePool = GetPool< TextureResource >();
 
 	bool isExists = texturePool.Contains(filePath);
-	auto texture = texturePool.GetOrCreate(filePath);
-	if (isExists == false) {
-		LoadTextureFromFilePath(filePath.GetString(), *texture->mTexture, textureFormat, channelCount, bindFlag, generateMipmap);
+	auto textureRes = texturePool.GetOrCreate(filePath);
+	if (isExists == false) 
+	{
+		auto texture = textureRes->CreateNewTexture();
+		LoadTextureFromFilePath(filePath.GetString(), *texture, textureFormat, channelCount, bindFlag, generateMipmap);
 	}
-	return texture;
+	return textureRes;
 }
 
 template<typename ResourceT>
@@ -45,5 +47,10 @@ template<typename ResourceT>
 inline std::shared_ptr<ResourceT> Cjing3D::ResourceManager::GetOrCreateEmptyResource(const StringID& name)
 {
 	PoolType<ResourceT>& resourcePool = GetPool< ResourceT >();
-	return resourcePool.GetOrCreate(name);
+	bool isExists = resourcePool.Contains(name);
+	auto textureRes = resourcePool.GetOrCreate(name);
+	if (isExists == false) {
+		textureRes->CreateNewTexture();
+	}
+	return textureRes;
 }

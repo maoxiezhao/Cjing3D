@@ -135,10 +135,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="editor\guiEditor.cpp" />
+    <ClCompile Include="editor\guiEditorAnimation.cpp" />
     <ClCompile Include="editor\guiEditorGUI.cpp" />
+    <ClCompile Include="editor\guiEditorHierarchy.cpp" />
     <ClCompile Include="editor\guiEditorLight.cpp" />
+    <ClCompile Include="editor\guiEditorMaterial.cpp" />
+    <ClCompile Include="editor\guiEditorObject.cpp" />
     <ClCompile Include="editor\guiEditorProfier.cpp" />
+    <ClCompile Include="editor\guiEditorRender.cpp" />
     <ClCompile Include="editor\guiEditorScene.cpp" />
+    <ClCompile Include="editor\guiEditorTerrain.cpp" />
     <ClCompile Include="game\gameEditor.cpp" />
     <ClCompile Include="main\main.cpp" />
     <ClCompile Include="test\guiTest.cpp" />
@@ -154,10 +160,17 @@
   <ItemGroup>
     <ClInclude Include="definitions\definitions.h" />
     <ClInclude Include="editor\guiEditor.h" />
+    <ClInclude Include="editor\guiEditorAnimation.h" />
     <ClInclude Include="editor\guiEditorGUI.h" />
+    <ClInclude Include="editor\guiEditorHierarchy.h" />
+    <ClInclude Include="editor\guiEditorInclude.h" />
     <ClInclude Include="editor\guiEditorLight.h" />
+    <ClInclude Include="editor\guiEditorMaterial.h" />
+    <ClInclude Include="editor\guiEditorObject.h" />
     <ClInclude Include="editor\guiEditorProfier.h" />
+    <ClInclude Include="editor\guiEditorRender.h" />
     <ClInclude Include="editor\guiEditorScene.h" />
+    <ClInclude Include="editor\guiEditorTerrain.h" />
     <ClInclude Include="game\gameEditor.h" />
     <ClInclude Include="test\guiTest.h" />
   </ItemGroup>

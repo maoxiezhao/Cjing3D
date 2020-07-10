@@ -47,11 +47,12 @@ struct VertexSurface
 
 struct PixelInputType
 {
-    float4 pos : SV_POSITION;
-    float4 pos3D : WORLDPOSITION;
-    float2 tex : TEXCOORD0;
-    float3 nor : NORMAL;
-    float4 color : COLOR;
+    float4 pos    : SV_POSITION;
+    float4 pos3D  : WORLDPOSITION;
+    float2 tex    : TEXCOORD0;
+    float3 nor    : NORMAL;
+    float4 color  : COLOR;
+    float4 pos2D  : SCREENPOS;
 };
 
 struct PixelInputTypePosTexColor

@@ -40,6 +40,7 @@ namespace Cjing3D {
 		ECS::Entity CreateEntityByName(const std::string& name);
 		ECS::Entity GetEntityByName(const StringID& name);
 
+		bool RenameEntity(ECS::Entity entity, const std::string& name);
 		void RemoveEntity(ECS::Entity entity);
 		// entity间的层级结构基于 hierarchy component
 		void AttachEntity(ECS::Entity entity, ECS::Entity parent, bool alreadyInLocalSpace = false, bool detachIfAttached = true);

@@ -158,6 +158,11 @@ void ShaderLib::LoadComputeShaders()
 		mComputeShader[ComputeShaderType_Skinning]          = LoadShader(SHADERSTAGES_CS, shaderPath + "skinningCS.cso");
 		mComputeShader[ComputeShaderType_TiledFrustum]      = LoadShader(SHADERSTAGES_CS, shaderPath + "tileFrustumCS.cso");
 		mComputeShader[ComputeShaderType_LightTiledCulling] = LoadShader(SHADERSTAGES_CS, shaderPath + "lightTiledCullingCS.cso");
+		mComputeShader[ComputeShaderType_LinearDepth]       = LoadShader(SHADERSTAGES_CS, shaderPath + "linearDepthCS.cso");
+		mComputeShader[ComputeShaderType_SSAO]              = LoadShader(SHADERSTAGES_CS, shaderPath + "ssaoCS.cso");
+		mComputeShader[ComputeShaderType_GaussianBlur]      = LoadShader(SHADERSTAGES_CS, shaderPath + "gaussianBlurCS.cso");
+		mComputeShader[ComputeShaderType_BilateralBlur]		= LoadShader(SHADERSTAGES_CS, shaderPath + "bilateralBlurCS.cso");
+		mComputeShader[ComputeShaderType_BilateralUpsample] = LoadShader(SHADERSTAGES_CS, shaderPath + "bilateralUpsampleCS.cso");
 	}
 }
 

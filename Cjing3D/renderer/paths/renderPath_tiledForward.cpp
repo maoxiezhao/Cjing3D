@@ -1,6 +1,7 @@
 #include "renderPath_tiledForward.h"
 #include "renderer\renderer.h"
 #include "renderer\paths\renderImage.h"
+#include "renderer\textureHelper.h"
 
 namespace Cjing3D
 {
@@ -68,8 +69,16 @@ namespace Cjing3D
 		Renderer::BindConstanceBuffer(SHADERSTAGES_VS);
 		Renderer::BindConstanceBuffer(SHADERSTAGES_PS);
 
+		//reset scissor rect
+		RectInt rect;
+		rect.mBottom = INT32_MAX;
+		rect.mLeft = INT32_MIN;
+		rect.mRight = INT32_MAX;
+		rect.mTop = INT32_MIN;
+		device.BindScissorRects(1, &rect);
+
 		// shadowmaps
-		RenderShadowmaps();
+		RenderPath3D::RenderShadowmaps();
 
 		// update main camera constant buffer
 		Renderer::UpdateCameraCB(camera);
@@ -89,17 +98,11 @@ namespace Cjing3D
 
 			device.EndRenderBehavior();
 			device.EndEvent();
+			device.CopyGPUResource(*GetDepthBufferTemp(), *GetDepthBuffer());
 			PROFILER_END_BLOCK();
 
-			// TODO
-			//if (GetMSAASampleCount() > 0)
-			//{
-			//	device.CopyGPUResource(*GetDepthBufferTemp(), *GetDepthBuffer());
-			//}
-			//else
-			{
-				device.CopyGPUResource(*GetDepthBufferTemp(), *GetDepthBuffer());
-			}
+			RenderPath3D::RenderDepthLinear();
+			RenderPath3D::RenderAO();
 		}
 
 		// opaque scene
@@ -117,6 +120,8 @@ namespace Cjing3D
 			vp.mMaxDepth = 1.0f;
 			device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
 
+			device.BindGPUResource(SHADERSTAGES_PS, IsAOEnable() ? *GetAOTexture() : *TextureHelper::GetWhite(), TEXTURE_SLOT_AO);
+
 			Renderer::RenderSceneOpaque(camera, RenderPassType_TiledForward);
 			Renderer::RenderSky();
 
@@ -126,10 +131,13 @@ namespace Cjing3D
 		}
 
 		// transparent
-		RenderTransparents(mRBTransparent, RenderPassType_TiledForward);
+		RenderPath3D::RenderTransparents(mRBTransparent, RenderPassType_TiledForward);
 
 		// postprocess
-		RenderPostprocess(mRTMain);
+		RenderPath3D::RenderPostprocess(mRTMain);
+
+		// render debug
+		RenderPath3D::RenderDebug();
 
 		RenderPath2D::Render();
 	}

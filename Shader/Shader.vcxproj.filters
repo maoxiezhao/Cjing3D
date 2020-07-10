@@ -119,6 +119,21 @@
     <FxCompile Include="ps\fontPS.hlsl">
       <Filter>ps</Filter>
     </FxCompile>
+    <FxCompile Include="cs\linearDepthCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\ssaoCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\gaussianBlurCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\bilateralBlurCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\bilateralUpsampleCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="hf\objectInput.hlsli">

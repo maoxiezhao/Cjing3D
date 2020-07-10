@@ -6,39 +6,25 @@ namespace Cjing3D {
 	void RenderPreset::SetupSamplerStates()
 	{
 		{
-			const auto result = CreateDefaultSamplerState(mDevice, *mSamplerStates[SamplerStateID_PointClampAlways],
-				FILTER_MIN_MAG_MIP_POINT, TEXTURE_ADDRESS_CLAMP, COMPARISON_ALWAYS);
+			const auto result = CreateDefaultSamplerState(mDevice, *mSamplerStates[SamplerStateID_PointClamp],
+				FILTER_MIN_MAG_MIP_POINT, TEXTURE_ADDRESS_CLAMP, COMPARISON_NEVER);
 			Debug::ThrowIfFailed(result, "Failed to create pointClampAlways samplerState", result);
 		}
-
 		{
-			const auto result = CreateDefaultSamplerState(mDevice, *mSamplerStates[SamplerStateID_PointClampGreater],
-				FILTER_MIN_MAG_MIP_POINT, TEXTURE_ADDRESS_CLAMP, COMPARISON_GREATER_EQUAL);
+			const auto result = CreateDefaultSamplerState(mDevice, *mSamplerStates[SamplerStateID_LinearClamp],
+				FILTER_MIN_MAG_LINEAR_MIP_POINT, TEXTURE_ADDRESS_CLAMP, COMPARISON_NEVER);
 			Debug::ThrowIfFailed(result, "Failed to create pointClampAlways samplerState", result);
 		}
-
 		{
-			const auto result = CreateDefaultSamplerState(mDevice, *mSamplerStates[SamplerStateID_LinearClampGreater],
-				FILTER_MIN_MAG_LINEAR_MIP_POINT, TEXTURE_ADDRESS_CLAMP, COMPARISON_GREATER_EQUAL);
-			Debug::ThrowIfFailed(result, "Failed to create pointClampAlways samplerState", result);
-		}
-
-		{
-			const auto result = CreateDefaultSamplerState(mDevice, *mSamplerStates[SamplerStateID_LinearWrapGreater],
-				FILTER_MIN_MAG_LINEAR_MIP_POINT, TEXTURE_ADDRESS_WRAP, COMPARISON_GREATER_EQUAL);
-			Debug::ThrowIfFailed(result, "Failed to create pointClampAlways samplerState", result);
-		}
-
-		{
-			const auto result = CreateDefaultSamplerState(mDevice, *mSamplerStates[SamplerStateID_ANISOTROPIC],
+			const auto result = CreateDefaultSamplerState(mDevice, *mSamplerStates[SamplerStateID_Anisotropic],
 				FILTER_ANISOTROPIC, TEXTURE_ADDRESS_WRAP, COMPARISON_NEVER, 16);
-			Debug::ThrowIfFailed(result, "Failed to create SamplerStateID_ANISOTROPIC samplerState", result);
+			Debug::ThrowIfFailed(result, "Failed to create SamplerStateID_Anisotropic samplerState", result);
 		}
 
 		{
-			const auto result = CreateDefaultSamplerState(mDevice, *mSamplerStates[SamplerStateID_Comparision_depth],
+			const auto result = CreateDefaultSamplerState(mDevice, *mSamplerStates[SamplerStateID_ComparisionDepth],
 				FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT, TEXTURE_ADDRESS_CLAMP, COMPARISON_GREATER_EQUAL);
-			Debug::ThrowIfFailed(result, "Failed to create SamplerStateID_Comparision_depth samplerState", result);
+			Debug::ThrowIfFailed(result, "Failed to create SamplerStateID_ComparisionDepth samplerState", result);
 		}
 
 		{

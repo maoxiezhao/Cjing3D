@@ -1,16 +1,18 @@
 #pragma once
 
-#include "common\common.h"
-#include "system\ecsSystem.h"
+#include "editor\guiEditorInclude.h"
 
 namespace Cjing3D
 {
 	class IMGUIStage;
-	
+	class LightComponent;
+
 	namespace Editor
 	{
 		void InitializeEditorLight(IMGUIStage& imguiStage);
-		void SetCurrentLight(ECS::Entity light);
+
+		// public method
+		void ShowLightAttribute(LightComponent* light);
 		void ShowNewLightWindow();
 	}
 }

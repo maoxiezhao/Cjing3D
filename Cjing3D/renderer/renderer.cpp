@@ -306,7 +306,7 @@ namespace {
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 // Tiled light culling
@@ -407,7 +407,7 @@ void TiledLightCulling(Texture2D& depthBuffer)
 		UpdateTiledCullingDebugTexture(*mGraphicsDevice, screenSize[0], screenSize[1]);
 	}
 
-	BindConstanceBuffer(SHADERSTAGES_CS);
+	//BindConstanceBuffer(SHADERSTAGES_CS);
 
 	// 3. 构建每一个tile的frustum，保存在FrustumBuffer。仅当当前相机的view矩阵发生变化时执行
 	CameraComponent& camera = GetCamera();
@@ -1148,11 +1148,315 @@ void RenderSky()
 	mGraphicsDevice->EndEvent();
 }
 
+void RenderLinearDepth(Texture2D& depthBuffer, Texture2D& linearDepthBuffer)
+{
+	mGraphicsDevice->BeginEvent("RenderLinearDepth");
+
+	// bind post process buffer
+	const TextureDesc linearDepthDesc = linearDepthBuffer.GetDesc();
+	PostprocessCB cb;
+	cb.gPPResolution.x = (U32)(linearDepthDesc.mWidth * 0.5f);
+	cb.gPPResolution.y = (U32)(linearDepthDesc.mHeight * 0.5f);
+	cb.gPPInverseResolution.x = (1.0f / cb.gPPResolution.x);
+	cb.gPPInverseResolution.y = (1.0f / cb.gPPResolution.y);
+
+	const TextureDesc& depthDesc = depthBuffer.GetDesc();
+	cb.gPPParam1 = (F32)depthDesc.mWidth;
+	cb.gPPParam2 = (F32)depthDesc.mHeight;
+	cb.gPPParam3 = (1.0f / cb.gPPParam1);
+	cb.gPPParam4 = (1.0f / cb.gPPParam2);
+	GPUBuffer& postprocessBuffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_Postprocess);
+	mGraphicsDevice->UpdateBuffer(postprocessBuffer, &cb, sizeof(PostprocessCB));
+	mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, postprocessBuffer, CB_GETSLOT_NAME(PostprocessCB));
+
+	// bind shader
+	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, depthBuffer, TEXTURE_SLOT_UNIQUE_0);
+	mGraphicsDevice->BindComputeShader(mShaderLib->GetComputeShader(ComputeShaderType_LinearDepth));
+
+	// bind output texture
+	for (int mipmap = 0; mipmap < 6; mipmap++) {
+		mGraphicsDevice->BindUAV(&linearDepthBuffer, mipmap, mipmap);
+	}
+	mGraphicsDevice->Dispatch(
+		(U32)((linearDepthDesc.mWidth  + SHADER_LINEARDEPTH_BLOCKSIZE - 1) / SHADER_LINEARDEPTH_BLOCKSIZE),
+		(U32)((linearDepthDesc.mHeight + SHADER_LINEARDEPTH_BLOCKSIZE - 1) / SHADER_LINEARDEPTH_BLOCKSIZE),
+		1
+	);
+	mGraphicsDevice->UnBindUAVs(0, 6);
+	mGraphicsDevice->EndEvent();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// RenderSSAO
+U32x2 savedAOTextureSize = U32x2(0u, 0u);
+Texture2D aoTemp;
+Texture2D aoTemp1;
+Texture2D aoDebug;
+void RenderSSAO(Texture2D& depthBuffer, Texture2D& linearDepthBuffer, Texture2D& aoTexture, F32 aoRange, U32 aoSampleCount)
+{
+	// SSAO
+	// 1. 基于linnearDepthBuffer，根据AORange计算屏幕空间（ScreenSize)每个像素的遮蔽量，写到AOTemp中
+	// 2. 对得到的纹理做一次模糊，目的是为了缓解低采样量下的Banding问题
+	// 3. 因为临时的AOTemp大小问题（减轻Blur的消耗）,再执行Bilateral Unsample得到原始大小的AOTexture
+
+	PROFILER_BEGIN_GPU_BLOCK("SSAO");
+	mGraphicsDevice->BeginEvent("SSAO");
+
+	// 0.创建temp texture,这里只创建四分之一大小的纹理，最后会unsample得到原始大小
+	auto& linearDesc = linearDepthBuffer.GetDesc();
+	if (savedAOTextureSize.x() != linearDesc.mWidth || savedAOTextureSize.y() != linearDesc.mHeight)
+	{
+		savedAOTextureSize[0] = linearDesc.mWidth;
+		savedAOTextureSize[1] = linearDesc.mHeight;
+
+		TextureDesc desc = {};
+		desc.mWidth = linearDesc.mWidth / 2;
+		desc.mHeight = linearDesc.mHeight / 2;
+		desc.mFormat = FORMAT_R8_UNORM;
+		desc.mBindFlags = BIND_SHADER_RESOURCE | BIND_UNORDERED_ACCESS;
+
+		mGraphicsDevice->CreateTexture2D(&desc, nullptr, aoTemp);
+		mGraphicsDevice->SetResourceName(aoTemp, "aoTextureTemp");
+		mGraphicsDevice->CreateTexture2D(&desc, nullptr, aoTemp1);
+		
+
+		TextureDesc descDebug = {};
+		descDebug.mWidth = linearDesc.mWidth / 2;
+		descDebug.mHeight = linearDesc.mHeight / 2;
+		descDebug.mFormat = FORMAT_R32G32B32A32_FLOAT;
+		descDebug.mBindFlags = BIND_SHADER_RESOURCE | BIND_UNORDERED_ACCESS;
+
+		mGraphicsDevice->CreateTexture2D(&descDebug, nullptr, aoDebug);
+		mGraphicsDevice->SetResourceName(aoDebug, "aoTextureDebug");
+	}
+
+	// 1.计算AO
+	auto& desc = aoTemp.GetDesc();
+	PostprocessCB cb;
+	cb.gPPResolution.x = desc.mWidth;
+	cb.gPPResolution.y = desc.mHeight;
+	cb.gPPInverseResolution.x = (1.0f / cb.gPPResolution.x);
+	cb.gPPInverseResolution.y = (1.0f / cb.gPPResolution.y);
+	cb.gPPParam1 = aoRange;
+	cb.gPPParam2 = (F32)aoSampleCount;
+
+	GPUBuffer& postprocessBuffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_Postprocess);
+	mGraphicsDevice->UpdateBuffer(postprocessBuffer, &cb, sizeof(PostprocessCB));
+	mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, postprocessBuffer, CB_GETSLOT_NAME(PostprocessCB));
+
+	// bind shader
+	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, depthBuffer, TEXTURE_SLOT_DEPTH);
+	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, linearDepthBuffer, TEXTURE_SLOT_LINEAR_DEPTH);
+	mGraphicsDevice->BindComputeShader(mShaderLib->GetComputeShader(ComputeShaderType_SSAO));
+
+	// bind output texture
+	mGraphicsDevice->BindUAV(&aoTemp, 0);
+	mGraphicsDevice->BindUAV(&aoDebug, 1);
+	mGraphicsDevice->Dispatch(
+		(U32)((desc.mWidth + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
+		(U32)((desc.mHeight + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
+		1
+	);
+	mGraphicsDevice->UnBindUAVs(0, 2);
+
+	// 2.blur
+	BilateralBlur(aoTemp, aoTemp1, aoTemp, linearDepthBuffer, 1.0f);
+
+	// 3.Unsample
+	UpsampleBilateral(aoTemp, aoTexture, linearDepthBuffer, 1.0f);
+
+	mGraphicsDevice->EndEvent();
+	PROFILER_END_CPU_GPU_BLOCK();
+}
+
+void GaussianBlur(Texture2D& input, Texture2D& temp, Texture2D& output)
+{
+	auto& desc = input.GetDesc();
+	ComputeShaderType csType = ComputeShaderType_Count;
+	switch (desc.mFormat)
+	{
+	case FORMAT_R8_UNORM:
+		csType = ComputeShaderType_BilateralBlur;
+		break;
+	default:
+		return;
+		break;
+	}
+
+	if (csType == ComputeShaderType_Count) {
+		return;
+	}
+
+	mGraphicsDevice->BeginEvent("GaussianBlur");
+	mGraphicsDevice->BindComputeShader(mShaderLib->GetComputeShader(csType));
+
+	GPUBuffer& postprocessBuffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_Postprocess);
+	mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, postprocessBuffer, CB_GETSLOT_NAME(PostprocessCB));
+
+	// 将blur分解成两次不同方向上的blur
+	// Horizontal:
+	{
+		PostprocessCB cb;
+		cb.gPPResolution.x = desc.mWidth;
+		cb.gPPResolution.y = desc.mHeight;
+		cb.gPPInverseResolution.x = (1.0f / cb.gPPResolution.x);
+		cb.gPPInverseResolution.y = (1.0f / cb.gPPResolution.y);
+
+		mGraphicsDevice->UpdateBuffer(postprocessBuffer, &cb, sizeof(PostprocessCB));
+		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, input, TEXTURE_SLOT_UNIQUE_0);
+		mGraphicsDevice->BindUAV(&temp, 0);
+		mGraphicsDevice->Dispatch(
+			(U32)((desc.mWidth + SHADER_GAUSSIAN_BLUR_BLOCKSIZE - 1) / SHADER_GAUSSIAN_BLUR_BLOCKSIZE),
+			desc.mHeight,
+			1
+		);
+		mGraphicsDevice->UnBindUAVs(0, 1);
+	}
+	// Vertical:
+	{
+		PostprocessCB cb;
+		cb.gPPResolution.x = desc.mWidth;
+		cb.gPPResolution.y = desc.mHeight;
+		cb.gPPInverseResolution.x = (1.0f / cb.gPPResolution.x);
+		cb.gPPInverseResolution.y = (1.0f / cb.gPPResolution.y);
+
+		mGraphicsDevice->UpdateBuffer(postprocessBuffer, &cb, sizeof(PostprocessCB));
+		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, temp, TEXTURE_SLOT_UNIQUE_0);
+		mGraphicsDevice->BindUAV(&output, 0);
+		mGraphicsDevice->Dispatch(
+			desc.mWidth,
+			(U32)((desc.mHeight + SHADER_GAUSSIAN_BLUR_BLOCKSIZE - 1) / SHADER_GAUSSIAN_BLUR_BLOCKSIZE),
+			1
+		);
+		mGraphicsDevice->UnBindUAVs(0, 1);
+	}
+
+	mGraphicsDevice->EndEvent();
+}
+
+void BilateralBlur(Texture2D& input, Texture2D& temp, Texture2D& output, Texture2D& linearDepthBuffer, F32 depthThreshold)
+{
+	auto& desc = input.GetDesc();
+	ComputeShaderType csType = ComputeShaderType_Count;
+	switch (desc.mFormat)
+	{
+	case FORMAT_R8_UNORM:
+		csType = ComputeShaderType_BilateralBlur;
+		break;
+	default:
+		return;
+		break;
+	}
+
+	if (csType == ComputeShaderType_Count) {
+		return;
+	}
+
+	mGraphicsDevice->BeginEvent("BilateralBlur");
+	mGraphicsDevice->BindComputeShader(mShaderLib->GetComputeShader(csType));
+	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, linearDepthBuffer, TEXTURE_SLOT_LINEAR_DEPTH);
+
+	GPUBuffer& postprocessBuffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_Postprocess);
+	mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, postprocessBuffer, CB_GETSLOT_NAME(PostprocessCB));
+
+	// 将blur分解成两次不同方向上的blur
+	// Horizontal:
+	{
+		PostprocessCB cb;
+		cb.gPPResolution.x = desc.mWidth;
+		cb.gPPResolution.y = desc.mHeight;
+		cb.gPPInverseResolution.x = (1.0f / cb.gPPResolution.x);
+		cb.gPPInverseResolution.y = (1.0f / cb.gPPResolution.y);
+		cb.gPPParam1 = depthThreshold;
+		cb.gPPParam2 = 1;
+		cb.gPPParam3 = 0;
+
+		mGraphicsDevice->UpdateBuffer(postprocessBuffer, &cb, sizeof(PostprocessCB));
+		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, input, TEXTURE_SLOT_UNIQUE_0);
+		mGraphicsDevice->BindUAV(&temp, 0);
+		mGraphicsDevice->Dispatch(
+			(U32)((desc.mWidth + SHADER_GAUSSIAN_BLUR_BLOCKSIZE - 1) / SHADER_GAUSSIAN_BLUR_BLOCKSIZE),
+			desc.mHeight,
+			1
+		);
+		mGraphicsDevice->UnBindUAVs(0, 1);
+	}
+	// Vertical:
+	{
+		PostprocessCB cb;
+		cb.gPPResolution.x = desc.mWidth;
+		cb.gPPResolution.y = desc.mHeight;
+		cb.gPPInverseResolution.x = (1.0f / cb.gPPResolution.x);
+		cb.gPPInverseResolution.y = (1.0f / cb.gPPResolution.y);
+		cb.gPPParam1 = depthThreshold;
+		cb.gPPParam2 = 0;
+		cb.gPPParam3 = 1;
+
+		mGraphicsDevice->UpdateBuffer(postprocessBuffer, &cb, sizeof(PostprocessCB));
+		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, temp, TEXTURE_SLOT_UNIQUE_0);
+		mGraphicsDevice->BindUAV(&output, 0);
+		mGraphicsDevice->Dispatch(
+			desc.mWidth,
+			(U32)((desc.mHeight + SHADER_GAUSSIAN_BLUR_BLOCKSIZE - 1) / SHADER_GAUSSIAN_BLUR_BLOCKSIZE),
+			1
+		);
+		mGraphicsDevice->UnBindUAVs(0, 1);
+	}
+
+	mGraphicsDevice->EndEvent();
+}
+
+void UpsampleBilateral(Texture2D& input, Texture2D& output, Texture2D& linearDepthBuffer, F32 depthThreshold)
+{
+	auto& desc = output.GetDesc();
+	ComputeShaderType csType = ComputeShaderType_Count;
+	switch (desc.mFormat)
+	{
+	case FORMAT_R8_UNORM:
+		csType = ComputeShaderType_BilateralUpsample;
+		break;
+	default:
+		return;
+		break;
+	}
+	if (csType == ComputeShaderType_Count) {
+		return;
+	}
+
+	mGraphicsDevice->BeginEvent("UnsampleBilateral");
+	mGraphicsDevice->BindComputeShader(mShaderLib->GetComputeShader(csType));
+	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, linearDepthBuffer, TEXTURE_SLOT_LINEAR_DEPTH);
+	
+	GPUBuffer& postprocessBuffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_Postprocess);
+	PostprocessCB cb;
+	cb.gPPResolution.x = desc.mWidth;
+	cb.gPPResolution.y = desc.mHeight;
+	cb.gPPInverseResolution.x = (1.0f / cb.gPPResolution.x);
+	cb.gPPInverseResolution.y = (1.0f / cb.gPPResolution.y);
+
+	auto& inputDesc = input.GetDesc();
+	cb.gPPParam1 = (1.0f / inputDesc.mWidth);
+	cb.gPPParam2 = (1.0f / inputDesc.mHeight);
+	cb.gPPParam3 = depthThreshold;
+
+	mGraphicsDevice->UpdateBuffer(postprocessBuffer, &cb, sizeof(PostprocessCB));
+	mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, postprocessBuffer, CB_GETSLOT_NAME(PostprocessCB));
+	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, input, TEXTURE_SLOT_UNIQUE_0);
+	mGraphicsDevice->BindUAV(&output, 0);
+	mGraphicsDevice->Dispatch(
+		(U32)((desc.mWidth  + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
+		(U32)((desc.mHeight + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
+		1
+	);
+	mGraphicsDevice->UnBindUAVs(0, 1);
+	mGraphicsDevice->EndEvent();
+}
+
 void PostprocessTonemap(Texture2D& input, Texture2D& output, F32 exposure)
 {
 	mGraphicsDevice->BeginEvent("Postprocess_Tonemap");
 
-	BindConstanceBuffer(SHADERSTAGES_CS);
+	//BindConstanceBuffer(SHADERSTAGES_CS);
 
 	mGraphicsDevice->BindRenderTarget(0, nullptr, nullptr);
 	mGraphicsDevice->BindComputeShader(mShaderLib->GetComputeShader(ComputeShaderType_Tonemapping));
@@ -1189,7 +1493,7 @@ void PostprocessFXAA(Texture2D& input, Texture2D& output)
 {
 	mGraphicsDevice->BeginEvent("Postprocess_FXAA");
 
-	BindConstanceBuffer(SHADERSTAGES_CS);
+	//BindConstanceBuffer(SHADERSTAGES_CS);
 
 	mGraphicsDevice->BindRenderTarget(0, nullptr, nullptr);
 	mGraphicsDevice->BindComputeShader(mShaderLib->GetComputeShader(ComputeShaderType_FXAA));
@@ -1223,16 +1527,20 @@ void PostprocessFXAA(Texture2D& input, Texture2D& output)
 
 void BindCommonResource()
 {
-	SamplerState& linearClampGreater = *mRenderPreset->GetSamplerState(SamplerStateID_LinearClampGreater);
-	SamplerState& anisotropicSampler = *mRenderPreset->GetSamplerState(SamplerStateID_ANISOTROPIC);
-	SamplerState& cmpDepthSampler = *mRenderPreset->GetSamplerState(SamplerStateID_Comparision_depth);
+	SamplerState& pointClampGreater = *mRenderPreset->GetSamplerState(SamplerStateID_PointClamp);
+	SamplerState& linearClampGreater = *mRenderPreset->GetSamplerState(SamplerStateID_LinearClamp);
+	SamplerState& anisotropicSampler = *mRenderPreset->GetSamplerState(SamplerStateID_Anisotropic);
+	SamplerState& cmpDepthSampler = *mRenderPreset->GetSamplerState(SamplerStateID_ComparisionDepth);
 
 	for (int stageIndex = 0; stageIndex < SHADERSTAGES_COUNT; stageIndex++)
 	{
 		SHADERSTAGES stage = static_cast<SHADERSTAGES>(stageIndex);
+		mGraphicsDevice->BindSamplerState(stage, pointClampGreater, SAMPLER_POINT_CLAMP_SLOT);
 		mGraphicsDevice->BindSamplerState(stage, linearClampGreater, SAMPLER_LINEAR_CLAMP_SLOT);
 		mGraphicsDevice->BindSamplerState(stage, anisotropicSampler, SAMPLER_ANISOTROPIC_SLOT);
 		mGraphicsDevice->BindSamplerState(stage, cmpDepthSampler, SAMPLER_COMPARISON_SLOT);
+
+		BindConstanceBuffer(stage);
 	}
 
 	// bind shader light resource
@@ -1255,6 +1563,10 @@ void UpdateCameraCB(CameraComponent & camera)
 	DirectX::XMStoreFloat4x4(&cb.gCameraInvVP, camera.GetInvViewProjectionMatrix());
 
 	cb.gCameraPos = XMConvert(camera.GetCameraPos());
+	cb.gCameraNearZ = camera.GetNearPlane();
+	cb.gCameraFarZ = camera.GetFarPlane();
+	cb.gCameraInvNearZ = (1.0f / std::max(0.00001f, cb.gCameraNearZ));
+	cb.gCameraInvFarZ = (1.0f / std::max(0.00001f, cb.gCameraFarZ));
 
 	GPUBuffer& cameraBuffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_Camera);
 	GetDevice().UpdateBuffer(cameraBuffer, &cb, sizeof(CameraCB));

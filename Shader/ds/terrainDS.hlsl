@@ -37,6 +37,7 @@ PixelInputType main(
     Output.tex = tex;
     Output.color = color;
     Output.nor = float3(0.0f, 1.0f, 0.0f);
+    Output.pos2D = Output.pos;
     
 	return Output;
 }

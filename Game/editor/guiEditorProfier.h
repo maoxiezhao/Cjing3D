@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common\common.h"
+#include "editor\guiEditorInclude.h"
 
 namespace Cjing3D
 {

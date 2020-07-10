@@ -3,6 +3,9 @@
 #include "renderImage.h"
 #include "renderer\textureHelper.h"
 
+#include "renderer\2D\sprite.h"
+#include "renderer\2D\renderer2D.h"
+
 namespace Cjing3D
 {
 	RenderPath3D::RenderPath3D()
@@ -38,9 +41,44 @@ namespace Cjing3D
 
 			const auto result = device.CreateTexture2D(&desc, nullptr, mDepthBuffer);
 			Debug::ThrowIfFailed(result, "Failed to create depth buffer:%08x", result);
+			device.SetResourceName(mDepthBuffer, "DepthBuffer");
 
 			const auto tempResult = device.CreateTexture2D(&desc, nullptr, mDepthBufferTemp);
 			Debug::ThrowIfFailed(tempResult, "Failed to create temp depth buffer:%08x", result);
+			device.SetResourceName(mDepthBufferTemp, "DepthBufferTemp");
+		}
+
+		// linear depth buffer
+		{
+			TextureDesc desc = {};
+			desc.mWidth = screenSize[0];
+			desc.mHeight = screenSize[1];
+			desc.mFormat = FORMAT_R32_FLOAT;
+			desc.mMipLevels = 6;
+			desc.mBindFlags = BIND_SHADER_RESOURCE | BIND_UNORDERED_ACCESS;
+
+			const auto result = device.CreateTexture2D(&desc, nullptr, mDepthBufferLinear);
+			Debug::ThrowIfFailed(result, "Failed to create linear depth buffer:%08x", result);
+			device.SetResourceName(mDepthBufferLinear, "DepthBufferLinear");
+
+			for (int i = 0; i < 6; i++)
+			{
+				device.CreateShaderResourceView(mDepthBufferLinear, 0, -1, i, 1);
+				device.CreateUnordereddAccessView(mDepthBufferLinear, i);
+			}
+		}
+
+		// AO Texture
+		{
+			TextureDesc desc = {};
+			desc.mWidth = screenSize[0];
+			desc.mHeight = screenSize[1];
+			desc.mFormat = FORMAT_R8_UNORM;
+			desc.mBindFlags = BIND_SHADER_RESOURCE | BIND_UNORDERED_ACCESS;
+
+			const auto result = device.CreateTexture2D(&desc, nullptr, mAOTexture);
+			Debug::ThrowIfFailed(result, "Failed to create ao texture:%08x", result);
+			device.SetResourceName(mAOTexture, "AOTexture");		
 		}
 
 		// post process render target
@@ -90,6 +128,23 @@ namespace Cjing3D
 		Renderer::RenderShadowmaps(Renderer::GetCamera());
 	}
 
+	void RenderPath3D::RenderDepthLinear()
+	{
+		Renderer::RenderLinearDepth(mDepthBufferTemp, mDepthBufferLinear);
+	}
+
+	void RenderPath3D::RenderAO()
+	{
+		switch (mAOType)
+		{
+		case Cjing3D::RenderPath3D::AOTYPE_SSAO:
+			Renderer::RenderSSAO(mDepthBufferTemp, mDepthBufferLinear, mAOTexture, GetAORange(), GetAOSampleCount());;
+			break;
+		default:
+			break;
+		}
+	}
+
 	void RenderPath3D::RenderTransparents(RenderBehavior& renderBehavior, RenderPassType renderType)
 	{
 		PROFILER_BEGIN_GPU_BLOCK("RenderTransparents");
@@ -133,5 +188,10 @@ namespace Cjing3D
 		if (rtWrite != GetLastPostprocessRT()) {
 			TextureHelper::SwapTexture(*rtWrite, *GetLastPostprocessRT());
 		}
+	}
+
+	void RenderPath3D::RenderDebug()
+	{
+		
 	}
 }

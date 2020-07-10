@@ -67,7 +67,15 @@ namespace Renderer
 	void RenderSceneTransparent(CameraComponent& camera, RenderPassType renderPassType);
 	void RenderImpostor(CameraComponent& camera, RenderPassType renderPassType);
 	void RenderSky();
+	void RenderLinearDepth(Texture2D& depthBuffer, Texture2D& linearDepthBuffer);
+	void RenderSSAO(Texture2D& depthBuffer, Texture2D& linearDepthBuffer, Texture2D& aoTexture, F32 aoRange, U32 aoSampleCount);
 
+	// blur
+	void GaussianBlur(Texture2D& input, Texture2D& temp, Texture2D& output);
+	void BilateralBlur(Texture2D& input, Texture2D& temp, Texture2D& output, Texture2D& linearDepthBuffer, F32 depthThreshold);
+	void UpsampleBilateral(Texture2D& input, Texture2D& output, Texture2D& linearDepthBuffer, F32 depthThreshold);
+
+	// tiled light culling
 	bool IsTiledCullingDebug();
 	U32x2 GetCullingTiledCount();
 	void TiledLightCulling(Texture2D& depthBuffer);

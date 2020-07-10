@@ -269,6 +269,28 @@ namespace Cjing3D
 		return ECS::INVALID_ENTITY;
 	}
 
+	bool Scene::RenameEntity(ECS::Entity entity, const std::string& name)
+	{
+		// 暂时不使用重名检测
+		if (false)
+		{
+			auto it = mNameEntityMap.find(name);
+			if (it != mNameEntityMap.end())
+			{
+				Debug::Warning("Duplicate entity name:" + name);
+				return false;
+			}
+		}
+
+		auto nameComponentPtr = mNames.GetComponent(entity);
+		if (nameComponentPtr == nullptr) {
+			nameComponentPtr = mNames.Create(entity);
+		}
+
+		nameComponentPtr->SetName(name);
+		return true;
+	}
+
 	void Scene::RemoveEntity(Entity entity)
 	{
 		DetachEntity(entity);

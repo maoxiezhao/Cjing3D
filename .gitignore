@@ -268,3 +268,5 @@ __pycache__/
 /Assets/Fonts/SourceHanSansCN-Regular.ttf
 /Cjing3D/gui/guiAnimation/guiAnimationManager.h
 /Cjing3D/gui/guiAnimation/guiAnimationManager.cpp
+/Cjing3D/gui/guiAnimation/note.h
+/Assets/Scripts/game

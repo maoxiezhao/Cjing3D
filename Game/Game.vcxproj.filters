@@ -25,6 +25,24 @@
     <ClCompile Include="test\guiTest.cpp">
       <Filter>test</Filter>
     </ClCompile>
+    <ClCompile Include="editor\guiEditorAnimation.cpp">
+      <Filter>editor</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\guiEditorRender.cpp">
+      <Filter>editor</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\guiEditorHierarchy.cpp">
+      <Filter>editor</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\guiEditorObject.cpp">
+      <Filter>editor</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\guiEditorMaterial.cpp">
+      <Filter>editor</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\guiEditorTerrain.cpp">
+      <Filter>editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="game">
@@ -73,6 +91,27 @@
     </ClInclude>
     <ClInclude Include="test\guiTest.h">
       <Filter>test</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\guiEditorAnimation.h">
+      <Filter>editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\guiEditorRender.h">
+      <Filter>editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\guiEditorHierarchy.h">
+      <Filter>editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\guiEditorObject.h">
+      <Filter>editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\guiEditorInclude.h">
+      <Filter>editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\guiEditorMaterial.h">
+      <Filter>editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\guiEditorTerrain.h">
+      <Filter>editor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

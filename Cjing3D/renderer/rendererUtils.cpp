@@ -40,13 +40,13 @@ namespace Cjing3D
 		case MIPGENFILTER_POINT:
 			device.BeginEvent("GenerateMipChain-FilterPoint");
 			device.BindComputeShader(shaderLib.GetComputeShader(ComputeShaderType_MipmapGenerate));
-			device.BindSamplerState(SHADERSTAGES_CS, *renderPreset.GetSamplerState(SamplerStateID_PointClampGreater), SAMPLER_SLOT_0);
+			device.BindSamplerState(SHADERSTAGES_CS, *renderPreset.GetSamplerState(SamplerStateID_PointClamp), SAMPLER_SLOT_0);
 
 			break;
 		case MIPGENFILTER_LINEAR:
 			device.BeginEvent("GenerateMipChain-FilterLinear");
 			device.BindComputeShader(shaderLib.GetComputeShader(ComputeShaderType_MipmapGenerate));
-			device.BindSamplerState(SHADERSTAGES_CS, *renderPreset.GetSamplerState(SamplerStateID_LinearClampGreater), SAMPLER_SLOT_0);
+			device.BindSamplerState(SHADERSTAGES_CS, *renderPreset.GetSamplerState(SamplerStateID_LinearClamp), SAMPLER_SLOT_0);
 
 			break;
 		default:

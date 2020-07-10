@@ -6,30 +6,14 @@
 namespace Cjing3D {
 namespace Editor {
 
-	Entity currentLight = INVALID_ENTITY;
-	void ShowLightAttribute(F32 deltaTime)
+	void ShowLightAttribteImpl(LightComponent* light)
 	{
-		if (currentLight == INVALID_ENTITY) return;
-
-		ImGui::SetNextWindowPos(ImVec2(1070, 20), ImGuiCond_Once);
-		ImGui::SetNextWindowSize(ImVec2(350, 360), ImGuiCond_Once);
-		ImGui::Begin("Light attributes");
-
-		Scene& scene = Scene::GetScene();
-		// name
-		auto name = scene.mNames.GetComponent(currentLight);
-		ShowNameComponentAttribute(name);
-
-		// transform
-		auto transform = scene.mTransforms.GetComponent(currentLight);
-		ShowTransformAttribute(transform);
-
-		// light 
-		auto light = scene.mLights.GetComponent(currentLight);
 		if (light != nullptr)
 		{
-			ImGui::Spacing();
-			ImGui::Text("Light");
+			ImGui::Separator();
+			if (!ImGui::CollapsingHeader("Light", ImGuiTreeNodeFlags_DefaultOpen)) {
+				return;
+			}
 
 			F32 color[3] = { light->mColor[0], light->mColor[1], light->mColor[2] };
 			if (ImGui::ColorEdit3("color", color))
@@ -46,7 +30,7 @@ namespace Editor {
 			}
 
 			F32 range = light->mRange;
-			if (ImGui::DragFloat("range", &range,  0.1f, 0.0f, 200.0f))
+			if (ImGui::DragFloat("range", &range, 0.1f, 0.0f, 200.0f))
 			{
 				light->mRange = range;
 			}
@@ -69,6 +53,20 @@ namespace Editor {
 				light->SetLightType(static_cast<LightComponent::LightType>(typeIndex));
 			}
 		}
+	}
+
+	Entity currentLight = INVALID_ENTITY;
+	void ShowLightAttributeWindow(F32 deltaTime)
+	{
+		if (currentLight == INVALID_ENTITY) return;
+
+		ImGui::SetNextWindowPos(ImVec2(1070, 20), ImGuiCond_Once);
+		ImGui::SetNextWindowSize(ImVec2(350, 360), ImGuiCond_Once);
+		ImGui::Begin("Light attributes");
+
+		Scene& scene = Scene::GetScene();
+		auto light = scene.mLights.GetComponent(currentLight);
+		ShowLightAttribteImpl(light);
 
 		ImGui::End();
 	}
@@ -117,13 +115,12 @@ namespace Editor {
 
 	void InitializeEditorLight(IMGUIStage& imguiStage)
 	{
-		imguiStage.RegisterCustomWindow(ShowLightAttribute);
 		imguiStage.RegisterCustomWindow(ShowNewLighWindowImpl);
 	}
 
-	void SetCurrentLight(ECS::Entity light)
+	void ShowLightAttribute(LightComponent* light)
 	{
-		currentLight = light;
+		ShowLightAttribteImpl(light);
 	}
 
 	void ShowNewLightWindow()

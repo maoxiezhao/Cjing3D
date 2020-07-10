@@ -94,7 +94,8 @@ float4 main(PixelInputType input) : SV_TARGET
 		surface.normal,
 		surface.view,
 		input.color,
-	    float3(1.0f, 1.0f, 1.0f)
+	    float3(1.0f, 1.0f, 1.0f),
+        1.0f
 	);
 
 #ifndef _SIMPLE_BASE_LIGHT_

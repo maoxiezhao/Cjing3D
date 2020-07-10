@@ -22,10 +22,6 @@
 
 namespace Cjing3D
 {
-	namespace {
-		std::unique_ptr<GUITest> mGUITest = nullptr;
-	}
-
 	GameEditor::GameEditor()
 	{
 	}
@@ -44,10 +40,6 @@ namespace Cjing3D
 		auto& guiStage = GlobalGetSubSystem<GUIStage>();
 		Editor::InitializeEditor(guiStage.GetImGUIStage());
 #endif // _ENABLE_GAME_EDITOR_
-
-		// gui test
-		//mGUITest = std::make_unique<GUITest>();
-		//mGUITest->DoTest();
 
 	}
 

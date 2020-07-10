@@ -64,9 +64,10 @@ namespace Cjing3D
 		}
 	}
 
-	void Sprite::SetTexture(Texture2DPtr texture)
+	void Sprite::SetTexture(Texture2D* texture)
 	{
-
+		mTextureResource = std::make_shared<TextureResource>();
+		mTextureResource->mTexture = texture;
 	}
 
 	Texture2D* Sprite::GetTexture()

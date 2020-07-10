@@ -11,6 +11,7 @@ struct Surface
 	float4 color;
 	float3 reflectView;
     float3 spcularIntensity;
+    float  occlusion;
 };
 
 inline Surface CreateSurface(
@@ -18,7 +19,8 @@ inline Surface CreateSurface(
 	in float3 normal,
 	in float3 view,
 	in float4 color,
-    in float3 spcularIntensity
+    in float3 spcularIntensity,
+    in float  occlusion
 )
 {
 	Surface surface;
@@ -28,7 +30,8 @@ inline Surface CreateSurface(
 	surface.color = color;
 	surface.reflectView = -reflect(view, normal);
     surface.spcularIntensity = spcularIntensity;
-	
+    surface.occlusion = occlusion;
+    
 	return surface;
 }
 

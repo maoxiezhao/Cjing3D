@@ -32,7 +32,12 @@ CBUFFER(CameraCB, CBSLOT_RENDERER_CAMERA)
 	float4x4 gCameraInvVP;
 
 	float3   gCameraPos;
-	float    gPadding;
+	float    gCameraPadding;
+
+	float    gCameraNearZ;
+	float    gCameraFarZ;
+	float    gCameraInvNearZ;
+	float    gCameraInvFarZ;
 };
 
 struct ShaderMaterial
@@ -140,12 +145,17 @@ struct ShaderLight
 // postprocess
 
 static const uint SHADER_POSTPROCESS_BLOCKSIZE = 8;
+static const uint SHADER_LINEARDEPTH_BLOCKSIZE = 16;
+static const uint SHADER_GAUSSIAN_BLUR_BLOCKSIZE = 256;
 
 CBUFFER(PostprocessCB, CBSLOT_POSTPROCESS)
 {
 	uint2 gPPResolution;
 	float2 gPPInverseResolution;
 	float gPPParam1;
+	float gPPParam2;
+	float gPPParam3;
+	float gPPParam4;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////

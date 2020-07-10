@@ -53,6 +53,11 @@ enum ComputeShaderType
 	ComputeShaderType_Skinning,
 	ComputeShaderType_TiledFrustum,
 	ComputeShaderType_LightTiledCulling,
+	ComputeShaderType_LinearDepth,
+	ComputeShaderType_SSAO,
+	ComputeShaderType_GaussianBlur,
+	ComputeShaderType_BilateralBlur,
+	ComputeShaderType_BilateralUpsample,
 	ComputeShaderType_Count
 };
 

@@ -58,12 +58,10 @@ namespace Cjing3D
 
 	// Sampler State
 	enum SamplerStateID {
-		SamplerStateID_PointClampAlways,
-		SamplerStateID_PointClampGreater,
-		SamplerStateID_LinearClampGreater,
-		SamplerStateID_LinearWrapGreater,
-		SamplerStateID_ANISOTROPIC,
-		SamplerStateID_Comparision_depth,
+		SamplerStateID_PointClamp,
+		SamplerStateID_LinearClamp,
+		SamplerStateID_Anisotropic,
+		SamplerStateID_ComparisionDepth,
 		SamplerStateID_Font,
 		SamplerStateID_Count
 	};

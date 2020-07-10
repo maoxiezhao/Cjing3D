@@ -25,7 +25,7 @@ namespace Cjing3D
 		void DrawImage(const F32x2& pos);
 		bool LoadTexture(const std::string& path);
 		void SetTexture(TextureResourcePtr res);
-		void SetTexture(Texture2DPtr texture);
+		void SetTexture(Texture2D* texture);
 
 		Texture2D* GetTexture();
 		const Texture2D* GetTexture()const;
