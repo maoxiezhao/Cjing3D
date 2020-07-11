@@ -12,8 +12,9 @@ VSOutType main(InputObjectPos input)
     VertexSurface surface = MakeVertexSurfaceFromInput(input);
 
     VSOutType vsOut;
-    vsOut.rtIndex = input.instance.userdata.x;
-    vsOut.pos = mul(gCubeMapVP[vsOut.rtIndex], mul(surface.position, worldMat));
+    CubemapRenderCamera cam = gCubemapRenderCams[input.instance.userdata.x];
+    vsOut.rtIndex = cam.properties.x;
+    vsOut.pos = mul(cam.cubemapVP, mul(surface.position, worldMat));
     
     return vsOut;
 }

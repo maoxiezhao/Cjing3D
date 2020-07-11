@@ -54,9 +54,15 @@ CBUFFER(MaterialCB, CBSLOT_RENDERER_MATERIAL)
 	ShaderMaterial gMaterial;
 };
 
-CBUFFER(CubeMapCB, CBSLOT_CUBEMAP)
+struct CubemapRenderCamera
 {
-	float4x4 gCubeMapVP[6];
+	float4x4 cubemapVP;
+	uint4 properties;
+};
+
+CBUFFER(CubemapRenderCB, CBSLOT_CUBEMAP)
+{
+	CubemapRenderCamera gCubemapRenderCams[6];
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////

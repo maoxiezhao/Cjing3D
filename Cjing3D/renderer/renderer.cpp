@@ -77,11 +77,13 @@ namespace {
 	{
 		Frustum mFrustum;
 		XMMATRIX mViewProjection;
+		DirectX::BoundingFrustum mBoundingFrustum;
 
-		LightShadowCamera() {}
+		LightShadowCamera() : mViewProjection(XMMatrixIdentity()){}
 		LightShadowCamera(const XMVECTOR& eyePos, const XMVECTOR& rot, F32 nearZ, F32 farZ, F32 fov)
 		{
-			const XMMATRIX matRot = XMMatrixRotationQuaternion(rot);
+			const XMVECTOR q = XMQuaternionNormalize(rot);
+			const XMMATRIX matRot = XMMatrixRotationQuaternion(q);
 			// create light camera view matrix
 			// light default dir is (0, -1, 0), up(0, 0, 1)
 			const XMVECTOR to = XMVector3TransformNormal(XMVectorSet(0.0f,-1.0f, 0.0f, 0.0f), matRot);
@@ -90,6 +92,10 @@ namespace {
 			const XMMATRIX proj = XMMatrixPerspectiveFovLH(fov, 1.0f, farZ, nearZ);	// reversed depth buffer!!!
 			mViewProjection = view * proj;
 			mFrustum.SetupFrustum(mViewProjection);
+
+			// create bounding frustum and transform to world space
+			mBoundingFrustum = CreateBoundingFrustum(proj);
+			TransformBoundingFrustum(mBoundingFrustum, XMMatrixInverse(nullptr, view));
 		}
 
 		XMMATRIX GetViewProjectionMatrix()
@@ -213,7 +219,7 @@ namespace {
 
 	void CreateCascadeShadowCameras(LightComponent& light, CameraComponent& camera, U32 cascadeCount, std::vector<LightShadowCamera>& csfs)
 	{
-		if (currentCascadeSplits.size() != (size_t)(cascadeCount + 1)) {
+		if (currentCascadeSplits.size() != (size_t)(cascadeCount) + 1) {
 			CalculateCascadeSplits(camera, cascadeCount, currentCascadeSplits);
 		}
 
@@ -276,9 +282,9 @@ namespace {
 				radius = std::max(radius, XMVectorGetX(XMVector3Length(XMVectorSubtract(corner, center))));
 			}
 
-			XMVECTOR vRadius = XMVectorReplicate(-radius);
-			XMVECTOR vMin = XMVectorSubtract(center, vRadius);
-			XMVECTOR vMax = XMVectorAdd(center, vRadius);
+			XMVECTOR vRadius = XMVectorReplicate(radius);
+			XMVECTOR vMin = center - vRadius;
+			XMVECTOR vMax = center + vRadius;
 
 			// 对齐到纹理网格上
 			const XMVECTOR texelSize = XMVectorSubtract(vMax, vMin) / (F32)shadowRes2DResolution;
@@ -2112,13 +2118,27 @@ void RenderPointLightShadowmap(LightComponent& light, CameraComponent& camera)
 			LightShadowCamera(lightPos, XMVectorSet(0.707f, 0, 0, -0.707f), nearZ, farZ, XM_PIDIV2),     //  z, 0.707 = 根号2/2
 			LightShadowCamera(lightPos, XMVectorSet(0, 0.707f, 0.707f, 0), nearZ, farZ, XM_PIDIV2),      // -z
 		};
-		CubeMapCB cb;
-		for (int i = 0; i < ARRAYSIZE(cams); i++) {
-			XMStoreFloat4x4(&cb.gCubeMapVP[i], cams[i].mViewProjection);
+
+		// 对每个方向的椎体和当前相机椎体相交测试，以排除无需渲染的方向
+		DirectX::BoundingFrustum camFrustum = CreateBoundingFrustum(camera.GetProjectionMatrix());
+		TransformBoundingFrustum(camFrustum, camera.GetInvViewMatrix());
+
+		size_t availableCount = 0;
+		Frustum availableCams[6] = {};
+		CubemapRenderCB cb;
+		for (U32 i = 0; i < ARRAYSIZE(cams); i++)
+		{
+			if (camFrustum.Intersects(cams[i].mBoundingFrustum))
+			{
+				XMStoreFloat4x4(&cb.gCubemapRenderCams[availableCount].cubemapVP, cams[i].mViewProjection);
+				cb.gCubemapRenderCams[availableCount].properties = XMConvert(U32x4(i, 0u, 0u, 0u));
+				availableCams[availableCount] = cams[i].mFrustum;
+				availableCount++;
+			}
 		}
 		auto buffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_CubeMap);
-		mGraphicsDevice->UpdateBuffer(buffer, &cb, sizeof(CubeMapCB));
-		mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_VS, buffer, CB_GETSLOT_NAME(CubeMapCB));
+		mGraphicsDevice->UpdateBuffer(buffer, &cb, sizeof(CubemapRenderCB));
+		mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_VS, buffer, CB_GETSLOT_NAME(CubemapRenderCB));
 
 		ViewPort vp;
 		vp.mWidth = (F32)shadowResCubeResolution;
@@ -2129,22 +2149,22 @@ void RenderPointLightShadowmap(LightComponent& light, CameraComponent& camera)
 
 		// instance handler
 		InstanceHandler instanceHandler;
-		instanceHandler.checkCondition_ = [cams](U32 subIndex, ECS::Entity entity, Scene& scene) 
+		instanceHandler.checkCondition_ = [availableCams](U32 subIndex, ECS::Entity entity, Scene& scene)
 		{
 			auto aabb = scene.mObjectAABBs.GetComponent(entity);
 			if (aabb == nullptr) {
 				return false;
 			}
-			return cams[subIndex].mFrustum.Overlaps(aabb->GetAABB());
+			return availableCams[subIndex].Overlaps(aabb->GetAABB());
 		};
-		instanceHandler.processInstance_ = [cams](U32 subIndex, RenderInstance& instance) 
+		instanceHandler.processInstance_ = [availableCams](U32 subIndex, RenderInstance& instance)
 		{
 			instance.userdata.x = subIndex;
 		};
 
 		// rendering
 		device.BeginRenderBehavior(shadowCubeRenderBehaviors[resourceIndex]);
-		ProcessRenderQueue(renderQueue, RenderPassType_ShadowCube, RenderableType_Opaque, 6, &instanceHandler);
+		ProcessRenderQueue(renderQueue, RenderPassType_ShadowCube, RenderableType_Opaque, availableCount, &instanceHandler);
 		device.EndRenderBehavior();
 
 		frameAllocator.Free(renderQueue.GetBatchCount() * sizeof(RenderBatch));

@@ -28,6 +28,7 @@ namespace Cjing3D {
 		inline XMMATRIX GetViewMatrix()const { return XMLoadFloat4x4(&mView); };
 		inline XMMATRIX GetProjectionMatrix()const { return XMLoadFloat4x4(&mProjection); };
 		inline XMMATRIX GetViewProjectionMatrix()const { return XMLoadFloat4x4(&mViewProjection); };
+		inline XMMATRIX GetInvViewMatrix()const { return XMLoadFloat4x4(&mInvView); }
 		inline XMMATRIX GetInvProjectionMatrix()const { return XMLoadFloat4x4(&mInvProjection); }
 		inline XMMATRIX GetInvViewProjectionMatrix()const { return XMLoadFloat4x4(&mInvViewProjection); }
 
@@ -58,6 +59,7 @@ namespace Cjing3D {
 		XMFLOAT4X4 mView;
 		XMFLOAT4X4 mProjection;
 		XMFLOAT4X4 mViewProjection;
+		XMFLOAT4X4 mInvView;
 		XMFLOAT4X4 mInvProjection;
 		XMFLOAT4X4 mInvViewProjection;
 	};

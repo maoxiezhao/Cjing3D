@@ -158,4 +158,19 @@ namespace Cjing3D
 			XMVECTOR mPlanes[6];
 		};
 	};
+
+	// Direct::BoundingFrustum
+	inline DirectX::BoundingFrustum CreateBoundingFrustum(const XMMATRIX& projection)
+	{
+		BoundingFrustum newFrustum;
+		BoundingFrustum::CreateFromMatrix(newFrustum, projection);
+		std::swap(newFrustum.Near, newFrustum.Far);
+		return newFrustum;
+	}
+
+	inline void TransformBoundingFrustum(DirectX::BoundingFrustum& frustum, const XMMATRIX& transform)
+	{
+		frustum.Transform(frustum, transform);
+		XMStoreFloat4(&frustum.Orientation, XMQuaternionNormalize(XMLoadFloat4(&frustum.Orientation)));
+	}
 }

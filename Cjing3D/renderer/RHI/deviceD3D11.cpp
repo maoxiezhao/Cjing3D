@@ -7,6 +7,7 @@ namespace {
 
 	// 空指针对象，用于设置nullptr时传递为参数
 	const void* const nullptrBlob[128] = { nullptr };
+	const U32 MaxMipLevel = 16;
 
 	inline DXGI_FORMAT _ConvertFormat(FORMAT format)
 	{
@@ -1570,7 +1571,7 @@ I32 GraphicsDeviceD3D11::CreateShaderResourceView(Texture2D & texture, U32 array
 
 	I32 subresourceIndex = -1;
 	const auto& desc = texture.GetDesc();
-	if (desc.mMipLevels > mipLevel) {
+	if (desc.mMipLevels < mipLevel && mipLevel < MaxMipLevel) {
 		return -1;
 	}
 

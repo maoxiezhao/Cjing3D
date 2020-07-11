@@ -37,9 +37,15 @@ namespace Cjing3D {
 			// ambient light
 			F32x3 ambientColor = Renderer::GetAmbientColor();
 			F32* ambientColors = ambientColor.data();
-			if (ImGui::ColorEdit3("color", ambientColors))
-			{
+			if (ImGui::ColorEdit3("color", ambientColors)) {
 				Renderer::SetAmbientColor(ambientColor);
+			}
+
+			// ao type
+			int typeIndex = static_cast<int>(renderPath3D->GetAOType());
+			const char* items[] = { "AOTYPE_DISABLE", "AOTYPE_SSAO"};
+			if (ImGui::Combo("AO", &typeIndex, items, ARRAYSIZE(items))) {
+				renderPath3D->SetAOType(static_cast<RenderPath3D::AOTYPE>(typeIndex));
 			}
 		}
 

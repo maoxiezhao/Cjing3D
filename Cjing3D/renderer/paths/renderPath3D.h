@@ -47,6 +47,8 @@ namespace Cjing3D {
 		void SetAOSampleCount(U32 count) { mAOSampleCount = count; }
 		U32 GetAOSampleCount()const { return mAOSampleCount; }
 		bool IsAOEnable()const { return mAOType != AOTYPE_DISABLE; }
+		void SetAOType(AOTYPE type) { mAOType = type; }
+		AOTYPE GetAOType()const { return mAOType; }
 
 		// debug
 		void RenderDebug();

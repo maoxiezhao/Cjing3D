@@ -20,18 +20,13 @@ TEXTURE2D(texture_ao, TEXTURE_SLOT_AO);
 // Tiled forward lighting
 ////////////////////////////////////////////////////////////////////
 #ifdef _TILED_FORWRAD_LIGHTING_
-float4 TiledForwardLighting(in float2 pixel, in Surface surface)
+void TiledForwardLighting(in float2 pixel, in Surface surface, inout Lighting lighting)
 {
     const uint2 tilePos = uint2(floor(pixel / LIGHT_CULLING_TILED_BLOCK_SIZE));
     const uint tileIndex = Flatten(tilePos, gFrameTileCullingCount);
     const uint tileBucketAddress = tileIndex * SHADER_LIGHT_TILE_BUCKET_COUNT;
     
     // 对于每个tile获取对应的tileBucket,每个tileBucket为U32整型，每一位1or0表示是否受对应光源影响
-    float3 color = GetAmbientLight().rgb;
-
-    // 暂时在这里对ambient处理occlusion
-    color *= surface.occlusion;
-
     [branch]
     if (gShaderLightArrayCount > 0)
     {
@@ -58,10 +53,10 @@ float4 TiledForwardLighting(in float2 pixel, in Surface surface)
                     switch (light.GetLightType())
                     {
                         case SHADER_LIGHT_TYPE_DIRECTIONAL:
-                            color += DirectionalLight(light, surface);
+                            DirectionalLight(light, surface, lighting);
                             break;
                         case SHADER_LIGHT_TYPE_POINT:
-                            color += PointLight(light, surface);
+                            PointLight(light, surface, lighting);
                             break;
                         case SHADER_LIGHT_TYPE_SPOT:
                             break;
@@ -76,8 +71,6 @@ float4 TiledForwardLighting(in float2 pixel, in Surface surface)
         }
         
     }
-
-    return float4(color.rgb, 1.0f);
 }
 #endif
 
@@ -85,13 +78,8 @@ float4 TiledForwardLighting(in float2 pixel, in Surface surface)
 // Simple lighting
 ////////////////////////////////////////////////////////////////////
 #ifdef _FORWRAD_LIGHTING_
-float4 ForwardLighting(in Surface surface)
+void ForwardLighting(in Surface surface, inout Lighting lighting)
 {
-	float3 color = GetAmbientLight().rgb;
-
-    // 暂时在这里对ambient处理occlusion
-    color *= surface.occlusion;
-
 	// 简单光照下，不考虑光源的culling,直接遍历传递过来的所有光源并执行对应光照计算
 	for (uint lightIndex = 0; lightIndex < gShaderLightArrayCount; lightIndex++)
 	{
@@ -100,19 +88,24 @@ float4 ForwardLighting(in Surface surface)
 		switch (light.GetLightType())
 		{
 		case SHADER_LIGHT_TYPE_DIRECTIONAL:
-			color += DirectionalLight(light, surface);
+			DirectionalLight(light, surface, lighting);
 			break;
 		case SHADER_LIGHT_TYPE_POINT:
-			color += PointLight(light, surface);
+			PointLight(light, surface, lighting);
 			break;
 		case SHADER_LIGHT_TYPE_SPOT:
 			break;
 		}
 	}
-
-	return float4(color.rgb, 1.0f);
 }
 #endif
+
+float3 ApplyLight(in Surface surface, in Lighting light)
+{
+    float3 diffuse = light.directDiffuse + light.ambient * surface.occlusion;
+    float3 specular = light.directSpecular;
+    return surface.albedo * diffuse + specular;
+}
 
 #if !defined(_DISABLE_OBJECT_PS_)
 
@@ -166,26 +159,33 @@ float4 main(PixelInputType input) : SV_TARGET
     }
 	
     // SSAO
-    float occlusion = texture_ao.SampleLevel(sampler_linear_clamp, screenPos, 0.0f).r;
+    float occlusion = 1.0f;
+#ifndef _TRNAPARENT_
+    occlusion = texture_ao.SampleLevel(sampler_linear_clamp, screenPos, 0.0f).r;
+#endif
     
     surface = CreateSurface(
 		surface.position,
 		surface.normal,
 		surface.view,
-		input.color,
+		color,
 	    spcularIntensity,
         occlusion
 	);
 
+    Lighting lighting = CreateLighting(0.0f, 0.0f, GetAmbientLight());
+    
 #ifdef _TILED_FORWRAD_LIGHTING_
-    color *= TiledForwardLighting(input.pos.xy, surface);
+    TiledForwardLighting(input.pos.xy, surface, lighting);
 #endif
     
 #ifdef _FORWRAD_LIGHTING_
-    color *= ForwardLighting(surface);
+    ForwardLighting(surface, lighting);
 #endif
 		
-	return color;
+    color.rgb = ApplyLight(surface, lighting);
+    
+    return color;
 }
 
 #endif
