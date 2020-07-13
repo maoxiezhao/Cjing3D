@@ -15,9 +15,6 @@ namespace Cjing3D {
 		SoundResourcePtr mSoundResource;
 		Audio::SoundInstance mSoundInstance;
 
-		virtual void Serialize(Archive& archive, U32 seed = 0);
-		virtual void Unserialize(Archive& archive)const;
-
 		enum SoundFlag
 		{
 			EMPTY = 0,
@@ -28,14 +25,21 @@ namespace Cjing3D {
 		bool mIsDirty = false;
 		F32 mVolume = 1.0f;
 
+	public:
+		virtual void Serialize(Archive& archive, U32 seed = 0);
+		virtual void Unserialize(Archive& archive)const;
+
 		inline bool IsDirty() const { return mIsDirty; }
 		inline bool IsPlaying()const { return mSoundFlag & SoundFlag::PLAYING; };
 		inline bool IsLooped()const { return mSoundFlag & SoundFlag::LOOPED; };
+
+		void LoadSoundFromFile(const std::string& filePath);
 
 		void Play();
 		void Stop();
 		void SetLooped(bool isLooped);
 		void SetVolume(F32 volume);
+		F32 GetVolue()const;
 	};
 
 }

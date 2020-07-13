@@ -114,9 +114,21 @@ void ResourceManager::LoadTextureFromFilePath(const std::filesystem::path& fileP
 				case tinyddsloader::DDSFile::DXGIFormat::R8_SNorm: desc.mFormat = FORMAT_R8_SNORM; break;
 				case tinyddsloader::DDSFile::DXGIFormat::R8_SInt: desc.mFormat = FORMAT_R8_SINT; break;
 				case tinyddsloader::DDSFile::DXGIFormat::BC1_UNorm: desc.mFormat = FORMAT_BC1_UNORM; break;
-			default:
+				case tinyddsloader::DDSFile::DXGIFormat::BC1_UNorm_SRGB: desc.mFormat = FORMAT_BC1_UNORM_SRGB; break;
+				case tinyddsloader::DDSFile::DXGIFormat::BC2_UNorm: desc.mFormat = FORMAT_BC2_UNORM; break;
+				case tinyddsloader::DDSFile::DXGIFormat::BC2_UNorm_SRGB: desc.mFormat = FORMAT_BC2_UNORM_SRGB; break;
+				case tinyddsloader::DDSFile::DXGIFormat::BC3_UNorm: desc.mFormat = FORMAT_BC3_UNORM; break;
+				case tinyddsloader::DDSFile::DXGIFormat::BC3_UNorm_SRGB: desc.mFormat = FORMAT_BC3_UNORM_SRGB; break;
+				case tinyddsloader::DDSFile::DXGIFormat::BC4_UNorm: desc.mFormat = FORMAT_BC4_UNORM; break;
+				case tinyddsloader::DDSFile::DXGIFormat::BC4_SNorm: desc.mFormat = FORMAT_BC4_SNORM; break;
+				case tinyddsloader::DDSFile::DXGIFormat::BC5_UNorm: desc.mFormat = FORMAT_BC5_UNORM; break;
+				case tinyddsloader::DDSFile::DXGIFormat::BC5_SNorm: desc.mFormat = FORMAT_BC5_SNORM; break;
+				case tinyddsloader::DDSFile::DXGIFormat::BC7_UNorm: desc.mFormat = FORMAT_BC7_UNORM; break;
+				case tinyddsloader::DDSFile::DXGIFormat::BC7_UNorm_SRGB: desc.mFormat = FORMAT_BC7_UNORM_SRGB; break;
+				default:
 				Debug::Warning("Invalid dds texture format [" + std::to_string(static_cast<U32>(ddsFormat)) + ", " + path + "]");
-				break;
+				SAFE_DELETE_ARRAY(data);
+				return;
 			}
 
 			std::vector<SubresourceData> resourceData;
@@ -135,7 +147,9 @@ void ResourceManager::LoadTextureFromFilePath(const std::filesystem::path& fileP
 			}
 
 			// only support texture2D now.
-			if (ddsFile.GetTextureDimension() != tinyddsloader::DDSFile::TextureDimension::Texture2D) {
+			if (ddsFile.GetTextureDimension() != tinyddsloader::DDSFile::TextureDimension::Texture2D) 
+			{
+				SAFE_DELETE_ARRAY(data);
 				return;
 			}
 

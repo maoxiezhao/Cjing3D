@@ -10,5 +10,7 @@ namespace Cjing3D
 	{
 		void LoadSceneFromOpenFile();
 		void SaveSceneToOpenFile();
+		void LoadSkyFromOpenFile();
+		std::string GetFileNameFromOpenFile(const char* filter);
 	}
 }

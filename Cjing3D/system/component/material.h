@@ -41,6 +41,10 @@ namespace Cjing3D {
 		void SetupConstantBuffer(GraphicsDevice& device);
 		GPUBuffer& GetConstantBuffer() { return mConstantBuffer; }
 
+		bool LoadBaseColorMap(const std::string& filePath);
+		bool LoadNormalMap(const std::string& filePath);
+		bool LoadSurfaceMap(const std::string& filePath);
+
 		virtual void Serialize(Archive& archive, U32 seed = 0);
 		virtual void Unserialize(Archive& archive)const;
 
@@ -49,7 +53,7 @@ namespace Cjing3D {
 
 		bool mIsDirty = true;
 		bool mIsUsingVertexColors = false;
-		bool mIsCastingShadow = false;
+		bool mIsCastingShadow = true;
 		BlendType mBlendType = BlendType_Opaque;
 		F32 mAlphaCutRef = 1.0f;
 

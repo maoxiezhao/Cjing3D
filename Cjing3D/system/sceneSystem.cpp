@@ -176,12 +176,16 @@ namespace Cjing3D
 		return entity;
 	}
 
-	ECS::Entity Scene::CreateSound(const std::string& name, const std::string& filePath, const F32x3& pos)
+	ECS::Entity Scene::CreateSound(const std::string& name, const std::string& filePath, bool is3DSound, const F32x3& pos)
 	{
 		auto entity = CreateEntityByName(name);
-		TransformComponent& transform = *mTransforms.Create(entity);
-		transform.Translate(XMConvert(pos));
-		transform.Update();
+
+		if (is3DSound)
+		{
+			TransformComponent& transform = *mTransforms.Create(entity);
+			transform.Translate(XMConvert(pos));
+			transform.Update();
+		}
 
 		SoundComponent& sound = *mSounds.Create(entity);
 		sound.mFileName = filePath;

@@ -304,6 +304,11 @@ namespace ECS
 			return mComponents.size();
 		}
 
+		inline bool Empty()const 
+		{
+			return mComponents.empty();
+		}
+
 		inline Entity GetEntityByIndex(size_t index)
 		{
 			if (index >= 0 && index < mEntities.size())

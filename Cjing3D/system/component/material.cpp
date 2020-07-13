@@ -29,6 +29,30 @@ void Cjing3D::MaterialComponent::SetupConstantBuffer(GraphicsDevice& device)
 	}
 }
 
+bool Cjing3D::MaterialComponent::LoadBaseColorMap(const std::string& filePath)
+{
+	ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
+	mBaseColorMapName = filePath;
+	mBaseColorMap = resourceManager.GetOrCreate<TextureResource>(StringID(filePath));
+	return true;
+}
+
+bool Cjing3D::MaterialComponent::LoadNormalMap(const std::string& filePath)
+{
+	ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
+	mNormalMapName = filePath;
+	mNormalMap = resourceManager.GetOrCreate<TextureResource>(StringID(filePath));
+	return true;
+}
+
+bool Cjing3D::MaterialComponent::LoadSurfaceMap(const std::string& filePath)
+{
+	ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
+	mSurfaceMapName = filePath;
+	mSurfaceMap = resourceManager.GetOrCreate<TextureResource>(StringID(filePath));
+	return true;
+}
+
 void Cjing3D::MaterialComponent::Serialize(Archive& archive, U32 seed)
 {
 	archive >> mBaseColor;

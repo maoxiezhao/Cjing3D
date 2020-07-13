@@ -144,6 +144,7 @@
     <ClCompile Include="editor\guiEditorProfier.cpp" />
     <ClCompile Include="editor\guiEditorRender.cpp" />
     <ClCompile Include="editor\guiEditorScene.cpp" />
+    <ClCompile Include="editor\guiEditorSound.cpp" />
     <ClCompile Include="editor\guiEditorTerrain.cpp" />
     <ClCompile Include="game\gameEditor.cpp" />
     <ClCompile Include="main\main.cpp" />
@@ -170,6 +171,7 @@
     <ClInclude Include="editor\guiEditorProfier.h" />
     <ClInclude Include="editor\guiEditorRender.h" />
     <ClInclude Include="editor\guiEditorScene.h" />
+    <ClInclude Include="editor\guiEditorSound.h" />
     <ClInclude Include="editor\guiEditorTerrain.h" />
     <ClInclude Include="game\gameEditor.h" />
     <ClInclude Include="test\guiTest.h" />

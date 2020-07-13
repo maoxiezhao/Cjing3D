@@ -9,15 +9,12 @@
 #include "guiEditorObject.h"
 #include "guiEditorTerrain.h"
 #include "guiEditorMaterial.h"
+#include "guiEditorSound.h"
 
 #include "gui\guiEditor\guiEditorInclude.h"
 
 namespace Cjing3D {
 namespace Editor {
-
-
-	
-	
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -61,6 +58,7 @@ namespace Editor {
 			if (ImGui::BeginMenu("Component"))
 			{
 				if (ImGui::MenuItem("Light")) { ShowNewLightWindow(); }
+				if (ImGui::MenuItem("Sound")) { ShowNewSoundWindow(); }
 				ImGui::EndMenu();
 			}
 			if (ImGui::BeginMenu("Profiler"))
@@ -93,6 +91,7 @@ namespace Editor {
 		InitializeEditorGUI(imguiStage);
 		InitializeEditorAnimation(imguiStage);
 		InitializeEditorRender(imguiStage);
+		InitializeEditorSound(imguiStage);
 #endif
 	}
 }

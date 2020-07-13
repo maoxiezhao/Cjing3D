@@ -30,7 +30,7 @@ namespace Cjing3D {
 		ECS::Entity CreateArmature(const std::string& name);
 		ECS::Entity CreateAnimation(const std::string& name);
 		ECS::Entity CreateWeather(const std::string& name);
-		ECS::Entity CreateSound(const std::string& name, const std::string& filePath, const F32x3& pos = { 0.0f, 0.0f, 0.0f });
+		ECS::Entity CreateSound(const std::string& name, const std::string& filePath, bool is3DSound = true, const F32x3& pos = { 0.0f, 0.0f, 0.0f });
 
 		// create by entity
 		NameComponent& GetOrCreateNameByEntity(ECS::Entity entity);
@@ -45,6 +45,12 @@ namespace Cjing3D {
 		// entity间的层级结构基于 hierarchy component
 		void AttachEntity(ECS::Entity entity, ECS::Entity parent, bool alreadyInLocalSpace = false, bool detachIfAttached = true);
 		void DetachEntity(ECS::Entity entity);
+
+		struct PickResult
+		{
+
+		};
+		//PickResult MousePick();
 
 		template<typename ComponentT>
 		ComponentT* GetComponent(ECS::Entity entity)

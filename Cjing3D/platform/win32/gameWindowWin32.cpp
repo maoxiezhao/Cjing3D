@@ -34,6 +34,58 @@ namespace Cjing3D {
 		SetConsoleTextAttribute(handle, FOREGROUND_INTENSITY | static_cast<WORD>(color));
 	}
 
+	void GameWindow::LoadFileFromOpenWindow(const char* fileFilter, std::function<void(const std::string&)> callback)
+	{
+		char szFile[256] = { '\0' };
+
+		OPENFILENAMEA ofn;
+		ZeroMemory(&ofn, sizeof(ofn));
+		ofn.lStructSize = sizeof(ofn);
+		ofn.hwndOwner = nullptr;
+		ofn.lpstrFile = szFile;
+		ofn.nMaxFile = sizeof(szFile);
+		ofn.lpstrFilter = fileFilter;
+		ofn.nFilterIndex = 1;
+		ofn.lpstrFileTitle = nullptr;
+		ofn.nMaxFileTitle = 0;
+		ofn.lpstrInitialDir = nullptr;
+
+		// If you change folder in the dialog it will change the current folder for your process without OFN_NOCHANGEDIR;
+		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+
+		if (GetOpenFileNameA(&ofn))
+		{
+			if (callback != nullptr) {
+				callback(ofn.lpstrFile);
+			}
+		}
+	}
+
+	void GameWindow::SaveFileToOpenWindow(const char* fileFilter, std::function<void(const std::string&)> callback)
+	{
+		char szFile[256] = { '\0' };
+
+		OPENFILENAMEA ofn;
+		ZeroMemory(&ofn, sizeof(ofn));
+		ofn.lStructSize = sizeof(ofn);
+		ofn.hwndOwner = nullptr;
+		ofn.lpstrFile = szFile;
+		ofn.nMaxFile = sizeof(szFile);
+		ofn.lpstrFilter = fileFilter;
+		ofn.nFilterIndex = 1;
+		ofn.lpstrFileTitle = nullptr;
+		ofn.nMaxFileTitle = 0;
+		ofn.lpstrInitialDir = nullptr;
+		ofn.Flags = OFN_OVERWRITEPROMPT;
+
+		if (GetSaveFileNameA(&ofn))
+		{
+			if (callback != nullptr) {
+				callback(ofn.lpstrFile);
+			}
+		}
+	}
+
 	void GameWindow::ShowMessageBox(const UTF8String& msg)
 	{
 		std::wstring msgWStr = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(msg.C_Str());

@@ -4,12 +4,15 @@
 
 #include "editor\guiEditorLight.h"
 #include "editor\guiEditorObject.h"
+#include "editor\guiEditorSound.h"
 
 namespace Cjing3D {
 	namespace Editor {
 
 		namespace {
 			static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+
+			static ECS::Entity currentEntity = ECS::INVALID_ENTITY;
 		}
 
 		//void showEntityListWindow(F32 deltaTime)
@@ -121,7 +124,50 @@ namespace Cjing3D {
 		//	ImGui::End();
 		//}
 
-		static int currentEntity = ECS::INVALID_ENTITY;
+		bool ShowEntityList(Scene& scene, Entity entity, U32 currentIndex, I32 selectionIndex, I32& nodeClicked)
+		{
+			std::string nodeName = "Entity ";
+			auto nameComponent = scene.mNames.GetComponent(entity);
+			if (nameComponent != nullptr) {
+				nodeName = nodeName + " " + nameComponent->GetString();
+			}
+			else {
+				nodeName = nodeName + std::to_string(entity);
+			}
+
+			// 通过mask检测是否点击到
+			ImGuiTreeNodeFlags node_flags = base_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+			const bool is_selected = (selectionIndex == currentIndex);
+			if (is_selected) {
+				node_flags |= ImGuiTreeNodeFlags_Selected;
+			}
+
+			ImGui::TreeNodeEx((void*)(intptr_t)currentIndex, node_flags, nodeName.c_str());
+			if (ImGui::IsItemClicked()) {
+				nodeClicked = currentIndex;
+			}
+
+			return is_selected;
+		};
+
+		void ShowSoundEntityList(Scene& scene)
+		{
+			static int slectionIndex = -1;
+			int nodeClicked = -1;
+			auto& soundManager = scene.mSounds;
+			for (int index = 0; index < soundManager.GetCount(); index++)
+			{
+				Entity entity = soundManager.GetEntityByIndex(index);
+				if (ShowEntityList(scene, entity, index, slectionIndex, nodeClicked)) {
+					currentEntity = entity;
+				}
+			}
+
+			if (nodeClicked != -1) {
+				slectionIndex = nodeClicked;
+			}
+		}
+
 		using TransformChildrenMap = std::map<ECS::Entity, std::vector<ECS::Entity>>;
 		bool processTransformNode(Scene& scene, Entity entity, int currentIndex, std::set<ECS::Entity>& transformSet, TransformChildrenMap& transformChildren) {
 			if (transformSet.find(entity) != transformSet.end()) {
@@ -313,7 +359,11 @@ namespace Cjing3D {
 					ShowHierarchyList(scene);
 					ImGui::EndTabItem();
 				}
-
+				if (ImGui::BeginTabItem("Sounds"))
+				{
+					ShowSoundEntityList(scene);
+					ImGui::EndTabItem();
+				}
 				ImGui::EndTabBar();
 			}
 			ImGui::End();
@@ -349,6 +399,12 @@ namespace Cjing3D {
 			auto light = scene.mLights.GetComponent(currentEntity);
 			if (light != nullptr) {
 				ShowLightAttribute(light);
+			}
+
+			// sound
+			auto sound = scene.mSounds.GetComponent(currentEntity);
+			if (sound != nullptr) {
+				ShowSoundAttribute(sound);
 			}
 
 			ImGui::End();

@@ -43,6 +43,9 @@
     <ClCompile Include="editor\guiEditorTerrain.cpp">
       <Filter>editor</Filter>
     </ClCompile>
+    <ClCompile Include="editor\guiEditorSound.cpp">
+      <Filter>editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="game">
@@ -111,6 +114,9 @@
       <Filter>editor</Filter>
     </ClInclude>
     <ClInclude Include="editor\guiEditorTerrain.h">
+      <Filter>editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\guiEditorSound.h">
       <Filter>editor</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,5 +1,6 @@
 #include "guiEditorMaterial.h"
 #include "guiEditor.h"
+#include "guiEditorScene.h"
 #include "gui\guiEditor\guiEditorInclude.h"
 
 namespace Cjing3D {
@@ -27,6 +28,30 @@ namespace Cjing3D {
 				material->mBaseColor[3] = color[3];
 
 				material->SetIsDirty(true);
+			}
+
+			std::string baseColorMap = material->mBaseColorMapName;
+			ImGui::Text("BaseColorMap");
+			if (ImGui::Button(baseColorMap.c_str(), ImVec2(180, 0)))
+			{
+				auto filePath = GetFileNameFromOpenFile("Texture File\0*.dds;*.png\0");
+				material->LoadBaseColorMap(filePath);
+			}
+
+			std::string normalMap = material->mNormalMapName;
+			ImGui::Text("NormalMapName");
+			if (ImGui::Button(normalMap.c_str(), ImVec2(180, 0)))
+			{
+				auto filePath = GetFileNameFromOpenFile("Texture File\0*.dds;*.png\0");
+				material->LoadNormalMap(filePath);
+			}
+
+			std::string surfaceMapName = material->mSurfaceMapName;
+			ImGui::Text("SurfaceMapName");
+			if (ImGui::Button(surfaceMapName.c_str(), ImVec2(180, 0)))
+			{
+				auto filePath = GetFileNameFromOpenFile("Texture File\0*.dds;*.png\0");
+				material->LoadSurfaceMap(filePath);
 			}
 
 			bool castingShadow = material->IsCastingShadow();

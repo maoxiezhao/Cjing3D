@@ -3,6 +3,7 @@
 #include "helper\fileSystem.h"
 #include "system\sceneSystem.h"
 #include "resource\resourceManager.h"
+#include "platform\gameWindow.h"
 
 #include <thread>
 #include <Windows.h>
@@ -13,67 +14,75 @@ namespace Editor
 {
 	void LoadSceneFromOpenFile()
 	{
-		char szFile[260] = { '\0' };
+		GameWindow::LoadFileFromOpenWindow(
+			"Scene file(Model file)\0*.c3dscene;*.obj;*.gltf\0",
+			[](const std::string& filePath) {
 
-		OPENFILENAMEA ofn;
-		ZeroMemory(&ofn, sizeof(ofn));
-		ofn.lStructSize = sizeof(ofn);
-		ofn.hwndOwner = nullptr;
-		ofn.lpstrFile = szFile;
-		ofn.nMaxFile = sizeof(szFile);
-		ofn.lpstrFilter = "Scene file(Model file)\0*.c3dscene;*.obj;*.gltf\0";
-		ofn.nFilterIndex = 1;
-		ofn.lpstrFileTitle = nullptr;
-		ofn.nMaxFileTitle = 0;
-		ofn.lpstrInitialDir = nullptr;
+				std::string extension = FileData::GetExtensionFromFilePath(filePath);
+				if (extension == ".c3dscene") {
+					Scene::GetScene().LoadSceneFromArchive(filePath);
+				}
+				else if (extension == ".obj") {
+					ModelImporter::ImportModelObj(filePath);
+				}
+				else if (extension == ".gltf") {
+					ModelImporter::ImportModelGLTF(filePath);
+				}
+			});
 
-		// If you change folder in the dialog it will change the current folder for your process without OFN_NOCHANGEDIR;
-		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
-
-		auto a = FileData::IsFileExists("Textures/HeightMap.png");
-
-		if (GetOpenFileNameA(&ofn))
-		{
-			std::string filePath = ofn.lpstrFile;
-			std::string extension = FileData::GetExtensionFromFilePath(filePath);
-			if (extension == ".c3dscene") {
-				Scene::GetScene().LoadSceneFromArchive(filePath);
-			}
-			else if (extension == ".obj") {
-				ModelImporter::ImportModelObj(filePath);
-			}
-			else if (extension == ".gltf") {
-				ModelImporter::ImportModelGLTF(filePath);
-			}
-		}
 	}
 
 	void SaveSceneToOpenFile()
 	{
-		char szFile[260] = { '\0' };
+		GameWindow::SaveFileToOpenWindow(
+			"Scene file\0*.c3dscene\0",
+			[](const std::string& filePath) {
 
-		OPENFILENAMEA ofn;
-		ZeroMemory(&ofn, sizeof(ofn));
-		ofn.lStructSize = sizeof(ofn);
-		ofn.hwndOwner = nullptr;
-		ofn.lpstrFile = szFile;
-		ofn.nMaxFile = sizeof(szFile);
-		ofn.lpstrFilter = "Scene file\0*.c3dscene\0";
-		ofn.nFilterIndex = 1;
-		ofn.lpstrFileTitle = nullptr;
-		ofn.nMaxFileTitle = 0;
-		ofn.lpstrInitialDir = nullptr;
-		ofn.Flags = OFN_OVERWRITEPROMPT;
+				std::string path = filePath;
+				if (path.find(".c3dscene") == std::string::npos) {
+					path = path + ".c3dscene";
+				}
+				Scene::GetScene().SaveSceneToArchive(path);
+				GameWindow::ShowMessageBox("Scene saved successfully");
+			});
+	}
 
-		if (GetSaveFileNameA(&ofn))
-		{
-			std::string filePath = ofn.lpstrFile;
-			if (filePath.find(".c3dscene") == std::string::npos) {
-				filePath = filePath + ".c3dscene";
-			}
-			Scene::GetScene().SaveSceneToArchive(filePath);
-			MessageBoxW(NULL, TEXT("Scene saved successfully"), TEXT("Info"), MB_OK);
-		}
+	void LoadSkyFromOpenFile()
+	{
+		GameWindow::LoadFileFromOpenWindow(
+			"Cube map\0*.dds\0",
+			[](const std::string& filePath) {
+
+				std::string extension = FileData::GetExtensionFromFilePath(filePath);
+				if (extension == ".dds") {
+					ECS::Entity entity = INVALID_ENTITY;
+					Scene& scene = Scene::GetScene();
+					if (scene.mWeathers.Empty()) {
+						entity = scene.CreateWeather("DefaultWeather");
+					}
+					else {
+						entity = scene.mWeathers.GetEntityByIndex(0);
+					}
+
+					auto weather = scene.mWeathers.GetComponent(entity);
+					if (weather != nullptr)
+					{
+						weather->LoadSkyMap(filePath);
+					}
+				}
+			});
+	}
+
+	std::string GetFileNameFromOpenFile(const char* filter)
+	{
+		std::string ret;
+		GameWindow::LoadFileFromOpenWindow(
+			filter,
+			[&ret](const std::string& filePath) {
+				ret = filePath;
+			});
+
+		return ret;
 	}
 }
 }
