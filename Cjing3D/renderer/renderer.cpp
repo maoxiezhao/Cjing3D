@@ -901,6 +901,11 @@ XMMATRIX GetScreenProjection()
 	return XMMatrixOrthographicOffCenterLH(0, (F32)mScreenSize[0], (F32)mScreenSize[1], 0, -1, 1);
 }
 
+Ray GetMainCameraMouseRay(const U32x2& pos)
+{
+	return GetCamera().ScreenPointToRay(pos);
+}
+
 GraphicsDevice & GetDevice()
 {
 	return *mGraphicsDevice;

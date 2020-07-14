@@ -264,4 +264,57 @@ namespace Cjing3D {
 	{
 		return memcmp(&m1, &m2, sizeof(XMFLOAT4X4)) == 0;
 	}
+
+	// based on "Fast, Minimum Storage Ray-Triangle Intersection"
+	// https://www.cnblogs.com/graphics/archive/2010/08/09/1795348.html
+	inline bool TriangleRayInstersects(const XMVECTOR& origin, const XMVECTOR& dir, const XMVECTOR& p0, const XMVECTOR& p1, const XMVECTOR& p2, F32& dist, F32x2& bary)
+	{
+		XMVECTOR e1 = p1 - p0;
+		XMVECTOR e2 = p2 - p0;
+		XMVECTOR P = XMVector3Cross(dir, e2);
+		F32 det = XMVectorGetX(XMVector3Dot(e1, P));
+
+		XMVECTOR T;
+		if (det >= 1e-20f)
+		{
+			T = origin - p0;
+		}
+		else if (det <= -1e-20f)
+		{
+			T = p0 - origin;
+			det = -det;
+		}
+		else
+		{
+			dist = 0.0f;
+			return false;
+		}
+
+		F32 u = XMVectorGetX(XMVector3Dot(T, P));
+		if (u < 0.0f || u > det) 
+		{
+			dist = 0.0f;
+			return false;
+		}
+
+		XMVECTOR Q = XMVector3Cross(T, e1);
+		F32 v = XMVectorGetX(XMVector3Dot(dir, Q));
+		if (v < 0.0f || (v + u) > det)
+		{
+			dist = 0.0f;
+			return false;
+		}
+
+		F32 t = XMVectorGetX(XMVector3Dot(e2, Q));
+		F32 invDet = 1.0f / det;
+		t *= invDet;
+		u *= invDet;
+		v *= invDet;
+
+		dist = t;
+		bary[0] = u;
+		bary[1] = v;
+
+		return true;
+	}
 }

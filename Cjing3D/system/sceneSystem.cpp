@@ -1,5 +1,6 @@
 #include "sceneSystem.h"
 #include "resource\resourceManager.h"
+#include "helper\profiler.h"
 
 namespace Cjing3D
 {
@@ -381,6 +382,124 @@ namespace Cjing3D
 
 			mHierarchies.RemoveAndKeepSorted(entity);
 		}
+	}
+
+	Scene::PickResult Scene::MousePickObjects(const U32x2& mousePos)
+	{
+		return PickObjects(Renderer::GetMainCameraMouseRay(mousePos));
+	}
+
+	Scene::PickResult Scene::PickObjects(const Ray& ray)
+	{
+		auto& objects = mObjects.GetEntities();
+		return PickObjects(ray, objects);
+	}
+
+	Scene::PickResult Scene::PickObjects(const Ray& ray, const std::vector<ECS::Entity>& objects, bool triangleIntersect)
+	{
+		PickResult ret;
+		if (mObjects.Empty()) {
+			return ret;
+		}
+
+		PROFILER_BEGIN_CPU_BLOCK("CPU_RAY_PICKING");
+		for (const auto& entity : objects)
+		{
+			const AABBComponent* aabbComponent = mObjectAABBs.GetComponent(entity);
+			if (aabbComponent == nullptr) {
+				continue;
+			}
+
+			F32 currentT = 0.0f;
+			const AABB& aabb = aabbComponent->GetAABB();
+			if (!ray.Intersects(aabb, &currentT)) {
+				continue;
+			}
+
+			const ObjectComponent* object = mObjects.GetComponent(entity);
+			if (object == nullptr || object->mMeshID == INVALID_ENTITY) {
+				continue;
+			}
+
+			// extra conditions checking
+
+			XMVECTOR originV = XMLoadFloat3(&ray.mOrigin);
+			XMVECTOR dirV = XMLoadFloat3(&ray.mDirection);
+			if (!triangleIntersect)
+			{
+				// 如果不遍历mesh，则直接处理和AABB的相交点
+
+				XMVECTOR hitPos = originV + dirV * currentT;
+				F32 distance = XMDistance(originV, hitPos);
+				if (distance < ret.distance)
+				{
+					ret.entity = entity;
+					ret.distance = distance;
+					ret.entity = entity;
+					ret.position = XMStore<F32x3>(hitPos);
+				}
+
+				continue;
+			}
+
+			MeshComponent* mesh = mMeshes.GetComponent(object->mMeshID);
+			if (mesh == nullptr) {
+				continue;
+			}
+
+			// 对模型进行mesh逐三角形射线检测，将射线转换到模型空间
+			// 依次遍历所有三角形，判断是否和三角形相交
+			XMMATRIX objMat = XMMatrixIdentity();
+			TransformComponent* transform = mTransforms.GetComponent(entity);
+			if (transform != nullptr) {
+				objMat = XMLoadFloat4x4(&transform->GetWorldTransform());
+			}
+
+			XMMATRIX objInvMat = XMMatrixInverse(nullptr, objMat);
+			const XMVECTOR rayOriginLocal = XMVector3Transform(originV, objInvMat);
+			const XMVECTOR rayDirLocal = XMVector3Normalize(XMVector3TransformNormal(dirV, objInvMat));
+
+			for (const auto& subset : mesh->mSubsets)
+			{
+				for (size_t i = 0; i < subset.mIndexCount; i+=3)
+				{
+					const U32 offset = subset.mIndexOffset;
+					const U32 i0 = mesh->mIndices[offset + i + 0];
+					const U32 i1 = mesh->mIndices[offset + i + 1];
+					const U32 i2 = mesh->mIndices[offset + i + 2];
+				
+					// 这里需要考虑Skinning，目前暂时不不支持
+					XMVECTOR p0 = XMLoad(mesh->mVertexPositions[i0]);
+					XMVECTOR p1 = XMLoad(mesh->mVertexPositions[i1]);
+					XMVECTOR p2 = XMLoad(mesh->mVertexPositions[i2]);
+				
+					F32 distance = FLT_MAX;
+					F32x2 bary = F32x2(0.0f, 0.0f);
+					if (TriangleRayInstersects(rayOriginLocal, rayDirLocal, p0, p1, p2, distance, bary))
+					{
+						// transform hitpos to world space
+						XMVECTOR hitPos = XMVector3Transform(rayOriginLocal + rayDirLocal * distance, objMat);
+						distance = XMDistance(rayOriginLocal, hitPos);
+						
+						if (distance < ret.distance)
+						{
+							ret.distance = distance;
+							ret.entity = entity;
+							ret.position = XMStore<F32x3>(hitPos);
+							ret.bary = bary;
+						}
+					}
+				}
+			}
+		}
+		PROFILER_END_BLOCK();
+
+		return ret;
+	}
+
+	Scene::PickResult Scene::PickObjectsByBullet(const Ray& ray)
+	{
+		return PickResult();
 	}
 
 	ComponentManagerTypesConst Scene::GetAllComponentManagers()const

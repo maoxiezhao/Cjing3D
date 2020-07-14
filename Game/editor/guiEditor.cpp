@@ -16,9 +16,11 @@
 namespace Cjing3D {
 namespace Editor {
 
+	bool bShowAboutWindow = false;
+	bool bShowMousePicking = false;
+
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
-	bool bShowAboutWindow = false;
 	void ShowAboutWindow(F32 deltaTime)
 	{
 		if (bShowAboutWindow == false) return;
@@ -53,6 +55,7 @@ namespace Editor {
 				if (ImGui::MenuItem("Animations")) { ShowAnimationWindow(); }
 				if (ImGui::MenuItem("GUI")) {  ShowGUIWindow(); }
 				if (ImGui::MenuItem("Render")) { ShowRenderWindow(); }
+				if (ImGui::MenuItem("Picking")) { bShowMousePicking = true; }
 				ImGui::EndMenu();
 			}
 			if (ImGui::BeginMenu("Component"))
@@ -76,6 +79,28 @@ namespace Editor {
 		}
 	}
 
+	Scene::PickResult mousePickingRet;
+	void UpateMousePicking(F32 deltaTime)
+	{
+		if (!bShowMousePicking) return;
+
+		if (ImGui::IsMouseDown(0))
+		{
+			ImGuiIO& io = ImGui::GetIO();
+			Ray pickRay = Renderer::GetMainCameraMouseRay({ (U32)io.MousePos.x, (U32)io.MousePos.y });
+
+			Scene& scene = Scene::GetScene();
+			mousePickingRet = scene.PickObjects(pickRay);
+
+		}
+
+		ImGui::SetNextWindowPos(ImVec2(510, 50), ImGuiCond_Once);
+		ImGui::SetNextWindowSize(ImVec2(100, 50), ImGuiCond_Once);
+		ImGui::Begin("MousePicking", &bShowMousePicking);
+		ImGui::Text("Current Picking:%d", (U32)mousePickingRet.entity);
+		ImGui::End();
+	}
+
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
 	void InitializeEditor(IMGUIStage& imguiStage)
@@ -84,7 +109,8 @@ namespace Editor {
 
 		imguiStage.RegisterCustomWindow(ShowMainMenuBar);
 		imguiStage.RegisterCustomWindow(ShowAboutWindow);
-
+		imguiStage.RegisterCustomWindow(UpateMousePicking);
+		
 		InitializeEditorHierarchy(imguiStage);
 		InitializeEditorProfiler(imguiStage);
 		InitializeEditorLight(imguiStage);

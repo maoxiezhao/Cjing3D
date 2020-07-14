@@ -7,6 +7,7 @@ namespace Cjing3D
 {
 	class Archive;
 	class AABB;
+	class Ray;
 
 	class Sphere final
 	{
@@ -19,6 +20,7 @@ namespace Cjing3D
 
 		bool Intersects(const AABB& other)const;
 		bool Intersects(const Sphere& other)const;
+		bool Intersects(const Ray& other)const;
 	};
 
 	// Öá¶Ô³Æ°üÎ§ºÐ
@@ -102,7 +104,10 @@ namespace Cjing3D
 		AABB GetByTransforming(const XMFLOAT4X4& mat)const;
 		XMMATRIX GetBoxMatrix()const;
 		void CopyFromOther(const AABB& aabb);
+
 		bool Intersects(const AABB& other)const;
+		bool Intersects(const Ray& other, F32* t = nullptr)const;
+		bool Intersects(const F32x3& pos)const;
 
 		inline XMVECTOR corner(int index) const
 		{
@@ -173,4 +178,29 @@ namespace Cjing3D
 		frustum.Transform(frustum, transform);
 		XMStoreFloat4(&frustum.Orientation, XMQuaternionNormalize(XMLoadFloat4(&frustum.Orientation)));
 	}
+
+	class Ray
+	{
+	public:
+		XMFLOAT3 mOrigin = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		XMFLOAT3 mDirection = XMFLOAT3(0.0f, 0.0f, 1.0f);
+		XMFLOAT3 mInvDirection = XMFLOAT3(0.0f, 0.0f, 1.0f);
+
+		Ray() = default;
+		Ray(const XMFLOAT3& origin, const XMFLOAT3& direction) :
+			mOrigin(origin), 
+			mDirection(direction) 
+		{
+			XMStoreFloat3(&mInvDirection, XMVectorReplicate(1.0f) / XMLoadFloat3(&mDirection));
+		}
+		Ray(const XMVECTOR& origin, const XMVECTOR& direction) 
+		{
+			XMStoreFloat3(&mOrigin, origin);
+			XMStoreFloat3(&mDirection, direction);
+			XMStoreFloat3(&mInvDirection, XMVectorReplicate(1.0f) / XMLoadFloat3(&mDirection));
+		}
+
+		bool Intersects(const Sphere& sphere)const;
+		bool Intersects(const AABB& aabb, F32* t = nullptr)const;
+	};
 }

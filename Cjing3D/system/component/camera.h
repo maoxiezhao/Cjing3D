@@ -39,6 +39,8 @@ namespace Cjing3D {
 		F32x3 GetCameraUP()const { return mUp; }
 		F32x3 GetCameraFront()const { return mAt; }
 
+		Ray ScreenPointToRay(const U32x2& screenPos)const;
+
 		void SetupPerspective(F32 width, F32 height, F32 nearPlane, F32 farPlane, F32 fov = XM_PI/3.0f);
 		void SetCameraStatus(F32x3 eye, F32x3 at, F32x3 up = { 0.0f, 1.0f, 0.0f });
 		void SetDirty(bool isDirty) { mIsDirty = isDirty; }

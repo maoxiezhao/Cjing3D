@@ -1,4 +1,5 @@
 #include "camera.h"
+#include "renderer\renderer.h"
 
 namespace Cjing3D
 {
@@ -75,6 +76,21 @@ namespace Cjing3D
 		mUp = XMStore<F32x3>(up);
 
 		mIsDirty = true;
+	}
+
+	Ray CameraComponent::ScreenPointToRay(const U32x2& screenPos) const
+	{
+		U32x2 screenSize = Renderer::GetScreenSize();
+		XMMATRIX V = GetViewMatrix();
+		XMMATRIX P = GetProjectionMatrix();
+		XMMATRIX W = XMMatrixIdentity();
+
+		XMVECTOR posV = XMVectorSet((F32)screenPos[0], (F32)screenPos[1], 1.0, 1.0f);
+		XMVECTOR lineStart = XMVector3Unproject(posV, 0.0f, 0.0f, (F32)screenSize[0], (F32)screenSize[1], 0.0f, 1.0f, P, V, W);
+		posV = XMVectorSetZ(posV, 0.0f);
+		XMVECTOR lineEnd = XMVector3Unproject(posV, 0.0f, 0.0f, (F32)screenSize[0], (F32)screenSize[1], 0.0f, 1.0f, P, V, W);
+
+		return Ray(lineStart, XMVector3Normalize(lineEnd - lineStart));
 	}
 
 	void CameraComponent::SetupPerspective(F32 width, F32 height, F32 nearPlane, F32 farPlane, F32 fov)

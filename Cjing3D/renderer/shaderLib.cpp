@@ -33,6 +33,7 @@ void ShaderLib::Uninitialize()
 
 void ShaderLib::LoadVertexShaders()
 {
+	Logger::Info("LoadVertexShaders");
 	auto& resourceManager = GlobalGetSubSystem<ResourceManager>();
 	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_Shader);
 	{
@@ -128,6 +129,7 @@ void ShaderLib::LoadVertexShaders()
 
 void ShaderLib::LoadPixelShaders()
 {
+	Logger::Info("LoadPixelShaders");
 	auto& resourceManager = GlobalGetSubSystem<ResourceManager>();
 	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_Shader);
 	{
@@ -149,6 +151,7 @@ void ShaderLib::LoadPixelShaders()
 
 void ShaderLib::LoadComputeShaders()
 {
+	Logger::Info("LoadComputeShaders");
 	auto& resourceManager = GlobalGetSubSystem<ResourceManager>();
 	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_Shader);
 	{
@@ -202,7 +205,6 @@ InputLayoutPtr ShaderLib::LoadInputLayout(ShaderPtr Shader, VertexLayoutDesc* de
 
 ShaderPtr ShaderLib::LoadShader(SHADERSTAGES stages, const std::string& path)
 {
-	Logger::Info("Load shader:" + path);
 	// 目前所有shader都只是缓存了一份，但并未做索引，
 	std::shared_ptr<Shader> shaderPtr = nullptr;
 	if (!FileData::IsFileExists(path))
@@ -237,7 +239,6 @@ ShaderPtr ShaderLib::LoadShader(SHADERSTAGES stages, const void*data, size_t len
 
 VertexShaderInfo ShaderLib::LoadVertexShaderInfo(const std::string& path, VertexLayoutDesc* desc, U32 numElements)
 {
-	Logger::Info("Load shader:" + path);
 	VertexShaderInfo vertexShaderInfo = {};
 	if (!FileData::IsFileExists(path))
 	{

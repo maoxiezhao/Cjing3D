@@ -48,9 +48,15 @@ namespace Cjing3D {
 
 		struct PickResult
 		{
-
+			ECS::Entity entity = INVALID_ENTITY;
+			F32 distance = FLT_MAX;
+			F32x3 position = F32x3(0.0f, 0.0f, 0.0f);
+			F32x2 bary = F32x2(0.0f, 0.0f);
 		};
-		//PickResult MousePick();
+		PickResult MousePickObjects(const U32x2& mousePos);
+		PickResult PickObjects(const Ray& ray);
+		PickResult PickObjects(const Ray& ray, const std::vector<ECS::Entity>& objects, bool triangleIntersect = true);
+		PickResult PickObjectsByBullet(const Ray& ray);
 
 		template<typename ComponentT>
 		ComponentT* GetComponent(ECS::Entity entity)

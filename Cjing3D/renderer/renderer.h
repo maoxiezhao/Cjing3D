@@ -60,6 +60,7 @@ namespace Renderer
 	void SetScreenSize(U32 width, U32 height);
 	U32x2 GetScreenSize();
 	XMMATRIX GetScreenProjection();
+	Ray GetMainCameraMouseRay(const U32x2& pos);
 
 	// Render Method
 	void RenderShadowmaps(CameraComponent& camera);
