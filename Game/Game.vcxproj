@@ -134,6 +134,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="editor\gameEditor.cpp" />
     <ClCompile Include="editor\guiEditor.cpp" />
     <ClCompile Include="editor\guiEditorAnimation.cpp" />
     <ClCompile Include="editor\guiEditorGUI.cpp" />
@@ -146,7 +147,7 @@
     <ClCompile Include="editor\guiEditorScene.cpp" />
     <ClCompile Include="editor\guiEditorSound.cpp" />
     <ClCompile Include="editor\guiEditorTerrain.cpp" />
-    <ClCompile Include="game\gameEditor.cpp" />
+    <ClCompile Include="game\game.cpp" />
     <ClCompile Include="main\main.cpp" />
     <ClCompile Include="test\guiTest.cpp" />
   </ItemGroup>
@@ -160,6 +161,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="definitions\definitions.h" />
+    <ClInclude Include="editor\gameEditor.h" />
     <ClInclude Include="editor\guiEditor.h" />
     <ClInclude Include="editor\guiEditorAnimation.h" />
     <ClInclude Include="editor\guiEditorGUI.h" />
@@ -173,7 +175,7 @@
     <ClInclude Include="editor\guiEditorScene.h" />
     <ClInclude Include="editor\guiEditorSound.h" />
     <ClInclude Include="editor\guiEditorTerrain.h" />
-    <ClInclude Include="game\gameEditor.h" />
+    <ClInclude Include="game\game.h" />
     <ClInclude Include="test\guiTest.h" />
   </ItemGroup>
   <ItemGroup>

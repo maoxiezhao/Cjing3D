@@ -16,9 +16,6 @@
     <ClCompile Include="editor\guiEditorScene.cpp">
       <Filter>editor</Filter>
     </ClCompile>
-    <ClCompile Include="game\gameEditor.cpp">
-      <Filter>game</Filter>
-    </ClCompile>
     <ClCompile Include="editor\guiEditorGUI.cpp">
       <Filter>editor</Filter>
     </ClCompile>
@@ -46,6 +43,12 @@
     <ClCompile Include="editor\guiEditorSound.cpp">
       <Filter>editor</Filter>
     </ClCompile>
+    <ClCompile Include="editor\gameEditor.cpp">
+      <Filter>editor</Filter>
+    </ClCompile>
+    <ClCompile Include="game\game.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="game">
@@ -69,6 +72,9 @@
     <Filter Include="test">
       <UniqueIdentifier>{935d5c86-d440-4c29-b608-a4e337f4539b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="game\lua">
+      <UniqueIdentifier>{95113948-085c-49a4-b06b-293d5e139d51}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="editor\guiEditorLight.h">
@@ -85,9 +91,6 @@
     </ClInclude>
     <ClInclude Include="editor\guiEditorScene.h">
       <Filter>editor</Filter>
-    </ClInclude>
-    <ClInclude Include="game\gameEditor.h">
-      <Filter>game</Filter>
     </ClInclude>
     <ClInclude Include="editor\guiEditorGUI.h">
       <Filter>editor</Filter>
@@ -118,6 +121,12 @@
     </ClInclude>
     <ClInclude Include="editor\guiEditorSound.h">
       <Filter>editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\gameEditor.h">
+      <Filter>editor</Filter>
+    </ClInclude>
+    <ClInclude Include="game\game.h">
+      <Filter>game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

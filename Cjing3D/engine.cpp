@@ -65,7 +65,7 @@ void Engine::Initialize()
 	mSystemContext->SetEngine(this);
 
 	// initialize file data
-	std::string dataPath = ".\\..\\Assets";
+	std::string dataPath = ".\\..\\GameAssets";
 	if (!FileData::OpenData("", dataPath))
 		Debug::Die("No data file was found int the direcion:" + dataPath);
 	

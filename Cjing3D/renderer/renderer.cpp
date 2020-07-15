@@ -316,9 +316,6 @@ namespace {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 // Tiled light culling
-const StringID frustumBufferName("TiledFrustumBuffer");
-const StringID tiledLightBufferName("TiledLightBuffer");
-
 U32 lastScreenWidth = 0;
 U32 lastScreenHeight = 0;
 XMMATRIX lastCameraViewMatrix;
@@ -376,7 +373,7 @@ void TiledLightCulling(Texture2D& depthBuffer)
 	}
 
 	U32x2 cullingTiledCount = GetCullingTiledCount();
-	GPUBuffer& frustumBuffer = mRenderPreset->GetOrCreateCustomBuffer(frustumBufferName);
+	GPUBuffer& frustumBuffer = mRenderPreset->GetOrCreateCustomBuffer(("TiledFrustumBuffer"));
 	if (isScreenSizeChanged || !frustumBuffer.IsValid())
 	{
 		GPUBufferDesc desc = {};
@@ -393,7 +390,7 @@ void TiledLightCulling(Texture2D& depthBuffer)
 	}
 
 	// 2. 如果分辨率发生改变，意味着tileCount发生改变，需要重新构建每个tile的light列表
-	GPUBuffer& tiledLightBuffer = mRenderPreset->GetOrCreateCustomBuffer(tiledLightBufferName);
+	GPUBuffer& tiledLightBuffer = mRenderPreset->GetOrCreateCustomBuffer("TiledLightBuffer");
 	if (isScreenSizeChanged || !tiledLightBuffer.IsValid())
 	{
 		GPUBufferDesc desc = {};
@@ -1029,7 +1026,7 @@ void RenderSceneOpaque(CameraComponent& camera, RenderPassType renderPassType)
 
 	if (renderPassType == RenderPassType_TiledForward) 
 	{
-		GPUBuffer& tiledLightBuffer = mRenderPreset->GetOrCreateCustomBuffer(tiledLightBufferName);
+		GPUBuffer& tiledLightBuffer = mRenderPreset->GetOrCreateCustomBuffer("TiledLightBuffer");
 		if (tiledLightBuffer.IsValid()) {
 			mGraphicsDevice->BindGPUResource(SHADERSTAGES_PS, tiledLightBuffer, SBSLOT_TILED_LIGHTS);
 		}
