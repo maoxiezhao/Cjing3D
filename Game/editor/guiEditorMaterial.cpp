@@ -35,7 +35,9 @@ namespace Cjing3D {
 			if (ImGui::Button(baseColorMap.c_str(), ImVec2(180, 0)))
 			{
 				auto filePath = GetFileNameFromOpenFile("Texture File\0*.dds;*.png\0");
-				material->LoadBaseColorMap(filePath);
+				if (!filePath.empty()) {
+					material->LoadBaseColorMap(filePath);
+				}
 			}
 
 			std::string normalMap = material->mNormalMapName;
@@ -43,7 +45,9 @@ namespace Cjing3D {
 			if (ImGui::Button(normalMap.c_str(), ImVec2(180, 0)))
 			{
 				auto filePath = GetFileNameFromOpenFile("Texture File\0*.dds;*.png\0");
-				material->LoadNormalMap(filePath);
+				if (!filePath.empty()) {
+					material->LoadNormalMap(filePath);
+				}
 			}
 
 			std::string surfaceMapName = material->mSurfaceMapName;
@@ -51,7 +55,9 @@ namespace Cjing3D {
 			if (ImGui::Button(surfaceMapName.c_str(), ImVec2(180, 0)))
 			{
 				auto filePath = GetFileNameFromOpenFile("Texture File\0*.dds;*.png\0");
-				material->LoadSurfaceMap(filePath);
+				if (!filePath.empty()) {
+					material->LoadSurfaceMap(filePath);
+				}
 			}
 
 			bool castingShadow = material->IsCastingShadow();

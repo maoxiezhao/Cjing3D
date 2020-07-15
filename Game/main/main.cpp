@@ -1,6 +1,7 @@
 #include "engine.h"
 #include "platform\win32\gameWindowWin32.h"
-#include "game\gameEditor.h"
+#include "editor\gameEditor.h"
+#include "game\game.h"
 
 #include <functional>
 
@@ -22,7 +23,7 @@ int WINAPI WinMain(
 		false);
 	mainWindow->Show();
 
-	mainEngine = std::make_unique<Engine>(new GameEditor());
+	mainEngine = std::make_unique<Engine>(new CjingGame::MainGame());
 	mainEngine->SetHandles(mainWindow->GetHwnd(), mainWindow->GetInstance());
 	mainEngine->SetWindow(mainWindow.get());
 	mainEngine->Initialize();
