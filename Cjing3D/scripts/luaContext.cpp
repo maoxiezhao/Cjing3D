@@ -13,6 +13,7 @@ ENUM_TRAITS_REGISTER_ENUM_BEGIN(SystemFunctionIndex)
 ENUM_TRAITS_REGISTER_ENUM_DEFINE(CLIENT_LUA_MAIN_INITIALIZE)
 ENUM_TRAITS_REGISTER_ENUM_DEFINE(CLIENT_LUA_MAIN_START)
 ENUM_TRAITS_REGISTER_ENUM_DEFINE(CLIENT_LUA_MAIN_UPDATE)
+ENUM_TRAITS_REGISTER_ENUM_DEFINE(CLIENT_LUA_MAIN_FIXED_UPDATE)
 ENUM_TRAITS_REGISTER_ENUM_DEFINE(CLIENT_LUA_MAIN_STOP)
 ENUM_TRAITS_REGISTER_ENUM_END(SystemFunctionIndex)
 
@@ -103,6 +104,9 @@ void LuaContext::Uninitialize()
 
 void LuaContext::FixedUpdate()
 {
+	PROFILER_BEGIN_CPU_BLOCK("LuaFixedUpdate");
+	OnMainFixedUpdate();
+	PROFILER_END_BLOCK();
 }
 
 bool LuaContext::DoLuaString(lua_State * l, const std::string & luaString, int arguments, int results)
@@ -176,6 +180,11 @@ void LuaContext::OnMainStart()
 void LuaContext::OnMainUpdate()
 {
 	DoLuaSystemFunctionWithIndex(CLIENT_LUA_MAIN_UPDATE);
+}
+
+void LuaContext::OnMainFixedUpdate()
+{
+	DoLuaSystemFunctionWithIndex(CLIENT_LUA_MAIN_FIXED_UPDATE);
 }
 
 void LuaContext::OnMainUninitialize()

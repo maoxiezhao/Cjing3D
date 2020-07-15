@@ -16,6 +16,7 @@ enum SystemFunctionIndex {
 	CLIENT_LUA_MAIN_INITIALIZE = 1,
 	CLIENT_LUA_MAIN_START,
 	CLIENT_LUA_MAIN_UPDATE,
+	CLIENT_LUA_MAIN_FIXED_UPDATE,
 	CLIENT_LUA_MAIN_STOP,
 };
 
@@ -45,6 +46,7 @@ public:
 	void OnMainInitialize();
 	void OnMainStart();
 	void OnMainUpdate();
+	void OnMainFixedUpdate();
 	void OnMainUninitialize();
 
 	// system lua ref
