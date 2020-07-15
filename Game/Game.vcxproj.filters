@@ -128,9 +128,6 @@
     <ClInclude Include="game\game.h">
       <Filter>game</Filter>
     </ClInclude>
-    <ClInclude Include="game\gameGlobal.h">
-      <Filter>game</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Assets\Scripts\main.lua">

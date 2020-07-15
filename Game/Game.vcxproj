@@ -176,7 +176,6 @@
     <ClInclude Include="editor\guiEditorSound.h" />
     <ClInclude Include="editor\guiEditorTerrain.h" />
     <ClInclude Include="game\game.h" />
-    <ClInclude Include="game\gameGlobal.h" />
     <ClInclude Include="test\guiTest.h" />
   </ItemGroup>
   <ItemGroup>
