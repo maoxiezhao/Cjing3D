@@ -92,6 +92,7 @@ namespace Cjing3D {
 		F32 mTimeStart = 0;
 		F32 mTimeEnd = 0;
 		F32 mCurrentTimer = 0;
+		F32 mSpeed = 1.0f;
 
 		enum Flag
 		{

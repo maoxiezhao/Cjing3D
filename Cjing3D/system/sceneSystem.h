@@ -94,6 +94,7 @@ namespace Cjing3D {
 
 		U32 GetEntityCount()const;
 
+		ECS::Entity LoadModel(const std::string& path);
 		ECS::Entity LoadSceneFromArchive(const std::string& path);
 		void SaveSceneToArchive(const std::string& path);
 

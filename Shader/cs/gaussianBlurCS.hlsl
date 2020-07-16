@@ -7,9 +7,24 @@
 TYPE_TEXTURE2D(texture_input, BLUR_FORMAT, TEXTURE_SLOT_UNIQUE_0);
 RWTEXTURE2D(texture_output, BLUR_FORMAT, 0);
 
+
+#define BLUR_WIDE
+
+#ifdef BLUR_WIDE
+static const uint gaussKernel = 33;
+static const float gaussianWeights[gaussKernel] = { 
+    0.004013,0.005554,0.007527,0.00999,0.012984,0.016524,0.020594,0.025133,0.030036,0.035151,0.040283,
+	0.045207,0.049681,0.053463,0.056341,0.058141,0.058754,0.058141,0.056341,0.053463,0.049681,0.045207,
+	0.040283,0.035151,0.030036,0.025133,0.020594,0.016524,0.012984,0.00999,0.007527,0.005554,0.004013
+};
+static const int gaussianOffsets[gaussKernel] = { 
+    -16,-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,
+};
+#else
 static const uint gaussKernel = 9;
-static const float gaussianWeights[gaussKernel] = { 0.004112, 0.026563, 0.100519, 0.223215, 0.29118, 0.223215, 0.100519, 0.026563, 0.004112};
+static const float gaussianWeights[gaussKernel] = { 0.004112, 0.026563, 0.100519, 0.223215, 0.29118, 0.223215, 0.100519, 0.026563, 0.004112 };
 static const int gaussianOffsets[gaussKernel] = { -4, -3, -2, -1, 0, 1, 2, 3, 4 };
+#endif
 
 static const uint BorderSize = gaussKernel / 2;
 static const uint TileSize = BorderSize * 2 + SHADER_GAUSSIAN_BLUR_BLOCKSIZE;

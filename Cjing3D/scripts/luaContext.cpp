@@ -67,6 +67,7 @@ void LuaContext::InitializeEnum(lua_State * l)
 	systemEnumBinder.AddEnum(EnumToString(CLIENT_LUA_MAIN_INITIALIZE), CLIENT_LUA_MAIN_INITIALIZE);
 	systemEnumBinder.AddEnum(EnumToString(CLIENT_LUA_MAIN_START), CLIENT_LUA_MAIN_START);
 	systemEnumBinder.AddEnum(EnumToString(CLIENT_LUA_MAIN_UPDATE), CLIENT_LUA_MAIN_UPDATE);
+	systemEnumBinder.AddEnum(EnumToString(CLIENT_LUA_MAIN_FIXED_UPDATE), CLIENT_LUA_MAIN_FIXED_UPDATE);
 	systemEnumBinder.AddEnum(EnumToString(CLIENT_LUA_MAIN_STOP), CLIENT_LUA_MAIN_STOP);
 
 	// bind input enum

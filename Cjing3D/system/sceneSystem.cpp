@@ -402,6 +402,9 @@ namespace Cjing3D
 			return ret;
 		}
 
+		XMVECTOR originV = XMLoadFloat3(&ray.mOrigin);
+		XMVECTOR dirV = XMLoadFloat3(&ray.mDirection);
+
 		PROFILER_BEGIN_CPU_BLOCK("CPU_RAY_PICKING");
 		for (const auto& entity : objects)
 		{
@@ -423,8 +426,6 @@ namespace Cjing3D
 
 			// extra conditions checking
 
-			XMVECTOR originV = XMLoadFloat3(&ray.mOrigin);
-			XMVECTOR dirV = XMLoadFloat3(&ray.mDirection);
 			if (!triangleIntersect)
 			{
 				// 如果不遍历mesh，则直接处理和AABB的相交点
@@ -479,7 +480,7 @@ namespace Cjing3D
 					{
 						// transform hitpos to world space
 						XMVECTOR hitPos = XMVector3Transform(rayOriginLocal + rayDirLocal * distance, objMat);
-						distance = XMDistance(rayOriginLocal, hitPos);
+						distance = XMDistance(hitPos, originV);
 						
 						if (distance < ret.distance)
 						{
@@ -556,6 +557,20 @@ namespace Cjing3D
 		);
 
 		return entityCount;
+	}
+
+	ECS::Entity Scene::LoadModel(const std::string& path)
+	{
+		std::string extension = FileData::GetExtensionFromFilePath(path);
+		if (extension == ".c3dscene") {
+			return Scene::GetScene().LoadSceneFromArchive(path);
+		}
+		else if (extension == ".obj") {
+			return ModelImporter::ImportModelObj(path);
+		}
+		else if (extension == ".gltf") {
+			return ModelImporter::ImportModelGLTF(path);
+		}
 	}
 
 	ECS::Entity Scene::LoadSceneFromArchive(const std::string& path)

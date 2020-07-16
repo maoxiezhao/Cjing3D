@@ -64,7 +64,7 @@ namespace {
 	std::vector<F32> currentCascadeSplits = {
 		0.0f,
 		0.01f,
-		0.1f,
+		0.05f,
 		1.0f
 	};
 
@@ -219,6 +219,8 @@ namespace {
 
 	void CreateCascadeShadowCameras(LightComponent& light, CameraComponent& camera, U32 cascadeCount, std::vector<LightShadowCamera>& csfs)
 	{
+		csfs.clear();
+
 		if (currentCascadeSplits.size() != (size_t)(cascadeCount) + 1) {
 			CalculateCascadeSplits(camera, cascadeCount, currentCascadeSplits);
 		}
@@ -244,14 +246,13 @@ namespace {
 		// create light camera view matrix
 		// directional light default dir is (0, -1, 0)
 		const XMMATRIX rotation = XMMatrixRotationQuaternion(XMLoad(light.mRotation));
-		XMVECTOR up = XMVector3TransformNormal(XMVectorSet(0, 0,  1, 0), rotation);
-		XMVECTOR to = XMVector3TransformNormal(XMVectorSet(0, -1, 0, 0), rotation);
-		XMMATRIX lightView = XMMatrixLookToLH(XMVectorZero(), to, up);
-		XMMATRIX invLightView = XMMatrixInverse(nullptr, lightView);
+		const XMVECTOR up = XMVector3TransformNormal(XMVectorSet(0, 0,  1, 0), rotation);
+		const XMVECTOR to = XMVector3TransformNormal(XMVectorSet(0, -1, 0, 0), rotation);
+		const XMMATRIX lightView = XMMatrixLookToLH(XMVectorZero(), to, up);
 
 		// 对每个层级创建对应的阴影相机
 		// 将所有子视锥体转换到光照相机空间后，创建boundingBox和view projection
-		for (U32 cascade = 0; cascade < cascadeCount; cascade++)
+		for (int cascade = 0; cascade < cascadeCount; cascade++)
 		{
 			const F32 split_near = currentCascadeSplits[cascade];
 			const F32 split_far  = currentCascadeSplits[cascade + 1];
@@ -290,13 +291,13 @@ namespace {
 			const XMVECTOR texelSize = XMVectorSubtract(vMax, vMin) / (F32)shadowRes2DResolution;
 			vMin = XMVectorFloor(vMin / texelSize) * texelSize;
 			vMax = XMVectorFloor(vMax / texelSize) * texelSize;
-			XMVECTOR vCenter = XMVectorAdd(vMax, vMax) * 0.5f;
+			center = (vMin + vMax) * 0.5f;
 			
 			// 子视锥体本身包围盒在z轴方向过小，拉伸包围盒以包含更多的物体（例如视锥体之外的物体，但在光源方向中也可能产生阴影）
 			XMFLOAT3 _min, _max, _center;
 			XMStoreFloat3(&_min, vMin);
 			XMStoreFloat3(&_max, vMax);
-			XMStoreFloat3(&_center, vCenter);
+			XMStoreFloat3(&_center, center);
 
 			float ext = std::max(abs(_center.z - _min.z), farPlane * 0.5f);
 			_min.z = _center.z - ext;
@@ -502,7 +503,7 @@ void Initialize(RenderingDeviceType deviceType, HWND window)
 	mScreenSize = mGraphicsDevice->GetScreenSize();
 
 	// initialize camera
-	GetCamera().SetupPerspective((F32)mScreenSize[0], (F32)mScreenSize[1], 0.1f, 1000.0f);
+	GetCamera().SetupPerspective((F32)mScreenSize[0], (F32)mScreenSize[1], 0.1f, 800.0f);
 	GetCamera().SetCameraStatus(
 		{ 0.0f, 0.0f, -50.0f },
 		{ 0.0f, 0.0f,   1.0f },
@@ -1277,6 +1278,14 @@ void RenderSSAO(Texture2D& depthBuffer, Texture2D& linearDepthBuffer, Texture2D&
 	PROFILER_END_CPU_GPU_BLOCK();
 }
 
+void RenderDebugScene(CameraComponent& camera)
+{
+	mGraphicsDevice->BeginEvent("RenderDebugScene");
+
+
+	mGraphicsDevice->EndEvent();
+}
+
 void GaussianBlur(Texture2D& input, Texture2D& temp, Texture2D& output)
 {
 	auto& desc = input.GetDesc();
@@ -2006,13 +2015,6 @@ void RenderDirLightShadowmap(LightComponent& light, CameraComponent& camera)
 	GraphicsDevice& device = GetDevice();
 	GPUBuffer& cameraBuffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_Camera);
 
-	ViewPort vp;
-	vp.mWidth = (F32)shadowRes2DResolution;
-	vp.mHeight = (F32)shadowRes2DResolution;
-	vp.mMinDepth = 0.0f;
-	vp.mMaxDepth = 1.0f;
-	device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
-
 	// 2.根据级联视锥体创建的包围盒，获取每个级联对应的物体
 	for (U32 cascadeLevel = 0; cascadeLevel < shadowCascadeCount; cascadeLevel++)
 	{
@@ -2027,7 +2029,8 @@ void RenderDirLightShadowmap(LightComponent& light, CameraComponent& camera)
 				auto object = mainScene.mObjects[index];
 				if (object == nullptr || 
 					object->IsRenderable() == false ||
-					object->IsCastShadow() == false) 
+					object->IsCastShadow() == false ||
+					object->mShadowCascadeMask > cascadeLevel ) 
 				{
 					continue;
 				}
@@ -2047,6 +2050,13 @@ void RenderDirLightShadowmap(LightComponent& light, CameraComponent& camera)
 			CameraCB cb;
 			DirectX::XMStoreFloat4x4(&cb.gCameraVP, cam.GetViewProjectionMatrix());
 			device.UpdateBuffer(cameraBuffer, &cb, sizeof(CameraCB));
+
+			ViewPort vp = {};
+			vp.mWidth = (F32)shadowRes2DResolution;
+			vp.mHeight = (F32)shadowRes2DResolution;
+			vp.mMinDepth = 0.0f;
+			vp.mMaxDepth = 1.0f;
+			device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
 
 			device.BeginRenderBehavior(shadowRenderBehaviors[resourceIndex]);
 			ProcessRenderQueue(renderQueue, RenderPassType_Shadow, RenderableType_Opaque);

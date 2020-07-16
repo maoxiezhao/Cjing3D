@@ -91,7 +91,7 @@ namespace Editor {
 
 			Scene& scene = Scene::GetScene();
 			mousePickingRet = scene.PickObjects(pickRay);
-
+			
 		}
 
 		ImGui::SetNextWindowPos(ImVec2(510, 50), ImGuiCond_Once);

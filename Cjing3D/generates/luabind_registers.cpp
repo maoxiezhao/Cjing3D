@@ -1,9 +1,9 @@
-#include "gui\guiStage.h"
-#include "gui\guiWidgets\widgets.h"
+#include "gui/guiStage.h"
 #include "helper/stringID.h"
 #include "input/InputSystem.h"
 #include "system/component/camera.h"
 #include "system/component/light.h"
+#include "system/component/terrain.h"
 #include "system/component/transform.h"
 
 #include "scripts\luaContext.h"
@@ -33,6 +33,7 @@ LuaBinder(l)
 .AddMethod("IsKeyUp", &InputManager::IsKeyUp)
 .AddMethod("IsKeyHold", &InputManager::IsKeyHold)
 .AddMethod("GetMousePos", &InputManager::GetMousePos)
+.AddMethod("GetMouseWheelDelta", &InputManager::GetMouseWheelDelta)
 .EndClass();
 
 LuaBinder(l)
@@ -43,11 +44,17 @@ LuaBinder(l)
 .AddMethod("SetRange", &LightComponent::SetRange)
 .AddMethod("SetEnergy", &LightComponent::SetEnergy)
 .AddMethod("SetColor", &LightComponent::SetColor)
+.AddMethod("SetShadowBias", &LightComponent::SetShadowBias)
 .EndClass();
 
 LuaBinder(l)
 .BeginClass<StringID>("StringID")
 .AddConstructor(_LUA_ARGS_(std::string&))
+.EndClass();
+
+LuaBinder(l)
+.BeginClass<TerrainComponent>("TerrainComponent")
+.AddConstructor(_LUA_ARGS_())
 .EndClass();
 
 LuaBinder(l)
@@ -58,10 +65,12 @@ LuaBinder(l)
 .AddMethod("Translate", &TransformComponent::Translate)
 .AddMethod("RotateRollPitchYaw", &TransformComponent::RotateRollPitchYaw)
 .AddMethod("Scale", &TransformComponent::Scale)
+.AddMethod("Rotate", &TransformComponent::Rotate)
 .AddMethod("GetRotationLocal", &TransformComponent::GetRotationLocal)
 .AddMethod("GetTranslationLocal", &TransformComponent::GetTranslationLocal)
 .AddMethod("GetScaleLocal", &TransformComponent::GetScaleLocal)
 .EndClass();
+
 	
 }
 LUA_FUNCTION_AUTO_BINDER(luabind_registers_auto_binder,luabind_registers_AutoBindFunction)

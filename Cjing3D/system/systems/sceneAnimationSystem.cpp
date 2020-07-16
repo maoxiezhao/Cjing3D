@@ -133,7 +133,7 @@ namespace Cjing3D {
 
 			if (animation.IsPlaying())
 			{
-				animation.mCurrentTimer += deltaTime;
+				animation.mCurrentTimer += deltaTime * animation.mSpeed;
 
 				// reset current timer if animation is looped
 				if (animation.mCurrentTimer > animation.mTimeEnd && animation.IsLooped()) {

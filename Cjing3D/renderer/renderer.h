@@ -70,6 +70,7 @@ namespace Renderer
 	void RenderSky();
 	void RenderLinearDepth(Texture2D& depthBuffer, Texture2D& linearDepthBuffer);
 	void RenderSSAO(Texture2D& depthBuffer, Texture2D& linearDepthBuffer, Texture2D& aoTexture, F32 aoRange, U32 aoSampleCount);
+	void RenderDebugScene(CameraComponent& camera);
 
 	// blur
 	void GaussianBlur(Texture2D& input, Texture2D& temp, Texture2D& output);

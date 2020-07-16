@@ -22,6 +22,7 @@ namespace CjingGame
 		RenderPathTiledForward* path = new RenderPathTiledForward();
 		Renderer::SetCurrentRenderPath(path);
 		Font::LoadFontTTF("Fonts/arial.ttf");
+		path->SetFXAAEnable(true);
 
 #ifdef _ENABLE_GAME_EDITOR_
 		auto& guiStage = GlobalGetSubSystem<GUIStage>();

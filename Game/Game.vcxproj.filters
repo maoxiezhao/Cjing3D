@@ -72,9 +72,6 @@
     <Filter Include="test">
       <UniqueIdentifier>{935d5c86-d440-4c29-b608-a4e337f4539b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="game\lua">
-      <UniqueIdentifier>{95113948-085c-49a4-b06b-293d5e139d51}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="editor\guiEditorLight.h">

@@ -275,6 +275,29 @@ namespace Cjing3D
 		}
 	};
 
+	template<typename T>
+	struct LuaTypeNormalMapping<T*>
+	{
+		using Type = typename std::decay<T>::type;
+		static void Push(lua_State* l, Type* value)
+		{
+			if (value == nullptr)
+			{
+				lua_pushnil(l);
+			}
+			else
+			{
+				LuaObjectPtr<T>::Push(l, const_cast<Type*>(value));
+			}
+		}
+
+		static T* Get(lua_State* l, int index)
+		{
+			LuaObject* obj = LuaObject::GetLuaObject<T>(l, index);
+			return static_cast<T*>(obj->GetObjectPtr());
+		}
+	};
+
 	///////////////////////////////////////////////////////////////////////////
 
 	template<typename T, typename ARGS>

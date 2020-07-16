@@ -162,6 +162,7 @@ namespace Cjing3D
 			device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
 
 			Renderer::RenderSceneTransparent(Renderer::GetCamera(), renderType);
+			Renderer::RenderDebugScene(Renderer::GetCamera());
 
 			device.EndRenderBehavior();
 		}

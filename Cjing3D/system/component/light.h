@@ -41,6 +41,9 @@ namespace Cjing3D {
 		inline void SetEnergy(F32 energy) { mEnergy = energy; }
 		LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
 		inline void SetColor(F32x3 color) { mColor = color; }
+		LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
+		inline void SetShadowBias(F32 bias) { mShadowBias = bias; }
+
 		inline void SetCastShadow(bool isCastShadow) { mIsCastShadow = isCastShadow; }
 		inline bool IsCastShadow()const { return mIsCastShadow; }
 		inline void SetShadowMapIndex(I32 index) { mShadowMapIndex = index; }

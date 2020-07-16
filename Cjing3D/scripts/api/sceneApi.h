@@ -23,7 +23,12 @@ namespace Cjing3D
 			ECS::Entity CreateEntity();
 			LightComponent& CreateLight(ECS::Entity entity);
 			TransformComponent& CreateTransform(ECS::Entity entity);
-			
+			ECS::Entity LoadModel(const std::string& path);
+
+			TransformComponent* GetTransform(ECS::Entity entity);
+
+			static int MouseRayCast(lua_State* l);
+
 		private:
 			Scene & mScene;
 		};

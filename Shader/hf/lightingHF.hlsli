@@ -50,27 +50,28 @@ static const float softShadowSamplerRange = 1.5f;
 static const float defaultMaxShadowBias = 0.0002;
 inline float cascadeShadow(float3 shadowPos, float2 shadowTex, float bias, float slice, float NdotL, float shadowKernel)
 {
-    bias = max(defaultMaxShadowBias * (1.0f - NdotL), bias);
+    float realBias = max(defaultMaxShadowBias * (1.0f - NdotL), bias);
     
     // depth [0. -1]
-    float currentDepth = shadowPos.z + bias;
+    float realDepth = shadowPos.z + realBias;
     float shadow = 0.0f;
     
 #ifdef ENABLE_SOFT_SHADOW
     uint samplerCount = 0;
-    for (float x = -softShadowSamplerRange; x <= softShadowSamplerRange; x++)
+    for (float y = -softShadowSamplerRange; y <= softShadowSamplerRange; y += 1.0f)
     {
-        for (float y = -softShadowSamplerRange; y <= softShadowSamplerRange; y++)
+        for (float x = -softShadowSamplerRange; x <= softShadowSamplerRange; x += 1.0f)
         {
-            float2 currentTex = saturate(shadowTex + float2(x, y) * shadowKernel);
-            shadow += texture_shadowmap_array.SampleCmpLevelZero(sampler_comparison_depth, float3(currentTex, slice), currentDepth).r;
+            float3 currentTex = float3(shadowTex + float2(x, y) * shadowKernel, slice);
+            shadow += texture_shadowmap_array.SampleCmpLevelZero(sampler_comparison_depth, currentTex, realDepth).r;
             samplerCount++;
         }
     }
+    
     shadow = shadow / (float)samplerCount;
 #else
     // 如果采样的深度大于当前深度，则返回1，相反则返回0
-    shadow = texture_shadowmap_array.SampleCmpLevelZero(sampler_comparison_depth, float3(shadowTex, slice), currentDepth).r;
+    shadow = texture_shadowmap_array.SampleCmpLevelZero(sampler_comparison_depth, float3(shadowTex, slice), realDepth).r;
 #endif 
 
     return shadow;
@@ -91,19 +92,19 @@ inline void DirectionalLight(in ShaderLight light, in Surface surface, inout Lig
     float NdotL = dot(lightDir, surface.normal);
     [branch]
     if (NdotL > 0) {
-        float3 color = light.color.rgb * light.energy * NdotL;
+        float3 shadow = NdotL;
         
 #ifndef _DISABLE_SHADOW_
         // CSM 阴影
         [branch]
         if (light.IsCastingShadow())
         {
-            float shadow = 1.0f;
             uint matrixIndex = light.GetShadowMatrixIndex();
             uint shadowMapIndex = light.GetShadowMapIndex();
             
             // 对于每一个级联，将表面的点通过光源变换矩阵变换到光源空间[-1,1]
             // 同时转换到[0,1]表示为纹理坐标
+            [loop]
             for (uint cascade = 0; cascade < gFrameShadowCascadeCount; cascade++)
             {
                 float3 shPos = mul(MatrixArray[matrixIndex + cascade], float4(surface.position, 1.0f)).xyz;
@@ -122,17 +123,17 @@ inline void DirectionalLight(in ShaderLight light, in Surface surface, inout Lig
                     [branch]
                     if (cascadeFactor > 0 && cascade < (gFrameShadowCascadeCount - 1))
                     {
-                        uint nextCascade = cascade + 1;
+                        cascade += 1;
 
-                        shPos = mul(MatrixArray[matrixIndex + nextCascade], float4(surface.position, 1.0f)).xyz;
+                        shPos = mul(MatrixArray[matrixIndex + cascade], float4(surface.position, 1.0f)).xyz;
                         shTex = shPos * float3(0.5f, -0.5f, 0.5f) + 0.5f;
-                        float nextShadow = cascadeShadow(shPos, shTex.xy, light.shadowBias, shadowMapIndex + nextCascade, NdotL, light.shadowKernel);
+                        float nextShadow = cascadeShadow(shPos, shTex.xy, light.shadowBias, shadowMapIndex + cascade, NdotL, light.shadowKernel);
                         
-                        shadow = lerp(currentShadow, nextShadow, cascadeFactor);
+                        shadow *= lerp(currentShadow, nextShadow, cascadeFactor);
                     }
                     else
                     {
-                        shadow = currentShadow;
+                        shadow *= currentShadow;
                     }
                     
                 #ifdef _SHOW_DEBUG_SHADOW_CASCADE
@@ -143,10 +144,15 @@ inline void DirectionalLight(in ShaderLight light, in Surface surface, inout Lig
                     break;
                 }
             }          
-            color *= shadow;
         }
         
-        lighting.directDiffuse += color;
+        [branch]
+        if (any(shadow))
+        {
+            float color = light.color.rgb * light.energy * shadow;
+            lighting.directDiffuse += color;
+        }
+
 #endif    
     }
 }

@@ -32,6 +32,7 @@ namespace Cjing3D {
 		F32x4 mColor = F32x4(1.0f, 1.0f, 1.0f, 1.0f);
 		ObjectType mObjectType = OjbectType_Renderable;
 		RenderableType mRenderableType = RenderableType_Opaque;
+		U32 mShadowCascadeMask = 0;	// ≤„º∂“ı”∞mask
 
 		bool mIsCastShadow = false;
 		bool mIsImpostor = false;
