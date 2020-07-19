@@ -1248,14 +1248,14 @@ HRESULT GraphicsDeviceD3D11::CreateBuffer(const GPUBufferDesc * desc, GPUBuffer 
 	return result;
 }
 
-void GraphicsDeviceD3D11::UpdateBuffer(GPUBuffer & buffer, const void * data, U32 dataSize)
+void GraphicsDeviceD3D11::UpdateBuffer(GPUBuffer & buffer, const void * data, I32 dataSize)
 {
 	const auto& desc = buffer.GetDesc();
 	Debug::CheckAssertion(desc.mUsage != USAGE_IMMUTABLE, "Cannot update IMMUTABLE Buffer");
-	Debug::CheckAssertion(desc.mByteWidth >= dataSize, "Data size is unable");
+	Debug::CheckAssertion((I32)desc.mByteWidth >= dataSize, "Data size is unable");
 
-	dataSize = std::min(dataSize, desc.mByteWidth);
-	if (dataSize <= 0) {
+	dataSize = std::min(dataSize, (I32)desc.mByteWidth);
+	if (dataSize == 0) {
 		return;
 	}
 
@@ -1272,6 +1272,7 @@ void GraphicsDeviceD3D11::UpdateBuffer(GPUBuffer & buffer, const void * data, U3
 		HRESULT result = GetDeviceContext(GraphicsThread_IMMEDIATE).Map(rhiState->mResource.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 		Debug::ThrowIfFailed(result, "Failed to map buffer:%08x", result);
 
+		dataSize = dataSize >= 0 ? dataSize : (I32)desc.mByteWidth;
 		memcpy(mappedResource.pData, data, dataSize);
 
 		GetDeviceContext(GraphicsThread_IMMEDIATE).Unmap(rhiState->mResource.Get(), 0);
@@ -1357,7 +1358,8 @@ void GraphicsDeviceD3D11::BindVertexBuffer(GPUBuffer* const* buffer, U32 slot, U
 
 		buffers[i] = (ID3D11Buffer*)rhiState->mResource.Get();
 	}
-	GetDeviceContext(GraphicsThread_IMMEDIATE).IASetVertexBuffers(slot, num, buffers, strides, offsets);
+	const U32* offsetD3D11 = offsets != nullptr ? offsets : reinterpret_cast<const U32*>(nullptrBlob);
+	GetDeviceContext(GraphicsThread_IMMEDIATE).IASetVertexBuffers(slot, num, buffers, strides, offsetD3D11);
 }
 
 void GraphicsDeviceD3D11::ClearVertexBuffer()

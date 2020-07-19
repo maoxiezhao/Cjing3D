@@ -10,6 +10,8 @@ namespace Cjing3D
 
 class MaterialComponent;
 
+// TODO: 使用配置文件来配置
+
 enum VetextShaderType
 {
 	VertexShaderType_ObjectAll = 0,
@@ -20,6 +22,7 @@ enum VetextShaderType
 	VertexShaderType_Shadow,
 	VertexShaderType_ShadowCube,
 	VertexShaderType_Sky,
+	VertexShaderType_PosColor,
 	VertexShaderType_Count,
 };
 
@@ -29,6 +32,7 @@ enum InputLayoutType
 	InputLayoutType_ObjectPosTex,
 	InputLayoutType_ObjectPos,
 	InputLayoutType_Shadow,
+	InputLayoutType_PosColor,
 	InputLayoutType_Count
 };
 
@@ -42,6 +46,7 @@ enum PixelShaderType
 	PixelShaderType_FullScreen,
 	PixelShaderType_Image,
 	PixelShaderType_Sky,
+	PixelShaderType_PosColor,
 	PixelShaderType_Count,
 };
 

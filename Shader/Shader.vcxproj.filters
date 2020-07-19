@@ -134,6 +134,12 @@
     <FxCompile Include="cs\bilateralUpsampleCS.hlsl">
       <Filter>cs</Filter>
     </FxCompile>
+    <FxCompile Include="vs\posColorVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="ps\posColorPS.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="hf\objectInput.hlsli">

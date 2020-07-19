@@ -65,6 +65,11 @@ namespace LuaApi
 
 			return result;
 		}
+
+		static I32x2 Opt(lua_State* l, int index, const I32x2& defValue)
+		{
+			return lua_isnoneornil(l, index) ? defValue : Get(l, index);
+		}
 	};
 
 	template<>
@@ -84,6 +89,11 @@ namespace LuaApi
 
 			return result;
 		}
+
+		static XMFLOAT3 Opt(lua_State* l, int index, const XMFLOAT3& defValue)
+		{
+			return lua_isnoneornil(l, index) ? defValue : Get(l, index);
+		}
 	};
 
 	template<>
@@ -100,6 +110,11 @@ namespace LuaApi
 			LuaApi::BindLuaVector vector = LuaTools::Get<LuaApi::BindLuaVector>(l, index);
 			F32x3 result = XMStore<F32x3>(vector.mValue);
 			return result;
+		}
+
+		static F32x3 Opt(lua_State* l, int index, const F32x3& defValue)
+		{
+			return lua_isnoneornil(l, index) ? defValue : Get(l, index);
 		}
 	};
 
@@ -119,6 +134,11 @@ namespace LuaApi
 			XMStoreFloat4(&result, vector.mValue);
 			return result;
 		}
+
+		static XMFLOAT4 Opt(lua_State* l, int index, const XMFLOAT4& defValue)
+		{
+			return lua_isnoneornil(l, index) ? defValue : Get(l, index);
+		}
 	};
 
 	template<>
@@ -135,6 +155,11 @@ namespace LuaApi
 			LuaApi::BindLuaVector vector = LuaTools::Get<LuaApi::BindLuaVector>(l, index);
 			F32x4 result = XMStore<F32x4>(vector.mValue);
 			return result;
+		}
+
+		static F32x4 Opt(lua_State* l, int index, const F32x4& defValue)
+		{
+			return lua_isnoneornil(l, index) ? defValue : Get(l, index);
 		}
 	};
 }

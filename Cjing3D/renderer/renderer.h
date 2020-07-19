@@ -70,7 +70,6 @@ namespace Renderer
 	void RenderSky();
 	void RenderLinearDepth(Texture2D& depthBuffer, Texture2D& linearDepthBuffer);
 	void RenderSSAO(Texture2D& depthBuffer, Texture2D& linearDepthBuffer, Texture2D& aoTexture, F32 aoRange, U32 aoSampleCount);
-	void RenderDebugScene(CameraComponent& camera);
 
 	// blur
 	void GaussianBlur(Texture2D& input, Texture2D& temp, Texture2D& output);
@@ -109,6 +108,10 @@ namespace Renderer
 	std::shared_ptr<TerrainTree> RegisterTerrain(ECS::Entity entity, U32 width, U32 height, U32 elevation);
 	void UnRegisterTerrain(ECS::Entity entity);
 	std::shared_ptr<TerrainTree> GetTerrainTree(ECS::Entity entity);
+
+	// debug
+	void RenderDebugScene(CameraComponent& camera);
+	void SetDebugGridSize(const I32x2& gridSize, const F32x2& posOffset = {0.0f, 0.0f});
 
 	// shader
 	ShaderPtr LoadShader(SHADERSTAGES stages, const std::string& path);

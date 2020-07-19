@@ -273,6 +273,11 @@ namespace Cjing3D
 		{
 			return LuaObjectHandler<T, ObjectType, IsRef, IsShared>::Get(l, index);
 		}
+
+		static const T& Opt(lua_State* l, int index, const T& defValue)
+		{
+			return lua_isnoneornil(l, index) ? defValue : Get(l, index);
+		}
 	};
 
 	template<typename T>
@@ -295,6 +300,11 @@ namespace Cjing3D
 		{
 			LuaObject* obj = LuaObject::GetLuaObject<T>(l, index);
 			return static_cast<T*>(obj->GetObjectPtr());
+		}
+
+		static T* Opt(lua_State* l, int index, Type* defValue)
+		{
+			return lua_isnoneornil(l, index) ? defValue : Get(l, index);
 		}
 	};
 

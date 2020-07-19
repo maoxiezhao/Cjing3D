@@ -16,11 +16,25 @@ namespace Cjing3D {
 			});
 		}
 
+		int SetDebugGrid(lua_State* l)
+		{
+			return LuaTools::ExceptionBoundary(l, [&] {
+				I32 col = LuaTools::Get<I32>(l, 1);
+				I32 row = LuaTools::Get<I32>(l, 2);
+				F32 offsetX = LuaTools::Get<F32>(l, 3);
+				F32 offsetY = LuaTools::Get<F32>(l, 4);
+
+				Renderer::SetDebugGridSize({ col, row }, { offsetX, offsetY });
+				return 0;
+			});
+		}
+
 		void BindRenderModules(lua_State* l)
 		{
 			LuaBinder(l)
 				.BeginModule("Render")
 				.AddLuaCFunction("GetMainCamera", GetMainCamera)
+				.AddLuaCFunction("SetDebugGrid", SetDebugGrid)
 				.EndModule();
 		}
 	}

@@ -7,7 +7,7 @@ float4 main(InputObjectPos input) : SV_POSITION
 
 	// world transform
     float4 output;
-    output = mul(worldMat, surface.position);
+    output = mul(surface.position, worldMat);
     output = mul(gCameraVP, output);
     
     return output;

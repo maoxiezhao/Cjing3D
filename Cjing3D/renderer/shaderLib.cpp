@@ -37,93 +37,116 @@ void ShaderLib::LoadVertexShaders()
 	auto& resourceManager = GlobalGetSubSystem<ResourceManager>();
 	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_Shader);
 	{
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// object all
 		{
 			VertexLayoutDesc layout[] =
 			{
-				{ "POSITION_NORMAL_SUBSETINDEX", 0u, MeshComponent::VertexPosNormalSubset::format, 0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
-				{ "TEXCOORD", 0u, MeshComponent::VertexTex::format, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
-				{ "COLOR", 0u, MeshComponent::VertexColor::format, 2u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
+				// vertex
+				VertexLayoutDesc::VertexData("POSITION_NORMAL_SUBSETINDEX", 0u, MeshComponent::VertexPosNormalSubset::format, 0u),
+				VertexLayoutDesc::VertexData("TEXCOORD",				    0u, MeshComponent::VertexTex::format,			  1u),
+				VertexLayoutDesc::VertexData("COLOR",						0u, MeshComponent::VertexColor::format,			  2u),
 
 				// instance
-				{ "INSTANCEMAT",     0u, FORMAT_R32G32B32A32_FLOAT, 3u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-				{ "INSTANCEMAT",     1u, FORMAT_R32G32B32A32_FLOAT, 3u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-				{ "INSTANCEMAT",     2u, FORMAT_R32G32B32A32_FLOAT, 3u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-				{ "INSTANCEUSERDATA",0u, FORMAT_R32G32B32A32_UINT, 3u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u }
+				VertexLayoutDesc::InstanceData("INSTANCEMAT",     0u, FORMAT_R32G32B32A32_FLOAT, 3u),
+				VertexLayoutDesc::InstanceData("INSTANCEMAT",     1u, FORMAT_R32G32B32A32_FLOAT, 3u),
+				VertexLayoutDesc::InstanceData("INSTANCEMAT",     2u, FORMAT_R32G32B32A32_FLOAT, 3u),
+				VertexLayoutDesc::InstanceData("INSTANCEUSERDATA",0u, FORMAT_R32G32B32A32_UINT,  3u),
 			};
 			auto vsinfo = LoadVertexShaderInfo(shaderPath + "objectVS.cso", layout, ARRAYSIZE(layout));
 			mVertexShader[VertexShaderType_ObjectAll] = vsinfo.mVertexShader;
 			mInputLayout[InputLayoutType_ObjectAll] = vsinfo.mInputLayout;
 		}
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// object pos tex
 		{
 			VertexLayoutDesc posTexLayout[] =
 			{
-				{ "POSITION_NORMAL_SUBSETINDEX", 0u, MeshComponent::VertexPosNormalSubset::format, 0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
-				{ "TEXCOORD", 0u, MeshComponent::VertexTex::format, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
+				// vertex
+				VertexLayoutDesc::VertexData("POSITION_NORMAL_SUBSETINDEX", 0u, MeshComponent::VertexPosNormalSubset::format, 0u),
+				VertexLayoutDesc::VertexData("TEXCOORD",			        0u, MeshComponent::VertexTex::format,			  1u),
 
 				// instance
-				{ "INSTANCEMAT",     0u, FORMAT_R32G32B32A32_FLOAT, 2u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-				{ "INSTANCEMAT",     1u, FORMAT_R32G32B32A32_FLOAT, 2u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-				{ "INSTANCEMAT",     2u, FORMAT_R32G32B32A32_FLOAT, 2u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-				{ "INSTANCEUSERDATA",0u, FORMAT_R32G32B32A32_UINT, 2u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u }
+				VertexLayoutDesc::InstanceData("INSTANCEMAT",     0u, FORMAT_R32G32B32A32_FLOAT, 2u),
+				VertexLayoutDesc::InstanceData("INSTANCEMAT",     1u, FORMAT_R32G32B32A32_FLOAT, 2u),
+				VertexLayoutDesc::InstanceData("INSTANCEMAT",     2u, FORMAT_R32G32B32A32_FLOAT, 2u),
+				VertexLayoutDesc::InstanceData("INSTANCEUSERDATA",0u, FORMAT_R32G32B32A32_UINT,  2u),
 			};
 			auto vsinfo = LoadVertexShaderInfo(shaderPath + "objectPosTexVS.cso", posTexLayout, ARRAYSIZE(posTexLayout));
 			mVertexShader[VertexShaderType_ObjectPosTex] = vsinfo.mVertexShader;
 			mInputLayout[InputLayoutType_ObjectPosTex] = vsinfo.mInputLayout;
 		}
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// object pos
 		{
 			VertexLayoutDesc posLayout[] =
 			{
-				{ "POSITION_NORMAL_SUBSETINDEX", 0u, MeshComponent::VertexPosNormalSubset::format, 0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
+				// vertex
+				VertexLayoutDesc::VertexData("POSITION_NORMAL_SUBSETINDEX", 0u, MeshComponent::VertexPosNormalSubset::format, 0u),
 
 				// instance
-				{ "INSTANCEMAT",     0u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-				{ "INSTANCEMAT",     1u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-				{ "INSTANCEMAT",     2u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-				{ "INSTANCEUSERDATA",0u, FORMAT_R32G32B32A32_UINT, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u }
+				VertexLayoutDesc::InstanceData("INSTANCEMAT",     0u, FORMAT_R32G32B32A32_FLOAT, 1u),
+				VertexLayoutDesc::InstanceData("INSTANCEMAT",     1u, FORMAT_R32G32B32A32_FLOAT, 1u),
+				VertexLayoutDesc::InstanceData("INSTANCEMAT",     2u, FORMAT_R32G32B32A32_FLOAT, 1u),
+				VertexLayoutDesc::InstanceData("INSTANCEUSERDATA",0u, FORMAT_R32G32B32A32_UINT,  1u),
 			};
 			auto vsinfo = LoadVertexShaderInfo(shaderPath + "objectPosVS.cso", posLayout, ARRAYSIZE(posLayout));
 			mVertexShader[VertexShaderType_ObjectPos] = vsinfo.mVertexShader;
 			mInputLayout[InputLayoutType_ObjectPos] = vsinfo.mInputLayout;
 		}
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// full screen vs
 		auto fullScreenVSInfo = LoadVertexShaderInfo(shaderPath + "screenVS.cso", nullptr, 0);
 		mVertexShader[VertexShaderType_FullScreen] = fullScreenVSInfo.mVertexShader;
 
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// image vs
 		auto imageVSInfo = LoadVertexShaderInfo(shaderPath + "imageVS.cso", nullptr, 0);
 		mVertexShader[VertexShaderType_Image] = imageVSInfo.mVertexShader;
 
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// shadow vs
 		VertexLayoutDesc shadowLayout[] =
 		{
-			{ "POSITION_NORMAL_SUBSETINDEX", 0u, MeshComponent::VertexPosNormalSubset::format, 0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
+			// vertex
+			VertexLayoutDesc::VertexData("POSITION_NORMAL_SUBSETINDEX", 0u, MeshComponent::VertexPosNormalSubset::format, 0u),
 
 			// instance
-			{ "INSTANCEMAT", 0u, FORMAT_R32G32B32A32_FLOAT,  1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-			{ "INSTANCEMAT", 1u, FORMAT_R32G32B32A32_FLOAT,  1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-			{ "INSTANCEMAT", 2u, FORMAT_R32G32B32A32_FLOAT,  1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-			{ "INSTANCEUSERDATA",0u, FORMAT_R32G32B32A32_UINT, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u }
+			VertexLayoutDesc::InstanceData("INSTANCEMAT",     0u, FORMAT_R32G32B32A32_FLOAT, 1u),
+			VertexLayoutDesc::InstanceData("INSTANCEMAT",     1u, FORMAT_R32G32B32A32_FLOAT, 1u),
+			VertexLayoutDesc::InstanceData("INSTANCEMAT",     2u, FORMAT_R32G32B32A32_FLOAT, 1u),
+			VertexLayoutDesc::InstanceData("INSTANCEUSERDATA",0u, FORMAT_R32G32B32A32_UINT,  1u),
 		};
 		auto shadowVSInfo = LoadVertexShaderInfo(shaderPath + "shadowVS.cso", shadowLayout, ARRAYSIZE(shadowLayout));
 		mVertexShader[VertexShaderType_Shadow] = shadowVSInfo.mVertexShader;
 		mInputLayout[InputLayoutType_Shadow] = shadowVSInfo.mInputLayout;
 
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// cube shadow vs
-		if (!Renderer::GetDevice().CheckGraphicsFeatureSupport(GraphicsFeatureSupport::VIEWPORT_AND_RENDERTARGET_ARRAYINDEX_WITHOUT_GS))
-		{
+		if (!Renderer::GetDevice().CheckGraphicsFeatureSupport(GraphicsFeatureSupport::VIEWPORT_AND_RENDERTARGET_ARRAYINDEX_WITHOUT_GS)) {
 			Debug::Warning("Failed to load cubeShadowVS: Feature not support: VIEWPORT_AND_RENDERTARGET_ARRAYINDEX_WITHOUT_GS");
-		}
-		else
-		{
+		} else {
 			mVertexShader[VertexShaderType_ShadowCube] = LoadShader(SHADERSTAGES_VS, shaderPath + "cubeShadowVS.cso");
 		}
 
-		// full screen vs
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// sky vs
 		auto skyVSInfo = LoadVertexShaderInfo(shaderPath + "skyVS.cso", nullptr, 0);
 		mVertexShader[VertexShaderType_Sky] = skyVSInfo.mVertexShader;
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// color pos
+		VertexLayoutDesc colorPosLayout[] =
+		{
+			VertexLayoutDesc::VertexData("POSITION", 0u, FORMAT_R32G32B32A32_FLOAT, 0u),
+			VertexLayoutDesc::VertexData("TEXCOORD", 0u, FORMAT_R32G32B32A32_FLOAT, 0u)
+		};
+		auto colorPosVSInfo = LoadVertexShaderInfo(shaderPath + "posColorVS.cso", colorPosLayout, ARRAYSIZE(colorPosLayout));
+		mVertexShader[VertexShaderType_PosColor] = colorPosVSInfo.mVertexShader;
+		mInputLayout[InputLayoutType_PosColor] = colorPosVSInfo.mInputLayout;
 	}
 }
 
@@ -146,6 +169,8 @@ void ShaderLib::LoadPixelShaders()
 		mPixelShader[PixelShaderType_Image] = LoadShader(SHADERSTAGES_PS, shaderPath + "imagePS.cso");
 		// full screen ps
 		mPixelShader[PixelShaderType_Sky] = LoadShader(SHADERSTAGES_PS, shaderPath + "skyPS.cso");
+		// color pos
+		mPixelShader[PixelShaderType_PosColor] = LoadShader(SHADERSTAGES_PS, shaderPath + "posColorPS.cso");
 	}
 }
 

@@ -31,7 +31,7 @@ public:
 	virtual HRESULT CreateShader(SHADERSTAGES stage, const void* bytecode, size_t length, Shader& shader);
 
 	virtual HRESULT CreateBuffer(const GPUBufferDesc* desc, GPUBuffer& buffer, const SubresourceData* initialData);
-	virtual void UpdateBuffer(GPUBuffer& buffer, const void* data, U32 dataSize);
+	virtual void UpdateBuffer(GPUBuffer& buffer, const void* data, I32 dataSize = -1);
 	virtual void BindConstantBuffer(SHADERSTAGES stage, GPUBuffer& buffer, U32 slot);
 
 	virtual void BindIndexBuffer(GPUBuffer& buffer, IndexFormat format, U32 offset);

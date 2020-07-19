@@ -85,7 +85,24 @@ namespace Cjing3D {
 			desc.mConservativeRasterizationEnable = false;
 
 			const auto result = mDevice.CreateRasterizerState(desc, *mRasterizerStates[RasterizerStateID::RasterizerStateID_Sky]);
-			Debug::ThrowIfFailed(result, "Failed to create shadow rasterizerState", result);
+			Debug::ThrowIfFailed(result, "Failed to create sky rasterizerState", result);
+		}
+		{
+			RasterizerStateDesc desc = {};
+			desc.mFillMode = FILL_WIREFRAME;
+			desc.mCullMode = CULL_NONE;
+			desc.mFrontCounterClockwise = true;
+			desc.mDepthBias = 0;
+			desc.mDepthBiasClamp = 0;
+			desc.mSlopeScaleDepthBias = 0;
+			desc.mDepthClipEnable = true;
+			desc.mMultisampleEnable = false;
+			desc.mAntialiaseLineEnable = false;
+			desc.mConservativeRasterizationEnable = false;
+			desc.mAntialiaseLineEnable = true;
+
+			const auto result = mDevice.CreateRasterizerState(desc, *mRasterizerStates[RasterizerStateID::RasterizerStateID_WireFrame_DoubleSided]);
+			Debug::ThrowIfFailed(result, "Failed to create wire doubleSided rasterizerState", result);
 		}
 	}
 }

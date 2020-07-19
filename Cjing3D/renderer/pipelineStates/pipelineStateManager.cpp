@@ -27,6 +27,18 @@ void PipelineStateManager::SetupPipelineStateIDs()
 
 		RegisterPipelineState(PipelineStateID_SkyRendering, desc);
 	}
+	{
+		PipelineStateDesc desc = {};
+		desc.mVertexShader = shaderLib.GetVertexShader(VertexShaderType_PosColor);
+		desc.mPixelShader = shaderLib.GetPixelShader(PixelShaderType_PosColor);
+		desc.mInputLayout = shaderLib.GetVertexLayout(InputLayoutType_PosColor);
+		desc.mBlendState = renderPreset.GetBlendState(BlendStateID_Transpranent);
+		desc.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_DepthRead);
+		desc.mRasterizerState = renderPreset.GetRasterizerState(RasterizerStateID_WireFrame_DoubleSided);
+		desc.mPrimitiveTopology = LINELIST;
+
+		RegisterPipelineState(PipelineStateID_GridHelper, desc);
+	}
 }
 
 PipelineState PipelineStateManager::GetPipelineStateByID(PipelineStateID stateID)

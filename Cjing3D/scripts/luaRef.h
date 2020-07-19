@@ -165,5 +165,10 @@ namespace Cjing3D
 				return LuaRef::CreateRef(l, index);
 			}
 		}
+
+		static LuaRef Opt(lua_State* l, int index, const LuaRef& defValue)
+		{
+			return lua_isnone(l, index) ? defValue : Get(l, index);
+		}
 	};
 }

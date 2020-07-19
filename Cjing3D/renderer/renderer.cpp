@@ -47,6 +47,13 @@ namespace {
 	// render pass
 	std::map<StringID, std::shared_ptr<RenderPass>> mRenderPassMap;
 
+	// debug world
+	I32x2 mDebugGridSize = I32x2(0, 0);
+	I32x2 mSavedDebugGridSize = I32x2(0, 0);
+	F32x2 mDebugGridPosOffset = F32x2(0.0f, 0.0f);
+	I32 mDebugGridVertexCount = 0;
+	GPUBuffer mDebugGridVertexBuffer;
+
 ///////////////////////////////////////////////////////////////////////////////////
 //  renderer variants
 ///////////////////////////////////////////////////////////////////////////////////
@@ -1201,6 +1208,7 @@ U32x2 savedAOTextureSize = U32x2(0u, 0u);
 Texture2D aoTemp;
 Texture2D aoTemp1;
 Texture2D aoDebug;
+bool ssaoDebug = false;
 void RenderSSAO(Texture2D& depthBuffer, Texture2D& linearDepthBuffer, Texture2D& aoTexture, F32 aoRange, U32 aoSampleCount)
 {
 	// SSAO
@@ -1228,15 +1236,18 @@ void RenderSSAO(Texture2D& depthBuffer, Texture2D& linearDepthBuffer, Texture2D&
 		mGraphicsDevice->SetResourceName(aoTemp, "aoTextureTemp");
 		mGraphicsDevice->CreateTexture2D(&desc, nullptr, aoTemp1);
 		
+		if (ssaoDebug)
+		{
+			TextureDesc descDebug = {};
+			descDebug.mWidth = linearDesc.mWidth / 2;
+			descDebug.mHeight = linearDesc.mHeight / 2;
+			descDebug.mFormat = FORMAT_R32G32B32A32_FLOAT;
+			descDebug.mBindFlags = BIND_SHADER_RESOURCE | BIND_UNORDERED_ACCESS;
 
-		TextureDesc descDebug = {};
-		descDebug.mWidth = linearDesc.mWidth / 2;
-		descDebug.mHeight = linearDesc.mHeight / 2;
-		descDebug.mFormat = FORMAT_R32G32B32A32_FLOAT;
-		descDebug.mBindFlags = BIND_SHADER_RESOURCE | BIND_UNORDERED_ACCESS;
+			mGraphicsDevice->CreateTexture2D(&descDebug, nullptr, aoDebug);
+			mGraphicsDevice->SetResourceName(aoDebug, "aoTextureDebug");
+		}
 
-		mGraphicsDevice->CreateTexture2D(&descDebug, nullptr, aoDebug);
-		mGraphicsDevice->SetResourceName(aoDebug, "aoTextureDebug");
 	}
 
 	// 1.¼ÆËãAO
@@ -1259,14 +1270,27 @@ void RenderSSAO(Texture2D& depthBuffer, Texture2D& linearDepthBuffer, Texture2D&
 	mGraphicsDevice->BindComputeShader(mShaderLib->GetComputeShader(ComputeShaderType_SSAO));
 
 	// bind output texture
-	mGraphicsDevice->BindUAV(&aoTemp, 0);
-	mGraphicsDevice->BindUAV(&aoDebug, 1);
-	mGraphicsDevice->Dispatch(
-		(U32)((desc.mWidth + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
-		(U32)((desc.mHeight + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
-		1
-	);
-	mGraphicsDevice->UnBindUAVs(0, 2);
+	if (ssaoDebug)
+	{
+		mGraphicsDevice->BindUAV(&aoTemp, 0);
+		mGraphicsDevice->BindUAV(&aoDebug, 1);
+		mGraphicsDevice->Dispatch(
+			(U32)((desc.mWidth + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
+			(U32)((desc.mHeight + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
+			1
+		);
+		mGraphicsDevice->UnBindUAVs(0, 2);
+	}
+	else
+	{
+		mGraphicsDevice->BindUAV(&aoTemp, 0);
+		mGraphicsDevice->Dispatch(
+			(U32)((desc.mWidth + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
+			(U32)((desc.mHeight + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
+			1
+		);
+		mGraphicsDevice->UnBindUAVs(0, 1);
+	}
 
 	// 2.blur
 	BilateralBlur(aoTemp, aoTemp1, aoTemp, linearDepthBuffer, 1.0f);
@@ -1282,8 +1306,93 @@ void RenderDebugScene(CameraComponent& camera)
 {
 	mGraphicsDevice->BeginEvent("RenderDebugScene");
 
+	// grid
+	if (mDebugGridSize.x() > 0 && mDebugGridSize.y() > 0)
+	{
+		PipelineState pso = mPipelineStateManager->GetPipelineStateByID(PipelineStateID_GridHelper);
+		if (pso.IsValid() )
+		{
+			mGraphicsDevice->BindPipelineState(pso);
+			if (!mDebugGridVertexBuffer.IsValid() || mSavedDebugGridSize != mDebugGridSize)
+			{
+				mSavedDebugGridSize = mDebugGridSize;
+
+				const F32 h = 0.01f;
+				const F32 width = 1.0f;
+				const F32 color = 0.7f;
+				const F32 halfWidth = mDebugGridSize.x() * width * 0.5f;
+				const F32 halfHeight = mDebugGridSize.y() * width * 0.5f;
+				std::vector<XMFLOAT4> verts;
+				verts.resize(((mDebugGridSize.x() + 1) * 2 + (mDebugGridSize.y() + 1) * 2) * 2);
+
+				F32 offsetX = mDebugGridPosOffset.x();
+				F32 offsetY = mDebugGridPosOffset.y();
+
+				size_t index = 0;
+				// x axis
+				for (int x = 0; x <= mDebugGridSize.x(); x++)
+				{
+					F32 currentX = x * width;
+					verts[index++] = XMFLOAT4(currentX - halfWidth + offsetX, h, -halfHeight + offsetY, 1); // pos
+					verts[index++] = XMFLOAT4(color, color, color, color);					      // color
+
+					verts[index++] = XMFLOAT4(currentX - halfWidth + offsetX, h, +halfHeight + offsetY, 1); // pos
+					verts[index++] = XMFLOAT4(color, color, color, color);						  // color
+				}
+
+				// x axis
+				for (int y = 0; y <= mDebugGridSize.y(); y++)
+				{
+					F32 currentY = y * width;
+					verts[index++] = XMFLOAT4(-halfWidth + offsetX, h, currentY - halfHeight + offsetY, 1); // pos
+					verts[index++] = XMFLOAT4(color, color, color, color);						  // color
+
+					verts[index++] = XMFLOAT4(+halfWidth + offsetX, h, currentY - halfHeight + offsetY, 1); // pos
+					verts[index++] = XMFLOAT4(color, color, color, color);						  // color
+				}
+				mDebugGridVertexCount = verts.size() / 2;
+
+				GPUBufferDesc desc = {};
+				desc.mUsage = USAGE_IMMUTABLE;
+				desc.mBindFlags = BIND_VERTEX_BUFFER;
+				desc.mByteWidth = verts.size() * sizeof(XMFLOAT4);
+				SubresourceData initData;
+				initData.mSysMem = verts.data();
+
+				const auto result = mGraphicsDevice->CreateBuffer(&desc, mDebugGridVertexBuffer, &initData);
+				Debug::ThrowIfFailed(result, "failed to create debug grid vertex buffer:%08x", result);
+			}
+
+			RenderMiscCB cb;
+			cb.gMiscColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+			XMStoreFloat4x4(&cb.gMiscTransform, GetCamera().GetViewProjectionMatrix());
+			
+			GPUBuffer& buffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_Misc);
+			mGraphicsDevice->UpdateBuffer(buffer, &cb);
+			mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_VS, buffer, CB_GETSLOT_NAME(RenderMiscCB));
+	
+			GPUBuffer* vbs[] = {
+				&mDebugGridVertexBuffer
+			};
+			const U32 strides[] = {
+				sizeof(XMFLOAT4) + sizeof(XMFLOAT4)
+			};
+			mGraphicsDevice->BindVertexBuffer(vbs, 0, ARRAYSIZE(vbs), strides, nullptr);
+			mGraphicsDevice->Draw(mDebugGridVertexCount, 0);
+		}
+	}
+	else
+	{
+		mSavedDebugGridSize = mDebugGridSize;
+	}
 
 	mGraphicsDevice->EndEvent();
+}
+
+void SetDebugGridSize(const I32x2& gridSize, const F32x2& posOffset)
+{
+	mDebugGridSize = gridSize;
+	mDebugGridPosOffset = posOffset;
 }
 
 void GaussianBlur(Texture2D& input, Texture2D& temp, Texture2D& output)

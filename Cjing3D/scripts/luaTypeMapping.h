@@ -77,6 +77,11 @@ namespace Cjing3D
 
 			return static_cast<T>(lua_tonumber(l, index));
 		}
+
+		static T Opt(lua_State* l, int index, T defValue)
+		{
+			return static_cast<T>(luaL_optnumber(l, index, defValue));
+		}
 	};
 
 	template<> struct LuaTypeNormalMapping<float> : LuaTypeNumberMapping<float> {};
@@ -97,6 +102,11 @@ namespace Cjing3D
 				LuaException::ArgError(l, index, std::string("Excepted:Integer, got ") + luaL_typename(l, index));
 
 			return static_cast<T>(lua_tointeger(l, index));
+		}
+
+		static T Opt(lua_State* l, int index, T defValue)
+		{
+			return static_cast<T>(luaL_optinteger(l, index, defValue));
 		}
 	};
 
@@ -122,6 +132,11 @@ namespace Cjing3D
 				LuaException::ArgError(l, index, std::string("Excepted:boolean, got ") + luaL_typename(l, index));
 
 			return lua_toboolean(l, index);
+		}
+
+		static bool Opt(lua_State* l, int index, bool defValue)
+		{
+			return lua_isnone(l, index) ? defValue : lua_toboolean(l, index);
 		}
 	};
 
@@ -164,6 +179,11 @@ namespace Cjing3D
 
 			return std::string(lua_tostring(l, index));
 		}
+
+		static std::string Opt(lua_State* l, int index, const std::string& defValue)
+		{
+			return lua_isnoneornil(l, index) ? defValue : Get(l, index);
+		}
 	};
 
 	template<>
@@ -183,6 +203,10 @@ namespace Cjing3D
 			return lua_tostring(l, index);
 		}
 
+		static const char* Opt(lua_State* l, int index, const char* defValue)
+		{
+			return lua_isnoneornil(l, index) ? defValue : Get(l, index);
+		}
 	};
 
 	template<>

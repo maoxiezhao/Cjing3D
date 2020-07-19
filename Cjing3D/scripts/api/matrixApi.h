@@ -40,5 +40,10 @@ namespace Cjing3D
 			LuaApi::BindLuaMatrix matrix = LuaTools::Get<LuaApi::BindLuaMatrix>(l, index);
 			return matrix.mValue;
 		}
+
+		static XMMATRIX Opt(lua_State* l, int index, const XMMATRIX& defValue)
+		{
+			return lua_isnoneornil(l, index) ? defValue : Get(l, index);
+		}
 	};
 }

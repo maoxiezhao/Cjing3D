@@ -10,6 +10,7 @@ namespace Cjing3D {
 
 enum PipelineStateID {
 	PipelineStateID_SkyRendering = 0,
+	PipelineStateID_GridHelper,
 };
 
 struct NormalRenderParams

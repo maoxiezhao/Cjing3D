@@ -65,6 +65,12 @@ CBUFFER(CubemapRenderCB, CBSLOT_CUBEMAP)
 	CubemapRenderCamera gCubemapRenderCams[6];
 };
 
+CBUFFER(RenderMiscCB, CBSLOT_MISC)
+{
+	float4x4 gMiscTransform;
+	float4   gMiscColor;
+};
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 // light
 // shader light definitions

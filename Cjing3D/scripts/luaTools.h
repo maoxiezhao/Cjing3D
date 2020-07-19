@@ -32,6 +32,12 @@ namespace Cjing3D
 			return LuaType<T>::Get(l, index);
 		}
 
+		template<typename T = LuaRef>
+		inline T Opt(lua_State* l, int index)
+		{
+			return LuaType<T>::Opt(l, index);
+		}
+
 		template<typename Callable>
 		int  ExceptionBoundary(lua_State*l, Callable&& func)
 		{

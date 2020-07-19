@@ -1,6 +1,6 @@
 #include "..\hf\global.hlsli"
 
-#define DEBUG_NORMAL_TEXTURE
+//#define DEBUG_NORMAL_TEXTURE
 
 RWTEXTURE2D(texture_output, unorm float, 0);
 

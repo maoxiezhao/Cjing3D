@@ -485,6 +485,24 @@ namespace Cjing3D
 		U32 mAlignedByteOffset;
 		InputClassification mInputSlotClass;
 		U32 mInstanceDataStepRate;
+
+		static VertexLayoutDesc VertexData(
+			const char* semanticName,
+			U32 semanticIndex,
+			FORMAT format,
+			U32 inputSlot)
+		{
+			return { semanticName, semanticIndex, format, inputSlot, APPEND_ALIGNED_ELEMENT, INPUT_PER_VERTEX_DATA, 0u };
+		}
+
+		static VertexLayoutDesc InstanceData(
+			const char* semanticName,
+			U32 semanticIndex,
+			FORMAT format,
+			U32 inputSlot)
+		{
+			return { semanticName, semanticIndex, format, inputSlot, APPEND_ALIGNED_ELEMENT, INPUT_PER_INSTANCE_DATA, 1u };
+		}
 	};
 
 	struct GPUBufferDesc

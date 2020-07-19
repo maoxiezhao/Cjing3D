@@ -149,7 +149,7 @@ inline void DirectionalLight(in ShaderLight light, in Surface surface, inout Lig
         [branch]
         if (any(shadow))
         {
-            float color = light.color.rgb * light.energy * shadow;
+            float3 color = light.color.rgb * light.energy * shadow;
             lighting.directDiffuse += color;
         }
 

@@ -24,6 +24,7 @@ namespace Cjing3D
 		ConstantBufferType_MipmapGenerate,
 		ConstantBufferType_CubeMap,
 		ConstantBufferType_CSParams,
+		ConstantBufferType_Misc,
 		ConstantBufferType_Count,
 	};
 
@@ -53,6 +54,7 @@ namespace Cjing3D
 		RasterizerStateID_Shadow,
 		RasterizerStateID_WireFrame,
 		RasterizerStateID_Sky,
+		RasterizerStateID_WireFrame_DoubleSided,
 		RasterizerStateID_Count
 	};
 
