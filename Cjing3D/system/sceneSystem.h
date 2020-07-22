@@ -36,6 +36,7 @@ namespace Cjing3D {
 		NameComponent& GetOrCreateNameByEntity(ECS::Entity entity);
 		TransformComponent& GetOrCreateTransformByEntity(ECS::Entity entity);
 		LightComponent& GetOrCreateLightByEntity(ECS::Entity entity);
+		ObjectComponent& GetOrCreateObjectByEntity(ECS::Entity entity);
 
 		ECS::Entity CreateEntityByName(const std::string& name);
 		ECS::Entity GetEntityByName(const StringID& name);
@@ -45,6 +46,8 @@ namespace Cjing3D {
 		// entity间的层级结构基于 hierarchy component
 		void AttachEntity(ECS::Entity entity, ECS::Entity parent, bool alreadyInLocalSpace = false, bool detachIfAttached = true);
 		void DetachEntity(ECS::Entity entity);
+		void DetachEntityChildren(ECS::Entity entity);
+		ECS::Entity DuplicateEntity(ECS::Entity entity);
 
 		struct PickResult
 		{

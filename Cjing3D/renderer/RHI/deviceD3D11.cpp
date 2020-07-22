@@ -1711,7 +1711,7 @@ I32 GraphicsDeviceD3D11::CreateDepthStencilView(Texture2D & texture, U32 arraySl
 	return subresourceIndex;
 }
 
-I32 GraphicsDeviceD3D11::CreateUnordereddAccessView(Texture2D& texture, U32 firstMip)
+I32 GraphicsDeviceD3D11::CreateUnordereddAccessView(Texture2D& texture, U32 arraySlice, U32 arrayCount, U32 firstMip)
 {
 	auto rhiState = GetGraphicsDeviceChildState<TextureD3D11>(texture);
 	if (rhiState == nullptr) {
@@ -1735,26 +1735,33 @@ I32 GraphicsDeviceD3D11::CreateUnordereddAccessView(Texture2D& texture, U32 firs
 			break;
 		}
 
-		// 目前不处理texture2DArray
+
 		if (arraySize > 0 && arraySize <= 1)
 		{
 			uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
 			uavDesc.Texture2D.MipSlice = firstMip;
+		}
+		else
+		{
+			uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2DARRAY;
+			uavDesc.Texture2DArray.FirstArraySlice = arraySlice;
+			uavDesc.Texture2DArray.ArraySize = arrayCount;
+			uavDesc.Texture2DArray.MipSlice = firstMip;
+		}
 
-			ComPtr <ID3D11UnorderedAccessView> newUAV = nullptr;
-			HRESULT result = mDevice->CreateUnorderedAccessView(rhiState->mResource.Get(), &uavDesc, &newUAV);
-			if (SUCCEEDED(result))
+		ComPtr <ID3D11UnorderedAccessView> newUAV = nullptr;
+		HRESULT result = mDevice->CreateUnorderedAccessView(rhiState->mResource.Get(), &uavDesc, &newUAV);
+		if (SUCCEEDED(result))
+		{
+			if (rhiState->mUAV == nullptr)
 			{
-				if (rhiState->mUAV == nullptr)
-				{
-					rhiState->mUAV = newUAV;
-				}
-				else 
-				{
-					//Debug::Warning("CreateUnordereddAccessView: create new subresource, count:" + std::to_string(texture.mSubresourceUAVS.size()));
-					subresourceIndex = rhiState->mSubresourceUAVS.size();
-					rhiState->mSubresourceUAVS.push_back(newUAV);
-				}
+				rhiState->mUAV = newUAV;
+			}
+			else
+			{
+				//Debug::Warning("CreateUnordereddAccessView: create new subresource, count:" + std::to_string(texture.mSubresourceUAVS.size()));
+				subresourceIndex = rhiState->mSubresourceUAVS.size();
+				rhiState->mSubresourceUAVS.push_back(newUAV);
 			}
 		}
 	}

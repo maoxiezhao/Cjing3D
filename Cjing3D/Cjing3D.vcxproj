@@ -226,6 +226,7 @@
     <ClInclude Include="renderer\2D\sprite.h" />
     <ClInclude Include="renderer\2D\textDrawable.h" />
     <ClInclude Include="renderer\includeD3D11.h" />
+    <ClInclude Include="renderer\particleSystem.h" />
     <ClInclude Include="renderer\passes\note.h" />
     <ClInclude Include="renderer\passes\renderPass.h" />
     <ClInclude Include="renderer\passes\terrainPass.h" />
@@ -257,6 +258,7 @@
     <ClInclude Include="resource\resource.h" />
     <ClInclude Include="resource\resourceManager.h" />
     <ClInclude Include="resource\resourcePool.hpp" />
+    <ClInclude Include="scripts\api\jsonApi.h" />
     <ClInclude Include="scripts\api\luaApi.h" />
     <ClInclude Include="scripts\api\matrixApi.h" />
     <ClInclude Include="scripts\api\sceneApi.h" />
@@ -459,6 +461,7 @@
     <ClCompile Include="resource\modelImporter\modelImporterObj.cpp" />
     <ClCompile Include="resource\resource.cpp" />
     <ClCompile Include="resource\resourceManager.cpp" />
+    <ClCompile Include="scripts\api\jsonApi.cpp" />
     <ClCompile Include="scripts\api\luaApi.cpp" />
     <ClCompile Include="scripts\api\matrixApi.cpp" />
     <ClCompile Include="scripts\api\rendererApi.cpp" />

@@ -4,14 +4,6 @@
 #include "helper\fileSystem.h"
 #include "resource\resource.h"
 #include "resource\resourcePool.hpp"
-#include "resource\modelImporter.h"
-#include "renderer\renderer.h"
-#include "renderer\RHI\rhiResource.h"
-#include "renderer\RHI\device.h"
-#include "renderer\RHI\rhiShader.h"
-#include "core\systemContext.hpp"
-
-#include <filesystem>
 
 namespace Cjing3D
 {
@@ -90,7 +82,7 @@ public:
 	std::enable_if_t<std::is_same<ResourceT, SoundResource>::value, std::shared_ptr<SoundResource>>
 		GetOrCreate(const StringID& filePath);
 
-private:
+public:
 	template <typename ResourceT>
 	PoolType<ResourceT>& GetPool()
 	{
@@ -102,6 +94,9 @@ private:
 	const PoolType<ResourceT>& GetPool()const;
 
 	void LoadTextureFromFilePath(const std::filesystem::path& filePath, Texture2D& texture, FORMAT textureFormat = FORMAT_R8G8B8A8_UNORM, U32 channelCount = 4, U32 bindFlag = BIND_SHADER_RESOURCE, bool generateMipmap = false);
+	void LoadCubeTextureFromFilePath(const std::vector<std::filesystem::path>& filePaths, Texture2D& texture, const I32x2& size, FORMAT textureFormat = FORMAT_R8G8B8A8_UNORM, U32 bindFlag = BIND_SHADER_RESOURCE, bool generateMipmap = false);
+	
+private:
 	void LoadSoundFromFilePath(const std::filesystem::path& filePath, SoundResource& soundResource);
 
 private:

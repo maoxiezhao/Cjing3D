@@ -60,7 +60,7 @@ namespace Cjing3D
 		virtual I32 CreateRenderTargetView(Texture2D& texture) = 0;
 		virtual I32 CreateShaderResourceView(Texture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1, U32 firstMip = 0, U32 mipLevel = -1) = 0;
 		virtual I32 CreateDepthStencilView(Texture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1) = 0;
-		virtual I32 CreateUnordereddAccessView(Texture2D& texture, U32 firstMip = 0) = 0;
+		virtual I32 CreateUnordereddAccessView(Texture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1, U32 firstMip = 0) = 0;
 
 		virtual void ClearRenderTarget(Texture2D& texture, F32x4 color) = 0;
 		virtual void ClearDepthStencil(Texture2D& texture, UINT clearFlag, F32 depth, U8 stencil, I32 subresourceIndex = -1) = 0;
@@ -98,6 +98,7 @@ namespace Cjing3D
 		virtual HRESULT ReadQuery(GPUQuery& query, GPUQueryResult& result) = 0;
 
 		U32 GetFormatStride(FORMAT value) const;
+		bool IsFormatUnorm(FORMAT value)const;
 
 		FORMAT GetBackBufferFormat()const {
 			return mBackBufferFormat;

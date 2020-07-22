@@ -674,6 +674,9 @@
     <ClCompile Include="gui\guiAnimation\guiAnimation.cpp">
       <Filter>gui\guiAnimation</Filter>
     </ClCompile>
+    <ClCompile Include="scripts\api\jsonApi.cpp">
+      <Filter>scripts\api</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -1337,6 +1340,12 @@
     </ClInclude>
     <ClInclude Include="gui\guiAnimation\note.h">
       <Filter>gui\guiAnimation</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\particleSystem.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\api\jsonApi.h">
+      <Filter>scripts\api</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

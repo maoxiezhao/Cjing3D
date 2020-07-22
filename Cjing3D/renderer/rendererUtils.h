@@ -12,6 +12,11 @@ namespace Cjing3D
 	
 
 	// 延迟的Mip生成器
+	struct MipGenerateOption
+	{
+		int arrayIndex = -1;
+	};
+
 	class DeferredMIPGenerator
 	{
 	public:
@@ -25,13 +30,14 @@ namespace Cjing3D
 
 		DeferredMIPGenerator();
 
-		void AddTexture(Texture2D& texture);
+		void AddTexture(Texture2D& texture, MipGenerateOption option = MipGenerateOption());
 		void UpdateMipGenerating();
-		void GenerateMipChain(Texture2D& texture, MIPGENFILTER filter);
+		void GenerateMipChain(Texture2D& texture, MIPGENFILTER filter, MipGenerateOption option = MipGenerateOption());
 
 	private:
 		// TODO; 可能存在某些纹理提前释放问题
-		std::vector<Texture2D*> mMipGenDeferredArray;
+		std::vector<std::pair<Texture2D*, MipGenerateOption>> mMipGenDeferredArray;
+		const U32 maxGenerateCountPerFrame = 16;	// TODO
 	};
 	struct alignas(16) RenderInstance 
 	{

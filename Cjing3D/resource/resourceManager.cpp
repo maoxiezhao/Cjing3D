@@ -1,10 +1,12 @@
 #include "resourceManager.h"
 #include "helper\fileSystem.h"
 #include "renderer\renderer.h"
+#include "renderer\RHI\device.h"
 #include "core\systemContext.hpp"
 #include "audio\audio.h"
 #include "utils\utilsCommon.h"
 #include "utils\stb_utils\stb_image_include.h"
+#include "resource\modelImporter.h"
 
 #define TINYDDSLOADER_IMPLEMENTATION
 #include "utils\tinyddsloader.h"
@@ -201,7 +203,7 @@ void ResourceManager::LoadTextureFromFilePath(const std::filesystem::path& fileP
 			for (int mipLevel = 0; mipLevel < desc.mMipLevels; mipLevel++)
 			{
 				device.CreateShaderResourceView(texture, 0, -1, mipLevel, 1);
-				device.CreateUnordereddAccessView(texture, mipLevel);
+				device.CreateUnordereddAccessView(texture, 0, -1, mipLevel);
 			}
 
 			if (desc.mMipLevels > 1) {
@@ -214,6 +216,94 @@ void ResourceManager::LoadTextureFromFilePath(const std::filesystem::path& fileP
 		if (data != nullptr) {
 			delete[] data;
 		}
+	}
+}
+
+void ResourceManager::LoadCubeTextureFromFilePath(const std::vector<std::filesystem::path>& filePaths, Texture2D& texture, const I32x2& size, FORMAT textureFormat, U32 bindFlag, bool generateMipmap)
+{
+	// TODO: fix bug
+
+	if (filePaths.size() < 6) {
+		Logger::Warning("Cube Texture must requires 6 textures");
+		return;
+	}
+
+	Logger::Info("LoadCubeTextureFromFilePath:");
+
+	TextureDesc desc = {};
+	desc.mWidth = size.x();
+	desc.mHeight = size.y();
+	desc.mArraySize = 6;
+	desc.mMipLevels = 1; // generateMipmap ? static_cast<U32>(std::log2(std::max(desc.mWidth, desc.mHeight))) : 1;
+	desc.mFormat = textureFormat;
+	desc.mBindFlags = bindFlag;
+	desc.mUsage = USAGE_DEFAULT;
+	desc.mMiscFlags = RESOURCE_MISC_TEXTURECUBE;
+
+	std::vector<SubresourceData> resourceData(desc.mMipLevels * desc.mArraySize);
+	std::vector<unsigned char*> loadedRGBs;
+	size_t index = 0;
+	for (const auto& filePath : filePaths)
+	{
+		Logger::Info(std::to_string(index) + filePath.string());
+
+		std::wstring extension(filePath.extension());
+		if (extension == L".dds") {
+			return;
+		}
+
+		const std::string path = filePath.generic_string();
+		size_t length = 0;
+		unsigned char* data = (unsigned char*)FileData::ReadFileBytes(path, length);
+		if (data == nullptr) {
+			return;
+		}
+
+		int width, height, bpp;
+		int channelCount = 4;
+		unsigned char* rgb = stbi_load_from_memory(data, length, &width, &height, &bpp, 4);
+		if (rgb != nullptr)
+		{
+			if (width != desc.mWidth || height != desc.mHeight) {
+				stbi_image_free(rgb);
+			}
+
+			// 对于非dds纹理加载，需要自建mipmap
+			U32 mipWidth = width;
+			for (int mipLevel = 0; mipLevel < desc.mMipLevels; mipLevel++)
+			{
+				size_t realIndex = mipLevel + index * desc.mMipLevels;
+				resourceData[realIndex].mSysMem = rgb;
+				resourceData[realIndex].mSysMemPitch = mipWidth * channelCount;
+				resourceData[realIndex].mSysMemSlicePitch = 0; //imageData->m_memSlicePitch;
+
+				mipWidth = std::max(1u, mipWidth / 2);
+			}
+		}
+
+		if (data != nullptr) {
+			delete[] data;
+		}
+	}
+
+	GraphicsDevice& device = Renderer::GetDevice();
+	const auto result = device.CreateTexture2D(&desc, nullptr, texture);
+	Debug::ThrowIfFailed(result, "Failed to create cube map:%08x", result);
+	device.SetResourceName(texture, filePaths[0].string());
+
+	// 创建各个subresource的srv和uav,用于deferred generate mipmap
+	for (int mipLevel = 0; mipLevel < desc.mMipLevels; mipLevel++)
+	{
+		device.CreateShaderResourceView(texture, 0, desc.mArraySize, mipLevel, 1);
+		device.CreateUnordereddAccessView(texture, 0, desc.mArraySize, mipLevel);
+	}
+
+	if (desc.mMipLevels > 1) {
+		Renderer::AddDeferredTextureMipGen(texture);
+	}
+
+	for (unsigned char* rgb : loadedRGBs) {
+		stbi_image_free(rgb);
 	}
 }
 

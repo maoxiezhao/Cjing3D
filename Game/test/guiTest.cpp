@@ -1,6 +1,7 @@
 #include "guiTest.h"
 
 #include "utils\signal\signal.h"
+#include "renderer\renderer.h"
 
 #include "gui\guiStage.h"
 #include "gui\guiWidgets\stackPanel.h"

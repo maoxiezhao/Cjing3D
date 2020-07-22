@@ -86,6 +86,17 @@ namespace ECS
 			}
 		}
 
+		static ComponentT* CreateComponent(const ComponentT& rhs)
+		{
+			// TODO:optim
+			if (mComponentPool == nullptr) {
+				return CJING_MEM_NEW(ComponentT(rhs));
+			}
+			else {
+				return mComponentPool->New(rhs);
+			}
+		}
+
 		static void DestroyComponent(ComponentT* ptr)
 		{
 			// TODO:optim
@@ -110,7 +121,7 @@ namespace ECS
 			mLookup.clear();
 		}
 		
-		inline ComponentTPtr Create(Entity entity)
+		inline ComponentTPtr Create(Entity entity, ComponentTPtr rhs = nullptr)
 		{
 			Debug::CheckAssertion(entity != INVALID_ENTITY, "Invalid entity.");
 			Debug::CheckAssertion(mLookup.find(entity) == mLookup.end(), "The entity is already have component");
@@ -122,7 +133,7 @@ namespace ECS
 			mEntities.push_back(entity);
 
 			// 从object pool创建
-			auto componentPtr = CreateComponent();
+			auto componentPtr = rhs != nullptr ? CreateComponent(*rhs) : CreateComponent();
 			mComponents.push_back(componentPtr);
 
 			// TEMP: 临时尝试下在component中保存entity
@@ -247,6 +258,16 @@ namespace ECS
 		inline bool Contains(Entity entity)
 		{
 			return mLookup.find(entity) != mLookup.end();
+		}
+
+		inline void DuplicateComponent(Entity oldEntity, Entity newEntity)
+		{
+			if (!Contains(oldEntity) || newEntity == INVALID_ENTITY) {
+				return;
+			}
+
+			auto oldComponent = GetComponent(oldEntity);
+			Create(newEntity, oldComponent);
 		}
 
 		inline ComponentTPtr GetOrCreateComponent(Entity entity)

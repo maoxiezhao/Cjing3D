@@ -32,9 +32,6 @@
     <FxCompile Include="cs\toneMapping.hlsl">
       <Filter>cs</Filter>
     </FxCompile>
-    <FxCompile Include="cs\mipmapGenerate.hlsl">
-      <Filter>cs</Filter>
-    </FxCompile>
     <FxCompile Include="vs\imageVS.hlsl">
       <Filter>vs</Filter>
     </FxCompile>
@@ -139,6 +136,18 @@
     </FxCompile>
     <FxCompile Include="ps\posColorPS.hlsl">
       <Filter>ps</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\mipmapGenerateCubeCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\mipmapGenerateCubeUnormCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\mipmapGenerateUnormCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\mipmapGenerateCS.hlsl">
+      <Filter>cs</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

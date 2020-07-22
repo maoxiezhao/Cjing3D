@@ -42,7 +42,7 @@ typedef XMINT4 int4;
 #define STRUCTUREDBUFFER(name, type, slot) StructuredBuffer<type> name :register(t ## slot);
 
 #define RWTEXTURE2D(name, type, slot) RWTexture2D<type> name : register(u ## slot);
-
+#define RWTEXTURE2DArray(name, type, slot) RWTexture2DArray<type> name : register(u ## slot);
 #endif
 
 #endif

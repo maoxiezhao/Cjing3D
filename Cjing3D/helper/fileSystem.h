@@ -2,6 +2,7 @@
 
 #include "common\common.h"
 
+#include <filesystem>
 #include <string>
 #include <vector>
 

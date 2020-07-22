@@ -9,21 +9,21 @@ namespace Cjing3D
 	{
 	}
 
-	void DeferredMIPGenerator::AddTexture(Texture2D& texture)
+	void DeferredMIPGenerator::AddTexture(Texture2D& texture, MipGenerateOption option)
 	{
-		mMipGenDeferredArray.push_back(&texture);
+		mMipGenDeferredArray.push_back(std::make_pair(&texture, option));
 	}
 
 	void DeferredMIPGenerator::UpdateMipGenerating()
 	{
 		// 处理每个mip生成任务
-		for (auto texture : mMipGenDeferredArray) {
-			GenerateMipChain(*texture, MIPGENFILTER::MIPGENFILTER_LINEAR);
+		for (const auto& it : mMipGenDeferredArray) {
+			GenerateMipChain(*(it.first), MIPGENFILTER::MIPGENFILTER_LINEAR, it.second);
 		}
 		mMipGenDeferredArray.clear();
 	}
 
-	void DeferredMIPGenerator::GenerateMipChain(Texture2D & texture, MIPGENFILTER filter)
+	void DeferredMIPGenerator::GenerateMipChain(Texture2D & texture, MIPGENFILTER filter, MipGenerateOption option)
 	{
 		auto desc = texture.GetDesc();
 		if (desc.mMipLevels <= 1) {
@@ -35,22 +35,47 @@ namespace Cjing3D
 		RenderPreset& renderPreset = Renderer::GetRenderPreset();
 
 		// generate mipmap by compute shader
-		switch (filter)
+		bool isHDR = device.IsFormatUnorm(desc.mFormat);
+		U32 dispatchZ = 1;
+		if (desc.mMiscFlags & RESOURCE_MISC_TEXTURECUBE)
 		{
-		case MIPGENFILTER_POINT:
-			device.BeginEvent("GenerateMipChain-FilterPoint");
-			device.BindComputeShader(shaderLib.GetComputeShader(ComputeShaderType_MipmapGenerate));
-			device.BindSamplerState(SHADERSTAGES_CS, *renderPreset.GetSamplerState(SamplerStateID_PointClamp), SAMPLER_SLOT_0);
+			switch (filter)
+			{
+			case MIPGENFILTER_POINT:
+				device.BeginEvent("GenerateMipChain-FilterPoint");
+				device.BindComputeShader(shaderLib.GetComputeShader(isHDR ? ComputeShaderType_MipmapCubeGenerateUnorm : ComputeShaderType_MipmapCubeGenerate));
+				device.BindSamplerState(SHADERSTAGES_CS, *renderPreset.GetSamplerState(SamplerStateID_PointClamp), SAMPLER_SLOT_0);
 
-			break;
-		case MIPGENFILTER_LINEAR:
-			device.BeginEvent("GenerateMipChain-FilterLinear");
-			device.BindComputeShader(shaderLib.GetComputeShader(ComputeShaderType_MipmapGenerate));
-			device.BindSamplerState(SHADERSTAGES_CS, *renderPreset.GetSamplerState(SamplerStateID_LinearClamp), SAMPLER_SLOT_0);
+				break;
+			case MIPGENFILTER_LINEAR:
+				device.BeginEvent("GenerateMipChain-FilterLinear");
+				device.BindComputeShader(shaderLib.GetComputeShader(isHDR ? ComputeShaderType_MipmapCubeGenerateUnorm : ComputeShaderType_MipmapCubeGenerate));
+				device.BindSamplerState(SHADERSTAGES_CS, *renderPreset.GetSamplerState(SamplerStateID_LinearClamp), SAMPLER_SLOT_0);
 
-			break;
-		default:
-			return;
+				break;
+			default:
+				return;
+			}
+		}
+		else
+		{
+			switch (filter)
+			{
+			case MIPGENFILTER_POINT:
+				device.BeginEvent("GenerateMipChain-FilterPoint");
+				device.BindComputeShader(shaderLib.GetComputeShader(isHDR ? ComputeShaderType_MipmapGenerateUnorm : ComputeShaderType_MipmapGenerate));
+				device.BindSamplerState(SHADERSTAGES_CS, *renderPreset.GetSamplerState(SamplerStateID_PointClamp), SAMPLER_SLOT_0);
+				dispatchZ = 6;
+				break;
+			case MIPGENFILTER_LINEAR:
+				device.BeginEvent("GenerateMipChain-FilterLinear");
+				device.BindComputeShader(shaderLib.GetComputeShader(isHDR ? ComputeShaderType_MipmapGenerateUnorm : ComputeShaderType_MipmapGenerate));
+				device.BindSamplerState(SHADERSTAGES_CS, *renderPreset.GetSamplerState(SamplerStateID_LinearClamp), SAMPLER_SLOT_0);
+				dispatchZ = 6;
+				break;
+			default:
+				return;
+			}
 		}
 
 		U32 currentWidth = desc.mWidth;
@@ -81,7 +106,7 @@ namespace Cjing3D
 			device.Dispatch(
 				(U32)((currentWidth + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
 				(U32)((currentHeight + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
-				1
+				dispatchZ
 			);
 		}
 

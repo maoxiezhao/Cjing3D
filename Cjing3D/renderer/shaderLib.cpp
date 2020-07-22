@@ -181,7 +181,10 @@ void ShaderLib::LoadComputeShaders()
 	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_Shader);
 	{
 		mComputeShader[ComputeShaderType_Tonemapping]       = LoadShader(SHADERSTAGES_CS, shaderPath + "toneMapping.cso");
-		mComputeShader[ComputeShaderType_MipmapGenerate]    = LoadShader(SHADERSTAGES_CS, shaderPath + "mipmapGenerate.cso");
+		mComputeShader[ComputeShaderType_MipmapGenerate]    = LoadShader(SHADERSTAGES_CS, shaderPath + "mipmapGenerateCS.cso");
+		mComputeShader[ComputeShaderType_MipmapCubeGenerate]= LoadShader(SHADERSTAGES_CS, shaderPath + "mipmapGenerateCubeCS.cso");
+		mComputeShader[ComputeShaderType_MipmapGenerateUnorm]     = LoadShader(SHADERSTAGES_CS, shaderPath + "mipmapGenerateUnormCS.cso");
+		mComputeShader[ComputeShaderType_MipmapCubeGenerateUnorm] = LoadShader(SHADERSTAGES_CS, shaderPath + "mipmapGenerateCubeUnormCS.cso");
 		mComputeShader[ComputeShaderType_FXAA]              = LoadShader(SHADERSTAGES_CS, shaderPath + "fxaaCS.cso");
 		mComputeShader[ComputeShaderType_Skinning]          = LoadShader(SHADERSTAGES_CS, shaderPath + "skinningCS.cso");
 		mComputeShader[ComputeShaderType_TiledFrustum]      = LoadShader(SHADERSTAGES_CS, shaderPath + "tileFrustumCS.cso");

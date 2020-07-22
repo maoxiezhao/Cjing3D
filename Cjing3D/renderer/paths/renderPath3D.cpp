@@ -64,7 +64,7 @@ namespace Cjing3D
 			for (int i = 0; i < 6; i++)
 			{
 				device.CreateShaderResourceView(mDepthBufferLinear, 0, -1, i, 1);
-				device.CreateUnordereddAccessView(mDepthBufferLinear, i);
+				device.CreateUnordereddAccessView(mDepthBufferLinear, 0, -1, i);
 			}
 		}
 

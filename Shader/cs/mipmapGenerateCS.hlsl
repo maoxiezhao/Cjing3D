@@ -1,9 +1,11 @@
 #include "..\hf\global.hlsli"
 
+#ifndef TARGET_FORMAT
+#define TARGET_FORMAT float4
+#endif
+
 TYPE_TEXTURE2D(texture_input, float4, TEXTURE_SLOT_UNIQUE_0);
-
-RWTEXTURE2D(texture_output, unorm float4, 0);
-
+RWTEXTURE2D(texture_output, TARGET_FORMAT, 0);
 SAMPLERSTATE(genSampler, SAMPLER_SLOT_0);
 
 [numthreads(SHADER_MIPMAPGENERATE_BLOCKSIZE, SHADER_MIPMAPGENERATE_BLOCKSIZE, 1)]

@@ -20,10 +20,14 @@ namespace Cjing3D
 
 			static int GetMainScene(lua_State* l);
 			
+			void ClearScene();
 			ECS::Entity CreateEntity();
+			void RemoveEntity(ECS::Entity entity);
+			ECS::Entity DuplicateEntity(ECS::Entity entity);
 			LightComponent& CreateLight(ECS::Entity entity);
 			TransformComponent& CreateTransform(ECS::Entity entity);
 			ECS::Entity LoadModel(const std::string& path);
+
 
 			TransformComponent* GetTransform(ECS::Entity entity);
 

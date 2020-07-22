@@ -54,6 +54,9 @@ enum ComputeShaderType
 {
 	ComputeShaderType_Tonemapping = 0,
 	ComputeShaderType_MipmapGenerate,
+	ComputeShaderType_MipmapCubeGenerate,
+	ComputeShaderType_MipmapGenerateUnorm,
+	ComputeShaderType_MipmapCubeGenerateUnorm,
 	ComputeShaderType_FXAA,
 	ComputeShaderType_Skinning,
 	ComputeShaderType_TiledFrustum,

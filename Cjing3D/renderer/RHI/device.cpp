@@ -166,6 +166,28 @@ U32 GraphicsDevice::GetFormatStride(FORMAT value) const
 	return 16;
 }
 
+bool GraphicsDevice::IsFormatUnorm(FORMAT value) const
+{
+	switch (value)
+	{
+	case FORMAT_R16G16B16A16_UNORM:
+	case FORMAT_R10G10B10A2_UNORM:
+	case FORMAT_R8G8B8A8_UNORM:
+	case FORMAT_R8G8B8A8_UNORM_SRGB:
+	case FORMAT_B8G8R8A8_UNORM:
+	case FORMAT_B8G8R8A8_UNORM_SRGB:
+	case FORMAT_R16G16_UNORM:
+	case FORMAT_D24_UNORM_S8_UINT:
+	case FORMAT_R8G8_UNORM:
+	case FORMAT_D16_UNORM:
+	case FORMAT_R16_UNORM:
+	case FORMAT_R8_UNORM:
+		return true;
+	}
+
+	return false;
+}
+
 void GraphicsDevice::CreatePipelineState(PipelineStateDesc& desc, PipelineState& state)
 {
 	state.mRhiState = mEmptyRhiState;

@@ -45,7 +45,7 @@ public:
 	virtual I32 CreateRenderTargetView(Texture2D& texture);
 	virtual I32 CreateShaderResourceView(Texture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1, U32 firstMip = 0, U32 mipLevel = -1);
 	virtual I32 CreateDepthStencilView(Texture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1);
-	virtual I32 CreateUnordereddAccessView(Texture2D& texture, U32 firstMip = 0);
+	virtual I32 CreateUnordereddAccessView(Texture2D& texture, U32 arraySlice = 0, U32 arrayCount = -1, U32 firstMip = 0);
 
 	virtual void BindRenderTarget(UINT numView, Texture2D* const* texture2D, Texture2D* depthStencilTexture, I32 subresourceIndex = -1);
 	virtual void ClearRenderTarget(Texture2D& texture, F32x4 color);

@@ -16,6 +16,8 @@ using namespace DirectX::PackedVector;
 
 namespace Cjing3D {
 
+	const XMFLOAT4X4 IDENTITYMATRIX = XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+
 	using U32x2 = Array<U32, 2>;
 	using U32x3 = Array<U32, 3>;
 	using U32x4 = Array<U32, 4>;

@@ -1,6 +1,7 @@
 #include "sceneSystem.h"
 #include "resource\resourceManager.h"
 #include "helper\profiler.h"
+#include "resource\modelImporter.h"
 
 namespace Cjing3D
 {
@@ -238,6 +239,20 @@ namespace Cjing3D
 		return light;
 	}
 
+	ObjectComponent& Scene::GetOrCreateObjectByEntity(ECS::Entity entity)
+	{
+		auto object = mObjects.GetComponent(entity);
+		if (object != nullptr) {
+			return *object;
+		}
+
+		object = mObjects.Create(entity);
+		mObjectAABBs.Create(entity);
+		GetOrCreateTransformByEntity(entity);
+
+		return *object;
+	}
+
 	ECS::Entity Scene::CreateEntityByName(const std::string & name)
 	{
 		auto nameID = StringID(name);
@@ -382,6 +397,38 @@ namespace Cjing3D
 
 			mHierarchies.RemoveAndKeepSorted(entity);
 		}
+	}
+
+	void Scene::DetachEntityChildren(ECS::Entity entity)
+	{
+		if (entity == ECS::INVALID_ENTITY) {
+			return;
+		}
+
+		std::vector<ECS::Entity> removed;
+		for (const auto& hierarchy : mHierarchies.GetComponents())
+		{
+			if (hierarchy->mParent == entity)
+			{
+				removed.push_back(hierarchy->GetCurrentEntity());
+			}
+		}
+
+		for (const auto& entity : removed) 
+		{
+			DetachEntity(entity);
+		}
+	}
+
+	ECS::Entity Scene::DuplicateEntity(ECS::Entity entity)
+	{
+		ECS::Entity newEntity = CreateEntity();
+		auto allComponentManagers = GetAllComponentManagers();
+		std::apply([entity, newEntity](auto&&... componentManager) {
+			return (componentManager->DuplicateComponent(entity, newEntity), ...); },
+			allComponentManagers
+		);
+		return newEntity;
 	}
 
 	Scene::PickResult Scene::MousePickObjects(const U32x2& mousePos)

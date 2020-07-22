@@ -19,9 +19,24 @@ namespace Cjing3D {
 			});
 		}
 
+		void BindLuaScene::ClearScene()
+		{
+			mScene.Clear();
+		}
+
 		ECS::Entity BindLuaScene::CreateEntity()
 		{
 			return ECS::CreateEntity();
+		}
+
+		void BindLuaScene::RemoveEntity(ECS::Entity entity)
+		{
+			mScene.RemoveEntity(entity);
+		}
+
+		ECS::Entity BindLuaScene::DuplicateEntity(ECS::Entity entity)
+		{
+			return mScene.DuplicateEntity(entity);
 		}
 
 		LightComponent& BindLuaScene::CreateLight(ECS::Entity entity)
@@ -70,7 +85,10 @@ namespace Cjing3D {
 			LuaBinder(l)
 				.BeginClass<BindLuaScene>("Scene")
 				.AddCFunction("GetMainScene", BindLuaScene::GetMainScene)
+				.AddMethod("ClearScene", &BindLuaScene::ClearScene)
 				.AddMethod("CreateEntity", &BindLuaScene::CreateEntity)
+				.AddMethod("RemoveEntity", &BindLuaScene::RemoveEntity)
+				.AddMethod("DuplicateEntity", &BindLuaScene::DuplicateEntity)		
 				.AddMethod("CreateLight", &BindLuaScene::CreateLight)
 				.AddMethod("CreateTransform", &BindLuaScene::CreateTransform)
 				.AddMethod("LoadModel", &BindLuaScene::LoadModel)

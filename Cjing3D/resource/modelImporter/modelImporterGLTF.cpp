@@ -131,7 +131,7 @@ namespace ModelImporter {
 			for (int mipLevel = 0; mipLevel < desc.mMipLevels; mipLevel++)
 			{
 				device.CreateShaderResourceView(texture, 0, -1, mipLevel, 1);
-				device.CreateUnordereddAccessView(texture, mipLevel);
+				device.CreateUnordereddAccessView(texture, 0, -1, mipLevel);
 			}
 
 			if (desc.mMipLevels > 1) {

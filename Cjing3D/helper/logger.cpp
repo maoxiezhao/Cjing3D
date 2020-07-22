@@ -14,11 +14,21 @@ namespace Cjing3D {
 			const string errorLogFileName = "error.txt";
 			std::ofstream errorFile;
 
+			const string generalLogFileName = "logger.txt";
+			std::ofstream loggerFile;
+
 			std::ofstream& GetErrorFile()
 			{
 				if (!errorFile.is_open())
 					errorFile.open(errorLogFileName);
 				return errorFile;
+			}
+
+			std::ofstream& GetLoggerFile()
+			{
+				if (!loggerFile.is_open())
+					loggerFile.open(generalLogFileName);
+				return loggerFile;
 			}
 
 			std::string GetCurSystemTimeStr()
@@ -55,6 +65,7 @@ namespace Cjing3D {
 		{
 			GameWindow::GameWindow::SetLoggerConsoleFontColor(CONSOLE_FONT_GREEN);
 			Print("[Info]  " + msg);
+			Print("[Info]  " + msg, GetLoggerFile());
 			GameWindow::GameWindow::SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
 		}
 
@@ -68,6 +79,7 @@ namespace Cjing3D {
 
 			GameWindow::SetLoggerConsoleFontColor(CONSOLE_FONT_GREEN);
 			Print("[Info]  " + std::string(msg));
+			Print("[Info]  " + std::string(msg), GetLoggerFile());
 			GameWindow::SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
 		}
 
@@ -76,7 +88,7 @@ namespace Cjing3D {
 			GameWindow::SetLoggerConsoleFontColor(CONSOLE_FONT_YELLOW);
 			string warningMsg = "[Warning]  " + msg;
 			Print(warningMsg);
-			Print(warningMsg, GetErrorFile());
+			Print(warningMsg, GetLoggerFile());
 			GameWindow::SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
 		}
 
@@ -86,6 +98,7 @@ namespace Cjing3D {
 			string warningMsg = "[Error]  " + msg;
 			Print(warningMsg);
 			Print(warningMsg, GetErrorFile());
+			Print(warningMsg, GetLoggerFile());
 			GameWindow::SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
 		}
 
@@ -95,6 +108,7 @@ namespace Cjing3D {
 			string warningMsg = "[Fatal]  " + msg;
 			Print(warningMsg);
 			Print(warningMsg, GetErrorFile());
+			Print(warningMsg, GetLoggerFile());
 		}
 	}
 }

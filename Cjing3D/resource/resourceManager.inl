@@ -1,4 +1,3 @@
-#include "resourceManager.h"
 
 template <>
 inline const ResourceManager::PoolType<TextureResource>&

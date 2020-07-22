@@ -19,6 +19,14 @@ namespace Cjing3D
 		mSkyMapName = name;
 	}
 
+	void WeatherComponent::LoadSkyMap(const I32x2& size, const std::vector<std::filesystem::path>& filePaths)
+	{
+		ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
+		mSkyMap = resourceManager.GetOrCreateEmptyResource<TextureResource>(StringID(filePaths[0].string()));
+		mSkyMapName = filePaths[0].string();
+		resourceManager.LoadCubeTextureFromFilePath(filePaths, *mSkyMap->mTexture, size);
+	}
+
 	void WeatherComponent::Serialize(Archive& archive, U32 seed)
 	{
 		archive >> mSkyMapName;
