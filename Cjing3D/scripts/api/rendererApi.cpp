@@ -21,10 +21,8 @@ namespace Cjing3D {
 			return LuaTools::ExceptionBoundary(l, [&] {
 				I32 col = LuaTools::Get<I32>(l, 1);
 				I32 row = LuaTools::Get<I32>(l, 2);
-				F32 offsetX = LuaTools::Get<F32>(l, 3);
-				F32 offsetY = LuaTools::Get<F32>(l, 4);
 
-				Renderer::SetDebugGridSize({ col, row }, { offsetX, offsetY });
+				Renderer::SetDebugGridSize({ col, row });
 				return 0;
 			});
 		}

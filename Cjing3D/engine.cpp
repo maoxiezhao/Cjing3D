@@ -110,7 +110,7 @@ void Engine::Initialize()
 
 	// game start
 	mGameComponent->Initialize();
-	luaContext->OnMainStart();
+	luaContext->StartMainScript();
 
 	mLuaContext = luaContext;
 	mGuiStage = guiStage;
@@ -175,7 +175,7 @@ void Engine::Uninitialize()
 		return;
 	}
 
-	mSystemContext->GetSubSystem<LuaContext>().OnMainUninitialize();
+	mSystemContext->GetSubSystem<LuaContext>().StopMainScript();
 	mGameComponent->Uninitialize();
 
 	Scene::GetScene().Clear();

@@ -601,7 +601,7 @@ namespace ModelImporter {
 		}
 	}
 
-	ECS::Entity ImportModelGLTF(const std::string& fileName)
+	ECS::Entity ImportModelGLTF(const std::string& fileName, Scene& scene)
 	{
 		std::filesystem::path path(fileName);
 
@@ -706,7 +706,7 @@ namespace ModelImporter {
 		loaderInfo.loadedTextures.clear();
 
 		// update scene
-		Scene::GetScene().Merge(loaderInfo.scene);
+		scene.Merge(loaderInfo.scene);
 
 		return rootEntity;
 	}

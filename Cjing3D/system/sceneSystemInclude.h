@@ -23,6 +23,7 @@ namespace Cjing3D {
 	// TODO
 	using ComponentManagerTypesConst = std::tuple<
 		const ECS::ComponentManager<NameComponent>*,
+		const ECS::ComponentManager<LayerComponent>*,
 		const ECS::ComponentManager<TransformComponent>*,
 		const ECS::ComponentManager<HierarchyComponent>*,
 		const ECS::ComponentManager<MaterialComponent>*,
@@ -40,6 +41,7 @@ namespace Cjing3D {
 
 	using ComponentManagerTypes = std::tuple<
 		ECS::ComponentManager<NameComponent>*,
+		ECS::ComponentManager<LayerComponent>*,
 		ECS::ComponentManager<TransformComponent>*,
 		ECS::ComponentManager<HierarchyComponent>*,
 		ECS::ComponentManager<MaterialComponent>*,

@@ -37,6 +37,7 @@ namespace Cjing3D {
 		TransformComponent& GetOrCreateTransformByEntity(ECS::Entity entity);
 		LightComponent& GetOrCreateLightByEntity(ECS::Entity entity);
 		ObjectComponent& GetOrCreateObjectByEntity(ECS::Entity entity);
+		LayerComponent& GetOrCreateLayerByEntity(ECS::Entity entity);
 
 		ECS::Entity CreateEntityByName(const std::string& name);
 		ECS::Entity GetEntityByName(const StringID& name);
@@ -56,10 +57,10 @@ namespace Cjing3D {
 			F32x3 position = F32x3(0.0f, 0.0f, 0.0f);
 			F32x2 bary = F32x2(0.0f, 0.0f);
 		};
-		PickResult MousePickObjects(const U32x2& mousePos);
-		PickResult PickObjects(const Ray& ray);
-		PickResult PickObjects(const Ray& ray, const std::vector<ECS::Entity>& objects, bool triangleIntersect = true);
-		PickResult PickObjectsByBullet(const Ray& ray);
+		PickResult MousePickObjects(const U32x2& mousePos, const U32 layerMask = LayerComponent::DefaultLayerMask);
+		PickResult PickObjects(const Ray& ray, const U32 layerMask = LayerComponent::DefaultLayerMask);
+		PickResult PickObjects(const Ray& ray, const std::vector<ECS::Entity>& objects, bool triangleIntersect = true, const U32 layerMask = LayerComponent::DefaultLayerMask);
+		PickResult PickObjectsByBullet(const Ray& ray, const U32 layerMask = LayerComponent::DefaultLayerMask);
 
 		template<typename ComponentT>
 		ComponentT* GetComponent(ECS::Entity entity)
@@ -109,6 +110,7 @@ namespace Cjing3D {
 
 		// TODO: componentManager集合的维护非常繁琐，后续会重新设计结构或者用宏封装一层
 		ECS::ComponentManager<NameComponent> mNames;
+		ECS::ComponentManager<LayerComponent> mLayers;
 		ECS::ComponentManager<TransformComponent> mTransforms;
 		ECS::ComponentManager<HierarchyComponent> mHierarchies;
 		ECS::ComponentManager<MaterialComponent> mMaterials;

@@ -6,9 +6,12 @@
 #include "renderer\2D\sprite.h"
 #include "renderer\2D\renderer2D.h"
 
+#include "system\component\genericType.h"
+
 namespace Cjing3D
 {
-	RenderPath3D::RenderPath3D()
+	RenderPath3D::RenderPath3D() :
+		mRenderLayerMask(LayerComponent::DefaultLayerMask)
 	{
 	}
 
@@ -20,7 +23,7 @@ namespace Cjing3D
 	{
 		RenderPath2D::Update(dt);
 
-		Renderer::UpdatePerFrameData(dt);
+		Renderer::UpdatePerFrameData(dt, GetRenderLayerMask());
 	}
 
 	void RenderPath3D::ResizeBuffers()
@@ -125,7 +128,7 @@ namespace Cjing3D
 			return;
 		}
 
-		Renderer::RenderShadowmaps(Renderer::GetCamera());
+		Renderer::RenderShadowmaps(Renderer::GetCamera(), GetRenderLayerMask());
 	}
 
 	void RenderPath3D::RenderDepthLinear()

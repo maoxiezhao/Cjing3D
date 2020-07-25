@@ -24,10 +24,14 @@ namespace Editor
 					Scene::GetScene().LoadSceneFromArchive(filePath);
 				}
 				else if (extension == ".obj") {
-					ModelImporter::ImportModelObj(filePath);
+					Scene scene;
+					ModelImporter::ImportModelObj(filePath, scene);
+					Scene::GetScene().Merge(scene);
 				}
 				else if (extension == ".gltf") {
-					ModelImporter::ImportModelGLTF(filePath);
+					Scene scene;
+					ModelImporter::ImportModelGLTF(filePath, scene);
+					Scene::GetScene().Merge(scene);
 				}
 			});
 

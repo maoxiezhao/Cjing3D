@@ -50,7 +50,7 @@ namespace {
 	// debug world
 	I32x2 mDebugGridSize = I32x2(0, 0);
 	I32x2 mSavedDebugGridSize = I32x2(0, 0);
-	F32x2 mDebugGridPosOffset = F32x2(0.0f, 0.0f);
+	F32x3 mDebugGridPosOffset = F32x3(0.0f, 0.0f, 0.0f);
 	I32 mDebugGridVertexCount = 0;
 	GPUBuffer mDebugGridVertexBuffer;
 
@@ -610,7 +610,7 @@ void Update(F32 deltaTime)
 }
 
 // 在update中执行
-void UpdatePerFrameData(F32 deltaTime)
+void UpdatePerFrameData(F32 deltaTime, U32 renderLayerMask)
 {
 	// update scene system
 	auto& mainScene = GetMainScene();
@@ -655,8 +655,16 @@ void UpdatePerFrameData(F32 deltaTime)
 		for (size_t i = 0; i < objectAABBs.GetCount(); i++)
 		{
 			auto aabb = objectAABBs[i];
-			if (aabb != nullptr && currentFrustum.Overlaps(aabb->GetAABB()) == true)
-			{
+			if (aabb == nullptr) {
+				continue;
+			}
+
+			auto layer = scene.mLayers.GetComponent(aabb->GetCurrentEntity());
+			if (layer != nullptr && !(layer->GetLayerMask() & renderLayerMask)) {
+				continue;
+			}
+
+			if (currentFrustum.Overlaps(aabb->GetAABB())) {
 				frameCulling.mCulledObjects.push_back((U32)i);
 			}
 		}
@@ -666,7 +674,16 @@ void UpdatePerFrameData(F32 deltaTime)
 		for (size_t i = 0; i < lightAABBs.GetCount(); i++)
 		{
 			auto aabb = lightAABBs[i];
-			if (aabb != nullptr && currentFrustum.Overlaps(aabb->GetAABB()) == true)
+			if (aabb == nullptr) {
+				continue;
+			}
+
+			auto layer = scene.mLayers.GetComponent(aabb->GetCurrentEntity());
+			if (layer != nullptr && !(layer->GetLayerMask() & renderLayerMask)) {
+				continue;
+			}
+
+			if (currentFrustum.Overlaps(aabb->GetAABB()))
 			{
 				frameCulling.mCulledLights.push_back((U32)i);
 			}
@@ -977,7 +994,7 @@ void ResetAlphaCutRef()
 	SetAlphaCutRef(1.0f);
 }
 
-void RenderShadowmaps(CameraComponent& camera)
+void RenderShadowmaps(CameraComponent& camera, const U32 renderLayerMask)
 {
 	FrameCullings& frameCulling = mFrameCullings[&camera];
 	auto& culledLights = frameCulling.mCulledLights;
@@ -1010,10 +1027,10 @@ void RenderShadowmaps(CameraComponent& camera)
 			switch (lightType)
 			{
 			case Cjing3D::LightComponent::LightType_Directional:
-				RenderDirLightShadowmap(*light, camera);
+				RenderDirLightShadowmap(*light, camera, renderLayerMask);
 				break;
 			case Cjing3D::LightComponent::LightType_Point:
-				RenderPointLightShadowmap(*light, camera);
+				RenderPointLightShadowmap(*light, camera, renderLayerMask);
 				break;
 			default:
 				break;
@@ -1059,7 +1076,7 @@ void RenderSceneOpaque(CameraComponent& camera, RenderPassType renderPassType)
 		auto object = scene.GetComponent<ObjectComponent>(objectEntity);
 
 		if (object == nullptr  ||
-			object->GetObjectType() != ObjectComponent::OjbectType_Renderable ||
+			object->IsRenderable() == false ||
 			object->GetRenderableType() != RenderableType_Opaque) {
 			continue;
 		}
@@ -1325,18 +1342,15 @@ void RenderDebugScene(CameraComponent& camera)
 				std::vector<XMFLOAT4> verts;
 				verts.resize(((mDebugGridSize.x() + 1) * 2 + (mDebugGridSize.y() + 1) * 2) * 2);
 
-				F32 offsetX = mDebugGridPosOffset.x();
-				F32 offsetY = mDebugGridPosOffset.y();
-
 				size_t index = 0;
 				// x axis
 				for (int x = 0; x <= mDebugGridSize.x(); x++)
 				{
 					F32 currentX = x * width;
-					verts[index++] = XMFLOAT4(currentX - halfWidth + offsetX, h, -halfHeight + offsetY, 1); // pos
+					verts[index++] = XMFLOAT4(currentX - halfWidth, h, -halfHeight, 1); // pos
 					verts[index++] = XMFLOAT4(color, color, color, color);					      // color
 
-					verts[index++] = XMFLOAT4(currentX - halfWidth + offsetX, h, +halfHeight + offsetY, 1); // pos
+					verts[index++] = XMFLOAT4(currentX - halfWidth, h, +halfHeight, 1); // pos
 					verts[index++] = XMFLOAT4(color, color, color, color);						  // color
 				}
 
@@ -1344,10 +1358,10 @@ void RenderDebugScene(CameraComponent& camera)
 				for (int y = 0; y <= mDebugGridSize.y(); y++)
 				{
 					F32 currentY = y * width;
-					verts[index++] = XMFLOAT4(-halfWidth + offsetX, h, currentY - halfHeight + offsetY, 1); // pos
+					verts[index++] = XMFLOAT4(-halfWidth, h, currentY - halfHeight, 1); // pos
 					verts[index++] = XMFLOAT4(color, color, color, color);						  // color
 
-					verts[index++] = XMFLOAT4(+halfWidth + offsetX, h, currentY - halfHeight + offsetY, 1); // pos
+					verts[index++] = XMFLOAT4(+halfWidth, h, currentY - halfHeight, 1); // pos
 					verts[index++] = XMFLOAT4(color, color, color, color);						  // color
 				}
 				mDebugGridVertexCount = verts.size() / 2;
@@ -1365,7 +1379,8 @@ void RenderDebugScene(CameraComponent& camera)
 
 			RenderMiscCB cb;
 			cb.gMiscColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-			XMStoreFloat4x4(&cb.gMiscTransform, GetCamera().GetViewProjectionMatrix());
+			XMMATRIX offsetMat = XMMatrixTranslation(mDebugGridPosOffset.x(), mDebugGridPosOffset.y(), mDebugGridPosOffset.z());
+			XMStoreFloat4x4(&cb.gMiscTransform, offsetMat * GetCamera().GetViewProjectionMatrix());
 			
 			GPUBuffer& buffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_Misc);
 			mGraphicsDevice->UpdateBuffer(buffer, &cb);
@@ -1389,9 +1404,13 @@ void RenderDebugScene(CameraComponent& camera)
 	mGraphicsDevice->EndEvent();
 }
 
-void SetDebugGridSize(const I32x2& gridSize, const F32x2& posOffset)
+void SetDebugGridSize(const I32x2& gridSize)
 {
 	mDebugGridSize = gridSize;
+}
+
+void SetDebugGridOffset(const F32x3& posOffset)
+{
 	mDebugGridPosOffset = posOffset;
 }
 
@@ -1951,8 +1970,19 @@ void ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPassType, Rend
 			}
 
 			// TODO: 很多变量和设置可以整合到PipelineState中
-			PipelineState state = mPipelineStateManager->GetNormalPipelineState(renderPassType, *material);  // TODO
-			if (!state.IsValid()) {
+			PipelineState* pso = nullptr;
+
+			auto customShaderID = material->GetCustomShader();
+			if (customShaderID == StringID::EMPTY)
+			{
+				pso = &mPipelineStateManager->GetNormalPipelineState(renderPassType, *material);
+			}
+			else
+			{
+				pso = &mPipelineStateManager->GetPipelineStateByStringID(customShaderID);
+			}
+
+			if (pso == nullptr || !pso->IsValid()) {
 				continue;
 			}
 
@@ -2063,7 +2093,7 @@ void ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPassType, Rend
 			SetAlphaCutRef(material->GetAlphaCutRef());
 
 			// bind material state
-			mGraphicsDevice->BindPipelineState(state);
+			mGraphicsDevice->BindPipelineState(*pso);
 
 			// bind material constant buffer
 			mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_VS, material->GetConstantBuffer(), CB_GETSLOT_NAME(MaterialCB));
@@ -2112,7 +2142,7 @@ void BindShadowMaps(SHADERSTAGES stage)
 	mGraphicsDevice->BindGPUResource(stage, shadowMapArrayCube, TEXTURE_SLOT_SHADOW_ARRAY_CUBE);
 }
 
-void RenderDirLightShadowmap(LightComponent& light, CameraComponent& camera)
+void RenderDirLightShadowmap(LightComponent& light, CameraComponent& camera, U32 renderLayerMask)
 {
 	// 基于CSM的方向光阴影
 	// 1.将视锥体分成CASCADE_COUNT个子视锥体，对于每个子视锥体创建包围求和变换矩阵
@@ -2133,6 +2163,15 @@ void RenderDirLightShadowmap(LightComponent& light, CameraComponent& camera)
 		for (U32 index = 0; index < mainScene.mObjectAABBs.GetCount(); index++)
 		{
 			auto aabb = mainScene.mObjectAABBs[index];
+			if (aabb == nullptr) {
+				continue;
+			}
+
+			auto layer = mainScene.mLayers.GetComponent(aabb->GetCurrentEntity());
+			if (layer != nullptr && !(layer->GetLayerMask() & renderLayerMask)) {
+				continue;
+			}
+
 			if (cam.mFrustum.Overlaps(aabb->GetAABB()))
 			{
 				auto object = mainScene.mObjects[index];
@@ -2181,7 +2220,7 @@ void RenderDirLightShadowmap(LightComponent& light, CameraComponent& camera)
 	}
 }
 
-void RenderPointLightShadowmap(LightComponent& light, CameraComponent& camera)
+void RenderPointLightShadowmap(LightComponent& light, CameraComponent& camera, U32 renderLayerMask)
 {
 	if (!GetDevice().CheckGraphicsFeatureSupport(GraphicsFeatureSupport::VIEWPORT_AND_RENDERTARGET_ARRAYINDEX_WITHOUT_GS)) 
 	{
@@ -2198,6 +2237,15 @@ void RenderPointLightShadowmap(LightComponent& light, CameraComponent& camera)
 	for (U32 index = 0; index < mainScene.mObjectAABBs.GetCount(); index++)
 	{
 		auto aabb = mainScene.mObjectAABBs[index];
+		if (aabb == nullptr) {
+			continue;
+		}
+
+		auto layer = mainScene.mLayers.GetComponent(aabb->GetCurrentEntity());
+		if (layer != nullptr && !(layer->GetLayerMask() & renderLayerMask)) {
+			continue;
+		}
+
 		if (lightSphere.Intersects(aabb->GetAABB()))
 		{
 			auto object = mainScene.mObjects[index];

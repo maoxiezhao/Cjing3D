@@ -3,6 +3,7 @@
 #include "input/InputSystem.h"
 #include "system/component/camera.h"
 #include "system/component/light.h"
+#include "system/component/object.h"
 #include "system/component/terrain.h"
 #include "system/component/transform.h"
 
@@ -45,6 +46,13 @@ LuaBinder(l)
 .AddMethod("SetEnergy", &LightComponent::SetEnergy)
 .AddMethod("SetColor", &LightComponent::SetColor)
 .AddMethod("SetShadowBias", &LightComponent::SetShadowBias)
+.EndClass();
+
+LuaBinder(l)
+.BeginClass<ObjectComponent>("ObjectComponent")
+.AddConstructor(_LUA_ARGS_())
+.AddMethod("IsRenderable", &ObjectComponent::IsRenderable)
+.AddMethod("SetRenderable", &ObjectComponent::SetRenderable)
 .EndClass();
 
 LuaBinder(l)

@@ -31,9 +31,7 @@ namespace Cjing3D {
 		inline void SetIsUsingVertexColors(bool useVertexColors) { mIsUsingVertexColors = useVertexColors; }
 		inline F32  GetAlphaCutRef()const { return mAlphaCutRef; }
 		inline void SetAlphaCutRef(F32 alpha) { mAlphaCutRef = alpha; }
-
 		inline bool IsNeedAlphaTest()const { return mAlphaCutRef < (1.0f - 0.0001); }
-
 		inline bool IsDirty()const { return mIsDirty; }
 		inline void SetIsDirty(bool isDirty) { mIsDirty = isDirty; }
 
@@ -44,6 +42,9 @@ namespace Cjing3D {
 		bool LoadBaseColorMap(const std::string& filePath);
 		bool LoadNormalMap(const std::string& filePath);
 		bool LoadSurfaceMap(const std::string& filePath);
+
+		void SetCustomShader(const StringID& id) { mCustomShader = id; }
+		StringID GetCustomShader()const { return mCustomShader; }
 
 		virtual void Serialize(Archive& archive, U32 seed = 0);
 		virtual void Unserialize(Archive& archive)const;
@@ -58,6 +59,7 @@ namespace Cjing3D {
 		F32 mAlphaCutRef = 1.0f;
 
 		// TODO£º support custom shader
+		StringID mCustomShader = StringID::EMPTY;
 	};
 
 }

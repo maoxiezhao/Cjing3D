@@ -18,6 +18,7 @@ namespace Cjing3D
 	void Scene::Initialize()
 	{
 		ECS::ComponentManager<NameComponent>::Initialize();
+		ECS::ComponentManager<LayerComponent>::Initialize();
 		ECS::ComponentManager<TransformComponent>::Initialize();
 		ECS::ComponentManager<HierarchyComponent>::Initialize();
 		ECS::ComponentManager<MaterialComponent>::Initialize();
@@ -34,6 +35,7 @@ namespace Cjing3D
 	void Scene::Uninitialize()
 	{
 		ECS::ComponentManager<NameComponent>::Uninitilize();
+		ECS::ComponentManager<LayerComponent>::Uninitilize();
 		ECS::ComponentManager<TransformComponent>::Uninitilize();
 		ECS::ComponentManager<HierarchyComponent>::Uninitilize();
 		ECS::ComponentManager<MaterialComponent>::Uninitilize();
@@ -62,6 +64,7 @@ namespace Cjing3D
 	void Scene::Merge(Scene & scene)
 	{
 		mNames.Merge(scene.mNames);
+		mLayers.Merge(scene.mLayers);
 		mMeshes.Merge(scene.mMeshes);
 		mMaterials.Merge(scene.mMaterials);
 		mObjects.Merge(scene.mObjects);
@@ -115,6 +118,7 @@ namespace Cjing3D
 		mObjects.Create(entity);
 		mObjectAABBs.Create(entity);
 		mTransforms.Create(entity);
+		mLayers.Create(entity);
 
 		return entity;
 	}
@@ -125,7 +129,7 @@ namespace Cjing3D
 		TransformComponent& transform = *mTransforms.Create(entity);
 		transform.Translate(XMConvert(pos));
 		transform.Update();
-
+		mLayers.Create(entity);
 		mLightAABBs.Create(entity);
 
 		LightComponent& light = *mLights.Create(entity);
@@ -253,6 +257,16 @@ namespace Cjing3D
 		return *object;
 	}
 
+	LayerComponent& Scene::GetOrCreateLayerByEntity(ECS::Entity entity)
+	{
+		auto layerPtr = mLayers.GetComponent(entity);
+		if (layerPtr != nullptr) {
+			return *layerPtr;
+		}
+
+		return *mLayers.Create(entity);
+	}
+
 	ECS::Entity Scene::CreateEntityByName(const std::string & name)
 	{
 		auto nameID = StringID(name);
@@ -269,8 +283,11 @@ namespace Cjing3D
 		}
 
 		Entity entity = CreateEntity();
-		mNames.Create(entity)->SetName(name);
-		mNameEntityMap[nameID] = entity;
+		if (nameID != StringID::EMPTY)
+		{
+			mNames.Create(entity)->SetName(name);
+			mNameEntityMap[nameID] = entity;
+		}
 
 		return entity;
 	}
@@ -315,18 +332,6 @@ namespace Cjing3D
 	{
 		DetachEntity(entity);
 
-		mMaterials.Remove(entity);
-		mMeshes.Remove(entity);
-		mObjects.Remove(entity);
-		mObjectAABBs.Remove(entity);
-		mTransforms.Remove(entity);
-		mLightAABBs.Remove(entity);
-		mLights.Remove(entity);
-		mTerrains.Remove(entity);
-		mArmatures.Remove(entity);
-		mAnimations.Remove(entity);
-		mWeathers.Remove(entity);
-
 		if (mNames.Contains(entity))
 		{
 			auto nameComponent = mNames.GetComponent(entity);
@@ -336,6 +341,13 @@ namespace Cjing3D
 			}
 			mNames.Remove(entity);
 		}
+
+		// use std::apply and fold expression, and it needs c++17
+		auto allComponentManagers = GetAllComponentManagers();
+		std::apply([entity](auto&&... componentManager) {
+			return (componentManager->Remove(entity), ...); },
+			allComponentManagers
+		);
 	}
 
 	void Scene::AttachEntity(ECS::Entity entity, ECS::Entity parent, bool alreadyInLocalSpace, bool detachIfAttached)
@@ -350,7 +362,8 @@ namespace Cjing3D
 			DetachEntity(entity);
 		}
 
-		auto hierarchy = mHierarchies.Create(entity)->mParent = parent;
+		auto hierarchy = mHierarchies.Create(entity);
+		hierarchy->mParent = parent;
 
 		// fix tree which keep parent before child
 		if (mHierarchies.GetCount() > 1)
@@ -383,6 +396,11 @@ namespace Cjing3D
 		}
 
 		childTransform->UpdateFromParent(*parentTransform);
+
+		// handle layer
+		auto parentLayer = mLayers.GetOrCreateComponent(parent);
+		auto childLayer = mLayers.GetOrCreateComponent(entity);
+		hierarchy->mChildBindLayerMask = childLayer->GetLayerMask();
 	}
 
 	void Scene::DetachEntity(ECS::Entity entity)
@@ -393,6 +411,11 @@ namespace Cjing3D
 			auto transform = mTransforms.GetComponent(entity);
 			if (transform != nullptr) {
 				transform->ApplyTransform();
+			}
+
+			auto layer = mLayers.GetComponent(entity);
+			if (layer != nullptr) {
+				layer->SetLayerMask(hierarchy->mChildBindLayerMask);
 			}
 
 			mHierarchies.RemoveAndKeepSorted(entity);
@@ -431,18 +454,18 @@ namespace Cjing3D
 		return newEntity;
 	}
 
-	Scene::PickResult Scene::MousePickObjects(const U32x2& mousePos)
+	Scene::PickResult Scene::MousePickObjects(const U32x2& mousePos, const U32 layerMask)
 	{
-		return PickObjects(Renderer::GetMainCameraMouseRay(mousePos));
+		return PickObjects(Renderer::GetMainCameraMouseRay(mousePos), layerMask);
 	}
 
-	Scene::PickResult Scene::PickObjects(const Ray& ray)
+	Scene::PickResult Scene::PickObjects(const Ray& ray, const U32 layerMask)
 	{
 		auto& objects = mObjects.GetEntities();
-		return PickObjects(ray, objects);
+		return PickObjects(ray, objects, true, layerMask);
 	}
 
-	Scene::PickResult Scene::PickObjects(const Ray& ray, const std::vector<ECS::Entity>& objects, bool triangleIntersect)
+	Scene::PickResult Scene::PickObjects(const Ray& ray, const std::vector<ECS::Entity>& objects, bool triangleIntersect, const U32 layerMask)
 	{
 		PickResult ret;
 		if (mObjects.Empty()) {
@@ -468,6 +491,11 @@ namespace Cjing3D
 
 			const ObjectComponent* object = mObjects.GetComponent(entity);
 			if (object == nullptr || object->mMeshID == INVALID_ENTITY) {
+				continue;
+			}
+
+			const LayerComponent* layer = mLayers.GetComponent(entity);
+			if (layer != nullptr && (layer->GetLayerMask() & layerMask) == 0) {
 				continue;
 			}
 
@@ -545,7 +573,7 @@ namespace Cjing3D
 		return ret;
 	}
 
-	Scene::PickResult Scene::PickObjectsByBullet(const Ray& ray)
+	Scene::PickResult Scene::PickObjectsByBullet(const Ray& ray, const U32 layerMask)
 	{
 		return PickResult();
 	}
@@ -554,6 +582,7 @@ namespace Cjing3D
 	{
 		ComponentManagerTypesConst t = std::make_tuple(
 			&mNames,
+			&mLayers,
 			&mTransforms,
 			&mHierarchies,
 			&mMaterials,
@@ -575,6 +604,7 @@ namespace Cjing3D
 	{
 		ComponentManagerTypes t = std::make_tuple(
 			&mNames,
+			&mLayers,
 			&mTransforms,
 			&mHierarchies,
 			&mMaterials,
@@ -613,10 +643,10 @@ namespace Cjing3D
 			return Scene::GetScene().LoadSceneFromArchive(path);
 		}
 		else if (extension == ".obj") {
-			return ModelImporter::ImportModelObj(path);
+			return ModelImporter::ImportModelObj(path, *this);
 		}
 		else if (extension == ".gltf") {
-			return ModelImporter::ImportModelGLTF(path);
+			return ModelImporter::ImportModelGLTF(path, *this);
 		}
 	}
 
@@ -636,6 +666,7 @@ namespace Cjing3D
 
 			root = CreateEntity();
 			mTransforms.Create(root);
+			mLayers.Create(root);
 
 			// 每一个没有父级结构transform指向root
 			for (auto& entity : newScene.mTransforms.GetEntities())
@@ -673,13 +704,16 @@ namespace Cjing3D
 			auto entity = hierarchy->GetCurrentEntity();
 
 			auto parentTransform = scene.mTransforms.GetComponent(hierarchy->mParent);
-			auto childTransform = scene.mTransforms.GetComponent(entity);
-			
-			if (parentTransform == nullptr || childTransform == nullptr) {
-				continue;
+			auto childTransform = scene.mTransforms.GetComponent(entity);		
+			if (parentTransform != nullptr && childTransform != nullptr) {
+				childTransform->UpdateFromParent(*parentTransform);
 			}
 
-			childTransform->UpdateFromParent(*parentTransform);
+			auto parentLayer = scene.mLayers.GetComponent(hierarchy->mParent);
+			auto childLayer = scene.mLayers.GetComponent(entity);
+			if (parentLayer != nullptr && childLayer != nullptr) {
+				childLayer->SetLayerMask(parentLayer->GetLayerMask() & hierarchy->mChildBindLayerMask);
+			} 
 		}
 	}
 }

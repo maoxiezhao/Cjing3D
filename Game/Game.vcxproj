@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -148,7 +148,14 @@
     <ClCompile Include="editor\guiEditorSound.cpp" />
     <ClCompile Include="editor\guiEditorTerrain.cpp" />
     <ClCompile Include="game\game.cpp" />
+    <ClCompile Include="game\gameObject.cpp" />
+    <ClCompile Include="game\levelEditor.cpp" />
+    <ClCompile Include="game\levelEditorGUI.cpp" />
+    <ClCompile Include="game\map\gameMap.cpp" />
+    <ClCompile Include="game\map\gameMapGround.cpp" />
+    <ClCompile Include="game\map\gameMapGrounds.cpp" />
     <ClCompile Include="main\main.cpp" />
+    <ClCompile Include="scripts\gameLuaContext.cpp" />
     <ClCompile Include="test\guiTest.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -176,12 +183,15 @@
     <ClInclude Include="editor\guiEditorSound.h" />
     <ClInclude Include="editor\guiEditorTerrain.h" />
     <ClInclude Include="game\game.h" />
+    <ClInclude Include="game\gameObject.h" />
+    <ClInclude Include="game\levelEditor.h" />
+    <ClInclude Include="game\map\gameMap.h" />
+    <ClInclude Include="game\map\gameMapGround.h" />
+    <ClInclude Include="game\map\gameMapGrounds.h" />
+    <ClInclude Include="scripts\gameLuaContext.h" />
     <ClInclude Include="test\guiTest.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Assets\Scripts\common\common.lua" />
-    <None Include="..\Assets\Scripts\main.lua" />
-    <None Include="..\Assets\Scripts\scene.lua" />
     <None Include="postcompile.bat" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -4,3 +4,5 @@
 
 #include "common\common.h"
 #include "core\systemContext.hpp"
+
+using namespace Cjing3D;

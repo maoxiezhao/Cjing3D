@@ -114,21 +114,6 @@ namespace Cjing3D {
 		static U32 currentArchiveVersion;
 	};
 
-	/////////////////////////////////////////////////////////////////////////////////
-
-	//template<typename T, typename ENABLED>
-	//inline void ArchiveTypeNormalMapping<T, ENABLED>::Serialize(T& obj, Archive& archive)
-	//{
-	//	archive.Read<T>(obj);
-	//}
-
-	//template<typename T, typename ENABLED>
-	//inline void ArchiveTypeNormalMapping<T, ENABLED>::Unserialize(const T& obj, Archive& archive)
-	//{
-	//	archive.Write<T>(obj);
-	//}
-
-
 	template<typename T, typename EXTRA_T = T>
 	struct ArchiveTypeExtraTypeMapping
 	{

@@ -2,6 +2,7 @@
 #include "platform\win32\gameWindowWin32.h"
 #include "editor\gameEditor.h"
 #include "game\game.h"
+#include "game\levelEditor.h"
 
 #include <functional>
 
@@ -17,13 +18,10 @@ int WINAPI WinMain(
 	_In_ int nShowCmd)
 {
 	// initialize
-	mainWindow = std::make_unique<GameWindowWin32>(
-		"Cjing3D dev v0.0.1",
-		I32x2(1440, 800),
-		false);
+	mainWindow = std::make_unique<GameWindowWin32>("Cjing3D dev v0.0.1", I32x2(1440, 800), false);
 	mainWindow->Show();
 
-	mainEngine = std::make_unique<Engine>(new CjingGame::MainGame());
+	mainEngine = std::make_unique<Engine>(new CjingGame::LevelEditor());
 	mainEngine->SetHandles(mainWindow->GetHwnd(), mainWindow->GetInstance());
 	mainEngine->SetWindow(mainWindow.get());
 	mainEngine->Initialize();

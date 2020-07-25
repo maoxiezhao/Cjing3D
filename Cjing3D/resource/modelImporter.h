@@ -6,10 +6,11 @@
 namespace Cjing3D
 {
 	class SystemContext;
+	class Scene;
 
 	namespace ModelImporter
 	{
-		ECS::Entity ImportModelObj(const std::string& fileName);
-		ECS::Entity ImportModelGLTF(const std::string& fileName);
+		ECS::Entity ImportModelObj(const std::string& fileName, Scene& scene);
+		ECS::Entity ImportModelGLTF(const std::string& fileName, Scene& scene);
 	}
 }

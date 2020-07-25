@@ -49,6 +49,8 @@ namespace Cjing3D {
 		bool IsAOEnable()const { return mAOType != AOTYPE_DISABLE; }
 		void SetAOType(AOTYPE type) { mAOType = type; }
 		AOTYPE GetAOType()const { return mAOType; }
+		void SetRenderLayerMask(U32 layerMask) { mRenderLayerMask = layerMask; }
+		U32 GetRenderLayerMask()const { return mRenderLayerMask; }
 
 		// debug
 		void RenderDebug();
@@ -77,6 +79,9 @@ namespace Cjing3D {
 		Texture2D mDepthBufferLinear;
 		Texture2D mRTPostprocessLDR1;
 		Texture2D mRTPostprocessLDR2;
+
+		// general params
+		U32 mRenderLayerMask = 0xFFFFFFFF;
 
 		// tone mapping ÆØ¹âÏµÊý
 		F32 mExposure = 1.0f;				

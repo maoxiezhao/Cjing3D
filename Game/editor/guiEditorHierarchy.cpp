@@ -5,6 +5,7 @@
 #include "editor\guiEditorLight.h"
 #include "editor\guiEditorObject.h"
 #include "editor\guiEditorSound.h"
+#include "editor\guiEditorMaterial.h"
 
 namespace Cjing3D {
 	namespace Editor {
@@ -14,115 +15,6 @@ namespace Cjing3D {
 
 			static ECS::Entity currentEntity = ECS::INVALID_ENTITY;
 		}
-
-		//void showEntityListWindow(F32 deltaTime)
-		//{
-		//	ImGui::SetNextWindowPos(ImVec2(5, 30), ImGuiCond_Once);
-		//	ImGui::SetNextWindowSize(ImVec2(280, 740), ImGuiCond_Once);
-		//	ImGui::Begin("Entity Window");
-
-		//	Scene& scene = Scene::GetScene();
-		//	ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
-		//	if (ImGui::BeginTabBar("EntityBar", tab_bar_flags))
-		//	{
-		//		currentObject = INVALID_ENTITY;
-		//		SetCurrentLight(INVALID_ENTITY);
-
-		//		// show object window
-		//	/*	if (ImGui::BeginTabItem("Objects"))
-		//		{
-		//			static int objectSelectionIndex = -1;
-		//			int nodeClicked = -1;
-		//			auto& objectManager = scene.mObjects;
-		//			for (int index = 0; index < objectManager.GetCount(); index++)
-		//			{
-		//				Entity entity = objectManager.GetEntityByIndex(index);
-		//				if (ShowEntityList(scene, entity, index, objectSelectionIndex, nodeClicked)) {
-		//					currentObject = entity;
-		//				}
-		//			}
-
-		//			if (nodeClicked != -1) {
-		//				objectSelectionIndex = nodeClicked;
-		//			}
-
-		//			ImGui::EndTabItem();
-		//		}*/
-
-		//		// show hierarchy list
-		//		if (ImGui::BeginTabItem("Hierarchy"))
-		//		{
-		//			ShowHierarchyList();
-		//			ImGui::EndTabItem();
-		//		}
-
-		//		// show light window
-		//		if (ImGui::BeginTabItem("Lights"))
-		//		{
-		//			static int lightSelectionIndex = -1;
-		//			int nodeClicked = -1;
-		//			auto& lightManager = scene.mLights;
-		//			for (int index = 0; index < lightManager.GetCount(); index++)
-		//			{
-		//				Entity entity = lightManager.GetEntityByIndex(index);
-		//				if (ShowEntityList(scene, entity, index, lightSelectionIndex, nodeClicked)) {
-		//					SetCurrentLight(entity);
-		//				}
-		//			}
-
-		//			if (nodeClicked != -1) {
-		//				lightSelectionIndex = nodeClicked;
-		//			}
-
-		//			ImGui::EndTabItem();
-		//		}
-
-		//		// show material window
-		//		if (ImGui::BeginTabItem("Materials"))
-		//		{
-		//			static int materialSelectionIndex = -1;
-		//			int nodeClicked = -1;
-		//			auto& materialManager = scene.mMaterials;
-		//			for (int index = 0; index < materialManager.GetCount(); index++)
-		//			{
-		//				Entity entity = materialManager.GetEntityByIndex(index);
-		//				if (ShowEntityList(scene, entity, index, materialSelectionIndex, nodeClicked)) {
-		//					currentMaterial = entity;
-		//				}
-		//			}
-
-		//			if (nodeClicked != -1) {
-		//				materialSelectionIndex = nodeClicked;
-		//			}
-
-		//			ImGui::EndTabItem();
-		//		}
-
-		//		// show material window
-		//		if (ImGui::BeginTabItem("Terrains"))
-		//		{
-		//			static int terrainSelectionIndex = -1;
-		//			int nodeClicked = -1;
-		//			auto& terrainManager = scene.mTerrains;
-		//			for (int index = 0; index < terrainManager.GetCount(); index++)
-		//			{
-		//				Entity entity = terrainManager.GetEntityByIndex(index);
-		//				if (ShowEntityList(scene, entity, index, terrainSelectionIndex, nodeClicked)) {
-		//					currentTerrain = entity;
-		//				}
-		//			}
-
-		//			if (nodeClicked != -1) {
-		//				terrainSelectionIndex = nodeClicked;
-		//			}
-
-		//			ImGui::EndTabItem();
-		//		}
-
-		//		ImGui::EndTabBar();
-		//	}
-		//	ImGui::End();
-		//}
 
 		bool ShowEntityList(Scene& scene, Entity entity, U32 currentIndex, I32 selectionIndex, I32& nodeClicked)
 		{
@@ -158,6 +50,42 @@ namespace Cjing3D {
 			for (int index = 0; index < soundManager.GetCount(); index++)
 			{
 				Entity entity = soundManager.GetEntityByIndex(index);
+				if (ShowEntityList(scene, entity, index, slectionIndex, nodeClicked)) {
+					currentEntity = entity;
+				}
+			}
+
+			if (nodeClicked != -1) {
+				slectionIndex = nodeClicked;
+			}
+		}
+
+		void ShowMaterialEntityList(Scene& scene)
+		{
+			static int slectionIndex = -1;
+			int nodeClicked = -1;
+			auto& materialManager = scene.mMaterials;
+			for (int index = 0; index < materialManager.GetCount(); index++)
+			{
+				Entity entity = materialManager.GetEntityByIndex(index);
+				if (ShowEntityList(scene, entity, index, slectionIndex, nodeClicked)) {
+					currentEntity = entity;
+				}
+			}
+
+			if (nodeClicked != -1) {
+				slectionIndex = nodeClicked;
+			}
+		}
+
+		void ShowObjectEntityList(Scene& scene)
+		{
+			static int slectionIndex = -1;
+			int nodeClicked = -1;
+			auto& objectManager = scene.mObjects;
+			for (int index = 0; index < objectManager.GetCount(); index++)
+			{
+				Entity entity = objectManager.GetEntityByIndex(index);
 				if (ShowEntityList(scene, entity, index, slectionIndex, nodeClicked)) {
 					currentEntity = entity;
 				}
@@ -359,6 +287,16 @@ namespace Cjing3D {
 					ShowHierarchyList(scene);
 					ImGui::EndTabItem();
 				}
+				if (ImGui::BeginTabItem("Objects"))
+				{
+					ShowObjectEntityList(scene);
+					ImGui::EndTabItem();
+				}
+				if (ImGui::BeginTabItem("Materials"))
+				{
+					ShowMaterialEntityList(scene);
+					ImGui::EndTabItem();
+				}
 				if (ImGui::BeginTabItem("Sounds"))
 				{
 					ShowSoundEntityList(scene);
@@ -405,6 +343,12 @@ namespace Cjing3D {
 			auto sound = scene.mSounds.GetComponent(currentEntity);
 			if (sound != nullptr) {
 				ShowSoundAttribute(sound);
+			}
+
+			// material
+			auto material = scene.mMaterials.GetComponent(currentEntity);
+			if (material != nullptr) {
+				ShowMaterialAttribute(material);
 			}
 
 			ImGui::End();

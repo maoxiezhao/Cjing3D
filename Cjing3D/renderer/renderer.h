@@ -36,7 +36,7 @@ namespace Renderer
 	void FixedUpdate();
 	void Update(F32 deltaTime);
 
-	void UpdatePerFrameData(F32 deltaTime);
+	void UpdatePerFrameData(F32 deltaTime, U32 renderLayerMask);
 	void RefreshRenderData();
 
 	// getter
@@ -63,13 +63,17 @@ namespace Renderer
 	Ray GetMainCameraMouseRay(const U32x2& pos);
 
 	// Render Method
-	void RenderShadowmaps(CameraComponent& camera);
 	void RenderSceneOpaque(CameraComponent& camera, RenderPassType renderPassType);
 	void RenderSceneTransparent(CameraComponent& camera, RenderPassType renderPassType);
 	void RenderImpostor(CameraComponent& camera, RenderPassType renderPassType);
 	void RenderSky();
 	void RenderLinearDepth(Texture2D& depthBuffer, Texture2D& linearDepthBuffer);
 	void RenderSSAO(Texture2D& depthBuffer, Texture2D& linearDepthBuffer, Texture2D& aoTexture, F32 aoRange, U32 aoSampleCount);
+
+	// shadow
+	void RenderShadowmaps(CameraComponent& camera, U32 renderLayerMask);
+	void RenderDirLightShadowmap(LightComponent& light, CameraComponent& camera, U32 renderLayerMask);
+	void RenderPointLightShadowmap(LightComponent& light, CameraComponent& camera, U32 renderLayerMask);
 
 	// blur
 	void GaussianBlur(Texture2D& input, Texture2D& temp, Texture2D& output);
@@ -111,7 +115,8 @@ namespace Renderer
 
 	// debug
 	void RenderDebugScene(CameraComponent& camera);
-	void SetDebugGridSize(const I32x2& gridSize, const F32x2& posOffset = {0.0f, 0.0f});
+	void SetDebugGridSize(const I32x2& gridSize);
+	void SetDebugGridOffset(const F32x3& posOffset);
 
 	// shader
 	ShaderPtr LoadShader(SHADERSTAGES stages, const std::string& path);
@@ -122,8 +127,6 @@ namespace Renderer
 
 	GraphicsDevice* CreateGraphicsDeviceByType(RenderingDeviceType deviceType, HWND window);
 	void ProcessRenderQueue(RenderQueue& queue, RenderPassType renderPassType, RenderableType renderableType, U32 instanceReplicator = 1, InstanceHandler* instanceHandler = nullptr);
-	void RenderDirLightShadowmap(LightComponent& light, CameraComponent& camera);
-	void RenderPointLightShadowmap(LightComponent& light, CameraComponent& camera);
 	void ProcessSkinning();
 
 	// 当前帧的裁剪后的数据

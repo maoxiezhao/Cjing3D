@@ -49,6 +49,27 @@
     <ClCompile Include="game\game.cpp">
       <Filter>game</Filter>
     </ClCompile>
+    <ClCompile Include="game\levelEditor.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\gameLuaContext.cpp">
+      <Filter>scripts</Filter>
+    </ClCompile>
+    <ClCompile Include="game\gameObject.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
+    <ClCompile Include="game\levelEditorGUI.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
+    <ClCompile Include="game\map\gameMap.cpp">
+      <Filter>game\map</Filter>
+    </ClCompile>
+    <ClCompile Include="game\map\gameMapGround.cpp">
+      <Filter>game\map</Filter>
+    </ClCompile>
+    <ClCompile Include="game\map\gameMapGrounds.cpp">
+      <Filter>game\map</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="game">
@@ -56,9 +77,6 @@
     </Filter>
     <Filter Include="scripts">
       <UniqueIdentifier>{9c723403-b9c4-41a2-9982-dd81e044b2eb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="scripts\common">
-      <UniqueIdentifier>{e02e7709-d7f2-49b0-8447-4de5408431a7}</UniqueIdentifier>
     </Filter>
     <Filter Include="editor">
       <UniqueIdentifier>{761866ae-6fe1-4e40-94af-0863f455b545}</UniqueIdentifier>
@@ -71,6 +89,9 @@
     </Filter>
     <Filter Include="test">
       <UniqueIdentifier>{935d5c86-d440-4c29-b608-a4e337f4539b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\map">
+      <UniqueIdentifier>{bc4839b9-be1e-4628-bb57-cd4bf92ab508}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -125,17 +146,26 @@
     <ClInclude Include="game\game.h">
       <Filter>game</Filter>
     </ClInclude>
+    <ClInclude Include="game\gameObject.h">
+      <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="game\levelEditor.h">
+      <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\gameLuaContext.h">
+      <Filter>scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="game\map\gameMap.h">
+      <Filter>game\map</Filter>
+    </ClInclude>
+    <ClInclude Include="game\map\gameMapGround.h">
+      <Filter>game\map</Filter>
+    </ClInclude>
+    <ClInclude Include="game\map\gameMapGrounds.h">
+      <Filter>game\map</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Assets\Scripts\main.lua">
-      <Filter>scripts</Filter>
-    </None>
-    <None Include="..\Assets\Scripts\common\common.lua">
-      <Filter>scripts\common</Filter>
-    </None>
     <None Include="postcompile.bat" />
-    <None Include="..\Assets\Scripts\scene.lua">
-      <Filter>scripts</Filter>
-    </None>
   </ItemGroup>
 </Project>

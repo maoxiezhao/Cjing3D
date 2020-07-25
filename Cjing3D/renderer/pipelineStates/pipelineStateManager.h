@@ -34,10 +34,12 @@ public:
 	PipelineState GetNormalPipelineState(RenderPassType renderPassType, MaterialComponent& material, bool forceAlphaTest = false);
 	PipelineState GetImagePipelineState(RenderImage::ImageParams params);
 	PipelineState GetPipelineStateByID(PipelineStateID stateID);
+	PipelineState GetPipelineStateByStringID(const StringID& id);
 
 	void RegisterPipelineState(RenderImage::ImageParams params, PipelineStateDesc desc);
 	void RegisterPipelineState(NormalRenderParams params, PipelineStateDesc desc);
 	void RegisterPipelineState(PipelineStateID stateID, PipelineStateDesc desc);
+	void RegisterPipelineState(const StringID& name, PipelineStateDesc desc);
 
 private:
 	U32 RegisterPipelineState(PipelineStateDesc desc);

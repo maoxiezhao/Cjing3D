@@ -24,6 +24,7 @@ enum ComponentType
 	ComponentType_Armature,
 	ComponentType_Weather,
 	ComponentType_Sound,
+	ComponentType_Layer,
 	ComponentType_Custom
 };
 

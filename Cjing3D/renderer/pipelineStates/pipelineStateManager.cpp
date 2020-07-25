@@ -3,6 +3,14 @@
 #include "renderer\preset\renderPreset.h"
 
 namespace Cjing3D {
+namespace {
+	U32 ConvertStringID(const StringID& id)
+	{
+		U32 hash = id.HashValue();
+		return hash < 100 ? hash + 100 : hash;
+	}
+
+}
 
 PipelineStateManager::PipelineStateManager()
 {
@@ -54,6 +62,20 @@ PipelineState PipelineStateManager::GetPipelineStateByID(PipelineStateID stateID
 	}
 }
 
+PipelineState PipelineStateManager::GetPipelineStateByStringID(const StringID& id)
+{
+	auto stateID = ConvertStringID(id);
+	auto it = mPipelineStateIDMap.find(stateID);
+	if (it != mPipelineStateIDMap.end())
+	{
+		return mPipelineStates[it->second];
+	}
+	else
+	{
+		return PipelineState();
+	}
+}
+
 void PipelineStateManager::Initialize()
 {
 	SetupNormalPipelineStates();
@@ -86,4 +108,16 @@ void PipelineStateManager::RegisterPipelineState(PipelineStateID stateID, Pipeli
 		mPipelineStateIDMap[stateID] = index;
 	}
 }
+
+void PipelineStateManager::RegisterPipelineState(const StringID& name, PipelineStateDesc desc)
+{
+	auto stateID = ConvertStringID(name);
+	auto it = mPipelineStateIDMap.find(stateID);
+	if (it == mPipelineStateIDMap.end())
+	{
+		U32 index = RegisterPipelineState(desc);
+		mPipelineStateIDMap[stateID] = index;
+	}
+}
+
 }
