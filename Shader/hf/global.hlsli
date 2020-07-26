@@ -241,5 +241,14 @@ float3 ScreenToCamera(float2 uv, float depth)
     return ClipToCamear(clip);
 }
 
+inline float4 ConvertColorUintToFloat4(in uint value)
+{
+    float4 retColor;
+    retColor.r = (float) (value & 0x000000ff) / 255.0f;
+    retColor.g = (float) ((value >> 8) & 0x000000ff) / 255.0f;
+    retColor.b = (float) ((value >> 16) & 0x000000ff) / 255.0f;
+    retColor.a = (float) ((value >> 24) & 0x000000ff) / 255.0f;
+    return retColor;
+}
 
 #endif

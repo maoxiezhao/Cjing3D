@@ -1,73 +1,14 @@
 #pragma once
 
 #include "renderer\renderableCommon.h"
-#include "renderer\renderer.h"
 #include "renderer\RHI\rhiResource.h"
 #include "renderer\RHI\rhiShader.h"
+#include "renderer\RHI\device.h"
+#include "presetDefinitions.h"
+#include "shaderDefinitions.h"
 
 namespace Cjing3D
 {
-	enum StructuredBufferType
-	{
-		StructuredBufferType_ShaderLight = 0,
-		StructuredBufferType_MatrixArray,
-		StructuredBufferType_Count,
-	};
-
-	enum ConstantBufferType
-	{
-		ConstantBufferType_Common = 0,
-		ConstantBufferType_Camera,
-		ConstantBufferType_Frame,
-		ConstantBufferType_Image,
-		ConstantBufferType_Postprocess,
-		ConstantBufferType_MipmapGenerate,
-		ConstantBufferType_CubeMap,
-		ConstantBufferType_CSParams,
-		ConstantBufferType_Misc,
-		ConstantBufferType_Count,
-	};
-
-	// depthStencilState
-	enum DepthStencilStateID {
-		DepthStencilStateID_DepthNone = 0,
-		DepthStencilStateID_GreaterEqualReadWrite,
-		DepthStencilStateID_DepthRead,
-		DepthStencilStateID_DepthReadEqual,
-		DepthStencilStateID_Shadow,
-		DepthStencilStateID_Count
-	};
-
-	// blend State
-	enum BlendStateID {
-		BlendStateID_Opaque = 0,
-		BlendStateID_Transpranent,
-		BlendStateID_PreMultiplied,
-		BlendStateID_ColorWriteDisable,
-		BlendStateID_Count
-	};
-
-	// Rasterizer State
-	enum RasterizerStateID {
-		RasterizerStateID_Front = 0,
-		RasterizerStateID_Image,
-		RasterizerStateID_Shadow,
-		RasterizerStateID_WireFrame,
-		RasterizerStateID_Sky,
-		RasterizerStateID_WireFrame_DoubleSided,
-		RasterizerStateID_Count
-	};
-
-	// Sampler State
-	enum SamplerStateID {
-		SamplerStateID_PointClamp,
-		SamplerStateID_LinearClamp,
-		SamplerStateID_Anisotropic,
-		SamplerStateID_ComparisionDepth,
-		SamplerStateID_Font,
-		SamplerStateID_Count
-	};
-
 	class RenderPreset
 	{
 	public:
@@ -99,6 +40,20 @@ namespace Cjing3D
 
 		GPUBuffer& GetOrCreateCustomBuffer(const StringID& name);
 
+		// shader
+		inline std::shared_ptr<InputLayout> GetVertexLayout(InputLayoutType layoutType) {
+			return mInputLayout[(size_t)layoutType];
+		}
+		inline std::shared_ptr<Shader> GetVertexShader(VetextShaderType shaderType) {
+			return mVertexShader[(size_t)shaderType];
+		}
+		inline std::shared_ptr<Shader> GetPixelShader(PixelShaderType shaderType) {
+			return mPixelShader[(size_t)shaderType];
+		}
+		inline std::shared_ptr<Shader>  GetComputeShader(ComputeShaderType shaderType) {
+			return mComputeShader[(size_t)shaderType];
+		}
+
 	private:
 		void SetupDepthStencilStates();
 		void SetupBlendStates();
@@ -106,10 +61,12 @@ namespace Cjing3D
 		void SetupSamplerStates();
 		void LoadConstantBuffers();
 		void LoadStructuredBuffers();
+		void LoadShaderPreset();
 
 	private:
-		GraphicsDevice & mDevice;
+		GraphicsDevice& mDevice;
 
+		// normal 
 		std::shared_ptr<DepthStencilState> mDepthStencilStates[DepthStencilStateID_Count];
 		std::shared_ptr<BlendState> mBlendStates[BlendStateID_Count];
 		std::shared_ptr<RasterizerState> mRasterizerStates[RasterizerStateID_Count];
@@ -120,5 +77,10 @@ namespace Cjing3D
 
 		std::map<StringID, GPUBuffer> mCustomBufferMap;
 
+		// shader
+		std::shared_ptr<InputLayout> mInputLayout[InputLayoutType_Count];
+		std::shared_ptr<Shader> mVertexShader[VertexShaderType_Count];
+		std::shared_ptr<Shader> mPixelShader[PixelShaderType_Count];
+		std::shared_ptr<Shader> mComputeShader[ComputeShaderType_Count];
 	};
 }

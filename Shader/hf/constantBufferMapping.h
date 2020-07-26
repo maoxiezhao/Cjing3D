@@ -17,4 +17,7 @@
 #define CBSLOT_FONT                 11
 #define CBSLOT_MISC                 12
 
+// CBUFFER Game Slot
+#define CBSLOT_GAME_GROUND_TILESET  13
+
 #endif

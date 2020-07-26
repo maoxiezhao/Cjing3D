@@ -13,8 +13,8 @@ namespace Cjing3D
 
 class GraphicsDevice;
 class ShaderLib;
-class RenderPreset;
 class ResourceManager;
+class RenderPreset;
 class CameraComponent;
 class LightComponent;
 class Scene;
@@ -121,6 +121,9 @@ namespace Renderer
 	// shader
 	ShaderPtr LoadShader(SHADERSTAGES stages, const std::string& path);
 	VertexShaderInfo LoadVertexShaderInfo(const std::string& path, VertexLayoutDesc* desc, U32 numElements);
+	
+	void RegisterPipelineState(RenderPassType passType, const StringID& name, PipelineStateDesc desc);
+	PipelineState* GetPipelineStateByStringID(RenderPassType passType, const StringID& id);
 
 	void InitializeRenderPasses();
 	void UninitializeRenderPasses();

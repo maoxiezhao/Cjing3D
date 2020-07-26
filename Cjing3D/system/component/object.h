@@ -4,6 +4,8 @@
 
 namespace Cjing3D {
 
+	struct RenderInstance;
+
 	LUA_BINDER_REGISTER_CLASS
 	class ObjectComponent : public Component
 	{
@@ -44,11 +46,12 @@ namespace Cjing3D {
 		U32 mObjectType = OjbectType_Renderable;
 		RenderableType mRenderableType = RenderableType_Opaque;
 		U32 mShadowCascadeMask = 0;	// ≤„º∂“ı”∞mask
-
 		bool mIsCastShadow = false;
 		bool mIsImpostor = false;
-
 		F32x3 mCenter = F32x3(0.0f, 0.0f, 0.0f);			// assign in system'update
+	
+		using ProcessInstanceFunc = std::function<void(RenderInstance&)>;
+		ProcessInstanceFunc RenderInstanceHandler = nullptr;
 	};
 }
 

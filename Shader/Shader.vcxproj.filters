@@ -149,6 +149,9 @@
     <FxCompile Include="cs\mipmapGenerateCS.hlsl">
       <Filter>cs</Filter>
     </FxCompile>
+    <FxCompile Include="vs\mapGroundVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="hf\objectInput.hlsli">
@@ -196,6 +199,9 @@
       <Filter>shaderInterop\gpuMapping</Filter>
     </ClInclude>
     <ClInclude Include="hf\shaderInteropImage.h">
+      <Filter>shaderInterop</Filter>
+    </ClInclude>
+    <ClInclude Include="hf\shaderInteropGame.h">
       <Filter>shaderInterop</Filter>
     </ClInclude>
   </ItemGroup>

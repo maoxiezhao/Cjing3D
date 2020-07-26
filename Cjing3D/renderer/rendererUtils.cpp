@@ -31,7 +31,6 @@ namespace Cjing3D
 		}
 
 		GraphicsDevice& device = Renderer::GetDevice();
-		ShaderLib& shaderLib = Renderer::GetShaderLib();
 		RenderPreset& renderPreset = Renderer::GetRenderPreset();
 
 		// generate mipmap by compute shader
@@ -43,13 +42,13 @@ namespace Cjing3D
 			{
 			case MIPGENFILTER_POINT:
 				device.BeginEvent("GenerateMipChain-FilterPoint");
-				device.BindComputeShader(shaderLib.GetComputeShader(isHDR ? ComputeShaderType_MipmapCubeGenerateUnorm : ComputeShaderType_MipmapCubeGenerate));
+				device.BindComputeShader(renderPreset.GetComputeShader(isHDR ? ComputeShaderType_MipmapCubeGenerateUnorm : ComputeShaderType_MipmapCubeGenerate));
 				device.BindSamplerState(SHADERSTAGES_CS, *renderPreset.GetSamplerState(SamplerStateID_PointClamp), SAMPLER_SLOT_0);
 
 				break;
 			case MIPGENFILTER_LINEAR:
 				device.BeginEvent("GenerateMipChain-FilterLinear");
-				device.BindComputeShader(shaderLib.GetComputeShader(isHDR ? ComputeShaderType_MipmapCubeGenerateUnorm : ComputeShaderType_MipmapCubeGenerate));
+				device.BindComputeShader(renderPreset.GetComputeShader(isHDR ? ComputeShaderType_MipmapCubeGenerateUnorm : ComputeShaderType_MipmapCubeGenerate));
 				device.BindSamplerState(SHADERSTAGES_CS, *renderPreset.GetSamplerState(SamplerStateID_LinearClamp), SAMPLER_SLOT_0);
 
 				break;
@@ -63,13 +62,13 @@ namespace Cjing3D
 			{
 			case MIPGENFILTER_POINT:
 				device.BeginEvent("GenerateMipChain-FilterPoint");
-				device.BindComputeShader(shaderLib.GetComputeShader(isHDR ? ComputeShaderType_MipmapGenerateUnorm : ComputeShaderType_MipmapGenerate));
+				device.BindComputeShader(renderPreset.GetComputeShader(isHDR ? ComputeShaderType_MipmapGenerateUnorm : ComputeShaderType_MipmapGenerate));
 				device.BindSamplerState(SHADERSTAGES_CS, *renderPreset.GetSamplerState(SamplerStateID_PointClamp), SAMPLER_SLOT_0);
 				dispatchZ = 6;
 				break;
 			case MIPGENFILTER_LINEAR:
 				device.BeginEvent("GenerateMipChain-FilterLinear");
-				device.BindComputeShader(shaderLib.GetComputeShader(isHDR ? ComputeShaderType_MipmapGenerateUnorm : ComputeShaderType_MipmapGenerate));
+				device.BindComputeShader(renderPreset.GetComputeShader(isHDR ? ComputeShaderType_MipmapGenerateUnorm : ComputeShaderType_MipmapGenerate));
 				device.BindSamplerState(SHADERSTAGES_CS, *renderPreset.GetSamplerState(SamplerStateID_LinearClamp), SAMPLER_SLOT_0);
 				dispatchZ = 6;
 				break;

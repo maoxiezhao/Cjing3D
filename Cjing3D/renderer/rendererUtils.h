@@ -70,18 +70,18 @@ namespace Cjing3D
 			mat2.z = mat._33;
 			mat2.w = mat._43;
 
-			userdata.x = 0;
+			userdata.x = Color4::Convert(color).GetRGBA();
 			userdata.y = 0;
 			userdata.z = 0;
 			userdata.w = 0;
 		}
 
-		inline void SetUserdata(const XMUINT4 data)
+		inline void SetUserdata(U32 userdataX, U32 userdataY, U32 userdataZ, U32 userdataW)
 		{
-			userdata.x = data.x;
-			userdata.y = data.y;
-			userdata.z = data.z;
-			userdata.w = data.w;
+			userdata.x = userdataX;
+			userdata.y = userdataY;
+			userdata.z = userdataZ;
+			userdata.w = userdataW;
 		}
 	};
 

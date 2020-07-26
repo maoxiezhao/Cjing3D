@@ -29,6 +29,8 @@ namespace Cjing3D {
 		constexpr void SetFloatB(F32 v) { *this = Color4(GetA(), GetG(), uint8_t(v * 255), GetA()); }
 		constexpr void SetFloatA(F32 v) { *this = Color4(GetA(), GetG(), GetB(), uint8_t(v * 255)); }
 
+		U32 GetRGBA()const { return mRGBA; }
+
 		// convert to 0.0-1.0
 		constexpr F32x3 ToFloat3() const
 		{
@@ -66,6 +68,16 @@ namespace Cjing3D {
 				(uint8_t)(value[1] * 255.0f),
 				(uint8_t)(value[2] * 255.0f),
 				(uint8_t)(value[3] * 255.0f)
+			);
+		}
+
+		static constexpr Color4 Convert(const XMFLOAT4& value)
+		{
+			return Color4(
+				(uint8_t)(value.x * 255.0f),
+				(uint8_t)(value.y * 255.0f),
+				(uint8_t)(value.z * 255.0f),
+				(uint8_t)(value.w * 255.0f)
 			);
 		}
 

@@ -17,13 +17,14 @@ namespace CjingGame
 		void Initialize();
 		void FixedUpdate();
 		void Uninitialize();
+		void PreRender();
 
 		bool AddGround(const I32x3& localPos);
 		bool RemoveGround(const I32x3& localPos);
 
 	private:
 		GameMap& mGameMap;
-		GameMapGrounds mGameMapGrounds;
+		std::unique_ptr<GameMapGrounds> mGameMapGrounds = nullptr;
 	};
 
 	class GameMap 
@@ -38,12 +39,22 @@ namespace CjingGame
 		void Initialize(const std::string& filePath);
 		void FixedUpdate();
 		void Uninitialize();
+		void PreRender();
 
-		void LoadFromFile(const std::string& filePath);
-		void SaveToFile(const std::string& filePath);
+		// getter\setter
+		I32 GetMapWidth()const { return mMapWidth; }
+		I32 GetMapHeight()const { return mMapHeight; }
+		I32 GetMapLayer()const { return mMapLayer; }
 
 		I32x3 TransformGlobalPosToLocal(const F32x3& pos)const;
 		F32x3 TransformLocalPosToGlobal(const I32x3& pos)const;
+
+		void AddGround(const I32x3& pos);
+		void RemoveGround(const I32x3& pos);
+
+		// serialize methods
+		void LoadFromFile(const std::string& filePath);
+		void SaveToFile(const std::string& filePath);
 
 	private:
 		bool mIsInitialized = false;

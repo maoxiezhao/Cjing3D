@@ -35,7 +35,7 @@ namespace CjingGame
 		Editor::InitializeEditor(guiStage.GetImGUIStage());
 #endif // _ENABLE_GAME_EDITOR_
 
-		// init game luaContext
+		// initialize game luaContext
 		mGameLuaContext = std::make_unique<GameLuaContext>();
 		mGameLuaContext->Initialize();
 
@@ -103,13 +103,38 @@ namespace CjingGame
 		Scene::GetScene().Clear();
 	}
 
+	void LevelEditor::PreRender()
+	{
+		if (mCurrentMap != nullptr) {
+			mCurrentMap->PreRender();
+		}
+	}
+
+	void LevelEditor::SetDebugGridVisible(bool visible)
+	{
+		if (visible == mIsDebugGridVisible) {
+			return;
+		}
+		mIsDebugGridVisible = visible;
+		
+		if (visible == false || mCurrentMap == nullptr)
+		{
+			Renderer::SetDebugGridSize({ 0, 0 });
+		}
+		else
+		{
+			I32 width = mCurrentMap->GetMapWidth();
+			I32 height = mCurrentMap->GetMapHeight();	
+			Renderer::SetDebugGridSize({ width, height });
+		}
+	}
+
 	void LevelEditor::InitializeEditorMap(F32 cellSize, I32 width, I32 height, I32 layer)
 	{
-		Renderer::SetDebugGridSize({ width, height });
 		mGridOffset = {
-			width / 2 * cellSize, 
+			width / 2 * cellSize,
 			0.0f,
-			height /2 * cellSize
+			height / 2 * cellSize
 		};
 
 		mEditorPlane.LoadFromScene(Scene::GetScene());
@@ -120,6 +145,8 @@ namespace CjingGame
 
 		mCurrentMap = std::make_unique<GameMap>();
 		mCurrentMap->Initialize(width, height, layer);
+
+		SetDebugGridVisible(true);
 	}
 
 	void LevelEditor::UpdateEditorGround()
@@ -128,6 +155,7 @@ namespace CjingGame
 		Scene& scene = Scene::GetScene();
 		I32x2 mousePos = inputManager.GetMousePos();
 		mPickResult = scene.MousePickObjects({ (U32)mousePos[0], (U32)mousePos[1] }, GameObjectLayerMask_Ground);
+		mPickResult.position[1] += 0.5f; // adjust
 
 		if (inputManager.IsKeyDown(KeyCode::Click_Left))
 		{
@@ -136,12 +164,18 @@ namespace CjingGame
 				return;
 			}
 
-		/*	I32x3 localPos = */
-
+			I32x3 localPos = mCurrentMap->TransformGlobalPosToLocal(mPickResult.position);
+			mCurrentMap->AddGround(localPos);
 		}
 		else if (inputManager.IsKeyDown(KeyCode::Click_Right))
 		{
 			Logger::Info(std::to_string(mPickResult.entity));
+			if (mPickResult.entity == INVALID_ENTITY) {
+				return;
+			}
+
+			I32x3 localPos = mCurrentMap->TransformGlobalPosToLocal(mPickResult.position);
+			mCurrentMap->RemoveGround(localPos);
 		}
 	}
 

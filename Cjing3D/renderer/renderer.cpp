@@ -428,7 +428,7 @@ void TiledLightCulling(Texture2D& depthBuffer)
 		lastCameraViewMatrix = currentViewMatrix;
 
 		mGraphicsDevice->BeginEvent("BuildTiledFrustum");
-		mGraphicsDevice->BindComputeShader(mShaderLib->GetComputeShader(ComputeShaderType_TiledFrustum));
+		mGraphicsDevice->BindComputeShader(mRenderPreset->GetComputeShader(ComputeShaderType_TiledFrustum));
 
 		CSParamsCB cb;
 		cb.gCSNumThreads.x = cullingTiledCount[0];
@@ -452,7 +452,7 @@ void TiledLightCulling(Texture2D& depthBuffer)
 	// 4. 对每一个tile执行光照裁剪，并获得一个有效Entity的bucket
 	{
 		mGraphicsDevice->BeginEvent("LightTiledCulling");
-		mGraphicsDevice->BindComputeShader(mShaderLib->GetComputeShader(ComputeShaderType_LightTiledCulling));
+		mGraphicsDevice->BindComputeShader(mRenderPreset->GetComputeShader(ComputeShaderType_LightTiledCulling));
 
 		// bind resources
 		mGraphicsDevice->UnbindGPUResources(SBSLOT_TILED_LIGHTS, 1);
@@ -1163,10 +1163,10 @@ void RenderSky()
 		auto currentWeather = scene.mWeathers.GetComponentByIndex(0);
 		if (currentWeather->mSkyMap != nullptr)
 		{
-			PipelineState pso = mPipelineStateManager->GetPipelineStateByID(PipelineStateID_SkyRendering);
-			if (pso.IsValid() && currentWeather->mSkyMap != nullptr)
+			PipelineState* pso = mPipelineStateManager->GetPipelineStateByID(PipelineStateID_SkyRendering);
+			if (pso != nullptr && pso->IsValid() && currentWeather->mSkyMap != nullptr)
 			{
-				mGraphicsDevice->BindPipelineState(pso);
+				mGraphicsDevice->BindPipelineState(*pso);
 				mGraphicsDevice->BindGPUResource(
 					SHADERSTAGES_PS, 
 					*currentWeather->mSkyMap->mTexture,
@@ -1204,7 +1204,7 @@ void RenderLinearDepth(Texture2D& depthBuffer, Texture2D& linearDepthBuffer)
 
 	// bind shader
 	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, depthBuffer, TEXTURE_SLOT_UNIQUE_0);
-	mGraphicsDevice->BindComputeShader(mShaderLib->GetComputeShader(ComputeShaderType_LinearDepth));
+	mGraphicsDevice->BindComputeShader(mRenderPreset->GetComputeShader(ComputeShaderType_LinearDepth));
 
 	// bind output texture
 	for (int mipmap = 0; mipmap < 6; mipmap++) {
@@ -1284,7 +1284,7 @@ void RenderSSAO(Texture2D& depthBuffer, Texture2D& linearDepthBuffer, Texture2D&
 	// bind shader
 	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, depthBuffer, TEXTURE_SLOT_DEPTH);
 	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, linearDepthBuffer, TEXTURE_SLOT_LINEAR_DEPTH);
-	mGraphicsDevice->BindComputeShader(mShaderLib->GetComputeShader(ComputeShaderType_SSAO));
+	mGraphicsDevice->BindComputeShader(mRenderPreset->GetComputeShader(ComputeShaderType_SSAO));
 
 	// bind output texture
 	if (ssaoDebug)
@@ -1326,10 +1326,10 @@ void RenderDebugScene(CameraComponent& camera)
 	// grid
 	if (mDebugGridSize.x() > 0 && mDebugGridSize.y() > 0)
 	{
-		PipelineState pso = mPipelineStateManager->GetPipelineStateByID(PipelineStateID_GridHelper);
-		if (pso.IsValid() )
+		PipelineState* pso = mPipelineStateManager->GetPipelineStateByID(PipelineStateID_GridHelper);
+		if (pso != nullptr && pso->IsValid() )
 		{
-			mGraphicsDevice->BindPipelineState(pso);
+			mGraphicsDevice->BindPipelineState(*pso);
 			if (!mDebugGridVertexBuffer.IsValid() || mSavedDebugGridSize != mDebugGridSize)
 			{
 				mSavedDebugGridSize = mDebugGridSize;
@@ -1433,7 +1433,7 @@ void GaussianBlur(Texture2D& input, Texture2D& temp, Texture2D& output)
 	}
 
 	mGraphicsDevice->BeginEvent("GaussianBlur");
-	mGraphicsDevice->BindComputeShader(mShaderLib->GetComputeShader(csType));
+	mGraphicsDevice->BindComputeShader(mRenderPreset->GetComputeShader(csType));
 
 	GPUBuffer& postprocessBuffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_Postprocess);
 	mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, postprocessBuffer, CB_GETSLOT_NAME(PostprocessCB));
@@ -1498,7 +1498,7 @@ void BilateralBlur(Texture2D& input, Texture2D& temp, Texture2D& output, Texture
 	}
 
 	mGraphicsDevice->BeginEvent("BilateralBlur");
-	mGraphicsDevice->BindComputeShader(mShaderLib->GetComputeShader(csType));
+	mGraphicsDevice->BindComputeShader(mRenderPreset->GetComputeShader(csType));
 	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, linearDepthBuffer, TEXTURE_SLOT_LINEAR_DEPTH);
 
 	GPUBuffer& postprocessBuffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_Postprocess);
@@ -1569,7 +1569,7 @@ void UpsampleBilateral(Texture2D& input, Texture2D& output, Texture2D& linearDep
 	}
 
 	mGraphicsDevice->BeginEvent("UnsampleBilateral");
-	mGraphicsDevice->BindComputeShader(mShaderLib->GetComputeShader(csType));
+	mGraphicsDevice->BindComputeShader(mRenderPreset->GetComputeShader(csType));
 	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, linearDepthBuffer, TEXTURE_SLOT_LINEAR_DEPTH);
 	
 	GPUBuffer& postprocessBuffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_Postprocess);
@@ -1604,7 +1604,7 @@ void PostprocessTonemap(Texture2D& input, Texture2D& output, F32 exposure)
 	//BindConstanceBuffer(SHADERSTAGES_CS);
 
 	mGraphicsDevice->BindRenderTarget(0, nullptr, nullptr);
-	mGraphicsDevice->BindComputeShader(mShaderLib->GetComputeShader(ComputeShaderType_Tonemapping));
+	mGraphicsDevice->BindComputeShader(mRenderPreset->GetComputeShader(ComputeShaderType_Tonemapping));
 
 	// bind input texture
 	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, input, TEXTURE_SLOT_UNIQUE_0);
@@ -1641,7 +1641,7 @@ void PostprocessFXAA(Texture2D& input, Texture2D& output)
 	//BindConstanceBuffer(SHADERSTAGES_CS);
 
 	mGraphicsDevice->BindRenderTarget(0, nullptr, nullptr);
-	mGraphicsDevice->BindComputeShader(mShaderLib->GetComputeShader(ComputeShaderType_FXAA));
+	mGraphicsDevice->BindComputeShader(mRenderPreset->GetComputeShader(ComputeShaderType_FXAA));
 
 	// bind input texture
 	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, input, TEXTURE_SLOT_UNIQUE_0);
@@ -1837,6 +1837,16 @@ VertexShaderInfo LoadVertexShaderInfo(const std::string& path, VertexLayoutDesc*
 	return mShaderLib->LoadVertexShaderInfo(path, desc, numElements);
 }
 
+void RegisterPipelineState(RenderPassType passType, const StringID& name, PipelineStateDesc desc)
+{
+	mPipelineStateManager->RegisterCustomPipelineState(passType, name, desc);
+}
+
+PipelineState* GetPipelineStateByStringID(RenderPassType passType, const StringID& id)
+{
+	return mPipelineStateManager->GetCustomPipelineState(passType, id);
+}
+
 void InitializeRenderPasses()
 {
 	std::shared_ptr<RenderPass> terrainPass = std::shared_ptr<RenderPass>(new TerrainPass());
@@ -1931,6 +1941,11 @@ void ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPassType, Rend
 			}
 
 			((RenderInstance*)instances.data)[currentInstanceCount].Setup(worldMatrix, color);
+			
+			// TODO: maybe there is a better way to set userdata
+			if (object->RenderInstanceHandler != nullptr) {
+				object->RenderInstanceHandler(((RenderInstance*)instances.data)[currentInstanceCount]);
+			}
 
 			// set userdata
 			if (instanceHandler != nullptr &&
@@ -1972,14 +1987,18 @@ void ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPassType, Rend
 			// TODO: 很多变量和设置可以整合到PipelineState中
 			PipelineState* pso = nullptr;
 
+			// TODO; 优化customShader
 			auto customShaderID = material->GetCustomShader();
-			if (customShaderID == StringID::EMPTY)
+			if (customShaderID != StringID::EMPTY)
 			{
-				pso = &mPipelineStateManager->GetNormalPipelineState(renderPassType, *material);
+				pso = mPipelineStateManager->GetCustomPipelineState(renderPassType, customShaderID);
+				if (pso == nullptr) {
+					pso = mPipelineStateManager->GetNormalPipelineState(renderPassType, *material);
+				}
 			}
 			else
 			{
-				pso = &mPipelineStateManager->GetPipelineStateByStringID(customShaderID);
+				pso = mPipelineStateManager->GetNormalPipelineState(renderPassType, *material);
 			}
 
 			if (pso == nullptr || !pso->IsValid()) {
@@ -2328,7 +2347,7 @@ void RenderPointLightShadowmap(LightComponent& light, CameraComponent& camera, U
 		};
 		instanceHandler.processInstance_ = [availableCams](U32 subIndex, RenderInstance& instance)
 		{
-			instance.userdata.x = subIndex;
+			instance.userdata.y = subIndex;
 		};
 
 		// rendering
@@ -2371,7 +2390,7 @@ void ProcessSkinning()
 			isResourceSetup = true;
 			// 因为需要写入到顶点缓冲中，所以需要清除下VertexBuffer
 			mGraphicsDevice->ClearVertexBuffer();
-			mGraphicsDevice->BindComputeShader(mShaderLib->GetComputeShader(ComputeShaderType_Skinning));
+			mGraphicsDevice->BindComputeShader(mRenderPreset->GetComputeShader(ComputeShaderType_Skinning));
 		}
 
 		// update bonePoses buffer

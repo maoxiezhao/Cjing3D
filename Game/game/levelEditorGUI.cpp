@@ -35,8 +35,14 @@ namespace CjingGame
 			// mode radio button
 			static EditorMode mode = levelEditor.GetEditorMode();
 			if (ImGui::RadioButton("Ground", mode == EditorMode_Ground)) { mode = EditorMode_Ground; } ImGui::SameLine();
-			if (ImGui::RadioButton("Wall",   mode == EditorMode_Wall)) { mode = EditorMode_Wall; }
+			if (ImGui::RadioButton("Wall",   mode == EditorMode_Wall)) { mode = EditorMode_Wall; }ImGui::SameLine(200.0f);
 			levelEditor.SetEditorMode(mode);
+
+			bool isGridVisible = levelEditor.IsDebugGridVisible();
+			if (ImGui::Checkbox("Grid", &isGridVisible))
+			{
+				levelEditor.SetDebugGridVisible(isGridVisible);
+			}
 
 			ImGui::End();
 		}

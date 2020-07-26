@@ -17,6 +17,7 @@ namespace Cjing3D
 		virtual void Initialize();
 		virtual void FixedUpdate();
 		virtual void Update(EngineTime time);
+		virtual void PreRender();
 		virtual void Uninitialize();
 
 		void SetGameContext(SystemContext* systemContext) {

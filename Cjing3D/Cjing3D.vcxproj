@@ -239,7 +239,9 @@
     <ClInclude Include="renderer\paths\renderPath.h" />
     <ClInclude Include="renderer\paths\renderPath_tiledForward.h" />
     <ClInclude Include="renderer\pipelineStates\pipelineStateManager.h" />
+    <ClInclude Include="renderer\preset\presetDefinitions.h" />
     <ClInclude Include="renderer\preset\renderPreset.h" />
+    <ClInclude Include="renderer\preset\shaderDefinitions.h" />
     <ClInclude Include="renderer\renderableCommon.h" />
     <ClInclude Include="renderer\renderer.h" />
     <ClInclude Include="renderer\rendererUtils.h" />
@@ -448,6 +450,7 @@
     <ClCompile Include="renderer\preset\rasterizerState.cpp" />
     <ClCompile Include="renderer\preset\renderPreset.cpp" />
     <ClCompile Include="renderer\preset\samplerState.cpp" />
+    <ClCompile Include="renderer\preset\shaderPreset.cpp" />
     <ClCompile Include="renderer\preset\structuredBuffer.cpp" />
     <ClCompile Include="renderer\renderer.cpp" />
     <ClCompile Include="renderer\rendererUtils.cpp" />

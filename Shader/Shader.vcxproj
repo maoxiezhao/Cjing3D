@@ -335,6 +335,9 @@
     <FxCompile Include="vs\imageVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
     </FxCompile>
+    <FxCompile Include="vs\mapGroundVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+    </FxCompile>
     <FxCompile Include="vs\objectPosTexVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
@@ -397,6 +400,7 @@
     <ClInclude Include="hf\resourceMapping.h" />
     <ClInclude Include="hf\shaderDefine.h" />
     <ClInclude Include="hf\shaderInterop.h" />
+    <ClInclude Include="hf\shaderInteropGame.h" />
     <ClInclude Include="hf\shaderInteropImage.h" />
     <ClInclude Include="hf\shaderInteropRender.h" />
   </ItemGroup>

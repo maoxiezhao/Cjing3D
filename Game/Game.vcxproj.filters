@@ -64,10 +64,16 @@
     <ClCompile Include="game\map\gameMap.cpp">
       <Filter>game\map</Filter>
     </ClCompile>
-    <ClCompile Include="game\map\gameMapGround.cpp">
+    <ClCompile Include="game\map\gameMapGrounds.cpp">
       <Filter>game\map</Filter>
     </ClCompile>
-    <ClCompile Include="game\map\gameMapGrounds.cpp">
+    <ClCompile Include="game\map\gameMapGroundRenderer.cpp">
+      <Filter>game\map</Filter>
+    </ClCompile>
+    <ClCompile Include="game\map\gameMapGroundTileset.cpp">
+      <Filter>game\map</Filter>
+    </ClCompile>
+    <ClCompile Include="game\map\gameMapGround.cpp">
       <Filter>game\map</Filter>
     </ClCompile>
   </ItemGroup>
@@ -158,11 +164,20 @@
     <ClInclude Include="game\map\gameMap.h">
       <Filter>game\map</Filter>
     </ClInclude>
+    <ClInclude Include="game\map\gameMapGrounds.h">
+      <Filter>game\map</Filter>
+    </ClInclude>
+    <ClInclude Include="game\map\gameMapGroundRenderer.h">
+      <Filter>game\map</Filter>
+    </ClInclude>
+    <ClInclude Include="game\map\gameMapGroundTileset.h">
+      <Filter>game\map</Filter>
+    </ClInclude>
     <ClInclude Include="game\map\gameMapGround.h">
       <Filter>game\map</Filter>
     </ClInclude>
-    <ClInclude Include="game\map\gameMapGrounds.h">
-      <Filter>game\map</Filter>
+    <ClInclude Include="definitions\gameRenderCommon.h">
+      <Filter>definitions</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

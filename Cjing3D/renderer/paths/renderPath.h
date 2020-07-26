@@ -7,8 +7,6 @@
 
 namespace Cjing3D {
 
-	
-
 	class RenderPath
 	{
 	public:

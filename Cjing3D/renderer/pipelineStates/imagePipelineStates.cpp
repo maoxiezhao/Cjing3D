@@ -31,13 +31,13 @@ namespace Cjing3D
 
 			if (params.IsFullScreenEnabled())
 			{
-				infoState.mVertexShader = shaderLib.GetVertexShader(VertexShaderType_FullScreen);
-				infoState.mPixelShader = shaderLib.GetPixelShader(PixelShaderType_FullScreen);
+				infoState.mVertexShader = renderPreset.GetVertexShader(VertexShaderType_FullScreen);
+				infoState.mPixelShader = renderPreset.GetPixelShader(PixelShaderType_FullScreen);
 			}
 			else
 			{
-				infoState.mVertexShader = shaderLib.GetVertexShader(VertexShaderType_Image);
-				infoState.mPixelShader = shaderLib.GetPixelShader(PixelShaderType_Image);
+				infoState.mVertexShader = renderPreset.GetVertexShader(VertexShaderType_Image);
+				infoState.mPixelShader = renderPreset.GetPixelShader(PixelShaderType_Image);
 				infoState.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_DepthNone);
 				infoState.mRasterizerState = renderPreset.GetRasterizerState(RasterizerStateID_Image);
 			}
@@ -56,15 +56,15 @@ namespace Cjing3D
 		}
 	}
 
-	PipelineState PipelineStateManager::GetImagePipelineState(RenderImage::ImageParams params)
+	PipelineState* PipelineStateManager::GetImagePipelineState(RenderImage::ImageParams params)
 	{
 		U32 hashValue = ConvertImageParamsToHashCode(params);
 		auto it = mImagePipelineStateIndexMap.find(hashValue);
 		if (it != mImagePipelineStateIndexMap.end()) {
-			return mPipelineStates[it->second];
+			return &mPipelineStates[it->second];
 		}
 		else {
-			return PipelineState();
+			return nullptr;
 		}
 	}
 

@@ -22,12 +22,11 @@ PipelineStateManager::~PipelineStateManager()
 
 void PipelineStateManager::SetupPipelineStateIDs()
 {
-	ShaderLib& shaderLib = Renderer::GetShaderLib();
 	RenderPreset& renderPreset = Renderer::GetRenderPreset();
 	{
 		PipelineStateDesc desc = {};
-		desc.mVertexShader      = shaderLib.GetVertexShader(VertexShaderType_Sky);
-		desc.mPixelShader       = shaderLib.GetPixelShader(PixelShaderType_Sky);
+		desc.mVertexShader      = renderPreset.GetVertexShader(VertexShaderType_Sky);
+		desc.mPixelShader       = renderPreset.GetPixelShader(PixelShaderType_Sky);
 		desc.mBlendState	    = renderPreset.GetBlendState(BlendStateID_Opaque);
 		desc.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_DepthRead);
 		desc.mRasterizerState   = renderPreset.GetRasterizerState(RasterizerStateID_Sky);
@@ -36,43 +35,29 @@ void PipelineStateManager::SetupPipelineStateIDs()
 		RegisterPipelineState(PipelineStateID_SkyRendering, desc);
 	}
 	{
-		PipelineStateDesc desc = {};
-		desc.mVertexShader = shaderLib.GetVertexShader(VertexShaderType_PosColor);
-		desc.mPixelShader = shaderLib.GetPixelShader(PixelShaderType_PosColor);
-		desc.mInputLayout = shaderLib.GetVertexLayout(InputLayoutType_PosColor);
-		desc.mBlendState = renderPreset.GetBlendState(BlendStateID_Transpranent);
+		PipelineStateDesc desc  = {};
+		desc.mVertexShader      = renderPreset.GetVertexShader(VertexShaderType_PosColor);
+		desc.mPixelShader	    = renderPreset.GetPixelShader(PixelShaderType_PosColor);
+		desc.mInputLayout	    = renderPreset.GetVertexLayout(InputLayoutType_PosColor);
+		desc.mBlendState	    = renderPreset.GetBlendState(BlendStateID_Transpranent);
 		desc.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_DepthRead);
-		desc.mRasterizerState = renderPreset.GetRasterizerState(RasterizerStateID_WireFrame_DoubleSided);
+		desc.mRasterizerState   = renderPreset.GetRasterizerState(RasterizerStateID_WireFrame_DoubleSided);
 		desc.mPrimitiveTopology = LINELIST;
 
 		RegisterPipelineState(PipelineStateID_GridHelper, desc);
 	}
 }
 
-PipelineState PipelineStateManager::GetPipelineStateByID(PipelineStateID stateID)
+PipelineState* PipelineStateManager::GetPipelineStateByID(PipelineStateID stateID)
 {
 	auto it = mPipelineStateIDMap.find(stateID);
 	if (it != mPipelineStateIDMap.end())
 	{
-		return mPipelineStates[it->second];
+		return &mPipelineStates[it->second];
 	}
 	else
 	{
-		return PipelineState();
-	}
-}
-
-PipelineState PipelineStateManager::GetPipelineStateByStringID(const StringID& id)
-{
-	auto stateID = ConvertStringID(id);
-	auto it = mPipelineStateIDMap.find(stateID);
-	if (it != mPipelineStateIDMap.end())
-	{
-		return mPipelineStates[it->second];
-	}
-	else
-	{
-		return PipelineState();
+		return nullptr;
 	}
 }
 
@@ -109,14 +94,30 @@ void PipelineStateManager::RegisterPipelineState(PipelineStateID stateID, Pipeli
 	}
 }
 
-void PipelineStateManager::RegisterPipelineState(const StringID& name, PipelineStateDesc desc)
+PipelineState* PipelineStateManager::GetCustomPipelineState(RenderPassType passType, const StringID& id)
 {
+	auto& passPSOs = mCustomPipelineStateMap.mPassPSOs[passType];
+	auto stateID = ConvertStringID(id);
+	auto it = passPSOs.mPSONameMap.find(stateID);
+	if (it != passPSOs.mPSONameMap.end())
+	{
+		return &mPipelineStates[it->second];
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
+void PipelineStateManager::RegisterCustomPipelineState(RenderPassType passType, const StringID& name, PipelineStateDesc desc)
+{
+	auto& passPSOs = mCustomPipelineStateMap.mPassPSOs[passType];
 	auto stateID = ConvertStringID(name);
-	auto it = mPipelineStateIDMap.find(stateID);
-	if (it == mPipelineStateIDMap.end())
+	auto it = passPSOs.mPSONameMap.find(stateID);
+	if (it == passPSOs.mPSONameMap.end())
 	{
 		U32 index = RegisterPipelineState(desc);
-		mPipelineStateIDMap[stateID] = index;
+		passPSOs.mPSONameMap[stateID] = index;
 	}
 }
 

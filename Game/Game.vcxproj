@@ -153,7 +153,9 @@
     <ClCompile Include="game\levelEditorGUI.cpp" />
     <ClCompile Include="game\map\gameMap.cpp" />
     <ClCompile Include="game\map\gameMapGround.cpp" />
+    <ClCompile Include="game\map\gameMapGroundRenderer.cpp" />
     <ClCompile Include="game\map\gameMapGrounds.cpp" />
+    <ClCompile Include="game\map\gameMapGroundTileset.cpp" />
     <ClCompile Include="main\main.cpp" />
     <ClCompile Include="scripts\gameLuaContext.cpp" />
     <ClCompile Include="test\guiTest.cpp" />
@@ -168,6 +170,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="definitions\definitions.h" />
+    <ClInclude Include="definitions\gameRenderCommon.h" />
     <ClInclude Include="editor\gameEditor.h" />
     <ClInclude Include="editor\guiEditor.h" />
     <ClInclude Include="editor\guiEditorAnimation.h" />
@@ -187,7 +190,9 @@
     <ClInclude Include="game\levelEditor.h" />
     <ClInclude Include="game\map\gameMap.h" />
     <ClInclude Include="game\map\gameMapGround.h" />
+    <ClInclude Include="game\map\gameMapGroundRenderer.h" />
     <ClInclude Include="game\map\gameMapGrounds.h" />
+    <ClInclude Include="game\map\gameMapGroundTileset.h" />
     <ClInclude Include="scripts\gameLuaContext.h" />
     <ClInclude Include="test\guiTest.h" />
   </ItemGroup>

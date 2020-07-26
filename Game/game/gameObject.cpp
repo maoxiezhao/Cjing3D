@@ -65,7 +65,7 @@ namespace CjingGame
 
 	void GameObject::SetVisible(bool visible)
 	{
-		auto object = GetObject();
+		auto object = GetObjectComponent();
 		if (object != nullptr) {
 			object->SetRenderable(visible);
 		}
@@ -73,7 +73,7 @@ namespace CjingGame
 
 	void GameObject::LoadModel(const std::string& path)
 	{
-		auto object = GetObject();
+		auto object = GetObjectComponent();
 		if (object == nullptr) {
 			return;
 		}
@@ -87,7 +87,19 @@ namespace CjingGame
 		object->mMeshID = newScene.mMeshes.GetEntityByIndex(0);
 
 		newScene.mObjects.Clear();
+		newScene.mObjectAABBs.Clear();
+
 		mScene->Merge(newScene);
+	}
+
+	void GameObject::SetMesh(const ECS::Entity& meshEntity)
+	{
+		auto object = GetObjectComponent();
+		if (object == nullptr) {
+			return;
+		}
+
+		object->mMeshID = meshEntity;
 	}
 
 	GameObject GameObject::Duplicate()
@@ -115,7 +127,7 @@ namespace CjingGame
 		return mScene->mTransforms.GetComponent(mObjectEntity);
 	}
 
-	ObjectComponent* GameObject::GetObject()
+	ObjectComponent* GameObject::GetObjectComponent()
 	{
 		if (!IsOnScene()) {
 			return nullptr;

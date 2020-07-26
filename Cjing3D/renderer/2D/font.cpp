@@ -1,4 +1,5 @@
 #include "font.h"
+#include "renderer\renderer.h"
 #include "renderer\preset\renderPreset.h"
 #include "renderer\textureHelper.h"
 #include "renderer\RHI\rhiFactory.h"

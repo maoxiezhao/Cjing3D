@@ -40,6 +40,7 @@ enum RenderPassType
 	RenderPassType_Shadow,
 	RenderPassType_ShadowCube,
 	RenderPassType_Depth,
+	RenderPassType_Count,
 };
 
 enum RenderableType

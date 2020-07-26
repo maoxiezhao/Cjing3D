@@ -247,6 +247,10 @@ void Engine::UpdateInput(F32 deltaTime)
 
 void Engine::Render()
 {
+	PROFILER_BEGIN_CPU_BLOCK("PreRender");
+	mGameComponent->PreRender();
+	PROFILER_END_BLOCK();
+
 	PROFILER_BEGIN_CPU_BLOCK("Render");
 	FIRE_EVENT(EventType::EVENT_RENDER);
 	Renderer::Render();

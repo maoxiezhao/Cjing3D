@@ -28,6 +28,10 @@ void GameComponent::Update(EngineTime time)
 {
 }
 
+void GameComponent::PreRender()
+{
+}
+
 void GameComponent::Uninitialize()
 {
 }

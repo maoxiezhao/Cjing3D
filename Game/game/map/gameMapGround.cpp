@@ -5,6 +5,7 @@ namespace CjingGame
 	GameMapGround::GameMapGround()
 	{
 	}
+
 	GameMapGround::~GameMapGround()
 	{
 	}

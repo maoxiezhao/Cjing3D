@@ -1,14 +1,17 @@
 #ifndef _OBJECT_INPUT_HF_
 #define _OBJECT_INPUT_HF_
 
-#include "shaderInterop.h"
-#include "shaderInteropRender.h"
+#include "global.hlsli"
 
 struct InputInstance
 {
     float4 wi0 : INSTANCEMAT0;
     float4 wi1 : INSTANCEMAT1;
     float4 wi2 : INSTANCEMAT2;
+    
+    // {x___} = objectComponent color
+    // {_y__} = userdata; cubemap targetIndex 
+    // {__zw} = userdata
     uint4 userdata : INSTANCEUSERDATA;
 };
 
@@ -76,7 +79,7 @@ inline VertexSurface MakeVertexSurfaceFromInput(InputObjectPos input)
 {
     VertexSurface surface;
     surface.position = float4(input.pos.xyz, 1.0f);
-    surface.color = gMaterial.baseColor;
+    surface.color = gMaterial.baseColor * ConvertColorUintToFloat4(input.instance.userdata.x);
     
     uint normalSubsetIndex = asuint(input.pos.w);
     surface.normal.x = (float) (normalSubsetIndex & 0x000000ff) / 255.0f * 2.0f - 1.0f;
@@ -90,7 +93,7 @@ inline VertexSurface MakeVertexSurfaceFromInput(InputObjectPosTex input)
 {
     VertexSurface surface;
     surface.position = float4(input.pos.xyz, 1.0f);
-    surface.color = gMaterial.baseColor;
+    surface.color = gMaterial.baseColor * ConvertColorUintToFloat4(input.instance.userdata.x);
     
     uint normalSubsetIndex = asuint(input.pos.w);
     surface.normal.x = (float) (normalSubsetIndex & 0x000000ff) / 255.0f * 2.0f - 1.0f;
@@ -106,7 +109,7 @@ inline VertexSurface MakeVertexSurfaceFromInput(InputObjectAll input)
 {
     VertexSurface surface;
     surface.position = float4(input.pos.xyz, 1.0f);
-    surface.color = gMaterial.baseColor;
+    surface.color = gMaterial.baseColor * ConvertColorUintToFloat4(input.instance.userdata.x);
     
     if (gMaterial.useVertexColor) {
         surface.color = input.color;

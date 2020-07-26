@@ -152,6 +152,12 @@
     <Filter Include="animation">
       <UniqueIdentifier>{bf5f259c-212e-499f-a15c-cc0eb634e765}</UniqueIdentifier>
     </Filter>
+    <Filter Include="renderer\shader">
+      <UniqueIdentifier>{d5be52c7-9ce2-4de1-ad47-24f29e400cc0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\passes\particle">
+      <UniqueIdentifier>{4bef2df0-554f-435b-ad0c-0d5a11c71520}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine.cpp" />
@@ -187,9 +193,6 @@
     </ClCompile>
     <ClCompile Include="renderer\RHI\swapChainD3D11.cpp">
       <Filter>renderer\rhi\d3d11</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\shaderLib.cpp">
-      <Filter>renderer</Filter>
     </ClCompile>
     <ClCompile Include="core\threadSafeSystem.cpp">
       <Filter>core</Filter>
@@ -677,6 +680,12 @@
     <ClCompile Include="scripts\api\jsonApi.cpp">
       <Filter>scripts\api</Filter>
     </ClCompile>
+    <ClCompile Include="renderer\preset\shaderPreset.cpp">
+      <Filter>renderer\preset\graphicsChild</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\shaderLib.cpp">
+      <Filter>renderer\shader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -727,9 +736,6 @@
     </ClInclude>
     <ClInclude Include="renderer\RHI\swapChainD3D11.h">
       <Filter>renderer\rhi\d3d11</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\shaderLib.h">
-      <Filter>renderer</Filter>
     </ClInclude>
     <ClInclude Include="renderer\RHI\rhiResource.h">
       <Filter>renderer\rhi</Filter>
@@ -1341,11 +1347,20 @@
     <ClInclude Include="gui\guiAnimation\note.h">
       <Filter>gui\guiAnimation</Filter>
     </ClInclude>
-    <ClInclude Include="renderer\particleSystem.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
     <ClInclude Include="scripts\api\jsonApi.h">
       <Filter>scripts\api</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\preset\presetDefinitions.h">
+      <Filter>renderer\preset</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\preset\shaderDefinitions.h">
+      <Filter>renderer\preset</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\shaderLib.h">
+      <Filter>renderer\shader</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\particleSystem.h">
+      <Filter>renderer\passes\particle</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

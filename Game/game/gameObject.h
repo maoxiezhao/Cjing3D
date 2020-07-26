@@ -28,17 +28,18 @@ namespace CjingGame
 		void SetVisible(bool visible);
 
 		void LoadModel(const std::string& path);
+		void SetMesh(const ECS::Entity& meshEntity);
 
 		GameObject Duplicate();
 		Scene* GetScene();
-
-	private:
 		TransformComponent* GetTransform();
-		ObjectComponent* GetObject();
+		ObjectComponent* GetObjectComponent();
 
 	private:
 		Cjing3D::ECS::Entity mObjectEntity = Cjing3D::ECS::INVALID_ENTITY;
 		Cjing3D::StringID mName;
 		Scene* mScene = nullptr;
 	};
+
+	using GameObjectPtr = std::shared_ptr<GameObject>;
 }

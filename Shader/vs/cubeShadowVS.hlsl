@@ -1,4 +1,4 @@
-#include "..\hf\objectHF.hlsli"
+#include "..\hf\objectInput.hlsli"
 
 struct VSOutType
 {
@@ -12,7 +12,7 @@ VSOutType main(InputObjectPos input)
     VertexSurface surface = MakeVertexSurfaceFromInput(input);
 
     VSOutType vsOut;
-    CubemapRenderCamera cam = gCubemapRenderCams[input.instance.userdata.x];
+    CubemapRenderCamera cam = gCubemapRenderCams[input.instance.userdata.y];
     vsOut.rtIndex = cam.properties.x;
     vsOut.pos = mul(cam.cubemapVP, mul(surface.position, worldMat));
     
