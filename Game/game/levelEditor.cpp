@@ -3,6 +3,7 @@
 #include "renderer\paths\renderPath_tiledForward.h"
 #include "editor\guiEditor.h"
 #include "system\sceneSystem.h"
+#include "gui\guiEditor\guiEditorInclude.h"
 
 using namespace Cjing3D;
 
@@ -153,14 +154,19 @@ namespace CjingGame
 	{
 		auto& inputManager = GlobalGetSubSystem<InputManager>();
 		Scene& scene = Scene::GetScene();
+
+		// pick result
 		I32x2 mousePos = inputManager.GetMousePos();
 		mPickResult = scene.MousePickObjects({ (U32)mousePos[0], (U32)mousePos[1] }, GameObjectLayerMask_Ground);
 		mPickResult.position[1] += 0.5f; // adjust
 
+		if (mPickResult.entity == INVALID_ENTITY) {
+			return;
+		}
+
 		if (inputManager.IsKeyDown(KeyCode::Click_Left))
 		{
-			Logger::Info(std::to_string(mPickResult.entity));
-			if (mPickResult.entity == INVALID_ENTITY) {
+			if (ImGui::IsAnyWindowFocused()) {
 				return;
 			}
 
@@ -169,8 +175,7 @@ namespace CjingGame
 		}
 		else if (inputManager.IsKeyDown(KeyCode::Click_Right))
 		{
-			Logger::Info(std::to_string(mPickResult.entity));
-			if (mPickResult.entity == INVALID_ENTITY) {
+			if (ImGui::IsAnyWindowFocused()) {
 				return;
 			}
 

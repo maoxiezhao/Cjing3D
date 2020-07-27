@@ -94,7 +94,7 @@ namespace Cjing3D {
 
 			T GetValue(F32 localTime)override
 			{
-				F32 availabelTime = localTime > mSampler.GetDuration() ? localTime % std::mSampler.GetDuration() : localTime;
+				F32 availabelTime = localTime > mSampler.GetDuration() ? localTime % mSampler.GetDuration() : localTime;
 				return mSampler.GetValue(availabelTime);
 			}
 

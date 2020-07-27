@@ -3,6 +3,7 @@
 
 #include "utils\signal\signalInclude.h"
 #include "utils\signal\connection.h"
+#include "helper\debug.h"
 
 namespace Cjing3D
 {
