@@ -28,6 +28,9 @@
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
 
+// Cjing3D
+#include "renderer\renderer.h"
+
 // DirectX
 #include <stdio.h>
 #include <d3d11.h>
@@ -54,6 +57,9 @@ static ID3D11RasterizerState*   g_pRasterizerState = NULL;
 static ID3D11BlendState*        g_pBlendState = NULL;
 static ID3D11DepthStencilState* g_pDepthStencilState = NULL;
 static int                      g_VertexBufferSize = 5000, g_IndexBufferSize = 10000;
+
+// Cjing3D data
+Cjing3D::Texture2D g_pFontTexture;
 
 struct VERTEX_CONSTANT_BUFFER
 {
@@ -250,9 +256,13 @@ void ImGui_ImplDX11_RenderDrawData(ImDrawData* draw_data)
                 ctx->RSSetScissorRects(1, &r);
 
                 // Bind texture, Draw
-                ID3D11ShaderResourceView* texture_srv = (ID3D11ShaderResourceView*)pcmd->TextureId;
-                ctx->PSSetShaderResources(0, 1, &texture_srv);
-                ctx->DrawIndexed(pcmd->ElemCount, pcmd->IdxOffset + global_idx_offset, pcmd->VtxOffset + global_vtx_offset);
+                // ID3D11ShaderResourceView* texture_srv = (ID3D11ShaderResourceView*)pcmd->TextureId;
+                auto texture = (Cjing3D::Texture2D*)pcmd->TextureId;
+                if (texture != nullptr) 
+                {
+                    Cjing3D::Renderer::GetDevice().BindGPUResource(Cjing3D::SHADERSTAGES_PS, *texture, 0);
+                    ctx->DrawIndexed(pcmd->ElemCount, pcmd->IdxOffset + global_idx_offset, pcmd->VtxOffset + global_vtx_offset);
+                } 
             }
         }
         global_idx_offset += cmd_list->IdxBuffer.Size;
@@ -289,38 +299,57 @@ static void ImGui_ImplDX11_CreateFontsTexture()
 
     // Upload texture to graphics system
     {
-        D3D11_TEXTURE2D_DESC desc;
-        ZeroMemory(&desc, sizeof(desc));
-        desc.Width = width;
-        desc.Height = height;
-        desc.MipLevels = 1;
-        desc.ArraySize = 1;
-        desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-        desc.SampleDesc.Count = 1;
-        desc.Usage = D3D11_USAGE_DEFAULT;
-        desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-        desc.CPUAccessFlags = 0;
+        //D3D11_TEXTURE2D_DESC desc;
+        //ZeroMemory(&desc, sizeof(desc));
+        //desc.Width = width;
+        //desc.Height = height;
+        //desc.MipLevels = 1;
+        //desc.ArraySize = 1;
+        //desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        //desc.SampleDesc.Count = 1;
+        //desc.Usage = D3D11_USAGE_DEFAULT;
+        //desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+        //desc.CPUAccessFlags = 0;
 
-        ID3D11Texture2D *pTexture = NULL;
-        D3D11_SUBRESOURCE_DATA subResource;
-        subResource.pSysMem = pixels;
-        subResource.SysMemPitch = desc.Width * 4;
-        subResource.SysMemSlicePitch = 0;
-        g_pd3dDevice->CreateTexture2D(&desc, &subResource, &pTexture);
+        //ID3D11Texture2D *pTexture = NULL;
+        //D3D11_SUBRESOURCE_DATA subResource;
+        //subResource.pSysMem = pixels;
+        //subResource.SysMemPitch = desc.Width * 4;
+        //subResource.SysMemSlicePitch = 0;
+        //g_pd3dDevice->CreateTexture2D(&desc, &subResource, &pTexture);
 
-        // Create texture view
-        D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-        ZeroMemory(&srvDesc, sizeof(srvDesc));
-        srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-        srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-        srvDesc.Texture2D.MipLevels = desc.MipLevels;
-        srvDesc.Texture2D.MostDetailedMip = 0;
-        g_pd3dDevice->CreateShaderResourceView(pTexture, &srvDesc, &g_pFontTextureView);
-        pTexture->Release();
+        //// Create texture view
+        //D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+        //ZeroMemory(&srvDesc, sizeof(srvDesc));
+        //srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        //srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+        //srvDesc.Texture2D.MipLevels = desc.MipLevels;
+        //srvDesc.Texture2D.MostDetailedMip = 0;
+        //g_pd3dDevice->CreateShaderResourceView(pTexture, &srvDesc, &g_pFontTextureView);
+        //pTexture->Release();
     }
 
+    // convert to Cjing3D texture 
+    {
+		Cjing3D::TextureDesc desc = {};
+		desc.mWidth = width;
+		desc.mHeight = height;
+        desc.mMipLevels = 1;
+		desc.mArraySize = 1;
+		desc.mFormat = Cjing3D::FORMAT_R8G8B8A8_UNORM;
+		desc.mBindFlags = Cjing3D::BIND_SHADER_RESOURCE;
+        desc.mCPUAccessFlags = 0;
+
+        Cjing3D::SubresourceData subresourceData;
+        subresourceData.mSysMem = pixels;
+        subresourceData.mSysMemPitch = desc.mWidth * 4;
+
+        Cjing3D::Renderer::GetDevice().CreateTexture2D(&desc, &subresourceData, g_pFontTexture);
+    }
+
+
     // Store our identifier
-    io.Fonts->TexID = (ImTextureID)g_pFontTextureView;
+    io.Fonts->TexID = (ImTextureID)(&g_pFontTexture);
 
     // Create texture sampler
     {
@@ -501,6 +530,9 @@ void    ImGui_ImplDX11_InvalidateDeviceObjects()
     if (g_pInputLayout) { g_pInputLayout->Release(); g_pInputLayout = NULL; }
     if (g_pVertexShader) { g_pVertexShader->Release(); g_pVertexShader = NULL; }
     if (g_pVertexShaderBlob) { g_pVertexShaderBlob->Release(); g_pVertexShaderBlob = NULL; }
+
+    // Cjing3D objects
+    if (g_pFontTexture.IsValid()) { g_pFontTexture.Clear(); }
 }
 
 bool    ImGui_ImplDX11_Init(ID3D11Device* device, ID3D11DeviceContext* device_context)

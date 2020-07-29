@@ -152,10 +152,12 @@ namespace CjingGame
 		
 		auto object = groundObject->GetObjectComponent();
 		if (object != nullptr) { 
-			object->RenderInstanceHandler = [groundObject](RenderInstance& instance) 
+			GameMapGroundTileset* gameMapGroundTileset = mGameMapGroundTileset;
+			object->RenderInstanceHandler = [groundObject, gameMapGroundTileset](RenderInstance& instance)
 			{
 				U32 tileIndex = groundObject->GetTileIndex();
-				instance.SetUserdata(32, 0, 16, 16);
+				U32x4 tileRect = gameMapGroundTileset->GetTileRectByIndex(tileIndex);
+				instance.SetUserdata(tileRect[0], tileRect[1], tileRect[2], tileRect[3]);
 			};
 		}
 

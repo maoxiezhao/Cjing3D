@@ -137,11 +137,13 @@ namespace Cjing3D {
 			bool SaveFileByPhysfs(const std::string& name, const char* buffer, size_t length)
 			{
 				PHYSFS_File* file = PHYSFS_openWrite(name.c_str());
-				if (file == nullptr)
+				if (file == nullptr) {
 					Debug::Die(string("the file:") + name + " created failed.");
+				}
 
-				if (!PHYSFS_write(file, buffer, (PHYSFS_uint32)length, 1))
+				if (!PHYSFS_write(file, buffer, (PHYSFS_uint32)length, 1)) {
 					Debug::Die(string("the file:") + name + "writed failed.");
+				}
 
 				PHYSFS_close(file);
 				return true;
@@ -163,14 +165,12 @@ namespace Cjing3D {
 			dataPath_ = dataPath;
 
 			string dirDataPath = dataPath;
-			const string&baseDir = PHYSFS_getBaseDir();
+			const string& baseDir = PHYSFS_getBaseDir();
 			PHYSFS_addToSearchPath(dirDataPath.c_str(), 1);
 			PHYSFS_addToSearchPath((baseDir + "\\" + dirDataPath).c_str(), 1);
-
 			PHYSFS_permitSymbolicLinks(1);
 
-			// 设置数据文档路径
-			//SetAppWriteDir(DEFAULT_APP_WRITE_DIR);
+			SetAppWriteDir(appWriteDir_);
 
 			return true;
 		}

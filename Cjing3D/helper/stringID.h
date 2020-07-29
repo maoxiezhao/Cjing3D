@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common\definitions.h"
+#include "helper\binaryArchive.h"
 
 #include <algorithm>
 #include <string>
@@ -8,7 +9,6 @@
 
 namespace Cjing3D {
 
-	class Archive;
 	class UTF8String;
 
 	/**

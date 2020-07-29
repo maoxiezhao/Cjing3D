@@ -34,9 +34,9 @@ namespace CjingGame
 		mGameMapGrounds->PreRender();
 	}
 
-	bool GameMapObjects::AddGround(const I32x3& localPos)
+	bool GameMapObjects::AddGround(const I32x3& localPos, U32 tileIndex)
 	{
-		mGameMapGrounds->AddGround(localPos);
+		mGameMapGrounds->AddGround(localPos, tileIndex);
 		return true;
 	}
 
@@ -44,6 +44,11 @@ namespace CjingGame
 	{
 		mGameMapGrounds->RemoveGround(localPos);
 		return true;
+	}
+
+	GameMapGrounds* GameMapObjects::GetGameMapGrounds()
+	{
+		return mGameMapGrounds.get();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////
@@ -115,14 +120,6 @@ namespace CjingGame
 		mGameMapObjects->PreRender();
 	}
 
-	void GameMap::LoadFromFile(const std::string& filePath)
-	{
-	}
-
-	void GameMap::SaveToFile(const std::string& filePath)
-	{
-	}
-
 	I32x3 GameMap::TransformGlobalPosToLocal(const F32x3& pos) const
 	{
 		return I32x3(
@@ -140,13 +137,32 @@ namespace CjingGame
 			(F32)pos.z() * MapCellSize
 		);
 	}
-	void GameMap::AddGround(const I32x3& pos)
+
+	GameMapObjects* GameMap::GetCurrentObjects()
 	{
-		mGameMapObjects->AddGround(pos);
+		return mGameMapObjects.get();
+	}
+
+	void GameMap::AddGround(const I32x3& pos, U32 tileIndex)
+	{
+		mGameMapObjects->AddGround(pos, tileIndex);
 	}
 
 	void GameMap::RemoveGround(const I32x3& pos)
 	{
 		mGameMapObjects->RemoveGround(pos);
+	}
+
+	GameMapGrounds* GameMap::GetGameMapGround()
+	{
+		return mGameMapObjects != nullptr ? mGameMapObjects->GetGameMapGrounds() : nullptr;
+	}
+
+	void GameMap::LoadFromFile(const std::string& filePath)
+	{
+	}
+
+	void GameMap::SaveToFile(const std::string& filePath)
+	{
 	}
 }

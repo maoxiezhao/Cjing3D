@@ -3,9 +3,10 @@
 #include "utils\math.h"
 #include "utils\geometry.h"
 
+#include "helper\binaryArchive.h"
+
 namespace Cjing3D
 {
-	class Archive;
 	class AABB;
 	class Ray;
 

@@ -5,12 +5,13 @@
 #include "system\sceneSystem.h"
 #include "gui\guiEditor\guiEditorInclude.h"
 
+#include "helper\jsonArchive.h"
+
 using namespace Cjing3D;
 
 namespace CjingGame
 {
 	namespace {
-		U32 mCurrentLayer = 0;
 		F32x3 mGridOffset = F32x3(0.0f, 0.0f, 0.0f);
 		Scene::PickResult mPickResult;
 	}
@@ -45,6 +46,9 @@ namespace CjingGame
 		F32 cellSize = (F32)GameMap::MapCellSize;
 		InitializeEditorMap(cellSize, 8, 8, 4);
 		InitializeEditorGUI(guiStage.GetImGUIStage());
+
+		JsonArchive jsonArchive("test.json", ArchiveMode::ArchiveMode_Write);
+		jsonArchive.Write("Key", 10);
 	}
 
 	void LevelEditor::Update(Cjing3D::EngineTime time)
@@ -66,15 +70,10 @@ namespace CjingGame
 			guiStage.SetImGUIStageVisible(!show);
 		}
 #endif // _ENABLE_GAME_EDITOR_
-		mGameLuaContext->FixedUpdate();
 
-		// update editor
-		mGridOffset[1] = (F32)mCurrentLayer;
-		Renderer::SetDebugGridOffset(mGridOffset);
-
+		// update editor mode
 		if (mCurrentMap != nullptr) 
 		{
-			// update editor
 			switch (mEditorMode)
 			{
 			case CjingGame::EditorMode_Ground:
@@ -88,6 +87,23 @@ namespace CjingGame
 			}
 
 			mCurrentMap->FixedUpdate();
+		}
+
+		// update editor layer
+		if (inputManager.IsKeyDown(KeyCode::Q))
+		{
+			mCurrentLayer = std::max(0, mCurrentLayer - 1);
+		}
+		else if (inputManager.IsKeyDown(KeyCode::E))
+		{
+			I32 maxLayer = mCurrentMap != nullptr ? mCurrentMap->GetMapLayer() - 1 : 0;
+			mCurrentLayer = std::min(maxLayer, mCurrentLayer + 1);
+		}
+		if ((I32)mGridOffset[1] != mCurrentLayer) 
+		{
+			mGridOffset[1] = (F32)mCurrentLayer;
+			Renderer::SetDebugGridOffset(mGridOffset);
+			mEditorPlane.SetPosition(mGridOffset);
 		}
 	}
 
@@ -127,7 +143,17 @@ namespace CjingGame
 			I32 width = mCurrentMap->GetMapWidth();
 			I32 height = mCurrentMap->GetMapHeight();	
 			Renderer::SetDebugGridSize({ width, height });
+			Renderer::SetDebugGridOffset(mGridOffset);
 		}
+	}
+
+	I32x3 LevelEditor::GetCurrentPickLocalPos() const
+	{
+		if (mPickResult.entity == INVALID_ENTITY || mCurrentMap == nullptr) {
+			return I32x3(-1, -1, -1);
+		}
+	
+		return mCurrentMap->TransformGlobalPosToLocal(mPickResult.position);
 	}
 
 	void LevelEditor::InitializeEditorMap(F32 cellSize, I32 width, I32 height, I32 layer)
@@ -139,7 +165,7 @@ namespace CjingGame
 		};
 
 		mEditorPlane.LoadFromScene(Scene::GetScene());
-		mEditorPlane.LoadModel("Models/planeNormalize.obj");
+		mEditorPlane.SetMeshFromModel("Models/planeNormalize.obj");
 		mEditorPlane.SetScale({ (F32)width, 1.0f, (F32)height });
 		mEditorPlane.SetPosition(mGridOffset);
 		mEditorPlane.SetVisible(false);
@@ -171,7 +197,7 @@ namespace CjingGame
 			}
 
 			I32x3 localPos = mCurrentMap->TransformGlobalPosToLocal(mPickResult.position);
-			mCurrentMap->AddGround(localPos);
+			mCurrentMap->AddGround(localPos, mCurrentGroundTilesetIndex);
 		}
 		else if (inputManager.IsKeyDown(KeyCode::Click_Right))
 		{

@@ -18,8 +18,10 @@ namespace CjingGame
 		void Uninitialize();
 		void PreRender();
 
-		void AddGround(const I32x3& pos);
+		void AddGround(const I32x3& pos, U32 tileIndex);
 		void RemoveGround(const I32x3& pos);
+
+		GameMapGroundTileset& GetTileset() { return mGroundTileset; }
 
 	private:
 		GameMap& mGameMap;

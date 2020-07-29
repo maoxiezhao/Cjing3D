@@ -158,6 +158,9 @@
     <Filter Include="renderer\passes\particle">
       <UniqueIdentifier>{4bef2df0-554f-435b-ad0c-0d5a11c71520}</UniqueIdentifier>
     </Filter>
+    <Filter Include="helper\archive">
+      <UniqueIdentifier>{9afd0705-44d2-4ef4-a365-c8bfdf55fdfe}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine.cpp" />
@@ -464,9 +467,6 @@
     <ClCompile Include="utils\tinyxml2\tinyxml2.cpp">
       <Filter>utils\tinyxml2</Filter>
     </ClCompile>
-    <ClCompile Include="helper\archive.cpp">
-      <Filter>helper</Filter>
-    </ClCompile>
     <ClCompile Include="gui\guiCore\guiDispatcher.cpp">
       <Filter>gui\guiCore</Filter>
     </ClCompile>
@@ -685,6 +685,15 @@
     </ClCompile>
     <ClCompile Include="renderer\shaderLib.cpp">
       <Filter>renderer\shader</Filter>
+    </ClCompile>
+    <ClCompile Include="helper\archive.cpp">
+      <Filter>helper\archive</Filter>
+    </ClCompile>
+    <ClCompile Include="helper\binaryArchive.cpp">
+      <Filter>helper\archive</Filter>
+    </ClCompile>
+    <ClCompile Include="helper\jsonArchive.cpp">
+      <Filter>helper\archive</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1032,9 +1041,6 @@
     <ClInclude Include="utils\tinyxml2\tinyxml2.h">
       <Filter>utils\tinyxml2</Filter>
     </ClInclude>
-    <ClInclude Include="helper\archive.h">
-      <Filter>helper</Filter>
-    </ClInclude>
     <ClInclude Include="common\definitions.h">
       <Filter>common</Filter>
     </ClInclude>
@@ -1361,6 +1367,15 @@
     </ClInclude>
     <ClInclude Include="renderer\particleSystem.h">
       <Filter>renderer\passes\particle</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\archive.h">
+      <Filter>helper\archive</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\jsonArchive.h">
+      <Filter>helper\archive</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\binaryArchive.h">
+      <Filter>helper\archive</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

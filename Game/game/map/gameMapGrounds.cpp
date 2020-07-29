@@ -44,7 +44,7 @@ namespace CjingGame
 		mGroundRenderer.BindPreRender();
 	}
 
-	void GameMapGrounds::AddGround(const I32x3& pos)
+	void GameMapGrounds::AddGround(const I32x3& pos, U32 tileIndex)
 	{
 		// check is same ground?
 		auto it = mAllGrounds.find(pos);
@@ -55,6 +55,7 @@ namespace CjingGame
 		auto ground = mGroundRenderer.CreateGroundObject(Scene::GetScene());
 		F32x3 globalPos = mGameMap.TransformLocalPosToGlobal(pos);
 		ground->SetPosition(globalPos);
+		ground->SetTileIndex(tileIndex);
 
 		mAllGrounds[pos] = ground;
 	}

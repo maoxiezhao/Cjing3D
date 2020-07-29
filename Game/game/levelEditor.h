@@ -26,10 +26,28 @@ namespace CjingGame
 		virtual void Uninitialize();
 		virtual void PreRender();
 
+		//////////////////////////////////////////////////////////////////////////////
+		// general editor
 		EditorMode GetEditorMode() const { return mEditorMode; };
 		void SetEditorMode(EditorMode mode) { mEditorMode = mode; }
 		void SetDebugGridVisible(bool visible);
 		bool IsDebugGridVisible()const { return mIsDebugGridVisible; }
+		I32 GetCurrentLayer()const { return mCurrentLayer; }
+		void SetCurrentLayer(I32 layer) { mCurrentLayer = layer; }
+		I32x3 GetCurrentPickLocalPos()const;
+		GameMap* GetCurrentMap() { return mCurrentMap != nullptr ? mCurrentMap.get() : nullptr; }
+
+		EditorMode mEditorMode = EditorMode_Ground;
+		GameObject mEditorPlane;
+		bool mIsDebugGridVisible = false;
+		I32 mCurrentLayer = 0;
+
+		//////////////////////////////////////////////////////////////////////////////
+		// ground editor
+		U32 GetGroundTilesetIndex()const { return mCurrentGroundTilesetIndex; }
+		void SetCurrentGroundTilestIndex(U32 index) { mCurrentGroundTilesetIndex = index; }
+
+		U32 mCurrentGroundTilesetIndex = 0;
 
 	private:
 		void InitializeEditorMap(F32 cellSize, I32 width, I32 height, I32 layer);
@@ -42,9 +60,6 @@ namespace CjingGame
 	private:
 		std::unique_ptr<GameLuaContext> mGameLuaContext = nullptr;
 		std::unique_ptr<GameMap> mCurrentMap = nullptr;
-		EditorMode mEditorMode = EditorMode_Ground;
-		GameObject mEditorPlane;
-		bool mIsDebugGridVisible = false;
 	};
 
 }

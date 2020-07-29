@@ -71,7 +71,7 @@ namespace CjingGame
 		}
 	}
 
-	void GameObject::LoadModel(const std::string& path)
+	void GameObject::SetMeshFromModel(const std::string& path)
 	{
 		auto object = GetObjectComponent();
 		if (object == nullptr) {
@@ -88,7 +88,6 @@ namespace CjingGame
 
 		newScene.mObjects.Clear();
 		newScene.mObjectAABBs.Clear();
-
 		mScene->Merge(newScene);
 	}
 

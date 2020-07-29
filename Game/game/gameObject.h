@@ -27,7 +27,7 @@ namespace CjingGame
 		void SetScale(const F32x3& scale);
 		void SetVisible(bool visible);
 
-		void LoadModel(const std::string& path);
+		void SetMeshFromModel(const std::string& path);
 		void SetMesh(const ECS::Entity& meshEntity);
 
 		GameObject Duplicate();

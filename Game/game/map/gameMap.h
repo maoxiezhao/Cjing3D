@@ -19,8 +19,9 @@ namespace CjingGame
 		void Uninitialize();
 		void PreRender();
 
-		bool AddGround(const I32x3& localPos);
+		bool AddGround(const I32x3& localPos, U32 tileIndex);
 		bool RemoveGround(const I32x3& localPos);
+		GameMapGrounds* GetGameMapGrounds();
 
 	private:
 		GameMap& mGameMap;
@@ -41,16 +42,19 @@ namespace CjingGame
 		void Uninitialize();
 		void PreRender();
 
+		I32x3 TransformGlobalPosToLocal(const F32x3& pos)const;
+		F32x3 TransformLocalPosToGlobal(const I32x3& pos)const;
+
 		// getter\setter
 		I32 GetMapWidth()const { return mMapWidth; }
 		I32 GetMapHeight()const { return mMapHeight; }
 		I32 GetMapLayer()const { return mMapLayer; }
 
-		I32x3 TransformGlobalPosToLocal(const F32x3& pos)const;
-		F32x3 TransformLocalPosToGlobal(const I32x3& pos)const;
+		GameMapObjects* GetCurrentObjects();
 
-		void AddGround(const I32x3& pos);
+		void AddGround(const I32x3& pos, U32 tileIndex);
 		void RemoveGround(const I32x3& pos);
+		GameMapGrounds* GetGameMapGround();
 
 		// serialize methods
 		void LoadFromFile(const std::string& filePath);
