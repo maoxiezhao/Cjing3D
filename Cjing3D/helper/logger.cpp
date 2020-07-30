@@ -1,5 +1,6 @@
 #include "logger.h"
 #include "platform\gameWindow.h"
+#include "common\version.h"
 
 #include <fstream>
 #include <chrono>
@@ -51,8 +52,8 @@ namespace Cjing3D {
 
 		void PrintConsoleHeader()
 		{
-			std::cout << "Cjing3D Version 0.0.1\n" << std::endl;
-			std::cout << "Copyright (c) 2019-2020 by ZZZY." << std::endl;
+			std::cout << "Cjing3D Version " << CjingVersion::GetVersionString() << "\n" << std::endl;
+			std::cout << "Copyright (c) 2019-2020 by ZZZY" << std::endl;
 			std::cout << std::endl;
 		}
 

@@ -10,11 +10,15 @@
 #include "brdf.hlsli"
 #include "lightingHF.hlsli"
 
-TEXTURE2D(texture_basecolormap, TEXTURE_BASECOLOR_MAP);
-TEXTURE2D(texture_normalmap, TEXTURE_NORMAL_MAP);
-TEXTURE2D(texture_surfacemap, TEXTURE_SURFACE_MAP);
+TEXTURE2D(texture_basecolormap, float4, TEXTURE_BASECOLOR_MAP);
+TEXTURE2D(texture_normalmap, float4, TEXTURE_NORMAL_MAP);
+TEXTURE2D(texture_surfacemap, float4, TEXTURE_SURFACE_MAP);
  
-TEXTURE2D(texture_ao, TEXTURE_SLOT_AO);
+TEXTURE2D(texture_ao, float4, TEXTURE_SLOT_AO);
+
+#ifndef _OBJECT_SAMPLER_
+#define _OBJECT_SAMPLER_ sampler_object
+#endif
 
 /////////////////////////////////////////////////////////////////////
 // Tiled forward lighting
@@ -119,7 +123,7 @@ float4 main(PixelInputType input) : SV_TARGET
 
     [branch]
     if (gMaterial.haveBaseColorMap > 0) {
-        color = texture_basecolormap.Sample(sampler_linear_clamp, input.tex);
+        color = texture_basecolormap.Sample(_OBJECT_SAMPLER_, input.tex);
         color.rgb = DeGammaCorrect(color.rgb);
     } else {
 		color = float4(1.0, 1.0, 1.0, 1.0);
@@ -146,7 +150,7 @@ float4 main(PixelInputType input) : SV_TARGET
     if (gMaterial.haveNormalMap > 0)
 	{
 		float3x3 TBN = ComputeTangateTransform(surface.normal, surface.position, input.tex);
-        float3 nor = texture_normalmap.Sample(sampler_linear_clamp, input.tex).rgb;
+        float3 nor = texture_normalmap.Sample(_OBJECT_SAMPLER_, input.tex).rgb;
         nor = nor.rgb * 2 - 1;
         surface.normal = normalize(mul(nor, TBN));
     }
@@ -155,7 +159,7 @@ float4 main(PixelInputType input) : SV_TARGET
     float3 spcularIntensity = float3(1.0f, 1.0f, 1.0f);
     [branch]
     if (gMaterial.haveSurfaceMap > 0) {
-        spcularIntensity = texture_surfacemap.Sample(sampler_linear_clamp, input.tex).rgb;
+        spcularIntensity = texture_surfacemap.Sample(_OBJECT_SAMPLER_, input.tex).rgb;
     }
 	
     // SSAO

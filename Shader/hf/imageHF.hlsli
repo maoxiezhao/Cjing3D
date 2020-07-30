@@ -4,7 +4,7 @@
 #include "global.hlsli"
 #include "shaderInteropImage.h"
 
-TEXTURE2D(texture_base, TEXTURE_SLOT_0);
+TEXTURE2D(texture_base, float4, TEXTURE_SLOT_0);
 
 struct ImageVertexToPixel
 {

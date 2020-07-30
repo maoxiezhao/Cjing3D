@@ -152,6 +152,9 @@
     <FxCompile Include="vs\mapGroundVS.hlsl">
       <Filter>vs</Filter>
     </FxCompile>
+    <FxCompile Include="ps\mapGroundPS.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="hf\objectInput.hlsli">

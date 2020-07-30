@@ -5,8 +5,6 @@
 #include "system\sceneSystem.h"
 #include "gui\guiEditor\guiEditorInclude.h"
 
-#include "helper\jsonArchive.h"
-
 using namespace Cjing3D;
 
 namespace CjingGame
@@ -44,11 +42,8 @@ namespace CjingGame
 		GlobalGetSubSystem<LuaContext>().ChangeLuaScene("LevelEditor");
 
 		F32 cellSize = (F32)GameMap::MapCellSize;
-		InitializeEditorMap(cellSize, 8, 8, 4);
+		InitializeEditorMap("", cellSize, 8, 8, 4);
 		InitializeEditorGUI(guiStage.GetImGUIStage());
-
-		JsonArchive jsonArchive("test.json", ArchiveMode::ArchiveMode_Write);
-		jsonArchive.Write("Key", 10);
 	}
 
 	void LevelEditor::Update(Cjing3D::EngineTime time)
@@ -110,7 +105,7 @@ namespace CjingGame
 	void LevelEditor::Uninitialize()
 	{
 		if (mCurrentMap != nullptr) {
-			mCurrentMap->Uninitialize();
+			mCurrentMap->Clear();
 			mCurrentMap = nullptr;
 		}
 
@@ -156,7 +151,34 @@ namespace CjingGame
 		return mCurrentMap->TransformGlobalPosToLocal(mPickResult.position);
 	}
 
-	void LevelEditor::InitializeEditorMap(F32 cellSize, I32 width, I32 height, I32 layer)
+	void LevelEditor::NewMap(const std::string& mapName, I32 h, I32 w, I32 layer)
+	{
+		if (mCurrentMap != nullptr) {
+			mCurrentMap->Clear();
+			mCurrentMap.reset();
+		}
+
+		InitializeEditorMap(mapName, GameMap::MapCellSize, w, h, layer);
+	}
+
+	void LevelEditor::SaveMap(const std::string& mapPath)
+	{
+		if (mCurrentMap != nullptr) {
+			mCurrentMap->SaveToFile(mapPath);
+		}
+	}
+
+	void LevelEditor::LoadMap(const std::string& mapPath)
+	{
+		if (mCurrentMap != nullptr) {
+			mCurrentMap->Clear();
+			mCurrentMap.reset();
+		}
+
+		mCurrentMap = std::make_unique<GameMap>(mapPath);
+	}
+
+	void LevelEditor::InitializeEditorMap(const std::string& mapName, F32 cellSize, I32 width, I32 height, I32 layer)
 	{
 		mGridOffset = {
 			width / 2 * cellSize,
@@ -170,8 +192,7 @@ namespace CjingGame
 		mEditorPlane.SetPosition(mGridOffset);
 		mEditorPlane.SetVisible(false);
 
-		mCurrentMap = std::make_unique<GameMap>();
-		mCurrentMap->Initialize(width, height, layer);
+		mCurrentMap = std::make_unique<GameMap>(width, height, layer, mapName);
 
 		SetDebugGridVisible(true);
 	}

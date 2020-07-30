@@ -1,6 +1,6 @@
 #pragma once
 
-namespace CjingVersion
+namespace GameVersion
 {
 	int GetVersion();
 	const char* GetVersionString();

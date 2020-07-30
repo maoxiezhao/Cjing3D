@@ -8,11 +8,11 @@
 
 SAMPLERSTATE(terrainSampler, SAMPLER_LINEAR_CLAMP_SLOT);
 
-TEXTURE2D(heightMap,      TEXTURE_SLOT_0);
-TEXTURE2D(weightTexture,  TEXTURE_SLOT_1);
-TEXTURE2D(detailTexture1, TEXTURE_SLOT_2);
-TEXTURE2D(detailTexture2, TEXTURE_SLOT_3);
-TEXTURE2D(detailTexture3, TEXTURE_SLOT_4);
+TEXTURE2D(heightMap,      float4, TEXTURE_SLOT_0);
+TEXTURE2D(weightTexture,  float4, TEXTURE_SLOT_1);
+TEXTURE2D(detailTexture1, float4, TEXTURE_SLOT_2);
+TEXTURE2D(detailTexture2, float4, TEXTURE_SLOT_3);
+TEXTURE2D(detailTexture3, float4, TEXTURE_SLOT_4);
 
 float3 CalculateNormal(float2 tex)
 {

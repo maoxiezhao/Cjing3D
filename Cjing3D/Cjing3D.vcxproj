@@ -347,6 +347,7 @@
     <ClInclude Include="utils\signal\connectionMap.h" />
     <ClInclude Include="utils\signal\signal.h" />
     <ClInclude Include="utils\signal\signalInclude.h" />
+    <ClInclude Include="utils\singleton.h" />
     <ClInclude Include="utils\stb_utils\stb_image.h" />
     <ClInclude Include="utils\stb_utils\stb_image_include.h" />
     <ClInclude Include="utils\stb_utils\stb_truetype.h" />
@@ -380,6 +381,7 @@
     <ClCompile Include="audio\audio.cpp" />
     <ClCompile Include="audio\audioDevice.cpp" />
     <ClCompile Include="audio\audioDeviceX.cpp" />
+    <ClCompile Include="common\version.cpp" />
     <ClCompile Include="core\allocator.cpp" />
     <ClCompile Include="core\eventSystem.cpp" />
     <ClCompile Include="core\gameComponent.cpp" />

@@ -45,6 +45,7 @@ namespace Cjing3D {
 		static void ShowMessageBox(const UTF8String& msg);
 		static void LoadFileFromOpenWindow(const char* fileFilter, std::function<void(const std::string&)> callback);
 		static void SaveFileToOpenWindow(const char* fileFilter, std::function<void(const std::string&)> callback);
+		static void ShowBrowseForFolder(const char* title, std::function<void(const std::string&)> callback);
 
 		I32 GetDPI()const { return mDPI; }
 		void SetDPI(I32 dpi) { mDPI = dpi; }

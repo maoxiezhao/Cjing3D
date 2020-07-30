@@ -36,5 +36,6 @@ namespace Cjing3D {
 		std::string GetParentPath(const std::string& filePath);
 		bool IsAbsolutePath(const std::string& path);
 		std::string ConvertToAvailablePath(const std::string& path);
+		std::string CombinePath(const std::string& path1, const std::string& path2);
 	}
 }

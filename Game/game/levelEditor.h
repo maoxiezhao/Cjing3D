@@ -36,6 +36,10 @@ namespace CjingGame
 		void SetCurrentLayer(I32 layer) { mCurrentLayer = layer; }
 		I32x3 GetCurrentPickLocalPos()const;
 		GameMap* GetCurrentMap() { return mCurrentMap != nullptr ? mCurrentMap.get() : nullptr; }
+		
+		void NewMap(const std::string& mapName, I32 w, I32 h, I32 layer);
+		void SaveMap(const std::string& mapPath);
+		void LoadMap(const std::string& mapPath);
 
 		EditorMode mEditorMode = EditorMode_Ground;
 		GameObject mEditorPlane;
@@ -50,7 +54,7 @@ namespace CjingGame
 		U32 mCurrentGroundTilesetIndex = 0;
 
 	private:
-		void InitializeEditorMap(F32 cellSize, I32 width, I32 height, I32 layer);
+		void InitializeEditorMap(const std::string& mapName, F32 cellSize, I32 width, I32 height, I32 layer);
 		void InitializeEditorGUI(Cjing3D::IMGUIStage& imguiStage);
 
 		// mode update functions

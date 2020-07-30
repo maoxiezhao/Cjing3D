@@ -20,13 +20,12 @@ namespace Cjing3D {
 				FILTER_ANISOTROPIC, TEXTURE_ADDRESS_WRAP, COMPARISON_NEVER, 16);
 			Debug::ThrowIfFailed(result, "Failed to create SamplerStateID_Anisotropic samplerState", result);
 		}
-
 		{
 			const auto result = CreateDefaultSamplerState(mDevice, *mSamplerStates[SamplerStateID_ComparisionDepth],
 				FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT, TEXTURE_ADDRESS_CLAMP, COMPARISON_GREATER_EQUAL);
 			Debug::ThrowIfFailed(result, "Failed to create SamplerStateID_ComparisionDepth samplerState", result);
 		}
-
+		// Font
 		{
 			SamplerDesc desc = {};
 			// 过波方式
@@ -44,6 +43,20 @@ namespace Cjing3D {
 			desc.mComparisonFunc = COMPARISON_NEVER;
 
 			HRESULT result = mDevice.CreateSamplerState(&desc, *mSamplerStates[SamplerStateID_Font]);
+			Debug::ThrowIfFailed(result, "Failed to create Sfont samplerState", result);
+		}
+		// Object
+		{
+			SamplerDesc desc = {};
+			// 过波方式
+			desc.mFilter = FILTER_ANISOTROPIC;
+			// 纹理寻址模式
+			desc.mAddressU = TEXTURE_ADDRESS_WRAP;
+			desc.mAddressV = TEXTURE_ADDRESS_WRAP;
+			desc.mAddressW = TEXTURE_ADDRESS_WRAP;
+			desc.mMaxAnisotropy = 16;
+
+			HRESULT result = mDevice.CreateSamplerState(&desc, *mSamplerStates[SamplerStateID_Object]);
 			Debug::ThrowIfFailed(result, "Failed to create Sfont samplerState", result);
 		}
 	}

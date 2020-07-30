@@ -64,17 +64,23 @@
     <ClCompile Include="game\map\gameMap.cpp">
       <Filter>game\map</Filter>
     </ClCompile>
-    <ClCompile Include="game\map\gameMapGrounds.cpp">
-      <Filter>game\map</Filter>
-    </ClCompile>
-    <ClCompile Include="game\map\gameMapGroundRenderer.cpp">
-      <Filter>game\map</Filter>
-    </ClCompile>
-    <ClCompile Include="game\map\gameMapGroundTileset.cpp">
-      <Filter>game\map</Filter>
+    <ClCompile Include="game\gameContext.cpp">
+      <Filter>game</Filter>
     </ClCompile>
     <ClCompile Include="game\map\gameMapGround.cpp">
-      <Filter>game\map</Filter>
+      <Filter>game\map\ground</Filter>
+    </ClCompile>
+    <ClCompile Include="game\map\gameMapGroundRenderer.cpp">
+      <Filter>game\map\ground</Filter>
+    </ClCompile>
+    <ClCompile Include="game\map\gameMapGrounds.cpp">
+      <Filter>game\map\ground</Filter>
+    </ClCompile>
+    <ClCompile Include="game\map\gameMapGroundTileset.cpp">
+      <Filter>game\map\ground</Filter>
+    </ClCompile>
+    <ClCompile Include="definitions\gameVersion.cpp">
+      <Filter>definitions</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -98,6 +104,12 @@
     </Filter>
     <Filter Include="game\map">
       <UniqueIdentifier>{bc4839b9-be1e-4628-bb57-cd4bf92ab508}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\map\ground">
+      <UniqueIdentifier>{547435c4-90e6-4c00-9e5e-5caa0ca7208f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\map\wall">
+      <UniqueIdentifier>{decb22f3-7f93-4432-84f9-a0e845c91ca2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -164,20 +176,35 @@
     <ClInclude Include="game\map\gameMap.h">
       <Filter>game\map</Filter>
     </ClInclude>
-    <ClInclude Include="game\map\gameMapGrounds.h">
-      <Filter>game\map</Filter>
-    </ClInclude>
-    <ClInclude Include="game\map\gameMapGroundRenderer.h">
-      <Filter>game\map</Filter>
-    </ClInclude>
-    <ClInclude Include="game\map\gameMapGroundTileset.h">
-      <Filter>game\map</Filter>
-    </ClInclude>
-    <ClInclude Include="game\map\gameMapGround.h">
-      <Filter>game\map</Filter>
-    </ClInclude>
     <ClInclude Include="definitions\gameRenderCommon.h">
       <Filter>definitions</Filter>
+    </ClInclude>
+    <ClInclude Include="game\map\mapInclude.h">
+      <Filter>game\map</Filter>
+    </ClInclude>
+    <ClInclude Include="game\gameContext.h">
+      <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="game\map\gameMapGround.h">
+      <Filter>game\map\ground</Filter>
+    </ClInclude>
+    <ClInclude Include="game\map\gameMapGroundRenderer.h">
+      <Filter>game\map\ground</Filter>
+    </ClInclude>
+    <ClInclude Include="game\map\gameMapGrounds.h">
+      <Filter>game\map\ground</Filter>
+    </ClInclude>
+    <ClInclude Include="game\map\gameMapGroundTileset.h">
+      <Filter>game\map\ground</Filter>
+    </ClInclude>
+    <ClInclude Include="game\map\gameMapWallRenderer.h">
+      <Filter>game\map\wall</Filter>
+    </ClInclude>
+    <ClInclude Include="definitions\gameVersion.h">
+      <Filter>definitions</Filter>
+    </ClInclude>
+    <ClInclude Include="note.h">
+      <Filter>game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

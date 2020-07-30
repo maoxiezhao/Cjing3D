@@ -34,10 +34,6 @@ namespace Cjing3D
 				return;
 			}
 		}
-		else
-		{
-			
-		}
 	}
 
 	void JsonArchive::OnUnload()

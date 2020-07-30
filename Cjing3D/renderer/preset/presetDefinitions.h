@@ -60,6 +60,7 @@ namespace Cjing3D
 		SamplerStateID_LinearClamp,
 		SamplerStateID_Anisotropic,
 		SamplerStateID_ComparisionDepth,
+		SamplerStateID_Object,
 		SamplerStateID_Font,
 		SamplerStateID_Count
 	};

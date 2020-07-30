@@ -12,6 +12,7 @@
 #include "guiEditorSound.h"
 
 #include "gui\guiEditor\guiEditorInclude.h"
+#include "definitions\gameVersion.h"
 
 namespace Cjing3D {
 namespace Editor {
@@ -28,8 +29,9 @@ namespace Editor {
 		ImGui::SetNextWindowPos(ImVec2(10, 50), ImGuiCond_Once);
 		ImGui::SetNextWindowSize(ImVec2(350, 200), ImGuiCond_Once);
 		ImGui::Begin("About", &bShowAboutWindow);
-		ImGui::Text("Cjing3D v%s", CjingVersion::GetVersion());
-		ImGui::Text("By ZZZZY");
+		ImGui::Text("Copyright (c) 2019-2020 ZZZY");
+		ImGui::Text("Cjing3D Engine Version v%s", CjingVersion::GetVersionString());
+		ImGui::Text("Cjing3D Game Version v%s", GameVersion::GetVersionString());
 		ImGui::Separator();
 		ImGui::Text("");
 		ImGui::Text("F4-Show ImGUI Editor;");

@@ -3,121 +3,149 @@
 namespace CjingGame
 {
 
-	GameMapObjects::GameMapObjects(GameMap& gameMap) :
+	GameMapPart::GameMapPart(GameMap& gameMap) :
 		mGameMap(gameMap)
 	{
 	}
 
-	GameMapObjects::~GameMapObjects()
+	GameMapPart::~GameMapPart()
 	{
 	}
 
-	void GameMapObjects::Initialize()
+	void GameMapPart::Initialize()
 	{
 		mGameMapGrounds = std::make_unique<GameMapGrounds>(mGameMap);
 		mGameMapGrounds->Initialize();
 	}
 
-	void GameMapObjects::FixedUpdate()
+	void GameMapPart::FixedUpdate()
 	{
 		mGameMapGrounds->FixedUpdate();
 	}
 
-	void GameMapObjects::Uninitialize()
+	void GameMapPart::Uninitialize()
 	{
 		mGameMapGrounds->Uninitialize();
 		mGameMapGrounds = nullptr;
 	}
 
-	void GameMapObjects::PreRender()
+	void GameMapPart::PreRender()
 	{
 		mGameMapGrounds->PreRender();
 	}
 
-	bool GameMapObjects::AddGround(const I32x3& localPos, U32 tileIndex)
+	bool GameMapPart::AddGround(const I32x3& localPos, U32 tileIndex)
 	{
 		mGameMapGrounds->AddGround(localPos, tileIndex);
 		return true;
 	}
 
-	bool GameMapObjects::RemoveGround(const I32x3& localPos)
+	bool GameMapPart::RemoveGround(const I32x3& localPos)
 	{
 		mGameMapGrounds->RemoveGround(localPos);
 		return true;
 	}
 
-	GameMapGrounds* GameMapObjects::GetGameMapGrounds()
+	GameMapGrounds* GameMapPart::GetGameMapGrounds()
 	{
 		return mGameMapGrounds.get();
 	}
 
+	void GameMapPart::Serialize(JsonArchive& archive)
+	{
+		archive.Read("grounds", *mGameMapGrounds);
+	}
+
+	void GameMapPart::Unserialize(JsonArchive& archive)const
+	{
+		archive.Write("grounds", *mGameMapGrounds);
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////
 
-	GameMap::GameMap()
+	GameMap::GameMap(I32 width, I32 height, I32 layer, const std::string& name) :
+		mMapName(name),
+		mMapID(GenerateMapID())
 	{
+		InitiEmptyMap(width, height, layer);
+	}
+
+	GameMap::GameMap(U32 mapID) :
+		mMapID(mapID)
+	{
+		LoadMapFromMapID(mapID);
+	}
+
+	GameMap::GameMap(const std::string& fullPath) :
+		mMapID(GetMapIDFromFullPath(fullPath)),
+		mMapPath(fullPath)
+	{
+		LoadMapFromFullPath(fullPath);
 	}
 
 	GameMap::~GameMap()
 	{
+		Clear();
 	}
 
-	void GameMap::Initialize(I32 width, I32 height, I32 layer)
+	void GameMap::InitiEmptyMap(I32 width, I32 height, I32 layer)
 	{
-		if (mIsInitialized) {
+		if (mIsLoaded) 
+		{
+			Clear();
 			return;
 		}
 
 		mMapWidth = width;
 		mMapHeight = height;
 		mMapLayer = layer;
+		mGameMapPart = std::make_unique<GameMapPart>(*this);
+		mGameMapPart->Initialize();
 
-		mGameMapObjects = std::make_unique<GameMapObjects>(*this);
-		mGameMapObjects->Initialize();
-
-		mIsInitialized = true;
+		mIsLoaded = true;
 	}
 
-	void GameMap::Initialize(const std::string& filePath)
+	void GameMap::LoadMapFromMapID(U32 mapID)
 	{
-		if (mIsInitialized) {
-			return;
+		if (mIsLoaded) {
+			Clear();
 		}
 
-		mGameMapObjects = std::make_unique<GameMapObjects>(*this);
-		mGameMapObjects->Initialize();
-
-		mIsInitialized = true;
+		// get map path from config
+		const std::string mapFilePath = "";
+		mMapPath = GetMapFullPathFromID(mapFilePath, mapID);
+		LoadMapFromFullPath(mMapPath);
 	}
 
 	void GameMap::FixedUpdate()
 	{
-		if (!mIsInitialized) {
+		if (!mIsLoaded) {
 			return;
 		}
 	}
 
-	void GameMap::Uninitialize()
+	void GameMap::Clear()
 	{
-		if (!mIsInitialized) {
+		if (!mIsLoaded) {
 			return;
 		}
 
-		if (mGameMapObjects != nullptr)
+		if (mGameMapPart != nullptr)
 		{
-			mGameMapObjects->Uninitialize();
-			mGameMapObjects = nullptr;
+			mGameMapPart->Uninitialize();
+			mGameMapPart = nullptr;
 		}
 
-		mIsInitialized = false;
+		mIsLoaded = false;
 	}
 
 	void GameMap::PreRender()
 	{
-		if (!mIsInitialized) {
+		if (!mIsLoaded) {
 			return;
 		}
 
-		mGameMapObjects->PreRender();
+		mGameMapPart->PreRender();
 	}
 
 	I32x3 GameMap::TransformGlobalPosToLocal(const F32x3& pos) const
@@ -138,31 +166,131 @@ namespace CjingGame
 		);
 	}
 
-	GameMapObjects* GameMap::GetCurrentObjects()
+	GameMapPart* GameMap::GetCurrentMapPartByLocalPos(const I32x3& localPos)
 	{
-		return mGameMapObjects.get();
+		return mGameMapPart.get();
+	}
+
+	GameMapPart* GameMap::GetCurrentMapPartByGlobalPos(const F32x3& globalPos)
+	{
+		return mGameMapPart.get();
 	}
 
 	void GameMap::AddGround(const I32x3& pos, U32 tileIndex)
 	{
-		mGameMapObjects->AddGround(pos, tileIndex);
+		mGameMapPart->AddGround(pos, tileIndex);
 	}
 
 	void GameMap::RemoveGround(const I32x3& pos)
 	{
-		mGameMapObjects->RemoveGround(pos);
+		mGameMapPart->RemoveGround(pos);
 	}
 
 	GameMapGrounds* GameMap::GetGameMapGround()
 	{
-		return mGameMapObjects != nullptr ? mGameMapObjects->GetGameMapGrounds() : nullptr;
+		return mGameMapPart != nullptr ? mGameMapPart->GetGameMapGrounds() : nullptr;
 	}
+
+	void GameMap::LoadMapPart(const std::string& parentPath, const I32x3& localPos)
+	{
+		const std::string partName = "part.json";
+		const std::string mapInfoPath = FileData::CombinePath(parentPath, partName);
+
+		JsonArchive archive(mapInfoPath, ArchiveMode::ArchiveMode_Read);
+		if (!archive.IsOpen()) {
+			return;
+		}
+
+		GameMapPart* gameMapPart = GetCurrentMapPartByLocalPos(localPos);
+		if (gameMapPart == nullptr) 
+		{
+			mGameMapPart = std::make_unique<GameMapPart>(*this);
+			mGameMapPart->Initialize();
+		}
+
+		mGameMapPart->Serialize(archive);
+	}
+
+	U32 GameMap::GenerateMapID()
+	{
+		return 1;
+	}
+
+	U32 GameMap::GetMapIDFromFullPath(const std::string& fullPath) const
+	{
+		return 1;
+	}
+
+	std::string GameMap::GetMapFullPathFromID(const std::string& filePath, U32 mapID) const
+	{
+		return FileData::CombinePath(filePath, GetRealFileMapNameFromID(mapID));
+	}
+
+	std::string GameMap::GetRealFileMapNameFromID(U32 mapID) const
+	{
+		return "Map" + std::to_string(mapID);
+	}
+
+	void GameMap::LoadMapFromFullPath(const std::string& fullPath)
+	{
+		// map info
+		{
+			const std::string mapInfoPath = FileData::CombinePath(fullPath, "info.json");
+			JsonArchive archive(mapInfoPath, ArchiveMode::ArchiveMode_Read);
+			if (!archive.IsOpen())
+			{
+				Debug::Warning("Failed to open map:" + fullPath);
+				return;
+			}
+
+			archive.Read("name", mMapName);
+			archive.Read("width", mMapWidth);
+			archive.Read("height", mMapHeight);
+			archive.Read("layer", mMapLayer);
+		}
+
+		// load parts
+		LoadMapPart(fullPath, { 0, 0, 0 });
+
+		mIsLoaded = true;
+	}
+
 
 	void GameMap::LoadFromFile(const std::string& filePath)
 	{
+		std::string fullPath = GetMapFullPathFromID(filePath, mMapID);
+		LoadMapFromFullPath(fullPath);
 	}
 
 	void GameMap::SaveToFile(const std::string& filePath)
 	{
+		std::string realMapName = GetRealFileMapNameFromID(mMapID);
+		const std::string fullFilePath = FileData::CombinePath(filePath, realMapName);
+		if (!FileData::CreateDirectory(fullFilePath))
+		{
+			Debug::Warning("Failed to create directory:" + fullFilePath);
+			return;
+		}
+		// map info
+		{
+			const std::string mapInfoPath = FileData::CombinePath(fullFilePath, "info.json");
+			JsonArchive archive(mapInfoPath, ArchiveMode::ArchiveMode_Write);
+			archive.Write("name", mMapName);
+			archive.Write("width", mMapWidth);
+			archive.Write("height", mMapHeight);
+			archive.Write("layer", mMapLayer);
+		}
+
+		// map parts
+		SaveMapPart(fullFilePath , *mGameMapPart);	
 	}
+
+	void GameMap::SaveMapPart(const std::string& parentPath, GameMapPart& part)
+	{
+		const std::string partName = "part.json";
+		const std::string mapInfoPath = FileData::CombinePath(parentPath, partName);
+		JsonArchive archive(mapInfoPath, ArchiveMode::ArchiveMode_Write);
+		part.Unserialize(archive);
+	}
+
 }

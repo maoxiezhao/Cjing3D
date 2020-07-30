@@ -40,6 +40,7 @@
 #define SAMPLER_POINT_CLAMP_SLOT 4
 #define SAMPLER_LINEAR_CLAMP_SLOT 5
 #define SAMPLER_ANISOTROPIC_SLOT  6
+#define SAMPLER_OBJECT_SLOT 7
 
 ///////////////////////////////////////////////////////////////////////////////////
 

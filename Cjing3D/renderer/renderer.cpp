@@ -1672,18 +1672,21 @@ void PostprocessFXAA(Texture2D& input, Texture2D& output)
 
 void BindCommonResource()
 {
-	SamplerState& pointClampGreater = *mRenderPreset->GetSamplerState(SamplerStateID_PointClamp);
-	SamplerState& linearClampGreater = *mRenderPreset->GetSamplerState(SamplerStateID_LinearClamp);
-	SamplerState& anisotropicSampler = *mRenderPreset->GetSamplerState(SamplerStateID_Anisotropic);
-	SamplerState& cmpDepthSampler = *mRenderPreset->GetSamplerState(SamplerStateID_ComparisionDepth);
-
+	const std::pair<SamplerStateID, U32> stateIDs[] = {
+		{ SamplerStateID::SamplerStateID_PointClamp,          SAMPLER_POINT_CLAMP_SLOT },
+		{ SamplerStateID::SamplerStateID_LinearClamp,         SAMPLER_LINEAR_CLAMP_SLOT },
+		{ SamplerStateID::SamplerStateID_Anisotropic,         SAMPLER_ANISOTROPIC_SLOT },
+		{ SamplerStateID::SamplerStateID_ComparisionDepth,    SAMPLER_COMPARISON_SLOT },
+		{ SamplerStateID::SamplerStateID_Object,			  SAMPLER_OBJECT_SLOT },
+	};
 	for (int stageIndex = 0; stageIndex < SHADERSTAGES_COUNT; stageIndex++)
 	{
 		SHADERSTAGES stage = static_cast<SHADERSTAGES>(stageIndex);
-		mGraphicsDevice->BindSamplerState(stage, pointClampGreater, SAMPLER_POINT_CLAMP_SLOT);
-		mGraphicsDevice->BindSamplerState(stage, linearClampGreater, SAMPLER_LINEAR_CLAMP_SLOT);
-		mGraphicsDevice->BindSamplerState(stage, anisotropicSampler, SAMPLER_ANISOTROPIC_SLOT);
-		mGraphicsDevice->BindSamplerState(stage, cmpDepthSampler, SAMPLER_COMPARISON_SLOT);
+		for (const auto& kvp : stateIDs)
+		{
+			SamplerState& sampler = *mRenderPreset->GetSamplerState(kvp.first);
+			mGraphicsDevice->BindSamplerState(stage, sampler, kvp.second);
+		}
 
 		BindConstanceBuffer(stage);
 	}
@@ -1973,12 +1976,19 @@ void ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPassType, Rend
 	for (auto& bathInstance : mRenderBatchInstances)
 	{
 		const auto mesh = scene.GetComponent<MeshComponent>(bathInstance->mMeshEntity);
+		if (mesh->IsEmpty()) {
+			continue;
+		}
 
 		mGraphicsDevice->BindIndexBuffer(*mesh->GetIndexBuffer(), mesh->GetIndexFormat(), 0);
 
 		BoundVexterBufferType prevBoundType = BoundVexterBufferType_Nothing;
 		for (auto& subset : mesh->GetSubsets())
 		{
+			if (subset.mIndexCount <= 0) {
+				continue;
+			}
+
 			auto material = scene.GetComponent<MaterialComponent>(subset.mMaterialID);
 			if (material == nullptr) {
 				continue;

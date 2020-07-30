@@ -148,6 +148,40 @@ namespace Cjing3D {
 				PHYSFS_close(file);
 				return true;
 			}
+
+			bool CreateDirectoryByPhysfs(const std::string& name)
+			{
+				if (PHYSFS_isDirectory(name.c_str())) {
+					return true;
+				}
+				return PHYSFS_mkdir(name.c_str()) != 0;
+			}
+
+			bool CreateDirectoryBySystemIO(const std::string& name)
+			{
+				if (std::filesystem::is_directory(name)) {
+					return true;
+				}
+
+				return std::filesystem::create_directory(name);
+			}
+
+			bool DeleteDirectoryByPhysfs(const std::string& name)
+			{
+				if (!PHYSFS_isDirectory(name.c_str())) {
+					return true;
+				}
+				return PHYSFS_delete(name.c_str()) != 0;
+			}
+
+			bool DeleteDirectoryBySystemIO(const std::string& name)
+			{
+				if (!std::filesystem::is_directory(name)) {
+					return true;
+				}
+
+				return std::filesystem::remove(name);
+			}
 		}
 
 		// 打开对应资源目录，设置对应的搜寻路径，设置在user dir下的写路径
@@ -196,6 +230,36 @@ namespace Cjing3D {
 
 			CloseData();
 			OpenData(dataName, dataPah);
+		}
+
+		bool CreateDirectory(const std::string& path)
+		{
+			if (IsAbsolutePath(path)) {
+				return CreateDirectoryBySystemIO(path);
+			}
+			else {
+				return CreateDirectoryByPhysfs(path);
+			}
+		}
+
+		bool DeleteDirectory(const std::string& path)
+		{
+			if (IsAbsolutePath(path)) {
+				return DeleteDirectoryBySystemIO(path);
+			}
+			else {
+				return DeleteDirectoryByPhysfs(path);
+			}
+		}
+
+		bool IsDirectoryExists(const std::string& path)
+		{
+			if (IsAbsolutePath(path)) {
+				return std::filesystem::is_directory(path);
+			}
+			else {
+				return PHYSFS_isDirectory(path.c_str());
+			}
 		}
 
 		// 设置写路径,通过对userdata路径后添加自定义写路径
@@ -347,6 +411,19 @@ namespace Cjing3D {
 			availablePath = availablePath.lexically_normal();
 
 			return availablePath.generic_string();
+		}
+
+		std::string CombinePath(const std::string& path1, const std::string& path2)
+		{
+			if (!IsAbsolutePath(path1))
+			{
+				return path1 + "/" + path2;
+			}
+			else
+			{
+				std::filesystem::path path(path1);
+				return path.append(path2).string();
+			}
 		}
 
 		/**

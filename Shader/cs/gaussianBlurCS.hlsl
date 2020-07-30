@@ -4,7 +4,7 @@
 #define BLUR_FORMAT float
 #endif // BLUR_FORMAT
 
-TYPE_TEXTURE2D(texture_input, BLUR_FORMAT, TEXTURE_SLOT_UNIQUE_0);
+TEXTURE2D(texture_input, BLUR_FORMAT, TEXTURE_SLOT_UNIQUE_0);
 RWTEXTURE2D(texture_output, BLUR_FORMAT, 0);
 
 #define BLUR_WIDE

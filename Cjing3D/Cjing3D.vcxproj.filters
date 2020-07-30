@@ -695,6 +695,9 @@
     <ClCompile Include="helper\jsonArchive.cpp">
       <Filter>helper\archive</Filter>
     </ClCompile>
+    <ClCompile Include="common\version.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -1376,6 +1379,9 @@
     </ClInclude>
     <ClInclude Include="helper\binaryArchive.h">
       <Filter>helper\archive</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\singleton.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

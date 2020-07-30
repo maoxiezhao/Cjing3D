@@ -3,9 +3,11 @@
 
 #include "helper\archive.h"
 #include "utils\json\json.hpp"
+#include "utils\math.h"
 
 #include <stack>
 #include <string>
+#include <functional>
 
 namespace Cjing3D
 {
@@ -18,6 +20,8 @@ namespace Cjing3D
 	class JsonArchive : public ArchiveBase
 	{
 	public:
+		using JsonSerializerFunc = std::function<void(JsonArchive& archive)>;
+
 		JsonArchive(const std::string& path, ArchiveMode mode);
 		~JsonArchive();
 
@@ -28,6 +32,39 @@ namespace Cjing3D
 		nlohmann::json* GetCurrentJson();
 		const nlohmann::json* GetCurrentJson()const;
 		size_t GetCurrentValueCount()const;
+
+		inline void PushMap(const std::string& key, JsonSerializerFunc func)
+		{
+			auto currentJson = GetCurrentJson();
+			if (currentJson == nullptr) {
+				return;
+			}
+
+			auto it = currentJson->emplace(std::make_pair(key, nlohmann::json())).first;
+			mJsonStack.push(&it.value());
+			func(*this);
+			mJsonStack.pop();
+		}
+
+		inline void PushArray(JsonSerializerFunc func)
+		{
+			auto currentJson = GetCurrentJson();
+			if (currentJson == nullptr) {
+				return;
+			}
+
+			currentJson->emplace_back();
+			mJsonStack.push(&currentJson->back());
+			func(*this);
+			mJsonStack.pop();
+		}
+
+		inline void Pop()
+		{
+			if (!mJsonStack.empty()) {
+				mJsonStack.pop();
+			}
+		}
 
 		template<typename T>
 		inline JsonArchive& Write(const std::string& key, const T& data)
@@ -69,7 +106,7 @@ namespace Cjing3D
 				return *this;
 			}
 
-			nlohmann::json::const_iterator it = currentJson->find(key);
+			nlohmann::json::iterator it = currentJson->find(key);
 			if (it != currentJson->end())
 			{
 				mJsonStack.push(&it.value());
@@ -89,7 +126,7 @@ namespace Cjing3D
 			}
 
 			if (index < 0 || index > currentJson->size()) {
-				return 0;
+				return *this;
 			}
 
 			mJsonStack.push(&currentJson->at(index));
@@ -99,11 +136,51 @@ namespace Cjing3D
 			return *this;
 		}
 
+		inline void Read(const size_t index, JsonSerializerFunc func)
+		{
+			auto currentJson = GetCurrentJson();
+			if (currentJson == nullptr) {
+				return;
+			}
+
+			if (index < 0 || index > currentJson->size()) {
+				return;
+			}
+
+			mJsonStack.push(&currentJson->at(index));
+			func(*this);
+			mJsonStack.pop();
+		}
+
+		inline void Read(const std::string& key, JsonSerializerFunc func)
+		{
+			auto currentJson = GetCurrentJson();
+			if (currentJson == nullptr) {
+				return;
+			}
+
+			nlohmann::json::iterator it = currentJson->find(key);
+			if (it == currentJson->end()) {
+				return;
+			}
+
+			mJsonStack.push(&it.value());
+			func(*this);
+			mJsonStack.pop();
+		}
+
 	private:
 		std::stack<nlohmann::json*> mJsonStack;
 		nlohmann::json mRootJson;
 
 		static const U32 currentArchiveVersion;
+	};
+
+	class JsonSerializer
+	{
+	public:
+		virtual void Serialize(JsonArchive& archive) = 0;
+		virtual void Unserialize(JsonArchive& archive)const = 0;
 	};
 
 	namespace JsonArchiveImpl
@@ -152,8 +229,9 @@ namespace Cjing3D
 		{};
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////
-		template<typename T, typename ENABLED>
-		struct ArchiveTypeNormalMapping
+		
+		template<typename T>
+		struct ArchiveTypeCommonMapping
 		{
 			static void Serialize(T& obj, JsonArchive& archive)
 			{
@@ -165,6 +243,62 @@ namespace Cjing3D
 			}
 
 			static void Unserialize(const T& obj, JsonArchive& archive)
+			{
+				nlohmann::json* currentJson = archive.GetCurrentJson();
+				if (currentJson == nullptr) {
+					return;
+				}
+				*currentJson = nlohmann::json(obj);
+			}
+		};
+	
+		template<> struct ArchiveTypeNormalMapping<int>			  : ArchiveTypeCommonMapping<int> {};
+		template<> struct ArchiveTypeNormalMapping<long>		  : ArchiveTypeCommonMapping<long> {};
+		template<> struct ArchiveTypeNormalMapping<unsigned int>  : ArchiveTypeCommonMapping<unsigned int> {};
+		template<> struct ArchiveTypeNormalMapping<unsigned long> : ArchiveTypeCommonMapping<unsigned long> {};
+		template<> struct ArchiveTypeNormalMapping<char>          : ArchiveTypeCommonMapping<char> {};
+		template<> struct ArchiveTypeNormalMapping<unsigned char> : ArchiveTypeCommonMapping<unsigned char> {};
+		template<> struct ArchiveTypeNormalMapping<I64> : ArchiveTypeCommonMapping<I64> {};
+		template<> struct ArchiveTypeNormalMapping<U64> : ArchiveTypeCommonMapping<U64> {};
+		template<> struct ArchiveTypeNormalMapping<F32> : ArchiveTypeCommonMapping<F32> {};
+		template<> struct ArchiveTypeNormalMapping<F64> : ArchiveTypeCommonMapping<F64> {};
+
+
+		template<>
+		struct ArchiveTypeNormalMapping<bool>
+		{
+			static void Serialize(bool& obj, JsonArchive& archive)
+			{
+				nlohmann::json* currentJson = archive.GetCurrentJson();
+				if (currentJson == nullptr) {
+					return;
+				}
+				obj = currentJson->get<bool>();
+			}
+
+			static void Unserialize(bool obj, JsonArchive& archive)
+			{
+				nlohmann::json* currentJson = archive.GetCurrentJson();
+				if (currentJson == nullptr) {
+					return;
+				}
+				*currentJson = nlohmann::json(obj);
+			}
+		};
+
+		template<>
+		struct ArchiveTypeNormalMapping<std::string>
+		{
+			static void Serialize(std::string& obj, JsonArchive& archive)
+			{
+				nlohmann::json* currentJson = archive.GetCurrentJson();
+				if (currentJson == nullptr) {
+					return;
+				}
+				obj = currentJson->get<std::string>();
+			}
+
+			static void Unserialize(const std::string& obj, JsonArchive& archive)
 			{
 				nlohmann::json* currentJson = archive.GetCurrentJson();
 				if (currentJson == nullptr) {
@@ -188,8 +322,7 @@ namespace Cjing3D
 					return;
 				}
 
-				size_t count = currentJson->size();
-				for (int i = 0; i < count; i++) {
+				for (int i = 0; i < currentJson->size(); i++) {
 					archive.Read(i, obj[i]);
 				}
 			}
@@ -201,11 +334,52 @@ namespace Cjing3D
 					return;
 				}
 			
-				size_t index = 0;
-				for (const auto& item : obj) {
-					archive.Write(index++, item);
+				for (int i = 0; i < obj.size(); i++) {
+					archive.WriteAndPush(obj[i]);
 				}
 			}
 		};
+
+		template<typename T, size_t N>
+		struct ArchiveTypeArrayMapping
+		{
+			static void Serialize(std::array<T, N>& obj, JsonArchive& archive)
+			{
+				nlohmann::json* currentJson = archive.GetCurrentJson();
+				if (currentJson == nullptr) {
+					return;
+				}
+
+				if (!currentJson->is_array()) {
+					return;
+				}
+
+				for (int i = 0; i < N; i++) {
+					archive.Read(i, obj[i]);
+				}
+			}
+
+			static void Unserialize(const std::array<T, N>& obj, JsonArchive& archive)
+			{
+				nlohmann::json* currentJson = archive.GetCurrentJson();
+				if (currentJson == nullptr) {
+					return;
+				}
+
+				for (int i = 0; i < N; i++) {
+					archive.WriteAndPush(obj[i]);
+				}
+			}
+		};
+
+		template<> struct ArchiveTypeNormalMapping<F32x2> : ArchiveTypeArrayMapping<F32, 2> {};
+		template<> struct ArchiveTypeNormalMapping<F32x3> : ArchiveTypeArrayMapping<F32, 3> {};
+		template<> struct ArchiveTypeNormalMapping<F32x4> : ArchiveTypeArrayMapping<F32, 4> {};
+		template<> struct ArchiveTypeNormalMapping<U32x2> : ArchiveTypeArrayMapping<U32, 2> {};
+		template<> struct ArchiveTypeNormalMapping<U32x3> : ArchiveTypeArrayMapping<U32, 3> {};
+		template<> struct ArchiveTypeNormalMapping<U32x4> : ArchiveTypeArrayMapping<U32, 4> {};
+		template<> struct ArchiveTypeNormalMapping<I32x2> : ArchiveTypeArrayMapping<I32, 2> {};
+		template<> struct ArchiveTypeNormalMapping<I32x3> : ArchiveTypeArrayMapping<I32, 3> {};
+		template<> struct ArchiveTypeNormalMapping<I32x4> : ArchiveTypeArrayMapping<I32, 4> {};
 	}
 }

@@ -1,7 +1,7 @@
 #include "..\hf\objectInput.hlsli"
 #include "..\hf\global.hlsli"
 
-TEXTURE2D(heightMap, TEXTURE_SLOT_0);
+TEXTURE2D(heightMap, float4, TEXTURE_SLOT_0);
 
 struct HullOutType
 {

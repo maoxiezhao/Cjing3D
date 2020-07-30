@@ -11,20 +11,21 @@
 // common texture slots
 TEXTURE2DARRAY(texture_shadowmap_array, float, TEXTURE_SLOT_SHADOW_ARRAY_2D);
 TEXTRRECUBEARRAY(texture_shadowcubemap_array, float, TEXTURE_SLOT_SHADOW_ARRAY_CUBE);
-
-//TEXTURE_SLOT_SHADOW_ARRAY_CUBE
 TEXTRRECUBE(texture_global_env_map, float4, TEXTURE_SLOT_GLOBAL_ENV_MAP);
 
-TEXTURE2D(texture_0, TEXTURE_SLOT_0);
-TEXTURE2D(texture_1, TEXTURE_SLOT_1);
-TEXTURE2D(texture_2, TEXTURE_SLOT_2);
-TYPE_TEXTURE2D(texture_depth, float, TEXTURE_SLOT_DEPTH);
-TYPE_TEXTURE2D(texture_linear_depth, float, TEXTURE_SLOT_LINEAR_DEPTH);
+//TEXTURE_SLOT_SHADOW_ARRAY_CUBE
+
+TEXTURE2D(texture_0, float4, TEXTURE_SLOT_0);
+TEXTURE2D(texture_1, float4, TEXTURE_SLOT_1);
+TEXTURE2D(texture_2, float4, TEXTURE_SLOT_2);
+TEXTURE2D(texture_depth, float, TEXTURE_SLOT_DEPTH);
+TEXTURE2D(texture_linear_depth, float, TEXTURE_SLOT_LINEAR_DEPTH);
  
 // common sampler states
-SAMPLERSTATE(sampler_point_clamp, SAMPLER_POINT_CLAMP_SLOT);
-SAMPLERSTATE(sampler_linear_clamp, SAMPLER_LINEAR_CLAMP_SLOT);
-SAMPLERSTATE(sampler_anisotropic, SAMPLER_ANISOTROPIC_SLOT);
+SAMPLERSTATE(sampler_point_clamp,                SAMPLER_POINT_CLAMP_SLOT);
+SAMPLERSTATE(sampler_linear_clamp,               SAMPLER_LINEAR_CLAMP_SLOT);
+SAMPLERSTATE(sampler_anisotropic,                SAMPLER_ANISOTROPIC_SLOT);
+SAMPLERSTATE(sampler_object,                     SAMPLER_OBJECT_SLOT);
 SAMPLERCOMPARISONSTATE(sampler_comparison_depth, SAMPLER_COMPARISON_SLOT);
 
 // common structred buffer

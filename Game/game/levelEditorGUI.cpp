@@ -1,5 +1,6 @@
 #include "game\levelEditor.h"
 #include "gui\guiEditor\guiEditorInclude.h"
+#include "platform\gameWindow.h"
 
 using namespace Cjing3D;
 
@@ -8,7 +9,7 @@ namespace CjingGame
 	namespace {
 		void ShowGroundEditorWindow(LevelEditor& levelEditor)
 		{
-			ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar |
+			ImGuiWindowFlags window_flags = 
 				ImGuiWindowFlags_NoScrollbar |
 				ImGuiWindowFlags_NoMove |
 				ImGuiWindowFlags_NoResize;
@@ -101,22 +102,31 @@ namespace CjingGame
 			ImGui::End();
 		}
 
+		void ShowNewMapWindow(LevelEditor& levelEditor)
+		{
+			if (ImGui::BeginPopupModal("New Map", NULL))
+			{
+				ImGui::SetNextItemWidth(100.0f);
+				static char nameStr[128] = "";
+				ImGui::InputText("name", nameStr, IM_ARRAYSIZE(nameStr));
+
+				static I32x3 mapSize = { 0, 0, 0 };
+				ImGui::InputInt3("Map Width/Height/Layer", mapSize.data());
+
+				if (ImGui::Button("Confirm"))
+				{
+					levelEditor.NewMap(nameStr, mapSize[0], mapSize[1], mapSize[2]);
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("Close"))
+					ImGui::CloseCurrentPopup();
+				ImGui::EndPopup();
+			}
+		}
+
 		void ShowEditorWindow(F32 deltaTime, LevelEditor& levelEditor)
 		{
-			ShowTipsWindow(levelEditor);
-
-			switch (levelEditor.GetEditorMode())
-			{
-			case EditorMode_Ground:
-				ShowGroundEditorWindow(levelEditor);
-				break;
-			case EditorMode_Wall:
-				ShowWallEditorWindow(levelEditor);
-				break;
-			default:
-				break;
-			}
-
 			ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar  |
 											ImGuiWindowFlags_NoScrollbar |
 											ImGuiWindowFlags_MenuBar |
@@ -132,9 +142,23 @@ namespace CjingGame
 			{
 				if (ImGui::BeginMenu("File"))
 				{
-					if (ImGui::MenuItem("New Map")) { Scene::GetScene().Clear(); }
-					if (ImGui::MenuItem("Load Map")) { }
-					if (ImGui::MenuItem("Save Map")) { }
+					if (ImGui::MenuItem("New Map")) { 
+						ShowNewMapWindow(levelEditor);
+					}
+					if (ImGui::MenuItem("Load Map")) {
+						GameWindow::ShowBrowseForFolder(
+							"Select map folder",
+							[&levelEditor](const std::string& filePath) {
+								levelEditor.LoadMap(filePath);
+							});
+					}
+					if (ImGui::MenuItem("Save Map")) { 
+						GameWindow::ShowBrowseForFolder(
+							"Select map folder",
+							[&levelEditor](const std::string& filePath) {
+								levelEditor.SaveMap(filePath);
+							});
+					}
 					ImGui::EndMenu();
 				}
 			}
@@ -152,6 +176,20 @@ namespace CjingGame
 			}
 
 			ImGui::End();
+
+			ShowTipsWindow(levelEditor);
+
+			switch (levelEditor.GetEditorMode())
+			{
+			case EditorMode_Ground:
+				ShowGroundEditorWindow(levelEditor);
+				break;
+			case EditorMode_Wall:
+				ShowWallEditorWindow(levelEditor);
+				break;
+			default:
+				break;
+			}
 		}
 	}
 

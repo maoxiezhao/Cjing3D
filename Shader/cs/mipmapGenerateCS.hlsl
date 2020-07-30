@@ -4,7 +4,7 @@
 #define TARGET_FORMAT float4
 #endif
 
-TYPE_TEXTURE2D(texture_input, float4, TEXTURE_SLOT_UNIQUE_0);
+TEXTURE2D(texture_input, float4, TEXTURE_SLOT_UNIQUE_0);
 RWTEXTURE2D(texture_output, TARGET_FORMAT, 0);
 SAMPLERSTATE(genSampler, SAMPLER_SLOT_0);
 

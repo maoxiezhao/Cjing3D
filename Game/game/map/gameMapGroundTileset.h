@@ -15,7 +15,8 @@ namespace CjingGame
 		const std::string GetBaseColorTilesetPath() const { return mTilesetPath; }
 		TextureResourcePtr GetBaseColorTexture() { return mTilesetMap; }
 		U32x2 GetTilesetSize()const;
-		U32x4 GetTileRectByIndex(U32 index)const;
+		F32x4 GetTileRectByIndex(U32 index)const;
+		U32x4 GetTileSourceRectByIndex(U32 index)const;
 
 		U32x2 Flatten(U32 index)const;
 		U32 UnFlatten(const U32x2& pos)const;
@@ -26,5 +27,10 @@ namespace CjingGame
 		U32 mTileCellSize = 16;
 		U32 mTileColCount = 0;
 		U32 mTileRowCount = 0;
+
+		U32 mTileWidth = 0;
+		U32 mTileHeight = 0;
+		F32 mInvTileWidth = 0.0f;
+		F32 mInvTileHeight = 0.0f;
 	};
 }

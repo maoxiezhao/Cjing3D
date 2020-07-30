@@ -22,6 +22,11 @@ namespace CjingGame
 		{
 			mTileColCount = texture->GetDesc().mWidth  / mTileCellSize;
 			mTileRowCount = texture->GetDesc().mHeight / mTileCellSize;
+
+			mTileWidth = texture->GetDesc().mWidth;
+			mTileHeight = texture->GetDesc().mHeight;
+			mInvTileWidth = 1.0f / mTileWidth * mTileCellSize;
+			mInvTileHeight = 1.0f / mTileHeight * mTileCellSize;
 		}
 		
 	}
@@ -37,7 +42,18 @@ namespace CjingGame
 		return { desc.mWidth, desc.mHeight };
 	}
 
-	U32x4 GameMapGroundTileset::GetTileRectByIndex(U32 index) const
+	F32x4 GameMapGroundTileset::GetTileRectByIndex(U32 index) const
+	{
+		U32x2 pos = Flatten(index);
+		return F32x4(
+			(F32)pos[0] * mInvTileWidth,
+			(F32)pos[1] * mInvTileHeight,
+			(F32)(pos[0] + 1) * mInvTileWidth,
+			(F32)(pos[1] + 1) * mInvTileHeight
+		);
+	}
+
+	U32x4 GameMapGroundTileset::GetTileSourceRectByIndex(U32 index) const
 	{
 		U32x2 pos = Flatten(index);
 		return U32x4(
@@ -50,9 +66,7 @@ namespace CjingGame
 
 	U32x2 GameMapGroundTileset::Flatten(U32 index) const
 	{
-		return mTileColCount > 0 && mTileRowCount > 0 ?
-			U32x2(index % mTileColCount, index / mTileColCount) :
-			U32x2(0u, 0u);
+		return mTileColCount > 0 && mTileRowCount > 0 ? U32x2(index % mTileColCount, index / mTileColCount) : U32x2(0u, 0u);
 	}
 
 	U32 GameMapGroundTileset::UnFlatten(const U32x2& pos) const

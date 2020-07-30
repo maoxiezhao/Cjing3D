@@ -1,7 +1,7 @@
 #include "..\hf\imageHF.hlsli"
 
 SAMPLERSTATE(sampler_font, SAMPLER_SLOT_0);
-TYPE_TEXTURE2D(texture_font, float, TEXTURE_SLOT_FONT);
+TEXTURE2D(texture_font, float, TEXTURE_SLOT_FONT);
 
 struct FontPixelInput
 {

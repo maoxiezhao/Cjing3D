@@ -8,6 +8,7 @@
 #include <string>
 #include <codecvt>
 #include <locale>
+#include <ShlObj.h>
 
 namespace Cjing3D {
 
@@ -84,6 +85,28 @@ namespace Cjing3D {
 				callback(ofn.lpstrFile);
 			}
 		}
+	}
+
+	void GameWindow::ShowBrowseForFolder(const char* title, std::function<void(const std::string&)> callback)
+	{
+		std::wstring nameWStr = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(title);
+
+		wchar_t szBuffer[256] = { '\0' };
+		BROWSEINFO bi;
+		ZeroMemory(&bi, sizeof(BROWSEINFO));
+		bi.hwndOwner = NULL;
+		bi.pszDisplayName = szBuffer;
+		bi.lpszTitle = nameWStr.c_str();
+		bi.ulFlags = BIF_RETURNFSANCESTORS;
+
+		LPITEMIDLIST idl = SHBrowseForFolder(&bi);
+		if (NULL == idl) {
+			return;
+		}
+
+		SHGetPathFromIDList(idl, szBuffer);
+
+		callback(std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(szBuffer));
 	}
 
 	void GameWindow::ShowMessageBox(const UTF8String& msg)
