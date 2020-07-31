@@ -2,16 +2,26 @@
 
 #include "mapInclude.h"
 #include "gameMapGrounds.h"
+#include "mapTileset.h"
 
 namespace CjingGame
 {
 	class GameMap;
 
+	struct MapPartPosition
+	{
+	public:
+		MapPartPosition(I32 xx, I32 yy, I32 zz) : x(xx), y(yy), z(zz) {}
+		I32 x = 0;
+		I32 y = 0;
+		I32 z = 0;
+
+		static MapPartPosition TransformFromLocalPos(const I32x3& localPos);
+	};
+
 	class GameMapPart : public JsonSerializer
 	{
 	public:
-		static const I32 GameMapPartSize = 64;
-
 		GameMapPart(GameMap& gameMap);
 		~GameMapPart();
 
@@ -19,6 +29,9 @@ namespace CjingGame
 		void FixedUpdate();
 		void Uninitialize();
 		void PreRender();
+
+		bool IsVisible()const { return mIsVisible; }
+		void SetVisible(bool isVisible);
 
 		bool AddGround(const I32x3& localPos, U32 tileIndex);
 		bool RemoveGround(const I32x3& localPos);
@@ -29,13 +42,15 @@ namespace CjingGame
 
 	private:
 		GameMap& mGameMap;
+		bool mIsVisible = true;
+
 		std::unique_ptr<GameMapGrounds> mGameMapGrounds = nullptr;
 	};
 
 	class GameMap 
 	{
 	public:
-		static const I32 MapCellSize = 1;
+		using GameMapPartPtr = std::shared_ptr<GameMapPart>;
 
 		GameMap(I32 width, I32 height, I32 layer, const std::string& name = "");
 		GameMap(U32 mapID);
@@ -44,7 +59,6 @@ namespace CjingGame
 
 		void InitiEmptyMap(I32 width, I32 height, I32 layer);
 		void Clear();
-
 		void FixedUpdate();
 		void PreRender();
 
@@ -52,6 +66,14 @@ namespace CjingGame
 		F32x3 TransformLocalPosToGlobal(const I32x3& pos)const;
 
 		// map parts
+		void LoadMapParts(const MapPartPosition& defaultPartPos);
+		void LoadMapPart(const MapPartPosition& mapPartPos);
+		void RefreshMapParts(const MapPartPosition& localPos);
+		void SetMapPartByPartPos(const MapPartPosition& pos, GameMapPartPtr mapPart);
+		void ClearAllMapParts();
+		U32 GetMapPartIndexByPartPos(const MapPartPosition& localPos)const;
+		U32 GetMapPartSize()const;
+
 		GameMapPart* GetCurrentMapPartByGlobalPos(const F32x3& globalPos);
 		GameMapPart* GetCurrentMapPartByLocalPos(const I32x3& localPos);
 
@@ -61,6 +83,7 @@ namespace CjingGame
 		I32 GetMapLayer()const { return mMapLayer; }
 		std::string GetMapName()const { return mMapName; }
 		U32 GetMapID()const { return mMapID; }
+		MapTileset& GetMapTileset() { return mMapTilset; }
 
 		// setter
 		void SetMapName(const std::string& name) { mMapName = name; }
@@ -73,8 +96,8 @@ namespace CjingGame
 		// serialize methods
 		void LoadMapFromMapID(U32 mapID);
 		void LoadMapFromFullPath(const std::string& fullPath);
-		void LoadFromFile(const std::string& filePath);
-		void SaveToFile(const std::string& filePath);
+		void LoadMapFromParentPath(const std::string& parentPath);
+		void SaveByParentPath(const std::string& parentPath);
 
 	private:
 		U32 GenerateMapID();
@@ -82,7 +105,7 @@ namespace CjingGame
 		std::string GetMapFullPathFromID(const std::string& filePath, U32 mapID)const;
 		std::string GetRealFileMapNameFromID(U32 mapID)const;
 
-		void LoadMapPart(const std::string& parentPath, const I32x3& localPos);
+		GameMapPartPtr LoadMapPart(const std::string& parentPath, const MapPartPosition& mapPartPos);
 		void SaveMapPart(const std::string& parentPath, GameMapPart& part);
 
 	private:
@@ -94,8 +117,9 @@ namespace CjingGame
 		I32 mMapHeight = 0;
 		I32 mMapLayer = 0;
 		std::string mMapName = "";
-		std::string mMapPath = "";
+		std::string mMapParentPath = "";
 
-		std::unique_ptr<GameMapPart> mGameMapPart = nullptr;
+		MapTileset mMapTilset;
+		std::vector<GameMapPartPtr> mGameMapParts;
 	};
 }

@@ -23,14 +23,8 @@ namespace CjingGame
 				ImGui::End();
 				return;
 			}
-
-			GameMapGrounds* grounds = currentMap->GetGameMapGround();
-			if (grounds == nullptr) {
-				ImGui::End();
-				return;
-			}
 			
-			GameMapGroundTileset& tileset = grounds->GetTileset();
+			GameMapGroundTileset& tileset = currentMap->GetMapTileset().mGroundTileset;
 			auto texture = tileset.GetBaseColorTexture() != nullptr ? tileset.GetBaseColorTexture()->mTexture : nullptr;
 			if (texture == nullptr) {
 				ImGui::End();

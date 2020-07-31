@@ -14,18 +14,15 @@
 //
 // Game Map //////////////////////
 // Core:
-// 1. Game map save/load
-// 2. Game map layer
-// 3. Game map part
+// 1. Game map save/load (100)
+// 2. Game map part
+// 3. Game map layer
 // 4. Game map manager
 //
 // Ojbects:
 // 1. Ground (100)
 // 2. Wall
 // 3. Object
-//
-// Others ///////////////////////
-// Json arachive support lambda
 //
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Road map

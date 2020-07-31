@@ -206,6 +206,9 @@
     <ClInclude Include="note.h">
       <Filter>game</Filter>
     </ClInclude>
+    <ClInclude Include="game\map\mapTileset.h">
+      <Filter>game\map</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="postcompile.bat" />

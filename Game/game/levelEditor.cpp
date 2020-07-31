@@ -4,6 +4,7 @@
 #include "editor\guiEditor.h"
 #include "system\sceneSystem.h"
 #include "gui\guiEditor\guiEditorInclude.h"
+#include "scripts\gameLuaContext.h"
 
 using namespace Cjing3D;
 
@@ -41,7 +42,7 @@ namespace CjingGame
 
 		GlobalGetSubSystem<LuaContext>().ChangeLuaScene("LevelEditor");
 
-		F32 cellSize = (F32)GameMap::MapCellSize;
+		F32 cellSize = (F32)GameContext::MapCellSize;
 		InitializeEditorMap("", cellSize, 8, 8, 4);
 		InitializeEditorGUI(guiStage.GetImGUIStage());
 	}
@@ -158,13 +159,13 @@ namespace CjingGame
 			mCurrentMap.reset();
 		}
 
-		InitializeEditorMap(mapName, GameMap::MapCellSize, w, h, layer);
+		InitializeEditorMap(mapName, GameContext::MapCellSize, w, h, layer);
 	}
 
 	void LevelEditor::SaveMap(const std::string& mapPath)
 	{
 		if (mCurrentMap != nullptr) {
-			mCurrentMap->SaveToFile(mapPath);
+			mCurrentMap->SaveByParentPath(mapPath);
 		}
 	}
 
@@ -176,6 +177,7 @@ namespace CjingGame
 		}
 
 		mCurrentMap = std::make_unique<GameMap>(mapPath);
+		mCurrentMap->LoadMapParts({ 0, 0, 0 });
 	}
 
 	void LevelEditor::InitializeEditorMap(const std::string& mapName, F32 cellSize, I32 width, I32 height, I32 layer)
@@ -193,6 +195,7 @@ namespace CjingGame
 		mEditorPlane.SetVisible(false);
 
 		mCurrentMap = std::make_unique<GameMap>(width, height, layer, mapName);
+		mCurrentMap->LoadMapParts({0, 0, 0});
 
 		SetDebugGridVisible(true);
 	}

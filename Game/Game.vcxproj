@@ -199,6 +199,7 @@
     <ClInclude Include="game\map\gameMapGroundTileset.h" />
     <ClInclude Include="game\map\gameMapWallRenderer.h" />
     <ClInclude Include="game\map\mapInclude.h" />
+    <ClInclude Include="game\map\mapTileset.h" />
     <ClInclude Include="note.h" />
     <ClInclude Include="scripts\gameLuaContext.h" />
     <ClInclude Include="test\guiTest.h" />

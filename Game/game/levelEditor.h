@@ -1,10 +1,11 @@
 #pragma once
 
 #include "core\gameComponent.h"
-#include "scripts\gameLuaContext.h"
+#include "game\gameContext.h"
 #include "game\map\gameMap.h"
 #include "game\gameObject.h"
 #include "gui\guiStage.h"
+#include "scripts\gameLuaContext.h"
 
 namespace CjingGame
 {

@@ -19,10 +19,8 @@ namespace CjingGame
 
 	void GameMapGrounds::Initialize()
 	{
-		mGroundTileset.LoadTilesetImage("Textures/GroundTilesets/beach.png");
 		mGroundRenderer.Initialize();
-		mGroundRenderer.SetCurrentTileset(&mGroundTileset);
-
+		mGroundRenderer.SetCurrentTileset(&mGameMap.GetMapTileset().mGroundTileset);
 	}
 
 	void GameMapGrounds::FixedUpdate()

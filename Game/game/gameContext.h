@@ -14,6 +14,13 @@ namespace CjingGame
 		void Initialize();
 		void Uninitialize();
 
+		// game map
+		static const I32 GameMapPartSize = 64;
+		static const I32 MapCellSize = 1;
+		static const I32 GameMapPartVisibleRange = 128;
+		static const I32 GameMapPartRange = 1;
+		static const std::string GameMapCurrentParentPath;
+
 	private:
 		bool mIsInitialized = false;
 	};

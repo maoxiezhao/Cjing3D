@@ -2,6 +2,8 @@
 
 namespace CjingGame
 {
+	const std::string GameContext::GameMapCurrentParentPath = "Datas/Maps";
+
 	GameContext::~GameContext()
 	{
 	}
