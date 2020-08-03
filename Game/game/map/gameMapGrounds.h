@@ -21,15 +21,12 @@ namespace CjingGame
 		void AddGround(const I32x3& pos, U32 tileIndex);
 		void RemoveGround(const I32x3& pos);
 
-		GameMapGroundTileset& GetTileset() { return mGroundTileset; }
-
 		virtual void Serialize(JsonArchive& archive);
 		virtual void Unserialize(JsonArchive& archive)const;
 
 	private:
 		GameMap& mGameMap;
-		GameMapGroundRenderer mGroundRenderer;
-		GameMapGroundTileset mGroundTileset;
+		GameMapGroundInstPtr mInstance = nullptr;
 
 		std::map<I32x3, std::shared_ptr<GameMapGround>> mAllStaticGrounds;
 		std::map<I32x3, std::shared_ptr<GameMapDynamicGround>> mAllDynamicGrounds;

@@ -7,5 +7,7 @@ namespace CjingGame
 	struct MapTileset
 	{
 		GameMapGroundTileset mGroundTileset;
+
+		void Bind();
 	};
 }

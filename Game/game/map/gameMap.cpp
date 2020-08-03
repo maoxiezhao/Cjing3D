@@ -1,10 +1,12 @@
 #include "gameMap.h"
+#include "gameMapRenderer.h"
 
 namespace CjingGame
 {
 
-	GameMapPart::GameMapPart(GameMap& gameMap) :
-		mGameMap(gameMap)
+	GameMapPart::GameMapPart(GameMap& gameMap, const MapPartPosition& position) :
+		mGameMap(gameMap),
+		mPartPosition(position)
 	{
 	}
 
@@ -108,6 +110,7 @@ namespace CjingGame
 		mMapHeight = height;
 		mMapLayer = layer;
 		mMapTilset.mGroundTileset.LoadTilesetImage("Textures/GroundTilesets/beach.png");
+		mMapTilset.Bind();
 
 		mIsLoaded = true;
 	}
@@ -207,7 +210,7 @@ namespace CjingGame
 		SetMapPartByPartPos(mapPartPos, gameMapPart);
 	}
 
-	void GameMap::RefreshMapParts(const MapPartPosition& localPos)
+	void GameMap::RefreshMapParts(const MapPartPosition& partPos)
 	{
 	}
 
@@ -229,7 +232,7 @@ namespace CjingGame
 		);
 	}
 
-	GameMapPart* GameMap::GetCurrentMapPartByLocalPos(const I32x3& localPos)
+	GameMapPart* GameMap::GetMapPartByLocalPos(const I32x3& localPos)
 	{
 		MapPartPosition partPos = MapPartPosition::TransformFromLocalPos(localPos);
 		U32 index = GetMapPartIndexByPartPos(partPos);
@@ -240,9 +243,9 @@ namespace CjingGame
 		return mGameMapParts[index].get();
 	}
 
-	void GameMap::SetMapPartByPartPos(const MapPartPosition& pos, GameMapPartPtr mapPart)
+	void GameMap::SetMapPartByPartPos(const MapPartPosition& partPos, GameMapPartPtr mapPart)
 	{
-		U32 index = GetMapPartIndexByPartPos(pos);
+		U32 index = GetMapPartIndexByPartPos(partPos);
 		if (index >= mGameMapParts.size())
 		{
 			Debug::Warning("[SetMapPartByLocalPos] Invalid map part index.");
@@ -263,14 +266,14 @@ namespace CjingGame
 		mGameMapParts.clear();
 	}
 
-	GameMapPart* GameMap::GetCurrentMapPartByGlobalPos(const F32x3& globalPos)
+	GameMapPart* GameMap::GetMapPartByGlobalPos(const F32x3& globalPos)
 	{
-		return GetCurrentMapPartByLocalPos(TransformGlobalPosToLocal(globalPos));
+		return GetMapPartByLocalPos(TransformGlobalPosToLocal(globalPos));
 	}
 
 	void GameMap::AddGround(const I32x3& pos, U32 tileIndex)
 	{
-		GameMapPart* currentPart = GetCurrentMapPartByLocalPos(pos);
+		GameMapPart* currentPart = GetMapPartByLocalPos(pos);
 		if (currentPart != nullptr) {
 			currentPart->AddGround(pos, tileIndex);
 		}
@@ -278,15 +281,10 @@ namespace CjingGame
 
 	void GameMap::RemoveGround(const I32x3& pos)
 	{
-		GameMapPart* currentPart = GetCurrentMapPartByLocalPos(pos);
+		GameMapPart* currentPart = GetMapPartByLocalPos(pos);
 		if (currentPart != nullptr) {
 			currentPart->RemoveGround(pos);
 		}
-	}
-
-	GameMapGrounds* GameMap::GetGameMapGround()
-	{
-		return nullptr;
 	}
 
 	U32 GameMap::GetMapPartIndexByPartPos(const MapPartPosition& localPos) const
@@ -300,10 +298,23 @@ namespace CjingGame
 		return GameContext::GameMapPartRange * 2 + 1;
 	}
 
+	std::vector<GameMap::GameMapPartPtr> GameMap::GetMapPartsByRay(const Ray& ray) const
+	{
+		I32x3 originLocalPos = TransformGlobalPosToLocal(XMConvert(ray.mOrigin));
+
+
+
+		return std::vector<GameMapPartPtr>();
+	}
+
+	MapPartPosition GameMap::GetMapPartPosition(const I32x3& localPos)
+	{
+		return MapPartPosition::TransformFromLocalPos(localPos);
+	}
 
 	GameMap::GameMapPartPtr GameMap::LoadMapPart(const std::string& parentPath, const MapPartPosition& mapPartPos)
 	{
-		auto newMapPart = std::make_shared<GameMapPart>(*this);
+		auto newMapPart = std::make_shared<GameMapPart>(*this, mapPartPos);
 		newMapPart->Initialize();
 
 		char partName[64];
@@ -393,6 +404,21 @@ namespace CjingGame
 		const std::string mapInfoPath = FileData::CombinePath(parentPath, partName);
 		JsonArchive archive(mapInfoPath, ArchiveMode::ArchiveMode_Write);
 		part.Unserialize(archive);
+	}
+
+	I32 MapPartPosition::GetLocalPosX() const
+	{
+		return x * GameContext::GameMapPartSize;
+	}
+
+	I32 MapPartPosition::GetLocalPosY() const
+	{
+		return y * GameContext::GameMapPartSize;
+	}
+
+	I32 MapPartPosition::GetLocalPosZ() const
+	{
+		return z * GameContext::GameMapPartSize;
 	}
 
 	MapPartPosition MapPartPosition::TransformFromLocalPos(const I32x3& localPos)

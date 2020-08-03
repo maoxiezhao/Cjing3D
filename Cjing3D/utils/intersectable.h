@@ -32,12 +32,12 @@ namespace Cjing3D
 		XMFLOAT3 mMax;
 
 	public:
-		AABB() : AABB(g_XMInfinity, -g_XMInfinity) {};
-		AABB(XMVECTOR p) { XMStoreFloat3(&mMin, p); XMStoreFloat3(&mMax, p); };
-		AABB(XMVECTOR min, XMVECTOR max) { XMStoreFloat3(&mMin, min); XMStoreFloat3(&mMax, max); };
-		AABB(XMFLOAT3 p) : mMin(p), mMax(p) {};
-		AABB(XMFLOAT3 min, XMFLOAT3 max) : mMin(min), mMax(max) {};
-		AABB(F32x3 min, F32x3 max) : mMin(XMConvert(min)), mMax(XMConvert(max)) {}
+		AABB() : AABB(XMFLOAT3(FLT_MAX, FLT_MAX, FLT_MAX), XMFLOAT3(-FLT_MAX, -FLT_MAX, -FLT_MAX)) {};
+		explicit AABB(XMVECTOR p) { XMStoreFloat3(&mMin, p); XMStoreFloat3(&mMax, p); };
+		explicit AABB(XMVECTOR min, XMVECTOR max) { XMStoreFloat3(&mMin, min); XMStoreFloat3(&mMax, max); };
+		explicit AABB(XMFLOAT3 p) : mMin(p), mMax(p) {};
+		explicit AABB(XMFLOAT3 min, XMFLOAT3 max) : mMin(min), mMax(max) {};
+		explicit AABB(F32x3 min, F32x3 max) : mMin(XMConvert(min)), mMax(XMConvert(max)) {}
 		AABB(const AABB& aabb) = default;
 		AABB(AABB&& aabb) = default;
 		~AABB() = default;
@@ -109,6 +109,7 @@ namespace Cjing3D
 		bool Intersects(const AABB& other)const;
 		bool Intersects(const Ray& other, F32* t = nullptr)const;
 		bool Intersects(const F32x3& pos)const;
+		bool Intersects(const XMFLOAT3& pos)const;
 
 		inline XMVECTOR corner(int index) const
 		{

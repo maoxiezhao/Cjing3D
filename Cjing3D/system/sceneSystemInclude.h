@@ -14,6 +14,7 @@
 #include "system\component\animation.h"
 #include "system\component\weather.h"
 #include "system\component\sound.h"
+#include "system\component\particle.h"
 
 #include <map>
 #include <tuple>
@@ -36,7 +37,8 @@ namespace Cjing3D {
 		const ECS::ComponentManager<ArmatureComponent>*,
 		const ECS::ComponentManager<AnimationComponent>*,
 		const ECS::ComponentManager<WeatherComponent>*,
-		const ECS::ComponentManager<SoundComponent>*
+		const ECS::ComponentManager<SoundComponent>*,
+		const ECS::ComponentManager<ParticleComponent>*
 	>;
 
 	using ComponentManagerTypes = std::tuple<
@@ -54,7 +56,8 @@ namespace Cjing3D {
 		ECS::ComponentManager<ArmatureComponent>*,
 		ECS::ComponentManager<AnimationComponent>*,
 		ECS::ComponentManager<WeatherComponent>*,
-		ECS::ComponentManager<SoundComponent>*
+		ECS::ComponentManager<SoundComponent>*,
+		ECS::ComponentManager<ParticleComponent>*
 	>;
 
 }

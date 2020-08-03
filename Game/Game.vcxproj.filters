@@ -49,16 +49,10 @@
     <ClCompile Include="game\game.cpp">
       <Filter>game</Filter>
     </ClCompile>
-    <ClCompile Include="game\levelEditor.cpp">
-      <Filter>game</Filter>
-    </ClCompile>
     <ClCompile Include="scripts\gameLuaContext.cpp">
       <Filter>scripts</Filter>
     </ClCompile>
     <ClCompile Include="game\gameObject.cpp">
-      <Filter>game</Filter>
-    </ClCompile>
-    <ClCompile Include="game\levelEditorGUI.cpp">
       <Filter>game</Filter>
     </ClCompile>
     <ClCompile Include="game\map\gameMap.cpp">
@@ -81,6 +75,18 @@
     </ClCompile>
     <ClCompile Include="definitions\gameVersion.cpp">
       <Filter>definitions</Filter>
+    </ClCompile>
+    <ClCompile Include="game\levelEditor\levelEditor.cpp">
+      <Filter>game\levelEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="game\levelEditor\levelEditorGUI.cpp">
+      <Filter>game\levelEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="game\map\mapTileset.cpp">
+      <Filter>game\map</Filter>
+    </ClCompile>
+    <ClCompile Include="game\map\gameMapRenderer.cpp">
+      <Filter>game\map</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -110,6 +116,9 @@
     </Filter>
     <Filter Include="game\map\wall">
       <UniqueIdentifier>{decb22f3-7f93-4432-84f9-a0e845c91ca2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\levelEditor">
+      <UniqueIdentifier>{883a4e7e-baf7-4c5e-b576-e98742eb6950}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -167,9 +176,6 @@
     <ClInclude Include="game\gameObject.h">
       <Filter>game</Filter>
     </ClInclude>
-    <ClInclude Include="game\levelEditor.h">
-      <Filter>game</Filter>
-    </ClInclude>
     <ClInclude Include="scripts\gameLuaContext.h">
       <Filter>scripts</Filter>
     </ClInclude>
@@ -207,6 +213,12 @@
       <Filter>game</Filter>
     </ClInclude>
     <ClInclude Include="game\map\mapTileset.h">
+      <Filter>game\map</Filter>
+    </ClInclude>
+    <ClInclude Include="game\levelEditor\levelEditor.h">
+      <Filter>game\levelEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="game\map\gameMapRenderer.h">
       <Filter>game\map</Filter>
     </ClInclude>
   </ItemGroup>

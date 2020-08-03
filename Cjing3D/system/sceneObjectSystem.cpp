@@ -2,7 +2,7 @@
 
 namespace Cjing3D
 {
-	void UpdateSceneObjectSystem(Scene& scene)
+	void SceneSystem::UpdateSceneObjectSystem(Scene& scene)
 	{
 		ECS::ComponentManager<ObjectComponent>& objects = scene.mObjects;
 		ECS::ComponentManager<AABBComponent>& objectAABBs = scene.mObjectAABBs;
@@ -33,15 +33,21 @@ namespace Cjing3D
 				const auto transform = transforms[transformIndex];
 				if (mesh != nullptr)
 				{
-					XMFLOAT4X4 worldMatrix = transform->GetWorldTransform();
-					auto meshAABB = mesh->mAABB.GetByTransforming(worldMatrix);
-					if (mesh->IsSkinned())
-					{
-						meshAABB = AABB::Union(meshAABB, mesh->mAABB);
-					}
-
 					AABB& aabb = aabbComponent->GetAABB();
-					aabb.CopyFromOther(meshAABB);
+					if (!mesh->IsEmpty())
+					{
+						XMFLOAT4X4 worldMatrix = transform->GetWorldTransform();
+						auto meshAABB = mesh->mAABB.GetByTransforming(worldMatrix);
+						if (mesh->IsSkinned())
+						{
+							meshAABB = AABB::Union(meshAABB, mesh->mAABB);
+						}
+						aabb.CopyFromOther(meshAABB);
+					}
+					else
+					{
+						aabb.CopyFromOther(AABB());
+					}
 
 					XMFLOAT4X4 boxMatrix;
 					XMStoreFloat4x4(&boxMatrix, aabb.GetBoxMatrix());

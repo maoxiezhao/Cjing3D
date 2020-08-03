@@ -16,13 +16,16 @@ namespace CjingGame
 		I32 y = 0;
 		I32 z = 0;
 
+		I32 GetLocalPosX()const;
+		I32 GetLocalPosY()const;
+		I32 GetLocalPosZ()const;
 		static MapPartPosition TransformFromLocalPos(const I32x3& localPos);
 	};
 
 	class GameMapPart : public JsonSerializer
 	{
 	public:
-		GameMapPart(GameMap& gameMap);
+		GameMapPart(GameMap& gameMap, const MapPartPosition& position);
 		~GameMapPart();
 
 		void Initialize();
@@ -42,6 +45,7 @@ namespace CjingGame
 
 	private:
 		GameMap& mGameMap;
+		MapPartPosition mPartPosition;
 		bool mIsVisible = true;
 
 		std::unique_ptr<GameMapGrounds> mGameMapGrounds = nullptr;
@@ -68,14 +72,16 @@ namespace CjingGame
 		// map parts
 		void LoadMapParts(const MapPartPosition& defaultPartPos);
 		void LoadMapPart(const MapPartPosition& mapPartPos);
-		void RefreshMapParts(const MapPartPosition& localPos);
-		void SetMapPartByPartPos(const MapPartPosition& pos, GameMapPartPtr mapPart);
+		void RefreshMapParts(const MapPartPosition& partPos);
+		void SetMapPartByPartPos(const MapPartPosition& partPos, GameMapPartPtr mapPart);
 		void ClearAllMapParts();
 		U32 GetMapPartIndexByPartPos(const MapPartPosition& localPos)const;
 		U32 GetMapPartSize()const;
+		std::vector<GameMapPartPtr> GetMapPartsByRay(const Ray& ray)const;
 
-		GameMapPart* GetCurrentMapPartByGlobalPos(const F32x3& globalPos);
-		GameMapPart* GetCurrentMapPartByLocalPos(const I32x3& localPos);
+		MapPartPosition GetMapPartPosition(const I32x3& localPos);
+		GameMapPart* GetMapPartByGlobalPos(const F32x3& globalPos);
+		GameMapPart* GetMapPartByLocalPos(const I32x3& localPos);
 
 		// getter
 		I32 GetMapWidth()const { return mMapWidth; }
@@ -91,7 +97,6 @@ namespace CjingGame
 		// ground
 		void AddGround(const I32x3& pos, U32 tileIndex);
 		void RemoveGround(const I32x3& pos);
-		GameMapGrounds* GetGameMapGround();
 
 		// serialize methods
 		void LoadMapFromMapID(U32 mapID);

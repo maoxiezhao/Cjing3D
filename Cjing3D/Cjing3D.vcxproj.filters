@@ -698,6 +698,12 @@
     <ClCompile Include="common\version.cpp">
       <Filter>common</Filter>
     </ClCompile>
+    <ClCompile Include="system\component\particle.cpp">
+      <Filter>system\component</Filter>
+    </ClCompile>
+    <ClCompile Include="system\systems\sceneParticleSystem.cpp">
+      <Filter>system\systems</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -1382,6 +1388,9 @@
     </ClInclude>
     <ClInclude Include="utils\singleton.h">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="system\component\particle.h">
+      <Filter>system\component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

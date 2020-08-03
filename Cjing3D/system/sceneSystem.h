@@ -49,6 +49,7 @@ namespace Cjing3D {
 		void DetachEntity(ECS::Entity entity);
 		void DetachEntityChildren(ECS::Entity entity);
 		ECS::Entity DuplicateEntity(ECS::Entity entity);
+		void SetEntityLayerMask(ECS::Entity entity, U32 layerMask);
 
 		struct PickResult
 		{
@@ -57,9 +58,9 @@ namespace Cjing3D {
 			F32x3 position = F32x3(0.0f, 0.0f, 0.0f);
 			F32x2 bary = F32x2(0.0f, 0.0f);
 		};
-		PickResult MousePickObjects(const U32x2& mousePos, const U32 layerMask = LayerComponent::DefaultLayerMask);
-		PickResult PickObjects(const Ray& ray, const U32 layerMask = LayerComponent::DefaultLayerMask);
-		PickResult PickObjects(const Ray& ray, const std::vector<ECS::Entity>& objects, bool triangleIntersect = true, const U32 layerMask = LayerComponent::DefaultLayerMask);
+		PickResult MousePickObjects(const U32x2& mousePos, const U32 layerMask = LayerComponent::DefaultLayerMask, bool triangleIntersect = true);
+		PickResult PickObjects(const Ray& ray, const U32 layerMask = LayerComponent::DefaultLayerMask, bool triangleIntersect = true);
+		PickResult PickObjects(const std::vector<ECS::Entity>& objects, const Ray& ray, const U32 layerMask = LayerComponent::DefaultLayerMask, bool triangleIntersect = true);
 		PickResult PickObjectsByBullet(const Ray& ray, const U32 layerMask = LayerComponent::DefaultLayerMask);
 
 		template<typename ComponentT>
@@ -124,6 +125,7 @@ namespace Cjing3D {
 		ECS::ComponentManager<AnimationComponent> mAnimations;
 		ECS::ComponentManager<WeatherComponent> mWeathers;
 		ECS::ComponentManager<SoundComponent> mSounds;
+		ECS::ComponentManager<ParticleComponent> mParticles;
 
 		AABB mSceneAABB;
 
@@ -139,7 +141,9 @@ namespace Cjing3D {
 
 	#include "system\sceneSystem.inl"
 
-	//  Scene System Update
+//  Scene System Update
+namespace SceneSystem 
+{
 	void UpdateHierarchySystem(Scene& scene);
 	void UpdateSceneTransformSystem(Scene& scene);
 	void UpdateSceneObjectSystem(Scene& scene);
@@ -148,5 +152,7 @@ namespace Cjing3D {
 	void UpdateSceneArmatureSystem(Scene& scene);
 	void UpdateSceneAnimationSystem(Scene& scene);
 	void UpdateSceneSoundSystem(Scene& scene);
+	void UpdateSceneParticleSystem(Scene& scene);
+}
 }
 	

@@ -5,6 +5,7 @@
 #include "system\sceneSystem.h"
 #include "gui\guiEditor\guiEditorInclude.h"
 #include "scripts\gameLuaContext.h"
+#include "game\map\gameMapRenderer.h"
 
 using namespace Cjing3D;
 
@@ -35,6 +36,9 @@ namespace CjingGame
 		auto& guiStage = GlobalGetSubSystem<GUIStage>();
 		Editor::InitializeEditor(guiStage.GetImGUIStage());
 #endif // _ENABLE_GAME_EDITOR_
+
+		// map renderer
+		GameMapRenderer::Initialize();
 
 		// initialize game luaContext
 		mGameLuaContext = std::make_unique<GameLuaContext>();
@@ -113,6 +117,9 @@ namespace CjingGame
 		mGameLuaContext->Uninitialize();
 		mEditorPlane.RemoveFromScene();
 
+		// map renderer
+		GameMapRenderer::Uninitialize();
+
 		Scene::GetScene().Clear();
 	}
 
@@ -121,6 +128,9 @@ namespace CjingGame
 		if (mCurrentMap != nullptr) {
 			mCurrentMap->PreRender();
 		}
+
+		// map renderer
+		GameMapRenderer::PreRender();
 	}
 
 	void LevelEditor::SetDebugGridVisible(bool visible)
@@ -202,18 +212,12 @@ namespace CjingGame
 
 	void LevelEditor::UpdateEditorGround()
 	{
-		auto& inputManager = GlobalGetSubSystem<InputManager>();
-		Scene& scene = Scene::GetScene();
-
-		// pick result
-		I32x2 mousePos = inputManager.GetMousePos();
-		mPickResult = scene.MousePickObjects({ (U32)mousePos[0], (U32)mousePos[1] }, GameObjectLayerMask_Ground);
-		mPickResult.position[1] += 0.5f; // adjust
-
+		UpdateRaycast(GameObjectLayerMask_Ground);
 		if (mPickResult.entity == INVALID_ENTITY) {
 			return;
 		}
 
+		auto& inputManager = GlobalGetSubSystem<InputManager>();
 		if (inputManager.IsKeyDown(KeyCode::Click_Left))
 		{
 			if (ImGui::IsAnyWindowFocused()) {
@@ -236,14 +240,37 @@ namespace CjingGame
 
 	void LevelEditor::UpdateEditorWall()
 	{
-		auto& inputManager = GlobalGetSubSystem<InputManager>();
-		Scene& scene = Scene::GetScene();
-		I32x2 mousePos = inputManager.GetMousePos();
-		mPickResult = scene.MousePickObjects({ (U32)mousePos[0], (U32)mousePos[1] }, GameObjectLayerMask_Wall);
+		UpdateRaycast(GameObjectLayerMask_Wall);
+		if (mPickResult.entity == INVALID_ENTITY) {
+			return;
+		}
 
+		auto& inputManager = GlobalGetSubSystem<InputManager>();
 		if (inputManager.IsKeyDown(KeyCode::Click_Left))
 		{
 			Logger::Info(std::to_string(mPickResult.entity));
 		}
+	}
+
+	void LevelEditor::UpdateRaycast(const GameObjectLayerMask mask)
+	{
+		Scene& scene = Scene::GetScene();
+		auto& inputManager = GlobalGetSubSystem<InputManager>();
+		I32x2 mousePos = inputManager.GetMousePos();
+		Ray cameraRay = Renderer::GetMainCameraMouseRay({ (U32)mousePos[0], (U32)mousePos[1] });
+
+		// 先检测current editor plane
+		std::vector<ECS::Entity> pickedObjects;
+		pickedObjects.push_back(mEditorPlane.GetEntity());
+		Scene::PickResult planeResult = scene.PickObjects(pickedObjects, cameraRay);
+
+		// 获取相机射线所穿过的所有mapParts
+		auto mapParts = mCurrentMap->GetMapPartsByRay(cameraRay);
+		for (auto mapPart : mapParts)
+		{
+
+		}
+
+		mPickResult = planeResult;
 	}
 }

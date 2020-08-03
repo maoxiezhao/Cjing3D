@@ -81,7 +81,7 @@ namespace Cjing3D {
 		}
 	}
 
-	void UpdateSceneAnimationSystem(Scene& scene)
+	void SceneSystem::UpdateSceneAnimationSystem(Scene& scene)
 	{
 		SystemContext& systemContext = SystemContext::GetSystemContext();
 		F32 deltaTime = systemContext.GetDelatTime();
@@ -143,7 +143,7 @@ namespace Cjing3D {
 		}
 	}
 
-	void UpdateSceneArmatureSystem(Scene& scene)
+	void SceneSystem::UpdateSceneArmatureSystem(Scene& scene)
 	{
 		ECS::ComponentManager<ArmatureComponent>& armatures = scene.mArmatures;
 		ECS::ComponentManager<TransformComponent>& transforms = scene.mTransforms;

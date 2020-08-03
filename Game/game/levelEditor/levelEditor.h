@@ -61,6 +61,7 @@ namespace CjingGame
 		// mode update functions
 		void UpdateEditorGround();
 		void UpdateEditorWall();
+		void UpdateRaycast(const GameObjectLayerMask mask);
 
 	private:
 		std::unique_ptr<GameLuaContext> mGameLuaContext = nullptr;

@@ -30,6 +30,7 @@ namespace Cjing3D
 		ECS::ComponentManager<ArmatureComponent>::Initialize();
 		ECS::ComponentManager<AnimationComponent>::Initialize();
 		ECS::ComponentManager<WeatherComponent>::Initialize();
+		ECS::ComponentManager<ParticleComponent>::Initialize();
 	}
 
 	void Scene::Uninitialize()
@@ -47,18 +48,20 @@ namespace Cjing3D
 		ECS::ComponentManager<ArmatureComponent>::Uninitilize();
 		ECS::ComponentManager<AnimationComponent>::Uninitilize();
 		ECS::ComponentManager<WeatherComponent>::Uninitilize();
+		ECS::ComponentManager<ParticleComponent>::Uninitilize();
 	}
 
 	void Scene::Update(F32 deltaTime)
 	{
-		UpdateSceneAnimationSystem(*this);
-		UpdateSceneTransformSystem(*this);
-		UpdateHierarchySystem(*this);     // must update after transform
-		UpdateSceneArmatureSystem(*this);
-		UpdateSceneLightSystem(*this);
-		UpdateSceneObjectSystem(*this);
-		UpdateSceneTerrainSystem(*this);
-		UpdateSceneSoundSystem(*this);
+		SceneSystem::UpdateSceneAnimationSystem(*this);
+		SceneSystem::UpdateSceneTransformSystem(*this);
+		SceneSystem::UpdateHierarchySystem(*this);     // must update after transform
+		SceneSystem::UpdateSceneArmatureSystem(*this);
+		SceneSystem::UpdateSceneLightSystem(*this);
+		SceneSystem::UpdateSceneObjectSystem(*this);
+		SceneSystem::UpdateSceneTerrainSystem(*this);
+		SceneSystem::UpdateSceneSoundSystem(*this);
+		SceneSystem::UpdateSceneParticleSystem(*this);
 	}
 
 	void Scene::Merge(Scene & scene)
@@ -454,18 +457,24 @@ namespace Cjing3D
 		return newEntity;
 	}
 
-	Scene::PickResult Scene::MousePickObjects(const U32x2& mousePos, const U32 layerMask)
+	void Scene::SetEntityLayerMask(ECS::Entity entity, U32 layerMask)
 	{
-		return PickObjects(Renderer::GetMainCameraMouseRay(mousePos), layerMask);
+		auto layer = mLayers.GetOrCreateComponent(entity);
+		layer->SetLayerMask(layerMask);
 	}
 
-	Scene::PickResult Scene::PickObjects(const Ray& ray, const U32 layerMask)
+	Scene::PickResult Scene::MousePickObjects(const U32x2& mousePos, const U32 layerMask, bool triangleIntersect)
+	{
+		return PickObjects(Renderer::GetMainCameraMouseRay(mousePos), layerMask, triangleIntersect);
+	}
+
+	Scene::PickResult Scene::PickObjects(const Ray& ray, const U32 layerMask, bool triangleIntersect)
 	{
 		auto& objects = mObjects.GetEntities();
-		return PickObjects(ray, objects, true, layerMask);
+		return PickObjects(objects, ray, layerMask, triangleIntersect);
 	}
 
-	Scene::PickResult Scene::PickObjects(const Ray& ray, const std::vector<ECS::Entity>& objects, bool triangleIntersect, const U32 layerMask)
+	Scene::PickResult Scene::PickObjects(const std::vector<ECS::Entity>& objects, const Ray& ray, const U32 layerMask, bool triangleIntersect)
 	{
 		PickResult ret;
 		if (mObjects.Empty()) {
@@ -478,6 +487,16 @@ namespace Cjing3D
 		PROFILER_BEGIN_CPU_BLOCK("CPU_RAY_PICKING");
 		for (const auto& entity : objects)
 		{
+			const ObjectComponent* object = mObjects.GetComponent(entity);
+			if (object == nullptr || object->mMeshID == INVALID_ENTITY) {
+				continue;
+			}
+
+			const LayerComponent* layer = mLayers.GetComponent(entity);
+			if (layer != nullptr && (layer->GetLayerMask() & layerMask) == 0) {
+				continue;
+			}
+
 			const AABBComponent* aabbComponent = mObjectAABBs.GetComponent(entity);
 			if (aabbComponent == nullptr) {
 				continue;
@@ -489,18 +508,6 @@ namespace Cjing3D
 				continue;
 			}
 
-			const ObjectComponent* object = mObjects.GetComponent(entity);
-			if (object == nullptr || object->mMeshID == INVALID_ENTITY) {
-				continue;
-			}
-
-			const LayerComponent* layer = mLayers.GetComponent(entity);
-			if (layer != nullptr && (layer->GetLayerMask() & layerMask) == 0) {
-				continue;
-			}
-
-			// extra conditions checking
-
 			if (!triangleIntersect)
 			{
 				// 如果不遍历mesh，则直接处理和AABB的相交点
@@ -509,7 +516,6 @@ namespace Cjing3D
 				F32 distance = XMDistance(originV, hitPos);
 				if (distance < ret.distance)
 				{
-					ret.entity = entity;
 					ret.distance = distance;
 					ret.entity = entity;
 					ret.position = XMStore<F32x3>(hitPos);
@@ -595,7 +601,8 @@ namespace Cjing3D
 			&mArmatures,
 			&mAnimations,
 			&mWeathers,
-			&mSounds
+			&mSounds,
+			&mParticles
 		);
 		return t;
 	}
@@ -617,7 +624,8 @@ namespace Cjing3D
 			&mArmatures,
 			&mAnimations,
 			&mWeathers,
-			&mSounds
+			&mSounds,
+			&mParticles
 		);
 		return t;
 	}
@@ -693,7 +701,7 @@ namespace Cjing3D
 		}
 	}
 
-	void UpdateHierarchySystem(Scene& scene)
+	void SceneSystem::UpdateHierarchySystem(Scene& scene)
 	{
 		// UpdateFromParent必须保证parent比child先执行
 		// 所以mHierarchies中的排序必须保证parent在child前面

@@ -1,4 +1,4 @@
-#include "game\levelEditor.h"
+#include "game\levelEditor\levelEditor.h"
 #include "gui\guiEditor\guiEditorInclude.h"
 #include "platform\gameWindow.h"
 

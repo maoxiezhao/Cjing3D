@@ -315,6 +315,7 @@
     <ClInclude Include="system\component\material.h" />
     <ClInclude Include="system\component\mesh.h" />
     <ClInclude Include="system\component\object.h" />
+    <ClInclude Include="system\component\particle.h" />
     <ClInclude Include="system\component\sound.h" />
     <ClInclude Include="system\component\terrain.h" />
     <ClInclude Include="system\component\transform.h" />
@@ -529,6 +530,7 @@
     <ClCompile Include="system\component\material.cpp" />
     <ClCompile Include="system\component\mesh.cpp" />
     <ClCompile Include="system\component\object.cpp" />
+    <ClCompile Include="system\component\particle.cpp" />
     <ClCompile Include="system\component\sound.cpp" />
     <ClCompile Include="system\component\terrain.cpp" />
     <ClCompile Include="system\component\transform.cpp" />
@@ -539,6 +541,7 @@
     <ClCompile Include="system\sceneSystem.cpp" />
     <ClCompile Include="system\sceneTransformSystem.cpp" />
     <ClCompile Include="system\systems\sceneAnimationSystem.cpp" />
+    <ClCompile Include="system\systems\sceneParticleSystem.cpp" />
     <ClCompile Include="system\systems\sceneSoundSystem.cpp" />
     <ClCompile Include="system\systems\sceneTerrainSystem.cpp" />
     <ClCompile Include="utils\allocator\tlsfAllocator.cpp" />

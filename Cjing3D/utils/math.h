@@ -137,6 +137,14 @@ namespace Cjing3D {
 		return dst;
 	}
 
+	inline const F32x2 XM_CALLCONV XMConvert(const XMFLOAT2& src) {
+		return XMStore<F32x2>(XMLoadFloat2(&src));
+	}
+
+	inline const F32x3 XM_CALLCONV XMConvert(const XMFLOAT3& src) {
+		return XMStore<F32x3>(XMLoadFloat3(&src));
+	}
+
 	// SDBM Hash
 	inline unsigned int SDBMHash(unsigned int hash, unsigned char c)
 	{

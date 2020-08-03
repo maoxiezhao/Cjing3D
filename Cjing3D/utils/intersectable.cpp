@@ -149,14 +149,14 @@ namespace Cjing3D
 		F32 ty2 = (mMax.y - other.mOrigin.y) * other.mInvDirection.y;
 		// 找到最大的最小变和最小的最大边
 		minValue = std::max(minValue, std::min(ty1, ty2));
-		maxValue = std::max(maxValue, std::max(ty1, ty2));
+		maxValue = std::min(maxValue, std::max(ty1, ty2));
 
 		// z axis
 		F32 tz1 = (mMin.z - other.mOrigin.z) * other.mInvDirection.z;
 		F32 tz2 = (mMax.z - other.mOrigin.z) * other.mInvDirection.z;
 		// 找到最大的最小变和最小的最大边
 		minValue = std::max(minValue, std::min(tz1, tz2));
-		maxValue = std::max(maxValue, std::max(tz1, tz2));
+		maxValue = std::min(maxValue, std::max(tz1, tz2));
 
 		bool isIntersected = maxValue >= minValue;
 		if (isIntersected && t != nullptr) {
@@ -171,6 +171,14 @@ namespace Cjing3D
 		if (pos.x() < mMin.x || pos.x() > mMax.x) return false;
 		if (pos.y() < mMin.y || pos.y() > mMax.y) return false;
 		if (pos.z() < mMin.z || pos.z() > mMax.z) return false;
+		return true;
+	}
+
+	bool AABB::Intersects(const XMFLOAT3& pos) const
+	{
+		if (pos.x < mMin.x || pos.x > mMax.x) return false;
+		if (pos.y < mMin.y || pos.y > mMax.y) return false;
+		if (pos.z < mMin.z || pos.z > mMax.z) return false;
 		return true;
 	}
 

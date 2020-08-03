@@ -3,7 +3,7 @@
 
 namespace Cjing3D
 {
-	void UpdateSceneLightSystem(Scene& scene)
+	void SceneSystem::UpdateSceneLightSystem(Scene& scene)
 	{
 		CameraComponent& camera = Renderer::GetCamera();
 

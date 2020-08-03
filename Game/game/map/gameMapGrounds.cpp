@@ -19,8 +19,7 @@ namespace CjingGame
 
 	void GameMapGrounds::Initialize()
 	{
-		mGroundRenderer.Initialize();
-		mGroundRenderer.SetCurrentTileset(&mGameMap.GetMapTileset().mGroundTileset);
+		mInstance = GameMapGroundRenderer::CreateStaticInst();
 	}
 
 	void GameMapGrounds::FixedUpdate()
@@ -34,7 +33,10 @@ namespace CjingGame
 		}
 		mAllDynamicGrounds.clear();
 		mAllStaticGrounds.clear();
-		mGroundRenderer.Uninitilize();
+
+		if (mInstance != nullptr) {
+			GameMapGroundRenderer::RemoveStaticInst(mInstance);
+		}
 	}
 
 	void GameMapGrounds::PreRender()
@@ -42,10 +44,8 @@ namespace CjingGame
 		if (mIsGroundsDirty)
 		{
 			mIsGroundsDirty = false;
-			mGroundRenderer.GenerateMesh(mAllStaticGrounds);
+			GameMapGroundRenderer::GenerateMesh(mInstance->mMeshEntity, mAllStaticGrounds);
 		}
-
-		mGroundRenderer.BindPreRender();
 	}
 
 	void GameMapGrounds::AddGround(const I32x3& pos, U32 tileIndex)

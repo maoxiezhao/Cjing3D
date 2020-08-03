@@ -3,7 +3,7 @@
 
 namespace Cjing3D
 {
-	void UpdateSceneTerrainSystem(Scene& scene)
+	void SceneSystem::UpdateSceneTerrainSystem(Scene& scene)
 	{
 		ECS::ComponentManager<TerrainComponent >& terrains = scene.mTerrains;
 		ECS::ComponentManager<TransformComponent>& transforms = scene.mTransforms;

@@ -34,6 +34,7 @@ namespace CjingGame
 		Scene* GetScene();
 		TransformComponent* GetTransform();
 		ObjectComponent* GetObjectComponent();
+		ECS::Entity GetEntity()const { return mObjectEntity; }
 
 	private:
 		Cjing3D::ECS::Entity mObjectEntity = Cjing3D::ECS::INVALID_ENTITY;

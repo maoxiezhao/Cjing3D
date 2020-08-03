@@ -3,6 +3,10 @@
 
 namespace CjingGame
 {
+	namespace {
+		GPUBuffer mGroundTilesetBuffer;
+	}
+
 	GameMapGroundTileset::GameMapGroundTileset()
 	{
 	}
