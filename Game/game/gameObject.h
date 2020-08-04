@@ -26,6 +26,7 @@ namespace CjingGame
 		void SetRotation(const F32x3& rotation);
 		void SetScale(const F32x3& scale);
 		void SetVisible(bool visible);
+		void SetRenderType(RenderableType type);
 
 		void SetMeshFromModel(const std::string& path);
 		void SetMesh(const ECS::Entity& meshEntity);

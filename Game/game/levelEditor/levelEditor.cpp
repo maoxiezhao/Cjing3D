@@ -14,9 +14,13 @@ namespace CjingGame
 	namespace {
 		F32x3 mGridOffset = F32x3(0.0f, 0.0f, 0.0f);
 		Scene::PickResult mPickResult;
+		I32x3 mPrevMousePos = I32x3(-1, -1, -1);
+		GameMapGround* mPickedMapGround = nullptr;
 	}
 
-	LevelEditor::LevelEditor()
+	LevelEditor::LevelEditor() :
+		mEditorPlane("EditorPlane"),
+		mEditorCursor(I32x3(0, 0, 0))
 	{
 	}
 
@@ -44,10 +48,19 @@ namespace CjingGame
 		mGameLuaContext = std::make_unique<GameLuaContext>();
 		mGameLuaContext->Initialize();
 
+		// do lua script
 		GlobalGetSubSystem<LuaContext>().ChangeLuaScene("LevelEditor");
 
+		// init cursor and editor plane
+		mEditorCursor.LoadFromScene(Scene::GetScene());
+		mEditorCursor.LoadCursor("Models/Editor/cursor.obj");
+
+		mEditorPlane.LoadFromScene(Scene::GetScene());
+		mEditorPlane.SetMeshFromModel("Models/planeNormalize.obj");
+
+		// init default map
 		F32 cellSize = (F32)GameContext::MapCellSize;
-		InitializeEditorMap("", cellSize, 8, 8, 4);
+		InitializeEditorMap("", cellSize, 48, 8, 4);
 		InitializeEditorGUI(guiStage.GetImGUIStage());
 	}
 
@@ -71,6 +84,9 @@ namespace CjingGame
 		}
 #endif // _ENABLE_GAME_EDITOR_
 
+		// update cursor 
+		UpdateCursor();
+
 		// update editor mode
 		if (mCurrentMap != nullptr) 
 		{
@@ -88,6 +104,9 @@ namespace CjingGame
 
 			mCurrentMap->FixedUpdate();
 		}
+
+		// update editor camera
+		UpdateCamera();
 
 		// update editor layer
 		if (inputManager.IsKeyDown(KeyCode::Q))
@@ -116,6 +135,7 @@ namespace CjingGame
 
 		mGameLuaContext->Uninitialize();
 		mEditorPlane.RemoveFromScene();
+		mEditorCursor.RemoveFromScene();
 
 		// map renderer
 		GameMapRenderer::Uninitialize();
@@ -187,7 +207,26 @@ namespace CjingGame
 		}
 
 		mCurrentMap = std::make_unique<GameMap>(mapPath);
-		mCurrentMap->LoadMapParts({ 0, 0, 0 });
+		mCurrentMap->LoadMapParts(mEditorCursor.GetMapPartPos());
+	}
+
+	void LevelEditor::UpdateCursor()
+	{
+
+
+
+		if (mCurrentMap != nullptr) {
+			mCurrentMap->SetCurrentPartPos(mEditorCursor.GetMapPartPos());
+		}
+	}
+
+	void LevelEditor::UpdateCamera()
+	{
+		if (mCameraMode != CameraMode_TraceCursor) {
+			return;
+		}
+
+
 	}
 
 	void LevelEditor::InitializeEditorMap(const std::string& mapName, F32 cellSize, I32 width, I32 height, I32 layer)
@@ -198,14 +237,12 @@ namespace CjingGame
 			height / 2 * cellSize
 		};
 
-		mEditorPlane.LoadFromScene(Scene::GetScene());
-		mEditorPlane.SetMeshFromModel("Models/planeNormalize.obj");
 		mEditorPlane.SetScale({ (F32)width, 1.0f, (F32)height });
 		mEditorPlane.SetPosition(mGridOffset);
 		mEditorPlane.SetVisible(false);
 
 		mCurrentMap = std::make_unique<GameMap>(width, height, layer, mapName);
-		mCurrentMap->LoadMapParts({0, 0, 0});
+		mCurrentMap->LoadMapParts(mEditorCursor.GetMapPartPos());
 
 		SetDebugGridVisible(true);
 	}
@@ -218,23 +255,26 @@ namespace CjingGame
 		}
 
 		auto& inputManager = GlobalGetSubSystem<InputManager>();
-		if (inputManager.IsKeyDown(KeyCode::Click_Left))
-		{
-			if (ImGui::IsAnyWindowFocused()) {
-				return;
-			}
-
-			I32x3 localPos = mCurrentMap->TransformGlobalPosToLocal(mPickResult.position);
-			mCurrentMap->AddGround(localPos, mCurrentGroundTilesetIndex);
+		if (!inputManager.IsKeyDown(KeyCode::Click_Left) &&
+			!inputManager.IsKeyDown(KeyCode::Click_Right)) {
+			return;
 		}
-		else if (inputManager.IsKeyDown(KeyCode::Click_Right))
-		{
-			if (ImGui::IsAnyWindowFocused()) {
-				return;
-			}
 
-			I32x3 localPos = mCurrentMap->TransformGlobalPosToLocal(mPickResult.position);
-			mCurrentMap->RemoveGround(localPos);
+		if (ImGui::IsAnyWindowHovered()) {
+			return;
+		}
+
+		I32x3 localPos = mCurrentMap->TransformGlobalPosToLocal(mPickResult.position);
+		if (localPos != mPrevMousePos)
+		{
+			mPrevMousePos = localPos;
+
+			if (inputManager.IsKeyDown(KeyCode::Click_Left)) {
+				mCurrentMap->AddGround(localPos, mCurrentGroundTilesetIndex);
+			}
+			else {
+				mCurrentMap->RemoveGround(localPos);
+			}
 		}
 	}
 
@@ -265,12 +305,34 @@ namespace CjingGame
 		Scene::PickResult planeResult = scene.PickObjects(pickedObjects, cameraRay);
 
 		// 获取相机射线所穿过的所有mapParts
-		auto mapParts = mCurrentMap->GetMapPartsByRay(cameraRay);
-		for (auto mapPart : mapParts)
+		Scene::PickResult pickResult;
+		auto mapPartsPos = mCurrentMap->GetMapPartsPosByRay(cameraRay);
+		for (auto mapPartPos : mapPartsPos)
 		{
-
+			auto mapPart = mCurrentMap->GetMapPartByLocalPartPos(mapPartPos);
+			if (mapPart != nullptr)
+			{
+				switch (mask)
+				{
+				case GameObjectLayerMask_Ground:
+					mPickedMapGround = mapPart->RaycastMapGround(cameraRay, pickResult);
+					break;
+				case GameObjectLayerMask_Wall:
+					break;
+				default:
+					break;
+				}
+			}
 		}
 
-		mPickResult = planeResult;
+		if (pickResult.entity == INVALID_ENTITY || 
+			pickResult.position.y() < planeResult.position.y())
+		{
+			pickResult = planeResult;
+			mPickedMapGround = nullptr;
+		}
+
+		mPickResult = pickResult;
 	}
+
 }

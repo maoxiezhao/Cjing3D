@@ -66,6 +66,13 @@ namespace Cjing3D {
 
 				material->SetIsDirty(true);
 			}
+
+			int blendType = static_cast<int>(material->GetBlendMode());
+			const char* items[] = { "BlendType_Opaque", "BlendType_Alpha", "BlendType_PreMultiplied" };
+			if (ImGui::Combo("BlendMode", &blendType, items, ARRAYSIZE(items)))
+			{
+				material->SetBlendMode(static_cast<BlendType>(blendType));
+			}
 		}
 
 	}

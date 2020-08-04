@@ -88,6 +88,12 @@
     <ClCompile Include="game\map\gameMapRenderer.cpp">
       <Filter>game\map</Filter>
     </ClCompile>
+    <ClCompile Include="game\map\gameMapObject.cpp">
+      <Filter>game\map</Filter>
+    </ClCompile>
+    <ClCompile Include="game\levelEditor\levelEditorUtils.cpp">
+      <Filter>game\levelEditor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="game">
@@ -220,6 +226,12 @@
     </ClInclude>
     <ClInclude Include="game\map\gameMapRenderer.h">
       <Filter>game\map</Filter>
+    </ClInclude>
+    <ClInclude Include="game\map\gameMapObject.h">
+      <Filter>game\map</Filter>
+    </ClInclude>
+    <ClInclude Include="game\levelEditor\levelEditorUtils.h">
+      <Filter>game\levelEditor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

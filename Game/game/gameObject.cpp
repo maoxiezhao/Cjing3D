@@ -6,7 +6,8 @@ namespace CjingGame
 	{
 	}
 
-	GameObject::GameObject(const Cjing3D::StringID& name)
+	GameObject::GameObject(const Cjing3D::StringID& name) :
+		mName(name)
 	{
 	}
 
@@ -71,6 +72,14 @@ namespace CjingGame
 		}
 	}
 
+	void GameObject::SetRenderType(RenderableType type)
+	{
+		auto object = GetObjectComponent();
+		if (object != nullptr) {
+			object->SetRenderableType(type);
+		}
+	}
+
 	void GameObject::SetMeshFromModel(const std::string& path)
 	{
 		auto object = GetObjectComponent();
@@ -86,8 +95,9 @@ namespace CjingGame
 
 		object->mMeshID = newScene.mMeshes.GetEntityByIndex(0);
 
-		newScene.mObjects.Clear();
-		newScene.mObjectAABBs.Clear();
+		for (const auto& entity : newScene.mObjects.GetEntities()) {
+			newScene.RemoveEntity(entity);
+		}
 		mScene->Merge(newScene);
 	}
 

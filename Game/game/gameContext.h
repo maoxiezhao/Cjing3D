@@ -15,7 +15,7 @@ namespace CjingGame
 		void Uninitialize();
 
 		// game map
-		static const I32 GameMapPartSize = 64;
+		static const I32 GameMapPartSize = 16;
 		static const I32 MapCellSize = 1;
 		static const I32 GameMapPartVisibleRange = 128;
 		static const I32 GameMapPartRange = 1;

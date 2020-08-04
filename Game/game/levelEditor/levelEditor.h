@@ -1,20 +1,11 @@
 #pragma once
 
-#include "core\gameComponent.h"
-#include "game\gameContext.h"
+#include "game\levelEditor\levelEditorUtils.h"
 #include "game\map\gameMap.h"
-#include "game\gameObject.h"
-#include "gui\guiStage.h"
 #include "scripts\gameLuaContext.h"
 
 namespace CjingGame
 {
-	enum EditorMode
-	{
-		EditorMode_Ground,
-		EditorMode_Wall,
-	};
-
 	class LevelEditor : public Cjing3D::GameComponent
 	{
 	public:
@@ -37,7 +28,7 @@ namespace CjingGame
 		void SetCurrentLayer(I32 layer) { mCurrentLayer = layer; }
 		I32x3 GetCurrentPickLocalPos()const;
 		GameMap* GetCurrentMap() { return mCurrentMap != nullptr ? mCurrentMap.get() : nullptr; }
-		
+
 		void NewMap(const std::string& mapName, I32 w, I32 h, I32 layer);
 		void SaveMap(const std::string& mapPath);
 		void LoadMap(const std::string& mapPath);
@@ -46,6 +37,11 @@ namespace CjingGame
 		GameObject mEditorPlane;
 		bool mIsDebugGridVisible = false;
 		I32 mCurrentLayer = 0;
+		EditorCursor mEditorCursor;
+
+		void UpdateCursor();
+		void UpdateCamera();
+		CameraMode mCameraMode = CameraMode_TraceCursor;
 
 		//////////////////////////////////////////////////////////////////////////////
 		// ground editor

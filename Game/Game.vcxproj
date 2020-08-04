@@ -153,11 +153,13 @@
     <ClCompile Include="game\gameObject.cpp" />
     <ClCompile Include="game\levelEditor\levelEditor.cpp" />
     <ClCompile Include="game\levelEditor\levelEditorGUI.cpp" />
+    <ClCompile Include="game\levelEditor\levelEditorUtils.cpp" />
     <ClCompile Include="game\map\gameMap.cpp" />
     <ClCompile Include="game\map\gameMapGround.cpp" />
     <ClCompile Include="game\map\gameMapGroundRenderer.cpp" />
     <ClCompile Include="game\map\gameMapGrounds.cpp" />
     <ClCompile Include="game\map\gameMapGroundTileset.cpp" />
+    <ClCompile Include="game\map\gameMapObject.cpp" />
     <ClCompile Include="game\map\gameMapRenderer.cpp" />
     <ClCompile Include="game\map\mapTileset.cpp" />
     <ClCompile Include="main\main.cpp" />
@@ -194,11 +196,13 @@
     <ClInclude Include="game\gameContext.h" />
     <ClInclude Include="game\gameObject.h" />
     <ClInclude Include="game\levelEditor\levelEditor.h" />
+    <ClInclude Include="game\levelEditor\levelEditorUtils.h" />
     <ClInclude Include="game\map\gameMap.h" />
     <ClInclude Include="game\map\gameMapGround.h" />
     <ClInclude Include="game\map\gameMapGroundRenderer.h" />
     <ClInclude Include="game\map\gameMapGrounds.h" />
     <ClInclude Include="game\map\gameMapGroundTileset.h" />
+    <ClInclude Include="game\map\gameMapObject.h" />
     <ClInclude Include="game\map\gameMapWallRenderer.h" />
     <ClInclude Include="game\map\gameMapRenderer.h" />
     <ClInclude Include="game\map\mapInclude.h" />

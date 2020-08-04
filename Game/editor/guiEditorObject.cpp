@@ -24,6 +24,16 @@ namespace Cjing3D {
 				return;
 			}
 
+			// object
+			{
+				int typeIndex = static_cast<int>(object->GetRenderableType());
+				const char* items[] = { "RenderableType_Opaque", "RenderableType_Transparent" };
+				if (ImGui::Combo("RenderType", &typeIndex, items, ARRAYSIZE(items)))
+				{
+					object->SetRenderableType(static_cast<RenderableType>(typeIndex));
+				}
+			}
+
 			// mesh 
 			auto mesh = scene.mMeshes.GetComponent(object->mMeshID);
 			if (mesh != nullptr)

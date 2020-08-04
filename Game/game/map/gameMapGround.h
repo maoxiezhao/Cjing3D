@@ -1,10 +1,11 @@
 #pragma once
 
 #include "mapInclude.h"
+#include "game\map\gameMapObject.h"
 
 namespace CjingGame
 {
-	class GameMapGround : public JsonSerializer
+	class GameMapGround : public GameMapObject
 	{ 
 	public:
 		GameMapGround();
@@ -23,6 +24,7 @@ namespace CjingGame
 		I32x3 mLocalPosition = I32x3(0, 0, 0);
 	};
 
+	// TODO
 	class GameMapDynamicGround : public GameObject
 	{
 	public:

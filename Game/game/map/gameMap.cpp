@@ -1,8 +1,88 @@
 #include "gameMap.h"
 #include "gameMapRenderer.h"
 
+#include <stack>
+
 namespace CjingGame
 {
+	I32 MapPartPosition::GetLocalPosX() const
+	{
+		return x * GameContext::GameMapPartSize;
+	}
+
+	I32 MapPartPosition::GetLocalPosY() const
+	{
+		return y * GameContext::GameMapPartSize;
+	}
+
+	I32 MapPartPosition::GetLocalPosZ() const
+	{
+		return z * GameContext::GameMapPartSize;
+	}
+
+	MapPartPosition MapPartPosition::operator+(I32 v) const
+	{
+		return MapPartPosition(
+			x + v,
+			y + v,
+			z + v
+		);
+	}
+
+	MapPartPosition MapPartPosition::operator-(I32 v) const
+	{
+		return MapPartPosition(
+			x - v,
+			y - v,
+			z - v
+		);
+	}
+
+	MapPartPosition MapPartPosition::operator+(const MapPartPosition& v) const
+	{
+		return MapPartPosition(
+			x + v.x,
+			y + v.y,
+			z + v.z
+		);
+	}
+
+	MapPartPosition MapPartPosition::operator-(const MapPartPosition& v) const
+	{
+		return MapPartPosition(
+			x - v.x,
+			y - v.y,
+			z - v.z
+		);
+	}
+
+	bool MapPartPosition::operator!=(const MapPartPosition& rhs) const
+	{
+		return x != rhs.x || y != rhs.y || z != rhs.z;
+	}
+
+	bool MapPartPosition::operator==(const MapPartPosition& rhs) const
+	{
+		return x == rhs.x && y == rhs.y && z == rhs.z;
+	}
+
+	MapPartPosition MapPartPosition::TransformFromLocalPos(const I32x3& localPos)
+	{
+		return MapPartPosition(
+			localPos[0] / GameContext::GameMapPartSize,
+			localPos[1] / GameContext::GameMapPartSize,
+			localPos[2] / GameContext::GameMapPartSize
+		);
+	}
+
+	MapPartPosition MapPartPosition::TransformFromLocalPos(const I32x3& localPos, const MapPartPosition& currentPartPos)
+	{
+		return MapPartPosition(
+			localPos[0] / GameContext::GameMapPartSize - currentPartPos.x,
+			localPos[1] / GameContext::GameMapPartSize - currentPartPos.y,
+			localPos[2] / GameContext::GameMapPartSize - currentPartPos.z
+		);
+	}
 
 	GameMapPart::GameMapPart(GameMap& gameMap, const MapPartPosition& position) :
 		mGameMap(gameMap),
@@ -41,6 +121,7 @@ namespace CjingGame
 		if (isVisible == mIsVisible) {
 			return;
 		}
+		mIsVisible = isVisible;
 
 	}
 
@@ -59,6 +140,11 @@ namespace CjingGame
 	GameMapGrounds* GameMapPart::GetGameMapGrounds()
 	{
 		return mGameMapGrounds.get();
+	}
+
+	GameMapGround* GameMapPart::RaycastMapGround(const Ray& ray, Scene::PickResult& pickResult)
+	{
+		return mGameMapGrounds->Raycast(ray, pickResult);
 	}
 
 	void GameMapPart::Serialize(JsonArchive& archive)
@@ -131,11 +217,19 @@ namespace CjingGame
 			return;
 		}
 
+		// update map parts
 		for (auto& mapPart : mGameMapParts)
 		{
 			if (mapPart != nullptr && mapPart->IsVisible()) {
 				mapPart->FixedUpdate();
 			}
+		}
+
+		// update moving map parts
+		if (mIsMapPartsDirty) 
+		{
+			mIsMapPartsDirty = false;
+			RefreshMapParts();
 		}
 	}
 
@@ -169,14 +263,15 @@ namespace CjingGame
 		ClearAllMapParts();
 
 		U32 mapPartSize = GetMapPartSize();
-		mGameMapParts.resize(mapPartSize * mapPartSize * mapPartSize, nullptr);
+		mGameMapParts.resize((size_t)mapPartSize * (size_t)mapPartSize * (size_t)mapPartSize, nullptr);
 
-		I32x3 totalPartCount = {
-			(mMapWidth - 1 + GameContext::GameMapPartSize) / GameContext::GameMapPartSize,
-			(mMapLayer - 1 + GameContext::GameMapPartSize) / GameContext::GameMapPartSize,
+		mTotalMapPartSize = {
+			(mMapWidth - 1  + GameContext::GameMapPartSize) / GameContext::GameMapPartSize,
+			(mMapLayer - 1  + GameContext::GameMapPartSize) / GameContext::GameMapPartSize,
 			(mMapHeight - 1 + GameContext::GameMapPartSize) / GameContext::GameMapPartSize,
 		};
 
+		// 根据当前位置加载范围内的MapParts
 		I32 range = GameContext::GameMapPartRange;
 		for (int y = -range; y <= range; y++)
 		{
@@ -184,34 +279,41 @@ namespace CjingGame
 			{
 				for (int x = -range; x <= range; x++)
 				{
-					MapPartPosition pos(
+					MapPartPosition globalPos(
 						x + defaultPartPos.x,
 						y + defaultPartPos.y,
 						z + defaultPartPos.z
 					);
-					if (pos.x < 0 || pos.x >= totalPartCount.x() ||
-						pos.y < 0 || pos.y >= totalPartCount.y() ||
-						pos.z < 0 || pos.z >= totalPartCount.z()) {
+					if (globalPos.x < 0 || globalPos.x >= mTotalMapPartSize.x() ||
+						globalPos.y < 0 || globalPos.y >= mTotalMapPartSize.y() ||
+						globalPos.z < 0 || globalPos.z >= mTotalMapPartSize.z()) {
 						continue;
 					}
-					LoadMapPart(pos);
+					LoadMapPart(globalPos, MapPartPosition(x, y, z));
 				}
 			}
 		}
 	}
 
-	void GameMap::LoadMapPart(const MapPartPosition& mapPartPos)
+	void GameMap::LoadMapPart(const MapPartPosition& globalPartPos, const MapPartPosition& localPartPos)
 	{
-		auto gameMapPart = LoadMapPart(mMapParentPath, mapPartPos);
+		auto gameMapPart = LoadMapPart(mMapParentPath, globalPartPos);
 		if (gameMapPart != nullptr) {
 			gameMapPart->SetVisible(true);
 		}
 
-		SetMapPartByPartPos(mapPartPos, gameMapPart);
+		SetMapPartByLocalPartPos(localPartPos, gameMapPart);
 	}
 
-	void GameMap::RefreshMapParts(const MapPartPosition& partPos)
+	void GameMap::RefreshMapParts()
 	{
+		if (mNewPartPos == mCurrentPartPos) {
+			return;
+		}
+
+
+
+		mCurrentPartPos = mNewPartPos;
 	}
 
 	I32x3 GameMap::TransformGlobalPosToLocal(const F32x3& pos) const
@@ -235,7 +337,7 @@ namespace CjingGame
 	GameMapPart* GameMap::GetMapPartByLocalPos(const I32x3& localPos)
 	{
 		MapPartPosition partPos = MapPartPosition::TransformFromLocalPos(localPos);
-		U32 index = GetMapPartIndexByPartPos(partPos);
+		U32 index = GetMapPartIndexByLocalPartPos(partPos);
 		if (index >= mGameMapParts.size()) {
 			return nullptr;
 		}
@@ -243,9 +345,39 @@ namespace CjingGame
 		return mGameMapParts[index].get();
 	}
 
-	void GameMap::SetMapPartByPartPos(const MapPartPosition& partPos, GameMapPartPtr mapPart)
+	GameMapPart* GameMap::GetMapPartByLocalPartPos(const MapPartPosition& pos)
 	{
-		U32 index = GetMapPartIndexByPartPos(partPos);
+		U32 index = GetMapPartIndexByLocalPartPos(pos);
+		if (index >= mGameMapParts.size()) {
+			return nullptr;
+		}
+
+		return mGameMapParts[index].get();
+	}
+
+	GameMapPart* GameMap::GetMapPartByGlobalPartPos(const MapPartPosition& pos)
+	{
+		U32 index = GetMapPartIndexByLocalPartPos(pos - mCurrentPartPos);
+		if (index >= mGameMapParts.size()) {
+			return nullptr;
+		}
+
+		return mGameMapParts[index].get();
+	}
+
+	MapPartPosition GameMap::TransformGlobalPartToLocal(const MapPartPosition& pos)const
+	{
+		return pos - mCurrentPartPos;
+	}
+
+	MapPartPosition GameMap::TransformLocalPartToGlobal(const MapPartPosition& pos)const
+	{
+		return pos + mCurrentPartPos;
+	}
+
+	void GameMap::SetMapPartByLocalPartPos(const MapPartPosition& partPos, GameMapPartPtr mapPart)
+	{
+		U32 index = GetMapPartIndexByLocalPartPos(partPos);
 		if (index >= mGameMapParts.size())
 		{
 			Debug::Warning("[SetMapPartByLocalPos] Invalid map part index.");
@@ -287,27 +419,174 @@ namespace CjingGame
 		}
 	}
 
-	U32 GameMap::GetMapPartIndexByPartPos(const MapPartPosition& localPos) const
+	AABB GameMap::GetMapPartsBoundingBox() const
 	{
-		U32 mapPartSize = GetMapPartSize();
-		return localPos.y * mapPartSize * mapPartSize + localPos.z * mapPartSize + localPos.x;
+		I32 range = GetMapPartRange();
+		MapPartPosition leftBottomPos = mCurrentPartPos - range;
+		MapPartPosition rightTopPos = mCurrentPartPos + range + 1;
+
+		F32x3 minPos = F32x3(
+			(F32)(leftBottomPos.GetLocalPosX() * GameContext::MapCellSize),
+			(F32)(leftBottomPos.GetLocalPosY() * GameContext::MapCellSize),
+			(F32)(leftBottomPos.GetLocalPosZ() * GameContext::MapCellSize)
+		);
+		F32x3 maxPos = F32x3(
+			(F32)(rightTopPos.GetLocalPosX() * GameContext::MapCellSize),
+			(F32)(rightTopPos.GetLocalPosY() * GameContext::MapCellSize),
+			(F32)(rightTopPos.GetLocalPosZ() * GameContext::MapCellSize)
+		);
+
+		return AABB(minPos, maxPos);
 	}
 
-	U32 GameMap::GetMapPartSize() const
+	U32 GameMap::GetMapPartIndexByLocalPartPos(const MapPartPosition& localPos) const
+	{
+		I32 range = GetMapPartRange();
+		U32 mapPartSize = GetMapPartSize();
+		return (localPos.y + range) * mapPartSize * mapPartSize +
+			   (localPos.z + range) * mapPartSize + 
+			   (localPos.x + range);
+	}
+
+	I32 GameMap::GetMapPartSize() const
 	{
 		return GameContext::GameMapPartRange * 2 + 1;
 	}
 
-	std::vector<GameMap::GameMapPartPtr> GameMap::GetMapPartsByRay(const Ray& ray) const
+	I32 GameMap::GetMapPartRange() const
 	{
-		I32x3 originLocalPos = TransformGlobalPosToLocal(XMConvert(ray.mOrigin));
-
-
-
-		return std::vector<GameMapPartPtr>();
+		return GameContext::GameMapPartRange;
 	}
 
-	MapPartPosition GameMap::GetMapPartPosition(const I32x3& localPos)
+	void GameMap::SetCurrentPartPos(const MapPartPosition& pos)
+	{
+		if (pos != mCurrentPartPos)
+		{
+			mNewPartPos = pos;
+			mIsMapPartsDirty = true;
+		}
+	}
+
+	std::vector<MapPartPosition> GameMap::GetMapPartsPosByRay(const Ray& ray)
+	{
+		I32x3 localOriginPos = TransformGlobalPosToLocal(XMConvert(ray.mOrigin));
+		MapPartPosition localOriginPartPos = GetLocalMapPartPosition(localOriginPos);
+
+		// 获取摄像穿过的所有part
+		// 如果相机在Parts里面则直接从射线起点part开始
+		// 反之则先获取到相机射线和Parts最近的交点part
+		std::vector<MapPartPosition> mapParts;
+		if (IsLocalMapPartLoaded(localOriginPartPos)) {
+			mapParts.push_back(localOriginPartPos);
+		}
+		else
+		{
+			AABB partsBoundingBox = GetMapPartsBoundingBox();
+			F32 t = 0.0f;
+			if (!ray.Intersects(partsBoundingBox, &t)) {
+				return mapParts;
+			}
+			else
+			{
+				XMVECTOR hitPos = XMLoadFloat3(&ray.mOrigin) + XMLoadFloat3(&ray.mDirection) * t;
+				I32x3 localPos = TransformGlobalPosToLocal(XMStore<F32x3>(hitPos));
+				mapParts.push_back(GetLocalMapPartPosition(localPos));
+			}
+		}
+
+		std::list <MapPartPosition> adjacents;
+		if (ray.mDirection.x > 0)
+			adjacents.push_back({ 1, 0, 0 });
+		else if (ray.mDirection.x < 0)
+			adjacents.push_back({ -1, 0, 0 });
+
+		if (ray.mDirection.y > 0)
+			adjacents.push_back({ 0, 1, 0 });
+		else if (ray.mDirection.y < 0)
+			adjacents.push_back({ 0, -1, 0 });
+
+		if (ray.mDirection.z > 0)
+			adjacents.push_back({ 0, 0, 1 });
+		else if (ray.mDirection.z < 0)
+			adjacents.push_back({ 0, 0, -1 });
+
+		std::stack<MapPartPosition> testParts;
+		testParts.push(mapParts.front());
+
+		// 通过相邻Part检测来减少AABB射线相交计算次数
+		while (!testParts.empty())
+		{
+			MapPartPosition partPos = testParts.top();
+			testParts.pop();
+
+			for (auto& adjacent : adjacents)
+			{
+				MapPartPosition localMapPart = partPos + adjacent;
+				if (!IsLocalMapPartLoaded(localMapPart)) {
+					continue;
+				}
+
+				MapPartPosition leftBottomPos = mCurrentPartPos + localMapPart;
+				MapPartPosition rightTopPos = mCurrentPartPos + localMapPart + 1;
+
+				F32x3 minPos = F32x3(
+					(F32)(leftBottomPos.GetLocalPosX() * GameContext::MapCellSize),
+					(F32)(leftBottomPos.GetLocalPosY() * GameContext::MapCellSize),
+					(F32)(leftBottomPos.GetLocalPosZ() * GameContext::MapCellSize)
+				);
+				F32x3 maxPos = F32x3(
+					(F32)(rightTopPos.GetLocalPosX() * GameContext::MapCellSize),
+					(F32)(rightTopPos.GetLocalPosY() * GameContext::MapCellSize),
+					(F32)(rightTopPos.GetLocalPosZ() * GameContext::MapCellSize)
+				);
+
+				if (ray.Intersects(AABB(minPos, maxPos)))
+				{
+					mapParts.push_back(localMapPart);
+					testParts.push(localMapPart);
+				}
+			}
+		}
+
+		return mapParts;
+	}
+
+	std::vector<GameMapPart*> GameMap::GetMapPartsByRay(const Ray& ray)
+	{
+		std::vector<GameMapPart*> ret;
+		for (const auto& partPos : GetMapPartsPosByRay(ray))
+		{
+			auto mapPart = GetMapPartByLocalPartPos(partPos);
+			if (mapPart != nullptr) {
+				ret.push_back(mapPart);
+			}
+		}
+		return ret;
+	}
+
+	bool GameMap::IsLocalMapPartValid(const MapPartPosition& pos) const
+	{
+		auto globalPos = mCurrentPartPos + pos;
+		return (globalPos.x >= 0 && globalPos.x < mTotalMapPartSize.x() &&
+				globalPos.y >= 0 && globalPos.y < mTotalMapPartSize.y() &&
+				globalPos.z >= 0 && globalPos.z < mTotalMapPartSize.z());
+	}
+
+	bool GameMap::IsLocalMapPartLoaded(const MapPartPosition& pos) const
+	{
+		I32 range = GetMapPartRange();
+		return  IsLocalMapPartValid(pos) &&
+				(pos.x >= -range && pos.x <= range) &&
+				(pos.y >= -range && pos.y <= range) &&
+				(pos.z >= -range && pos.z <= range);
+	}
+
+	MapPartPosition GameMap::GetLocalMapPartPosition(const I32x3& localPos)const
+	{
+		return MapPartPosition::TransformFromLocalPos(localPos, mCurrentPartPos);
+	}
+
+	MapPartPosition GameMap::GetGlobalMapPartPosition(const I32x3& localPos)const
 	{
 		return MapPartPosition::TransformFromLocalPos(localPos);
 	}
@@ -404,29 +683,5 @@ namespace CjingGame
 		const std::string mapInfoPath = FileData::CombinePath(parentPath, partName);
 		JsonArchive archive(mapInfoPath, ArchiveMode::ArchiveMode_Write);
 		part.Unserialize(archive);
-	}
-
-	I32 MapPartPosition::GetLocalPosX() const
-	{
-		return x * GameContext::GameMapPartSize;
-	}
-
-	I32 MapPartPosition::GetLocalPosY() const
-	{
-		return y * GameContext::GameMapPartSize;
-	}
-
-	I32 MapPartPosition::GetLocalPosZ() const
-	{
-		return z * GameContext::GameMapPartSize;
-	}
-
-	MapPartPosition MapPartPosition::TransformFromLocalPos(const I32x3& localPos)
-	{
-		return MapPartPosition(
-			localPos[0] / GameContext::GameMapPartSize,
-			localPos[1] / GameContext::GameMapPartSize,
-			localPos[2] / GameContext::GameMapPartSize
-		);
 	}
 }

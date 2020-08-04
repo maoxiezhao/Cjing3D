@@ -48,6 +48,22 @@ namespace CjingGame
 		}
 	}
 
+	void GameMapGrounds::SetVisible(bool isVisible)
+	{
+		if (isVisible != mIsVisible)
+		{
+			mIsVisible = isVisible;
+
+			if (mInstance != nullptr && mInstance->mObjectEntity != INVALID_ENTITY) 
+			{
+				auto object = Scene::GetScene().mObjects.GetComponent(mInstance->mObjectEntity);
+				if (object != nullptr) {
+					object->SetRenderable(isVisible);
+				}
+			}
+		}
+	}
+
 	void GameMapGrounds::AddGround(const I32x3& pos, U32 tileIndex)
 	{
 		auto it = mAllStaticGrounds.find(pos);
@@ -80,6 +96,49 @@ namespace CjingGame
 		auto gameGround = it->second;
 		mAllStaticGrounds.erase(it);
 		mIsGroundsDirty = true;
+	}
+
+	GameMapGround* GameMapGrounds::Raycast(const Ray& ray, Scene::PickResult& pickResult)
+	{
+		GameMapGround* ret = nullptr;
+
+		XMVECTOR rayOrigin = XMLoadFloat3(&ray.mOrigin);
+		XMVECTOR rayDir = XMLoadFloat3(&ray.mDirection);
+
+		I32 mapCellSize = GameContext::MapCellSize;
+		F32x3 mapCellOffset = F32x3((F32)mapCellSize, 0.0f, (F32)mapCellSize);
+		for (const auto& kvp : mAllStaticGrounds)
+		{
+
+			I32x3 localPos = kvp.first;
+			F32x3 globalPos = {
+				(F32)(localPos[0] * mapCellSize),
+				(F32)(localPos[1] * mapCellSize),
+				(F32)(localPos[2] * mapCellSize)
+			};
+			AABB groundAABB(
+				globalPos,
+				globalPos + mapCellOffset
+			);
+
+			F32 currentT = 0.0f;
+			if (!ray.Intersects(groundAABB, &currentT)) {
+				continue;
+			}
+		
+			XMVECTOR hitPos = rayOrigin + rayDir * currentT;
+			F32 distance = XMDistance(rayOrigin, hitPos);
+			if (distance < pickResult.distance)
+			{
+				pickResult.distance = distance;
+				pickResult.position = XMStore<F32x3>(hitPos);
+				pickResult.entity = mInstance->mObjectEntity;
+
+				ret = kvp.second.get();
+			}
+		}
+
+		return ret;
 	}
 
 	void GameMapGrounds::Serialize(JsonArchive& archive)
