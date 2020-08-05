@@ -12,6 +12,18 @@ namespace CjingGame
 	{
 	}
 
+	void EditorCursor::UpdatePosition(GameMap* gameMap)
+	{
+		if (gameMap == nullptr)
+		{
+			SetPosition({ 0.0f, 0.0f, 0.0f });
+			return;
+		}
+
+		F32x3 globalPos = gameMap->TransformLocalPosToGlobal(mLocalPos);
+		SetPosition(globalPos);
+	}
+
 	void EditorCursor::LoadCursor(const std::string& path)
 	{
 		SetMeshFromModel(path);

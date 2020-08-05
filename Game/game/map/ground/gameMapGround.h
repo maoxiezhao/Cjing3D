@@ -1,6 +1,6 @@
 #pragma once
 
-#include "mapInclude.h"
+#include "game\map\mapInclude.h"
 #include "game\map\gameMapObject.h"
 
 namespace CjingGame

@@ -1,5 +1,5 @@
 #include "gameMapRenderer.h"
-#include "game\map\gameMapGroundRenderer.h"
+#include "game\map\ground\gameMapGroundRenderer.h"
 
 namespace CjingGame {
 

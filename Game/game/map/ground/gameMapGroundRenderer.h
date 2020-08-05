@@ -2,8 +2,8 @@
 
 #include "definitions\definitions.h"
 #include "system\sceneSystem.h"
-#include "game\map\gameMapGroundTileset.h"
-#include "game\map\gameMapGround.h"
+#include "game\map\ground\gameMapGroundTileset.h"
+#include "game\map\ground\gameMapGround.h"
 
 namespace CjingGame
 {

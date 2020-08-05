@@ -1,7 +1,7 @@
 #pragma once
 
-#include "game\map\gameMapGround.h"
-#include "game\map\GameMapGroundRenderer.h"
+#include "game\map\ground\gameMapGround.h"
+#include "game\map\ground\GameMapGroundRenderer.h"
 
 namespace CjingGame
 {

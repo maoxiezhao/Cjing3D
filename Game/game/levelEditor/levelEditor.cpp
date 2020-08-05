@@ -16,6 +16,9 @@ namespace CjingGame
 		Scene::PickResult mPickResult;
 		I32x3 mPrevMousePos = I32x3(-1, -1, -1);
 		GameMapGround* mPickedMapGround = nullptr;
+
+		F32x3 mCameraOffset = F32x3(0.0f, 20.0f, -5.0f);
+		TransformComponent mCameraTransform;
 	}
 
 	LevelEditor::LevelEditor() :
@@ -57,6 +60,10 @@ namespace CjingGame
 
 		mEditorPlane.LoadFromScene(Scene::GetScene());
 		mEditorPlane.SetMeshFromModel("Models/planeNormalize.obj");
+		
+		// init camera
+		mCameraTransform.SetRotateFromRollPitchYaw({ 1.2f, 0.0f, 0.0f });
+		UpdateCamera();
 
 		// init default map
 		F32 cellSize = (F32)GameContext::MapCellSize;
@@ -84,29 +91,26 @@ namespace CjingGame
 		}
 #endif // _ENABLE_GAME_EDITOR_
 
+		if (mCurrentMap == nullptr) {
+			return;
+		}
+
 		// update cursor 
 		UpdateCursor();
 
 		// update editor mode
-		if (mCurrentMap != nullptr) 
+		switch (mEditorMode)
 		{
-			switch (mEditorMode)
-			{
-			case CjingGame::EditorMode_Ground:
-				UpdateEditorGround();
-				break;
-			case CjingGame::EditorMode_Wall:
-				UpdateEditorWall();
-				break;
-			default:
-				break;
-			}
-
-			mCurrentMap->FixedUpdate();
+		case CjingGame::EditorMode_Ground:
+			UpdateEditorGround();
+			break;
+		case CjingGame::EditorMode_Wall:
+			UpdateEditorWall();
+			break;
+		default:
+			break;
 		}
-
-		// update editor camera
-		UpdateCamera();
+		mCurrentMap->FixedUpdate();
 
 		// update editor layer
 		if (inputManager.IsKeyDown(KeyCode::Q))
@@ -212,11 +216,40 @@ namespace CjingGame
 
 	void LevelEditor::UpdateCursor()
 	{
+		if (mCurrentMap == nullptr) {
+			return;
+		}
 
+		I32x3 localPos = mEditorCursor.GetLocalPos();
+		I32 mapWidth = mCurrentMap->GetMapWidth();
+		I32 mapHeight = mCurrentMap->GetMapHeight();
 
+		auto& inputManager = GlobalGetSubSystem<InputManager>();
+		if (inputManager.IsKeyDown(KeyCode::D))
+		{
+			localPos[0] = std::min(mapWidth - 1, localPos[0] + 1);
+		}
+		else if (inputManager.IsKeyDown(KeyCode::A))
+		{
+			localPos[0] = std::max(0, localPos[0] - 1);
+		}
+		else if (inputManager.IsKeyDown(KeyCode::W))
+		{
+			localPos[2] = std::min(mapHeight - 1, localPos[2] + 1);
+		}
+		else if (inputManager.IsKeyDown(KeyCode::S))
+		{
+			localPos[2] = std::max(0, localPos[2] - 1);
+		}
 
-		if (mCurrentMap != nullptr) {
+		if (mEditorCursor.GetLocalPos() != localPos)
+		{
+			mEditorCursor.SetLocalPos(localPos);
+			mEditorCursor.UpdatePosition(mCurrentMap.get());
 			mCurrentMap->SetCurrentPartPos(mEditorCursor.GetMapPartPos());
+
+			// update editor camera
+			UpdateCamera();
 		}
 	}
 
@@ -226,7 +259,15 @@ namespace CjingGame
 			return;
 		}
 
-
+		F32x3 cursorPos = F32x3(0.0f, 0.0f, 0.0f);
+		if (mCurrentMap != nullptr) {
+			cursorPos = mCurrentMap->TransformLocalPosToGlobal(mEditorCursor.GetLocalPos());
+		}			
+		cursorPos += mCameraOffset;
+	
+		mCameraTransform.SetTranslationLocal(XMConvert(cursorPos));	
+		mCameraTransform.Update();
+		Renderer::GetCamera().Transform(mCameraTransform);
 	}
 
 	void LevelEditor::InitializeEditorMap(const std::string& mapName, F32 cellSize, I32 width, I32 height, I32 layer)

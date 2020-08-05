@@ -1,6 +1,6 @@
 #pragma once
 
-#include "game\map\gameMapGroundTileset.h"
+#include "game\map\ground\gameMapGroundTileset.h"
 
 namespace CjingGame
 {

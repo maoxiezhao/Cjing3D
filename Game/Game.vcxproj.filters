@@ -61,18 +61,6 @@
     <ClCompile Include="game\gameContext.cpp">
       <Filter>game</Filter>
     </ClCompile>
-    <ClCompile Include="game\map\gameMapGround.cpp">
-      <Filter>game\map\ground</Filter>
-    </ClCompile>
-    <ClCompile Include="game\map\gameMapGroundRenderer.cpp">
-      <Filter>game\map\ground</Filter>
-    </ClCompile>
-    <ClCompile Include="game\map\gameMapGrounds.cpp">
-      <Filter>game\map\ground</Filter>
-    </ClCompile>
-    <ClCompile Include="game\map\gameMapGroundTileset.cpp">
-      <Filter>game\map\ground</Filter>
-    </ClCompile>
     <ClCompile Include="definitions\gameVersion.cpp">
       <Filter>definitions</Filter>
     </ClCompile>
@@ -93,6 +81,18 @@
     </ClCompile>
     <ClCompile Include="game\levelEditor\levelEditorUtils.cpp">
       <Filter>game\levelEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="game\map\ground\gameMapGround.cpp">
+      <Filter>game\map\ground</Filter>
+    </ClCompile>
+    <ClCompile Include="game\map\ground\gameMapGroundRenderer.cpp">
+      <Filter>game\map\ground</Filter>
+    </ClCompile>
+    <ClCompile Include="game\map\ground\gameMapGrounds.cpp">
+      <Filter>game\map\ground</Filter>
+    </ClCompile>
+    <ClCompile Include="game\map\ground\gameMapGroundTileset.cpp">
+      <Filter>game\map\ground</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -197,21 +197,6 @@
     <ClInclude Include="game\gameContext.h">
       <Filter>game</Filter>
     </ClInclude>
-    <ClInclude Include="game\map\gameMapGround.h">
-      <Filter>game\map\ground</Filter>
-    </ClInclude>
-    <ClInclude Include="game\map\gameMapGroundRenderer.h">
-      <Filter>game\map\ground</Filter>
-    </ClInclude>
-    <ClInclude Include="game\map\gameMapGrounds.h">
-      <Filter>game\map\ground</Filter>
-    </ClInclude>
-    <ClInclude Include="game\map\gameMapGroundTileset.h">
-      <Filter>game\map\ground</Filter>
-    </ClInclude>
-    <ClInclude Include="game\map\gameMapWallRenderer.h">
-      <Filter>game\map\wall</Filter>
-    </ClInclude>
     <ClInclude Include="definitions\gameVersion.h">
       <Filter>definitions</Filter>
     </ClInclude>
@@ -232,6 +217,21 @@
     </ClInclude>
     <ClInclude Include="game\levelEditor\levelEditorUtils.h">
       <Filter>game\levelEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="game\map\ground\gameMapGround.h">
+      <Filter>game\map\ground</Filter>
+    </ClInclude>
+    <ClInclude Include="game\map\ground\gameMapGroundRenderer.h">
+      <Filter>game\map\ground</Filter>
+    </ClInclude>
+    <ClInclude Include="game\map\ground\gameMapGrounds.h">
+      <Filter>game\map\ground</Filter>
+    </ClInclude>
+    <ClInclude Include="game\map\ground\gameMapGroundTileset.h">
+      <Filter>game\map\ground</Filter>
+    </ClInclude>
+    <ClInclude Include="game\map\wall\gameMapWallRenderer.h">
+      <Filter>game\map\wall</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

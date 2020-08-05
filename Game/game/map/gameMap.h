@@ -1,8 +1,8 @@
 #pragma once
 
-#include "mapInclude.h"
-#include "gameMapGrounds.h"
-#include "mapTileset.h"
+#include "game\map\mapInclude.h"
+#include "game\map\ground\gameMapGrounds.h"
+#include "game\map\mapTileset.h"
 
 namespace CjingGame
 {
@@ -95,6 +95,8 @@ namespace CjingGame
 		void LoadMapParts(const MapPartPosition& defaultPartPos);
 		void LoadMapPart(const MapPartPosition& globalPartPos, const MapPartPosition& localPartPos);
 		void RefreshMapParts();
+		void RemoveMapPartByLocalPartPos(const MapPartPosition& partPos);
+		void MoveMapPartsByLocalPartPos(const MapPartPosition& partPos, const MapPartPosition& newPartPos);
 		void ClearAllMapParts();
 		void SetMapPartByLocalPartPos(const MapPartPosition& partPos, GameMapPartPtr mapPart);
 		std::vector<MapPartPosition> GetMapPartsPosByRay(const Ray& ray);
@@ -152,6 +154,10 @@ namespace CjingGame
 
 		GameMapPartPtr LoadMapPart(const std::string& parentPath, const MapPartPosition& mapPartPos);
 		void SaveMapPart(const std::string& parentPath, GameMapPart& part);
+		void DynamicRefreshMapParts(const MapPartPosition& dif);
+
+		using MapPartPosFunc = std::function<MapPartPosition(I32, I32, I32)>;
+		void DynamicRefreshMapPartsImpl(I32 dif, MapPartPosFunc partPosFunc);
 
 	private:
 		bool mIsLoaded = false;

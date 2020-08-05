@@ -3,6 +3,8 @@
 
 #include <stack>
 
+#define GAME_MAP_DEBUG
+
 namespace CjingGame
 {
 	I32 MapPartPosition::GetLocalPosX() const
@@ -297,6 +299,9 @@ namespace CjingGame
 
 	void GameMap::LoadMapPart(const MapPartPosition& globalPartPos, const MapPartPosition& localPartPos)
 	{
+#ifdef GAME_MAP_DEBUG
+		Logger::InfoEx("LoadMapPart, global pos:%d,%d,%d, local pos:%d,%d,%d", globalPartPos.x, globalPartPos.y, globalPartPos.z, localPartPos.x, localPartPos.y, localPartPos.z);
+#endif
 		auto gameMapPart = LoadMapPart(mMapParentPath, globalPartPos);
 		if (gameMapPart != nullptr) {
 			gameMapPart->SetVisible(true);
@@ -311,9 +316,72 @@ namespace CjingGame
 			return;
 		}
 
+#ifdef GAME_MAP_DEBUG
+		Logger::InfoEx("RefreshMapParts");
+#endif
 
+		// 如果新的partPos和当前part距离小于partSize
+		// 则动态刷新当前LoadedParts，将超出范围的part unload
+		// load新加入范围的parts
+		I32 partSize = GetMapPartSize();
+		auto dif = mNewPartPos - mCurrentPartPos;
+		if (std::abs(dif.x) < partSize &&
+			std::abs(dif.y) < partSize &&
+			std::abs(dif.z) < partSize)
+		{
+			DynamicRefreshMapParts(dif);
+		}
+		// 如果大于partRange，则在新的位置重新按range加载
+		else
+		{
+			LoadMapParts(mNewPartPos);
+		}
 
 		mCurrentPartPos = mNewPartPos;
+	}
+
+	void GameMap::RemoveMapPartByLocalPartPos(const MapPartPosition& partPos)
+	{
+#ifdef GAME_MAP_DEBUG
+		MapPartPosition globalPos = partPos + mCurrentPartPos;
+		if (!(globalPos.x < 0 || globalPos.x >= mTotalMapPartSize.x() ||
+			globalPos.y < 0 || globalPos.y >= mTotalMapPartSize.y() ||
+			globalPos.z < 0 || globalPos.z >= mTotalMapPartSize.z())) 
+		{
+			Logger::InfoEx("RemoveMapPartByLocalPartPos, local pos:%d,%d,%d", partPos.x, partPos.y, partPos.z);
+		}
+#endif
+
+		U32 index = GetMapPartIndexByLocalPartPos(partPos);
+		if (index >= mGameMapParts.size()) {
+			return;
+		}
+
+		auto mapPart = mGameMapParts[index];
+		if (mapPart != nullptr)
+		{
+			mapPart->Uninitialize();
+			mGameMapParts[index] = nullptr;
+		}
+	}
+
+	void GameMap::MoveMapPartsByLocalPartPos(const MapPartPosition& partPos, const MapPartPosition& newPartPos)
+	{
+		if (newPartPos == partPos) {
+			return;
+		}
+
+		U32 index = GetMapPartIndexByLocalPartPos(partPos);
+		if (index >= mGameMapParts.size()) {
+			return;
+		}
+
+		auto mapPart = mGameMapParts[index];
+		if (mapPart != nullptr) {
+			mGameMapParts[index] = nullptr;
+		}
+
+		SetMapPartByLocalPartPos(newPartPos, mapPart);
 	}
 
 	I32x3 GameMap::TransformGlobalPosToLocal(const F32x3& pos) const
@@ -336,7 +404,7 @@ namespace CjingGame
 
 	GameMapPart* GameMap::GetMapPartByLocalPos(const I32x3& localPos)
 	{
-		MapPartPosition partPos = MapPartPosition::TransformFromLocalPos(localPos);
+		MapPartPosition partPos = MapPartPosition::TransformFromLocalPos(localPos, mCurrentPartPos);
 		U32 index = GetMapPartIndexByLocalPartPos(partPos);
 		if (index >= mGameMapParts.size()) {
 			return nullptr;
@@ -683,5 +751,104 @@ namespace CjingGame
 		const std::string mapInfoPath = FileData::CombinePath(parentPath, partName);
 		JsonArchive archive(mapInfoPath, ArchiveMode::ArchiveMode_Write);
 		part.Unserialize(archive);
+	}
+
+	void GameMap::DynamicRefreshMapParts(const MapPartPosition& dif)
+	{
+		if (dif.x != 0)
+		{
+			DynamicRefreshMapPartsImpl(dif.x, [](I32 x, I32 y, I32 z) {
+				return MapPartPosition(x, y, z);
+			});
+			mCurrentPartPos.x = mCurrentPartPos.x + dif.x;
+		}
+
+		if (dif.y != 0)
+		{
+			DynamicRefreshMapPartsImpl(dif.y, [](I32 x, I32 y, I32 z) {
+				return MapPartPosition(y, x, z);
+				});
+			mCurrentPartPos.y = mCurrentPartPos.y + dif.y;
+		}
+
+		if (dif.z != 0)
+		{
+			DynamicRefreshMapPartsImpl(dif.z, [](I32 x, I32 y, I32 z) {
+				return MapPartPosition(y, z, x);
+				});
+			mCurrentPartPos.z = mCurrentPartPos.z + dif.z;
+		}
+	}
+
+	void GameMap::DynamicRefreshMapPartsImpl(I32 dif, MapPartPosFunc partPosFunc)
+	{
+		I32 partSize = GetMapPartSize();
+		I32 range = GetMapPartRange();
+		I32 delta = abs(dif);
+
+		if (dif > 0)
+		{
+			for (int y = -range; y <= range; y++)
+			{
+				for (int z = -range; z <= range; z++)
+				{
+					// remove parts
+					for (int index = 0; index < delta; index++) {
+						RemoveMapPartByLocalPartPos(partPosFunc(-range + index, y, z));
+					}
+					// move parts
+					for (int index = 0; index < (partSize - delta); index++) {
+						MoveMapPartsByLocalPartPos(partPosFunc(-range + index + delta, y, z), partPosFunc(-range + index, y, z));
+					}
+					// load parts
+					for (int index = 1; index <= delta; index++)
+					{
+						MapPartPosition globalPos(
+							mCurrentPartPos.x + range + index,
+							mCurrentPartPos.y + y,
+							mCurrentPartPos.z + z
+						);
+						if (globalPos.x < 0 || globalPos.x >= mTotalMapPartSize.x() ||
+							globalPos.y < 0 || globalPos.y >= mTotalMapPartSize.y() ||
+							globalPos.z < 0 || globalPos.z >= mTotalMapPartSize.z()) {
+							continue;
+						}
+						LoadMapPart(globalPos, partPosFunc(range - (delta - index), y, z));
+					}
+				}
+			}
+		}
+		else
+		{
+			for (int y = -range; y <= range; y++)
+			{
+				for (int z = -range; z <= range; z++)
+				{
+					// remove parts
+					for (int index = 0; index < delta; index++) {
+						RemoveMapPartByLocalPartPos(partPosFunc(range - index, y, z));
+					}
+					// move parts
+					for (int index = 0; index < (partSize - delta); index++) {
+						MoveMapPartsByLocalPartPos(partPosFunc(range - index - delta, y, z), partPosFunc(range - index, y, z));
+					}
+					// load parts
+					for (int index = 1; index <= delta; index++)
+					{
+						MapPartPosition globalPos(
+							mCurrentPartPos.x - range - index,
+							mCurrentPartPos.y + y,
+							mCurrentPartPos.z + z
+						);
+						if (globalPos.x < 0 || globalPos.x >= mTotalMapPartSize.x() ||
+							globalPos.y < 0 || globalPos.y >= mTotalMapPartSize.y() ||
+							globalPos.z < 0 || globalPos.z >= mTotalMapPartSize.z()) {
+							continue;
+						}
+						LoadMapPart(globalPos, partPosFunc(-range + (delta - index), y, z));
+					}
+				}
+			}
+		}
 	}
 }

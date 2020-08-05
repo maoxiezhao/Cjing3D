@@ -26,8 +26,11 @@ namespace CjingGame
 		EditorCursor(const I32x3& localPos);
 		~EditorCursor();
 
-		void (LoadCursor)(const std::string& path);
+		void UpdatePosition(GameMap* gameMap);
+		void LoadCursor(const std::string& path);
 		MapPartPosition GetMapPartPos()const;
+		I32x3 GetLocalPos()const { return mLocalPos; }
+		void SetLocalPos(const I32x3& localPos) { mLocalPos = localPos; }
 
 	private:
 		I32x3 mLocalPos;
