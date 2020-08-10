@@ -9,7 +9,7 @@ namespace CjingVersion
 	// features [0-100]
 	const int MinorVersion = 1;
 	// small update; bug fixes [0-1000]
-	const int PatchVersion = 10;
+	const int PatchVersion = 11;
 	// version string
 	const std::string VersionString = std::to_string(MajorVersion) + "." + std::to_string(MinorVersion) + "." + std::to_string(PatchVersion);
 

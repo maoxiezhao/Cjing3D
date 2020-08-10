@@ -1,8 +1,8 @@
 #ifndef _GLOBAL_H_
 #define _GLOBAL_H_
 
-#include "shaderInterop.h"
-#include "shaderInteropRender.h"
+#include "..\shaderInterop\shaderInterop.h"
+#include "..\shaderInterop\shaderInteropRender.h"
 
 #define TEXTURE_BASECOLOR_MAP	TEXTURE_SLOT_0
 #define TEXTURE_NORMAL_MAP		TEXTURE_SLOT_1

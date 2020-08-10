@@ -13,8 +13,9 @@
 #include "system\sceneSystem.h"
 #include "pipelineStates\pipelineStateManager.h"
 
-#include "passes\renderPass.h"
-#include "passes\terrainPass.h"
+#include "renderer\passes\renderPass.h"
+#include "renderer\passes\terrainPass.h"
+#include "renderer\passes\particlePass.h"
 
 namespace Cjing3D {
 namespace Renderer {
@@ -604,6 +605,9 @@ void FixedUpdate()
 
 void Update(F32 deltaTime)
 {
+	mFrameData.mFrameDeltaTime = deltaTime;
+	mFrameData.mFrameTime += deltaTime;
+
 	if (mCurrentRenderPath != nullptr) {
 		mCurrentRenderPath->Update(deltaTime);
 	}
@@ -687,6 +691,23 @@ void UpdatePerFrameData(F32 deltaTime, U32 renderLayerMask)
 			{
 				frameCulling.mCulledLights.push_back((U32)i);
 			}
+		}
+
+		// ±éÀú³¡¾°µÄparticle
+		auto& particles = scene.mParticles;
+		for (size_t i = 0; i < particles.GetCount(); i++)
+		{
+			auto particle = particles[i];
+			if (particle == nullptr) {
+				continue;
+			}
+
+			auto layer = scene.mLayers.GetComponent(particle->GetCurrentEntity());
+			if (layer != nullptr && !(layer->GetLayerMask() & renderLayerMask)) {
+				continue;
+			}
+
+			frameCulling.mCulledParticles.push_back((U32)particle);
 		}
 
 		LinearAllocator& frameAllocator = GetFrameAllocator(FrameAllocatorType_Render);
@@ -862,6 +883,9 @@ void RefreshRenderData()
 
 	// mesh skinning
 	ProcessSkinning();
+
+	// particle
+	ProcessParticles(mainScene, frameCulling.mCulledParticles);
 
 	// refresh render pass 
 	for (auto kvp : mRenderPassMap)
@@ -1319,6 +1343,52 @@ void RenderSSAO(Texture2D& depthBuffer, Texture2D& linearDepthBuffer, Texture2D&
 	PROFILER_END_CPU_GPU_BLOCK();
 }
 
+void RenderParticles(CameraComponent& camera, Texture2D& linearDepthBuffer)
+{
+	auto& culledParticles = mFrameCullings.at(&camera).mCulledParticles;
+	if (culledParticles.empty()) {
+		return;
+	}
+
+	Scene& scene = GetMainScene();
+	LinearAllocator& frameAllocator = GetFrameAllocator(FrameAllocatorType_Render);
+
+	size_t culledParticleCount = culledParticles.size();
+	F32x3 cameraPos = camera.GetCameraPos();
+	U32* sortingHashes = (U32*)frameAllocator.Allocate(culledParticleCount * sizeof(U32));
+	U32 hashIndex = 0;
+	for (U32 i = 0; i < culledParticleCount; i++)
+	{
+		auto particle = scene.mParticles[culledParticles[i]];
+		if (particle == nullptr) {
+			continue;
+		}
+
+		F32 distance = DistanceEstimated(cameraPos, particle->mPosition);
+		sortingHashes[hashIndex] = i & 0xffff;
+		sortingHashes[hashIndex] |= (U32(distance * 10) & 0xffff) << 16;
+
+		hashIndex++;
+	}
+	std::sort(sortingHashes, sortingHashes + hashIndex, std::greater<U32>());
+
+	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, linearDepthBuffer, TEXTURE_SLOT_LINEAR_DEPTH);
+
+	ParticlePass& particlePass = dynamic_cast<ParticlePass&>(*GetRenderPass(STRING_ID(TerrainPass)));
+	for (U32 i = 0; i < hashIndex; i++)
+	{
+		auto particle = scene.mParticles[sortingHashes[i] & 0xffff];
+		if (particle == nullptr) {
+			continue;
+		}
+
+		MaterialComponent* material = scene.mMaterials.GetComponent(particle->GetCurrentEntity());
+		particlePass.DrawParticle(*particle, *material);
+	}
+
+	frameAllocator.Free(culledParticleCount * sizeof(U32));
+}
+
 void RenderDebugScene(CameraComponent& camera)
 {
 	mGraphicsDevice->BeginEvent("RenderDebugScene");
@@ -1730,6 +1800,8 @@ void UpdateFrameCB()
 	frameCB.gFrameGamma = GetGamma();
 	frameCB.gFrameShadowCascadeCount = shadowCascadeCount;
 	frameCB.gFrameTileCullingCount = XMConvert(GetCullingTiledCount());
+	frameCB.gFrameTime = mFrameData.mFrameTime;
+	frameCB.gFrameDeltaTime = mFrameData.mFrameDeltaTime;
 
 	GPUBuffer& frameBuffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_Frame);
 	mGraphicsDevice->UpdateBuffer(frameBuffer, &frameCB, sizeof(FrameCB));
@@ -1830,6 +1902,11 @@ TerrainTreePtr GetTerrainTree(ECS::Entity entity)
 	return terrainPass.GetTerrainTree(entity);
 }
 
+void ReloadShaders()
+{
+	mShaderLib->Reload();
+}
+
 ShaderPtr LoadShader(SHADERSTAGES stages, const std::string& path)
 {
 	return mShaderLib->LoadShader(stages, path);
@@ -1840,7 +1917,7 @@ VertexShaderInfo LoadVertexShaderInfo(const std::string& path, VertexLayoutDesc*
 	return mShaderLib->LoadVertexShaderInfo(path, desc, numElements);
 }
 
-void RegisterPipelineState(RenderPassType passType, const StringID& name, PipelineStateDesc desc)
+void RegisterCustomPipelineState(RenderPassType passType, const StringID& name, PipelineStateDesc desc)
 {
 	mPipelineStateManager->RegisterCustomPipelineState(passType, name, desc);
 }
@@ -1852,9 +1929,15 @@ PipelineState* GetPipelineStateByStringID(RenderPassType passType, const StringI
 
 void InitializeRenderPasses()
 {
-	std::shared_ptr<RenderPass> terrainPass = std::shared_ptr<RenderPass>(new TerrainPass());
+	// terrain
+	std::shared_ptr<RenderPass> terrainPass = CJING_MAKE_SHARED<TerrainPass>();
 	terrainPass->Initialize();
 	RegisterRenderPass(STRING_ID(TerrainPass), terrainPass);
+
+	// particle
+	std::shared_ptr<RenderPass> particlePass = CJING_MAKE_SHARED<ParticlePass>();
+	particlePass->Initialize();
+	RegisterRenderPass(STRING_ID(ParticlePass), particlePass);
 }
 
 void UninitializeRenderPasses()
@@ -2147,7 +2230,7 @@ void ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPassType, Rend
 			}
 
 			// draw
-			mGraphicsDevice->DrawIndexedInstances(subset.mIndexCount, bathInstance->mInstanceCount, subset.mIndexOffset, 0, 0);
+			mGraphicsDevice->DrawIndexedInstanced(subset.mIndexCount, bathInstance->mInstanceCount, subset.mIndexOffset, 0, 0);
 		}
 	}
 
@@ -2433,6 +2516,25 @@ void ProcessSkinning()
 	PROFILER_END_BLOCK();
 }
 
+void ProcessParticles(Scene& scene, const std::vector<U32>& culledParticles)
+{
+	if (culledParticles.empty()) {
+		return;
+	}
+
+	PROFILER_BEGIN_GPU_BLOCK("GPU Particles");
+	for (const auto& particleEntity : culledParticles)
+	{
+		auto particle = scene.mParticles.GetComponent(particleEntity);
+		if (particle == nullptr) {
+			continue;
+		}
+
+		particle->UpdateGPU();
+	}
+	PROFILER_END_BLOCK();
+}
+
 LinearAllocator& GetFrameAllocator(FrameAllocatorType type)
 {
 	LinearAllocator& allocator = mFrameAllocator[static_cast<U32>(type)];
@@ -2450,6 +2552,7 @@ void FrameCullings::Clear()
 {
 	mCulledObjects.clear();
 	mCulledLights.clear();
+	mCulledParticles.clear();
 }
 }
 }

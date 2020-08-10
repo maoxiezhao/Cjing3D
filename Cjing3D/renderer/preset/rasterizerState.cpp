@@ -104,5 +104,22 @@ namespace Cjing3D {
 			const auto result = mDevice.CreateRasterizerState(desc, *mRasterizerStates[RasterizerStateID::RasterizerStateID_WireFrame_DoubleSided]);
 			Debug::ThrowIfFailed(result, "Failed to create wire doubleSided rasterizerState", result);
 		}
+		{
+			RasterizerStateDesc desc = {};
+			desc.mFillMode = FILL_SOLID;
+			desc.mCullMode = CULL_NONE;
+			desc.mFrontCounterClockwise = true;
+			desc.mDepthBias = 0;
+			desc.mDepthBiasClamp = 0;
+			desc.mSlopeScaleDepthBias = 0;
+			desc.mDepthClipEnable = false;
+			desc.mMultisampleEnable = false;
+			desc.mAntialiaseLineEnable = false;
+			desc.mConservativeRasterizationEnable = false;
+			desc.mAntialiaseLineEnable = false;
+
+			const auto result = mDevice.CreateRasterizerState(desc, *mRasterizerStates[RasterizerStateID::RasterizerStateID_Particle]);
+			Debug::ThrowIfFailed(result, "Failed to create wire doubleSided rasterizerState", result);
+		}
 	}
 }

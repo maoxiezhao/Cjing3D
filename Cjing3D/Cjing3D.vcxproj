@@ -228,8 +228,8 @@
     <ClInclude Include="renderer\2D\sprite.h" />
     <ClInclude Include="renderer\2D\textDrawable.h" />
     <ClInclude Include="renderer\includeD3D11.h" />
-    <ClInclude Include="renderer\particleSystem.h" />
     <ClInclude Include="renderer\passes\note.h" />
+    <ClInclude Include="renderer\passes\particlePass.h" />
     <ClInclude Include="renderer\passes\renderPass.h" />
     <ClInclude Include="renderer\passes\terrainPass.h" />
     <ClInclude Include="renderer\passes\terrainRender.h" />
@@ -440,6 +440,7 @@
     <ClCompile Include="renderer\2D\renderer2D.cpp" />
     <ClCompile Include="renderer\2D\sprite.cpp" />
     <ClCompile Include="renderer\2D\textDrawable.cpp" />
+    <ClCompile Include="renderer\passes\particlePass.cpp" />
     <ClCompile Include="renderer\passes\terrainPass.cpp" />
     <ClCompile Include="renderer\passes\terrainTree.cpp" />
     <ClCompile Include="renderer\paths\renderPath2D.cpp" />

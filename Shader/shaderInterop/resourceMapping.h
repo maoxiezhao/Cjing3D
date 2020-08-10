@@ -3,29 +3,34 @@
 
 // (register t##slot) ///////////////////////////////////////////////////////////
 // TEXTURE SLOT 
-#define TEXTURE_SLOT_GLOBAL_ENV_MAP 0
-#define TEXTURE_SLOT_SHADOW_ARRAY_2D 1
+#define TEXTURE_SLOT_GLOBAL_ENV_MAP    0
+#define TEXTURE_SLOT_SHADOW_ARRAY_2D   1
 #define TEXTURE_SLOT_SHADOW_ARRAY_CUBE 2
-#define TEXTURE_SLOT_DEPTH 3
-#define TEXTURE_SLOT_LINEAR_DEPTH 4
-#define TEXTURE_SLOT_FONT 5
-#define TEXTURE_SLOT_AO 6
-
-#define TEXTURE_SLOT_0 10
-#define TEXTURE_SLOT_1 11
-#define TEXTURE_SLOT_2 12
-#define TEXTURE_SLOT_3 13
-#define TEXTURE_SLOT_4 14
-#define TEXTURE_SLOT_5 15
-
-#define TEXTURE_SLOT_UNIQUE_0 16
-#define TEXTURE_SLOT_UNIQUE_1 17
+#define TEXTURE_SLOT_DEPTH			   3
+#define TEXTURE_SLOT_LINEAR_DEPTH	   4
+#define TEXTURE_SLOT_FONT			   5
+#define TEXTURE_SLOT_AO				   6
 
 // STRUCTUREDBUFFRE SLOT
-#define SBSLOT_SHADER_LIGHT_ARRAY 18
-#define SBSLOT_MATRIX_ARRAY 19
-#define SBSLOT_TILED_LIGHTS 20
-#define SBSLOT_TILED_FRUSTUMS 21
+#define SBSLOT_SHADER_LIGHT_ARRAY 7
+#define SBSLOT_MATRIX_ARRAY		  8
+#define SBSLOT_TILED_LIGHTS       9
+#define SBSLOT_TILED_FRUSTUMS     10
+
+#define TEXTURE_SLOT_0 14
+#define TEXTURE_SLOT_1 15
+#define TEXTURE_SLOT_2 16
+#define TEXTURE_SLOT_3 17
+#define TEXTURE_SLOT_4 18
+#define TEXTURE_SLOT_5 19
+#define TEXTURE_SLOT_6 20
+#define TEXTURE_SLOT_7 21
+#define TEXTURE_SLOT_8 22
+#define TEXTURE_SLOT_9 23
+
+#define TEXTURE_SLOT_UNIQUE_0 25
+#define TEXTURE_SLOT_UNIQUE_1 26
+
 
 ///////////////////////////////////////////////////////////////////////////////////
 

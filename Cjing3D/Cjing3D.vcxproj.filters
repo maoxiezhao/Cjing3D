@@ -704,6 +704,9 @@
     <ClCompile Include="system\systems\sceneParticleSystem.cpp">
       <Filter>system\systems</Filter>
     </ClCompile>
+    <ClCompile Include="renderer\passes\particlePass.cpp">
+      <Filter>renderer\passes\particle</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -1374,9 +1377,6 @@
     <ClInclude Include="renderer\shaderLib.h">
       <Filter>renderer\shader</Filter>
     </ClInclude>
-    <ClInclude Include="renderer\particleSystem.h">
-      <Filter>renderer\passes\particle</Filter>
-    </ClInclude>
     <ClInclude Include="helper\archive.h">
       <Filter>helper\archive</Filter>
     </ClInclude>
@@ -1391,6 +1391,9 @@
     </ClInclude>
     <ClInclude Include="system\component\particle.h">
       <Filter>system\component</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\passes\particlePass.h">
+      <Filter>renderer\passes\particle</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

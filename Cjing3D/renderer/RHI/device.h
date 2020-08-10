@@ -75,12 +75,12 @@ namespace Cjing3D
 		virtual void CreateRenderBehavior(RenderBehaviorDesc& desc, RenderBehavior& behavior) = 0;
 		virtual void BeginRenderBehavior(RenderBehavior& behavior) = 0;
 		virtual void EndRenderBehavior() = 0;
-
 		virtual void BindScissorRects(U32 num, const RectInt* rects) = 0;
 
 		// compute
 		virtual void BindComputeShader(ShaderPtr computeShader) = 0;
 		virtual void Dispatch(U32 threadGroupCountX, U32 threadGroupCountY, U32 threadGroupCountZ) = 0;
+		virtual void DispatchIndirect(const GPUBuffer* buffer, U32 offset) = 0;
 		virtual void BindUAV(GPUResource* const resource, U32 slot, I32 subresourceIndex = -1) = 0;
 		virtual void BindUAVs(GPUResource* const* resource, U32 slot, U32 count) = 0;
 		virtual void UnBindUAVs(U32 slot, U32 count) = 0;
@@ -89,13 +89,17 @@ namespace Cjing3D
 		virtual void BindPipelineState(PipelineState state) = 0;
 		virtual void Draw(UINT vertexCount, UINT startVertexLocation) = 0;
 		virtual void DrawIndexed(UINT indexCount, UINT startIndexLocation) = 0;
-		virtual void DrawIndexedInstances(U32 indexCount, U32 instanceCount, U32 startIndexLocation, U32 baseVertexLocation, U32 startInstanceLocation) = 0;
+		virtual void DrawInstanced(U32 vertexCountPerInstance, U32 instanceCount, U32 startVertexLocation, U32 startInstanceLocation) = 0;
+		virtual void DrawIndexedInstanced(U32 indexCount, U32 instanceCount, U32 startIndexLocation, U32 baseVertexLocation, U32 startInstanceLocation) = 0;
+		virtual void DrawInstancedIndirect(const GPUBuffer* buffer, U32 offset) = 0;
 
 		// query
 		virtual HRESULT CreateQuery(const GPUQueryDesc& desc, GPUQuery& query) = 0;
 		virtual void BeginQuery(GPUQuery& query) = 0;
 		virtual void EndQuery(GPUQuery& query) = 0;
 		virtual HRESULT ReadQuery(GPUQuery& query, GPUQueryResult& result) = 0;
+		virtual void Map(const GPUResource* resource, GPUResourceMapping& mapping) = 0;
+		virtual void Unmap(const GPUResource* resource) = 0;
 
 		U32 GetFormatStride(FORMAT value) const;
 		bool IsFormatUnorm(FORMAT value)const;

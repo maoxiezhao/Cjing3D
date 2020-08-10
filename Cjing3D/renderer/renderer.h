@@ -69,6 +69,7 @@ namespace Renderer
 	void RenderSky();
 	void RenderLinearDepth(Texture2D& depthBuffer, Texture2D& linearDepthBuffer);
 	void RenderSSAO(Texture2D& depthBuffer, Texture2D& linearDepthBuffer, Texture2D& aoTexture, F32 aoRange, U32 aoSampleCount);
+	void RenderParticles(CameraComponent& camera, Texture2D& linearDepthBuffer);
 
 	// shadow
 	void RenderShadowmaps(CameraComponent& camera, U32 renderLayerMask);
@@ -105,6 +106,8 @@ namespace Renderer
 	void AddDeferredTextureMipGen(Texture2D& texture);
 
 	// render path
+	void InitializeRenderPasses();
+	void UninitializeRenderPasses();
 	void RegisterRenderPass(const StringID& name, std::shared_ptr<RenderPass> renderPath);
 	std::shared_ptr<RenderPass> GetRenderPass(const StringID& name);
 
@@ -119,18 +122,16 @@ namespace Renderer
 	void SetDebugGridOffset(const F32x3& posOffset);
 
 	// shader
+	void ReloadShaders();
 	ShaderPtr LoadShader(SHADERSTAGES stages, const std::string& path);
 	VertexShaderInfo LoadVertexShaderInfo(const std::string& path, VertexLayoutDesc* desc, U32 numElements);
-	
-	void RegisterPipelineState(RenderPassType passType, const StringID& name, PipelineStateDesc desc);
+	void RegisterCustomPipelineState(RenderPassType passType, const StringID& name, PipelineStateDesc desc);
 	PipelineState* GetPipelineStateByStringID(RenderPassType passType, const StringID& id);
-
-	void InitializeRenderPasses();
-	void UninitializeRenderPasses();
 
 	GraphicsDevice* CreateGraphicsDeviceByType(RenderingDeviceType deviceType, HWND window);
 	void ProcessRenderQueue(RenderQueue& queue, RenderPassType renderPassType, RenderableType renderableType, U32 instanceReplicator = 1, InstanceHandler* instanceHandler = nullptr);
 	void ProcessSkinning();
+	void ProcessParticles(Scene& scene, const std::vector<U32>& culledParticles);
 
 	// 当前帧的裁剪后的数据
 	struct FrameCullings
@@ -138,6 +139,7 @@ namespace Renderer
 		Frustum mFrustum;
 		std::vector<U32> mCulledObjects; // 记录渲染的object index
 		std::vector<U32> mCulledLights;
+		std::vector<U32> mCulledParticles;
 
 		void Clear();
 	};
@@ -155,10 +157,12 @@ namespace Renderer
 	class RenderFrameData
 	{
 	public:
-		F32x2 mFrameScreenSize;
-		F32x2 mFrameInvScreenSize;
-		U32 mShaderLightArrayCount;
-		F32x3 mFrameAmbient;
+		F32x2 mFrameScreenSize = F32x2(0.0f, 0.0f);
+		F32x2 mFrameInvScreenSize = F32x2(0.0f, 0.0f);
+		U32 mShaderLightArrayCount = 0;
+		F32x3 mFrameAmbient = F32x3(0.0f, 0.0f, 0.0f);
+		F32 mFrameDeltaTime = 0.0f;
+		F32 mFrameTime = 0.0f;;
 
 		void Clear();
 	};

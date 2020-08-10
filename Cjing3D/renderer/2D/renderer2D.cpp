@@ -364,7 +364,7 @@ namespace Renderer2D {
 				graphicsDevice.BindIndexBuffer(mIndexBuffer, IndexFormat::INDEX_FORMAT_32BIT, 0);
 				graphicsDevice.BindPipelineState(state);
 				graphicsDevice.BindGPUResource(SHADERSTAGES_PS, *bathInstance->mTexture, TEXTURE_SLOT_0);
-				graphicsDevice.DrawIndexedInstances(6, bathInstance->mInstanceCount, 0, 0, 0);
+				graphicsDevice.DrawIndexedInstanced(6, bathInstance->mInstanceCount, 0, 0, 0);
 			}
 
 			graphicsDevice.UnAllocateGPU();

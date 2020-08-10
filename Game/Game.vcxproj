@@ -143,6 +143,7 @@
     <ClCompile Include="editor\guiEditorLight.cpp" />
     <ClCompile Include="editor\guiEditorMaterial.cpp" />
     <ClCompile Include="editor\guiEditorObject.cpp" />
+    <ClCompile Include="editor\guiEditorParticle.cpp" />
     <ClCompile Include="editor\guiEditorProfier.cpp" />
     <ClCompile Include="editor\guiEditorRender.cpp" />
     <ClCompile Include="editor\guiEditorScene.cpp" />
@@ -187,6 +188,7 @@
     <ClInclude Include="editor\guiEditorLight.h" />
     <ClInclude Include="editor\guiEditorMaterial.h" />
     <ClInclude Include="editor\guiEditorObject.h" />
+    <ClInclude Include="editor\guiEditorParticle.h" />
     <ClInclude Include="editor\guiEditorProfier.h" />
     <ClInclude Include="editor\guiEditorRender.h" />
     <ClInclude Include="editor\guiEditorScene.h" />

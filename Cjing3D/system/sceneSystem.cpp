@@ -61,7 +61,7 @@ namespace Cjing3D
 		SceneSystem::UpdateSceneObjectSystem(*this);
 		SceneSystem::UpdateSceneTerrainSystem(*this);
 		SceneSystem::UpdateSceneSoundSystem(*this);
-		SceneSystem::UpdateSceneParticleSystem(*this);
+		SceneSystem::UpdateSceneParticleSystem(*this, deltaTime);
 	}
 
 	void Scene::Merge(Scene & scene)
@@ -205,6 +205,20 @@ namespace Cjing3D
 		}
 
 		return entity;
+	}
+
+	ECS::Entity Scene::CreateParticle(const std::string& name, const F32x3& pos)
+	{
+		auto entity = CreateEntityByName(name);
+		TransformComponent& transform = *mTransforms.Create(entity);
+		transform.Translate(XMConvert(pos));
+		transform.Update();
+	
+		mParticles.Create(entity);
+		mLayers.Create(entity);
+		mMaterials.Create(entity)->SetBlendMode(BlendType_Alpha);
+
+		return ECS::Entity();
 	}
 
 	NameComponent& Scene::GetOrCreateNameByEntity(ECS::Entity entity)

@@ -1096,6 +1096,8 @@ HRESULT GraphicsDeviceD3D11::CreateRasterizerState(const RasterizerStateDesc & d
 // 创建输入布局
 HRESULT GraphicsDeviceD3D11::CreateInputLayout(VertexLayoutDesc* desc, U32 numElements, Shader& shader, InputLayout & inputLayout)
 {
+	inputLayout.mDescs.reserve(numElements);
+
 	D3D11_INPUT_ELEMENT_DESC* inputLayoutdescs = new D3D11_INPUT_ELEMENT_DESC[numElements];
 	for (int i = 0; i < numElements; i++)
 	{
@@ -1106,6 +1108,8 @@ HRESULT GraphicsDeviceD3D11::CreateInputLayout(VertexLayoutDesc* desc, U32 numEl
 		inputLayoutdescs[i].AlignedByteOffset = desc[i].mAlignedByteOffset;
 		inputLayoutdescs[i].InputSlotClass = _ConvertInputClassification(desc[i].mInputSlotClass);
 		inputLayoutdescs[i].InstanceDataStepRate  = desc[i].mInstanceDataStepRate;
+
+		inputLayout.mDescs.push_back(desc[i]);
 	}
 
 	auto rhiState = RegisterGraphicsDeviceChild<InputLayoutD3D11>(inputLayout);
@@ -2001,6 +2005,18 @@ void GraphicsDeviceD3D11::Dispatch(U32 threadGroupCountX, U32 threadGroupCountY,
 	GetDeviceContext(GraphicsThread_IMMEDIATE).Dispatch(threadGroupCountX, threadGroupCountY, threadGroupCountZ);
 }
 
+void GraphicsDeviceD3D11::DispatchIndirect(const GPUBuffer* buffer, U32 offset)
+{
+	auto rhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(*buffer);
+	if (rhiState == nullptr) {
+		Debug::Warning("Faild to DispatchIndirect");
+		return;
+	}
+
+	GetDeviceContext(GraphicsThread_IMMEDIATE).DispatchIndirect(
+		(ID3D11Buffer*)rhiState->mResource.Get(), offset);
+}
+
 void GraphicsDeviceD3D11::UnBindUAVs(U32 slot, U32 count)
 {
 	Debug::CheckAssertion(count <= 8, "GraphicsDeviceD3D11::UnBindUAVs: Invalid count.");
@@ -2251,7 +2267,19 @@ void GraphicsDeviceD3D11::DrawIndexed(UINT indexCount, UINT startIndexLocation)
 	GetDeviceContext(GraphicsThread_IMMEDIATE).DrawIndexed(indexCount, startIndexLocation, 0);
 }
 
-void GraphicsDeviceD3D11::DrawIndexedInstances(U32 indexCount, U32 instanceCount, U32 startIndexLocation, U32 baseVertexLocation, U32 startInstanceLocation)
+void GraphicsDeviceD3D11::DrawInstanced(U32 vertexCountPerInstance, U32 instanceCount, U32 startVertexLocation, U32 startInstanceLocation)
+{
+	CommitAllocations();
+
+	GetDeviceContext(GraphicsThread_IMMEDIATE).DrawInstanced(
+		vertexCountPerInstance,
+		instanceCount,
+		startVertexLocation,
+		startInstanceLocation
+	);
+}
+
+void GraphicsDeviceD3D11::DrawIndexedInstanced(U32 indexCount, U32 instanceCount, U32 startIndexLocation, U32 baseVertexLocation, U32 startInstanceLocation)
 {
 	CommitAllocations();
 
@@ -2261,6 +2289,22 @@ void GraphicsDeviceD3D11::DrawIndexedInstances(U32 indexCount, U32 instanceCount
 		startIndexLocation,
 		baseVertexLocation,
 		startInstanceLocation);
+}
+
+void GraphicsDeviceD3D11::DrawInstancedIndirect(const GPUBuffer* buffer, U32 offset)
+{
+	CommitAllocations();
+
+	auto rhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(*buffer);
+	if (rhiState == nullptr) {
+		Debug::Warning("Faild to DrawInstancedIndirect");
+		return;
+	}
+
+	GetDeviceContext(GraphicsThread_IMMEDIATE).DrawInstancedIndirect(
+		(ID3D11Buffer*)rhiState->mResource.Get(),
+		offset
+	);
 }
 
 HRESULT GraphicsDeviceD3D11::CreateQuery(const GPUQueryDesc& desc, GPUQuery& query)
@@ -2328,6 +2372,59 @@ HRESULT GraphicsDeviceD3D11::ReadQuery(GPUQuery& query, GPUQueryResult& result)
 	}
 
 	return hr;
+}
+
+void GraphicsDeviceD3D11::Map(const GPUResource* resource, GPUResourceMapping& mapping)
+{
+	if (resource == nullptr) {
+		return;
+	}
+
+	auto rhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(*resource);
+	if (rhiState == nullptr) {
+		return;
+	}
+
+	if (mapping.mFlags == GPUResourceMapping::FLAG_EMPTY) {
+		return;
+	}
+
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	D3D11_MAP mapType = D3D11_MAP_WRITE_NO_OVERWRITE;
+	if (mapping.mFlags & GPUResourceMapping::FLAG_READ)
+	{
+		if (mapping.mFlags & GPUResourceMapping::FLAG_WRITE)
+		{
+			mapType = D3D11_MAP_READ_WRITE;
+		}
+		else
+		{
+			mapType = D3D11_MAP_READ;
+		}
+	}
+
+	// 这里CPU不会等待GPU下载数据，所以外部map时需要做一个delay
+	HRESULT result = GetDeviceContext(GraphicsThread_IMMEDIATE).Map(rhiState->mResource.Get(), 0, mapType, D3D11_MAP_FLAG_DO_NOT_WAIT, &mappedResource);
+	if (SUCCEEDED(result))
+	{
+		mapping.mData = mappedResource.pData;
+	}
+	else
+	{
+		mapping.mData = nullptr;
+	}
+}
+
+void GraphicsDeviceD3D11::Unmap(const GPUResource* resource)
+{
+	if (resource == nullptr) {
+		return;
+	}
+
+	auto rhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(*resource);
+	if (rhiState != nullptr) {
+		GetDeviceContext(GraphicsThread_IMMEDIATE).Unmap(rhiState->mResource.Get(), 0);
+	}
 }
 
 void GraphicsDeviceD3D11::InitializeDevice()

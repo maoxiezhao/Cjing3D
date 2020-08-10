@@ -4,8 +4,55 @@
 #include "renderer\RHI\rhiShader.h"
 #include "system\sceneSystem.h"
 
-namespace Cjing3D
-{
+namespace Cjing3D {
+namespace {
+	std::map<std::string, ShaderPtr> mLoadedShaderMap;
+	std::map<std::string, InputLayoutPtr> mLoadedInputLayoutMap;
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	ShaderPtr GetOrCreateShader(const std::string& path)
+	{
+		auto it = mLoadedShaderMap.find(path);
+		if (it != mLoadedShaderMap.end()) 
+		{
+			return it->second;
+		}
+		else
+		{
+			ShaderPtr shaderPtr = CJING_MAKE_SHARED<Shader>();
+			mLoadedShaderMap[path] = shaderPtr;
+			return shaderPtr;
+		}
+	}
+
+	InputLayoutPtr GetOrCreateInputLayout(const std::string& path)
+	{
+		auto it = mLoadedInputLayoutMap.find(path);
+		if (it != mLoadedInputLayoutMap.end())
+		{
+			return it->second;
+		}
+		else
+		{
+			InputLayoutPtr inputLayoutPtr = CJING_MAKE_SHARED<InputLayout>();
+			mLoadedInputLayoutMap[path] = inputLayoutPtr;
+			return inputLayoutPtr;
+		}
+	}
+
+	void LoadShaderImpl(SHADERSTAGES stages, const void* data, size_t length, ShaderPtr& shaderPtr)
+	{
+		const HRESULT result = Renderer::GetDevice().CreateShader(stages, data, length, *shaderPtr);
+		Debug::ThrowIfFailed(result, "Failed to create vertex shader: %08X", result);
+	}
+
+	void LoadInputLayout(ShaderPtr Shader, VertexLayoutDesc* desc, U32 numElements, InputLayoutPtr& inputLayoutPtr)
+	{
+		const HRESULT result = Renderer::GetDevice().CreateInputLayout(desc, numElements, *Shader, *inputLayoutPtr);
+		Debug::ThrowIfFailed(result, "Failed to create input layout: %08X", result);
+	}
+}
 
 ShaderLib::ShaderLib()
 {
@@ -17,18 +64,36 @@ void ShaderLib::Initialize()
 
 void ShaderLib::Uninitialize()
 {
+	for (auto kvp : mLoadedShaderMap) {
+		kvp.second->Clear();
+	}
+	mLoadedShaderMap.clear();
+
+	for (auto kvp : mLoadedInputLayoutMap) {
+		kvp.second->Clear();
+	}
+	mLoadedInputLayoutMap.clear();
 }
 
-InputLayoutPtr ShaderLib::LoadInputLayout(ShaderPtr Shader, VertexLayoutDesc* desc, U32 numElements)
+void ShaderLib::Reload()
 {
-	InputLayoutPtr inputLayoutPtr = CJING_MAKE_SHARED<InputLayout>();
-	if (Shader != nullptr && desc != nullptr)
+	for (auto kvp : mLoadedShaderMap)
 	{
-		const HRESULT result = Renderer::GetDevice().CreateInputLayout(desc, numElements, *Shader, *inputLayoutPtr);
-		Debug::ThrowIfFailed(result, "Failed to create input layout: %08X", result);
+		if (kvp.second->mStage == SHADERSTAGES_VS)
+		{
+			auto it = mLoadedInputLayoutMap.find(kvp.first);
+			if (it != mLoadedInputLayoutMap.end())
+			{
+				InputLayoutPtr inputLayout = it->second;
+				LoadVertexShaderInfo(kvp.first, inputLayout->mDescs.data(), inputLayout->mDescs.size());
+				continue;
+			}
+		}
+
+		LoadShader(kvp.second->mStage, kvp.first);
 	}
-	return inputLayoutPtr;
 }
+
 
 ShaderPtr ShaderLib::LoadShader(SHADERSTAGES stages, const std::string& path)
 {
@@ -48,21 +113,13 @@ ShaderPtr ShaderLib::LoadShader(SHADERSTAGES stages, const std::string& path)
 		return shaderPtr;
 	}
 
-	ShaderPtr ret = LoadShader(stages, byteData, length);
+	shaderPtr = GetOrCreateShader(path);
+	LoadShaderImpl(stages, byteData, length, shaderPtr);
 	SAFE_DELETE_ARRAY(byteData);
 
-	return ret;
-}
-
-ShaderPtr ShaderLib::LoadShader(SHADERSTAGES stages, const void*data, size_t length)
-{ 
-	ShaderPtr shaderPtr = CJING_MAKE_SHARED<Shader>();
-	{
-		const HRESULT result = Renderer::GetDevice().CreateShader(stages, data, length, *shaderPtr);
-		Debug::ThrowIfFailed(result, "Failed to create vertex shader: %08X", result);
-	}
 	return shaderPtr;
 }
+
 
 VertexShaderInfo ShaderLib::LoadVertexShaderInfo(const std::string& path, VertexLayoutDesc* desc, U32 numElements)
 {
@@ -81,9 +138,11 @@ VertexShaderInfo ShaderLib::LoadVertexShaderInfo(const std::string& path, Vertex
 		return vertexShaderInfo;
 	}
 
-	vertexShaderInfo.mVertexShader = LoadShader(SHADERSTAGES_VS, byteData, length);
-	vertexShaderInfo.mInputLayout = LoadInputLayout(vertexShaderInfo.mVertexShader, desc, numElements);
+	vertexShaderInfo.mVertexShader = GetOrCreateShader(path);
+	vertexShaderInfo.mInputLayout = GetOrCreateInputLayout(path);
 
+	LoadShaderImpl(SHADERSTAGES_VS, byteData, length, vertexShaderInfo.mVertexShader);
+	LoadInputLayout(vertexShaderInfo.mVertexShader, desc, numElements, vertexShaderInfo.mInputLayout);
 	SAFE_DELETE_ARRAY(byteData);
 
 	return vertexShaderInfo;

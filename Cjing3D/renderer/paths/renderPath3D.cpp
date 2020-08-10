@@ -152,6 +152,7 @@ namespace Cjing3D
 	{
 		PROFILER_BEGIN_GPU_BLOCK("RenderTransparents");
 		GraphicsDevice& device = Renderer::GetDevice();
+		CameraComponent& camera = Renderer::GetCamera();
 		// transparent scene
 		{
 			device.BeginRenderBehavior(renderBehavior);
@@ -164,10 +165,16 @@ namespace Cjing3D
 			vp.mMaxDepth = 1.0f;
 			device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
 
-			Renderer::RenderSceneTransparent(Renderer::GetCamera(), renderType);
-			Renderer::RenderDebugScene(Renderer::GetCamera());
+			Renderer::RenderSceneTransparent(camera, renderType);
+			Renderer::RenderDebugScene(camera);
 
 			device.EndRenderBehavior();
+		}
+		// particles
+		{
+			PROFILER_BEGIN_GPU_BLOCK("RenderParticles");
+			Renderer::RenderParticles(camera, mDepthBufferLinear);
+			PROFILER_END_BLOCK();
 		}
 		PROFILER_END_BLOCK();
 	}

@@ -14,12 +14,6 @@ namespace Cjing3D{
 
 namespace
 {
-	std::shared_ptr<Shader> mTerrainVS = nullptr;
-	std::shared_ptr<InputLayout> mTerrainIL = nullptr;
-	std::shared_ptr<Shader> mTerrainPS = nullptr;
-	std::shared_ptr<Shader> mTerrainHS = nullptr;
-	std::shared_ptr<Shader> mTerrainDS = nullptr;
-
 	PipelineState terrainPSO;
 }
 
@@ -43,29 +37,34 @@ void TerrainPass::Uninitialize()
 	mToRemovedTerrainTree.clear();
 
 	terrainPSO.Clear();
-
-	mTerrainVS = nullptr;
-	mTerrainIL = nullptr;
-	mTerrainPS = nullptr;
-	mTerrainHS = nullptr;
-	mTerrainDS = nullptr;
 }
 
 
 void TerrainPass::Initialize()
 {
-	InitializeShader();
+	VertexLayoutDesc shadowLayout[] =
+	{
+		{ "POSITION_NORMAL_SUBSETINDEX", 0u, MeshComponent::VertexPosNormalSubset::format, 0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
 
+		// instance
+		{ "INSTANCELOCALTRANS",  0u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT, INPUT_PER_INSTANCE_DATA, 1u },
+		{ "INSTANCETERRAIN",0u, FORMAT_R32G32B32A32_UINT,  1u, APPEND_ALIGNED_ELEMENT, INPUT_PER_INSTANCE_DATA, 1u }
+	};
+
+	ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
+	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_Shader);
+	auto vsinfo = Renderer::LoadVertexShaderInfo(shaderPath + "terrainVS.cso", shadowLayout, ARRAYSIZE(shadowLayout));
+;
 	// initialize pso
 	ShaderLib& shaderLib = Renderer::GetShaderLib();
 	RenderPreset& renderPreset = Renderer::GetRenderPreset();
 
 	PipelineStateDesc desc = {};
-	desc.mInputLayout = mTerrainIL;
-	desc.mVertexShader = mTerrainVS;
-	desc.mPixelShader = mTerrainPS;
-	desc.mHullShader = mTerrainHS;
-	desc.mDomainShader = mTerrainDS;
+	desc.mInputLayout = vsinfo.mInputLayout;
+	desc.mVertexShader = vsinfo.mVertexShader;
+	desc.mPixelShader  = Renderer::LoadShader(SHADERSTAGES_PS, shaderPath + "terrainPS.cso");
+	desc.mHullShader   = Renderer::LoadShader(SHADERSTAGES_HS, shaderPath + "terrainHS.cso");
+	desc.mDomainShader = Renderer::LoadShader(SHADERSTAGES_DS, shaderPath + "terrainDS.cso");
 	desc.mPrimitiveTopology = PATCHLIST_4;
 	desc.mBlendState = renderPreset.GetBlendState(BlendStateID_Opaque);
 	desc.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_GreaterEqualReadWrite);
@@ -94,28 +93,6 @@ void TerrainPass::InitializeTestData()
 	material.detailTexture3 = resourceManager.GetOrCreate<TextureResource>("Textures/TerrainDetail3.dds", FORMAT_R8G8B8A8_UNORM, 1);
 	mTerrainTree.LoadTerrainMaterial(material);
 #endif
-}
-
-void TerrainPass::InitializeShader()
-{
-	VertexLayoutDesc shadowLayout[] =
-	{
-		{ "POSITION_NORMAL_SUBSETINDEX", 0u, MeshComponent::VertexPosNormalSubset::format, 0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
-
-		// instance
-		{ "INSTANCELOCALTRANS",  0u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT, INPUT_PER_INSTANCE_DATA, 1u },
-		{ "INSTANCETERRAIN",0u, FORMAT_R32G32B32A32_UINT,  1u, APPEND_ALIGNED_ELEMENT, INPUT_PER_INSTANCE_DATA, 1u }
-	};
-
-	ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
-	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_Shader);
-
-	auto vsinfo = Renderer::LoadVertexShaderInfo(shaderPath + "terrainVS.cso", shadowLayout, ARRAYSIZE(shadowLayout));
-	mTerrainVS = vsinfo.mVertexShader;
-	mTerrainIL = vsinfo.mInputLayout;
-	mTerrainPS = Renderer::LoadShader(SHADERSTAGES_PS, shaderPath + "terrainPS.cso");
-	mTerrainHS = Renderer::LoadShader(SHADERSTAGES_HS, shaderPath + "terrainHS.cso");
-	mTerrainDS = Renderer::LoadShader(SHADERSTAGES_DS, shaderPath + "terrainDS.cso");
 }
 
 void TerrainPass::UpdatePerFrameData(F32 deltaTime)

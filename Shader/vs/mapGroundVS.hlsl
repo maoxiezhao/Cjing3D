@@ -1,5 +1,5 @@
 #include "..\hf\objectInput.hlsli"
-#include "..\hf\shaderInteropGame.h"
+#include "..\hf\gameHF.hlsli"
 
 inline VertexSurface GroundMakeVertexSurfaceFromInput(InputObjectAll input)
 {

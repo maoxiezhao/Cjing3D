@@ -275,7 +275,7 @@ void TerrainTree::ProcessTerrainRenderQueue(TerrrainRenderQueue& renderQueue)
 		device.BindGPUResources(SHADERSTAGES_PS, psResources, TEXTURE_SLOT_0, ARRAYSIZE(psResources));
 
 		// draw instances
-		device.DrawIndexedInstances(indiceCount, batchInstance->mInstanceCount, 0, 0, 0);
+		device.DrawIndexedInstanced(indiceCount, batchInstance->mInstanceCount, 0, 0, 0);
 	}
 
 	device.UnAllocateGPU();

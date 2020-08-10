@@ -31,6 +31,7 @@ namespace Cjing3D {
 		ECS::Entity CreateAnimation(const std::string& name);
 		ECS::Entity CreateWeather(const std::string& name);
 		ECS::Entity CreateSound(const std::string& name, const std::string& filePath, bool is3DSound = true, const F32x3& pos = { 0.0f, 0.0f, 0.0f });
+		ECS::Entity CreateParticle(const std::string& name, const F32x3& pos = { 0.0f, 0.0f, 0.0f });
 
 		// create by entity
 		NameComponent& GetOrCreateNameByEntity(ECS::Entity entity);
@@ -152,7 +153,7 @@ namespace SceneSystem
 	void UpdateSceneArmatureSystem(Scene& scene);
 	void UpdateSceneAnimationSystem(Scene& scene);
 	void UpdateSceneSoundSystem(Scene& scene);
-	void UpdateSceneParticleSystem(Scene& scene);
+	void UpdateSceneParticleSystem(Scene& scene, F32 deltaTime);
 }
 }
 	

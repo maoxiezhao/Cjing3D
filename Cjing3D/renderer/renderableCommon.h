@@ -13,9 +13,9 @@
 #include <string>
 #include <list>
 
-#include "hf\shaderInterop.h"
-#include "hf\shaderInteropRender.h"
-#include "hf\shaderInteropImage.h"
+#include "shaderInterop\shaderInterop.h"
+#include "shaderInterop\shaderInteropRender.h"
+#include "shaderInterop\shaderInteropImage.h"
 
 enum BlendType
 {

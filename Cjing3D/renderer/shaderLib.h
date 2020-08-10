@@ -15,12 +15,10 @@ public:
 
 	void Initialize();
 	void Uninitialize();
+	void Reload();
 
 	ShaderPtr LoadShader(SHADERSTAGES stages, const std::string& path);
 	VertexShaderInfo LoadVertexShaderInfo(const std::string& path, VertexLayoutDesc* desc, U32 numElements);
-	InputLayoutPtr LoadInputLayout(ShaderPtr Shader, VertexLayoutDesc* desc, U32 numElements);
-	ShaderPtr LoadShader(SHADERSTAGES stages, const void* data, size_t length);
-
 };
 
 }

@@ -25,7 +25,6 @@ namespace Cjing3D
 		TerrainTreePtr GetTerrainTree(ECS::Entity entity);
 
 	private:
-		void InitializeShader();
 		void InitializeTestData();
 
 		std::vector<ECS::Entity> mToRemovedTerrainTree;

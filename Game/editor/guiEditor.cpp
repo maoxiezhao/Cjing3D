@@ -10,6 +10,7 @@
 #include "guiEditorTerrain.h"
 #include "guiEditorMaterial.h"
 #include "guiEditorSound.h"
+#include "guiEditorParticle.h"
 
 #include "gui\guiEditor\guiEditorInclude.h"
 #include "definitions\gameVersion.h"
@@ -57,6 +58,7 @@ namespace Editor {
 				if (ImGui::MenuItem("Animations")) { ShowAnimationWindow(); }
 				if (ImGui::MenuItem("GUI")) {  ShowGUIWindow(); }
 				if (ImGui::MenuItem("Render")) { ShowRenderWindow(); }
+				if (ImGui::MenuItem("ReloadShaders")) { Renderer::ReloadShaders(); }
 				if (ImGui::MenuItem("Picking")) { bShowMousePicking = true; }
 				ImGui::EndMenu();
 			}
@@ -64,6 +66,7 @@ namespace Editor {
 			{
 				if (ImGui::MenuItem("Light")) { ShowNewLightWindow(); }
 				if (ImGui::MenuItem("Sound")) { ShowNewSoundWindow(); }
+				if (ImGui::MenuItem("Particle")) { ShowNewParticle(); }
 				ImGui::EndMenu();
 			}
 			if (ImGui::BeginMenu("Profiler"))
@@ -108,7 +111,6 @@ namespace Editor {
 	void InitializeEditor(IMGUIStage& imguiStage)
 	{
 #ifndef _DISBALE_IMGUI_EDITOR_
-
 		imguiStage.RegisterCustomWindow(ShowMainMenuBar);
 		imguiStage.RegisterCustomWindow(ShowAboutWindow);
 		imguiStage.RegisterCustomWindow(UpateMousePicking);
@@ -120,6 +122,7 @@ namespace Editor {
 		InitializeEditorAnimation(imguiStage);
 		InitializeEditorRender(imguiStage);
 		InitializeEditorSound(imguiStage);
+		InitializeEditorParticle(imguiStage);
 #endif
 	}
 }

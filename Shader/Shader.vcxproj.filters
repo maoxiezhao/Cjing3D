@@ -155,6 +155,18 @@
     <FxCompile Include="ps\mapGroundPS.hlsl">
       <Filter>ps</Filter>
     </FxCompile>
+    <FxCompile Include="cs\particleStartCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\particleEmitCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\particleUpdateCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\particleFinishCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="hf\objectInput.hlsli">
@@ -184,28 +196,34 @@
     <None Include="hf\tiledCullingHF.hlsli">
       <Filter>hf</Filter>
     </None>
+    <None Include="hf\gameHF.hlsli">
+      <Filter>hf</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="hf\shaderInterop.h">
+    <ClInclude Include="shaderInterop\shaderDefine.h">
       <Filter>shaderInterop</Filter>
     </ClInclude>
-    <ClInclude Include="hf\shaderDefine.h">
+    <ClInclude Include="shaderInterop\shaderInterop.h">
       <Filter>shaderInterop</Filter>
     </ClInclude>
-    <ClInclude Include="hf\shaderInteropRender.h">
+    <ClInclude Include="shaderInterop\shaderInteropGame.h">
       <Filter>shaderInterop</Filter>
     </ClInclude>
-    <ClInclude Include="hf\constantBufferMapping.h">
+    <ClInclude Include="shaderInterop\shaderInteropImage.h">
+      <Filter>shaderInterop</Filter>
+    </ClInclude>
+    <ClInclude Include="shaderInterop\shaderInteropParticle.h">
+      <Filter>shaderInterop</Filter>
+    </ClInclude>
+    <ClInclude Include="shaderInterop\shaderInteropRender.h">
+      <Filter>shaderInterop</Filter>
+    </ClInclude>
+    <ClInclude Include="shaderInterop\resourceMapping.h">
       <Filter>shaderInterop\gpuMapping</Filter>
     </ClInclude>
-    <ClInclude Include="hf\resourceMapping.h">
+    <ClInclude Include="shaderInterop\constantBufferMapping.h">
       <Filter>shaderInterop\gpuMapping</Filter>
-    </ClInclude>
-    <ClInclude Include="hf\shaderInteropImage.h">
-      <Filter>shaderInterop</Filter>
-    </ClInclude>
-    <ClInclude Include="hf\shaderInteropGame.h">
-      <Filter>shaderInterop</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

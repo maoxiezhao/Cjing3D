@@ -2,7 +2,7 @@
 #define _IMAGE_HF_
 
 #include "global.hlsli"
-#include "shaderInteropImage.h"
+#include "..\shaderInterop\shaderInteropImage.h"
 
 TEXTURE2D(texture_base, float4, TEXTURE_SLOT_0);
 

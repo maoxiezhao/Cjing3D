@@ -30,7 +30,6 @@ typedef XMINT4 int4;
 #define CBUFFER(name, slot) cbuffer name : register(b ## slot)
 #define RAWBUFFER(name,slot) ByteAddressBuffer name : register(t ## slot)
 #define RWRAWBUFFER(name,slot) RWByteAddressBuffer name : register(u ## slot)
-#define RWSTRUCTUREDBUFFER(name, type, slot) RWStructuredBuffer<type> name :register(u ## slot);
 
 // texture
 #define TEXTURE2D(name, type, slot) Texture2D<type> name : register(t ## slot);
@@ -46,6 +45,7 @@ typedef XMINT4 int4;
 // unordered access
 #define RWTEXTURE2D(name, type, slot) RWTexture2D<type> name : register(u ## slot);
 #define RWTEXTURE2DArray(name, type, slot) RWTexture2DArray<type> name : register(u ## slot);
+#define RWSTRUCTUREDBUFFER(name, type, slot) RWStructuredBuffer<type> name :register(u ## slot);
 
 #endif
 #endif

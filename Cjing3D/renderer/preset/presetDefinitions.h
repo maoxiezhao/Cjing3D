@@ -51,6 +51,7 @@ namespace Cjing3D
 		RasterizerStateID_WireFrame,
 		RasterizerStateID_Sky,
 		RasterizerStateID_WireFrame_DoubleSided,
+		RasterizerStateID_Particle,
 		RasterizerStateID_Count
 	};
 

@@ -66,6 +66,7 @@ public:
 	// compute
 	virtual void BindComputeShader(ShaderPtr computeShader);
 	virtual void Dispatch(U32 threadGroupCountX, U32 threadGroupCountY, U32 threadGroupCountZ);
+	virtual void DispatchIndirect(const GPUBuffer* buffer, U32 offset);
 	virtual void BindUAV(GPUResource* const resource, U32 slot, I32 subresourceIndex = -1);
 	virtual void BindUAVs(GPUResource* const* resource, U32 slot, U32 count);
 	virtual void UnBindUAVs(U32 slot, U32 count);
@@ -75,13 +76,17 @@ public:
 	void ClearPrevStates();
 	virtual void Draw(UINT vertexCount, UINT startVertexLocation);
 	virtual void DrawIndexed(UINT indexCount, UINT startIndexLocation) ;
-	virtual void DrawIndexedInstances(U32 indexCount, U32 instanceCount, U32 startIndexLocation, U32 baseVertexLocation, U32 startInstanceLocation);
+	virtual void DrawInstanced(U32 vertexCountPerInstance, U32 instanceCount, U32 startVertexLocation, U32 startInstanceLocation);
+	virtual void DrawIndexedInstanced(U32 indexCount, U32 instanceCount, U32 startIndexLocation, U32 baseVertexLocation, U32 startInstanceLocation);
+	virtual void DrawInstancedIndirect(const GPUBuffer* buffer, U32 offset);
 
 	// query
 	virtual HRESULT CreateQuery(const GPUQueryDesc& desc, GPUQuery& query) ;
 	virtual void BeginQuery(GPUQuery& query);
 	virtual void EndQuery(GPUQuery& query);
 	virtual HRESULT ReadQuery(GPUQuery& query, GPUQueryResult& result);
+	virtual void Map(const GPUResource* resource, GPUResourceMapping& mapping);
+	virtual void Unmap(const GPUResource* resource);
 
 	inline HWND GetHwnd() { return mWindow; }
 	inline ID3D11Device& GetDevice() { return *mDevice.Get(); }

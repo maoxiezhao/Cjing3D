@@ -29,7 +29,7 @@ namespace CjingGame
 			desc.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_DepthReadEqual);
 			desc.mRasterizerState = renderPreset.GetRasterizerState(RasterizerStateID_Front);
 			desc.mPrimitiveTopology = TRIANGLELIST;
-			Renderer::RegisterPipelineState(RenderPassType_TiledForward, "StaticMapGroundPSO", desc);
+			Renderer::RegisterCustomPipelineState(RenderPassType_TiledForward, "StaticMapGroundPSO", desc);
 
 			// dynamic
 			desc.mInputLayout = renderPreset.GetVertexLayout(InputLayoutType_ObjectAll);
@@ -39,7 +39,7 @@ namespace CjingGame
 			desc.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_DepthReadEqual);
 			desc.mRasterizerState = renderPreset.GetRasterizerState(RasterizerStateID_Front);
 			desc.mPrimitiveTopology = TRIANGLELIST;
-			Renderer::RegisterPipelineState(RenderPassType_TiledForward, "DynamicMapGroundPSO", desc);
+			Renderer::RegisterCustomPipelineState(RenderPassType_TiledForward, "DynamicMapGroundPSO", desc);
 
 			// initialize constant buffer
 			const HRESULT result = CreateDynamicConstantBuffer(Renderer::GetDevice(), mGroundTilesetBuffer, sizeof(GroundTileSetCB));

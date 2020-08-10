@@ -94,6 +94,9 @@
     <ClCompile Include="game\map\ground\gameMapGroundTileset.cpp">
       <Filter>game\map\ground</Filter>
     </ClCompile>
+    <ClCompile Include="editor\guiEditorParticle.cpp">
+      <Filter>editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="game">
@@ -232,6 +235,9 @@
     </ClInclude>
     <ClInclude Include="game\map\wall\gameMapWallRenderer.h">
       <Filter>game\map\wall</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\guiEditorParticle.h">
+      <Filter>editor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
