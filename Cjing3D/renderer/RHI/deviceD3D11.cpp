@@ -1800,9 +1800,13 @@ void GraphicsDeviceD3D11::ClearDepthStencil(Texture2D& texture, UINT clearFlag, 
 	}
 }
 
-void GraphicsDeviceD3D11::BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot, I32 subresourceIndex)
+void GraphicsDeviceD3D11::BindGPUResource(SHADERSTAGES stage, const GPUResource* resource, U32 slot, I32 subresourceIndex)
 {
-	auto rhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(resource);
+	if (resource == nullptr || !resource->IsValid()) {
+		return;
+	}
+
+	auto rhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(*resource);
 	if (rhiState == nullptr) {
 		Debug::Warning("Faild to bind null gpu resource");
 		return;
@@ -1846,7 +1850,7 @@ void GraphicsDeviceD3D11::BindGPUResource(SHADERSTAGES stage, GPUResource& resou
 	}
 }
 
-void GraphicsDeviceD3D11::BindGPUResources(SHADERSTAGES stage, GPUResource * const * resource, U32 slot, U32 count)
+void GraphicsDeviceD3D11::BindGPUResources(SHADERSTAGES stage, const GPUResource * const * resource, U32 slot, U32 count)
 {
 	ID3D11ShaderResourceView* srvs[8] = { nullptr };
 	for (int i = 0; i < count; i++) 

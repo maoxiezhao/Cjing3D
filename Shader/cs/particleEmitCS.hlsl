@@ -32,7 +32,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
         newParticle.maxLife = gParticleLifeRange;
         newParticle.life = newParticle.maxLife;
         newParticle.sizeBeginEnd = float2(size, size);
-        newParticle.padding = 0.0f;
+        newParticle.color = gParticleColor;
 
         // store new particle and update lists
         uint deadCount = 0;

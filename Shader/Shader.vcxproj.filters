@@ -167,6 +167,12 @@
     <FxCompile Include="cs\particleFinishCS.hlsl">
       <Filter>cs</Filter>
     </FxCompile>
+    <FxCompile Include="vs\particleVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="ps\particlePS.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="hf\objectInput.hlsli">
@@ -197,6 +203,9 @@
       <Filter>hf</Filter>
     </None>
     <None Include="hf\gameHF.hlsli">
+      <Filter>hf</Filter>
+    </None>
+    <None Include="hf\particleHF.hlsli">
       <Filter>hf</Filter>
     </None>
   </ItemGroup>

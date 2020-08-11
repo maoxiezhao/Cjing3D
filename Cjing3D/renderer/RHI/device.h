@@ -65,8 +65,8 @@ namespace Cjing3D
 		virtual void ClearRenderTarget(Texture2D& texture, F32x4 color) = 0;
 		virtual void ClearDepthStencil(Texture2D& texture, UINT clearFlag, F32 depth, U8 stencil, I32 subresourceIndex = -1) = 0;
 
-		virtual void BindGPUResource(SHADERSTAGES stage, GPUResource& resource, U32 slot, I32 subresourceIndex = -1) = 0;
-		virtual void BindGPUResources(SHADERSTAGES stage, GPUResource* const* resource, U32 slot, U32 count) = 0;
+		virtual void BindGPUResource(SHADERSTAGES stage, const GPUResource* resource, U32 slot, I32 subresourceIndex = -1) = 0;
+		virtual void BindGPUResources(SHADERSTAGES stage, const GPUResource* const* resource, U32 slot, U32 count) = 0;
 		virtual void UnbindGPUResources(U32 slot, U32 count) = 0;
 		virtual void SetResourceName(GPUResource& resource, const std::string& name) = 0;
 		virtual void CopyGPUResource(GPUResource& texDst, GPUResource& texSrc) = 0;

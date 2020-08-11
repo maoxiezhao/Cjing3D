@@ -120,7 +120,7 @@ namespace Cjing3D
 			vp.mMaxDepth = 1.0f;
 			device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
 
-			device.BindGPUResource(SHADERSTAGES_PS, IsAOEnable() ? *GetAOTexture() : *TextureHelper::GetWhite(), TEXTURE_SLOT_AO);
+			device.BindGPUResource(SHADERSTAGES_PS, IsAOEnable() ? GetAOTexture() : TextureHelper::GetWhite(), TEXTURE_SLOT_AO);
 
 			Renderer::RenderSceneOpaque(camera, RenderPassType_TiledForward);
 			Renderer::RenderSky();

@@ -457,8 +457,8 @@ void TiledLightCulling(Texture2D& depthBuffer)
 
 		// bind resources
 		mGraphicsDevice->UnbindGPUResources(SBSLOT_TILED_LIGHTS, 1);
-		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, depthBuffer, TEXTURE_SLOT_DEPTH);
-		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, frustumBuffer, SBSLOT_TILED_FRUSTUMS);
+		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &depthBuffer, TEXTURE_SLOT_DEPTH);
+		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &frustumBuffer, SBSLOT_TILED_FRUSTUMS);
 
 		FrameCullings& frameCulling = mFrameCullings.at(&camera);
 		CSParamsCB cb;
@@ -707,7 +707,7 @@ void UpdatePerFrameData(F32 deltaTime, U32 renderLayerMask)
 				continue;
 			}
 
-			frameCulling.mCulledParticles.push_back((U32)particle);
+			frameCulling.mCulledParticles.push_back((U32)i);
 		}
 
 		LinearAllocator& frameAllocator = GetFrameAllocator(FrameAllocatorType_Render);
@@ -1077,7 +1077,7 @@ void RenderSceneOpaque(CameraComponent& camera, RenderPassType renderPassType)
 	{
 		GPUBuffer& tiledLightBuffer = mRenderPreset->GetOrCreateCustomBuffer("TiledLightBuffer");
 		if (tiledLightBuffer.IsValid()) {
-			mGraphicsDevice->BindGPUResource(SHADERSTAGES_PS, tiledLightBuffer, SBSLOT_TILED_LIGHTS);
+			mGraphicsDevice->BindGPUResource(SHADERSTAGES_PS, &tiledLightBuffer, SBSLOT_TILED_LIGHTS);
 		}
 	}
 
@@ -1193,7 +1193,7 @@ void RenderSky()
 				mGraphicsDevice->BindPipelineState(*pso);
 				mGraphicsDevice->BindGPUResource(
 					SHADERSTAGES_PS, 
-					*currentWeather->mSkyMap->mTexture,
+					currentWeather->mSkyMap->mTexture,
 					TEXTURE_SLOT_GLOBAL_ENV_MAP
 				);
 			}
@@ -1227,7 +1227,7 @@ void RenderLinearDepth(Texture2D& depthBuffer, Texture2D& linearDepthBuffer)
 	mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, postprocessBuffer, CB_GETSLOT_NAME(PostprocessCB));
 
 	// bind shader
-	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, depthBuffer, TEXTURE_SLOT_UNIQUE_0);
+	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &depthBuffer, TEXTURE_SLOT_UNIQUE_0);
 	mGraphicsDevice->BindComputeShader(mRenderPreset->GetComputeShader(ComputeShaderType_LinearDepth));
 
 	// bind output texture
@@ -1306,8 +1306,8 @@ void RenderSSAO(Texture2D& depthBuffer, Texture2D& linearDepthBuffer, Texture2D&
 	mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, postprocessBuffer, CB_GETSLOT_NAME(PostprocessCB));
 
 	// bind shader
-	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, depthBuffer, TEXTURE_SLOT_DEPTH);
-	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, linearDepthBuffer, TEXTURE_SLOT_LINEAR_DEPTH);
+	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &depthBuffer, TEXTURE_SLOT_DEPTH);
+	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &linearDepthBuffer, TEXTURE_SLOT_LINEAR_DEPTH);
 	mGraphicsDevice->BindComputeShader(mRenderPreset->GetComputeShader(ComputeShaderType_SSAO));
 
 	// bind output texture
@@ -1372,7 +1372,7 @@ void RenderParticles(CameraComponent& camera, Texture2D& linearDepthBuffer)
 	}
 	std::sort(sortingHashes, sortingHashes + hashIndex, std::greater<U32>());
 
-	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, linearDepthBuffer, TEXTURE_SLOT_LINEAR_DEPTH);
+	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &linearDepthBuffer, TEXTURE_SLOT_LINEAR_DEPTH);
 
 	ParticlePass& particlePass = dynamic_cast<ParticlePass&>(*GetRenderPass(STRING_ID(TerrainPass)));
 	for (U32 i = 0; i < hashIndex; i++)
@@ -1518,7 +1518,7 @@ void GaussianBlur(Texture2D& input, Texture2D& temp, Texture2D& output)
 		cb.gPPInverseResolution.y = (1.0f / cb.gPPResolution.y);
 
 		mGraphicsDevice->UpdateBuffer(postprocessBuffer, &cb, sizeof(PostprocessCB));
-		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, input, TEXTURE_SLOT_UNIQUE_0);
+		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &input, TEXTURE_SLOT_UNIQUE_0);
 		mGraphicsDevice->BindUAV(&temp, 0);
 		mGraphicsDevice->Dispatch(
 			(U32)((desc.mWidth + SHADER_GAUSSIAN_BLUR_BLOCKSIZE - 1) / SHADER_GAUSSIAN_BLUR_BLOCKSIZE),
@@ -1536,7 +1536,7 @@ void GaussianBlur(Texture2D& input, Texture2D& temp, Texture2D& output)
 		cb.gPPInverseResolution.y = (1.0f / cb.gPPResolution.y);
 
 		mGraphicsDevice->UpdateBuffer(postprocessBuffer, &cb, sizeof(PostprocessCB));
-		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, temp, TEXTURE_SLOT_UNIQUE_0);
+		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &temp, TEXTURE_SLOT_UNIQUE_0);
 		mGraphicsDevice->BindUAV(&output, 0);
 		mGraphicsDevice->Dispatch(
 			desc.mWidth,
@@ -1569,7 +1569,7 @@ void BilateralBlur(Texture2D& input, Texture2D& temp, Texture2D& output, Texture
 
 	mGraphicsDevice->BeginEvent("BilateralBlur");
 	mGraphicsDevice->BindComputeShader(mRenderPreset->GetComputeShader(csType));
-	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, linearDepthBuffer, TEXTURE_SLOT_LINEAR_DEPTH);
+	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &linearDepthBuffer, TEXTURE_SLOT_LINEAR_DEPTH);
 
 	GPUBuffer& postprocessBuffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_Postprocess);
 	mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, postprocessBuffer, CB_GETSLOT_NAME(PostprocessCB));
@@ -1587,7 +1587,7 @@ void BilateralBlur(Texture2D& input, Texture2D& temp, Texture2D& output, Texture
 		cb.gPPParam3 = 0;
 
 		mGraphicsDevice->UpdateBuffer(postprocessBuffer, &cb, sizeof(PostprocessCB));
-		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, input, TEXTURE_SLOT_UNIQUE_0);
+		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &input, TEXTURE_SLOT_UNIQUE_0);
 		mGraphicsDevice->BindUAV(&temp, 0);
 		mGraphicsDevice->Dispatch(
 			(U32)((desc.mWidth + SHADER_GAUSSIAN_BLUR_BLOCKSIZE - 1) / SHADER_GAUSSIAN_BLUR_BLOCKSIZE),
@@ -1608,7 +1608,7 @@ void BilateralBlur(Texture2D& input, Texture2D& temp, Texture2D& output, Texture
 		cb.gPPParam3 = 1;
 
 		mGraphicsDevice->UpdateBuffer(postprocessBuffer, &cb, sizeof(PostprocessCB));
-		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, temp, TEXTURE_SLOT_UNIQUE_0);
+		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &temp, TEXTURE_SLOT_UNIQUE_0);
 		mGraphicsDevice->BindUAV(&output, 0);
 		mGraphicsDevice->Dispatch(
 			desc.mWidth,
@@ -1640,7 +1640,7 @@ void UpsampleBilateral(Texture2D& input, Texture2D& output, Texture2D& linearDep
 
 	mGraphicsDevice->BeginEvent("UnsampleBilateral");
 	mGraphicsDevice->BindComputeShader(mRenderPreset->GetComputeShader(csType));
-	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, linearDepthBuffer, TEXTURE_SLOT_LINEAR_DEPTH);
+	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &linearDepthBuffer, TEXTURE_SLOT_LINEAR_DEPTH);
 	
 	GPUBuffer& postprocessBuffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_Postprocess);
 	PostprocessCB cb;
@@ -1656,7 +1656,7 @@ void UpsampleBilateral(Texture2D& input, Texture2D& output, Texture2D& linearDep
 
 	mGraphicsDevice->UpdateBuffer(postprocessBuffer, &cb, sizeof(PostprocessCB));
 	mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, postprocessBuffer, CB_GETSLOT_NAME(PostprocessCB));
-	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, input, TEXTURE_SLOT_UNIQUE_0);
+	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &input, TEXTURE_SLOT_UNIQUE_0);
 	mGraphicsDevice->BindUAV(&output, 0);
 	mGraphicsDevice->Dispatch(
 		(U32)((desc.mWidth  + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
@@ -1677,7 +1677,7 @@ void PostprocessTonemap(Texture2D& input, Texture2D& output, F32 exposure)
 	mGraphicsDevice->BindComputeShader(mRenderPreset->GetComputeShader(ComputeShaderType_Tonemapping));
 
 	// bind input texture
-	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, input, TEXTURE_SLOT_UNIQUE_0);
+	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &input, TEXTURE_SLOT_UNIQUE_0);
 
 	// bind post process buffer
 	const TextureDesc desc = output.GetDesc();
@@ -1714,7 +1714,7 @@ void PostprocessFXAA(Texture2D& input, Texture2D& output)
 	mGraphicsDevice->BindComputeShader(mRenderPreset->GetComputeShader(ComputeShaderType_FXAA));
 
 	// bind input texture
-	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, input, TEXTURE_SLOT_UNIQUE_0);
+	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &input, TEXTURE_SLOT_UNIQUE_0);
 
 	// bind post process buffer
 	const TextureDesc desc = output.GetDesc();
@@ -1777,6 +1777,7 @@ void UpdateCameraCB(CameraComponent & camera)
 	DirectX::XMStoreFloat4x4(&cb.gCameraVP,    camera.GetViewProjectionMatrix());
 	DirectX::XMStoreFloat4x4(&cb.gCameraView,  camera.GetViewMatrix());
 	DirectX::XMStoreFloat4x4(&cb.gCameraProj,  camera.GetProjectionMatrix());
+	DirectX::XMStoreFloat4x4(&cb.gCameraInvV,  camera.GetInvViewMatrix());
 	DirectX::XMStoreFloat4x4(&cb.gCameraInvP,  camera.GetInvProjectionMatrix());
 	DirectX::XMStoreFloat4x4(&cb.gCameraInvVP, camera.GetInvViewProjectionMatrix());
 
@@ -2214,17 +2215,17 @@ void ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPassType, Rend
 			// bind material texture
 			if (simpleBindTexture)
 			{
-				GPUResource* resources[] = {
-					material->mBaseColorMap != nullptr ? material->mBaseColorMap->mTexture : nullptr,
+				const GPUResource* resources[] = {
+					material->GetBaseColorMap(),
 				};
 				mGraphicsDevice->BindGPUResources(SHADERSTAGES_PS, resources, TEXTURE_SLOT_0, 1);
 			}
 			else
 			{
-				GPUResource* resources[] = {
-					material->mBaseColorMap != nullptr ? material->mBaseColorMap->mTexture : nullptr,
-					material->mNormalMap    != nullptr ? material->mNormalMap->mTexture : nullptr,
-					material->mSurfaceMap   != nullptr ? material->mSurfaceMap->mTexture : nullptr,
+				const GPUResource* resources[] = {
+					material->GetBaseColorMap(),
+					material->GetNormalMap(),
+					material->GetSurfaceMap(),
 				};
 				mGraphicsDevice->BindGPUResources(SHADERSTAGES_PS, resources, TEXTURE_SLOT_0, 3);
 			}
@@ -2250,8 +2251,8 @@ void BindConstanceBuffer(SHADERSTAGES stage)
 
 void BindShadowMaps(SHADERSTAGES stage)
 {
-	mGraphicsDevice->BindGPUResource(stage, shadowMapArray2D,   TEXTURE_SLOT_SHADOW_ARRAY_2D);
-	mGraphicsDevice->BindGPUResource(stage, shadowMapArrayCube, TEXTURE_SLOT_SHADOW_ARRAY_CUBE);
+	mGraphicsDevice->BindGPUResource(stage, &shadowMapArray2D,   TEXTURE_SLOT_SHADOW_ARRAY_2D);
+	mGraphicsDevice->BindGPUResource(stage, &shadowMapArrayCube, TEXTURE_SLOT_SHADOW_ARRAY_CUBE);
 }
 
 void RenderDirLightShadowmap(LightComponent& light, CameraComponent& camera, U32 renderLayerMask)
@@ -2488,7 +2489,7 @@ void ProcessSkinning()
 
 		// update bonePoses buffer
 		mGraphicsDevice->UpdateBuffer(armature->mBufferBonePoses, armature->mBonePoses.data(), sizeof(ArmatureComponent::BonePose) * armature->mBonePoses.size());
-		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, armature->mBufferBonePoses, SKINNING_SBSLOT_BONE_POSE_BUFFER);
+		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &armature->mBufferBonePoses, SKINNING_SBSLOT_BONE_POSE_BUFFER);
 
 		GPUResource* resoureces[] = { 
 			mesh.GetVertexBufferPos(),

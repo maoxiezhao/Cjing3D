@@ -1,6 +1,7 @@
 #include "material.h"
 #include "renderer\renderer.h"
 #include "renderer\RHI\rhiFactory.h"
+#include "renderer\textureHelper.h"
 #include "resource\resourceManager.h"
 
 Cjing3D::MaterialComponent::MaterialComponent():
@@ -51,6 +52,21 @@ bool Cjing3D::MaterialComponent::LoadSurfaceMap(const std::string& filePath)
 	mSurfaceMapName = filePath;
 	mSurfaceMap = resourceManager.GetOrCreate<TextureResource>(StringID(filePath));
 	return true;
+}
+
+const Cjing3D::Texture2D* Cjing3D::MaterialComponent::GetBaseColorMap() const
+{
+	return mBaseColorMap != nullptr ? mBaseColorMap->mTexture : TextureHelper::GetWhite();
+}
+
+const Cjing3D::Texture2D* Cjing3D::MaterialComponent::GetNormalMap() const
+{
+	return mNormalMap != nullptr ? mNormalMap->mTexture : nullptr;
+}
+
+const Cjing3D::Texture2D* Cjing3D::MaterialComponent::GetSurfaceMap() const
+{
+	return mSurfaceMap != nullptr ? mSurfaceMap->mTexture : TextureHelper::GetWhite();
 }
 
 void Cjing3D::MaterialComponent::Serialize(Archive& archive, U32 seed)

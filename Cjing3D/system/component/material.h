@@ -42,6 +42,10 @@ namespace Cjing3D {
 		bool LoadBaseColorMap(const std::string& filePath);
 		bool LoadNormalMap(const std::string& filePath);
 		bool LoadSurfaceMap(const std::string& filePath);
+		
+		const Texture2D* GetBaseColorMap()const;
+		const Texture2D* GetNormalMap()const;
+		const Texture2D* GetSurfaceMap()const;
 
 		void SetCustomShader(const StringID& id) { mCustomShader = id; }
 		StringID GetCustomShader()const { return mCustomShader; }

@@ -162,13 +162,14 @@ namespace Cjing3D {
 		auto material = scene.mMaterials.GetComponent(selfEntity);
 		auto mesh = scene.mMeshes.GetComponent(mMeshID);
 	
-		auto device = Renderer::GetDevice();
+		GraphicsDevice &device = Renderer::GetDevice();
 		// update particle buffer
 		{
 			ParticleCB particleCB;
 			particleCB.gParticleWorldTransform = transform->GetWorldTransform();
-			particleCB.gParticleEmitCount = mEmitCount;
+			particleCB.gParticleEmitCount = (F32)mEmitCount;
 			particleCB.gParticleRandomness = Random::GetRandomFloat(0, 1.0f);
+			particleCB.gParticleColor = Color4::Convert(material->mBaseColor).GetRGBA();
 
 			device.UpdateBuffer(mConstBuffer, &particleCB);
 			device.BindConstantBuffer(SHADERSTAGES_CS, mConstBuffer, CB_GETSLOT_NAME(ParticleCB));

@@ -260,7 +260,7 @@ void ImGui_ImplDX11_RenderDrawData(ImDrawData* draw_data)
                 auto texture = (Cjing3D::Texture2D*)pcmd->TextureId;
                 if (texture != nullptr) 
                 {
-                    Cjing3D::Renderer::GetDevice().BindGPUResource(Cjing3D::SHADERSTAGES_PS, *texture, 0);
+                    Cjing3D::Renderer::GetDevice().BindGPUResource(Cjing3D::SHADERSTAGES_PS, texture, 0);
                     ctx->DrawIndexed(pcmd->ElemCount, pcmd->IdxOffset + global_idx_offset, pcmd->VtxOffset + global_vtx_offset);
                 } 
             }

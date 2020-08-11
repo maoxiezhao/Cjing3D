@@ -1,6 +1,7 @@
 #include "particlePass.h"
 #include "system\sceneSystem.h"
 #include "resource\resourceManager.h"
+#include "renderer\renderer.h"
 #include "renderer\preset\renderPreset.h"
 
 namespace Cjing3D {
@@ -28,15 +29,12 @@ void ParticlePass::Initialize()
 
 	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_Shader);
 	PipelineStateDesc desc = {};
-	desc.mInputLayout = nullptr;
-	desc.mVertexShader = nullptr;
-	desc.mPixelShader = Renderer::LoadShader(SHADERSTAGES_PS, shaderPath + "terrainPS.cso");
-	desc.mHullShader = Renderer::LoadShader(SHADERSTAGES_HS, shaderPath + "terrainHS.cso");
-	desc.mDomainShader = Renderer::LoadShader(SHADERSTAGES_DS, shaderPath + "terrainDS.cso");
-	desc.mPrimitiveTopology = PATCHLIST_4;
-	desc.mBlendState = renderPreset.GetBlendState(BlendStateID_Opaque);
-	desc.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_GreaterEqualReadWrite);
-	desc.mRasterizerState = renderPreset.GetRasterizerState(RasterizerStateID_Front);
+	desc.mVertexShader = Renderer::LoadShader(SHADERSTAGES_VS, shaderPath + "particleVS.cso");
+	desc.mPixelShader = Renderer::LoadShader(SHADERSTAGES_PS, shaderPath + "particlePS.cso");
+	desc.mPrimitiveTopology = TRIANGLELIST;
+	desc.mBlendState = renderPreset.GetBlendState(BlendStateID_Transpranent);
+	desc.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_DepthRead);
+	desc.mRasterizerState = renderPreset.GetRasterizerState(RasterizerStateID_Particle);
 
 	Renderer::GetDevice().CreatePipelineState(desc, mParticlePSO);
 
@@ -64,7 +62,7 @@ void ParticlePass::Uninitialize()
 
 void ParticlePass::UpdateParticle(ParticleComponent& particle)
 {
-	auto device = Renderer::GetDevice();
+	GraphicsDevice& device = Renderer::GetDevice();
 	GPUResource* uavs[] = {
 		&particle.mBufferParticles,
 		&particle.mBufferAliveList,
@@ -102,7 +100,7 @@ void ParticlePass::UpdateParticle(ParticleComponent& particle)
 		device.BeginEvent("ParticleFinish");
 		device.BindUAV(&particle.mBufferIndirect, 0);
 		device.BindComputeShader(mParticleFinishCS);
-		device.BindGPUResource(SHADERSTAGES_CS, particle.mBufferCounters, TEXTURE_SLOT_0);
+		device.BindGPUResource(SHADERSTAGES_CS, &particle.mBufferCounters, TEXTURE_SLOT_0);
 		device.Dispatch(1, 1, 1);
 		device.UnBindUAVs(0, 1);
 		device.UnbindGPUResources(TEXTURE_SLOT_0, 1);
@@ -112,10 +110,10 @@ void ParticlePass::UpdateParticle(ParticleComponent& particle)
 
 void ParticlePass::DrawParticle(ParticleComponent& particle, MaterialComponent& material)
 {
-	auto device = Renderer::GetDevice();
+	GraphicsDevice &device = Renderer::GetDevice();
 	device.BeginEvent("RenderParticles");
 	device.BindPipelineState(mParticlePSO);
-	device.BindGPUResource(SHADERSTAGES_PS, *material.mBaseColorMap->mTexture, TEXTURE_SLOT_0);
+	device.BindGPUResource(SHADERSTAGES_PS, material.GetBaseColorMap(), TEXTURE_SLOT_0);
 	device.BindConstantBuffer(SHADERSTAGES_VS, particle.mConstBuffer, CB_GETSLOT_NAME(ParticleCB));
 	device.BindConstantBuffer(SHADERSTAGES_PS, particle.mConstBuffer, CB_GETSLOT_NAME(ParticleCB));
 	

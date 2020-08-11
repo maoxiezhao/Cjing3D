@@ -363,7 +363,7 @@ namespace Renderer2D {
 				graphicsDevice.BindVertexBuffer(vbs, 0, ARRAYSIZE(vbs), strides, offsets);
 				graphicsDevice.BindIndexBuffer(mIndexBuffer, IndexFormat::INDEX_FORMAT_32BIT, 0);
 				graphicsDevice.BindPipelineState(state);
-				graphicsDevice.BindGPUResource(SHADERSTAGES_PS, *bathInstance->mTexture, TEXTURE_SLOT_0);
+				graphicsDevice.BindGPUResource(SHADERSTAGES_PS, bathInstance->mTexture, TEXTURE_SLOT_0);
 				graphicsDevice.DrawIndexedInstanced(6, bathInstance->mInstanceCount, 0, 0, 0);
 			}
 

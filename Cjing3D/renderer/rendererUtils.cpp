@@ -90,7 +90,7 @@ namespace Cjing3D
 
 			// bind input and output
 			// 输入绑定的是上一级的纹理
-			device.BindGPUResource(SHADERSTAGES_CS, texture, TEXTURE_SLOT_UNIQUE_0, mipLevel);
+			device.BindGPUResource(SHADERSTAGES_CS, &texture, TEXTURE_SLOT_UNIQUE_0, mipLevel);
 
 			// update constant buffer
 			MipmapGenerateCB cb;

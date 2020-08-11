@@ -600,7 +600,7 @@ namespace Font {
 			device.BeginEvent("RenderFontInst");
 			device.BindPipelineState(mFontPSO);
 			device.BindSamplerState(SHADERSTAGES_PS, *Renderer::GetRenderPreset().GetSamplerState(SamplerStateID_Font), SAMPLER_SLOT_0);
-			device.BindGPUResource(SHADERSTAGES_PS, mFontGlyphsTexture, TEXTURE_SLOT_FONT);
+			device.BindGPUResource(SHADERSTAGES_PS, &mFontGlyphsTexture, TEXTURE_SLOT_FONT);
 			device.BindConstantBuffer(SHADERSTAGES_VS, mFontBuffer, CB_GETSLOT_NAME(FontCB));
 			device.BindConstantBuffer(SHADERSTAGES_PS, mFontBuffer, CB_GETSLOT_NAME(FontCB));
 
@@ -684,7 +684,7 @@ namespace Font {
 			FontParams currentFontParams = params[0];
 			device.BindPipelineState(mFontPSO);
 			device.BindSamplerState(SHADERSTAGES_PS, *Renderer::GetRenderPreset().GetSamplerState(SamplerStateID_Font), SAMPLER_SLOT_0);
-			device.BindGPUResource(SHADERSTAGES_PS, mFontGlyphsTexture, TEXTURE_SLOT_FONT);
+			device.BindGPUResource(SHADERSTAGES_PS, &mFontGlyphsTexture, TEXTURE_SLOT_FONT);
 			device.BindConstantBuffer(SHADERSTAGES_VS, mFontBuffer, CB_GETSLOT_NAME(FontCB));
 			device.BindConstantBuffer(SHADERSTAGES_PS, mFontBuffer, CB_GETSLOT_NAME(FontCB));
 

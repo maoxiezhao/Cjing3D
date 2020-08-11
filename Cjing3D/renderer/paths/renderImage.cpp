@@ -17,7 +17,7 @@ namespace RenderImage
 		auto& pipelineStateManager = Renderer::GetPipelineStateManager();
 
 		device.BindSamplerState(SHADERSTAGES_PS, *renderPreset.GetSamplerState(SamplerStateID_LinearClamp), SAMPLER_LINEAR_CLAMP_SLOT);
-		device.BindGPUResource(SHADERSTAGES_PS, texture, TEXTURE_SLOT_0);
+		device.BindGPUResource(SHADERSTAGES_PS, &texture, TEXTURE_SLOT_0);
 
 		if (params.IsFullScreenEnabled()) 
 		{
