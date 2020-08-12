@@ -794,6 +794,8 @@ void RefreshRenderData()
 {
 	mFrameData.Clear();
 
+	BindCommonResource();
+
 	auto& mainScene = GetMainScene();
 
 	// 处理延时生成的mipmap
@@ -1374,7 +1376,7 @@ void RenderParticles(CameraComponent& camera, Texture2D& linearDepthBuffer)
 
 	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &linearDepthBuffer, TEXTURE_SLOT_LINEAR_DEPTH);
 
-	ParticlePass& particlePass = dynamic_cast<ParticlePass&>(*GetRenderPass(STRING_ID(TerrainPass)));
+	ParticlePass& particlePass = dynamic_cast<ParticlePass&>(*GetRenderPass(STRING_ID(ParticlePass)));
 	for (U32 i = 0; i < hashIndex; i++)
 	{
 		auto particle = scene.mParticles[sortingHashes[i] & 0xffff];
@@ -2524,9 +2526,9 @@ void ProcessParticles(Scene& scene, const std::vector<U32>& culledParticles)
 	}
 
 	PROFILER_BEGIN_GPU_BLOCK("GPU Particles");
-	for (const auto& particleEntity : culledParticles)
+	for (const auto& particleIndex : culledParticles)
 	{
-		auto particle = scene.mParticles.GetComponent(particleEntity);
+		auto particle = scene.mParticles[particleIndex];
 		if (particle == nullptr) {
 			continue;
 		}

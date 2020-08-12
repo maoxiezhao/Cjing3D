@@ -39,6 +39,7 @@ namespace Cjing3D
 		BlendStateID_Transpranent,
 		BlendStateID_PreMultiplied,
 		BlendStateID_ColorWriteDisable,
+		BlendStateID_Particle_Alpha,
 		BlendStateID_Count
 	};
 

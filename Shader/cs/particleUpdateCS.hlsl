@@ -25,8 +25,8 @@ void main(uint3 DTid : SV_DispatchThreadID)
         else
         {
             const float dt = gFrameDeltaTime;
-            particle.position += particle.velocity * dt;
-            particle.life -= dt;
+            particle.position += particle.velocity * dt;    
+            particle.life = particle.life - dt;
             
             shaderParticles[particleIndex] = particle;
             

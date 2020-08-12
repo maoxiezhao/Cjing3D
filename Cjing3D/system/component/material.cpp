@@ -69,6 +69,21 @@ const Cjing3D::Texture2D* Cjing3D::MaterialComponent::GetSurfaceMap() const
 	return mSurfaceMap != nullptr ? mSurfaceMap->mTexture : TextureHelper::GetWhite();
 }
 
+Cjing3D::Texture2D* Cjing3D::MaterialComponent::GetBaseColorMapPtr() const
+{
+	return mBaseColorMap != nullptr ? mBaseColorMap->mTexture : nullptr;
+}
+
+Cjing3D::Texture2D* Cjing3D::MaterialComponent::GetNormalMapPtr() const
+{
+	return mNormalMap != nullptr ? mNormalMap->mTexture : nullptr;
+}
+
+Cjing3D::Texture2D* Cjing3D::MaterialComponent::GetSurfaceMapPtr() const
+{
+	return mSurfaceMap != nullptr ? mSurfaceMap->mTexture : nullptr;
+}
+
 void Cjing3D::MaterialComponent::Serialize(Archive& archive, U32 seed)
 {
 	archive >> mBaseColor;

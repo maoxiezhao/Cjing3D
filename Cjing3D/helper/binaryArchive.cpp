@@ -3,7 +3,7 @@
 
 namespace Cjing3D
 {
-	const U32 BinaryArchive::currentArchiveVersion = 1;
+	const U32 BinaryArchive::currentArchiveVersion = 2;
 
 	BinaryArchive::BinaryArchive(const std::string& path, ArchiveMode mode) :
 		ArchiveBase(path, mode)

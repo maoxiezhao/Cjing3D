@@ -17,7 +17,7 @@ VertexToPixel main(uint vertexID : SV_VERTEXID)
 {
     // 根据当前生命计算各个属性插值
     ShaderParticle particle = shaderParticles[particleAliveList[vertexID / 6]];
-    float lifeLerp = particle.life / particle.maxLife;
+    float lifeLerp = 1.0f - particle.life / particle.maxLife;
     float realSize = lerp(particle.sizeBeginEnd.x, particle.sizeBeginEnd.y, lifeLerp);
     float realOpacity = saturate(lerp(1, 0, lifeLerp));
     float rotation = lifeLerp * particle.angularVelocity;

@@ -47,6 +47,10 @@ namespace Cjing3D {
 		const Texture2D* GetNormalMap()const;
 		const Texture2D* GetSurfaceMap()const;
 
+		Texture2D* GetBaseColorMapPtr()const;
+		Texture2D* GetNormalMapPtr()const;
+		Texture2D* GetSurfaceMapPtr()const;
+
 		void SetCustomShader(const StringID& id) { mCustomShader = id; }
 		StringID GetCustomShader()const { return mCustomShader; }
 

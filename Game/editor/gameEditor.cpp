@@ -22,6 +22,9 @@
 
 namespace Cjing3D
 {
+	// test
+	ECS::Entity particleEntity;
+
 	GameEditor::GameEditor()
 	{
 	}
@@ -41,6 +44,17 @@ namespace Cjing3D
 		Editor::InitializeEditor(guiStage.GetImGUIStage());
 #endif // _ENABLE_GAME_EDITOR_
 
+		// do lua script
+		GlobalGetSubSystem<LuaContext>().ChangeLuaScene("EditorScene");
+
+		// test particle
+		particleEntity = Scene::GetScene().CreateParticle("ParticleTest");
+		// test
+		auto particle = Scene::GetScene().mParticles.GetComponent(particleEntity);
+		if (particle != nullptr) {
+			particle->mLife = 5.0f;
+			particle->Burst(1);
+		}
 	}
 
 	void GameEditor::Update(EngineTime time)

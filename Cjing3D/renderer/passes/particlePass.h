@@ -18,6 +18,5 @@ namespace Cjing3D
 
 		void UpdateParticle(ParticleComponent& particle);
 		void DrawParticle(ParticleComponent& particle, MaterialComponent& material);
-		PipelineState& GetPipelineState();
 	};
 }

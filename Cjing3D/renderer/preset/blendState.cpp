@@ -59,6 +59,21 @@ namespace Cjing3D {
 			const auto result = mDevice.CreateBlendState(desc, *mBlendStates[BlendStateID::BlendStateID_PreMultiplied]);
 			Debug::ThrowIfFailed(result, "Failed to create transparent blendState", result);
 		}
+		{
+			BlendStateDesc desc = {};
+			desc.mAlphaToCoverageEnable = false;
+			desc.mIndependentBlendEnable = false;
+			desc.mRenderTarget[0].mBlendEnable = true;
+			desc.mRenderTarget[0].mSrcBlend = BLEND_SRC_ALPHA;
+			desc.mRenderTarget[0].mDstBlend = BLEND_INV_SRC_ALPHA;
+			desc.mRenderTarget[0].mBlendOp = BLEND_OP_ADD;
+			desc.mRenderTarget[0].mSrcBlendAlpha = BLEND_ONE;
+			desc.mRenderTarget[0].mDstBlendAlpha = BLEND_INV_SRC_ALPHA;
+			desc.mRenderTarget[0].mBlendOpAlpha = BLEND_OP_ADD;
+			desc.mRenderTarget[0].mRenderTargetWriteMask = COLOR_WRITE_ENABLE_ALL;
+			const auto result = mDevice.CreateBlendState(desc, *mBlendStates[BlendStateID::BlendStateID_Particle_Alpha]);
+			Debug::ThrowIfFailed(result, "Failed to create particle alpah blendState", result);
+		}
 	}
 
 }

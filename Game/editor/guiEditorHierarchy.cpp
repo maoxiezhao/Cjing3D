@@ -191,7 +191,9 @@ namespace Cjing3D {
 			}
 
 			ImGui::Separator();
-			ImGui::Text("Transform");
+			if (!ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
+				return;
+			}
 
 			XMFLOAT3 translation = transform->GetTranslationLocal();
 			float vec3f[3] = { translation.x, translation.y, translation.z };
@@ -272,6 +274,19 @@ namespace Cjing3D {
 			}
 		}
 
+		void ShowLayerComponentAttribute(LayerComponent* layer)
+		{
+			ImGui::Separator();
+			if (!ImGui::CollapsingHeader("Layer")) {
+				return;
+			}
+
+			U32 mask = layer->GetLayerMask();
+			if (ImGui::InputUInt("LayerMask", &mask, 1, 100, ImGuiInputTextFlags_CharsHexadecimal)) {
+				Scene::GetScene().SetEntityLayerMask(layer->GetCurrentEntity(), mask);
+			}
+		}
+
 		void showEntityListWindow(F32 deltaTime)
 		{
 			ImGui::SetNextWindowPos(ImVec2(5, 30), ImGuiCond_Once);
@@ -325,6 +340,12 @@ namespace Cjing3D {
 			auto transform = scene.mTransforms.GetComponent(currentEntity);
 			if (transform != nullptr) {
 				ShowTransformAttributes(transform);
+			}
+
+			// layer
+			auto layer = scene.mLayers.GetComponent(currentEntity);
+			if (layer != nullptr) {
+				ShowLayerComponentAttribute(layer);
 			}
 		
 			// object

@@ -153,29 +153,30 @@ namespace Cjing3D
 		PROFILER_BEGIN_GPU_BLOCK("RenderTransparents");
 		GraphicsDevice& device = Renderer::GetDevice();
 		CameraComponent& camera = Renderer::GetCamera();
+
+		device.BeginRenderBehavior(renderBehavior);
+		const Texture* rtTexture = renderBehavior.mDesc.mParams[0].mTexture;
+
+		ViewPort vp;
+		vp.mWidth = (F32)rtTexture->GetDesc().mWidth;
+		vp.mHeight = (F32)rtTexture->GetDesc().mHeight;
+		vp.mMinDepth = 0.0f;
+		vp.mMaxDepth = 1.0f;
+		device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
+
 		// transparent scene
-		{
-			device.BeginRenderBehavior(renderBehavior);
-			const Texture* rtTexture = renderBehavior.mDesc.mParams[0].mTexture;
+		Renderer::RenderSceneTransparent(camera, renderType);
 
-			ViewPort vp;
-			vp.mWidth = (F32)rtTexture->GetDesc().mWidth;
-			vp.mHeight = (F32)rtTexture->GetDesc().mHeight;
-			vp.mMinDepth = 0.0f;
-			vp.mMaxDepth = 1.0f;
-			device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
-
-			Renderer::RenderSceneTransparent(camera, renderType);
-			Renderer::RenderDebugScene(camera);
-
-			device.EndRenderBehavior();
-		}
 		// particles
-		{
-			PROFILER_BEGIN_GPU_BLOCK("RenderParticles");
-			Renderer::RenderParticles(camera, mDepthBufferLinear);
-			PROFILER_END_BLOCK();
-		}
+		PROFILER_BEGIN_GPU_BLOCK("RenderParticles");
+		Renderer::RenderParticles(camera, mDepthBufferLinear);
+		PROFILER_END_BLOCK();
+
+		// debug scene
+		Renderer::RenderDebugScene(camera);
+
+		device.EndRenderBehavior();
+
 		PROFILER_END_BLOCK();
 	}
 

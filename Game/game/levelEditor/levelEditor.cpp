@@ -73,6 +73,7 @@ namespace CjingGame
 
 	void LevelEditor::Update(Cjing3D::EngineTime time)
 	{
+
 	}
 
 	void LevelEditor::FixedUpdate()

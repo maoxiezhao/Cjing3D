@@ -12,7 +12,7 @@ namespace Cjing3D {
 		}
 		{
 			const auto result = CreateDefaultSamplerState(mDevice, *mSamplerStates[SamplerStateID_LinearClamp],
-				FILTER_MIN_MAG_LINEAR_MIP_POINT, TEXTURE_ADDRESS_CLAMP, COMPARISON_NEVER);
+				FILTER_MIN_MAG_MIP_LINEAR, TEXTURE_ADDRESS_CLAMP, COMPARISON_NEVER);
 			Debug::ThrowIfFailed(result, "Failed to create pointClampAlways samplerState", result);
 		}
 		{

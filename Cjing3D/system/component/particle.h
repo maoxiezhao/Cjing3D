@@ -10,9 +10,6 @@ namespace Cjing3D {
 	class ParticleComponent : public Component
 	{
 	public:
-		U32 MAX_PARTICLE_COUNT = 1000;
-		ECS::Entity mMeshID = ECS::INVALID_ENTITY;
-
 		GPUBuffer mBufferParticles;
 		GPUBuffer mBufferAliveList;
 		GPUBuffer mBufferAliveListNew;
@@ -21,12 +18,17 @@ namespace Cjing3D {
 		GPUBuffer mConstBuffer;
 		GPUBuffer mBufferIndirect;
 
+		// particle attributes
 		enum ParticleFlag
 		{
 			EMPTY = 0,
 			PAUSED = 1,
 		};
 		U32 mStatusFlag = EMPTY;
+		U32 MAX_PARTICLE_COUNT = 1000;
+		ECS::Entity mMeshID = ECS::INVALID_ENTITY;
+		F32 mLife = 1.0f;
+		F32 mSize = 1.0f;
 
 		// run time attributes
 		bool mIsRenderDataDirty = true;
@@ -55,6 +57,8 @@ namespace Cjing3D {
 
 		void SetPaused(bool isPaused) { if (isPaused) { mStatusFlag |= ParticleFlag::PAUSED; } else { mStatusFlag &= ~ParticleFlag::PAUSED;} }
 		bool IsPaused()const { return mStatusFlag & ParticleFlag::PAUSED; };
+		void SetMaxParticleCount(U32 count);
+		U32 GetMaxParticleCount()const;
 
 		virtual void Serialize(Archive& archive, U32 seed = 0);
 		virtual void Unserialize(Archive& archive)const;

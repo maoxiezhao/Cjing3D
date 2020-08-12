@@ -21,7 +21,7 @@ int WINAPI WinMain(
 	mainWindow = std::make_unique<GameWindowWin32>("Cjing3D dev v0.0.1", I32x2(1440, 800), false);
 	mainWindow->Show();
 
-	mainEngine = std::make_unique<Engine>(new CjingGame::LevelEditor());
+	mainEngine = std::make_unique<Engine>(new GameEditor());
 	mainEngine->SetHandles(mainWindow->GetHwnd(), mainWindow->GetInstance());
 	mainEngine->SetWindow(mainWindow.get());
 	mainEngine->Initialize();

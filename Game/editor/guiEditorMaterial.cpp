@@ -17,7 +17,11 @@ namespace Cjing3D {
 			}
 	
 			ImGui::Separator();
-			ImGui::Text("Material");
+			if (!ImGui::CollapsingHeader("Material", ImGuiTreeNodeFlags_DefaultOpen)) {
+				return;
+			}
+
+
 			ImGui::Text("BaseColor");
 			F32 color[4] = { material->mBaseColor[0], material->mBaseColor[1], material->mBaseColor[2], material->mBaseColor[3] };
 			if (ImGui::ColorEdit4("baseColor", color))
@@ -37,6 +41,23 @@ namespace Cjing3D {
 				auto filePath = GetFileNameFromOpenFile("Texture File\0*.dds;*.png\0");
 				if (!filePath.empty()) {
 					material->LoadBaseColorMap(filePath);
+				}
+			}
+			if (material->mBaseColorMap != nullptr)
+			{
+				if (ImGui::ImageButton(
+					material->GetBaseColorMapPtr(),
+					ImVec2(64, 64),
+					ImVec2(0.0f, 0.0f),
+					ImVec2(1.0f, 1.0f),
+					0,
+					ImVec4(0.0f, 0.0f, 0.0f, 0.0f))
+				)
+				{
+					auto filePath = GetFileNameFromOpenFile("Texture File\0*.dds;*.png\0");
+					if (!filePath.empty()) {
+						material->LoadBaseColorMap(filePath);
+					}
 				}
 			}
 

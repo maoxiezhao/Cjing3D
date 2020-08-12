@@ -218,7 +218,7 @@ namespace Cjing3D
 		mLayers.Create(entity);
 		mMaterials.Create(entity)->SetBlendMode(BlendType_Alpha);
 
-		return ECS::Entity();
+		return entity;
 	}
 
 	NameComponent& Scene::GetOrCreateNameByEntity(ECS::Entity entity)

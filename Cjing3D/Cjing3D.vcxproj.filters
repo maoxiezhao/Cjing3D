@@ -161,6 +161,9 @@
     <Filter Include="helper\archive">
       <UniqueIdentifier>{9afd0705-44d2-4ef4-a365-c8bfdf55fdfe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="physics">
+      <UniqueIdentifier>{8296e8a4-7bec-4a33-93b3-3893a6d66d20}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine.cpp" />

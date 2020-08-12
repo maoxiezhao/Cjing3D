@@ -29,6 +29,7 @@ namespace Cjing3D {
 		/////////////////////////////////////////////////////////////////////////////////////
 		{
 			GPUBufferDesc desc = {};
+			desc.mUsage = USAGE_DEFAULT;
 			desc.mBindFlags = BIND_UNORDERED_ACCESS | BIND_SHADER_RESOURCE;
 			desc.mMiscFlags = RESOURCE_MISC_BUFFER_STRUCTURED;
 			desc.mByteWidth = sizeof(ShaderParticle) * MAX_PARTICLE_COUNT;
@@ -41,6 +42,7 @@ namespace Cjing3D {
 		/////////////////////////////////////////////////////////////////////////////////////
 		{
 			GPUBufferDesc desc = {};
+			desc.mUsage = USAGE_DEFAULT;
 			desc.mBindFlags = BIND_UNORDERED_ACCESS | BIND_SHADER_RESOURCE;
 			desc.mMiscFlags = RESOURCE_MISC_BUFFER_STRUCTURED;
 			desc.mByteWidth = sizeof(U32) * MAX_PARTICLE_COUNT;
@@ -48,7 +50,14 @@ namespace Cjing3D {
 
 			device.CreateBuffer(&desc, mBufferAliveList, nullptr);
 			device.CreateBuffer(&desc, mBufferAliveListNew, nullptr);	
-			device.CreateBuffer(&desc, mBufferDeadList, nullptr);
+
+			std::vector<U32> deadIndices(MAX_PARTICLE_COUNT);
+			for (int i = 0; i < MAX_PARTICLE_COUNT; i++) {
+				deadIndices[i] = i;
+			}
+			SubresourceData data;
+			data.mSysMem = deadIndices.data();
+			device.CreateBuffer(&desc, mBufferDeadList, &data);
 
 		}
 		/////////////////////////////////////////////////////////////////////////////////////
@@ -60,6 +69,7 @@ namespace Cjing3D {
 			counters.emitCount = 0;
 
 			GPUBufferDesc desc = {};
+			desc.mUsage = USAGE_DEFAULT;
 			desc.mBindFlags = BIND_UNORDERED_ACCESS | BIND_SHADER_RESOURCE;
 			desc.mMiscFlags = RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
 			desc.mByteWidth = sizeof(ParticleCounter);
@@ -70,11 +80,12 @@ namespace Cjing3D {
 
 			const auto result = device.CreateBuffer(&desc, mBufferCounters, &data);
 			Debug::ThrowIfFailed(result, "failed to create ParticleCounters buffer:%08x", result);
-			device.SetResourceName(mBufferParticles, "ParticleCounters");
+			device.SetResourceName(mBufferCounters, "ParticleCounters");
 		}
 		/////////////////////////////////////////////////////////////////////////////////////
 		{
 			GPUBufferDesc desc = {};
+			desc.mUsage = USAGE_DEFAULT;
 			desc.mBindFlags = BIND_CONSTANT_BUFFER;
 			desc.mByteWidth = sizeof(ParticleCB);
 			device.CreateBuffer(&desc, mConstBuffer, nullptr);
@@ -82,6 +93,7 @@ namespace Cjing3D {
 		/////////////////////////////////////////////////////////////////////////////////////
 		{
 			GPUBufferDesc desc = {};
+			desc.mUsage = USAGE_DEFAULT;
 			desc.mBindFlags = BIND_UNORDERED_ACCESS;
 			desc.mMiscFlags = RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS | RESOURCE_MISC_DRAWINDIRECT_ARGS;
 			desc.mByteWidth = 
@@ -135,11 +147,15 @@ namespace Cjing3D {
 		mEmitCount += mBurstCount;
 		mBurstCount = 0;
 
+		std::swap(mBufferAliveList, mBufferAliveListNew);
+
 		// read particles data from GPU
 		if (mCounterReadBackIndex > CounterReadBackDelayCount)
 		{
-			U32 index = GetDelayGPUReadBackIndex();
 			GPUResourceMapping mapping;
+			mapping.mFlags = GPUResourceMapping::FLAG_READ;
+
+			U32 index = GetDelayGPUReadBackIndex();
 			Renderer::GetDevice().Map(&mCounterReadBackBuffer[index], mapping);
 			if (mapping.mData != nullptr)
 			{
@@ -170,12 +186,14 @@ namespace Cjing3D {
 			particleCB.gParticleEmitCount = (F32)mEmitCount;
 			particleCB.gParticleRandomness = Random::GetRandomFloat(0, 1.0f);
 			particleCB.gParticleColor = Color4::Convert(material->mBaseColor).GetRGBA();
+			particleCB.gParticleLifeRange = mLife;
+			particleCB.gParticleSize = mSize;
 
 			device.UpdateBuffer(mConstBuffer, &particleCB);
 			device.BindConstantBuffer(SHADERSTAGES_CS, mConstBuffer, CB_GETSLOT_NAME(ParticleCB));
 		}
 
-		auto renderPass = Renderer::GetRenderPass(STRING_ID(TerrainPass));
+		auto renderPass = Renderer::GetRenderPass(STRING_ID(ParticlePass));
 		if (renderPass != nullptr)
 		{
 			ParticlePass& particlePass = dynamic_cast<ParticlePass&>(*renderPass);
@@ -189,6 +207,17 @@ namespace Cjing3D {
 	void ParticleComponent::Burst(I32 count)
 	{
 		mBurstCount += count;
+	}
+
+	void ParticleComponent::SetMaxParticleCount(U32 count)
+	{
+		MAX_PARTICLE_COUNT = count;
+		mIsRenderDataDirty = true;
+	}
+
+	U32 ParticleComponent::GetMaxParticleCount() const
+	{
+		return MAX_PARTICLE_COUNT;
 	}
 
 	void ParticleComponent::Serialize(Archive& archive, U32 seed)

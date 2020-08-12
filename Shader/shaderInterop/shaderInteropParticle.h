@@ -6,12 +6,12 @@
 struct ShaderParticle
 {
 	float3 position;
-	uint color;
+	float life;
 	float3 velocity;
 	float angularVelocity;
-	float life;
-	float maxLife;
 	float2 sizeBeginEnd;
+	float maxLife;
+	uint color;
 };
 
 struct ParticleCounter
