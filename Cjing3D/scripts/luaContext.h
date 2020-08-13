@@ -2,8 +2,8 @@
 
 #include "core\subSystem.hpp"
 
-#include "scripts\luaRef.h"
-#include "scripts\luaTools.h"
+#include "scripts\binder\luaRef.h"
+#include "scripts\binder\luaTools.h"
 #include "scripts\api\luaApi.h"
 #include "helper\enumInfo.h"
 

@@ -1,14 +1,14 @@
 #include "imguiStage.h"
-#include "imgui\imgui.h"
-#include "imgui\imgui_impl_win32.h"
-#include "imgui\imgui_impl_dx11.h"
+#include "imgui.h"
+#include "imgui_impl_win32.h"
+#include "imgui_impl_dx11.h"
 
 #include "engine.h"
 #include "platform\gameWindow.h"
 #include "core\systemContext.hpp"
 #include "renderer\renderer.h"
 #include "renderer\2D\renderer2D.h"
-#include "renderer\RHI\deviceD3D11.h"
+#include "renderer\RHI\d3d11\deviceD3D11.h"
 #include "renderer\paths\renderPath3D.h"
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

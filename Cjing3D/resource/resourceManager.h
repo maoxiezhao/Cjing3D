@@ -4,6 +4,7 @@
 #include "helper\fileSystem.h"
 #include "resource\resource.h"
 #include "resource\resourcePool.hpp"
+#include "resource\modelImporter\modelImporter.h"
 
 namespace Cjing3D
 {

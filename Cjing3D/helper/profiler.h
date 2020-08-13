@@ -3,7 +3,7 @@
 #include <unordered_map>
 
 #include "common\common.h"
-#include "optick\optick.h"
+#include "optick.h"
 
 namespace Cjing3D
 {

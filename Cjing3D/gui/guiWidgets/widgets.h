@@ -2,7 +2,7 @@
 
 #include "gui\guiInclude.h"
 #include "gui\guiCore\guiDispatcher.h"
-#include "scripts\luaRef.h"
+#include "scripts\binder\luaRef.h"
 #include "renderer\2D\sprite.h"
 #include "renderer\2D\textDrawable.h"
 #include "utils\signal\connectionMap.h"

@@ -46,9 +46,6 @@
     <ClCompile Include="editor\gameEditor.cpp">
       <Filter>editor</Filter>
     </ClCompile>
-    <ClCompile Include="game\game.cpp">
-      <Filter>game</Filter>
-    </ClCompile>
     <ClCompile Include="scripts\gameLuaContext.cpp">
       <Filter>scripts</Filter>
     </ClCompile>
@@ -178,9 +175,6 @@
     </ClInclude>
     <ClInclude Include="editor\gameEditor.h">
       <Filter>editor</Filter>
-    </ClInclude>
-    <ClInclude Include="game\game.h">
-      <Filter>game</Filter>
     </ClInclude>
     <ClInclude Include="game\gameObject.h">
       <Filter>game</Filter>

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "scripts\luaBinder.h"
-#include "scripts\luaTypeMapping.h"
+#include "scripts\binder\luaBinder.h"
+#include "scripts\binder\luaTypeMapping.h"
 #include "system\sceneSystem.h"
 
 namespace Cjing3D

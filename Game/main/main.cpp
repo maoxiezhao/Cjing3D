@@ -1,7 +1,6 @@
 #include "engine.h"
 #include "platform\win32\gameWindowWin32.h"
 #include "editor\gameEditor.h"
-#include "game\game.h"
 #include "game\levelEditor\levelEditor.h"
 
 #include <functional>

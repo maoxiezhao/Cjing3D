@@ -34,6 +34,10 @@ namespace Cjing3D {
 	public:
 		GameWindow() = default;
 
+		// string
+		static std::string WStringToString(const std::wstring& wstr);
+		static std::wstring StringToWString(const std::string& str);
+
 		// window
 		void AddMessageHandler(WindowMessageHandlerPtr handler);
 		void RemoveHandler(WindowMessageHandlerPtr handler);

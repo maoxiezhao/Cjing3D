@@ -91,12 +91,12 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../Cjing3D;../Shader</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Cjing3D;../Shader;../ThirdParty/physfs_3.0.2;../ThirdParty/imgui;../ThirdParty/optick</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)\lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>physfs.lib;assimp.lib;dinput8.lib;Lua_lib.lib;optick\x64\debug\OptickCore.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>physfs-static-d.lib;assimp.lib;dinput8.lib;optick\x64\debug\OptickCore.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>$(SolutionDir)Game\postcompile.bat $(Platform) $(Configuration) $(OutDir)</Command>
@@ -149,7 +149,6 @@
     <ClCompile Include="editor\guiEditorScene.cpp" />
     <ClCompile Include="editor\guiEditorSound.cpp" />
     <ClCompile Include="editor\guiEditorTerrain.cpp" />
-    <ClCompile Include="game\game.cpp" />
     <ClCompile Include="game\gameContext.cpp" />
     <ClCompile Include="game\gameObject.cpp" />
     <ClCompile Include="game\levelEditor\levelEditor.cpp" />
@@ -171,9 +170,6 @@
     <ProjectReference Include="..\Cjing3D\Cjing3D.vcxproj">
       <Project>{b0a02590-e94e-4cae-8dda-cd8758e91c04}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\Common\Common.vcxproj">
-      <Project>{90d41522-cb41-46d0-a1c3-174fb87ee0e9}</Project>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="definitions\definitions.h" />
@@ -194,7 +190,6 @@
     <ClInclude Include="editor\guiEditorScene.h" />
     <ClInclude Include="editor\guiEditorSound.h" />
     <ClInclude Include="editor\guiEditorTerrain.h" />
-    <ClInclude Include="game\game.h" />
     <ClInclude Include="game\gameContext.h" />
     <ClInclude Include="game\gameObject.h" />
     <ClInclude Include="game\levelEditor\levelEditor.h" />

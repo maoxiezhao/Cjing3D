@@ -1,6 +1,6 @@
 #include "fileSystem.h"
 #include "debug.h"
-#include "physfs\physfs.h"
+#include "physfs.h"
 
 #include <fstream>
 #include <sstream>

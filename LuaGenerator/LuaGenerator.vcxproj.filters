@@ -12,6 +12,9 @@
       <Filter>helper</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="platform\win32\gameWindowWin32.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="generator.h" />
@@ -24,10 +27,19 @@
     <ClInclude Include="helper\logger.h">
       <Filter>helper</Filter>
     </ClInclude>
+    <ClInclude Include="platform\gameWindow.h">
+      <Filter>platform</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="helper">
       <UniqueIdentifier>{3768a631-004c-4986-9d05-1062ca2d9875}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="platform">
+      <UniqueIdentifier>{20bde5ef-8c87-48ec-90e1-6ea4a7a9dcf6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="platform\win32">
+      <UniqueIdentifier>{20b5f683-8fbb-4cb5-af7e-c0c6b5cfb7f1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

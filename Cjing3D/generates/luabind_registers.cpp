@@ -8,7 +8,7 @@
 #include "system/component/transform.h"
 
 #include "scripts\luaContext.h"
-#include "scripts\luaBinder.h"
+#include "scripts\binder\luaBinder.h"
 
 using namespace Cjing3D;
 int AutoLuaBindFunctions::REGISTER_AUTO_BINDING_FUNC(){return 0;}

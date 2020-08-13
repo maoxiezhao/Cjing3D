@@ -1,7 +1,7 @@
 #pragma once
 
-#include "scripts\luaBinder.h"
-#include "scripts\luaTypeMapping.h"
+#include "scripts\binder\luaBinder.h"
+#include "scripts\binder\luaTypeMapping.h"
 #include "helper\variant.h"
 #include "gui\guiWidgets\widgets.h"
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "system\component\componentInclude.h"
-#include "renderer\passes\terrainTree.h"
+#include "renderer\passes\terrain\terrainTree.h"
 
 namespace Cjing3D {
 

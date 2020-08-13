@@ -1,7 +1,6 @@
 #include "sceneSystem.h"
 #include "resource\resourceManager.h"
 #include "helper\profiler.h"
-#include "resource\modelImporter.h"
 
 namespace Cjing3D
 {

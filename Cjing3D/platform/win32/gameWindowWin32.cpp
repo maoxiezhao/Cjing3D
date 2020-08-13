@@ -6,11 +6,28 @@
 #include "gui\guiStage.h"
 
 #include <string>
-#include <codecvt>
-#include <locale>
 #include <ShlObj.h>
 
 namespace Cjing3D {
+
+	std::string GameWindow::WStringToString(const std::wstring& wstr)
+	{
+		if (wstr.empty()) return std::string();
+		int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
+		std::string strTo(size_needed, 0);
+		WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), &strTo[0], size_needed, NULL, NULL);
+		return strTo;
+	}
+
+	// Convert an UTF8 string to a wide Unicode String
+	std::wstring GameWindow::StringToWString(const std::string& str)
+	{
+		if (str.empty()) return std::wstring();
+		int size_needed = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
+		std::wstring wstrTo(size_needed, 0);
+		MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed);
+		return wstrTo;
+	}
 
 	void GameWindow::SetLoggerConsoleFontColor(ConsoleFontColor fontColor)
 	{
@@ -89,8 +106,7 @@ namespace Cjing3D {
 
 	void GameWindow::ShowBrowseForFolder(const char* title, std::function<void(const std::string&)> callback)
 	{
-		std::wstring nameWStr = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(title);
-
+		std::wstring nameWStr = StringToWString(title);
 		wchar_t szBuffer[256] = { '\0' };
 		BROWSEINFO bi;
 		ZeroMemory(&bi, sizeof(BROWSEINFO));
@@ -105,13 +121,12 @@ namespace Cjing3D {
 		}
 
 		SHGetPathFromIDList(idl, szBuffer);
-
-		callback(std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(szBuffer));
+		callback(WStringToString(nameWStr));
 	}
 
 	void GameWindow::ShowMessageBox(const UTF8String& msg)
 	{
-		std::wstring msgWStr = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(msg.C_Str());
+		std::wstring msgWStr = StringToWString(msg.C_Str());
 		MessageBoxW(NULL, LPCWSTR(msgWStr.c_str()), NULL, MB_OK);
 	}
 
@@ -179,7 +194,7 @@ namespace Cjing3D {
 	bool GameWindowWin32::InitializeWindows(const std::string& name, int w, int h, DWORD style)
 	{
 		Logger::Info("[Video] Initialize GameWindowWin32 Size:" + std::to_string(w) + " " + std::to_string(h));
-		std::wstring nameWStr = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(name.c_str());
+		std::wstring nameWStr = StringToWString(name);
 
 		WNDCLASSEX wcex;
 		wcex.cbSize = sizeof(WNDCLASSEX);
@@ -249,7 +264,7 @@ namespace Cjing3D {
 			DestroyWindow(mHwnd);
 			mHwnd = NULL;
 
-			std::wstring nameWStr = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(mTitleName.c_str());
+			std::wstring nameWStr = StringToWString(mTitleName);
 			UnregisterClass(nameWStr.c_str(), mHinstance);
 			mHinstance = NULL;
 
@@ -295,11 +310,13 @@ namespace Cjing3D {
 			break;
 		case WM_CHAR:
 		{
-			std::wstring_convert<std::codecvt_utf8<wchar_t>> cvt;			
+			std::wstring wstring;
+			wstring += static_cast<wchar_t>(wParam);
+
 			auto& guiStage = GlobalGetSubSystem<GUIStage>();
 			Gui::GUIInputEvent e = {};
 			e.type = Gui::GUI_INPUT_EVENT_TYPE_INPUT_TEXT;
-			e.inputText = cvt.to_bytes(static_cast<wchar_t>(wParam));
+			e.inputText = WStringToString(wstring);
 			guiStage.PushInputEvent(e);
 		}
 			break;

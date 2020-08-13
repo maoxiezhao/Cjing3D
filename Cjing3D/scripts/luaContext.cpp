@@ -1,5 +1,5 @@
 #include "luaContext.h"
-#include "luaBinder.h"
+#include "scripts\binder\luaBinder.h"
 #include "helper\debug.h"
 #include "helper\fileSystem.h"
 #include "helper\profiler.h"

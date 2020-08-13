@@ -1,5 +1,5 @@
 #include "system\sceneSystem.h"
-#include "renderer\passes\terrainPass.h"
+#include "renderer\passes\terrain\terrainPass.h"
 
 namespace Cjing3D
 {

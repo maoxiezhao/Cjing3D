@@ -1,7 +1,8 @@
-#include "resource\modelImporter.h"
+#include "resource\modelImporter\modelImporter.h"
 #include "core\systemContext.hpp"
 #include "resource\resourceManager.h"
 #include "system\sceneSystem.h"
+#include "renderer\renderer.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "utils\tinyobjloader.h"

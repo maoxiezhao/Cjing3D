@@ -7,15 +7,15 @@
 #include "core\systemContext.hpp"
 #include "core\eventSystem.h"
 #include "helper\profiler.h"
-#include "renderer\RHI\deviceD3D11.h"
+#include "renderer\RHI\d3d11\deviceD3D11.h"
 #include "system\component\camera.h"
 #include "resource\resourceManager.h"
 #include "system\sceneSystem.h"
 #include "pipelineStates\pipelineStateManager.h"
 
-#include "renderer\passes\renderPass.h"
-#include "renderer\passes\terrainPass.h"
-#include "renderer\passes\particlePass.h"
+// render pass
+#include "renderer\passes\terrain\terrainPass.h"
+#include "renderer\passes\particle\particlePass.h"
 
 namespace Cjing3D {
 namespace Renderer {

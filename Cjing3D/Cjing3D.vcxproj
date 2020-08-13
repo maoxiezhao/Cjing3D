@@ -93,8 +93,9 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\ThirdParty\;..\ThirdParty\Assimp_4.1.0\;../Shader;..\ThirdParty\lua_5.3.1\;..\ThirdParty\optick\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Shader;..\ThirdParty\physfs_3.0.2;..\ThirdParty\optick;..\ThirdParty\imgui</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Lib>
       <AdditionalDependencies>physfs.lib;assimp.lib</AdditionalDependencies>
@@ -227,13 +228,12 @@
     <ClInclude Include="renderer\2D\renderer2D.h" />
     <ClInclude Include="renderer\2D\sprite.h" />
     <ClInclude Include="renderer\2D\textDrawable.h" />
-    <ClInclude Include="renderer\includeD3D11.h" />
     <ClInclude Include="renderer\passes\note.h" />
-    <ClInclude Include="renderer\passes\particlePass.h" />
+    <ClInclude Include="renderer\passes\particle\particlePass.h" />
     <ClInclude Include="renderer\passes\renderPass.h" />
-    <ClInclude Include="renderer\passes\terrainPass.h" />
-    <ClInclude Include="renderer\passes\terrainRender.h" />
-    <ClInclude Include="renderer\passes\terrainTree.h" />
+    <ClInclude Include="renderer\passes\terrain\terrainPass.h" />
+    <ClInclude Include="renderer\passes\terrain\terrainRender.h" />
+    <ClInclude Include="renderer\passes\terrain\terrainTree.h" />
     <ClInclude Include="renderer\paths\renderPath2D.h" />
     <ClInclude Include="renderer\paths\renderPath3D.h" />
     <ClInclude Include="renderer\paths\renderPath_forward.h" />
@@ -248,17 +248,18 @@
     <ClInclude Include="renderer\renderer.h" />
     <ClInclude Include="renderer\rendererUtils.h" />
     <ClInclude Include="renderer\renderNote.h" />
+    <ClInclude Include="renderer\RHI\d3d11\deviceD3D11.h" />
+    <ClInclude Include="renderer\RHI\d3d11\includeD3D11.h" />
     <ClInclude Include="renderer\RHI\d3d11\rhiResourceD3D11.h" />
+    <ClInclude Include="renderer\RHI\d3d11\swapChainD3D11.h" />
     <ClInclude Include="renderer\RHI\rhiFactory.h" />
     <ClInclude Include="renderer\RHI\rhiResource.h" />
     <ClInclude Include="renderer\RHI\rhiShader.h" />
-    <ClInclude Include="renderer\shaderLib.h" />
     <ClInclude Include="renderer\RHI\device.h" />
-    <ClInclude Include="renderer\RHI\deviceD3D11.h" />
     <ClInclude Include="renderer\RHI\rhiDefinition.h" />
-    <ClInclude Include="renderer\RHI\swapChainD3D11.h" />
+    <ClInclude Include="renderer\shaderLib.h" />
     <ClInclude Include="renderer\textureHelper.h" />
-    <ClInclude Include="resource\modelImporter.h" />
+    <ClInclude Include="resource\modelImporter\modelImporter.h" />
     <ClInclude Include="resource\resource.h" />
     <ClInclude Include="resource\resourceManager.h" />
     <ClInclude Include="resource\resourcePool.hpp" />
@@ -269,17 +270,17 @@
     <ClInclude Include="scripts\api\uiApi.h" />
     <ClInclude Include="scripts\api\utilsApi.h" />
     <ClInclude Include="scripts\api\vectorApi.h" />
-    <ClInclude Include="scripts\luaArg.h" />
-    <ClInclude Include="scripts\luaBinder.h" />
-    <ClInclude Include="scripts\luaBinder_impl.h" />
-    <ClInclude Include="scripts\luaCommon.h" />
+    <ClInclude Include="scripts\binder\luaArg.h" />
+    <ClInclude Include="scripts\binder\luaBinder.h" />
+    <ClInclude Include="scripts\binder\luaBinder_impl.h" />
+    <ClInclude Include="scripts\binder\luaCommon.h" />
+    <ClInclude Include="scripts\binder\luaException.h" />
+    <ClInclude Include="scripts\binder\luaInvoke.h" />
+    <ClInclude Include="scripts\binder\luaObject.h" />
+    <ClInclude Include="scripts\binder\luaRef.h" />
+    <ClInclude Include="scripts\binder\luaTools.h" />
+    <ClInclude Include="scripts\binder\luaTypeMapping.h" />
     <ClInclude Include="scripts\luaContext.h" />
-    <ClInclude Include="scripts\luaException.h" />
-    <ClInclude Include="scripts\luaInvoke.h" />
-    <ClInclude Include="scripts\luaObject.h" />
-    <ClInclude Include="scripts\luaRef.h" />
-    <ClInclude Include="scripts\luaTools.h" />
-    <ClInclude Include="scripts\luaTypeMapping.h" />
     <ClInclude Include="scripts\lua\lapi.h" />
     <ClInclude Include="scripts\lua\lauxlib.h" />
     <ClInclude Include="scripts\lua\lcode.h" />
@@ -440,9 +441,9 @@
     <ClCompile Include="renderer\2D\renderer2D.cpp" />
     <ClCompile Include="renderer\2D\sprite.cpp" />
     <ClCompile Include="renderer\2D\textDrawable.cpp" />
-    <ClCompile Include="renderer\passes\particlePass.cpp" />
-    <ClCompile Include="renderer\passes\terrainPass.cpp" />
-    <ClCompile Include="renderer\passes\terrainTree.cpp" />
+    <ClCompile Include="renderer\passes\particle\particlePass.cpp" />
+    <ClCompile Include="renderer\passes\terrain\terrainPass.cpp" />
+    <ClCompile Include="renderer\passes\terrain\terrainTree.cpp" />
     <ClCompile Include="renderer\paths\renderPath2D.cpp" />
     <ClCompile Include="renderer\paths\renderPath3D.cpp" />
     <ClCompile Include="renderer\paths\renderPath_forward.cpp" />
@@ -452,21 +453,21 @@
     <ClCompile Include="renderer\pipelineStates\imagePipelineStates.cpp" />
     <ClCompile Include="renderer\pipelineStates\normalPipelineStates.cpp" />
     <ClCompile Include="renderer\pipelineStates\pipelineStateManager.cpp" />
-    <ClCompile Include="renderer\preset\blendState.cpp" />
-    <ClCompile Include="renderer\preset\constantBuffer.cpp" />
-    <ClCompile Include="renderer\preset\depthStencilState.cpp" />
-    <ClCompile Include="renderer\preset\rasterizerState.cpp" />
+    <ClCompile Include="renderer\preset\impl\blendState.cpp" />
+    <ClCompile Include="renderer\preset\impl\constantBuffer.cpp" />
+    <ClCompile Include="renderer\preset\impl\depthStencilState.cpp" />
+    <ClCompile Include="renderer\preset\impl\rasterizerState.cpp" />
+    <ClCompile Include="renderer\preset\impl\samplerState.cpp" />
+    <ClCompile Include="renderer\preset\impl\shaderPreset.cpp" />
+    <ClCompile Include="renderer\preset\impl\structuredBuffer.cpp" />
     <ClCompile Include="renderer\preset\renderPreset.cpp" />
-    <ClCompile Include="renderer\preset\samplerState.cpp" />
-    <ClCompile Include="renderer\preset\shaderPreset.cpp" />
-    <ClCompile Include="renderer\preset\structuredBuffer.cpp" />
     <ClCompile Include="renderer\renderer.cpp" />
     <ClCompile Include="renderer\rendererUtils.cpp" />
+    <ClCompile Include="renderer\RHI\d3d11\deviceD3D11.cpp" />
+    <ClCompile Include="renderer\RHI\d3d11\swapChainD3D11.cpp" />
     <ClCompile Include="renderer\RHI\rhiFactory.cpp" />
-    <ClCompile Include="renderer\shaderLib.cpp" />
     <ClCompile Include="renderer\RHI\device.cpp" />
-    <ClCompile Include="renderer\RHI\deviceD3D11.cpp" />
-    <ClCompile Include="renderer\RHI\swapChainD3D11.cpp" />
+    <ClCompile Include="renderer\shaderLib.cpp" />
     <ClCompile Include="renderer\textureHelper.cpp" />
     <ClCompile Include="resource\modelImporter\modelImporterGLTF.cpp" />
     <ClCompile Include="resource\modelImporter\modelImporterObj.cpp" />
@@ -481,13 +482,13 @@
     <ClCompile Include="scripts\api\uiApi.cpp" />
     <ClCompile Include="scripts\api\utilsApi.cpp" />
     <ClCompile Include="scripts\api\vectorApi.cpp" />
-    <ClCompile Include="scripts\luaBinder.cpp" />
-    <ClCompile Include="scripts\luaBinder_impl.cpp" />
+    <ClCompile Include="scripts\binder\luaBinder.cpp" />
+    <ClCompile Include="scripts\binder\luaBinder_impl.cpp" />
+    <ClCompile Include="scripts\binder\luaException.cpp" />
+    <ClCompile Include="scripts\binder\luaObject.cpp" />
+    <ClCompile Include="scripts\binder\luaRef.cpp" />
+    <ClCompile Include="scripts\binder\luaTools.cpp" />
     <ClCompile Include="scripts\luaContext.cpp" />
-    <ClCompile Include="scripts\luaException.cpp" />
-    <ClCompile Include="scripts\luaObject.cpp" />
-    <ClCompile Include="scripts\luaRef.cpp" />
-    <ClCompile Include="scripts\luaTools.cpp" />
     <ClCompile Include="scripts\lua\lapi.c" />
     <ClCompile Include="scripts\lua\lauxlib.c" />
     <ClCompile Include="scripts\lua\lbaselib.c" />
@@ -518,7 +519,6 @@
     <ClCompile Include="scripts\lua\ltablib.c" />
     <ClCompile Include="scripts\lua\ltm.c" />
     <ClCompile Include="scripts\lua\lua.c" />
-    <ClCompile Include="scripts\lua\luac.c" />
     <ClCompile Include="scripts\lua\lundump.c" />
     <ClCompile Include="scripts\lua\lutf8lib.c" />
     <ClCompile Include="scripts\lua\lvm.c" />
@@ -536,15 +536,15 @@
     <ClCompile Include="system\component\terrain.cpp" />
     <ClCompile Include="system\component\transform.cpp" />
     <ClCompile Include="system\component\weather.cpp" />
-    <ClCompile Include="system\sceneLightSystem.cpp" />
-    <ClCompile Include="system\sceneObjectSystem.cpp" />
     <ClCompile Include="system\sceneSerializers.cpp" />
     <ClCompile Include="system\sceneSystem.cpp" />
-    <ClCompile Include="system\sceneTransformSystem.cpp" />
     <ClCompile Include="system\systems\sceneAnimationSystem.cpp" />
+    <ClCompile Include="system\systems\sceneLightSystem.cpp" />
+    <ClCompile Include="system\systems\sceneObjectSystem.cpp" />
     <ClCompile Include="system\systems\sceneParticleSystem.cpp" />
     <ClCompile Include="system\systems\sceneSoundSystem.cpp" />
     <ClCompile Include="system\systems\sceneTerrainSystem.cpp" />
+    <ClCompile Include="system\systems\sceneTransformSystem.cpp" />
     <ClCompile Include="utils\allocator\tlsfAllocator.cpp" />
     <ClCompile Include="utils\geometry.cpp" />
     <ClCompile Include="utils\intersectable.cpp" />
@@ -566,11 +566,6 @@
     <None Include="utils\tween\tweenone.tcc" />
     <None Include="utils\tween\tweenpoint.tcc" />
     <None Include="utils\tween\tweeny.tcc" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Common\Common.vcxproj">
-      <Project>{90d41522-cb41-46d0-a1c3-174fb87ee0e9}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

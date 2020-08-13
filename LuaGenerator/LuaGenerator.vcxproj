@@ -42,7 +42,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -79,11 +79,12 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\ThirdParty\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\ThirdParty\physfs_3.0.2</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>physfs.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>physfs-static-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -128,17 +129,14 @@
     <ClCompile Include="helper\fileSystem.cpp" />
     <ClCompile Include="helper\logger.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="platform\win32\gameWindowWin32.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="generator.h" />
     <ClInclude Include="helper\debug.h" />
     <ClInclude Include="helper\fileSystem.h" />
     <ClInclude Include="helper\logger.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Common\Common.vcxproj">
-      <Project>{90d41522-cb41-46d0-a1c3-174fb87ee0e9}</Project>
-    </ProjectReference>
+    <ClInclude Include="platform\gameWindow.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

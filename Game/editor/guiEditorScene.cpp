@@ -4,7 +4,6 @@
 #include "system\sceneSystem.h"
 #include "resource\resourceManager.h"
 #include "platform\gameWindow.h"
-#include "resource\modelImporter.h"
 
 #include <thread>
 #include <Windows.h>

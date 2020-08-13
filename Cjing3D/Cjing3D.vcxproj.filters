@@ -128,9 +128,6 @@
     <Filter Include="renderer\preset">
       <UniqueIdentifier>{850b745a-0e94-4574-80d9-e2a5b2378960}</UniqueIdentifier>
     </Filter>
-    <Filter Include="renderer\preset\graphicsChild">
-      <UniqueIdentifier>{10f40064-119a-4284-b204-4a95de426db0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="utils\string">
       <UniqueIdentifier>{31f4c37e-8304-4036-9f61-21a24d37bd5d}</UniqueIdentifier>
     </Filter>
@@ -152,9 +149,6 @@
     <Filter Include="animation">
       <UniqueIdentifier>{bf5f259c-212e-499f-a15c-cc0eb634e765}</UniqueIdentifier>
     </Filter>
-    <Filter Include="renderer\shader">
-      <UniqueIdentifier>{d5be52c7-9ce2-4de1-ad47-24f29e400cc0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="renderer\passes\particle">
       <UniqueIdentifier>{4bef2df0-554f-435b-ad0c-0d5a11c71520}</UniqueIdentifier>
     </Filter>
@@ -163,6 +157,9 @@
     </Filter>
     <Filter Include="physics">
       <UniqueIdentifier>{8296e8a4-7bec-4a33-93b3-3893a6d66d20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\preset\impl">
+      <UniqueIdentifier>{10f40064-119a-4284-b204-4a95de426db0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -197,9 +194,6 @@
     <ClCompile Include="renderer\RHI\device.cpp">
       <Filter>renderer\rhi</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\RHI\swapChainD3D11.cpp">
-      <Filter>renderer\rhi\d3d11</Filter>
-    </ClCompile>
     <ClCompile Include="core\threadSafeSystem.cpp">
       <Filter>core</Filter>
     </ClCompile>
@@ -217,9 +211,6 @@
     </ClCompile>
     <ClCompile Include="core\jobSystem.cpp">
       <Filter>core</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\RHI\deviceD3D11.cpp">
-      <Filter>renderer\rhi\d3d11</Filter>
     </ClCompile>
     <ClCompile Include="renderer\RHI\rhiFactory.cpp">
       <Filter>renderer\rhi</Filter>
@@ -329,9 +320,6 @@
     <ClCompile Include="scripts\lua\lua.c">
       <Filter>scripts\lua</Filter>
     </ClCompile>
-    <ClCompile Include="scripts\lua\luac.c">
-      <Filter>scripts\lua</Filter>
-    </ClCompile>
     <ClCompile Include="scripts\lua\lundump.c">
       <Filter>scripts\lua</Filter>
     </ClCompile>
@@ -362,24 +350,6 @@
     <ClCompile Include="system\sceneSystem.cpp">
       <Filter>system</Filter>
     </ClCompile>
-    <ClCompile Include="system\sceneObjectSystem.cpp">
-      <Filter>system\systems</Filter>
-    </ClCompile>
-    <ClCompile Include="system\sceneTransformSystem.cpp">
-      <Filter>system\systems</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\luaBinder.cpp">
-      <Filter>scripts\binder</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\luaException.cpp">
-      <Filter>scripts\binder</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\luaObject.cpp">
-      <Filter>scripts\binder</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\luaTools.cpp">
-      <Filter>scripts\binder</Filter>
-    </ClCompile>
     <ClCompile Include="scripts\api\luaApi.cpp">
       <Filter>scripts\api</Filter>
     </ClCompile>
@@ -388,12 +358,6 @@
     </ClCompile>
     <ClCompile Include="input\directInput.cpp">
       <Filter>input</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\luaRef.cpp">
-      <Filter>scripts\binder</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\luaBinder_impl.cpp">
-      <Filter>scripts\binder</Filter>
     </ClCompile>
     <ClCompile Include="renderer\paths\renderImage.cpp">
       <Filter>renderer\paths</Filter>
@@ -427,9 +391,6 @@
     </ClCompile>
     <ClCompile Include="system\component\light.cpp">
       <Filter>system\component</Filter>
-    </ClCompile>
-    <ClCompile Include="system\sceneLightSystem.cpp">
-      <Filter>system\systems</Filter>
     </ClCompile>
     <ClCompile Include="scripts\api\sceneApi.cpp">
       <Filter>scripts\api</Filter>
@@ -502,12 +463,6 @@
     </ClCompile>
     <ClCompile Include="system\systems\sceneAnimationSystem.cpp">
       <Filter>system\systems</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\passes\terrainPass.cpp">
-      <Filter>renderer\passes\terrain</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\passes\terrainTree.cpp">
-      <Filter>renderer\passes\terrain</Filter>
     </ClCompile>
     <ClCompile Include="system\component\weather.cpp">
       <Filter>system\component</Filter>
@@ -593,24 +548,6 @@
     <ClCompile Include="renderer\preset\renderPreset.cpp">
       <Filter>renderer\preset</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\preset\blendState.cpp">
-      <Filter>renderer\preset\graphicsChild</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\preset\constantBuffer.cpp">
-      <Filter>renderer\preset\graphicsChild</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\preset\depthStencilState.cpp">
-      <Filter>renderer\preset\graphicsChild</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\preset\rasterizerState.cpp">
-      <Filter>renderer\preset\graphicsChild</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\preset\samplerState.cpp">
-      <Filter>renderer\preset\graphicsChild</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\preset\structuredBuffer.cpp">
-      <Filter>renderer\preset\graphicsChild</Filter>
-    </ClCompile>
     <ClCompile Include="renderer\2D\textDrawable.cpp">
       <Filter>renderer\2D</Filter>
     </ClCompile>
@@ -683,12 +620,6 @@
     <ClCompile Include="scripts\api\jsonApi.cpp">
       <Filter>scripts\api</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\preset\shaderPreset.cpp">
-      <Filter>renderer\preset\graphicsChild</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\shaderLib.cpp">
-      <Filter>renderer\shader</Filter>
-    </ClCompile>
     <ClCompile Include="helper\archive.cpp">
       <Filter>helper\archive</Filter>
     </ClCompile>
@@ -707,8 +638,71 @@
     <ClCompile Include="system\systems\sceneParticleSystem.cpp">
       <Filter>system\systems</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\passes\particlePass.cpp">
+    <ClCompile Include="renderer\preset\impl\blendState.cpp">
+      <Filter>renderer\preset\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\preset\impl\constantBuffer.cpp">
+      <Filter>renderer\preset\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\preset\impl\depthStencilState.cpp">
+      <Filter>renderer\preset\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\preset\impl\rasterizerState.cpp">
+      <Filter>renderer\preset\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\preset\impl\samplerState.cpp">
+      <Filter>renderer\preset\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\preset\impl\shaderPreset.cpp">
+      <Filter>renderer\preset\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\preset\impl\structuredBuffer.cpp">
+      <Filter>renderer\preset\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\shaderLib.cpp">
+      <Filter>renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\RHI\d3d11\deviceD3D11.cpp">
+      <Filter>renderer\rhi\d3d11</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\RHI\d3d11\swapChainD3D11.cpp">
+      <Filter>renderer\rhi\d3d11</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\passes\particle\particlePass.cpp">
       <Filter>renderer\passes\particle</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\passes\terrain\terrainPass.cpp">
+      <Filter>renderer\passes\terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\passes\terrain\terrainTree.cpp">
+      <Filter>renderer\passes\terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\binder\luaBinder.cpp">
+      <Filter>scripts\binder</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\binder\luaBinder_impl.cpp">
+      <Filter>scripts\binder</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\binder\luaException.cpp">
+      <Filter>scripts\binder</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\binder\luaObject.cpp">
+      <Filter>scripts\binder</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\binder\luaRef.cpp">
+      <Filter>scripts\binder</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\binder\luaTools.cpp">
+      <Filter>scripts\binder</Filter>
+    </ClCompile>
+    <ClCompile Include="system\systems\sceneLightSystem.cpp">
+      <Filter>system\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="system\systems\sceneObjectSystem.cpp">
+      <Filter>system\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="system\systems\sceneTransformSystem.cpp">
+      <Filter>system\systems</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -758,9 +752,6 @@
     <ClInclude Include="renderer\RHI\rhiDefinition.h">
       <Filter>renderer\rhi</Filter>
     </ClInclude>
-    <ClInclude Include="renderer\RHI\swapChainD3D11.h">
-      <Filter>renderer\rhi\d3d11</Filter>
-    </ClInclude>
     <ClInclude Include="renderer\RHI\rhiResource.h">
       <Filter>renderer\rhi</Filter>
     </ClInclude>
@@ -782,9 +773,6 @@
     <ClInclude Include="helper\fileSystem.h">
       <Filter>helper</Filter>
     </ClInclude>
-    <ClInclude Include="resource\modelImporter.h">
-      <Filter>resource\importer</Filter>
-    </ClInclude>
     <ClInclude Include="utils\geometry.h">
       <Filter>utils</Filter>
     </ClInclude>
@@ -805,12 +793,6 @@
     </ClInclude>
     <ClInclude Include="utils\threadSafeBuffer.h">
       <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\includeD3D11.h">
-      <Filter>renderer\rhi\d3d11</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\RHI\deviceD3D11.h">
-      <Filter>renderer\rhi\d3d11</Filter>
     </ClInclude>
     <ClInclude Include="renderer\RHI\rhiFactory.h">
       <Filter>renderer\rhi</Filter>
@@ -938,36 +920,6 @@
     </ClInclude>
     <ClInclude Include="system\sceneSystem.h">
       <Filter>system</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaArg.h">
-      <Filter>scripts\binder</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaBinder.h">
-      <Filter>scripts\binder</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaBinder_impl.h">
-      <Filter>scripts\binder</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaCommon.h">
-      <Filter>scripts\binder</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaException.h">
-      <Filter>scripts\binder</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaInvoke.h">
-      <Filter>scripts\binder</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaObject.h">
-      <Filter>scripts\binder</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaRef.h">
-      <Filter>scripts\binder</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaTools.h">
-      <Filter>scripts\binder</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaTypeMapping.h">
-      <Filter>scripts\binder</Filter>
     </ClInclude>
     <ClInclude Include="scripts\api\luaApi.h">
       <Filter>scripts\api</Filter>
@@ -1100,15 +1052,6 @@
     </ClInclude>
     <ClInclude Include="renderer\passes\renderPass.h">
       <Filter>renderer\passes</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\passes\terrainPass.h">
-      <Filter>renderer\passes\terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\passes\terrainRender.h">
-      <Filter>renderer\passes\terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\passes\terrainTree.h">
-      <Filter>renderer\passes\terrain</Filter>
     </ClInclude>
     <ClInclude Include="system\component\weather.h">
       <Filter>system\component</Filter>
@@ -1377,9 +1320,6 @@
     <ClInclude Include="renderer\preset\shaderDefinitions.h">
       <Filter>renderer\preset</Filter>
     </ClInclude>
-    <ClInclude Include="renderer\shaderLib.h">
-      <Filter>renderer\shader</Filter>
-    </ClInclude>
     <ClInclude Include="helper\archive.h">
       <Filter>helper\archive</Filter>
     </ClInclude>
@@ -1395,8 +1335,62 @@
     <ClInclude Include="system\component\particle.h">
       <Filter>system\component</Filter>
     </ClInclude>
-    <ClInclude Include="renderer\passes\particlePass.h">
+    <ClInclude Include="renderer\RHI\d3d11\includeD3D11.h">
+      <Filter>renderer\rhi\d3d11</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\shaderLib.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\RHI\d3d11\deviceD3D11.h">
+      <Filter>renderer\rhi\d3d11</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\RHI\d3d11\swapChainD3D11.h">
+      <Filter>renderer\rhi\d3d11</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\passes\particle\particlePass.h">
       <Filter>renderer\passes\particle</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\passes\terrain\terrainPass.h">
+      <Filter>renderer\passes\terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\passes\terrain\terrainRender.h">
+      <Filter>renderer\passes\terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\passes\terrain\terrainTree.h">
+      <Filter>renderer\passes\terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\binder\luaArg.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\binder\luaBinder.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\binder\luaBinder_impl.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\binder\luaCommon.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\binder\luaException.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\binder\luaInvoke.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\binder\luaObject.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\binder\luaRef.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\binder\luaTools.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\binder\luaTypeMapping.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="resource\modelImporter\modelImporter.h">
+      <Filter>resource\importer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

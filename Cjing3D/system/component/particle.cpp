@@ -1,7 +1,7 @@
 #include "particle.h"
 #include "shaderInterop\shaderInteropParticle.h"
 #include "renderer\renderer.h"
-#include "renderer\passes\particlePass.h"
+#include "renderer\passes\particle\particlePass.h"
 #include "system\sceneSystem.h"
 #include "helper\random.h"
 
