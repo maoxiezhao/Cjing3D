@@ -7,8 +7,8 @@ namespace Audio
 {
 	SoundResourcePtr currentSoundResource = nullptr;
 
-	AudioManager::AudioManager(SystemContext& systemContext) :
-		SubSystem(systemContext)
+	AudioManager::AudioManager(GlobalContext& globalContext) :
+		SubSystem(globalContext)
 	{
 	}
 

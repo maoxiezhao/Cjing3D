@@ -2,6 +2,8 @@
 
 #include "system\component\componentInclude.h"
 
+#include <functional>
+
 namespace Cjing3D {
 
 	struct RenderInstance;

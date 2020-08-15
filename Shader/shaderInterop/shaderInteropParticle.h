@@ -6,12 +6,12 @@
 struct ShaderParticle
 {
 	float3 position;
-	float life;
+	uint color;
 	float3 velocity;
 	float angularVelocity;
 	float2 sizeBeginEnd;
 	float maxLife;
-	uint color;
+	float life;
 };
 
 struct ParticleCounter
@@ -28,9 +28,10 @@ CBUFFER(ParticleCB, CBSLOT_PARTICLE)
 	float gParticleEmitCount;
 	float gParticleRandomness;
 	float gParticleLifeRange;
+	float gParticleLifeRandomness;
 	float gParticleSize;
 	uint  gParticleColor;
-	uint3 gParticlePadding3;
+	uint2 gParticlePadding3;
 };
 
 #define THREAD_PARTICLE_EMIT_COUNT 256

@@ -3,7 +3,7 @@
 #include "renderer\renderableCommon.h"
 #include "renderer\RHI\device.h"
 #include "renderer\RHI\rhiResource.h"
-#include "core\systemContext.hpp"
+#include "core\globalContext.hpp"
 
 namespace Cjing3D {
 

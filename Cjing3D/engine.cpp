@@ -4,6 +4,7 @@
 #include "helper\enumInfo.h"
 #include "core\jobSystem.h"
 #include "core\eventSystem.h"
+#include "core\settings.h"
 #include "input\InputSystem.h"
 #include "resource\resourceManager.h"
 #include "renderer\renderer.h"
@@ -27,7 +28,7 @@ Engine::Engine(GameComponent* gameConponent):
 	mWindowHinstance(nullptr),
 	mRenderingDeviceType(RenderingDeviceType_D3D11)
 {
-	mSystemContext = &SystemContext::GetSystemContext();
+	mSystemContext = &GlobalContext::GetGlobalContext();
 
 	mGameComponent = std::unique_ptr<GameComponent>(gameConponent);
 	mGameComponent->SetGameContext(mSystemContext);
@@ -38,13 +39,16 @@ Engine::~Engine()
 	Uninitialize();
 }
 
-void Engine::Initialize()
+void Engine::Initialize(const std::string& assetPath, const std::string& assetName)
 {
 	if (mIsInitialized == true) {
 		return;
 	}
 
+	// initialize memory system
 	Memory::Initialize();
+
+	// initialize profiler
 	Profiler::GetInstance().Initialize();
 
 #ifdef CJING_DEBUG
@@ -53,6 +57,7 @@ void Engine::Initialize()
 	Debug::SetDieOnError(true);
 	Debug::InitializeDebugConsole();
 #endif
+
 	Logger::PrintConsoleHeader();
 	Logger::Info("Initialize engine modules");
 
@@ -65,56 +70,38 @@ void Engine::Initialize()
 	mSystemContext->SetEngine(this);
 
 	// initialize file data
-	std::string dataPath = ".\\..\\GameAssets";
-	if (!FileData::OpenData("", dataPath))
-		Debug::Die("No data file was found int the direcion:" + dataPath);
+	if (!FileData::OpenData("", assetPath, assetName)) 
+	{
+		Debug::Die("No data file was found int the direcion:" + assetPath);
+		return;
+	}
 	
-	// initialize job system
-	auto jobSystem = new JobSystem(*mSystemContext, false);
-	mSystemContext->RegisterSubSystem(jobSystem);
-	jobSystem->Initialize();
-
-	// initialize input system
-	auto inputSystem = new InputManager(*mSystemContext);
-	mSystemContext->RegisterSubSystem(inputSystem);
-	inputSystem->Initialize((HWND)mWindowHwnd, (HINSTANCE)mWindowHinstance);
-
-	// initialize audio system
-	auto audioManager = new Audio::AudioManager(*mSystemContext);
-	mSystemContext->RegisterSubSystem(audioManager);
-	audioManager->Initialize(CJING_MEM_NEW(Audio::AudioDeviceX));
-
+	// initialize setting
+	mSystemContext->RegisterSubSystem<Settings>();
 	// setup gamecomponent 
 	mGameComponent->Setup();
 
-	// initialize resource manager
-	auto resourceManager = new ResourceManager(*mSystemContext);
-	mSystemContext->RegisterSubSystem(resourceManager);
-	resourceManager->Initialize();
+	// initialize sub systems
+	mSystemContext->RegisterSubSystem<JobSystem>();
+	mSystemContext->RegisterSubSystem<InputManager>((HWND)mWindowHwnd, (HINSTANCE)mWindowHinstance);
+	mSystemContext->RegisterSubSystem<Audio::AudioManager>(CJING_MEM_NEW(Audio::AudioDeviceX));
+	mSystemContext->RegisterSubSystem<ResourceManager>();
+	mSystemContext->RegisterSubSystem<RendererSystem>(mRenderingDeviceType, (HWND)mWindowHwnd);
+	mSystemContext->RegisterSubSystem<GUIStage>();
+	mSystemContext->RegisterSubSystem<LuaContext>();
 
-	// initialize renderer
-	Renderer::Initialize(mRenderingDeviceType, (HWND)mWindowHwnd);
-
-	// initialize gui stage
-	auto guiStage = new GUIStage(*mSystemContext);
-	mSystemContext->RegisterSubSystem(guiStage);
-	guiStage->Initialize();
-
-	// initialize lua context
-	auto luaContext = new LuaContext(*mSystemContext);
-	mSystemContext->RegisterSubSystem(luaContext);
-	luaContext->Initialize();
+	mLuaContext   = &mSystemContext->GetSubSystem<LuaContext>();
+	mGuiStage     = &mSystemContext->GetSubSystem<GUIStage>();
+	mInputManager = &mSystemContext->GetSubSystem<InputManager>();
 
 	// initialize main scene
 	Scene::Initialize();
 
-	// game start
+	// game context initialize
 	mGameComponent->Initialize();
-	luaContext->StartMainScript();
 
-	mLuaContext = luaContext;
-	mGuiStage = guiStage;
-	mInputManager = inputSystem;
+	// do main scirpt ::OnStart()
+	mLuaContext->StartMainScript();
 
 	mIsInitialized = true;
 }
@@ -175,25 +162,24 @@ void Engine::Uninitialize()
 		return;
 	}
 
+	// stop timer
+	mTimer.Stop();
+
+	// stop script and game
 	mSystemContext->GetSubSystem<LuaContext>().StopMainScript();
 	mGameComponent->Uninitialize();
 
+	// clear scene
 	Scene::GetScene().Clear();
 	Scene::Uninitialize();
 
-	mSystemContext->GetSubSystem<GUIStage>().Uninitialize();
-	mSystemContext->GetSubSystem<LuaContext>().Uninitialize();
-
+	// clear profilers
 	Profiler::GetInstance().Clear();
-	Renderer::Uninitialize();
 
-	mSystemContext->GetSubSystem<ResourceManager>().Uninitialize();
-	mSystemContext->GetSubSystem<InputManager>().Uninitialize();
-	mSystemContext->GetSubSystem<Audio::AudioManager>().Uninitialize();
-	mSystemContext->GetSubSystem<JobSystem>().Uninitialize();
+	// clear sub systems
+	mSystemContext->Uninitialize();
 
 	FileData::CloseData();
-	mTimer.Stop();
 
 #ifdef CJING_DEBUG
 	Debug::UninitializeDebugConsolse();
@@ -218,7 +204,6 @@ void Engine::FixedUpdate()
 	mGameComponent->FixedUpdate();
 	mLuaContext->FixedUpdate();
 	mGuiStage->FixedUpdate();
-
 	Renderer::FixedUpdate();
 
 	PROFILER_END_BLOCK();
@@ -231,8 +216,7 @@ void Engine::Update(F32 deltaTime)
 
 	mLuaContext->Update(deltaTime);
 	mGameComponent->Update(mEngineTime);
-	mGuiStage->Update(deltaTime);
-	
+	mGuiStage->Update(deltaTime);	
 	Renderer::Update(deltaTime);
 
 	PROFILER_END_BLOCK();

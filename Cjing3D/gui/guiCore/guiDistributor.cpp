@@ -1,5 +1,5 @@
 #include "guiDistributor.h"
-#include "core\systemContext.hpp"
+#include "core\globalContext.hpp"
 
 namespace Cjing3D {
 namespace Gui {

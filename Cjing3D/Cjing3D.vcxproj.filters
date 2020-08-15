@@ -194,9 +194,6 @@
     <ClCompile Include="renderer\RHI\device.cpp">
       <Filter>renderer\rhi</Filter>
     </ClCompile>
-    <ClCompile Include="core\threadSafeSystem.cpp">
-      <Filter>core</Filter>
-    </ClCompile>
     <ClCompile Include="resource\resourceManager.cpp">
       <Filter>resource</Filter>
     </ClCompile>
@@ -704,6 +701,12 @@
     <ClCompile Include="system\systems\sceneTransformSystem.cpp">
       <Filter>system\systems</Filter>
     </ClCompile>
+    <ClCompile Include="platform\win32\gameAppWin32.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="core\settings.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -755,9 +758,6 @@
     <ClInclude Include="renderer\RHI\rhiResource.h">
       <Filter>renderer\rhi</Filter>
     </ClInclude>
-    <ClInclude Include="core\threadSafeSystem.h">
-      <Filter>core</Filter>
-    </ClInclude>
     <ClInclude Include="resource\resource.h">
       <Filter>resource</Filter>
     </ClInclude>
@@ -781,9 +781,6 @@
     </ClInclude>
     <ClInclude Include="helper\variant.h">
       <Filter>helper</Filter>
-    </ClInclude>
-    <ClInclude Include="core\systemContext.hpp">
-      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="core\subSystem.hpp">
       <Filter>core</Filter>
@@ -1391,6 +1388,15 @@
     </ClInclude>
     <ClInclude Include="resource\modelImporter\modelImporter.h">
       <Filter>resource\importer</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\win32\gameAppWin32.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="core\settings.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\globalContext.hpp">
+      <Filter>core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

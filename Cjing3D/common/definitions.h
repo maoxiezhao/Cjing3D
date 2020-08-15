@@ -71,3 +71,5 @@ using F64 = double;
 #include <wrl.h>
 template<typename T>
 using ComPtr = Microsoft::WRL::ComPtr<T>;
+
+#define CJING3D_WRITE_DIR "Cjing3D"

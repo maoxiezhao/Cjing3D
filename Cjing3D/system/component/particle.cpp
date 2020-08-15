@@ -188,6 +188,7 @@ namespace Cjing3D {
 			particleCB.gParticleColor = Color4::Convert(material->mBaseColor).GetRGBA();
 			particleCB.gParticleLifeRange = mLife;
 			particleCB.gParticleSize = mSize;
+			particleCB.gParticleLifeRandomness = mRandomLife;
 
 			device.UpdateBuffer(mConstBuffer, &particleCB);
 			device.BindConstantBuffer(SHADERSTAGES_CS, mConstBuffer, CB_GETSLOT_NAME(ParticleCB));
@@ -218,6 +219,14 @@ namespace Cjing3D {
 	U32 ParticleComponent::GetMaxParticleCount() const
 	{
 		return MAX_PARTICLE_COUNT;
+	}
+
+	void ParticleComponent::SaveToXML(const std::string& path)
+	{
+	}
+
+	void ParticleComponent::LoadFromXML(const std::string& path)
+	{
 	}
 
 	void ParticleComponent::Serialize(Archive& archive, U32 seed)

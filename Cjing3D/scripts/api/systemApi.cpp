@@ -1,6 +1,6 @@
 #include "luaApi.h"
 #include "input\InputSystem.h"
-#include "core\systemContext.hpp"
+#include "core\globalContext.hpp"
 
 namespace Cjing3D {
 namespace LuaApi {
@@ -8,7 +8,7 @@ namespace LuaApi {
 	int GetInputManager(lua_State* l)
 	{
 		return LuaTools::ExceptionBoundary(l, [&] {
-			InputManager& inputManager = SystemContext::GetSystemContext().GetSubSystem<InputManager>();
+			InputManager& inputManager = GlobalGetSubSystem<InputManager>();
 			LuaTools::Push<InputManager&>(l, inputManager);
 
 			return 1;
@@ -18,8 +18,7 @@ namespace LuaApi {
 	int GetEngineDeltaTime(lua_State* l)
 	{
 		return LuaTools::ExceptionBoundary(l, [&] {
-			EngineTime time = SystemContext::GetSystemContext().GetEngineTime();
-			F32 deltaTime = F32(time.deltaTime / 1000.0f);
+			F32 deltaTime = GlobalGetDeltaTime();
 			LuaTools::Push<F32>(l, deltaTime);
 
 			return 1;

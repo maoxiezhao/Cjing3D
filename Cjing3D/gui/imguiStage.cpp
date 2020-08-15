@@ -5,7 +5,7 @@
 
 #include "engine.h"
 #include "platform\gameWindow.h"
-#include "core\systemContext.hpp"
+#include "core\globalContext.hpp"
 #include "renderer\renderer.h"
 #include "renderer\2D\renderer2D.h"
 #include "renderer\RHI\d3d11\deviceD3D11.h"
@@ -81,7 +81,6 @@ namespace Cjing3D
 
 		mRegisteredWindows.clear();
 
-		SystemContext& systemContext = SystemContext::GetSystemContext();
 		GameWindow* window = GlobalGetEngine()->GetWindow();
 		if (window != nullptr) {
 			mMessageHandler = std::make_shared<IMGUIMessageHandler>();

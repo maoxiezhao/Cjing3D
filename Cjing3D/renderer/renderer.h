@@ -234,4 +234,20 @@ namespace Renderer
 	};
 };
 
+// renderer sub system
+class RendererSystem : public SubSystem
+{
+public:
+	RendererSystem(GlobalContext& globalContext) : SubSystem(globalContext) {}
+
+	void Initialize(RenderingDeviceType deviceType, HWND window)
+	{
+		Renderer::Initialize(deviceType, window);
+	}
+	void Uninitialize()override
+	{
+		Renderer::Uninitialize();
+	}
+};
+
 }

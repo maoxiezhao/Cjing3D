@@ -15,10 +15,10 @@ using TaskJob = std::function<void()>;
 class JobSystem : public SubSystem
 {
 public:
-	JobSystem(SystemContext& context, bool multThread = true);
+	JobSystem(GlobalContext& context);
 
 	void Initialize();
-	void Uninitialize();
+	void Uninitialize()override;
 
 	void Execute(const TaskJob& task);
 

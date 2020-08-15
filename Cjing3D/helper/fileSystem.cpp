@@ -8,46 +8,45 @@
 #include <algorithm>
 #include <filesystem>
 
-using std::string;
-
-// 考虑使用std::filesystem来构建engine filesystem
-
 namespace Cjing3D {
 	namespace FileData {
 		namespace
 		{
-			string dataName_ = "";
-			string dataPath_ = "";
-			string dataWriteDir_ = "";
-			string appWriteDir_ = "Cjing3D";
-			string buildWriteDir_ = "build/generating";
+			std::string programName_ = "";
+			std::string assetPath_ = "";
+			std::string assetName_ = "";
+			std::string writeDir_ = "";
+
+
+			std::string GetBaseWriteDir()
+			{
+				return PHYSFS_getUserDir();
+			}
 
 			// 设置app的写文件路径，一般设置在userdata/Documents路径下
-			void SetAppWriteDir(const string& appWriteDir)
+			void SetWriteDir(const std::string& writeDir)
 			{
-				Debug::CheckAssertion(!appWriteDir.empty(),
-					"The app write path is empty.");
+				writeDir_ = writeDir;
 
-				appWriteDir_ = "Documents/" + appWriteDir;
-				if (!PHYSFS_setWriteDir(PHYSFS_getUserDir()))
-				{
-					Debug::CheckAssertion(!appWriteDir.empty(),
-						"Can not set write dir in user dir.");
+				if (!PHYSFS_setWriteDir(GetBaseWriteDir().c_str())) {
+					Debug::Error(std::string("Can not set write dir in user dir:") +
+						PHYSFS_getLastError());
 				}
-				// 创建app文件夹
-				PHYSFS_mkdir(appWriteDir_.c_str());
-				string fullAppWriteDir = string(PHYSFS_getUserDir()) + "/" + appWriteDir_;
-				if (!PHYSFS_setWriteDir(fullAppWriteDir.c_str()))
+
+				PHYSFS_mkdir(writeDir.c_str());
+
+				std::string fullWriteDir = GetBaseWriteDir() + "/" + writeDir;
+				if (!PHYSFS_setWriteDir(fullWriteDir.c_str()))
 				{
-					Debug::CheckAssertion(!appWriteDir.empty(),
-						"Can not set write dir in user dir.");
+					Debug::Error(std::string("Can not set write dir in user dir:") +
+						PHYSFS_getLastError());
 				}
 
 			}
 
 			bool IsOpen()
 			{
-				return !dataPath_.empty();
+				return !assetPath_.empty();
 			}
 
 			char* ReadFileBytesBySystemIO(const std::string& name, size_t& length)
@@ -77,7 +76,7 @@ namespace Cjing3D {
 					data.resize(length);
 					file.read(reinterpret_cast<char*>(&data.at(0)), length);
 					file.close();
-					
+
 					return true;
 				}
 				return false;
@@ -95,15 +94,15 @@ namespace Cjing3D {
 				return false;
 			}
 
-			char* ReadFileBytesByPhysfs(const string& name, size_t& length)
+			char* ReadFileBytesByPhysfs(const std::string& name, size_t& length)
 			{
 				// 确保文件存在
 				Debug::CheckAssertion(PHYSFS_exists(name.c_str()),
-					string("the file:") + name + " isn't exits.");
+					std::string("the file:") + name + " isn't exits.");
 
 				PHYSFS_file* file = PHYSFS_openRead(name.c_str());
 				Debug::CheckAssertion(file != nullptr,
-					string("the file:") + name + " loaded failed.");
+					std::string("the file:") + name + " loaded failed.");
 
 				size_t size = static_cast<size_t>(PHYSFS_fileLength(file));
 				char* buffer = new char[size];
@@ -114,16 +113,16 @@ namespace Cjing3D {
 
 				return buffer;
 			}
-			
-			bool ReadFileBytesByPhysfs(const string& name, std::vector<unsigned char>& data)
+
+			bool ReadFileBytesByPhysfs(const std::string& name, std::vector<unsigned char>& data)
 			{
 				// 确保文件存在
 				Debug::CheckAssertion(PHYSFS_exists(name.c_str()),
-					string("the file:") + name + " isn't exits.");
+					std::string("the file:") + name + " isn't exits.");
 
 				PHYSFS_file* file = PHYSFS_openRead(name.c_str());
 				Debug::CheckAssertion(file != nullptr,
-					string("the file:") + name + " loaded failed.");
+					std::string("the file:") + name + " loaded failed.");
 
 				size_t size = static_cast<size_t>(PHYSFS_fileLength(file));
 				data.resize(size);
@@ -138,11 +137,11 @@ namespace Cjing3D {
 			{
 				PHYSFS_File* file = PHYSFS_openWrite(name.c_str());
 				if (file == nullptr) {
-					Debug::Die(string("the file:") + name + " created failed.");
+					Debug::Die(std::string("the file:") + name + " created failed.");
 				}
 
 				if (!PHYSFS_write(file, buffer, (PHYSFS_uint32)length, 1)) {
-					Debug::Die(string("the file:") + name + "writed failed.");
+					Debug::Die(std::string("the file:") + name + "writed failed.");
 				}
 
 				PHYSFS_close(file);
@@ -185,28 +184,54 @@ namespace Cjing3D {
 		}
 
 		// 打开对应资源目录，设置对应的搜寻路径，设置在user dir下的写路径
-		bool OpenData(const string&dataName, const string& dataPath)
+		bool OpenData(const std::string& programName, const std::string& assetPath, const std::string& assetName)
 		{
-			if (IsOpen())
+			if (IsOpen()) {
 				CloseData();
+			}
 
-			if (dataName.empty())
+			if (programName.empty()) {
 				PHYSFS_init(nullptr);
-			else
-				PHYSFS_init(dataName.c_str());
+			}
+			else {
+				PHYSFS_init(programName.c_str());
+			}
 
-			dataName_ = dataName;
-			dataPath_ = dataPath;
+			programName_ = programName;
+			assetPath_ = assetPath;
+			assetName_ = assetName;
 
-			string dirDataPath = dataPath;
-			const string& baseDir = PHYSFS_getBaseDir();
-			PHYSFS_addToSearchPath(dirDataPath.c_str(), 1);
-			PHYSFS_addToSearchPath((baseDir + "\\" + dirDataPath).c_str(), 1);
 			PHYSFS_permitSymbolicLinks(1);
 
-			SetAppWriteDir(appWriteDir_);
+			// add base dir
+			if (!PHYSFS_mount(assetPath_.c_str(), nullptr, 1))
+			{
+				Debug::Error(PHYSFS_getLastError());
+				return false;
+			}
+
+			// add assets dir
+			const std::string assetFullPath = assetPath + "/" + assetName;
+			if (!PHYSFS_mount(assetFullPath.c_str(), nullptr, 1))
+			{
+				Debug::Error(PHYSFS_getLastError());
+				return false;
+			}
+			const std::string& baseDir = PHYSFS_getBaseDir();
+			if (!PHYSFS_mount((baseDir + "/" + assetFullPath).c_str(), nullptr, 1))
+			{
+				Debug::Error(PHYSFS_getLastError());
+				return false;
+			}
+
+			SetWriteDir(CJING3D_WRITE_DIR);
 
 			return true;
+		}
+
+		bool IsDataOpened()
+		{
+			return IsOpen();
 		}
 
 		void CloseData()
@@ -214,22 +239,23 @@ namespace Cjing3D {
 			if (!IsOpen())
 				return;
 
-			dataName_.clear();
-			dataPath_.clear();
-			bool result = PHYSFS_deinit();
-			return;
+			programName_.clear();
+			assetPath_.clear();
+			PHYSFS_deinit();
 		}
 
 		void Reset()
 		{
-			for (char** i = PHYSFS_getSearchPath(); *i != NULL; i++)
+			for (char** i = PHYSFS_getSearchPath(); *i != NULL; i++) {
 				printf("[%s] is in the search path.\n", *i);
+			}
 
-			std::string dataName = dataName_;
-			std::string dataPah = dataPath_;
+			std::string programName = programName_;
+			std::string assetPath = assetPath_;
+			std::string assetName = assetName_;
 
 			CloseData();
-			OpenData(dataName, dataPah);
+			OpenData(programName, assetPath, assetName);
 		}
 
 		bool CreateDirectory(const std::string& path)
@@ -262,40 +288,12 @@ namespace Cjing3D {
 			}
 		}
 
-		// 设置写路径,通过对userdata路径后添加自定义写路径
-		void SetGeneratingWriteDir(const std::string & writeDir)
-		{
-			if (!dataWriteDir_.empty()) {
-				PHYSFS_removeFromSearchPath(PHYSFS_getWriteDir());
-			}
-
-			dataWriteDir_ = writeDir;
-
-			if (!PHYSFS_setWriteDir(writeDir.c_str()))
-			{
-				Debug::Die("Failed to set Write dir:" + dataWriteDir_ + " Error:" + PHYSFS_getLastError());
-			}
-			if (!dataWriteDir_.empty())
-			{
-				// 创建目录，设置写路径，添加searchpath
-				PHYSFS_mkdir(buildWriteDir_.c_str());
-
-				std::string fullWriteDir = dataWriteDir_ + "/" + buildWriteDir_;
-				if (!PHYSFS_setWriteDir(fullWriteDir.c_str()))
-				{
-					Debug::Die("Failed to set Write dir:" + fullWriteDir + " Error:" + PHYSFS_getLastError());
-				}
-				PHYSFS_addToSearchPath(PHYSFS_getWriteDir(), 0);
-			}
-
-		}
-
-		std::vector<std::string> EnumerateFiles(const std::string & path)
+		std::vector<std::string> EnumerateFiles(const std::string& path)
 		{
 			std::vector<std::string> result;
-			char **rc = PHYSFS_enumerateFiles(path.c_str());
+			char** rc = PHYSFS_enumerateFiles(path.c_str());
 
-			for (char **i = rc; *i != NULL; i++)
+			for (char** i = rc; *i != NULL; i++)
 				result.push_back(*i);
 
 			PHYSFS_freeList(rc);
@@ -303,12 +301,12 @@ namespace Cjing3D {
 			return result;
 		}
 
-		bool IsDirectory(const std::string & path)
+		bool IsDirectory(const std::string& path)
 		{
 			return PHYSFS_isDirectory(path.c_str());
 		}
 
-		bool IsFileExists(const string& name)
+		bool IsFileExists(const std::string& name)
 		{
 			if (IsAbsolutePath(name)) {
 				return true;
@@ -324,7 +322,7 @@ namespace Cjing3D {
 		*	\param data 数据buffer
 		*	\return 返回文件的长度
 		*/
-		char* ReadFileBytes(const string & name, size_t& length)
+		char* ReadFileBytes(const std::string& name, size_t& length)
 		{
 			if (IsAbsolutePath(name)) {
 				return ReadFileBytesBySystemIO(name, length);
@@ -344,21 +342,21 @@ namespace Cjing3D {
 			}
 		}
 
-		string ReadFile(const string& name)
+		std::string ReadFile(const std::string& name)
 		{
 			if (IsAbsolutePath(name)) {
 				size_t length = 0;
 				char* buffer = ReadFileBytesBySystemIO(name, length);
-				return string(buffer, length);
+				return std::string(buffer, length);
 			}
 			else {
 				size_t length = 0;
 				char* buffer = ReadFileBytesByPhysfs(name, length);
-				return string(buffer, length);
+				return std::string(buffer, length);
 			}
 		}
 
-		bool SaveFile(const string& name, const string&buffer)
+		bool SaveFile(const std::string& name, const std::string& buffer)
 		{
 			return SaveFile(name, buffer.data(), buffer.length());
 		}
@@ -367,19 +365,20 @@ namespace Cjing3D {
 		{
 			if (IsAbsolutePath(name)) {
 				return SaveFileBySystemIO(name, buffer, length);
-			}else {
+			}
+			else {
 				return SaveFileByPhysfs(name, buffer, length);
 			}
 		}
 
-		bool DeleteFile(const string& name)
+		bool DeleteFile(const std::string& name)
 		{
 			if (PHYSFS_delete(name.c_str()))
 				return false;
 			return true;
 		}
 
-		std::string GetExtensionFromFilePath(const std::string & filePath)
+		std::string GetExtensionFromFilePath(const std::string& filePath)
 		{
 			if (filePath.empty() || filePath == NOT_ASSIGNED) {
 				return NOT_ASSIGNED;
@@ -432,7 +431,7 @@ namespace Cjing3D {
 		*	根据curPath会计算相对路劲，其中curPath中开头包含./
 		*	则会从srcPath上一级目录下寻找文件
 		*/
-		string GetPositivePath(const string & srcPath, const string & curPath)
+		std::string GetPositivePath(const std::string& srcPath, const std::string& curPath)
 		{
 			std::string path = srcPath;
 			std::string filePath = curPath;

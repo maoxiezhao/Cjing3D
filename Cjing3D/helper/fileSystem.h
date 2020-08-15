@@ -13,7 +13,8 @@ namespace Cjing3D {
 		static const char* NOT_ASSIGNED = "N/A";
 		static const char* DATA_FORMAT_EXTENSION = ".xml";
 
-		bool OpenData(const std::string&dataName, const std::string& dataPath);
+		bool OpenData(const std::string& programName, const std::string& assetPath, const std::string& assetName);
+		bool IsDataOpened();
 		void CloseData();
 		void Reset();
 

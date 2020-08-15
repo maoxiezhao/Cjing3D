@@ -18,8 +18,8 @@ ENUM_TRAITS_REGISTER_ENUM_DEFINE(CLIENT_LUA_MAIN_STOP)
 ENUM_TRAITS_REGISTER_ENUM_DEFINE(CLIENT_LUA_MAIN_CHANGE_SCENE)
 ENUM_TRAITS_REGISTER_ENUM_END(SystemFunctionIndex)
 
-LuaContext::LuaContext(SystemContext & systemContext) :
-	SubSystem(systemContext)
+LuaContext::LuaContext(GlobalContext & globalContext) :
+	SubSystem(globalContext)
 {
 }
 

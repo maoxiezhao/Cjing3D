@@ -47,11 +47,11 @@ class InputManager : public SubSystem
 {
 public:
 	LUA_BINDER_REGISTER_CLASS_CONSTRUCTOR
-	InputManager(SystemContext& systemContext);
+	InputManager(GlobalContext& globalContext);
 	~InputManager();
 
 	void Initialize(HWND windowHwnd, HINSTANCE windowInstance);
-	void Uninitialize();
+	void Uninitialize()override;
 	virtual void Update(F32 deltaTime);
 
     LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION

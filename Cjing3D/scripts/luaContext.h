@@ -24,11 +24,11 @@ enum SystemFunctionIndex {
 class LuaContext : public SubSystem
 {
 public:
-	LuaContext(SystemContext& systemContext);
+	LuaContext(GlobalContext& globalContext);
 	~LuaContext();
 
 	void Initialize();
-	void Uninitialize();
+	void Uninitialize()override;
 	void FixedUpdate();
 	void Update(F32 deltaTime);
 	void GC();

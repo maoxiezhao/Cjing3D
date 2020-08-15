@@ -19,6 +19,8 @@ namespace Cjing3D {
 		GPUBuffer mBufferIndirect;
 
 		// particle attributes
+		ECS::Entity mMeshID = ECS::INVALID_ENTITY;
+
 		enum ParticleFlag
 		{
 			EMPTY = 0,
@@ -26,8 +28,8 @@ namespace Cjing3D {
 		};
 		U32 mStatusFlag = EMPTY;
 		U32 MAX_PARTICLE_COUNT = 1000;
-		ECS::Entity mMeshID = ECS::INVALID_ENTITY;
 		F32 mLife = 1.0f;
+		F32 mRandomLife = 1.0f;
 		F32 mSize = 1.0f;
 
 		// run time attributes
@@ -60,6 +62,11 @@ namespace Cjing3D {
 		void SetMaxParticleCount(U32 count);
 		U32 GetMaxParticleCount()const;
 
+		// xml serialize
+		void SaveToXML(const std::string& path);
+		void LoadFromXML(const std::string& path);
+
+		// scene binary serialize
 		virtual void Serialize(Archive& archive, U32 seed = 0);
 		virtual void Unserialize(Archive& archive)const;
 	};

@@ -26,12 +26,12 @@ public:
 	using PoolResourceType = typename PoolType<ResourceT>::PoolResourceType;
 
 
-	ResourceManager(SystemContext& gameContext) :
+	ResourceManager(GlobalContext& gameContext) :
 		SubSystem(gameContext) {}
 	~ResourceManager() = default;
 
 	void Initialize();
-	void Uninitialize();
+	void Uninitialize()override;
 	
 	void AddStandardResourceDirectory(ResourceType type, const std::string& path);
 	const std::string& GetStandardResourceDirectory(ResourceType type)const;

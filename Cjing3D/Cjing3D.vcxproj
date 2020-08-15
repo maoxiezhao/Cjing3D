@@ -162,9 +162,9 @@
     <ClInclude Include="core\jobSystem.h" />
     <ClInclude Include="core\memory.h" />
     <ClInclude Include="core\safeRefcount.h" />
-    <ClInclude Include="core\systemContext.hpp" />
+    <ClInclude Include="core\settings.h" />
+    <ClInclude Include="core\globalContext.hpp" />
     <ClInclude Include="core\subSystem.hpp" />
-    <ClInclude Include="core\threadSafeSystem.h" />
     <ClInclude Include="engine.h" />
     <ClInclude Include="gui\guiAnimation\guiAnimaionOptions.h" />
     <ClInclude Include="gui\guiAnimation\guiAnimation.h" />
@@ -224,6 +224,7 @@
     <ClInclude Include="note.h" />
     <ClInclude Include="platform\gameWindow.h" />
     <ClInclude Include="platform\win32\gameWindowWin32.h" />
+    <ClInclude Include="platform\win32\gameAppWin32.h" />
     <ClInclude Include="renderer\2D\font.h" />
     <ClInclude Include="renderer\2D\renderer2D.h" />
     <ClInclude Include="renderer\2D\sprite.h" />
@@ -389,7 +390,7 @@
     <ClCompile Include="core\gameComponent.cpp" />
     <ClCompile Include="core\jobSystem.cpp" />
     <ClCompile Include="core\memory.cpp" />
-    <ClCompile Include="core\threadSafeSystem.cpp" />
+    <ClCompile Include="core\settings.cpp" />
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="generates\luabind_registers.cpp" />
     <ClCompile Include="gui\guiAnimation\guiAnimation.cpp" />
@@ -435,6 +436,7 @@
     <ClCompile Include="input\directInput.cpp" />
     <ClCompile Include="input\InputSystem.cpp" />
     <ClCompile Include="platform\gameWindow.cpp" />
+    <ClCompile Include="platform\win32\gameAppWin32.cpp" />
     <ClCompile Include="platform\win32\gameWindowWin32.cpp" />
     <ClCompile Include="platform\win32\safeRefcountWin32.cpp" />
     <ClCompile Include="renderer\2D\font.cpp" />

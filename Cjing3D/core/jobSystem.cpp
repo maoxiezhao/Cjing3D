@@ -3,6 +3,7 @@
 #include <thread>
 #include <mutex>
 #include <string>
+#include <atomic>
 
 namespace Cjing3D
 {
@@ -12,10 +13,10 @@ namespace Cjing3D
 		std::atomic<uint64_t> finishedLabel;
 	}
 
-	JobSystem::JobSystem(SystemContext & context, bool multThread):
+	JobSystem::JobSystem(GlobalContext & context):
 		SubSystem(context),
 		mThreadCount(0),
-		mIsMultThread(multThread)
+		mIsMultThread(false)
 	{
 	}
 

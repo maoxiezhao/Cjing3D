@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common\common.h"
-#include "core\systemContext.hpp"
+#include "core\globalContext.hpp"
 #include "helper\IDGenerator.h"
 #include "utils\geometry.h"
 #include "utils\intersectable.h"

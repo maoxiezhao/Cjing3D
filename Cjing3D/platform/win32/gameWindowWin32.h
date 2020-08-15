@@ -16,7 +16,7 @@ namespace Cjing3D {
 	public:
 		static constexpr DWORD DefaultWindowStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
 
-		GameWindowWin32(const std::string& name, const I32x2& screenSize, bool fullScreen, DWORD style = DefaultWindowStyle);
+		GameWindowWin32(const std::string& titleName, const I32x2& screenSize, bool fullScreen, DWORD style = DefaultWindowStyle);
 		GameWindowWin32(const GameWindowWin32& rhs) = delete;
 		GameWindowWin32& operator=(const GameWindowWin32& rhs) = delete;
 		~GameWindowWin32();
@@ -30,6 +30,7 @@ namespace Cjing3D {
 		HWND GetHwnd()const { return mHwnd; }
 		bool IsFullScreen()const { return mFullScreen; }
 		std::string GetTitleName()const { return mTitleName; }
+		virtual void SetWindowTitle(const UTF8String& titleName);
 		virtual bool IsWindowActive() const;
 
 		/** Wnd Proc Function */

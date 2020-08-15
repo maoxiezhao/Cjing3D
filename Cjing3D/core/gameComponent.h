@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core\systemContext.hpp"
+#include "core\globalContext.hpp"
 #include "helper\timer.h"
 
 namespace Cjing3D
@@ -20,16 +20,16 @@ namespace Cjing3D
 		virtual void PreRender();
 		virtual void Uninitialize();
 
-		void SetGameContext(SystemContext* systemContext) {
-			mSystemContext = systemContext;
+		void SetGameContext(GlobalContext* globalContext) {
+			mSystemContext = globalContext;
 		}
 
-		SystemContext* GetGameContext() {
+		GlobalContext* GetGameContext() {
 			return mSystemContext;
 		}
 
 	private:
-		SystemContext* mSystemContext;
+		GlobalContext* mSystemContext;
 
 	};
 }

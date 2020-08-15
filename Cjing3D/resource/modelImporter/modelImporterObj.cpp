@@ -1,5 +1,5 @@
 #include "resource\modelImporter\modelImporter.h"
-#include "core\systemContext.hpp"
+#include "core\globalContext.hpp"
 #include "resource\resourceManager.h"
 #include "system\sceneSystem.h"
 #include "renderer\renderer.h"

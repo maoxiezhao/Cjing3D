@@ -17,8 +17,8 @@ namespace Cjing3D
 
 	using namespace Gui;
 
-	GUIStage::GUIStage(SystemContext & systemContext):
-		SubSystem(systemContext),
+	GUIStage::GUIStage(GlobalContext & globalContext):
+		SubSystem(globalContext),
 		mRenderer(nullptr)
 	{
 	}
@@ -173,7 +173,6 @@ namespace Cjing3D
 	void GUIStage::NotifyInput()
 	{
 		// 响应输入，并将其以事件的形式分发给widgets
-		SystemContext& systemContext = SystemContext::GetSystemContext();
 		InputManager& inputManager = GlobalGetSubSystem<InputManager>();
 
 		// notify mouse event

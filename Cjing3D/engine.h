@@ -2,7 +2,7 @@
 
 #include "common\common.h"
 #include "helper\timer.h"
-#include "core\systemContext.hpp"
+#include "core\globalContext.hpp"
 #include "core\gameComponent.h"
 #include "renderer\renderableCommon.h"
 #include "platform\gameWindow.h"
@@ -17,7 +17,7 @@ namespace Cjing3D
 		Engine(const Engine& engine) = delete;
 		Engine& operator=(const Engine& engine) = delete;
 
-		void Initialize();
+		void Initialize(const std::string& assetPath, const std::string& assetName);
 		void Tick();
 		void Uninitialize();
 
@@ -30,7 +30,7 @@ namespace Cjing3D
 		void* GetWindowInstance() { return mWindowHinstance; }
 		void* GetWindowHwnd() { return mWindowHwnd; }
 
-		SystemContext& GetGameContext() { return *mSystemContext; }
+		GlobalContext& GetGameContext() { return *mSystemContext; }
 
 	private:
 		void FixedUpdate();
@@ -46,7 +46,6 @@ namespace Cjing3D
 		GameWindow* mBaseWindow;
 		void* mWindowHinstance;
 		void* mWindowHwnd;
-
 		Timer mTimer;
 		EngineTime mEngineTime;
 		bool mIsLockFrameRate = false;
@@ -54,9 +53,8 @@ namespace Cjing3D
 		bool mIsSkipFrame = true;
 		F32 mDeltaTimeAccumulator = 0;
 
-		SystemContext* mSystemContext;
+		GlobalContext* mSystemContext;
 		std::unique_ptr<GameComponent> mGameComponent;
-
 		RenderingDeviceType mRenderingDeviceType;
 	};
 }

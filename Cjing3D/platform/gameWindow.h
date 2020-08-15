@@ -8,6 +8,9 @@
 
 namespace Cjing3D {
 
+#define DEFAULT_GAME_WINDOW_WIDTH  1440
+#define DEFAULT_GAME_WINDOW_HEIGHT 800
+
 	class Engine;
 
 	class WindowMessageHandler {
@@ -41,8 +44,10 @@ namespace Cjing3D {
 		// window
 		void AddMessageHandler(WindowMessageHandlerPtr handler);
 		void RemoveHandler(WindowMessageHandlerPtr handler);
+
 		virtual bool IsWindowActive() const;
 		virtual int RunWindow(Engine& engine);
+		virtual void SetWindowTitle(const UTF8String& titleName);
 
 		// console
 		static void SetLoggerConsoleFontColor(ConsoleFontColor fontColor);

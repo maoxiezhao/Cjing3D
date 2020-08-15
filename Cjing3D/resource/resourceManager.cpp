@@ -2,7 +2,7 @@
 #include "helper\fileSystem.h"
 #include "renderer\renderer.h"
 #include "renderer\RHI\device.h"
-#include "core\systemContext.hpp"
+#include "core\globalContext.hpp"
 #include "audio\audio.h"
 #include "utils\stb_utils\stb_image_include.h"
 
@@ -170,7 +170,6 @@ void ResourceManager::LoadTextureFromFilePath(const std::filesystem::path& fileP
 		unsigned char* rgb = stbi_load_from_memory(data, length, &width, &height, &bpp, channelCount);
 		if (rgb != nullptr)
 		{
-			SystemContext& systemContext = SystemContext::GetSystemContext();
 			GraphicsDevice& device = Renderer::GetDevice();
 
 			TextureDesc desc = {};

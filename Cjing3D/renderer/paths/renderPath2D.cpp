@@ -1,7 +1,7 @@
 #include "renderPath2D.h"
 #include "renderer\renderer.h"
 #include "renderer\paths\renderImage.h"
-#include "core\systemContext.hpp"
+#include "core\globalContext.hpp"
 #include "gui\guiStage.h"
 #include "renderer\2D\renderer2D.h"
 
@@ -98,7 +98,7 @@ namespace Cjing3D
 		device.BeginEvent("RenderGUI");
 
 		// 从guiStage中获取guiRenderer执行渲染过程
-		GUIStage& guiStage = SystemContext::GetSystemContext().GetSubSystem<GUIStage>();
+		GUIStage& guiStage = GlobalGetSubSystem<GUIStage>();
 		guiStage.GetGUIRenderer().Render();
 	
 		device.EndEvent();

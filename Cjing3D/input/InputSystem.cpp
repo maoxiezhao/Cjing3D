@@ -101,8 +101,8 @@ ENUM_TRAITS_REGISTER_ENUM_END(KeyCode)
 
 std::unique_ptr<DirectInput> mDirectInput = nullptr;
 
-InputManager::InputManager(SystemContext & systemContext):
-	SubSystem(systemContext)
+InputManager::InputManager(GlobalContext & globalContext):
+	SubSystem(globalContext)
 {
 }
 

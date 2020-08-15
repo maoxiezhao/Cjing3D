@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common\common.h"
-#include "core\systemContext.hpp"
+#include "core\globalContext.hpp"
 #include "core\subSystem.hpp"
 #include "helper\stringID.h"
 #include "helper\profiler.h"

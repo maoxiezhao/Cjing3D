@@ -130,15 +130,15 @@ namespace Cjing3D {
 		MessageBoxW(NULL, LPCWSTR(msgWStr.c_str()), NULL, MB_OK);
 	}
 
-	GameWindowWin32::GameWindowWin32(const std::string& name, const I32x2& screenSize, bool fullScreen, DWORD style) :
-		mTitleName(name),
+	GameWindowWin32::GameWindowWin32(const std::string& titleName, const I32x2& screenSize, bool fullScreen, DWORD style) :
+		mTitleName(titleName),
 		mScreenSize(screenSize),
 		mFullScreen(fullScreen),
 		mIsInitialized(false),
 		mHinstance(GetModuleHandle(NULL)),
 		mHwnd(NULL)
 	{
-		if (!InitializeWindows(name, screenSize[0], screenSize[1], style)) {
+		if (!InitializeWindows(titleName, screenSize[0], screenSize[1], style)) {
 			Debug::Die("Failed to Initialize GameWindowWin32.");
 		}
 	}
@@ -270,6 +270,11 @@ namespace Cjing3D {
 
 			mIsInitialized = false;
 		}
+	}
+
+	void GameWindowWin32::SetWindowTitle(const UTF8String& titleName)
+	{
+		SetWindowText(mHwnd, StringToWString(titleName.String()).c_str());
 	}
 
 	bool GameWindowWin32::IsWindowActive() const

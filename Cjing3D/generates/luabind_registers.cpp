@@ -24,12 +24,12 @@ LuaBinder(l)
 
 LuaBinder(l)
 .BeginClass<GUIStage>("GUIStage")
-.AddConstructor(_LUA_ARGS_(SystemContext&))
+.AddConstructor(_LUA_ARGS_(GlobalContext&))
 .EndClass();
 
 LuaBinder(l)
 .BeginClass<InputManager>("InputManager")
-.AddConstructor(_LUA_ARGS_(SystemContext&))
+.AddConstructor(_LUA_ARGS_(GlobalContext&))
 .AddMethod("IsKeyDown", &InputManager::IsKeyDown)
 .AddMethod("IsKeyUp", &InputManager::IsKeyUp)
 .AddMethod("IsKeyHold", &InputManager::IsKeyHold)

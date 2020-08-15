@@ -21,4 +21,8 @@ namespace Cjing3D {
 	{
 		return 0;
 	}
+
+	void GameWindow::SetWindowTitle(const UTF8String& titleName)
+	{
+	}
 }

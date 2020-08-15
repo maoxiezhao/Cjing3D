@@ -11,11 +11,11 @@ namespace Audio
 	class AudioManager : public SubSystem
 	{
 	public:
-		AudioManager(SystemContext& systemContext);
+		AudioManager(GlobalContext& globalContext);
 		~AudioManager();
 
 		void Initialize(AudioDevice* device);
-		void Uninitialize();
+		void Uninitialize()override;
 
 		bool LoadSound(const std::string& name, SoundResource& resource);
 		bool LoadSound(const char* data, size_t length, SoundResource& resource);

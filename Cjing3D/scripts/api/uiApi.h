@@ -2,7 +2,7 @@
 
 #include "scripts\binder\luaBinder.h"
 #include "scripts\binder\luaTypeMapping.h"
-#include "core\systemContext.hpp"
+#include "core\globalContext.hpp"
 #include "gui\guiStage.h"
 
 namespace Cjing3D

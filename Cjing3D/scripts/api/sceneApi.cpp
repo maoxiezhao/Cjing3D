@@ -2,7 +2,7 @@
 #include "sceneApi.h"
 #include "renderer\renderer.h"
 #include "system\component\camera.h"
-#include "core\systemContext.hpp"
+#include "core\globalContext.hpp"
 #include "input\InputSystem.h"
 
 namespace Cjing3D {

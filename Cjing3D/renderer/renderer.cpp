@@ -4,7 +4,7 @@
 #include "2D\renderer2D.h"
 #include "textureHelper.h"
 #include "renderer\RHI\device.h"
-#include "core\systemContext.hpp"
+#include "core\globalContext.hpp"
 #include "core\eventSystem.h"
 #include "helper\profiler.h"
 #include "renderer\RHI\d3d11\deviceD3D11.h"
