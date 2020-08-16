@@ -2,8 +2,9 @@
 
 set platform=%1
 set config=%2
+set outputDir=%3
 
 echo ***************************************************
-echo start to generate lua binding codes
-start ./../bin/%platform%/%config%/LuaGenerator.exe -bind ./../Cjing3D ./../Cjing3D
+echo start to copy generated shaders
+xcopy ".\..\Assets\Shaders" "%outputDir%\Assets\Shaders" 	    /E /I /y
 echo ***************************************************

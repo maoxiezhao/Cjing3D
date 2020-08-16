@@ -234,7 +234,4 @@
       <Filter>editor</Filter>
     </ClInclude>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="postcompile.bat" />
-  </ItemGroup>
 </Project>

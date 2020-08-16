@@ -17,10 +17,12 @@ namespace Cjing3D {
 			std::string assetName_ = "";
 			std::string writeDir_ = "";
 
-
 			std::string GetBaseWriteDir()
 			{
-				return PHYSFS_getUserDir();
+				//return PHYSFS_getPrefDir("", appName.c_str());
+
+				// 这里路径可能只在win下有效
+				return std::string(PHYSFS_getUserDir()) + "Documents";
 			}
 
 			// 设置app的写文件路径，一般设置在userdata/Documents路径下
@@ -28,20 +30,22 @@ namespace Cjing3D {
 			{
 				writeDir_ = writeDir;
 
-				if (!PHYSFS_setWriteDir(GetBaseWriteDir().c_str())) {
+				const std::string baseWriteDir = GetBaseWriteDir();
+				if (!PHYSFS_setWriteDir(baseWriteDir.c_str())) {
 					Debug::Error(std::string("Can not set write dir in user dir:") +
 						PHYSFS_getLastError());
 				}
 
 				PHYSFS_mkdir(writeDir.c_str());
 
-				std::string fullWriteDir = GetBaseWriteDir() + "/" + writeDir;
+				std::string fullWriteDir = baseWriteDir + "/" + writeDir;
 				if (!PHYSFS_setWriteDir(fullWriteDir.c_str()))
 				{
 					Debug::Error(std::string("Can not set write dir in user dir:") +
 						PHYSFS_getLastError());
 				}
 
+				PHYSFS_addToSearchPath(fullWriteDir.c_str(), 1);
 			}
 
 			bool IsOpen()
@@ -206,7 +210,7 @@ namespace Cjing3D {
 			// add base dir
 			if (!PHYSFS_mount(assetPath_.c_str(), nullptr, 1))
 			{
-				Debug::Error(PHYSFS_getLastError());
+				Debug::Error(std::string("Failed to mount archive, path") + assetPath + ", " + PHYSFS_getLastError());
 				return false;
 			}
 
@@ -214,13 +218,13 @@ namespace Cjing3D {
 			const std::string assetFullPath = assetPath + "/" + assetName;
 			if (!PHYSFS_mount(assetFullPath.c_str(), nullptr, 1))
 			{
-				Debug::Error(PHYSFS_getLastError());
+				Debug::Error(std::string("Failed to mount archive, path") + assetFullPath + ", " + PHYSFS_getLastError());
 				return false;
 			}
 			const std::string& baseDir = PHYSFS_getBaseDir();
 			if (!PHYSFS_mount((baseDir + "/" + assetFullPath).c_str(), nullptr, 1))
 			{
-				Debug::Error(PHYSFS_getLastError());
+				Debug::Error(std::string("Failed to mount archive, path") + baseDir + "/" + assetFullPath + ", " + PHYSFS_getLastError());
 				return false;
 			}
 

@@ -133,6 +133,15 @@ function CreateInstanceProxyWithMakeMemberProtected(obj)
 	return proxy;
 end 
 
+function CreateInstanceDestructor(obj, func)
+	local meta = getmetatable(obj);
+	if meta == nil or func == nil then 
+		return;
+	end 
+
+	meta.__gc = func;
+end 
+
 -------------------------------------------------------------------------------------------
 
 ClassObject = {};
@@ -174,7 +183,7 @@ function ClassObject:NewInstance(class_definition, ...)
 		return ClassObject:new();
 	end 
 
-	local new_instance = ClassObject:NewInstance(class_definition.__base_class, nil);
+	local new_instance = ClassObject:NewInstance(class_definition.__base_class, ...); --ClassObject:NewInstance(class_definition.__base_class, nil);
 	setmetatable(new_instance, class_definition);
 
 	--仅能在构造函数中定义变量，故在构造函数之前设置下元表
@@ -184,6 +193,21 @@ function ClassObject:NewInstance(class_definition, ...)
 	if new_instance.m_override_index_function ~= nil or new_instance.m_override_newindex_function ~= nil then 
 		new_instance = CreateInstanceProxyWithOverridIndexFunction(new_instance);
 	end 
+
+	CreateInstanceDestructor(new_instance, function(obj)
+		if (class_definition.destor ~= nil) then 
+			class_definition.destor(new_instance);
+		end 
+
+		local base_class = class_definition.__base_class;
+		while(base_class ~= nil) do 
+			if (base_class.destor ~= nil) then 
+				base_class.destor(new_instance);
+			end 
+
+			base_class = base_class.__base_class;
+		end 
+	end);
 
 	return new_instance;
 end 

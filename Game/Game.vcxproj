@@ -96,10 +96,11 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)\lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>physfs-static-d.lib;assimp.lib;dinput8.lib;optick\x64\debug\OptickCore.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OptickCoreD.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>$(SolutionDir)Game\postcompile.bat $(Platform) $(Configuration) $(OutDir)</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -207,9 +208,6 @@
     <ClInclude Include="note.h" />
     <ClInclude Include="scripts\gameLuaContext.h" />
     <ClInclude Include="test\guiTest.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="postcompile.bat" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

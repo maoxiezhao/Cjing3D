@@ -125,12 +125,14 @@ project (GAME_NAME)
         targetdir (TARGET_DIR_DEBUG)
         debugdir (TARGET_DIR_DEBUG)
         debugformat (DEBUG_FORMAT)
+        links {"OptickCoreD"}
 
 
     -- Release config
     filter {"configurations:Release"}
         targetdir (TARGET_DIR_RELEASE)
         debugdir (TARGET_DIR_RELEASE)
+        links {"OptickCore.lib"}
 
 -----------------------------------------------------------------------------------
 -- Cjing3D
@@ -151,6 +153,7 @@ project (CJING3D_NAME)
         CJING3D_DIR .. "/**.hpp",
         CJING3D_DIR .. "/**.h",
         CJING3D_DIR .. "/**.inl",
+        CJING3D_DIR .. "/**..bat",
         "../ThirdParty/imgui/**.h",
         "../ThirdParty/imgui/**.cpp"
     }
@@ -179,8 +182,7 @@ project (CJING3D_NAME)
         targetdir (TARGET_DIR_DEBUG)
         debugdir (TARGET_DIR_DEBUG)
         debugformat (DEBUG_FORMAT)
-        links {"physfs-static-d.lib"}
-        links {"OptickCoreD"}
+        links {"physfs-static-debug.lib"}
         links {"dinput8"}
 
     -- Release config
@@ -188,7 +190,6 @@ project (CJING3D_NAME)
         targetdir (TARGET_DIR_RELEASE)
         debugdir (TARGET_DIR_RELEASE)
         links {"physfs-static.lib"}
-        links {"OptickCore.lib"}
         links {"dinput8"}
 
 -----------------------------------------------------------------------------------
@@ -219,18 +220,13 @@ project (LUA_GENERATER_NAME)
 
     -- Libraries
     libdirs (LIBRARY_DIR)
-    
-    -- post
-    -- postbuildcommands {
-    --     "$(SolutionDir)Game/postcompile.bat $(Platform) $(Configuration) $(OutDir)"
-    -- }
 
     -- Debug config
     filter {"configurations:Debug"}
         targetdir (TARGET_DIR_DEBUG)
         debugdir (TARGET_DIR_DEBUG)
         debugformat (DEBUG_FORMAT)
-        links {"physfs-static-d.lib"}
+        links {"physfs-static-debug.lib"}
 
     -- Release config
     filter {"configurations:Release"}
@@ -256,11 +252,17 @@ project (SHADER_NAME)
 		SHADER_DIR .. "/**.hlsl",
         SHADER_DIR .. "/**.hlsli",
         SHADER_DIR .. "/**.h",
+        SHADER_DIR .. "/**..bat",
     }
     
     -- ignore
 	removefiles { IGNORE_FILES[0] }
     
+    -- post
+    postbuildcommands {
+        "$(SolutionDir)Shader/postcompile.bat $(Platform) $(Configuration) $(OutDir)"
+    }
+
     -- shader files config
     filter("files:**.hlsl")
         shaderobjectfileoutput(ASSETS_DIR.."/Shaders/%{file.basename}"..".cso")
