@@ -28,8 +28,9 @@ namespace Cjing3D {
 
 		HINSTANCE GetInstance()const { return mHinstance; }
 		HWND GetHwnd()const { return mHwnd; }
-		bool IsFullScreen()const { return mFullScreen; }
-		std::string GetTitleName()const { return mTitleName; }
+	
+		virtual void SetWindowSize(const I32x2 size);
+		virtual void SetIsWindowFullScreen(bool isFullScreen);
 		virtual void SetWindowTitle(const UTF8String& titleName);
 		virtual bool IsWindowActive() const;
 
@@ -41,13 +42,10 @@ namespace Cjing3D {
 		bool InitializeWindows(const std::string& name, int w, int h, DWORD style);
 		void ShutdownWindow();
 
-		std::string mTitleName;
-		I32x2 mScreenSize;
-		bool mFullScreen;
 		bool mIsInitialized;
-
 		HINSTANCE mHinstance;
 		HWND mHwnd;
+		DWORD mStyle;
 	};
 }
 

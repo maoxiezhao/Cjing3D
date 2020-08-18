@@ -48,6 +48,7 @@ namespace Cjing3D
 		void* mWindowHwnd;
 		Timer mTimer;
 		EngineTime mEngineTime;
+
 		bool mIsLockFrameRate = false;
 		U32 mTargetFrameRate = 60;
 		bool mIsSkipFrame = true;

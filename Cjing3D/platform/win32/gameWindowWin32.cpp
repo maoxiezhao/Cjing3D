@@ -131,13 +131,15 @@ namespace Cjing3D {
 	}
 
 	GameWindowWin32::GameWindowWin32(const std::string& titleName, const I32x2& screenSize, bool fullScreen, DWORD style) :
-		mTitleName(titleName),
-		mScreenSize(screenSize),
-		mFullScreen(fullScreen),
 		mIsInitialized(false),
 		mHinstance(GetModuleHandle(NULL)),
-		mHwnd(NULL)
+		mHwnd(NULL),
+		mStyle(style)
 	{
+		mTitleName = titleName;
+		mScreenSize = screenSize;
+		mFullScreen = fullScreen;
+
 		if (!InitializeWindows(titleName, screenSize[0], screenSize[1], style)) {
 			Debug::Die("Failed to Initialize GameWindowWin32.");
 		}
@@ -270,6 +272,49 @@ namespace Cjing3D {
 
 			mIsInitialized = false;
 		}
+	}
+
+	void GameWindowWin32::SetWindowSize(const I32x2 size)
+	{
+		if (size == mScreenSize) {
+			return;
+		}
+		mScreenSize = size;
+
+		////////////////////////////////////////////////////////////
+		// TEMP
+		const RECT rectangle = {
+			0,
+			0,
+			static_cast<LONG>(mScreenSize[0]),
+			static_cast<LONG>(mScreenSize[1])
+		};
+		auto adjusted_rectangle = rectangle;
+		AdjustWindowRect(&adjusted_rectangle, mStyle, FALSE);
+
+		int posX = 0, posY = 0;
+		if (!IsFullScreen())
+		{
+			posX = (GetSystemMetrics(SM_CXSCREEN) - mScreenSize[0]) / 2;
+			posY = (GetSystemMetrics(SM_CYSCREEN) - mScreenSize[1]) / 2;
+		}
+
+		MoveWindow(
+			mHwnd,
+			posX, posY,
+			adjusted_rectangle.right - adjusted_rectangle.left,
+			adjusted_rectangle.bottom - adjusted_rectangle.top,
+			false
+		);
+		////////////////////////////////////////////////////////////
+	}
+
+	void GameWindowWin32::SetIsWindowFullScreen(bool isFullScreen)
+	{
+		if (mFullScreen == isFullScreen) {
+			return;
+		}
+		mFullScreen = isFullScreen;
 	}
 
 	void GameWindowWin32::SetWindowTitle(const UTF8String& titleName)

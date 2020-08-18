@@ -433,6 +433,7 @@
     <ClCompile Include="helper\stringID.cpp" />
     <ClCompile Include="helper\systemTime.cpp" />
     <ClCompile Include="helper\timer.cpp" />
+    <ClCompile Include="helper\variant.cpp" />
     <ClCompile Include="input\directInput.cpp" />
     <ClCompile Include="input\InputSystem.cpp" />
     <ClCompile Include="platform\gameWindow.cpp" />
@@ -560,6 +561,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="helper\enumInfo.inl" />
+    <None Include="helper\variant.inl" />
     <None Include="precompile.bat" />
     <None Include="resource\resourceManager.inl" />
     <None Include="scripts\luaContext.inl" />

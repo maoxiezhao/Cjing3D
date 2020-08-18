@@ -25,4 +25,12 @@ namespace Cjing3D {
 	void GameWindow::SetWindowTitle(const UTF8String& titleName)
 	{
 	}
+
+	void GameWindow::SetWindowSize(const I32x2 size)
+	{
+	}
+
+	void GameWindow::SetIsWindowFullScreen(bool isFullScreen)
+	{
+	}
 }

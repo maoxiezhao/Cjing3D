@@ -707,6 +707,9 @@
     <ClCompile Include="core\settings.cpp">
       <Filter>core</Filter>
     </ClCompile>
+    <ClCompile Include="helper\variant.cpp">
+      <Filter>helper</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine.h" />
@@ -1424,6 +1427,9 @@
     </None>
     <None Include="utils\tween\tweeny.tcc">
       <Filter>utils\tween</Filter>
+    </None>
+    <None Include="helper\variant.inl">
+      <Filter>helper</Filter>
     </None>
   </ItemGroup>
 </Project>

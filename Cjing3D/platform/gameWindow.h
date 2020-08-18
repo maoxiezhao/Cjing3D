@@ -10,6 +10,7 @@ namespace Cjing3D {
 
 #define DEFAULT_GAME_WINDOW_WIDTH  1440
 #define DEFAULT_GAME_WINDOW_HEIGHT 800
+#define DEFAULT_GAME_WINDOW_DPI 96
 
 	class Engine;
 
@@ -48,6 +49,8 @@ namespace Cjing3D {
 		virtual bool IsWindowActive() const;
 		virtual int RunWindow(Engine& engine);
 		virtual void SetWindowTitle(const UTF8String& titleName);
+		virtual void SetWindowSize(const I32x2 size);
+		virtual void SetIsWindowFullScreen(bool isFullScreen);
 
 		// console
 		static void SetLoggerConsoleFontColor(ConsoleFontColor fontColor);
@@ -58,10 +61,16 @@ namespace Cjing3D {
 
 		I32 GetDPI()const { return mDPI; }
 		void SetDPI(I32 dpi) { mDPI = dpi; }
+		bool IsFullScreen()const { return mFullScreen; }
+		std::string GetTitleName()const { return mTitleName; }
+		I32x2 GetScreenSize()const { return mScreenSize; }
 
 	protected:
 		std::vector<WindowMessageHandlerPtr> mHandlers;
-		I32 mDPI = 96;
+		I32 mDPI = DEFAULT_GAME_WINDOW_DPI;
+		std::string mTitleName;
+		I32x2 mScreenSize = I32x2(0, 0);
+		bool mFullScreen = false;
 	};
 
 
