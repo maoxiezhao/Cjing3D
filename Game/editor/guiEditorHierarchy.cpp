@@ -6,6 +6,7 @@
 #include "editor\guiEditorObject.h"
 #include "editor\guiEditorSound.h"
 #include "editor\guiEditorMaterial.h"
+#include "editor\guiEditorParticle.h"
 
 namespace Cjing3D {
 	namespace Editor {
@@ -370,6 +371,12 @@ namespace Cjing3D {
 			auto material = scene.mMaterials.GetComponent(currentEntity);
 			if (material != nullptr) {
 				ShowMaterialAttribute(material);
+			}
+
+			// particle
+			auto particle = scene.mParticles.GetComponent(currentEntity);
+			if (particle != nullptr) {
+				ShowParticleAttribute(particle);
 			}
 
 			ImGui::End();

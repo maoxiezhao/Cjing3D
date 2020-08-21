@@ -19,7 +19,7 @@ VertexToPixel main(uint vertexID : SV_VERTEXID)
     ShaderParticle particle = shaderParticles[particleAliveList[vertexID / 6]];
     float lifeLerp = 1.0f - particle.life / particle.maxLife;
     float realSize = lerp(particle.sizeBeginEnd.x, particle.sizeBeginEnd.y, lifeLerp);
-    float realOpacity = saturate(lerp(1, 0, lifeLerp));
+    float realOpacity = saturate(lerp(1, 0, lifeLerp) * gParticleOpacity);
     float rotation = lifeLerp * particle.angularVelocity;
     
     // get quad pos

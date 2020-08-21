@@ -6,6 +6,7 @@ namespace Cjing3D
 {
 	class ParticleComponent;
 	class MaterialComponent;
+	class MeshComponent;
 
 	class ParticlePass : public RenderPass
 	{
@@ -16,7 +17,7 @@ namespace Cjing3D
 		virtual void Initialize();
 		virtual void Uninitialize();
 
-		void UpdateParticle(ParticleComponent& particle);
+		void UpdateParticle(ParticleComponent& particle, MeshComponent* mesh = nullptr);
 		void DrawParticle(ParticleComponent& particle, MaterialComponent& material);
 	};
 }

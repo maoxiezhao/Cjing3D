@@ -49,7 +49,7 @@ namespace Cjing3D
 
 	bool JsonArchive::Save(const std::string& path)
 	{
-		std::string string = mRootJson.dump();
+		std::string string = mRootJson.dump(0);
 		if (string.empty()) {
 			return false;
 		}

@@ -88,5 +88,36 @@ namespace Editor
 
 		return ret;
 	}
+
+	std::string GetSceneEntityComboList(Scene& scene, const std::vector<ECS::Entity>& entityList, ECS::Entity currentEntity, int& currentIndex, bool haveNull)
+	{
+		std::string entityNameList = "\0";
+		if (haveNull)
+		{
+			currentIndex = 0;
+			entityNameList = entityNameList + "NULL" + '\0';
+		}
+
+		for (int index = 0; index < entityList.size(); index++)
+		{
+			Entity entity = entityList[index];
+			if (entity == currentEntity) {
+				currentIndex = haveNull ? index + 1 : index;
+			}
+
+			std::string nodeName = "Entity ";
+			auto nameComponent = scene.mNames.GetComponent(entity);
+			if (nameComponent != nullptr) {
+				nodeName = nodeName + " " + nameComponent->GetString();
+			}
+			else {
+				nodeName = nodeName + std::to_string(entity);
+			}
+
+			entityNameList = entityNameList + nodeName + '\0';
+		}
+
+		return entityNameList;
+	}
 }
 }

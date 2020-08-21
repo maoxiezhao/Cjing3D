@@ -2,6 +2,7 @@
 #include "guiEditor.h"
 #include "gui\guiEditor\guiEditorInclude.h"
 #include "editor\guiEditorMaterial.h"
+#include "editor\guiEditorScene.h"
 
 namespace Cjing3D {
 	namespace Editor {
@@ -32,6 +33,11 @@ namespace Cjing3D {
 				{
 					object->SetRenderableType(static_cast<RenderableType>(typeIndex));
 				}
+
+				bool isRenderable = object->IsRenderable();
+				if (ImGui::Checkbox("isRenderable", &isRenderable)) {
+					object->SetRenderable(isRenderable);
+				}
 			}
 
 			// mesh 
@@ -48,34 +54,14 @@ namespace Cjing3D {
 				}
 
 				// material
-				static int materialIndex = 1;
-				std::string materialNameList = "\0";
-
-				auto& materialManager = scene.mMaterials;
-				for (int index = 0; index < materialManager.GetCount(); index++)
-				{
-					Entity entity = materialManager.GetEntityByIndex(index);
-					if (entity == materialEntity) {
-						materialIndex = index;
-					}
-
-					std::string nodeName = "Entity ";
-					auto nameComponent = scene.mNames.GetComponent(entity);
-					if (nameComponent != nullptr) {
-						nodeName = nodeName + " " + nameComponent->GetString();
-					}
-					else {
-						nodeName = nodeName + std::to_string(entity);
-					}
-
-					materialNameList = materialNameList + nodeName + '\0';
-				}
-
+				static int materialIndex = 0;
+				const auto& entityList = scene.mMaterials.GetEntities();
+				std::string materialNameList = GetSceneEntityComboList(scene, entityList, materialEntity, materialIndex);
 				if (ImGui::Combo("Material", &materialIndex, materialNameList.c_str(), 20))
 				{
 					Entity newMaterial = INVALID_ENTITY;
-					if (materialIndex >= 0) {
-						newMaterial = materialManager.GetEntityByIndex(materialIndex);
+					if (materialIndex > 0) {
+						newMaterial = entityList[materialIndex - 1];
 					}
 
 					// 暂时取第一个subset的materialID

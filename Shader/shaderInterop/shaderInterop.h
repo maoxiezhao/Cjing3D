@@ -30,6 +30,7 @@ typedef XMINT4 int4;
 #define CBUFFER(name, slot) cbuffer name : register(b ## slot)
 #define RAWBUFFER(name,slot) ByteAddressBuffer name : register(t ## slot)
 #define RWRAWBUFFER(name,slot) RWByteAddressBuffer name : register(u ## slot)
+#define TYPEDBUFFER(name, type, slot) Buffer<type> name : register(t ## slot)
 
 // texture
 #define TEXTURE2D(name, type, slot) Texture2D<type> name : register(t ## slot);

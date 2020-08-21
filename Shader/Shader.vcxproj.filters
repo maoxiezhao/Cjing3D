@@ -173,6 +173,9 @@
     <FxCompile Include="ps\particlePS.hlsl">
       <Filter>ps</Filter>
     </FxCompile>
+    <FxCompile Include="cs\particleEmitMeshCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="hf\objectInput.hlsli">

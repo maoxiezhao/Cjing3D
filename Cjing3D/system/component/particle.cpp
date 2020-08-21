@@ -5,6 +5,9 @@
 #include "system\sceneSystem.h"
 #include "helper\random.h"
 
+#include "helper\jsonArchive.h"
+#include "helper\binaryArchive.h"
+
 namespace Cjing3D {
 
 	U32 ParticleComponent::GetDelayGPUReadBackIndex() const
@@ -32,7 +35,7 @@ namespace Cjing3D {
 			desc.mUsage = USAGE_DEFAULT;
 			desc.mBindFlags = BIND_UNORDERED_ACCESS | BIND_SHADER_RESOURCE;
 			desc.mMiscFlags = RESOURCE_MISC_BUFFER_STRUCTURED;
-			desc.mByteWidth = sizeof(ShaderParticle) * MAX_PARTICLE_COUNT;
+			desc.mByteWidth = sizeof(ShaderParticle) * mMaxParticleCount;
 			desc.mStructureByteStride = sizeof(ShaderParticle);
 
 			const auto result = device.CreateBuffer(&desc, mBufferParticles, nullptr);
@@ -45,14 +48,14 @@ namespace Cjing3D {
 			desc.mUsage = USAGE_DEFAULT;
 			desc.mBindFlags = BIND_UNORDERED_ACCESS | BIND_SHADER_RESOURCE;
 			desc.mMiscFlags = RESOURCE_MISC_BUFFER_STRUCTURED;
-			desc.mByteWidth = sizeof(U32) * MAX_PARTICLE_COUNT;
+			desc.mByteWidth = sizeof(U32) * mMaxParticleCount;
 			desc.mStructureByteStride = sizeof(U32);
 
 			device.CreateBuffer(&desc, mBufferAliveList, nullptr);
 			device.CreateBuffer(&desc, mBufferAliveListNew, nullptr);	
 
-			std::vector<U32> deadIndices(MAX_PARTICLE_COUNT);
-			for (int i = 0; i < MAX_PARTICLE_COUNT; i++) {
+			std::vector<U32> deadIndices(mMaxParticleCount);
+			for (int i = 0; i < mMaxParticleCount; i++) {
 				deadIndices[i] = i;
 			}
 			SubresourceData data;
@@ -64,7 +67,7 @@ namespace Cjing3D {
 		{
 			ParticleCounter counters = {};
 			counters.aliveCount = 0;
-			counters.deadCount = MAX_PARTICLE_COUNT;
+			counters.deadCount = mMaxParticleCount;
 			counters.aliveAfterUpdateCount = 0;
 			counters.emitCount = 0;
 
@@ -88,7 +91,7 @@ namespace Cjing3D {
 			desc.mUsage = USAGE_DEFAULT;
 			desc.mBindFlags = BIND_CONSTANT_BUFFER;
 			desc.mByteWidth = sizeof(ParticleCB);
-			device.CreateBuffer(&desc, mConstBuffer, nullptr);
+			device.CreateBuffer(&desc, mConstantBuffer, nullptr);
 		}
 		/////////////////////////////////////////////////////////////////////////////////////
 		{
@@ -122,7 +125,7 @@ namespace Cjing3D {
 		mBufferAliveListNew.Clear();
 		mBufferDeadList.Clear();
 		mBufferCounters.Clear();
-		mConstBuffer.Clear();
+		mConstantBuffer.Clear();
 		mBufferIndirect.Clear();
 	}
 
@@ -143,8 +146,13 @@ namespace Cjing3D {
 		auto transform = scene.mTransforms.GetComponent(selfEntity);
 		mPosition = XMConvert(transform->GetWorldPosition());
 
+		// calculate emit count
+		F32 fEmitCount = mEmitCountPerSec * deltaTime + mEmitWastedCount;
+		I32 emitCountPerSec = (I32)std::floor(fEmitCount);
+		mEmitWastedCount = fEmitCount - emitCountPerSec;
+
 		mEmitCount = 0;
-		mEmitCount += mBurstCount;
+		mEmitCount += emitCountPerSec + mBurstCount;
 		mBurstCount = 0;
 
 		std::swap(mBufferAliveList, mBufferAliveListNew);
@@ -179,26 +187,31 @@ namespace Cjing3D {
 		auto mesh = scene.mMeshes.GetComponent(mMeshID);
 	
 		GraphicsDevice &device = Renderer::GetDevice();
-		// update particle buffer
-		{
-			ParticleCB particleCB;
-			particleCB.gParticleWorldTransform = transform->GetWorldTransform();
-			particleCB.gParticleEmitCount = (F32)mEmitCount;
-			particleCB.gParticleRandomness = Random::GetRandomFloat(0, 1.0f);
-			particleCB.gParticleColor = Color4::Convert(material->mBaseColor).GetRGBA();
-			particleCB.gParticleLifeRange = mLife;
-			particleCB.gParticleSize = mSize;
-			particleCB.gParticleLifeRandomness = mRandomLife;
+		ParticleCB particleCB;
+		particleCB.gParticleWorldTransform = transform->GetWorldTransform();
+		particleCB.gParticleEmitCount = (F32)mEmitCount;
+		particleCB.gParticleRandomness = Random::GetRandomFloat(0, 1.0f);
+		particleCB.gParticleColor = Color4::Convert(material->mBaseColor).GetRGBA();
+		particleCB.gParticleLifeRange = mLife;
+		particleCB.gParticleSize = mSize;
+		particleCB.gParticleLifeRandomness = mRandomLife;
+		particleCB.gParticleFactorRandomness = mRandomFactor;
+		particleCB.gParticleSizeScaling = mSizeScaling;
+		particleCB.gParticleRotation = mRotation;
+		particleCB.gParticleInitialVelocity = mInitialVelocity;
+		particleCB.gParticleOpacity = mOpacity;
+		particleCB.gParticleMeshIndexCount = mesh != nullptr ? mesh->mIndices.size() : 0;
+		particleCB.gParticleMeshVertexPosStride = sizeof(MeshComponent::VertexPosNormalSubset);
 
-			device.UpdateBuffer(mConstBuffer, &particleCB);
-			device.BindConstantBuffer(SHADERSTAGES_CS, mConstBuffer, CB_GETSLOT_NAME(ParticleCB));
-		}
+		device.UpdateBuffer(mConstantBuffer, &particleCB);
+		device.BindConstantBuffer(SHADERSTAGES_CS, mConstantBuffer, CB_GETSLOT_NAME(ParticleCB));
+	
 
 		auto renderPass = Renderer::GetRenderPass(STRING_ID(ParticlePass));
 		if (renderPass != nullptr)
 		{
 			ParticlePass& particlePass = dynamic_cast<ParticlePass&>(*renderPass);
-			particlePass.UpdateParticle(*this);
+			particlePass.UpdateParticle(*this, mesh);
 		}
 
 		U32 index = (mCounterReadBackIndex - 1) % CounterReadBackDelayCount;
@@ -212,29 +225,77 @@ namespace Cjing3D {
 
 	void ParticleComponent::SetMaxParticleCount(U32 count)
 	{
-		MAX_PARTICLE_COUNT = count;
+		mMaxParticleCount = count;
 		mIsRenderDataDirty = true;
 	}
 
 	U32 ParticleComponent::GetMaxParticleCount() const
 	{
-		return MAX_PARTICLE_COUNT;
+		return mMaxParticleCount;
 	}
 
 	void ParticleComponent::SaveToXML(const std::string& path)
 	{
+		JsonArchive archive(path, ArchiveMode::ArchiveMode_Write);
+		// 存在Entity无法序列化问题，与Scene Entity序列化不一致
+		//archive.Write("MeshID", mMeshID);
+		archive.Write("StatusFlag", mStatusFlag);
+		archive.Write("MaxCount", mMaxParticleCount);
+		archive.Write("Life", mLife);
+		archive.Write("RandomLife", mRandomLife);
+		archive.Write("Size", mSize);
+		archive.Write("RandomFactor", mRandomFactor);
+		archive.Write("SizeScaling", mSizeScaling);
+		archive.Write("Rotation", mRotation);
+		archive.Write("EmitCountPerSec", mEmitCountPerSec);
+		archive.Write("InitialVelocity", mInitialVelocity);
 	}
 
 	void ParticleComponent::LoadFromXML(const std::string& path)
 	{
+		JsonArchive archive(path, ArchiveMode::ArchiveMode_Read);
+		// 存在Entity无法序列化问题，与Scene Entity序列化不一致
+		//archive.Read("MeshID", mMeshID);
+		archive.Read("StatusFlag", mStatusFlag);
+		archive.Read("MaxCount", mMaxParticleCount);
+		archive.Read("Life", mLife);
+		archive.Read("RandomLife", mRandomLife);
+		archive.Read("Size", mSize);
+		archive.Read("RandomFactor", mRandomFactor);
+		archive.Read("SizeScaling", mSizeScaling);
+		archive.Read("Rotation", mRotation);
+		archive.Read("EmitCountPerSec", mEmitCountPerSec);
+		archive.Read("InitialVelocity", mInitialVelocity);
 	}
 
 	void ParticleComponent::Serialize(Archive& archive, U32 seed)
 	{
+		mMeshID = SerializeEntity(archive, seed);
+		archive >> mStatusFlag;
+		archive >> mMaxParticleCount;
+		archive >> mLife;
+		archive >> mRandomLife;
+		archive >> mSize;
+		archive >> mRandomFactor;
+		archive >> mSizeScaling;
+		archive >> mRotation;
+		archive >> mEmitCountPerSec;
+		archive >> mInitialVelocity;
 	}
 
 	void ParticleComponent::Unserialize(Archive& archive) const
 	{
+		archive << mMeshID;
+		archive << mStatusFlag;
+		archive << mMaxParticleCount;
+		archive << mLife;
+		archive << mRandomLife;
+		archive << mSize;
+		archive << mRandomFactor;
+		archive << mSizeScaling;
+		archive << mRotation;
+		archive << mEmitCountPerSec;
+		archive << mInitialVelocity;
 	}
 
 }

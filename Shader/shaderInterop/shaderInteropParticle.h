@@ -30,8 +30,15 @@ CBUFFER(ParticleCB, CBSLOT_PARTICLE)
 	float gParticleLifeRange;
 	float gParticleLifeRandomness;
 	float gParticleSize;
+	float gParticleSizeScaling;
 	uint  gParticleColor;
-	uint2 gParticlePadding3;
+	float gParticleFactorRandomness;
+	float gParticleRotation;
+	float gParticleInitialVelocity;
+	float gParticleOpacity;
+	uint  gParticleMeshIndexCount;
+	uint  gParticleMeshVertexPosStride;
+	float3 gParticlePadding;
 };
 
 #define THREAD_PARTICLE_EMIT_COUNT 256

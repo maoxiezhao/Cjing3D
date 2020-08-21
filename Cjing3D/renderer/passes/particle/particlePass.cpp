@@ -10,6 +10,7 @@ namespace {
 
 	ShaderPtr mParticleStartCS  = nullptr;
 	ShaderPtr mParticleEmitCS = nullptr;
+	ShaderPtr mParticleEmitMeshCS = nullptr;
 	ShaderPtr mParticleUpdateCS = nullptr;
 	ShaderPtr mParticleFinishCS = nullptr;
 }
@@ -40,28 +41,31 @@ void ParticlePass::Initialize()
 	Renderer::GetDevice().CreatePipelineState(desc, mParticleAlphaPSO);
 
 	// load compute shaders
-	mParticleStartCS  = Renderer::LoadShader(SHADERSTAGES_CS, shaderPath + "particleStartCS.cso");
-	mParticleEmitCS   = Renderer::LoadShader(SHADERSTAGES_CS, shaderPath + "particleEmitCS.cso");
-	mParticleUpdateCS = Renderer::LoadShader(SHADERSTAGES_CS, shaderPath + "particleUpdateCS.cso");
-	mParticleFinishCS = Renderer::LoadShader(SHADERSTAGES_CS, shaderPath + "particleFinishCS.cso");
+	mParticleStartCS    = Renderer::LoadShader(SHADERSTAGES_CS, shaderPath + "particleStartCS.cso");
+	mParticleEmitCS     = Renderer::LoadShader(SHADERSTAGES_CS, shaderPath + "particleEmitCS.cso");
+	mParticleEmitMeshCS = Renderer::LoadShader(SHADERSTAGES_CS, shaderPath + "particleEmitMeshCS.cso");
+	mParticleUpdateCS   = Renderer::LoadShader(SHADERSTAGES_CS, shaderPath + "particleUpdateCS.cso");
+	mParticleFinishCS   = Renderer::LoadShader(SHADERSTAGES_CS, shaderPath + "particleFinishCS.cso");
 }
 
 void ParticlePass::Uninitialize()
 {
 	mParticleStartCS->Clear();
 	mParticleEmitCS->Clear();
+	mParticleEmitMeshCS->Clear();
 	mParticleUpdateCS->Clear();
 	mParticleFinishCS->Clear();
 
 	mParticleStartCS = nullptr;
 	mParticleEmitCS = nullptr;
+	mParticleEmitMeshCS = nullptr;
 	mParticleUpdateCS = nullptr;
 	mParticleFinishCS = nullptr;
 
 	mParticleAlphaPSO.Clear();
 }
 
-void ParticlePass::UpdateParticle(ParticleComponent& particle)
+void ParticlePass::UpdateParticle(ParticleComponent& particle, MeshComponent* mesh)
 {
 	GraphicsDevice& device = Renderer::GetDevice();
 	device.BeginEvent("ParticleUpdate");
@@ -75,6 +79,13 @@ void ParticlePass::UpdateParticle(ParticleComponent& particle)
 		&particle.mBufferIndirect
 	};
 	device.BindUAVs(uavs, 0, ARRAYSIZE(uavs));
+
+	GPUResource* meshRes[] = {
+		mesh != nullptr ? mesh->GetFinalVertexBufferPos() : nullptr,
+		mesh != nullptr ? mesh->GetIndexBuffer() : nullptr
+	};
+	device.BindGPUResources(SHADERSTAGES_CS, meshRes, TEXTURE_SLOT_0, ARRAYSIZE(meshRes));
+
 	// start 
 	device.BeginEvent("ParticleStart");
 	device.BindComputeShader(mParticleStartCS);
@@ -82,7 +93,7 @@ void ParticlePass::UpdateParticle(ParticleComponent& particle)
 	device.EndEvent();
 	// emit
 	device.BeginEvent("ParticleEmit");
-	device.BindComputeShader(mParticleEmitCS);
+	device.BindComputeShader(mesh != nullptr ? mParticleEmitMeshCS : mParticleEmitCS);
 	device.DispatchIndirect(&particle.mBufferIndirect, IndirectOffsetDispatchEmit);
 	device.EndEvent();
 	// update
@@ -91,6 +102,8 @@ void ParticlePass::UpdateParticle(ParticleComponent& particle)
 	device.DispatchIndirect(&particle.mBufferIndirect, IndirectOffsetDispatchUpdate);
 	device.EndEvent();
 	device.UnBindUAVs(0, ARRAYSIZE(uavs));
+
+	device.UnbindGPUResources(TEXTURE_SLOT_0, ARRAYSIZE(meshRes));
 
 	// finish
 	device.BeginEvent("ParticleFinish");
@@ -122,8 +135,8 @@ void ParticlePass::DrawParticle(ParticleComponent& particle, MaterialComponent& 
 	}
 
 	device.BindGPUResource(SHADERSTAGES_PS, material.GetBaseColorMap(), TEXTURE_SLOT_0);
-	device.BindConstantBuffer(SHADERSTAGES_VS, particle.mConstBuffer, CB_GETSLOT_NAME(ParticleCB));
-	device.BindConstantBuffer(SHADERSTAGES_PS, particle.mConstBuffer, CB_GETSLOT_NAME(ParticleCB));
+	device.BindConstantBuffer(SHADERSTAGES_VS, particle.mConstantBuffer, CB_GETSLOT_NAME(ParticleCB));
+	device.BindConstantBuffer(SHADERSTAGES_PS, particle.mConstantBuffer, CB_GETSLOT_NAME(ParticleCB));
 	
 	GPUResource* resources[] = {
 		&particle.mBufferParticles,
