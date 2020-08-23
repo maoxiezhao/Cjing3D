@@ -8,6 +8,9 @@ namespace Cjing3D
 
 	namespace Editor
 	{
-		void InitializeEditor(IMGUIStage& imguiStage);
+		void InitializeEditor();
+		void UpdateEditor();
+		void UninitializeEditor();
+		IMGUIStage& GetImGUIStage();
 	}
 }

@@ -32,6 +32,10 @@ void GameComponent::PreRender()
 {
 }
 
+void GameComponent::EndFrame()
+{
+}
+
 void GameComponent::Uninitialize()
 {
 }

@@ -9,6 +9,7 @@ LUA_GENERATER_NAME  = "LuaGenerator"
 TARGET_NAME         = "Cjing3D"
 SHADER_NAME         = "Shader"
 GAME_NAME           = "Game"
+EDITOR_NAME         = "Editor"
 ASSETS_NAME         = "Assets"
 
 LIBRARY_DIR	        = "../lib"
@@ -23,6 +24,7 @@ LUA_GENERATER_DIR   = "../" .. LUA_GENERATER_NAME
 SHADER_DIR          = "../" .. SHADER_NAME
 ASSETS_DIR          = "../" .. ASSETS_NAME
 GAME_DIR            = "../" .. GAME_NAME
+EDITOR_DIR          = "../" .. EDITOR_NAME
 
 local function IncludeThirdParty()
     includedirs { "../ThirdParty/imgui" }
@@ -133,6 +135,53 @@ project (GAME_NAME)
         targetdir (TARGET_DIR_RELEASE)
         debugdir (TARGET_DIR_RELEASE)
         links {"OptickCore.lib"}
+
+-----------------------------------------------------------------------------------
+-- Editor
+-----------------------------------------------------------------------------------
+project (EDITOR_NAME)
+    location(EDITOR_DIR)
+    objdir(EDITOR_DIR .. TARGET_OBJ_DIR)
+    dependson { CJING3D_NAME, SHADER_NAME, LUA_GENERATER_NAME }
+    targetname(EDITOR_NAME)
+    links { CJING3D_NAME }
+    kind "WindowedApp"
+    staticruntime "Off"
+    conformanceMode(true)
+
+    -- Files
+    files 
+    { 
+        EDITOR_DIR .. "/**.c",
+        EDITOR_DIR .. "/**.cpp",
+        EDITOR_DIR .. "/**.hpp",
+        EDITOR_DIR .. "/**.h",
+        EDITOR_DIR .. "/**.inl"
+    }
+
+    -- Includes
+    includedirs { CJING3D_DIR }
+    includedirs { EDITOR_DIR }
+    includedirs { SHADER_DIR }
+
+    IncludeThirdParty();
+
+    -- Libraries
+    libdirs (LIBRARY_DIR)
+
+    -- Debug config
+    filter {"configurations:Debug"}
+        targetdir (TARGET_DIR_DEBUG)
+        debugdir (TARGET_DIR_DEBUG)
+        debugformat (DEBUG_FORMAT)
+        links {"OptickCoreD"}
+
+
+    -- Release config
+    filter {"configurations:Release"}
+        targetdir (TARGET_DIR_RELEASE)
+        debugdir (TARGET_DIR_RELEASE)
+        links {"OptickCore.lib"}       
 
 -----------------------------------------------------------------------------------
 -- Cjing3D

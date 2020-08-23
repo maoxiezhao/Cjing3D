@@ -3,13 +3,8 @@
 
 namespace Cjing3D
 {
-	namespace {
-		const std::string defaultTitle = std::string("Cjing3D ") + CjingVersion::GetVersionString();;
-		const std::string defaultAssetName = "Assets";
-	}
-
-
-	GameAppWin32::GameAppWin32()
+	GameAppWin32::GameAppWin32(const std::string& assetName) :
+		mAssetName(assetName)
 	{
 	}
 
@@ -19,6 +14,7 @@ namespace Cjing3D
 
 	int GameAppWin32::Run(GameComponent* game)
 	{
+		const std::string defaultTitle = std::string("Cjing3D ") + CjingVersion::GetVersionString();;
 		//initialize window
 		mainWindow = std::make_unique<GameWindowWin32>(
 			defaultTitle,
@@ -31,7 +27,7 @@ namespace Cjing3D
 		mainEngine = std::make_unique<Engine>(game);
 		mainEngine->SetHandles(mainWindow->GetHwnd(), mainWindow->GetInstance());
 		mainEngine->SetWindow(mainWindow.get());
-		mainEngine->Initialize(".", defaultAssetName);
+		mainEngine->Initialize(".", mAssetName);
 
 		// run
 		mainWindow->RunWindow(*mainEngine);

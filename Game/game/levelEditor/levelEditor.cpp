@@ -39,9 +39,9 @@ namespace CjingGame
 		Font::LoadFontTTF("Fonts/arial.ttf");
 		path->SetFXAAEnable(true);
 
-#ifdef _ENABLE_GAME_EDITOR_
 		auto& guiStage = GlobalGetSubSystem<GUIStage>();
-		Editor::InitializeEditor(guiStage.GetImGUIStage());
+#ifdef _ENABLE_GAME_EDITOR_
+		Editor::InitializeEditor();
 #endif // _ENABLE_GAME_EDITOR_
 
 		// map renderer
@@ -68,7 +68,10 @@ namespace CjingGame
 		// init default map
 		F32 cellSize = (F32)GameContext::MapCellSize;
 		InitializeEditorMap("", cellSize, 48, 8, 4);
-		InitializeEditorGUI(guiStage.GetImGUIStage());
+
+#ifdef _ENABLE_GAME_EDITOR_
+		InitializeEditorGUI(Editor::GetImGUIStage());
+#endif // _ENABLE_GAME_EDITOR_
 	}
 
 	void LevelEditor::Update(Cjing3D::EngineTime time)
@@ -78,19 +81,12 @@ namespace CjingGame
 
 	void LevelEditor::FixedUpdate()
 	{
-#ifdef _ENABLE_GAME_EDITOR_
+		Editor::UpdateEditor();
+
 		auto& inputManager = GlobalGetSubSystem<InputManager>();
 		if (inputManager.IsKeyDown(KeyCode::Esc)) {
 			GlobalGetEngine()->SetIsExiting(true);
 		}
-
-		if (inputManager.IsKeyDown(KeyCode::F4))
-		{
-			auto& guiStage = GlobalGetSubSystem<GUIStage>();
-			bool show = guiStage.IsImGUIStageVisible();
-			guiStage.SetImGUIStageVisible(!show);
-		}
-#endif // _ENABLE_GAME_EDITOR_
 
 		if (mCurrentMap == nullptr) {
 			return;
@@ -146,6 +142,10 @@ namespace CjingGame
 		GameMapRenderer::Uninitialize();
 
 		Scene::GetScene().Clear();
+
+#ifdef _ENABLE_GAME_EDITOR_
+		Editor::UninitializeEditor();
+#endif
 	}
 
 	void LevelEditor::PreRender()

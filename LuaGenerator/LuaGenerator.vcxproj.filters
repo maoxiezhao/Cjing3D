@@ -1,20 +1,15 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="generator.cpp" />
-    <ClCompile Include="helper\debug.cpp">
-      <Filter>helper</Filter>
-    </ClCompile>
-    <ClCompile Include="helper\fileSystem.cpp">
-      <Filter>helper</Filter>
-    </ClCompile>
-    <ClCompile Include="helper\logger.cpp">
-      <Filter>helper</Filter>
-    </ClCompile>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="platform\win32\gameWindowWin32.cpp">
-      <Filter>platform\win32</Filter>
-    </ClCompile>
+    <Filter Include="helper">
+      <UniqueIdentifier>{E553D801-D1F5-02D8-BAB0-162CA6F18928}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="platform">
+      <UniqueIdentifier>{4A63C33C-3630-1E48-5F49-0CF04B7553D6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="platform\win32">
+      <UniqueIdentifier>{CC7A1EFF-B848-1205-A1DC-822B8D49EE69}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="generator.h" />
@@ -32,14 +27,19 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="helper">
-      <UniqueIdentifier>{3768a631-004c-4986-9d05-1062ca2d9875}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="platform">
-      <UniqueIdentifier>{20bde5ef-8c87-48ec-90e1-6ea4a7a9dcf6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="platform\win32">
-      <UniqueIdentifier>{20b5f683-8fbb-4cb5-af7e-c0c6b5cfb7f1}</UniqueIdentifier>
-    </Filter>
+    <ClCompile Include="generator.cpp" />
+    <ClCompile Include="helper\debug.cpp">
+      <Filter>helper</Filter>
+    </ClCompile>
+    <ClCompile Include="helper\fileSystem.cpp">
+      <Filter>helper</Filter>
+    </ClCompile>
+    <ClCompile Include="helper\logger.cpp">
+      <Filter>helper</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="platform\win32\gameWindowWin32.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

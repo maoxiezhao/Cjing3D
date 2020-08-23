@@ -18,6 +18,7 @@ namespace Cjing3D
 		virtual void FixedUpdate();
 		virtual void Update(EngineTime time);
 		virtual void PreRender();
+		virtual void EndFrame();
 		virtual void Uninitialize();
 
 		void SetGameContext(GlobalContext* globalContext) {

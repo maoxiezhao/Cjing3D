@@ -2,14 +2,13 @@
 #include "imgui.h"
 #include "imgui_impl_win32.h"
 #include "imgui_impl_dx11.h"
+#include "imgui_internal.h"
 
-#include "engine.h"
-#include "platform\gameWindow.h"
 #include "core\globalContext.hpp"
+#include "platform\gameWindow.h"
 #include "renderer\renderer.h"
-#include "renderer\2D\renderer2D.h"
 #include "renderer\RHI\d3d11\deviceD3D11.h"
-#include "renderer\paths\renderPath3D.h"
+#include "gui\guiEditor\guiEditorWidget.h"
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 namespace Cjing3D
@@ -30,11 +29,11 @@ namespace Cjing3D
 			}
 		};
 		std::shared_ptr<IMGUIMessageHandler> mMessageHandler = nullptr;
-	
 	}
 
-	IMGUIStage::IMGUIStage():
-		mIsInitialized(false)
+	IMGUIStage::IMGUIStage(GUIRenderer& renderer):
+		mIsInitialized(false),
+		mRenderer(renderer)
 	{
 	}
 
@@ -49,10 +48,18 @@ namespace Cjing3D
 			return;
 		}
 
-		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+		ImGuiIO& io = ImGui::GetIO();
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		io.ConfigFlags |= mConfigFlag;
+
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			io.ConfigWindowsResizeFromEdges = true;
+			io.ConfigViewportsNoTaskBarIcon = true;
+		}
 
 		// Setup Platform/Renderer bindings
 		GraphicsDeviceD3D11& deviceD3D11 = dynamic_cast<GraphicsDeviceD3D11&>(graphicsDevice);
@@ -69,6 +76,7 @@ namespace Cjing3D
 			window->AddMessageHandler(mMessageHandler);
 		}
 
+		mRenderer.SetImGuiStage(this);
 		InitializeImpl();
 
 		mIsInitialized = true;
@@ -78,8 +86,12 @@ namespace Cjing3D
 		if (mIsInitialized == false) {
 			return;
 		}
-
 		mRegisteredWindows.clear();
+
+		for (auto& widget : mRegisteredWidgets) {
+			widget->Uninitialize();
+		}
+		mRegisteredWidgets.clear();
 
 		GameWindow* window = GlobalGetEngine()->GetWindow();
 		if (window != nullptr) {
@@ -99,8 +111,6 @@ namespace Cjing3D
 		if (mIsInitialized == false) {
 			return;
 		}
-
-
 	}
 
 	void IMGUIStage::FixedUpdate()
@@ -109,25 +119,38 @@ namespace Cjing3D
 			return;
 		}
 
+		PROFILER_BEGIN_CPU_BLOCK("ImGuiFixedUpdate");
 		if (!mIsNeedRender)
 		{
+			mIsNeedRender = true;
+
 			ImGui_ImplDX11_NewFrame();
 			ImGui_ImplWin32_NewFrame();
 			ImGui::NewFrame();
 
-			mIsNeedRender = true;
-
 			UpdateImpl(GlobalGetDeltaTime());
+		}
+		PROFILER_END_BLOCK();
+	}
+
+	void IMGUIStage::Render()
+	{
+		if (mIsInitialized == false) {
+			return;
 		}
 	}
 
-	void IMGUIStage::Render(GUIRenderer& renderer)
+	void IMGUIStage::EndFrame()
 	{
 		if (mIsInitialized == false) {
 			return;
 		}
 
-		renderer.SetImGuiStage(this);
+		if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_DockingEnable)
+		{
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+		}
 	}
 
 	void IMGUIStage::RenderImpl()
@@ -150,13 +173,49 @@ namespace Cjing3D
 		device.EndEvent();
 	}
 
+	
+
 	void IMGUIStage::RegisterCustomWindow(CustomWindowFunc func)
 	{
 		mRegisteredWindows.push_back(func);
 	}
 
+	void IMGUIStage::RegisterCustomWidget(std::shared_ptr<EditorWidget> widget)
+	{
+		if (widget == nullptr) {
+			return;
+		}
+
+		mRegisteredWidgets.push_back(widget);
+		widget->Initialize();
+	}
+
+	void IMGUIStage::DockingBegin()
+	{
+	}
+
+	void IMGUIStage::DockingEnd()
+	{
+	}
+
 	void IMGUIStage::InitializeImpl()
 	{
+	}
+
+	void IMGUIStage::SetDockingEnable(bool isDockingEnable)
+	{
+		if (mIsDockingEnable != isDockingEnable)
+		{
+			mIsDockingEnable = isDockingEnable;
+			if (mIsDockingEnable)
+			{
+				ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+			}
+			else
+			{
+				ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_DockingEnable;
+			}
+		}
 	}
 
 	void IMGUIStage::UpdateImpl(F32 deltaTime)
@@ -165,12 +224,34 @@ namespace Cjing3D
 			return;
 		}
 
+		// docking begin
+		if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_DockingEnable) {
+			DockingBegin();
+		}
+
 		// show custom registerd windows
 		for (auto it : mRegisteredWindows) {
 			it(deltaTime);
 		}
 
-		//bool openDemoWindow = true;
-		//ImGui::ShowDemoWindow(&openDemoWindow);
+		// show custom widgets
+		for (auto& widget : mRegisteredWidgets) 
+		{
+			if (widget != nullptr && widget->Begin())
+			{
+				widget->Update(deltaTime);
+				widget->End();
+			}
+		}
+
+		// show imgui demo
+		if (mIsShowDemo)  {
+			ImGui::ShowDemoWindow(&mIsShowDemo);
+		}
+
+		// docking end
+		if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_DockingEnable) {
+			DockingEnd();
+		}
 	}
 }

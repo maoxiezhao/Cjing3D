@@ -46,11 +46,6 @@ namespace Cjing3D
 		void SetIsDebugDraw(bool isDebugDraw) { mIsDebugDraw = isDebugDraw; }
 		void PushInputEvent(const Gui::GUIInputEvent& ent);
 
-		// imgui
-		void SetImGUIStageVisible(bool visible);
-		bool IsImGUIStageVisible()const;
-		IMGUIStage& GetImGUIStage();
-
 	private:
 		void LoadRegisteredKeys();
 		void NotifyInput();

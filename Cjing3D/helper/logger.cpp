@@ -52,7 +52,7 @@ namespace Cjing3D {
 
 		void PrintConsoleHeader()
 		{
-			std::cout << "Cjing3D Version " << CjingVersion::GetVersionString() << "\n" << std::endl;
+			std::cout << "Cjing3D Version " << CjingVersion::GetVersionString() << std::endl;
 			std::cout << "Copyright (c) 2019-2020 by ZZZY" << std::endl;
 			std::cout << std::endl;
 		}

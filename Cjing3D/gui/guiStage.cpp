@@ -8,13 +8,6 @@
 
 namespace Cjing3D
 {
-	namespace {
-
-#ifdef CJING_IMGUI_ENABLE
-		IMGUIStage mImGuiStage;
-#endif
-	}
-
 	using namespace Gui;
 
 	GUIStage::GUIStage(GlobalContext & globalContext):
@@ -29,21 +22,16 @@ namespace Cjing3D
 
 	void GUIStage::Initialize()
 	{
+		// initialize gui renderer
 		mRenderer = std::make_unique<GUIRenderer>(*this);
 
-#ifdef CJING_IMGUI_ENABLE
-		mImGuiStage.Initialize();
-		mRenderer->SetImGuiStage(&mImGuiStage);
-#endif
 		// initialize widget manager
 		mWidgetManager = std::make_unique<Gui::WidgetManager>(*this);
 		mWidgetManager->Initialize();
 
-		U32x2 screenSize = Renderer::GetScreenSize();
-
 		// initialize widget hierarchy		
 		mWidgetHierarchy = std::make_unique<Gui::WidgetHierarchy>(*this);
-		mWidgetHierarchy->Initialize(screenSize);
+		mWidgetHierarchy->Initialize(Renderer::GetScreenSize());
 
 		// load registered keys
 		LoadRegisteredKeys();
@@ -57,9 +45,6 @@ namespace Cjing3D
 
 	void GUIStage::Uninitialize()
 	{
-#ifdef CJING_IMGUI_ENABLE
-		mImGuiStage.Uninitialize();
-#endif
 		mWidgetHierarchy->Uninitialize();
 		mWidgetManager->Uninitialize();
 
@@ -82,12 +67,6 @@ namespace Cjing3D
 		if (!IsGUIVisible()) {
 			return;
 		}
-
-#ifdef CJING_IMGUI_ENABLE
-		PROFILER_BEGIN_CPU_BLOCK("ImGuiFixedUpdate");
-		mImGuiStage.FixedUpdate();
-		PROFILER_END_BLOCK();
-#endif
 
 		PROFILER_BEGIN_CPU_BLOCK("GuiFixedUpdate");
 		// notify input
@@ -141,21 +120,6 @@ namespace Cjing3D
 	void GUIStage::PushInputEvent(const GUIInputEvent& ent)
 	{
 		mInputEventQueue.push(ent);
-	}
-
-	void GUIStage::SetImGUIStageVisible(bool visible)
-	{
-		mImGuiStage.SetVisible(visible);
-	}
-
-	bool GUIStage::IsImGUIStageVisible() const
-	{
-		return mImGuiStage.IsVisible();
-	}
-
-	IMGUIStage& GUIStage::GetImGUIStage()
-	{
-		return mImGuiStage;
 	}
 
 	void GUIStage::LoadRegisteredKeys()

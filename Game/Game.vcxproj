@@ -1,14 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|Win32">
-      <Configuration>Release</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
@@ -19,48 +11,27 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{08AAC5DE-2886-499B-A8B4-878FB69D1A8D}</ProjectGuid>
+    <ProjectGuid>{7FA9857C-6BE0-860D-14CD-6C1000E3020F}</ProjectGuid>
+    <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
+    <Keyword>Win32Proj</Keyword>
     <RootNamespace>Game</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-  </ImportGroup>
-  <ImportGroup Label="Shared">
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -69,114 +40,69 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IntDir>$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IntDir>Temp\$(Platform)\$(Configuration)\</IntDir>
-    <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
-    <IncludePath>$(SolutionDir)\Game\;$(SolutionDir)\ThirdParty\;$(IncludePath)</IncludePath>
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\bin\x64\Debug\</OutDir>
+    <IntDir>Temp\x64\Debug\</IntDir>
+    <TargetName>Game</TargetName>
+    <TargetExt>.exe</TargetExt>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
-    </ClCompile>
-  </ItemDefinitionGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>..\bin\x64\Release\</OutDir>
+    <IntDir>Temp\x64\Release\</IntDir>
+    <TargetName>Game</TargetName>
+    <TargetExt>.exe</TargetExt>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\Cjing3D;.;..\Shader;..\ThirdParty\imgui;..\ThirdParty\optick;..\ThirdParty\physfs_3.0.2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../Cjing3D;../Shader;../ThirdParty/physfs_3.0.2;../ThirdParty/imgui;../ThirdParty/optick</AdditionalIncludeDirectories>
+      <MinimalRebuild>false</MinimalRebuild>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
-    </ClCompile>
-    <Link>
-      <AdditionalLibraryDirectories>$(SolutionDir)\lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OptickCoreD.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>OptickCoreD.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\Cjing3D;.;..\Shader;..\ThirdParty\imgui;..\ThirdParty\optick;..\ThirdParty\physfs_3.0.2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../Cjing3D</AdditionalIncludeDirectories>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OptickCore.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="definitions\gameVersion.cpp" />
-    <ClCompile Include="editor\gameEditor.cpp" />
-    <ClCompile Include="editor\guiEditor.cpp" />
-    <ClCompile Include="editor\guiEditorAnimation.cpp" />
-    <ClCompile Include="editor\guiEditorGUI.cpp" />
-    <ClCompile Include="editor\guiEditorHierarchy.cpp" />
-    <ClCompile Include="editor\guiEditorLight.cpp" />
-    <ClCompile Include="editor\guiEditorMaterial.cpp" />
-    <ClCompile Include="editor\guiEditorObject.cpp" />
-    <ClCompile Include="editor\guiEditorParticle.cpp" />
-    <ClCompile Include="editor\guiEditorProfier.cpp" />
-    <ClCompile Include="editor\guiEditorRender.cpp" />
-    <ClCompile Include="editor\guiEditorScene.cpp" />
-    <ClCompile Include="editor\guiEditorSound.cpp" />
-    <ClCompile Include="editor\guiEditorTerrain.cpp" />
-    <ClCompile Include="game\gameContext.cpp" />
-    <ClCompile Include="game\gameObject.cpp" />
-    <ClCompile Include="game\levelEditor\levelEditor.cpp" />
-    <ClCompile Include="game\levelEditor\levelEditorGUI.cpp" />
-    <ClCompile Include="game\levelEditor\levelEditorUtils.cpp" />
-    <ClCompile Include="game\map\gameMap.cpp" />
-    <ClCompile Include="game\map\gameMapObject.cpp" />
-    <ClCompile Include="game\map\gameMapRenderer.cpp" />
-    <ClCompile Include="game\map\ground\gameMapGround.cpp" />
-    <ClCompile Include="game\map\ground\gameMapGroundRenderer.cpp" />
-    <ClCompile Include="game\map\ground\gameMapGrounds.cpp" />
-    <ClCompile Include="game\map\ground\gameMapGroundTileset.cpp" />
-    <ClCompile Include="game\map\mapTileset.cpp" />
-    <ClCompile Include="main\main.cpp" />
-    <ClCompile Include="scripts\gameLuaContext.cpp" />
-    <ClCompile Include="test\guiTest.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Cjing3D\Cjing3D.vcxproj">
-      <Project>{b0a02590-e94e-4cae-8dda-cd8758e91c04}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <ItemGroup>
     <ClInclude Include="definitions\definitions.h" />
     <ClInclude Include="definitions\gameRenderCommon.h" />
     <ClInclude Include="definitions\gameVersion.h" />
-    <ClInclude Include="editor\gameEditor.h" />
     <ClInclude Include="editor\guiEditor.h" />
     <ClInclude Include="editor\guiEditorAnimation.h" />
     <ClInclude Include="editor\guiEditorGUI.h" />
@@ -200,14 +126,51 @@
     <ClInclude Include="game\map\gameMapRenderer.h" />
     <ClInclude Include="game\map\ground\gameMapGround.h" />
     <ClInclude Include="game\map\ground\gameMapGroundRenderer.h" />
-    <ClInclude Include="game\map\ground\gameMapGrounds.h" />
     <ClInclude Include="game\map\ground\gameMapGroundTileset.h" />
+    <ClInclude Include="game\map\ground\gameMapGrounds.h" />
     <ClInclude Include="game\map\mapInclude.h" />
     <ClInclude Include="game\map\mapTileset.h" />
     <ClInclude Include="game\map\wall\gameMapWallRenderer.h" />
     <ClInclude Include="note.h" />
     <ClInclude Include="scripts\gameLuaContext.h" />
     <ClInclude Include="test\guiTest.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="definitions\gameVersion.cpp" />
+    <ClCompile Include="editor\guiEditor.cpp" />
+    <ClCompile Include="editor\guiEditorAnimation.cpp" />
+    <ClCompile Include="editor\guiEditorGUI.cpp" />
+    <ClCompile Include="editor\guiEditorHierarchy.cpp" />
+    <ClCompile Include="editor\guiEditorLight.cpp" />
+    <ClCompile Include="editor\guiEditorMaterial.cpp" />
+    <ClCompile Include="editor\guiEditorObject.cpp" />
+    <ClCompile Include="editor\guiEditorParticle.cpp" />
+    <ClCompile Include="editor\guiEditorProfier.cpp" />
+    <ClCompile Include="editor\guiEditorRender.cpp" />
+    <ClCompile Include="editor\guiEditorScene.cpp" />
+    <ClCompile Include="editor\guiEditorSound.cpp" />
+    <ClCompile Include="editor\guiEditorTerrain.cpp" />
+    <ClCompile Include="game\gameContext.cpp" />
+    <ClCompile Include="game\gameObject.cpp" />
+    <ClCompile Include="game\levelEditor\levelEditor.cpp" />
+    <ClCompile Include="game\levelEditor\levelEditorGUI.cpp" />
+    <ClCompile Include="game\levelEditor\levelEditorUtils.cpp" />
+    <ClCompile Include="game\map\gameMap.cpp" />
+    <ClCompile Include="game\map\gameMapObject.cpp" />
+    <ClCompile Include="game\map\gameMapRenderer.cpp" />
+    <ClCompile Include="game\map\ground\gameMapGround.cpp" />
+    <ClCompile Include="game\map\ground\gameMapGroundRenderer.cpp" />
+    <ClCompile Include="game\map\ground\gameMapGroundTileset.cpp" />
+    <ClCompile Include="game\map\ground\gameMapGrounds.cpp" />
+    <ClCompile Include="game\map\mapTileset.cpp" />
+    <ClCompile Include="main\main.cpp" />
+    <ClCompile Include="scripts\gameLuaContext.cpp" />
+    <ClCompile Include="test\guiTest.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Cjing3D\Cjing3D.vcxproj">
+      <Project>{27722A28-9351-A9C3-9C69-349A08C80F25}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
