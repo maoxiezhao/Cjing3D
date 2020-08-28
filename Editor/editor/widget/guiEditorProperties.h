@@ -1,13 +1,13 @@
 #pragma once
 
-#include "gui\guiEditor\guiEditorWidget.h"
+#include "guiEditorWidget.h"
 
 namespace Cjing3D
 {
 	class EditorWidgetProperties : public EditorWidget
 	{
 	public:
-		EditorWidgetProperties(IMGUIStage& imguiStage);
+		EditorWidgetProperties(EditorStage& imguiStage);
 
 		void Update(F32 deltaTime)override;
 	};

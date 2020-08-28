@@ -1,5 +1,5 @@
 #include "logger.h"
-#include "platform\gameWindow.h"
+#include "platform\platform.h"
 #include "common\version.h"
 
 #include <fstream>
@@ -64,10 +64,10 @@ namespace Cjing3D {
 
 		void Logger::Info(const string & msg)
 		{
-			GameWindow::GameWindow::SetLoggerConsoleFontColor(CONSOLE_FONT_GREEN);
+			Platform::SetLoggerConsoleFontColor(CONSOLE_FONT_GREEN);
 			Print("[Info]  " + msg);
 			Print("[Info]  " + msg, GetLoggerFile());
-			GameWindow::GameWindow::SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
+			Platform::SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
 		}
 
 		void InfoEx(const char* format, ...)
@@ -78,34 +78,34 @@ namespace Cjing3D {
 			vsnprintf_s(msg, std::size(msg), format, args);
 			va_end(args);
 
-			GameWindow::SetLoggerConsoleFontColor(CONSOLE_FONT_GREEN);
+			Platform::SetLoggerConsoleFontColor(CONSOLE_FONT_GREEN);
 			Print("[Info]  " + std::string(msg));
 			Print("[Info]  " + std::string(msg), GetLoggerFile());
-			GameWindow::SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
+			Platform::SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
 		}
 
 		void Logger::Warning(const string & msg)
 		{
-			GameWindow::SetLoggerConsoleFontColor(CONSOLE_FONT_YELLOW);
+			Platform::SetLoggerConsoleFontColor(CONSOLE_FONT_YELLOW);
 			string warningMsg = "[Warning]  " + msg;
 			Print(warningMsg);
 			Print(warningMsg, GetLoggerFile());
-			GameWindow::SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
+			Platform::SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
 		}
 
 		void Logger::Error(const string & msg)
 		{
-			GameWindow::SetLoggerConsoleFontColor(CONSOLE_FONT_RED);
+			Platform::SetLoggerConsoleFontColor(CONSOLE_FONT_RED);
 			string warningMsg = "[Error]  " + msg;
 			Print(warningMsg);
 			Print(warningMsg, GetErrorFile());
 			Print(warningMsg, GetLoggerFile());
-			GameWindow::SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
+			Platform::SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
 		}
 
 		void Fatal(const string& msg)
 		{
-			GameWindow::SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
+			Platform::SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
 			string warningMsg = "[Fatal]  " + msg;
 			Print(warningMsg);
 			Print(warningMsg, GetErrorFile());

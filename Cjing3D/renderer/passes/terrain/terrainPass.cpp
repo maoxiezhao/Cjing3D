@@ -50,10 +50,7 @@ void TerrainPass::Initialize()
 		{ "INSTANCELOCALTRANS",  0u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT, INPUT_PER_INSTANCE_DATA, 1u },
 		{ "INSTANCETERRAIN",0u, FORMAT_R32G32B32A32_UINT,  1u, APPEND_ALIGNED_ELEMENT, INPUT_PER_INSTANCE_DATA, 1u }
 	};
-
-	ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
-	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_Shader);
-	auto vsinfo = Renderer::LoadVertexShaderInfo(shaderPath + "terrainVS.cso", shadowLayout, ARRAYSIZE(shadowLayout));
+	auto vsinfo = Renderer::LoadVertexShaderInfo("terrainVS.cso", shadowLayout, ARRAYSIZE(shadowLayout));
 ;
 	// initialize pso
 	ShaderLib& shaderLib = Renderer::GetShaderLib();
@@ -62,9 +59,9 @@ void TerrainPass::Initialize()
 	PipelineStateDesc desc = {};
 	desc.mInputLayout = vsinfo.mInputLayout;
 	desc.mVertexShader = vsinfo.mVertexShader;
-	desc.mPixelShader  = Renderer::LoadShader(SHADERSTAGES_PS, shaderPath + "terrainPS.cso");
-	desc.mHullShader   = Renderer::LoadShader(SHADERSTAGES_HS, shaderPath + "terrainHS.cso");
-	desc.mDomainShader = Renderer::LoadShader(SHADERSTAGES_DS, shaderPath + "terrainDS.cso");
+	desc.mPixelShader  = Renderer::LoadShader(SHADERSTAGES_PS, "terrainPS.cso");
+	desc.mHullShader   = Renderer::LoadShader(SHADERSTAGES_HS, "terrainHS.cso");
+	desc.mDomainShader = Renderer::LoadShader(SHADERSTAGES_DS, "terrainDS.cso");
 	desc.mPrimitiveTopology = PATCHLIST_4;
 	desc.mBlendState = renderPreset.GetBlendState(BlendStateID_Opaque);
 	desc.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_GreaterEqualReadWrite);
@@ -84,13 +81,13 @@ void TerrainPass::InitializeTestData()
 	mTerrainTree.Initialize(1024, 1024);
 	mTerrainTree.SetTerrainPSO(terrainPSO);
 	mTerrainTree.LoadHeightMap("Textures/HeightMap.png");
-	
-	ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
+
+	auto resourceManager = GetGlobalContext().gResourceManager;
 	TerrainMaterial material;
-	material.weightTexture  = resourceManager.GetOrCreate<TextureResource>("Textures/TerrainWeights.dds", FORMAT_R8G8B8A8_UNORM, 1);
-	material.detailTexture1 = resourceManager.GetOrCreate<TextureResource>("Textures/TerrainDetail1.dds", FORMAT_R8G8B8A8_UNORM, 1);
-	material.detailTexture2 = resourceManager.GetOrCreate<TextureResource>("Textures/TerrainDetail2.dds", FORMAT_R8G8B8A8_UNORM, 1);
-	material.detailTexture3 = resourceManager.GetOrCreate<TextureResource>("Textures/TerrainDetail3.dds", FORMAT_R8G8B8A8_UNORM, 1);
+	material.weightTexture  = resourceManager->GetOrCreate<TextureResource>("Textures/TerrainWeights.dds", FORMAT_R8G8B8A8_UNORM, 1);
+	material.detailTexture1 = resourceManager->GetOrCreate<TextureResource>("Textures/TerrainDetail1.dds", FORMAT_R8G8B8A8_UNORM, 1);
+	material.detailTexture2 = resourceManager->GetOrCreate<TextureResource>("Textures/TerrainDetail2.dds", FORMAT_R8G8B8A8_UNORM, 1);
+	material.detailTexture3 = resourceManager->GetOrCreate<TextureResource>("Textures/TerrainDetail3.dds", FORMAT_R8G8B8A8_UNORM, 1);
 	mTerrainTree.LoadTerrainMaterial(material);
 #endif
 }

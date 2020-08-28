@@ -1,6 +1,7 @@
 #include "guiEditorMenuBar.h"
 #include "guiEditorHelper.h"
 #include "common\version.h"
+#include "guiEditorInclude.h"
 
 namespace Cjing3D
 {
@@ -42,7 +43,7 @@ namespace Cjing3D
 	}
 
 
-	EditorWidgetMenu::EditorWidgetMenu(IMGUIStage& imguiStage) :
+	EditorWidgetMenu::EditorWidgetMenu(EditorStage& imguiStage) :
 		EditorWidget(imguiStage)
 	{
 		mTitleName = "MenuBar";
@@ -58,7 +59,7 @@ namespace Cjing3D
 				if (ImGui::MenuItem("New  Scene")) { Scene::GetScene().Clear(); }
 				if (ImGui::MenuItem("Load Scene")) { EditorHelper::LoadSceneFromOpenFile(); }
 				if (ImGui::MenuItem("Save Scene")) { EditorHelper::SaveSceneToOpenFile(); }
-				if (ImGui::MenuItem("Exit")) { GlobalGetEngine()->SetIsExiting(true); }
+				if (ImGui::MenuItem("Exit"))       { GetGlobalContext().GetEngine()->SetIsExiting(true); }
 				ImGui::EndMenu();
 			}
 			if (ImGui::BeginMenu("Help"))

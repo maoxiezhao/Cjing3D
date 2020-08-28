@@ -1,8 +1,9 @@
 #include "guiEditorEntityList.h"
+#include "guiEditorInclude.h"
 
 namespace Cjing3D
 {
-	EditorWidgetEntityList::EditorWidgetEntityList(IMGUIStage& imguiStage) :
+	EditorWidgetEntityList::EditorWidgetEntityList(EditorStage& imguiStage) :
 		EditorWidget(imguiStage)
 	{
 		mTitleName = "EntityList";

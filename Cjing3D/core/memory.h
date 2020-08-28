@@ -3,6 +3,8 @@
 #include "core\allocator.h"
 #include "helper\debug.h"
 
+#include <functional>
+
 namespace Cjing3D
 {
 
@@ -139,7 +141,7 @@ namespace Cjing3D
 	{
 		return UniquePtr<T>(ptr, [](T* data) {
 			CJING_MEM_DELETE(data);
-		});
+			});
 	}
 }
 

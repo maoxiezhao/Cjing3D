@@ -1,6 +1,5 @@
 #include "gui\guiRenderer.h"
 #include "gui\guiStage.h"
-#include "gui\imguiStage.h"
 #include "renderer\2D\renderer2D.h"
 
 namespace Cjing3D
@@ -24,15 +23,6 @@ namespace Cjing3D
 	void GUIRenderer::Render()
 	{
 		mGUIStage.RenderImpl();
-
-		if (mImGuiStage != nullptr) {
-			mImGuiStage->RenderImpl();
-		}
-	}
-
-	void GUIRenderer::SetImGuiStage(IMGUIStage* imGuiStage)
-	{
-		mImGuiStage = imGuiStage;
 	}
 
 	const Gui::GUIScheme& GUIRenderer::GetGUIScheme() const

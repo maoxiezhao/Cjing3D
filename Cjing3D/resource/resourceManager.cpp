@@ -11,6 +11,14 @@
 
 namespace Cjing3D
 {
+ResourceManager::ResourceManager()
+{
+}
+
+ResourceManager::~ResourceManager()
+{
+}
+
 void ResourceManager::Initialize()
 {
 	AddStandardResourceDirectory(Resource_Shader, "Shaders/");
@@ -308,8 +316,8 @@ void ResourceManager::LoadSoundFromFilePath(const std::filesystem::path& filePat
 {
 	Logger::Info("LoadSoundFromFilePath:" + filePath.string());
 
-	Audio::AudioManager& manger = GlobalGetSubSystem<Audio::AudioManager>();
-	if (!manger.LoadSound(filePath.string(), soundResource.mSound))
+	auto audioManager = GetGlobalContext().gAudioManager;
+	if (!audioManager->LoadSound(filePath.string(), soundResource.mSound))
 	{
 		soundResource.mSound.Clear();
 		Debug::Warning("LoadSoundFromFilePath failed:" + filePath.string());

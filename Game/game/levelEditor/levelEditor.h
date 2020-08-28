@@ -3,20 +3,20 @@
 #include "game\levelEditor\levelEditorUtils.h"
 #include "game\map\gameMap.h"
 #include "scripts\gameLuaContext.h"
+#include "app\gameComponent.h"
 
 namespace CjingGame
 {
 	class LevelEditor : public Cjing3D::GameComponent
 	{
 	public:
-		LevelEditor();
+		LevelEditor(const std::shared_ptr<Engine>& engine);
 		virtual ~LevelEditor();
 
-		virtual void Initialize();
-		virtual void Update(Cjing3D::EngineTime time);
-		virtual void FixedUpdate();
-		virtual void Uninitialize();
-		virtual void PreRender();
+		void Initialize() override;
+		void FixedUpdate() override;
+		void Uninitialize() override;
+		void PreRender() override;
 
 		//////////////////////////////////////////////////////////////////////////////
 		// general editor

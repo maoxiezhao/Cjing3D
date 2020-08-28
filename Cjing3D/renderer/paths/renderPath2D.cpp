@@ -17,8 +17,6 @@ namespace Cjing3D
 
 	void RenderPath2D::ResizeBuffers()
 	{
-		RenderPath::ResizeBuffers();
-
 		auto& device = Renderer::GetDevice();
 		const auto screenSize = device.GetScreenSize();
 		FORMAT format = device.GetBackBufferFormat();
@@ -47,11 +45,19 @@ namespace Cjing3D
 
 	void RenderPath2D::Initialize()
 	{
+		if (IsInitialized()) {
+			return;
+		}
+
 		RenderPath::Initialize();
 	}
 
 	void RenderPath2D::Uninitialize()
 	{
+		if (!IsInitialized()) {
+			return;
+		}
+
 		RenderPath::Uninitialize();
 	}
 
@@ -98,8 +104,7 @@ namespace Cjing3D
 		device.BeginEvent("RenderGUI");
 
 		// 从guiStage中获取guiRenderer执行渲染过程
-		GUIStage& guiStage = GlobalGetSubSystem<GUIStage>();
-		guiStage.GetGUIRenderer().Render();
+		GetGlobalContext().gGUIStage->GetGUIRenderer().Render();
 	
 		device.EndEvent();
 	}

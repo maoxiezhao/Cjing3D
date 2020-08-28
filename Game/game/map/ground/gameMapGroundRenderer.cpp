@@ -17,25 +17,22 @@ namespace CjingGame
 		{
 			// initialize pipeline state
 			RenderPreset& renderPreset = Renderer::GetRenderPreset();
-			ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
-			const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_Shader);
-
 			// static 
 			PipelineStateDesc desc = {};
-			desc.mInputLayout = renderPreset.GetVertexLayout(InputLayoutType_ObjectAll);
-			desc.mVertexShader = renderPreset.GetVertexShader(VertexShaderType_ObjectAll);
-			desc.mPixelShader = Renderer::LoadShader(SHADERSTAGES_PS, shaderPath + "mapGroundPS.cso");
-			desc.mBlendState = renderPreset.GetBlendState(BlendStateID_Opaque);
+			desc.mInputLayout       = renderPreset.GetVertexLayout(InputLayoutType_ObjectAll);
+			desc.mVertexShader      = renderPreset.GetVertexShader(VertexShaderType_ObjectAll);
+			desc.mPixelShader       = Renderer::LoadShader(SHADERSTAGES_PS, "mapGroundPS.cso");
+			desc.mBlendState        = renderPreset.GetBlendState(BlendStateID_Opaque);
 			desc.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_DepthReadEqual);
-			desc.mRasterizerState = renderPreset.GetRasterizerState(RasterizerStateID_Front);
+			desc.mRasterizerState   = renderPreset.GetRasterizerState(RasterizerStateID_Front);
 			desc.mPrimitiveTopology = TRIANGLELIST;
 			Renderer::RegisterCustomPipelineState(RenderPassType_TiledForward, "StaticMapGroundPSO", desc);
 
 			// dynamic
-			desc.mInputLayout = renderPreset.GetVertexLayout(InputLayoutType_ObjectAll);
-			desc.mVertexShader = Renderer::LoadShader(SHADERSTAGES_VS, shaderPath + "mapGroundVS.cso");
-			desc.mPixelShader = Renderer::LoadShader(SHADERSTAGES_PS, shaderPath + "mapGroundPS.cso");
-			desc.mBlendState = renderPreset.GetBlendState(BlendStateID_Opaque);
+			desc.mInputLayout  = renderPreset.GetVertexLayout(InputLayoutType_ObjectAll);
+			desc.mVertexShader = Renderer::LoadShader(SHADERSTAGES_VS, "mapGroundVS.cso");
+			desc.mPixelShader  = Renderer::LoadShader(SHADERSTAGES_PS, "mapGroundPS.cso");
+			desc.mBlendState   = renderPreset.GetBlendState(BlendStateID_Opaque);
 			desc.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_DepthReadEqual);
 			desc.mRasterizerState = renderPreset.GetRasterizerState(RasterizerStateID_Front);
 			desc.mPrimitiveTopology = TRIANGLELIST;

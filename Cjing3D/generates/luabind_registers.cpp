@@ -17,29 +17,32 @@ void luabind_registers_AutoBindFunction(lua_State* l)
 {
 LuaBinder(l)
 .BeginClass<CameraComponent>("CameraComponent")
-.AddConstructor(_LUA_ARGS_())
 .AddMethod("Update", &CameraComponent::Update)
 .AddMethod("Transform", &CameraComponent::Transform)
 .EndClass();
 
 LuaBinder(l)
 .BeginClass<GUIStage>("GUIStage")
-.AddConstructor(_LUA_ARGS_(GlobalContext&))
+.AddConstructor(_LUA_ARGS_())
 .EndClass();
 
 LuaBinder(l)
 .BeginClass<InputManager>("InputManager")
-.AddConstructor(_LUA_ARGS_(GlobalContext&))
-.AddMethod("IsKeyDown", &InputManager::IsKeyDown)
-.AddMethod("IsKeyUp", &InputManager::IsKeyUp)
+.AddMethod("IsKeyPressed", &InputManager::IsKeyPressed)
+.AddMethod("IsKeyReleased", &InputManager::IsKeyReleased)
 .AddMethod("IsKeyHold", &InputManager::IsKeyHold)
 .AddMethod("GetMousePos", &InputManager::GetMousePos)
 .AddMethod("GetMouseWheelDelta", &InputManager::GetMouseWheelDelta)
+.AddMethod("IsGamepadConnected", &InputManager::IsGamepadConnected)
+.AddMethod("IsGamepadButtonDown", &InputManager::IsGamepadButtonDown)
+.AddMethod("IsGamepadButtonUp", &InputManager::IsGamepadButtonUp)
+.AddMethod("IsGamepadButtonHold", &InputManager::IsGamepadButtonHold)
+.AddMethod("GetGamepadThumbStickLeft", &InputManager::GetGamepadThumbStickLeft)
+.AddMethod("GetGamepadThumbStickRight", &InputManager::GetGamepadThumbStickRight)
 .EndClass();
 
 LuaBinder(l)
 .BeginClass<LightComponent>("LightComponent")
-.AddConstructor(_LUA_ARGS_())
 .AddMethod("GetLightType", &LightComponent::GetLightType)
 .AddMethod("SetLightType", &LightComponent::SetLightType)
 .AddMethod("SetRange", &LightComponent::SetRange)
@@ -50,7 +53,6 @@ LuaBinder(l)
 
 LuaBinder(l)
 .BeginClass<ObjectComponent>("ObjectComponent")
-.AddConstructor(_LUA_ARGS_())
 .AddMethod("IsRenderable", &ObjectComponent::IsRenderable)
 .AddMethod("SetRenderable", &ObjectComponent::SetRenderable)
 .EndClass();
@@ -62,12 +64,10 @@ LuaBinder(l)
 
 LuaBinder(l)
 .BeginClass<TerrainComponent>("TerrainComponent")
-.AddConstructor(_LUA_ARGS_())
 .EndClass();
 
 LuaBinder(l)
 .BeginClass<TransformComponent>("Transform")
-.AddConstructor(_LUA_ARGS_())
 .AddMethod("Update", &TransformComponent::Update)
 .AddMethod("Clear", &TransformComponent::Clear)
 .AddMethod("Translate", &TransformComponent::Translate)

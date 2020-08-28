@@ -1,206 +1,87 @@
 #ifdef _WIN32
 
 #include "gameWindowWin32.h"
-#include "engine.h"
+#include "platform\platform.h"
 #include "helper\profiler.h"
-#include "gui\guiStage.h"
+#include "renderer\presentConfig.h"
+#include "platform\systemEvent.h"
 
-#include <string>
-#include <ShlObj.h>
+namespace Cjing3D::Win32 {
 
-namespace Cjing3D {
+	namespace {
 
-	std::string GameWindow::WStringToString(const std::wstring& wstr)
-	{
-		if (wstr.empty()) return std::string();
-		int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
-		std::string strTo(size_needed, 0);
-		WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), &strTo[0], size_needed, NULL, NULL);
-		return strTo;
-	}
-
-	// Convert an UTF8 string to a wide Unicode String
-	std::wstring GameWindow::StringToWString(const std::string& str)
-	{
-		if (str.empty()) return std::wstring();
-		int size_needed = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
-		std::wstring wstrTo(size_needed, 0);
-		MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed);
-		return wstrTo;
-	}
-
-	void GameWindow::SetLoggerConsoleFontColor(ConsoleFontColor fontColor)
-	{
-		int color = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
-		switch (fontColor)
+#ifndef RID_USAGE_GENERIC_MOUSE
+#define RID_USAGE_GENERIC_MOUSE    ((USHORT)0x02)
+#endif
+#ifndef RID_USAGE_GENERIC_KEYBOARD
+#define RID_USAGE_GENERIC_KEYBOARD ((USHORT)0x06)
+#endif
+		void RegisterInputDevice(HWND hWnd)
 		{
-		case Cjing3D::CONSOLE_FONT_BLUE:
-			color = FOREGROUND_BLUE;
-			break;
-		case Cjing3D::CONSOLE_FONT_YELLOW:
-			color = FOREGROUND_RED | FOREGROUND_GREEN;
-			break;
-		case Cjing3D::CONSOLE_FONT_GREEN:
-			color = FOREGROUND_GREEN;
-			break;
-		case Cjing3D::CONSOLE_FONT_RED:
-			color = FOREGROUND_RED;
-			break;
-		}
+			RAWINPUTDEVICE inputDevices[2] = {};
 
-		HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
-		SetConsoleTextAttribute(handle, FOREGROUND_INTENSITY | static_cast<WORD>(color));
-	}
+			// Register mouse:
+			inputDevices[0].usUsagePage = 0x01;
+			inputDevices[0].usUsage     = RID_USAGE_GENERIC_MOUSE;
+			inputDevices[0].dwFlags = 0;
+			inputDevices[0].hwndTarget = 0;
 
-	void GameWindow::LoadFileFromOpenWindow(const char* fileFilter, std::function<void(const std::string&)> callback)
-	{
-		char szFile[256] = { '\0' };
+			// Register keyboard:
+			inputDevices[1].usUsagePage = 0x01;
+			inputDevices[1].usUsage = RID_USAGE_GENERIC_KEYBOARD;
+			inputDevices[1].dwFlags = 0;
+			inputDevices[1].hwndTarget = 0;
 
-		OPENFILENAMEA ofn;
-		ZeroMemory(&ofn, sizeof(ofn));
-		ofn.lStructSize = sizeof(ofn);
-		ofn.hwndOwner = nullptr;
-		ofn.lpstrFile = szFile;
-		ofn.nMaxFile = sizeof(szFile);
-		ofn.lpstrFilter = fileFilter;
-		ofn.nFilterIndex = 1;
-		ofn.lpstrFileTitle = nullptr;
-		ofn.nMaxFileTitle = 0;
-		ofn.lpstrInitialDir = nullptr;
-
-		// If you change folder in the dialog it will change the current folder for your process without OFN_NOCHANGEDIR;
-		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
-
-		if (GetOpenFileNameA(&ofn))
-		{
-			if (callback != nullptr) {
-				callback(ofn.lpstrFile);
+			if (RegisterRawInputDevices(
+				inputDevices, 
+				ARRAYSIZE(inputDevices),
+				sizeof(inputDevices[0])) == FALSE)
+			{
+				Debug::Die("Failed to Win32::InputDevice");
 			}
 		}
 	}
 
-	void GameWindow::SaveFileToOpenWindow(const char* fileFilter, std::function<void(const std::string&)> callback)
-	{
-		char szFile[256] = { '\0' };
-
-		OPENFILENAMEA ofn;
-		ZeroMemory(&ofn, sizeof(ofn));
-		ofn.lStructSize = sizeof(ofn);
-		ofn.hwndOwner = nullptr;
-		ofn.lpstrFile = szFile;
-		ofn.nMaxFile = sizeof(szFile);
-		ofn.lpstrFilter = fileFilter;
-		ofn.nFilterIndex = 1;
-		ofn.lpstrFileTitle = nullptr;
-		ofn.nMaxFileTitle = 0;
-		ofn.lpstrInitialDir = nullptr;
-		ofn.Flags = OFN_OVERWRITEPROMPT;
-
-		if (GetSaveFileNameA(&ofn))
-		{
-			if (callback != nullptr) {
-				callback(ofn.lpstrFile);
-			}
-		}
-	}
-
-	void GameWindow::ShowBrowseForFolder(const char* title, std::function<void(const std::string&)> callback)
-	{
-		std::wstring nameWStr = StringToWString(title);
-		wchar_t szBuffer[256] = { '\0' };
-		BROWSEINFO bi;
-		ZeroMemory(&bi, sizeof(BROWSEINFO));
-		bi.hwndOwner = NULL;
-		bi.pszDisplayName = szBuffer;
-		bi.lpszTitle = nameWStr.c_str();
-		bi.ulFlags = BIF_RETURNFSANCESTORS;
-
-		LPITEMIDLIST idl = SHBrowseForFolder(&bi);
-		if (NULL == idl) {
-			return;
-		}
-
-		SHGetPathFromIDList(idl, szBuffer);
-		callback(WStringToString(nameWStr));
-	}
-
-	void GameWindow::ShowMessageBox(const UTF8String& msg)
-	{
-		std::wstring msgWStr = StringToWString(msg.C_Str());
-		MessageBoxW(NULL, LPCWSTR(msgWStr.c_str()), NULL, MB_OK);
-	}
-
-	GameWindowWin32::GameWindowWin32(const std::string& titleName, const I32x2& screenSize, bool fullScreen, DWORD style) :
+	GameWindowWin32::GameWindowWin32(
+			HINSTANCE hInstance, 
+			const UTF8String& titleName, 
+			const std::shared_ptr<EventQueue>& eventQueue,
+			const PresentConfig& config) :
 		mIsInitialized(false),
-		mHinstance(GetModuleHandle(NULL)),
+		mHinstance(hInstance),
 		mHwnd(NULL),
-		mStyle(style)
+		mTitleName(titleName),
+		mScreenSize(config.mScreenSize),
+		mEventQueue(eventQueue),
+		mIsFullScreen(config.mIsFullScreen)
 	{
-		mTitleName = titleName;
-		mScreenSize = screenSize;
-		mFullScreen = fullScreen;
+		
+		std::wstring nameWStr = Platform::StringToWString(mTitleName.String());
 
-		if (!InitializeWindows(titleName, screenSize[0], screenSize[1], style)) {
-			Debug::Die("Failed to Initialize GameWindowWin32.");
-		}
-	}
+		LONG adjustedWidth = static_cast<LONG>(mScreenSize[0]);
+		LONG adjustedHeight = static_cast<LONG>(mScreenSize[1]);
+		DWORD windowStyle = 0;
+		DWORD windowStyleEx = 0;
 
-	GameWindowWin32::~GameWindowWin32()
-	{
-		ShutdownWindow();
-	}
-
-	bool GameWindowWin32::Show()
-	{
-		ShowWindow(mHwnd, SW_SHOW);
-		SetForegroundWindow(mHwnd);
-		SetFocus(mHwnd);
-
-		return true;
-	}
-
-	void GameWindowWin32::ShutDown()
-	{
-		ShutdownWindow();
-	}
-
-	bool GameWindowWin32::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam, LRESULT & result)
-	{
-		for (auto hander : mHandlers)
+		if (mIsFullScreen)
 		{
-			if (hander->HandleMessage(hWnd, message, wParam, lParam, result))
-				return true;
+			windowStyle |= WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+			windowStyleEx |= WS_EX_TOPMOST;
 		}
-		return false;
-	}
-
-	int GameWindowWin32::RunWindow(Engine& engine)
-	{
-		MSG msg;
-		SecureZeroMemory(&msg, sizeof(msg));
-		while (msg.message != WM_QUIT && !engine.GetIsExiting())
+		else
 		{
-			PROFILER_OPTICK_FRAME("mainThread");
+			windowStyle |= WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
 
-			if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-				continue;
-			}
+			RECT rectangle = { 0, 0, static_cast<LONG>(mScreenSize[0]), static_cast<LONG>(mScreenSize[1])};
+			AdjustWindowRect(&rectangle, windowStyle, FALSE);
 
-			engine.Tick();
+			adjustedWidth  = rectangle.right - rectangle.left;
+			adjustedHeight = rectangle.bottom - rectangle.top;
 		}
-		return static_cast<int> (msg.wParam);
-	}
-
-	bool GameWindowWin32::InitializeWindows(const std::string& name, int w, int h, DWORD style)
-	{
-		Logger::Info("[Video] Initialize GameWindowWin32 Size:" + std::to_string(w) + " " + std::to_string(h));
-		std::wstring nameWStr = StringToWString(name);
 
 		WNDCLASSEX wcex;
 		wcex.cbSize = sizeof(WNDCLASSEX);
-		wcex.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+		wcex.style = CS_HREDRAW | CS_VREDRAW;
 		wcex.lpfnWndProc = GameWindowWin32::WndProc;
 		wcex.cbClsExtra = 0;
 		wcex.cbWndExtra = 0;
@@ -212,52 +93,56 @@ namespace Cjing3D {
 		wcex.lpszClassName = nameWStr.c_str();
 		wcex.hIconSm = LoadIcon(nullptr, IDI_WINLOGO);
 
-		if (!RegisterClassEx(&wcex))
-			return false;
-
-		const RECT rectangle = {
-			0,
-			0,
-			static_cast<LONG>(w),
-			static_cast<LONG>(h)
-		};
-		auto adjusted_rectangle = rectangle;
-		AdjustWindowRect(&adjusted_rectangle, style, FALSE);
-
-		int posX = 0, posY = 0;
-		if (!IsFullScreen())
-		{
-			posX = (GetSystemMetrics(SM_CXSCREEN) - w) / 2;
-			posY = (GetSystemMetrics(SM_CYSCREEN) - h) / 2;
+		if (!RegisterClassEx(&wcex)) {
+			Debug::Die("Failed to RegisterClassEx");
 		}
-
+			
 		mHwnd = CreateWindowExW(
-			WS_EX_APPWINDOW,
+			windowStyleEx,
 			nameWStr.c_str(),
 			nameWStr.c_str(),
-			style,
-			posX, posY,
-			adjusted_rectangle.right - adjusted_rectangle.left,
-			adjusted_rectangle.bottom - adjusted_rectangle.top,
+			windowStyle,
+			CW_USEDEFAULT, CW_USEDEFAULT,
+			adjustedWidth, adjustedHeight,
 			NULL, NULL,
 			mHinstance,
 			this);
-
 		if (!mHwnd) {
-			return false;
+			Debug::Die("Failed to CreateWindowExW");
+		}
+
+		if (FAILED(::CoInitializeEx(nullptr, COINIT_MULTITHREADED | COINIT_DISABLE_OLE1DDE))) {
+			Debug::Die("Failed to CoInitializeEx");
 		}
 
 		if (IsWindowUnicode(mHwnd) == 0) {
-			return false;
+			Debug::Die("Window must is unicode");
 		}
 
-		SetDPI((I32)GetDpiForWindow(mHwnd));
+		ShowWindow(mHwnd, SW_SHOW);
+		SetForegroundWindow(mHwnd);
+		SetFocus(mHwnd);
+		RegisterInputDevice(mHwnd);
 
+		mDPI = (I32)GetDpiForWindow(mHwnd);
+
+		POINT point = { 0, 0 };
+		if (::ClientToScreen(mHwnd, &point))
+		{
+			mScreenPos[0] = static_cast<std::int32_t>(point.x);
+			mScreenPos[1] = static_cast<std::int32_t>(point.y);
+		}
+
+		Logger::Info("[Video] Initialize GameWindowWin32 Size:" + std::to_string(adjustedWidth) + " " + std::to_string(adjustedHeight));
 		mIsInitialized = true;
-		return true;
 	}
 
-	void GameWindowWin32::ShutdownWindow()
+	GameWindowWin32::~GameWindowWin32()
+	{
+		ShutDown();
+	}
+
+	void GameWindowWin32::ShutDown()
 	{
 		if (mIsInitialized)
 		{
@@ -266,108 +151,188 @@ namespace Cjing3D {
 			DestroyWindow(mHwnd);
 			mHwnd = NULL;
 
-			std::wstring nameWStr = StringToWString(mTitleName);
+			std::wstring nameWStr = Platform::StringToWString(mTitleName.String());
 			UnregisterClass(nameWStr.c_str(), mHinstance);
 			mHinstance = NULL;
 
+			::CoUninitialize();
 			mIsInitialized = false;
 		}
 	}
 
-	void GameWindowWin32::SetWindowSize(const I32x2 size)
+	bool GameWindowWin32::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam, LRESULT & result)
 	{
-		if (size == mScreenSize) {
-			return;
-		}
-		mScreenSize = size;
+		WindowMessageData messageData;
+		messageData.handle = GetHwnd();
+		messageData.message = message;
+		messageData.wparam  = wParam;
+		messageData.lparam  = lParam;
 
-		////////////////////////////////////////////////////////////
-		// TEMP
-		const RECT rectangle = {
-			0,
-			0,
-			static_cast<LONG>(mScreenSize[0]),
-			static_cast<LONG>(mScreenSize[1])
-		};
-		auto adjusted_rectangle = rectangle;
-		AdjustWindowRect(&adjusted_rectangle, mStyle, FALSE);
-
-		int posX = 0, posY = 0;
-		if (!IsFullScreen())
+		for (auto handler : mHandlers)
 		{
-			posX = (GetSystemMetrics(SM_CXSCREEN) - mScreenSize[0]) / 2;
-			posY = (GetSystemMetrics(SM_CYSCREEN) - mScreenSize[1]) / 2;
+			if (handler != nullptr && handler(messageData)) {
+				return true;
+			}
 		}
-
-		MoveWindow(
-			mHwnd,
-			posX, posY,
-			adjusted_rectangle.right - adjusted_rectangle.left,
-			adjusted_rectangle.bottom - adjusted_rectangle.top,
-			false
-		);
-		////////////////////////////////////////////////////////////
+		return false;
 	}
 
-	void GameWindowWin32::SetIsWindowFullScreen(bool isFullScreen)
+	bool GameWindowWin32::Tick()
 	{
-		if (mFullScreen == isFullScreen) {
-			return;
+		MSG msg;
+		SecureZeroMemory(&msg, sizeof(msg));
+
+		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
 		}
-		mFullScreen = isFullScreen;
+
+		return true;
 	}
 
-	void GameWindowWin32::SetWindowTitle(const UTF8String& titleName)
+	void GameWindowWin32::AddMessageHandler(WindowMessageHandler handler)
 	{
-		SetWindowText(mHwnd, StringToWString(titleName.String()).c_str());
+		mHandlers.push_back(handler);
 	}
 
 	bool GameWindowWin32::IsWindowActive() const
 	{
-		return mHwnd == GetForegroundWindow();
+		return ::GetForegroundWindow() == mHwnd;
+	}
+
+	UTF8String GameWindowWin32::GetWindowTitle() const
+	{
+		return mTitleName;
+	}
+
+	void GameWindowWin32::SetClientbounds(const RectInt& rect)
+	{
+		if (mIsFullScreen) {
+			return;
+		}
+
+		DWORD const dwStyle = static_cast<DWORD>(::GetWindowLong(mHwnd, GWL_STYLE));
+		RECT rectangle = {
+			0,
+			0,
+			static_cast<LONG>(rect.mRight - rect.mLeft),
+			static_cast<LONG>(rect.mBottom - rect.mTop)
+		};
+		AdjustWindowRect(&rectangle, dwStyle, FALSE);
+
+		int const adjustedWidth = static_cast<int>(rectangle.right - rectangle.left);
+		int const adjustedHeight = static_cast<int>(rectangle.bottom - rectangle.top);
+		UINT const flags = SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE;
+
+		if (::SetWindowPos(mHwnd, 0, 0, 0, adjustedWidth, adjustedHeight, flags) == 0) {
+			return;
+		}
+
+		mScreenSize[0] = rect.mRight - rect.mLeft;
+		mScreenSize[1] = rect.mBottom - rect.mTop;
+	}
+
+	I32 GameWindowWin32::GetDPI() const
+	{
+		return mDPI;
+	}
+
+	void GameWindowWin32::SetWindowTitle(const UTF8String& titleName)
+	{
+		mTitleName = titleName;
+		SetWindowText(mHwnd, Platform::StringToWString(titleName.String()).c_str());
+	}
+
+	bool GameWindowWin32::IsMouseCursorVisible() const
+	{
+		return mIsMouseCursorVisible;
+	}
+
+	void GameWindowWin32::SetMouseCursorVisible(bool visible)
+	{
+		if (mIsMouseCursorVisible != mIsMouseCursorVisible)
+		{
+			mIsMouseCursorVisible = visible;
+
+			if (mIsMouseCursorVisible) {
+				::SetCursor(LoadCursor(nullptr, IDC_ARROW));
+			}
+			else {
+				::SetCursor(nullptr);
+			}
+		}
+	}
+
+	RectInt GameWindowWin32::GetClientBounds() const
+	{
+		return { 0, 0, mScreenSize[0], mScreenSize[1] };
 	}
 
 	GameWindowWin32 * GameWindowWin32::GetWindowCaller(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
-		if (WM_NCCREATE != message)
-		{
+		if (WM_NCCREATE != message) {
 			return reinterpret_cast<GameWindowWin32*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 		}
 
 		auto caller = reinterpret_cast<GameWindowWin32*>(reinterpret_cast<CREATESTRUCT*>(lParam)->lpCreateParams);
 		SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(caller));
-
 		return caller;
 	}
 
 	LRESULT CALLBACK GameWindowWin32::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
-		auto caller = GetWindowCaller(hWnd, message, wParam, lParam);
-		if (caller)
-		{
-			LRESULT result;
-			if (caller->HandleMessage(hWnd, message, wParam, lParam, result))
-				return result;
+		LRESULT result;
+		auto window = GetWindowCaller(hWnd, message, wParam, lParam);
+		if (window != nullptr && window->HandleMessage(hWnd, message, wParam, lParam, result)) {
+			return result;
 		}
 
 		switch (message)
 		{
 		case WM_DESTROY:
-			PostQuitMessage(0);
+			::PostQuitMessage(0);
+			if (window != nullptr) {
+				window->mEventQueue->Push<WindowCloseEvent>();
+			}
 			break;
 		case WM_CLOSE:
-			PostQuitMessage(0);
+			if (window != nullptr) {
+				window->mEventQueue->Push<WindowCloseEvent>();
+			}
 			break;
 		case WM_CHAR:
+			if (window != nullptr) 
+			{
+				std::wstring text;
+				text += static_cast<wchar_t>(wParam);
+				window->mEventQueue->Push<InputTextEvent>(Platform::WStringToString(text));
+			}
+			break;
+		case WM_MOVE: 
+			if (window != nullptr) 
+			{
+				window->mScreenPos[0] = static_cast<I32>(LOWORD(lParam));
+				window->mScreenPos[1] = static_cast<I32>(HIWORD(lParam));
+			}
+			break;
+		case WM_INPUT: 
 		{
-			std::wstring wstring;
-			wstring += static_cast<wchar_t>(wParam);
-
-			auto& guiStage = GlobalGetSubSystem<GUIStage>();
-			Gui::GUIInputEvent e = {};
-			e.type = Gui::GUI_INPUT_EVENT_TYPE_INPUT_TEXT;
-			e.inputText = WStringToString(wstring);
-			guiStage.PushInputEvent(e);
+			if (window != nullptr)
+			{
+				static RAWINPUT raw;
+				U32 rawSize = sizeof(raw);
+				GetRawInputData((HRAWINPUT)lParam, RID_INPUT, &raw, &rawSize, sizeof(RAWINPUTHEADER));
+			
+				if (raw.header.dwType == RIM_TYPEMOUSE)
+				{
+					window->mEventQueue->Push<RAWMOUSE>(raw.data.mouse);
+				}
+				else if (raw.header.dwType == RIM_TYPEKEYBOARD)
+				{
+					window->mEventQueue->Push<RAWKEYBOARD>(raw.data.keyboard);
+				}
+			}
 		}
 			break;
 		default:

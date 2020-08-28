@@ -3,127 +3,51 @@
 #include "common\common.h"
 #include "core\subSystem.hpp"
 #include "core\memory.h"
+#include "app\engine.h"
 #include "helper\timer.h"
 
 #include <vector>
 
 namespace Cjing3D
 {
-
-class Engine;
-
-template<typename T>
-constexpr void CheckSubSystemType()
-{
-	static_assert(std::is_base_of<SubSystem, T>::value, "The T must implement Subystem");
-}
-
-class GlobalContext
-{
-private:
-	using SubSystemPtr = std::shared_ptr<SubSystem>;
-	std::vector<SubSystemPtr> mSubSystems;
-	
-	EngineTime mTime = {};
-	Engine* mEngine = nullptr;
-
-	GlobalContext() {};
-
-public:
-	~GlobalContext() 
-	{ 
-		for (auto it = mSubSystems.rbegin(); it != mSubSystems.rend(); it++) {
-			(*it).reset();
-		}
-		mSubSystems.clear();
-	}
-
-	static GlobalContext& GetGlobalContext()
+	class GlobalContext
 	{
-		static GlobalContext instance;
-		return instance;
-	}
+	public:
+		~GlobalContext();
 
-	template<typename T, typename... Args>
-	void RegisterSubSystem(Args&&... args)
-	{
-		CheckSubSystemType<T>();
-	
-		auto instant = std::make_shared<T>(*this);
-		mSubSystems.push_back(instant);
-		instant->Initialize(std::forward<Args>(args)...);
-	}
-
-	template <typename T>
-	T& GetSubSystem()
-	{
-		CheckSubSystemType<T>();
-
-		for (const auto& subSystem : mSubSystems)
+		static GlobalContext& GetInstance()
 		{
-			if (typeid(T) == typeid(*subSystem)) {
-				return (static_cast<T&>(*subSystem.get()));
-			}
+			static GlobalContext instance;
+			return instance;
 		}
-	}
 
-	void Uninitialize()
+		std::shared_ptr<Settings>         gSettings = nullptr;
+		std::shared_ptr<JobSystem>        gJobSystem = nullptr;
+		std::shared_ptr<InputManager>     gInputManager = nullptr;
+		std::shared_ptr<AudioManager>     gAudioManager = nullptr;
+		std::shared_ptr<ResourceManager>  gResourceManager = nullptr;
+		std::shared_ptr<GUIStage>         gGUIStage = nullptr;
+		std::shared_ptr<LuaContext>       gLuaContext = nullptr;
+
+		EngineTime mTime = {};
+		Timer mEngineTimer;
+		std::shared_ptr<Engine> mCurrentEngine = nullptr;
+
+		void Clear();
+		F32 GetCurrentTime();
+		F32 GetDelatTime();
+		void StartTimer();
+		void UpdateTimer();
+		void StopTimer();
+		void SetCurrentEngine(const std::shared_ptr<Engine>& engine);
+		std::shared_ptr<Engine> GetEngine();
+
+	private:
+		GlobalContext() = default;
+	};
+
+	inline GlobalContext& GetGlobalContext()
 	{
-		for (auto it = mSubSystems.rbegin(); it != mSubSystems.rend(); it++) {
-			(*it)->Uninitialize();
-		}
+		return GlobalContext::GetInstance();
 	}
-
-	void SetEngineTime(EngineTime time)
-	{
-		mTime = time;
-	}
-
-	EngineTime GetEngineTime()
-	{
-		return mTime;
-	}
-
-	F32 GetCurrentTime()
-	{
-		return F32(mTime.totalDeltaTime / 1000.0f);
-	}
-
-	F32 GetDelatTime()
-	{
-		return F32(mTime.deltaTime / 1000.0f);
-	}
-
-	void SetEngine(Engine* engine)
-	{
-		mEngine = engine;
-	}
-
-	Engine* GetEngine()
-	{
-		return mEngine;
-	}
-};
-
-template <typename T>
-inline T& GlobalGetSubSystem()
-{
-	return GlobalContext::GetGlobalContext().GetSubSystem<T>();
-}
-
-inline F32 GlobalGetCurrentTime()
-{
-	return GlobalContext::GetGlobalContext().GetCurrentTime();
-}
-
-inline F32 GlobalGetDeltaTime()
-{
-	return GlobalContext::GetGlobalContext().GetDelatTime();
-}
-
-inline Engine* GlobalGetEngine()
-{
-	return GlobalContext::GetGlobalContext().GetEngine();
-}
-
 }

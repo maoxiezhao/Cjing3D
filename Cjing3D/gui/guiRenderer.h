@@ -9,7 +9,6 @@
 namespace Cjing3D
 {
 	class GUIStage;
-	class IMGUIStage;
 
 	class GUIRenderer
 	{
@@ -19,7 +18,6 @@ namespace Cjing3D
 
 		void Update(F32 dt);
 		void Render();
-		void SetImGuiStage(IMGUIStage* imGuiStage);
 
 		// gui scheme
 		const Gui::GUIScheme& GetGUIScheme()const;
@@ -32,7 +30,6 @@ namespace Cjing3D
 
 	private:
 		GUIStage& mGUIStage;
-		IMGUIStage* mImGuiStage = nullptr;
 		Gui::GUIScheme mGUIScheme;
 	};
 }

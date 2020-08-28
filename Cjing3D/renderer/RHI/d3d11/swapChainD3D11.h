@@ -14,10 +14,6 @@ namespace Cjing3D {
 			U32x2 resolution,
 			DXGI_FORMAT format);
 
-		HWND GetWindow()const {
-			return mWindow;
-		}
-
 		ID3D11RenderTargetView& GetRenderTargetView()const {
 			return *mRenderTargetView.Get();
 		}

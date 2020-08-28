@@ -1,8 +1,9 @@
 #include "guiEditorToolbar.h"
+#include "guiEditorInclude.h"
 
 namespace Cjing3D
 {
-	EditorWidgetToolbar::EditorWidgetToolbar(IMGUIStage& imguiStage) :
+	EditorWidgetToolbar::EditorWidgetToolbar(EditorStage& imguiStage) :
 		EditorWidget(imguiStage)
 	{
 		mTitleName = "ToolBar";

@@ -17,8 +17,7 @@ namespace CjingGame
 
 	void GameMapGroundTileset::LoadTilesetImage(const std::string& path)
 	{
-		ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
-		mTilesetMap = resourceManager.GetOrCreate<TextureResource>(StringID(path));
+		mTilesetMap = GetGlobalContext().gResourceManager->GetOrCreate<TextureResource>(StringID(path));
 		mTilesetPath = path;
 
 		auto texture = mTilesetMap->mTexture;

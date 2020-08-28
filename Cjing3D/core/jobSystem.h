@@ -15,7 +15,8 @@ using TaskJob = std::function<void()>;
 class JobSystem : public SubSystem
 {
 public:
-	JobSystem(GlobalContext& context);
+	JobSystem();
+	~JobSystem();
 
 	void Initialize();
 	void Uninitialize()override;

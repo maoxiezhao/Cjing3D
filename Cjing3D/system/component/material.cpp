@@ -32,25 +32,25 @@ void Cjing3D::MaterialComponent::SetupConstantBuffer(GraphicsDevice& device)
 
 bool Cjing3D::MaterialComponent::LoadBaseColorMap(const std::string& filePath)
 {
-	ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
+	auto resourceManager = GetGlobalContext().gResourceManager;
 	mBaseColorMapName = filePath;
-	mBaseColorMap = resourceManager.GetOrCreate<TextureResource>(StringID(filePath));
+	mBaseColorMap = resourceManager->GetOrCreate<TextureResource>(StringID(filePath));
 	return true;
 }
 
 bool Cjing3D::MaterialComponent::LoadNormalMap(const std::string& filePath)
 {
-	ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
+	auto resourceManager = GetGlobalContext().gResourceManager;
 	mNormalMapName = filePath;
-	mNormalMap = resourceManager.GetOrCreate<TextureResource>(StringID(filePath));
+	mNormalMap = resourceManager->GetOrCreate<TextureResource>(StringID(filePath));
 	return true;
 }
 
 bool Cjing3D::MaterialComponent::LoadSurfaceMap(const std::string& filePath)
 {
-	ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
+	auto resourceManager = GetGlobalContext().gResourceManager;
 	mSurfaceMapName = filePath;
-	mSurfaceMap = resourceManager.GetOrCreate<TextureResource>(StringID(filePath));
+	mSurfaceMap = resourceManager->GetOrCreate<TextureResource>(StringID(filePath));
 	return true;
 }
 
@@ -97,23 +97,22 @@ void Cjing3D::MaterialComponent::Serialize(Archive& archive, U32 seed)
 	archive >> mIsCastingShadow;
 	archive >> mAlphaCutRef;
 
-	ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
-
+	auto resourceManager = GetGlobalContext().gResourceManager;
 	const std::string parentPath =  archive.GetDirectory();
 	if (mBaseColorMapName.empty() == false)
 	{
 		auto texPath = FileData::ConvertToAvailablePath(parentPath + mBaseColorMapName);
-		mBaseColorMap = resourceManager.GetOrCreate<TextureResource>(StringID(texPath));
+		mBaseColorMap = resourceManager->GetOrCreate<TextureResource>(StringID(texPath));
 	}
 	if (mNormalMapName.empty() == false)
 	{
 		auto texPath = FileData::ConvertToAvailablePath(parentPath + mNormalMapName);
-		mNormalMap = resourceManager.GetOrCreate<TextureResource>(StringID(texPath));
+		mNormalMap = resourceManager->GetOrCreate<TextureResource>(StringID(texPath));
 	}
 	if (mSurfaceMapName.empty() == false)
 	{
 		auto texPath = FileData::ConvertToAvailablePath(parentPath + mSurfaceMapName);
-		mSurfaceMap = resourceManager.GetOrCreate<TextureResource>(StringID(texPath));
+		mSurfaceMap = resourceManager->GetOrCreate<TextureResource>(StringID(texPath));
 	}
 
 	// renderer will setup render data

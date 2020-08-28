@@ -1,8 +1,9 @@
 #include "guiEditorProperties.h"
+#include "guiEditorInclude.h"
 
 namespace Cjing3D
 {
-	EditorWidgetProperties::EditorWidgetProperties(IMGUIStage& imguiStage) :
+	EditorWidgetProperties::EditorWidgetProperties(EditorStage& imguiStage) :
 		EditorWidget(imguiStage)
 	{
 		mTitleName = "Properties";

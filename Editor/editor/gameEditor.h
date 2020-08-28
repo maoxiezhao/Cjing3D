@@ -1,21 +1,18 @@
 #pragma once
 
 #include "definitions\definitions.h"
-#include "core\gameComponent.h"
+#include "app\gameComponent.h"
+#include "renderer\paths\renderPath_tiledForward.h"
 
 namespace Cjing3D
 {
 	class GameEditor : public GameComponent
 	{
 	public:
-		GameEditor();
+		GameEditor(const std::shared_ptr<Engine>& engine);
 		virtual ~GameEditor();
 
-		virtual void Initialize();
-		virtual void Update(EngineTime time);
-		virtual void FixedUpdate();
-		virtual void Uninitialize();
-		virtual void EndFrame();
+		void FixedUpdate()override;
 	};
 
 }

@@ -8,8 +8,8 @@ namespace LuaApi {
 	int GetInputManager(lua_State* l)
 	{
 		return LuaTools::ExceptionBoundary(l, [&] {
-			InputManager& inputManager = GlobalGetSubSystem<InputManager>();
-			LuaTools::Push<InputManager&>(l, inputManager);
+			auto inputManager = GetGlobalContext().gInputManager;
+			LuaTools::Push<InputManager&>(l, *inputManager);
 
 			return 1;
 		});
@@ -18,7 +18,7 @@ namespace LuaApi {
 	int GetEngineDeltaTime(lua_State* l)
 	{
 		return LuaTools::ExceptionBoundary(l, [&] {
-			F32 deltaTime = GlobalGetDeltaTime();
+			F32 deltaTime = GetGlobalContext().GetDelatTime();
 			LuaTools::Push<F32>(l, deltaTime);
 
 			return 1;

@@ -1,18 +1,12 @@
 ﻿#include "gameEditor.h"
-#include "engine.h"
-#include "scripts\luaContext.h"
-#include "system\sceneSystem.h"
-#include "renderer\paths\renderPath_tiledForward.h"
-#include "gui\guiStage.h"
-#include "gui\imguiStage.h"
-#include "renderer\renderer.h"
 #include "editor\guiEditor.h"
 
 namespace Cjing3D
 {
 	std::unique_ptr<EditorStage> mEditorStage = nullptr;
 
-	GameEditor::GameEditor()
+	GameEditor::GameEditor(const std::shared_ptr<Engine>& engine) :
+		GameComponent(engine)
 	{
 	}
 
@@ -20,43 +14,25 @@ namespace Cjing3D
 	{
 	}
 
-	void GameEditor::Initialize()
-	{
-		// init renderer
-		RenderPathTiledForward* path = new RenderPathTiledForward();
-		Renderer::SetCurrentRenderPath(path);
-		Font::LoadFontTTF("Fonts/arial.ttf");
-
-		// init editor
-		mEditorStage = std::make_unique<EditorStage>(GlobalGetSubSystem<GUIStage>().GetGUIRenderer());
-		mEditorStage->Initialize();
-
-		// change lua scene
-		GlobalGetSubSystem<LuaContext>().ChangeLuaScene("EditorScene");
-	}
-
-	void GameEditor::Update(EngineTime time)
-	{
-	}
-
 	void GameEditor::FixedUpdate()
 	{
-		auto& inputManager = GlobalGetSubSystem<InputManager>();
-		if (inputManager.IsKeyDown(KeyCode::Esc)) {
-			GlobalGetEngine()->SetIsExiting(true);
+		GameComponent::FixedUpdate();
+
+		auto inputManager = mEngine->GetInputManager();
+		auto keyboard = inputManager->GetKeyBoard();
+		if (keyboard->IsKeyPressed(KeyCode::W))
+		{
+			Logger::Info("Key press");
 		}
 
-		mEditorStage->FixedUpdate();
-	}
+		if (keyboard->IsKeyReleased(KeyCode::W))
+		{
+			Logger::Info("Key release");
+		}
 
-	void GameEditor::Uninitialize()
-	{
-		mEditorStage->Uninitialize();
-		mEditorStage = nullptr;
-	}
-
-	void GameEditor::EndFrame()
-	{
-		mEditorStage->EndFrame();
+		if (keyboard->IsKeyHold(KeyCode::W))
+		{
+			Logger::Info("Key hold");
+		}
 	}
 }

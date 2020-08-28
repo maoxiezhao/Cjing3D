@@ -145,8 +145,8 @@ void TerrainTree::Render()
 
 void TerrainTree::LoadHeightMap(const std::string& path)
 {
-	ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
-	mHeightMap = resourceManager.GetOrCreate<TextureResource>(path, FORMAT_R8_UNORM, 1);
+	auto resourceManager = GetGlobalContext().gResourceManager;
+	mHeightMap = resourceManager->GetOrCreate<TextureResource>(path, FORMAT_R8_UNORM, 1);
 }
 
 void TerrainTree::LoadHeightMap(TextureResourcePtr heightMap)

@@ -20,10 +20,12 @@ namespace Cjing3D
 		archive >> mSoundFlag;
 		archive >> mVolume;
 
-		mSoundResource = GlobalGetSubSystem<ResourceManager>().GetOrCreate<SoundResource>(mFileName);
+		auto resourceManager = GetGlobalContext().gResourceManager;
+		mSoundResource = resourceManager->GetOrCreate<SoundResource>(mFileName);
 
-		if (mSoundResource->mSound.IsValid()) {
-			GlobalGetSubSystem<Audio::AudioManager>().CreateInstance(mSoundResource->mSound, mSoundInstance);
+		if (mSoundResource->mSound.IsValid()) 
+		{
+			GetGlobalContext().gAudioManager->CreateInstance(mSoundResource->mSound, mSoundInstance);
 		}
 	}
 
@@ -36,11 +38,13 @@ namespace Cjing3D
 
 	void SoundComponent::LoadSoundFromFile(const std::string& filePath)
 	{	
+		auto resourceManager = GetGlobalContext().gResourceManager;
+		mSoundResource = resourceManager->GetOrCreate<SoundResource>(filePath);
 		mFileName = filePath;
-		mSoundResource = GlobalGetSubSystem<ResourceManager>().GetOrCreate<SoundResource>(filePath);
 
-		if (mSoundResource->mSound.IsValid()) {
-			GlobalGetSubSystem<Audio::AudioManager>().CreateInstance(mSoundResource->mSound, mSoundInstance);
+		if (mSoundResource->mSound.IsValid()) 
+		{
+			GetGlobalContext().gAudioManager->CreateInstance(mSoundResource->mSound, mSoundInstance);
 		}
 	}
 

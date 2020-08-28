@@ -64,7 +64,7 @@ namespace Cjing3D {
 		{
 			return LuaTools::ExceptionBoundary(l, [&] 
 			{
-				I32x2 mousePos = GlobalGetSubSystem<InputManager>().GetMousePos();
+				I32x2 mousePos = GetGlobalContext().gInputManager->GetMousePos();
 				Ray pickRay = Renderer::GetMainCameraMouseRay({ (U32)mousePos[0], (U32)mousePos[1] });
 				Scene::PickResult ret = Scene::GetScene().PickObjects(pickRay);
 				if (ret.entity == INVALID_ENTITY)

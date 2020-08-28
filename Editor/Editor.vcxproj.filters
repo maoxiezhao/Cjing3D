@@ -7,6 +7,12 @@
     <Filter Include="editor">
       <UniqueIdentifier>{AC2EC5FA-98D0-EFD0-818B-03256DCC7621}</UniqueIdentifier>
     </Filter>
+    <Filter Include="editor\imgui">
+      <UniqueIdentifier>{168DDC5E-02F0-6B03-AB75-A4B997B73786}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="editor\imgui\src">
+      <UniqueIdentifier>{2DE60466-19DF-23B8-4211-093D2E6903C4}</UniqueIdentifier>
+    </Filter>
     <Filter Include="editor\widget">
       <UniqueIdentifier>{DF25CC5A-4BE6-4791-1421-910E80A08C6D}</UniqueIdentifier>
     </Filter>
@@ -18,6 +24,30 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\ThirdParty\imgui\imconfig.h">
+      <Filter>editor\imgui\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\imgui\imgui.h">
+      <Filter>editor\imgui\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\imgui\imgui_impl_dx11.h">
+      <Filter>editor\imgui\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\imgui\imgui_impl_win32.h">
+      <Filter>editor\imgui\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\imgui\imgui_internal.h">
+      <Filter>editor\imgui\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\imgui\imstb_rectpack.h">
+      <Filter>editor\imgui\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\imgui\imstb_textedit.h">
+      <Filter>editor\imgui\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\imgui\imstb_truetype.h">
+      <Filter>editor\imgui\src</Filter>
+    </ClInclude>
     <ClInclude Include="definitions\definitions.h">
       <Filter>definitions</Filter>
     </ClInclude>
@@ -27,13 +57,19 @@
     <ClInclude Include="editor\guiEditor.h">
       <Filter>editor</Filter>
     </ClInclude>
-    <ClInclude Include="editor\widget\guiEditorMenuBar.h">
-      <Filter>editor\widget</Filter>
-    </ClInclude>
-    <ClInclude Include="test\guiTest.h">
-      <Filter>test</Filter>
+    <ClInclude Include="editor\imgui\imguiRHI.h">
+      <Filter>editor\imgui</Filter>
     </ClInclude>
     <ClInclude Include="editor\widget\guiEditorEntityList.h">
+      <Filter>editor\widget</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\widget\guiEditorHelper.h">
+      <Filter>editor\widget</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\widget\guiEditorInclude.h">
+      <Filter>editor\widget</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\widget\guiEditorMenuBar.h">
       <Filter>editor\widget</Filter>
     </ClInclude>
     <ClInclude Include="editor\widget\guiEditorProperties.h">
@@ -42,18 +78,60 @@
     <ClInclude Include="editor\widget\guiEditorToolbar.h">
       <Filter>editor\widget</Filter>
     </ClInclude>
-    <ClInclude Include="editor\widget\guiEditorHelper.h">
+    <ClInclude Include="editor\widget\guiEditorViewport.h">
       <Filter>editor\widget</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\widget\guiEditorWidget.h">
+      <Filter>editor\widget</Filter>
+    </ClInclude>
+    <ClInclude Include="test\guiTest.h">
+      <Filter>test</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\ThirdParty\imgui\imgui.cpp">
+      <Filter>editor\imgui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\imgui\imgui_demo.cpp">
+      <Filter>editor\imgui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\imgui\imgui_draw.cpp">
+      <Filter>editor\imgui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\imgui\imgui_impl_dx11.cpp">
+      <Filter>editor\imgui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\imgui\imgui_impl_win32.cpp">
+      <Filter>editor\imgui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ThirdParty\imgui\imgui_widgets.cpp">
+      <Filter>editor\imgui\src</Filter>
+    </ClCompile>
     <ClCompile Include="editor\gameEditor.cpp">
       <Filter>editor</Filter>
     </ClCompile>
     <ClCompile Include="editor\guiEditor.cpp">
       <Filter>editor</Filter>
     </ClCompile>
+    <ClCompile Include="editor\widget\guiEditorEntityList.cpp">
+      <Filter>editor\widget</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\widget\guiEditorHelper.cpp">
+      <Filter>editor\widget</Filter>
+    </ClCompile>
     <ClCompile Include="editor\widget\guiEditorMenuBar.cpp">
+      <Filter>editor\widget</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\widget\guiEditorProperties.cpp">
+      <Filter>editor\widget</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\widget\guiEditorToolbar.cpp">
+      <Filter>editor\widget</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\widget\guiEditorViewport.cpp">
+      <Filter>editor\widget</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\widget\guiEditorWidget.cpp">
       <Filter>editor\widget</Filter>
     </ClCompile>
     <ClCompile Include="main\main.cpp">
@@ -61,18 +139,6 @@
     </ClCompile>
     <ClCompile Include="test\guiTest.cpp">
       <Filter>test</Filter>
-    </ClCompile>
-    <ClCompile Include="editor\widget\guiEditorToolbar.cpp">
-      <Filter>editor\widget</Filter>
-    </ClCompile>
-    <ClCompile Include="editor\widget\guiEditorEntityList.cpp">
-      <Filter>editor\widget</Filter>
-    </ClCompile>
-    <ClCompile Include="editor\widget\guiEditorProperties.cpp">
-      <Filter>editor\widget</Filter>
-    </ClCompile>
-    <ClCompile Include="editor\widget\guiEditorHelper.cpp">
-      <Filter>editor\widget</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -3,12 +3,9 @@
 
 namespace Cjing3D
 {
-namespace Audio
-{
 	SoundResourcePtr currentSoundResource = nullptr;
 
-	AudioManager::AudioManager(GlobalContext& globalContext) :
-		SubSystem(globalContext)
+	AudioManager::AudioManager()
 	{
 	}
 
@@ -16,7 +13,7 @@ namespace Audio
 	{
 	}
 
-	void AudioManager::Initialize(AudioDevice* device)
+	void AudioManager::Initialize(Audio::AudioDevice* device)
 	{
 		Debug::CheckAssertion(device != nullptr, "Invalid aduio device.");
 		mAudioDevice = device;
@@ -32,37 +29,37 @@ namespace Audio
 		}
 	}
 
-	bool AudioManager::LoadSound(const std::string& name, SoundResource& resource)
+	bool AudioManager::LoadSound(const std::string& name, Audio::SoundResource& resource)
 	{
 		return mAudioDevice->LoadSound(name, resource);
 	}
 
-	bool AudioManager::LoadSound(const char* data, size_t length, SoundResource& resource)
+	bool AudioManager::LoadSound(const char* data, size_t length, Audio::SoundResource& resource)
 	{
 		return mAudioDevice->LoadSound(data, length, resource);
 	}
 
-	bool AudioManager::CreateInstance(const SoundResource& resource, SoundInstance& inst)
+	bool AudioManager::CreateInstance(const Audio::SoundResource& resource, Audio::SoundInstance& inst)
 	{
 		return mAudioDevice->CreateInstance(resource, inst);
 	}
 
-	void AudioManager::Play(SoundInstance& inst)
+	void AudioManager::Play(Audio::SoundInstance& inst)
 	{
 		mAudioDevice->Play(inst);
 	}
 
-	void AudioManager::Pause(SoundInstance& inst)
+	void AudioManager::Pause(Audio::SoundInstance& inst)
 	{
 		mAudioDevice->Pause(inst);
 	}
 
-	void AudioManager::Stop(SoundInstance& inst)
+	void AudioManager::Stop(Audio::SoundInstance& inst)
 	{
 		mAudioDevice->Stop(inst);
 	}
 
-	void AudioManager::SetVolume(SoundInstance& inst, F32 volume)
+	void AudioManager::SetVolume(Audio::SoundInstance& inst, F32 volume)
 	{
 		mAudioDevice->SetVolume(inst, volume);
 	}
@@ -74,8 +71,7 @@ namespace Audio
 
 	void AudioManager::PlayMusic(const std::string& name)
 	{
-		auto& resourceManager = GlobalGetSubSystem<ResourceManager>();
-		auto soundResource = resourceManager.GetOrCreate<Cjing3D::SoundResource>(name);
+		auto soundResource = GetGlobalContext().gResourceManager->GetOrCreate<Cjing3D::SoundResource>(name);
 		if (soundResource != currentSoundResource)
 		{
 			currentSoundResource = soundResource;
@@ -94,9 +90,8 @@ namespace Audio
 		Stop(mMusicInst);
 	}
 
-	void AudioManager::Update3D(SoundInstance& instance, const SoundInstance3D& instance3D)
+	void AudioManager::Update3D(Audio::SoundInstance& instance, const Audio::SoundInstance3D& instance3D)
 	{
 		mAudioDevice->Update3D(instance, instance3D);
 	}
-}
 }

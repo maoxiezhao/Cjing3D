@@ -18,8 +18,7 @@ ENUM_TRAITS_REGISTER_ENUM_DEFINE(CLIENT_LUA_MAIN_STOP)
 ENUM_TRAITS_REGISTER_ENUM_DEFINE(CLIENT_LUA_MAIN_CHANGE_SCENE)
 ENUM_TRAITS_REGISTER_ENUM_END(SystemFunctionIndex)
 
-LuaContext::LuaContext(GlobalContext & globalContext) :
-	SubSystem(globalContext)
+LuaContext::LuaContext() 
 {
 }
 
@@ -103,6 +102,8 @@ void LuaContext::GC()
 
 void LuaContext::Uninitialize()
 {
+	StopMainScript();
+
 	mSystemExports.Clear();
 
 	lua_close(mLuaState);

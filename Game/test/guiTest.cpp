@@ -25,7 +25,7 @@ namespace Cjing3D
 
 	void GUITest::DoTest()
 	{
-		auto& guiStage = GlobalGetSubSystem<GUIStage>();
+		auto& guiStage = *GetGlobalContext().gGUIStage;
 		//guiStage.SetIsDebugDraw(true);
 
 		Gui::WidgetHierarchy& widgetHierarchy = guiStage.GetWidgetHierarchy();

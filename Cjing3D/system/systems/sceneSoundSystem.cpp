@@ -4,7 +4,7 @@ namespace Cjing3D
 {
 	void SceneSystem::UpdateSceneSoundSystem(Scene& scene)
 	{
-		auto& audioManager = GlobalGetSubSystem<Audio::AudioManager>();
+		auto& audioManager = *GetGlobalContext().gAudioManager;
 		CameraComponent& camera = Renderer::GetCamera();
 
 		Audio::SoundInstance3D instance3D;

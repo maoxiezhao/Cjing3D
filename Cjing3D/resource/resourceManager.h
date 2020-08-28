@@ -26,9 +26,8 @@ public:
 	using PoolResourceType = typename PoolType<ResourceT>::PoolResourceType;
 
 
-	ResourceManager(GlobalContext& gameContext) :
-		SubSystem(gameContext) {}
-	~ResourceManager() = default;
+	ResourceManager();
+	~ResourceManager();
 
 	void Initialize();
 	void Uninitialize()override;

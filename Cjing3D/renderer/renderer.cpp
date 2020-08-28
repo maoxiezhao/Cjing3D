@@ -13,6 +13,10 @@
 #include "system\sceneSystem.h"
 #include "pipelineStates\pipelineStateManager.h"
 
+#ifdef _WIN32
+#include "platform\win32\gameWindowWin32.h"
+#endif
+
 // render pass
 #include "renderer\passes\terrain\terrainPass.h"
 #include "renderer\passes\particle\particlePass.h"
@@ -33,8 +37,9 @@ namespace {
 	std::vector<int> mPendingUpdateMaterials;
 	LinearAllocator mFrameAllocator[FrameAllocatorType_Count];
 
+	std::shared_ptr<GraphicsDevice> mGraphicsDevice = nullptr;
+
 	// base member
-	std::unique_ptr<GraphicsDevice> mGraphicsDevice = nullptr;
 	std::unique_ptr<ShaderLib> mShaderLib = nullptr;
 	std::unique_ptr<RenderPreset> mRenderPreset = nullptr;
 	std::unique_ptr<DeferredMIPGenerator> mDeferredMIPGenerator = nullptr;
@@ -498,15 +503,15 @@ void RenderFrameData::Clear()
 	mShaderLightArrayCount = 0;
 }
 
-void Initialize(RenderingDeviceType deviceType, HWND window)
+void Initialize()
 {
 	if (mIsInitialized == true){
 		return;
 	}
 
-	// initialize device
-	mGraphicsDevice = std::unique_ptr<GraphicsDevice>(CreateGraphicsDeviceByType(deviceType, window));
-	mGraphicsDevice->Initialize();
+	if (mGraphicsDevice == nullptr) {
+		Debug::Die("Renderer::Initialize must set graphics device.");
+	}
 
 	mScreenSize = mGraphicsDevice->GetScreenSize();
 
@@ -910,6 +915,11 @@ void Render()
 	mIsRendering = false;
 }
 
+void PresentBegin()
+{
+	mGraphicsDevice->PresentBegin();
+}
+
 void Compose()
 {
 	if (mCurrentRenderPath != nullptr) {
@@ -917,12 +927,13 @@ void Compose()
 	}
 }
 
-void Present()
+void PresentEnd()
 {
-	mGraphicsDevice->PresentBegin();
-	Compose();
 	mGraphicsDevice->PresentEnd();
+}
 
+void EndFrame()
+{
 	// end frame 
 	GetFrameAllocator(FrameAllocatorType_Render).Reset();
 }
@@ -934,9 +945,6 @@ void SetScreenSize(U32 width, U32 height)
 
 	mFrameData.mFrameScreenSize = { (F32)mScreenSize[0], (F32)mScreenSize[1] };
 	mFrameData.mFrameInvScreenSize = { 1.0f / (F32)mScreenSize[0], 1.0f / (F32)mScreenSize[1] };
-
-	// device change screen size
-
 }
 
 U32x2 GetScreenSize()
@@ -973,6 +981,11 @@ ShaderLib & GetShaderLib()
 RenderPreset & GetRenderPreset()
 {
 	return *mRenderPreset;
+}
+
+void SetDevice(const std::shared_ptr<GraphicsDevice>& device)
+{
+	mGraphicsDevice = device;
 }
 
 void SetGamma(F32 gamma)
@@ -1953,18 +1966,6 @@ void UninitializeRenderPasses()
 		}
 	}
 	mRenderPassMap.clear();
-}
-
-GraphicsDevice* CreateGraphicsDeviceByType(RenderingDeviceType deviceType, HWND window)
-{
-	GraphicsDevice* graphicsDevice = nullptr;
-	switch (deviceType)
-	{
-	case RenderingDeviceType_D3D11:
-		graphicsDevice = new GraphicsDeviceD3D11(window, false, true);
-		break;
-	}
-	return graphicsDevice;
 }
 
 void ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPassType, RenderableType renderableType, U32 instanceReplicator, InstanceHandler* instanceHandler)

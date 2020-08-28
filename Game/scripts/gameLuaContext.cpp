@@ -5,7 +5,7 @@ using namespace Cjing3D;
 namespace CjingGame
 {
 	GameLuaContext::GameLuaContext() :
-		mLuaContext(GlobalGetSubSystem<LuaContext>())
+		mLuaContext(*GetGlobalContext().gLuaContext)
 	{
 	}
 

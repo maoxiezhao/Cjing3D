@@ -108,14 +108,8 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\ThirdParty\imgui\imconfig.h" />
-    <ClInclude Include="..\ThirdParty\imgui\imgui.h" />
-    <ClInclude Include="..\ThirdParty\imgui\imgui_impl_dx11.h" />
-    <ClInclude Include="..\ThirdParty\imgui\imgui_impl_win32.h" />
-    <ClInclude Include="..\ThirdParty\imgui\imgui_internal.h" />
-    <ClInclude Include="..\ThirdParty\imgui\imstb_rectpack.h" />
-    <ClInclude Include="..\ThirdParty\imgui\imstb_textedit.h" />
-    <ClInclude Include="..\ThirdParty\imgui\imstb_truetype.h" />
+    <ClInclude Include="app\engine.h" />
+    <ClInclude Include="app\gameComponent.h" />
     <ClInclude Include="audio\audio.h" />
     <ClInclude Include="audio\audioDevice.h" />
     <ClInclude Include="audio\audioDeviceX.h" />
@@ -125,14 +119,12 @@
     <ClInclude Include="core\allocator.h" />
     <ClInclude Include="core\eventDefine.h" />
     <ClInclude Include="core\eventSystem.h" />
-    <ClInclude Include="core\gameComponent.h" />
     <ClInclude Include="core\globalContext.hpp" />
     <ClInclude Include="core\jobSystem.h" />
     <ClInclude Include="core\memory.h" />
     <ClInclude Include="core\safeRefcount.h" />
     <ClInclude Include="core\settings.h" />
     <ClInclude Include="core\subSystem.hpp" />
-    <ClInclude Include="engine.h" />
     <ClInclude Include="gui\guiAnimation\guiAnimaionOptions.h" />
     <ClInclude Include="gui\guiAnimation\guiAnimation.h" />
     <ClInclude Include="gui\guiAnimation\guiAnimationManager.h" />
@@ -144,8 +136,6 @@
     <ClInclude Include="gui\guiCore\guiDispatcher_impl.h" />
     <ClInclude Include="gui\guiCore\guiDistributor.h" />
     <ClInclude Include="gui\guiCore\guiEvents.h" />
-    <ClInclude Include="gui\guiEditor\guiEditorInclude.h" />
-    <ClInclude Include="gui\guiEditor\guiEditorWidget.h" />
     <ClInclude Include="gui\guiFactory.h" />
     <ClInclude Include="gui\guiInclude.h" />
     <ClInclude Include="gui\guiRenderer.h" />
@@ -172,7 +162,6 @@
     <ClInclude Include="gui\guiWidgets\widget_properties.h" />
     <ClInclude Include="gui\guiWidgets\widgets.h" />
     <ClInclude Include="gui\guiWidgets\window.h" />
-    <ClInclude Include="gui\imguiStage.h" />
     <ClInclude Include="helper\IDGenerator.h" />
     <ClInclude Include="helper\archive.h" />
     <ClInclude Include="helper\binaryArchive.h" />
@@ -190,16 +179,27 @@
     <ClInclude Include="helper\timer.h" />
     <ClInclude Include="helper\variant.h" />
     <ClInclude Include="helper\variant.inl" />
+    <ClInclude Include="input\gamepad.h" />
     <ClInclude Include="input\InputSystem.h" />
     <ClInclude Include="input\directInput.h" />
+    <ClInclude Include="input\keyboard.h" />
+    <ClInclude Include="input\keyCode.h" />
+    <ClInclude Include="input\mouse.h" />
+    <ClInclude Include="input\win32\keyboardWin32.h" />
     <ClInclude Include="note.h" />
     <ClInclude Include="platform\gameWindow.h" />
+    <ClInclude Include="platform\platform.h" />
+    <ClInclude Include="platform\systemEvent.h" />
+    <ClInclude Include="platform\win32\engineWin32.h" />
     <ClInclude Include="platform\win32\gameAppWin32.h" />
     <ClInclude Include="platform\win32\gameWindowWin32.h" />
+    <ClInclude Include="platform\win32\includeWin32.h" />
+    <ClInclude Include="platform\win32\inputSystemWin32.h" />
     <ClInclude Include="renderer\2D\font.h" />
     <ClInclude Include="renderer\2D\renderer2D.h" />
     <ClInclude Include="renderer\2D\sprite.h" />
     <ClInclude Include="renderer\2D\textDrawable.h" />
+    <ClInclude Include="renderer\presentConfig.h" />
     <ClInclude Include="renderer\RHI\d3d11\deviceD3D11.h" />
     <ClInclude Include="renderer\RHI\d3d11\includeD3D11.h" />
     <ClInclude Include="renderer\RHI\d3d11\rhiResourceD3D11.h" />
@@ -322,6 +322,8 @@
     <ClInclude Include="utils\signal\connection.h" />
     <ClInclude Include="utils\signal\connectionList.h" />
     <ClInclude Include="utils\signal\connectionMap.h" />
+    <ClInclude Include="utils\signal\event.h" />
+    <ClInclude Include="utils\signal\eventQueue.h" />
     <ClInclude Include="utils\signal\signal.h" />
     <ClInclude Include="utils\signal\signalInclude.h" />
     <ClInclude Include="utils\singleton.h" />
@@ -349,30 +351,24 @@
     <ClInclude Include="utils\tween\tweeny.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\ThirdParty\imgui\imgui.cpp" />
-    <ClCompile Include="..\ThirdParty\imgui\imgui_demo.cpp" />
-    <ClCompile Include="..\ThirdParty\imgui\imgui_draw.cpp" />
-    <ClCompile Include="..\ThirdParty\imgui\imgui_impl_dx11.cpp" />
-    <ClCompile Include="..\ThirdParty\imgui\imgui_impl_win32.cpp" />
-    <ClCompile Include="..\ThirdParty\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="app\engine.cpp" />
+    <ClCompile Include="app\gameComponent.cpp" />
     <ClCompile Include="audio\audio.cpp" />
     <ClCompile Include="audio\audioDevice.cpp" />
     <ClCompile Include="audio\audioDeviceX.cpp" />
     <ClCompile Include="common\version.cpp" />
     <ClCompile Include="core\allocator.cpp" />
     <ClCompile Include="core\eventSystem.cpp" />
-    <ClCompile Include="core\gameComponent.cpp" />
+    <ClCompile Include="core\globalContext.cpp" />
     <ClCompile Include="core\jobSystem.cpp" />
     <ClCompile Include="core\memory.cpp" />
     <ClCompile Include="core\settings.cpp" />
-    <ClCompile Include="engine.cpp" />
     <ClCompile Include="generates\luabind_registers.cpp" />
     <ClCompile Include="gui\guiAnimation\guiAnimation.cpp" />
     <ClCompile Include="gui\guiAnimation\guiAnimationManager.cpp" />
     <ClCompile Include="gui\guiAnimation\guiTimeline.cpp" />
     <ClCompile Include="gui\guiCore\guiDispatcher.cpp" />
     <ClCompile Include="gui\guiCore\guiDistributor.cpp" />
-    <ClCompile Include="gui\guiEditor\guiEditorWidget.cpp" />
     <ClCompile Include="gui\guiFactory.cpp" />
     <ClCompile Include="gui\guiRenderer.cpp" />
     <ClCompile Include="gui\guiScheme.cpp" />
@@ -396,7 +392,6 @@
     <ClCompile Include="gui\guiWidgets\widget_properties.cpp" />
     <ClCompile Include="gui\guiWidgets\widgets.cpp" />
     <ClCompile Include="gui\guiWidgets\window.cpp" />
-    <ClCompile Include="gui\imguiStage.cpp" />
     <ClCompile Include="helper\IDGenerator.cpp" />
     <ClCompile Include="helper\archive.cpp" />
     <ClCompile Include="helper\binaryArchive.cpp" />
@@ -412,9 +407,15 @@
     <ClCompile Include="helper\variant.cpp" />
     <ClCompile Include="input\InputSystem.cpp" />
     <ClCompile Include="input\directInput.cpp" />
-    <ClCompile Include="platform\gameWindow.cpp" />
+    <ClCompile Include="input\keyboard.cpp" />
+    <ClCompile Include="input\keyCode.cpp" />
+    <ClCompile Include="input\mouse.cpp" />
+    <ClCompile Include="input\win32\keyboardWin32.cpp" />
+    <ClCompile Include="platform\win32\engineWin32.cpp" />
     <ClCompile Include="platform\win32\gameAppWin32.cpp" />
     <ClCompile Include="platform\win32\gameWindowWin32.cpp" />
+    <ClCompile Include="platform\win32\inputSystemWin32.cpp" />
+    <ClCompile Include="platform\win32\platformWin32.cpp" />
     <ClCompile Include="platform\win32\safeRefcountWin32.cpp" />
     <ClCompile Include="renderer\2D\font.cpp" />
     <ClCompile Include="renderer\2D\renderer2D.cpp" />
@@ -428,7 +429,6 @@
     <ClCompile Include="renderer\passes\terrain\terrainPass.cpp" />
     <ClCompile Include="renderer\passes\terrain\terrainTree.cpp" />
     <ClCompile Include="renderer\paths\renderImage.cpp" />
-    <ClCompile Include="renderer\paths\renderPath.cpp" />
     <ClCompile Include="renderer\paths\renderPath2D.cpp" />
     <ClCompile Include="renderer\paths\renderPath3D.cpp" />
     <ClCompile Include="renderer\paths\renderPath_forward.cpp" />
@@ -530,6 +530,7 @@
     <ClCompile Include="utils\signal\connection.cpp" />
     <ClCompile Include="utils\signal\connectionList.cpp" />
     <ClCompile Include="utils\signal\connectionMap.cpp" />
+    <ClCompile Include="utils\signal\eventQueue.cpp" />
     <ClCompile Include="utils\string\utf8String.cpp" />
     <ClCompile Include="utils\string\utf8StringIt.cpp" />
     <ClCompile Include="utils\tinyxml2\tinyxml2.cpp" />

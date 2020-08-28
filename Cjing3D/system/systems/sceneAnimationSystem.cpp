@@ -83,7 +83,7 @@ namespace Cjing3D {
 
 	void SceneSystem::UpdateSceneAnimationSystem(Scene& scene)
 	{
-		F32 deltaTime = GlobalGetDeltaTime();
+		F32 deltaTime = GetGlobalContext().GetDelatTime();
 
 		ECS::ComponentManager<AnimationComponent>& animations = scene.mAnimations;
 		ECS::ComponentManager<TransformComponent>& transforms = scene.mTransforms;

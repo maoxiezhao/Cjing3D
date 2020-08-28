@@ -1,6 +1,5 @@
 #pragma once
 
-#include "core\gameComponent.h"
 #include "game\gameContext.h"
 #include "game\gameObject.h"
 #include "gui\guiStage.h"

@@ -24,7 +24,7 @@ enum SystemFunctionIndex {
 class LuaContext : public SubSystem
 {
 public:
-	LuaContext(GlobalContext& globalContext);
+	LuaContext();
 	~LuaContext();
 
 	void Initialize();

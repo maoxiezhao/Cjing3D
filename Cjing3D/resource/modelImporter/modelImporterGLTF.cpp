@@ -82,8 +82,8 @@ namespace ModelImporter {
 			return;
 		}
 
-		ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
-		if (!resourceManager.Contains<TextureResource>(StringID(image.uri)))
+		auto resourceManager = GetGlobalContext().gResourceManager;
+		if (!resourceManager->Contains<TextureResource>(StringID(image.uri)))
 		{
 			int width = image.width;
 			int height = image.height;
@@ -110,7 +110,7 @@ namespace ModelImporter {
 				mipWidth = std::max(1u, mipWidth / 2);
 			}
 
-			TextureResourcePtr textureResource = resourceManager.GetOrCreateEmptyResource<TextureResource>(StringID(image.uri));
+			TextureResourcePtr textureResource = resourceManager->GetOrCreateEmptyResource<TextureResource>(StringID(image.uri));
 			if (textureResource == nullptr)
 			{
 				Debug::Warning("Resource Manager can not create texture resource:" + image.uri);
@@ -121,7 +121,7 @@ namespace ModelImporter {
 			const auto result = device.CreateTexture2D(&desc, resourceData.data(), texture);
 			if (FAILED(result))
 			{
-				resourceManager.ClearResource<TextureResource>(StringID(image.uri));
+				resourceManager->ClearResource<TextureResource>(StringID(image.uri));
 				Debug::Warning("Failed to create render target" + image.uri);
 				return;
 			}
@@ -146,7 +146,7 @@ namespace ModelImporter {
 
 	void LoadMaterials(LoaderInfo& loaderInfo, const std::string& parentPath)
 	{
-		auto& resourceManager = GlobalGetSubSystem<ResourceManager>();
+		auto resourceManager = GetGlobalContext().gResourceManager;
 		tinygltf::Model& gltfModel = loaderInfo.gltfModel;
 		Scene& newScene = loaderInfo.scene;
 
@@ -212,15 +212,15 @@ namespace ModelImporter {
 			// load textures
 			if (material->mBaseColorMapName.empty() == false)
 			{
-				material->mBaseColorMap = resourceManager.GetOrCreate<TextureResource>(StringID(material->mBaseColorMapName));
+				material->mBaseColorMap = resourceManager->GetOrCreate<TextureResource>(StringID(material->mBaseColorMapName));
 			}
 			if (material->mNormalMapName.empty() == false)
 			{
-				material->mNormalMap = resourceManager.GetOrCreate<TextureResource>(StringID(material->mNormalMapName));
+				material->mNormalMap = resourceManager->GetOrCreate<TextureResource>(StringID(material->mNormalMapName));
 			}
 			if (material->mSurfaceMapName.empty() == false)
 			{
-				material->mSurfaceMap = resourceManager.GetOrCreate<TextureResource>(StringID(material->mSurfaceMapName));
+				material->mSurfaceMap = resourceManager->GetOrCreate<TextureResource>(StringID(material->mSurfaceMapName));
 			}
 
 			if (alphaCutoff != gltfMaterial.additionalValues.end())

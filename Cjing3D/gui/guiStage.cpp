@@ -1,6 +1,5 @@
 #include "gui\guiStage.h"
 #include "gui\guiRenderer.h"
-#include "gui\imguiStage.h"
 #include "renderer\renderer.h"
 #include "helper\logger.h"
 
@@ -10,9 +9,7 @@ namespace Cjing3D
 {
 	using namespace Gui;
 
-	GUIStage::GUIStage(GlobalContext & globalContext):
-		SubSystem(globalContext),
-		mRenderer(nullptr)
+	GUIStage::GUIStage()
 	{
 	}
 
@@ -37,8 +34,7 @@ namespace Cjing3D
 		LoadRegisteredKeys();
 
 		// save previous mouse pos
-		InputManager& inputManager = GlobalGetSubSystem<InputManager>();
-		mPrevMousePos = inputManager.GetMousePos();
+		mPrevMousePos = GetGlobalContext().gInputManager->GetMousePos();
 
 		Logger::Info("GUI Stage initialized");
 	}
@@ -137,20 +133,20 @@ namespace Cjing3D
 	void GUIStage::NotifyInput()
 	{
 		// 响应输入，并将其以事件的形式分发给widgets
-		InputManager& inputManager = GlobalGetSubSystem<InputManager>();
+		auto inputManager = GetGlobalContext().gInputManager;
 
 		// notify mouse event
-		I32x2 mousePos = inputManager.GetMousePos();
+		I32x2 mousePos = inputManager->GetMousePos();
 		for (auto keyCode : mRegisteredMouseKeys)
 		{
-			if (inputManager.IsKeyDown(keyCode)) {
+			if (inputManager->IsKeyPressed(keyCode)) {
 				Gui::GUIInputEvent e = {};
 				e.type = GUI_INPUT_EVENT_TYPE_MOUSE_BUTTONDOWN;
 				e.key = keyCode;
 				e.pos = mousePos;
 				mInputEventQueue.push(e);
 			}
-			else if (inputManager.IsKeyUp(keyCode)) {
+			else if (inputManager->IsKeyReleased(keyCode)) {
 				Gui::GUIInputEvent e = {};
 				e.type = GUI_INPUT_EVENT_TYPE_MOUSE_BUTTONUP;
 				e.key = keyCode;
@@ -168,12 +164,12 @@ namespace Cjing3D
 			mInputEventQueue.push(e);
 		}
 
-		auto mouseWheelDelta = inputManager.GetMouseWheelDelta();
+		auto mouseWheelDelta = inputManager->GetMouseWheelDelta();
 		if (mouseWheelDelta != 0)
 		{
 			Gui::GUIInputEvent e = {};
 			e.type = GUI_INPUT_EVENT_TYPE_MOUSE_WHEEL_CHANGED;
-			e.delta = mouseWheelDelta;
+			e.delta = (I32)mouseWheelDelta;
 			e.pos = mousePos;
 			mInputEventQueue.push(e);
 		}
@@ -181,37 +177,37 @@ namespace Cjing3D
 		// notify keyboard event
 		for (auto keyCode : mRegisteredKeyBoardKeys)
 		{
-			if (inputManager.IsKeyDown(keyCode))
+			if (inputManager->IsKeyPressed(keyCode))
 			{
 				Gui::GUIInputEvent e = {};
 				e.type = GUI_INPUT_EVENT_TYPE_KEYBOARD_KEYDOWN;
 				e.key = keyCode;
 
-				if (inputManager.IsKeyHold(KeyCode::Shift_Left) || inputManager.IsKeyHold(KeyCode::Shift_Right)) {
+				if (inputManager->IsKeyHold(KeyCode::Shift_Left) || inputManager->IsKeyHold(KeyCode::Shift_Right)) {
 					e.modifiers |= GUI_INPUT_KEYBOARD_MODIFIER::mod_shift;
 				}
-				if (inputManager.IsKeyHold(KeyCode::Alt_Left) || inputManager.IsKeyHold(KeyCode::Alt_Right)) {
+				if (inputManager->IsKeyHold(KeyCode::Alt_Left) || inputManager->IsKeyHold(KeyCode::Alt_Right)) {
 					e.modifiers |= GUI_INPUT_KEYBOARD_MODIFIER::mod_alt;
 				}
-				if (inputManager.IsKeyHold(KeyCode::Ctrl_Left) || inputManager.IsKeyHold(KeyCode::Ctrl_Right)) {
+				if (inputManager->IsKeyHold(KeyCode::Ctrl_Left) || inputManager->IsKeyHold(KeyCode::Ctrl_Right)) {
 					e.modifiers |= GUI_INPUT_KEYBOARD_MODIFIER::mod_control;
 				}
 
 				mInputEventQueue.push(e);
 			}
-			else if (inputManager.IsKeyUp(keyCode)) 
+			else if (inputManager->IsKeyReleased(keyCode))
 			{
 				Gui::GUIInputEvent e = {};
 				e.type = GUI_INPUT_EVENT_TYPE_KEYBOARD_KEYUP;
 				e.key = keyCode;
 
-				if (inputManager.IsKeyHold(KeyCode::Shift_Left) || inputManager.IsKeyHold(KeyCode::Shift_Right)) {
+				if (inputManager->IsKeyHold(KeyCode::Shift_Left) || inputManager->IsKeyHold(KeyCode::Shift_Right)) {
 					e.modifiers |= GUI_INPUT_KEYBOARD_MODIFIER::mod_shift;
 				}
-				if (inputManager.IsKeyHold(KeyCode::Alt_Left) || inputManager.IsKeyHold(KeyCode::Alt_Right)) {
+				if (inputManager->IsKeyHold(KeyCode::Alt_Left) || inputManager->IsKeyHold(KeyCode::Alt_Right)) {
 					e.modifiers |= GUI_INPUT_KEYBOARD_MODIFIER::mod_alt;
 				}
-				if (inputManager.IsKeyHold(KeyCode::Ctrl_Left) || inputManager.IsKeyHold(KeyCode::Ctrl_Right)) {
+				if (inputManager->IsKeyHold(KeyCode::Ctrl_Left) || inputManager->IsKeyHold(KeyCode::Ctrl_Right)) {
 					e.modifiers |= GUI_INPUT_KEYBOARD_MODIFIER::mod_control;
 				}
 

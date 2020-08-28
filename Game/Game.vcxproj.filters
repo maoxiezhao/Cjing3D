@@ -4,9 +4,6 @@
     <Filter Include="definitions">
       <UniqueIdentifier>{018843FD-6D3D-BCF2-F631-B6C962E6B2F6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="editor">
-      <UniqueIdentifier>{AC2EC5FA-98D0-EFD0-818B-03256DCC7621}</UniqueIdentifier>
-    </Filter>
     <Filter Include="game">
       <UniqueIdentifier>{9F35977C-8B6C-980D-3459-7E10206F140F}</UniqueIdentifier>
     </Filter>
@@ -41,48 +38,6 @@
     </ClInclude>
     <ClInclude Include="definitions\gameVersion.h">
       <Filter>definitions</Filter>
-    </ClInclude>
-    <ClInclude Include="editor\guiEditor.h">
-      <Filter>editor</Filter>
-    </ClInclude>
-    <ClInclude Include="editor\guiEditorAnimation.h">
-      <Filter>editor</Filter>
-    </ClInclude>
-    <ClInclude Include="editor\guiEditorGUI.h">
-      <Filter>editor</Filter>
-    </ClInclude>
-    <ClInclude Include="editor\guiEditorHierarchy.h">
-      <Filter>editor</Filter>
-    </ClInclude>
-    <ClInclude Include="editor\guiEditorInclude.h">
-      <Filter>editor</Filter>
-    </ClInclude>
-    <ClInclude Include="editor\guiEditorLight.h">
-      <Filter>editor</Filter>
-    </ClInclude>
-    <ClInclude Include="editor\guiEditorMaterial.h">
-      <Filter>editor</Filter>
-    </ClInclude>
-    <ClInclude Include="editor\guiEditorObject.h">
-      <Filter>editor</Filter>
-    </ClInclude>
-    <ClInclude Include="editor\guiEditorParticle.h">
-      <Filter>editor</Filter>
-    </ClInclude>
-    <ClInclude Include="editor\guiEditorProfier.h">
-      <Filter>editor</Filter>
-    </ClInclude>
-    <ClInclude Include="editor\guiEditorRender.h">
-      <Filter>editor</Filter>
-    </ClInclude>
-    <ClInclude Include="editor\guiEditorScene.h">
-      <Filter>editor</Filter>
-    </ClInclude>
-    <ClInclude Include="editor\guiEditorSound.h">
-      <Filter>editor</Filter>
-    </ClInclude>
-    <ClInclude Include="editor\guiEditorTerrain.h">
-      <Filter>editor</Filter>
     </ClInclude>
     <ClInclude Include="game\gameContext.h">
       <Filter>game</Filter>
@@ -137,45 +92,6 @@
   <ItemGroup>
     <ClCompile Include="definitions\gameVersion.cpp">
       <Filter>definitions</Filter>
-    </ClCompile>
-    <ClCompile Include="editor\guiEditor.cpp">
-      <Filter>editor</Filter>
-    </ClCompile>
-    <ClCompile Include="editor\guiEditorAnimation.cpp">
-      <Filter>editor</Filter>
-    </ClCompile>
-    <ClCompile Include="editor\guiEditorGUI.cpp">
-      <Filter>editor</Filter>
-    </ClCompile>
-    <ClCompile Include="editor\guiEditorHierarchy.cpp">
-      <Filter>editor</Filter>
-    </ClCompile>
-    <ClCompile Include="editor\guiEditorLight.cpp">
-      <Filter>editor</Filter>
-    </ClCompile>
-    <ClCompile Include="editor\guiEditorMaterial.cpp">
-      <Filter>editor</Filter>
-    </ClCompile>
-    <ClCompile Include="editor\guiEditorObject.cpp">
-      <Filter>editor</Filter>
-    </ClCompile>
-    <ClCompile Include="editor\guiEditorParticle.cpp">
-      <Filter>editor</Filter>
-    </ClCompile>
-    <ClCompile Include="editor\guiEditorProfier.cpp">
-      <Filter>editor</Filter>
-    </ClCompile>
-    <ClCompile Include="editor\guiEditorRender.cpp">
-      <Filter>editor</Filter>
-    </ClCompile>
-    <ClCompile Include="editor\guiEditorScene.cpp">
-      <Filter>editor</Filter>
-    </ClCompile>
-    <ClCompile Include="editor\guiEditorSound.cpp">
-      <Filter>editor</Filter>
-    </ClCompile>
-    <ClCompile Include="editor\guiEditorTerrain.cpp">
-      <Filter>editor</Filter>
     </ClCompile>
     <ClCompile Include="game\gameContext.cpp">
       <Filter>game</Filter>

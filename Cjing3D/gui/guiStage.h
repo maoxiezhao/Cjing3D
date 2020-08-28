@@ -23,7 +23,7 @@ namespace Cjing3D
 		friend class GUIRenderer;
 
 		LUA_BINDER_REGISTER_CLASS_CONSTRUCTOR
-		GUIStage(GlobalContext& globalContext);
+		GUIStage();
 		~GUIStage();
 
 		void Initialize();

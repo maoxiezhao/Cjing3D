@@ -312,9 +312,9 @@ namespace Gui
 
 		mCursorPos = newCursorPos;
 
-		auto& inputManager = GlobalGetSubSystem<InputManager>();
-		if (!inputManager.IsKeyHold(KeyCode::Shift_Left) &&
-			!inputManager.IsKeyHold(KeyCode::Shift_Right)) {	
+		auto inputManager = GetGlobalContext().gInputManager;
+		if (!inputManager->IsKeyHold(KeyCode::Shift_Left) &&
+			!inputManager->IsKeyHold(KeyCode::Shift_Right)) {	
 			Deselect();
 		}
 	}

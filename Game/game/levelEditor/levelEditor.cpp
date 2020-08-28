@@ -1,9 +1,6 @@
 #include "levelEditor.h"
-#include "engine.h"
 #include "renderer\paths\renderPath_tiledForward.h"
-#include "editor\guiEditor.h"
 #include "system\sceneSystem.h"
-#include "gui\guiEditor\guiEditorInclude.h"
 #include "scripts\gameLuaContext.h"
 #include "game\map\gameMapRenderer.h"
 
@@ -21,7 +18,8 @@ namespace CjingGame
 		TransformComponent mCameraTransform;
 	}
 
-	LevelEditor::LevelEditor() :
+	LevelEditor::LevelEditor(const std::shared_ptr<Engine>& engine) :
+		GameComponent(engine),
 		mEditorPlane("EditorPlane"),
 		mEditorCursor(I32x3(0, 0, 0))
 	{
@@ -33,16 +31,13 @@ namespace CjingGame
 
 	void LevelEditor::Initialize()
 	{
+		GameComponent::Initialize();
+
 		// rendering config
 		RenderPathTiledForward* path = new RenderPathTiledForward();
 		Renderer::SetCurrentRenderPath(path);
 		Font::LoadFontTTF("Fonts/arial.ttf");
 		path->SetFXAAEnable(true);
-
-		auto& guiStage = GlobalGetSubSystem<GUIStage>();
-#ifdef _ENABLE_GAME_EDITOR_
-		Editor::InitializeEditor();
-#endif // _ENABLE_GAME_EDITOR_
 
 		// map renderer
 		GameMapRenderer::Initialize();
@@ -52,7 +47,7 @@ namespace CjingGame
 		mGameLuaContext->Initialize();
 
 		// do lua script
-		GlobalGetSubSystem<LuaContext>().ChangeLuaScene("LevelEditor");
+		GetGlobalContext().gLuaContext->ChangeLuaScene("LevelEditor");
 
 		// init cursor and editor plane
 		mEditorCursor.LoadFromScene(Scene::GetScene());
@@ -68,24 +63,15 @@ namespace CjingGame
 		// init default map
 		F32 cellSize = (F32)GameContext::MapCellSize;
 		InitializeEditorMap("", cellSize, 48, 8, 4);
-
-#ifdef _ENABLE_GAME_EDITOR_
-		InitializeEditorGUI(Editor::GetImGUIStage());
-#endif // _ENABLE_GAME_EDITOR_
-	}
-
-	void LevelEditor::Update(Cjing3D::EngineTime time)
-	{
-
 	}
 
 	void LevelEditor::FixedUpdate()
 	{
-		Editor::UpdateEditor();
+		GameComponent::FixedUpdate();
 
-		auto& inputManager = GlobalGetSubSystem<InputManager>();
-		if (inputManager.IsKeyDown(KeyCode::Esc)) {
-			GlobalGetEngine()->SetIsExiting(true);
+		auto& inputManager = *GetGlobalContext().gInputManager;
+		if (inputManager.IsKeyPressed(KeyCode::Esc)) {
+			GetGlobalContext().GetEngine()->SetIsExiting(true);
 		}
 
 		if (mCurrentMap == nullptr) {
@@ -110,11 +96,11 @@ namespace CjingGame
 		mCurrentMap->FixedUpdate();
 
 		// update editor layer
-		if (inputManager.IsKeyDown(KeyCode::Q))
+		if (inputManager.IsKeyPressed(KeyCode::Q))
 		{
 			mCurrentLayer = std::max(0, mCurrentLayer - 1);
 		}
-		else if (inputManager.IsKeyDown(KeyCode::E))
+		else if (inputManager.IsKeyPressed(KeyCode::E))
 		{
 			I32 maxLayer = mCurrentMap != nullptr ? mCurrentMap->GetMapLayer() - 1 : 0;
 			mCurrentLayer = std::min(maxLayer, mCurrentLayer + 1);
@@ -143,9 +129,7 @@ namespace CjingGame
 
 		Scene::GetScene().Clear();
 
-#ifdef _ENABLE_GAME_EDITOR_
-		Editor::UninitializeEditor();
-#endif
+		GameComponent::Uninitialize();
 	}
 
 	void LevelEditor::PreRender()
@@ -225,20 +209,20 @@ namespace CjingGame
 		I32 mapWidth = mCurrentMap->GetMapWidth();
 		I32 mapHeight = mCurrentMap->GetMapHeight();
 
-		auto& inputManager = GlobalGetSubSystem<InputManager>();
-		if (inputManager.IsKeyDown(KeyCode::D))
+		auto& inputManager = *GetGlobalContext().gInputManager;
+		if (inputManager.IsKeyPressed(KeyCode::D))
 		{
 			localPos[0] = std::min(mapWidth - 1, localPos[0] + 1);
 		}
-		else if (inputManager.IsKeyDown(KeyCode::A))
+		else if (inputManager.IsKeyPressed(KeyCode::A))
 		{
 			localPos[0] = std::max(0, localPos[0] - 1);
 		}
-		else if (inputManager.IsKeyDown(KeyCode::W))
+		else if (inputManager.IsKeyPressed(KeyCode::W))
 		{
 			localPos[2] = std::min(mapHeight - 1, localPos[2] + 1);
 		}
-		else if (inputManager.IsKeyDown(KeyCode::S))
+		else if (inputManager.IsKeyPressed(KeyCode::S))
 		{
 			localPos[2] = std::max(0, localPos[2] - 1);
 		}
@@ -296,13 +280,9 @@ namespace CjingGame
 			return;
 		}
 
-		auto& inputManager = GlobalGetSubSystem<InputManager>();
-		if (!inputManager.IsKeyDown(KeyCode::Click_Left) &&
-			!inputManager.IsKeyDown(KeyCode::Click_Right)) {
-			return;
-		}
-
-		if (ImGui::IsAnyWindowHovered()) {
+		auto& inputManager = *GetGlobalContext().gInputManager;
+		if (!inputManager.IsKeyPressed(KeyCode::Click_Left) &&
+			!inputManager.IsKeyPressed(KeyCode::Click_Right)) {
 			return;
 		}
 
@@ -311,7 +291,7 @@ namespace CjingGame
 		{
 			mPrevMousePos = localPos;
 
-			if (inputManager.IsKeyDown(KeyCode::Click_Left)) {
+			if (inputManager.IsKeyPressed(KeyCode::Click_Left)) {
 				mCurrentMap->AddGround(localPos, mCurrentGroundTilesetIndex);
 			}
 			else {
@@ -327,8 +307,8 @@ namespace CjingGame
 			return;
 		}
 
-		auto& inputManager = GlobalGetSubSystem<InputManager>();
-		if (inputManager.IsKeyDown(KeyCode::Click_Left))
+		auto& inputManager = *GetGlobalContext().gInputManager;
+		if (inputManager.IsKeyPressed(KeyCode::Click_Left))
 		{
 			Logger::Info(std::to_string(mPickResult.entity));
 		}
@@ -337,7 +317,7 @@ namespace CjingGame
 	void LevelEditor::UpdateRaycast(const GameObjectLayerMask mask)
 	{
 		Scene& scene = Scene::GetScene();
-		auto& inputManager = GlobalGetSubSystem<InputManager>();
+		auto& inputManager = *GetGlobalContext().gInputManager;
 		I32x2 mousePos = inputManager.GetMousePos();
 		Ray cameraRay = Renderer::GetMainCameraMouseRay({ (U32)mousePos[0], (U32)mousePos[1] });
 

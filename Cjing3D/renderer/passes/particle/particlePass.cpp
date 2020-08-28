@@ -27,13 +27,11 @@ void ParticlePass::Initialize()
 {
 	ShaderLib& shaderLib = Renderer::GetShaderLib();
 	RenderPreset& renderPreset = Renderer::GetRenderPreset();
-	ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
 
 	// create pipeline state object
-	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_Shader);
 	PipelineStateDesc desc = {};
-	desc.mVertexShader = Renderer::LoadShader(SHADERSTAGES_VS, shaderPath + "particleVS.cso");
-	desc.mPixelShader = Renderer::LoadShader(SHADERSTAGES_PS, shaderPath + "particlePS.cso");
+	desc.mVertexShader = Renderer::LoadShader(SHADERSTAGES_VS, "particleVS.cso");
+	desc.mPixelShader  = Renderer::LoadShader(SHADERSTAGES_PS, "particlePS.cso");
 	desc.mPrimitiveTopology = TRIANGLELIST;
 	desc.mBlendState = renderPreset.GetBlendState(BlendStateID_Particle_Alpha);
 	desc.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_DepthRead);
@@ -41,11 +39,11 @@ void ParticlePass::Initialize()
 	Renderer::GetDevice().CreatePipelineState(desc, mParticleAlphaPSO);
 
 	// load compute shaders
-	mParticleStartCS    = Renderer::LoadShader(SHADERSTAGES_CS, shaderPath + "particleStartCS.cso");
-	mParticleEmitCS     = Renderer::LoadShader(SHADERSTAGES_CS, shaderPath + "particleEmitCS.cso");
-	mParticleEmitMeshCS = Renderer::LoadShader(SHADERSTAGES_CS, shaderPath + "particleEmitMeshCS.cso");
-	mParticleUpdateCS   = Renderer::LoadShader(SHADERSTAGES_CS, shaderPath + "particleUpdateCS.cso");
-	mParticleFinishCS   = Renderer::LoadShader(SHADERSTAGES_CS, shaderPath + "particleFinishCS.cso");
+	mParticleStartCS    = Renderer::LoadShader(SHADERSTAGES_CS, "particleStartCS.cso");
+	mParticleEmitCS     = Renderer::LoadShader(SHADERSTAGES_CS, "particleEmitCS.cso");
+	mParticleEmitMeshCS = Renderer::LoadShader(SHADERSTAGES_CS, "particleEmitMeshCS.cso");
+	mParticleUpdateCS   = Renderer::LoadShader(SHADERSTAGES_CS, "particleUpdateCS.cso");
+	mParticleFinishCS   = Renderer::LoadShader(SHADERSTAGES_CS, "particleFinishCS.cso");
 }
 
 void ParticlePass::Uninitialize()

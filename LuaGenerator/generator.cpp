@@ -292,6 +292,9 @@ ConstructorMetainfo ConstructorMetainfo::Parse(const std::string & srcBuffer)
 			if (token == "const") {
 				token = GetNextToken(currentLine);
 			}
+			else if (token == "T_RPAREN") {
+				break;
+			}
 
 			metaInfo.mAargs.push_back(token);
 
@@ -313,6 +316,10 @@ ConstructorMetainfo ConstructorMetainfo::Parse(const std::string & srcBuffer)
 
 const std::string ConstructorMetainfo::GenerateRegisterCode() const
 {
+	if (mFunctionName.empty()) {
+		return "";
+	}
+
 	std::string registerString = ".AddConstructor(_LUA_ARGS_(";
 	int index = 0;
 	for (auto& arg : mAargs)

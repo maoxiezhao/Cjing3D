@@ -5,7 +5,6 @@
 
 namespace Cjing3D
 {
-	class GlobalContext;
 	class Scene;
 
 	namespace ModelImporter

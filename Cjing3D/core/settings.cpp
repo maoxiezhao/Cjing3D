@@ -1,8 +1,10 @@
 #include "settings.h"
 #include "helper\fileSystem.h"
 #include "helper\jsonArchive.h"
-#include "engine.h"
+#include "core\globalContext.hpp"
+#include "platform\platform.h"
 #include "platform\gameWindow.h"
+#include "renderer\presentConfig.h"
 
 #include <fstream>
 #include <iostream>
@@ -11,8 +13,7 @@ namespace Cjing3D
 {
     const std::string settingFileName = "setting.ini";
 
-    Settings::Settings(GlobalContext& globalContext) :
-        SubSystem(globalContext)
+    Settings::Settings()
     {
         AddSetting("isFullScreen", false);
         AddSetting("resolution", I32x2(DEFAULT_GAME_WINDOW_WIDTH, DEFAULT_GAME_WINDOW_HEIGHT));
@@ -24,14 +25,14 @@ namespace Cjing3D
 
     void Settings::Initialize()
     {
-        Engine* engine = GlobalGetEngine();
+        auto engine = GetGlobalContext().GetEngine();
         if (engine == nullptr) 
         {
             Debug::Error("Settting::init error: Invalid engine;");
             return;
         }
 
-        GameWindow* gameWindow = engine->GetWindow();
+        auto gameWindow = engine->GetGameWindow();
 		if (gameWindow == nullptr)
 		{
 			Debug::Error("Settting::init error: Engine must set game window;");
@@ -45,18 +46,21 @@ namespace Cjing3D
             Save();
         }
 
+        auto& presentConfig = engine->GetPresentConfig();
         // 初次加载时，其他subSystem还未加载，所以这里直接修改初始参数，而不做Mapping
         auto resolution = GetSetting("resolution");
         if (!resolution.IsEmpty()) 
         {
             auto size = resolution.GetValue<I32x2>();
-            gameWindow->SetWindowSize(size);
+            gameWindow->SetClientbounds({ 0, 0, size[0], size[1] });
+            presentConfig.mScreenSize = size;
+
             Logger::InfoEx("[Setting] Resolution: %dx%d", size[0], size[1]);
         }
 
 		auto isFullScreen = GetSetting("isFullScreen");
 		if (!isFullScreen.IsEmpty()) {
-			gameWindow->SetIsWindowFullScreen(isFullScreen.GetValue<bool>());
+            presentConfig.mIsFullScreen = isFullScreen.GetValue<bool>();
 		}
     }
 

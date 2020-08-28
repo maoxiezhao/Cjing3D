@@ -6,36 +6,33 @@
 
 namespace Cjing3D
 {
-namespace Audio
-{
 	class AudioManager : public SubSystem
 	{
 	public:
-		AudioManager(GlobalContext& globalContext);
+		AudioManager();
 		~AudioManager();
 
-		void Initialize(AudioDevice* device);
+		void Initialize(Audio::AudioDevice* device);
 		void Uninitialize()override;
 
-		bool LoadSound(const std::string& name, SoundResource& resource);
-		bool LoadSound(const char* data, size_t length, SoundResource& resource);
+		bool LoadSound(const std::string& name, Audio::SoundResource& resource);
+		bool LoadSound(const char* data, size_t length, Audio::SoundResource& resource);
 
-		bool CreateInstance(const SoundResource& resource, SoundInstance& inst);
-		void Play(SoundInstance& inst);
-		void Pause(SoundInstance& inst);
-		void Stop(SoundInstance& inst);
-		void SetVolume(SoundInstance& inst, F32 volume);
+		bool CreateInstance(const Audio::SoundResource& resource, Audio::SoundInstance& inst);
+		void Play(Audio::SoundInstance& inst);
+		void Pause(Audio::SoundInstance& inst);
+		void Stop(Audio::SoundInstance& inst);
+		void SetVolume(Audio::SoundInstance& inst, F32 volume);
 		void SetMasteringVolume(F32 volume);
 
 		void PlayMusic(const std::string& name);
 		void PauseMusic();
 		void StopMusic();
 
-		void Update3D(SoundInstance& instance, const SoundInstance3D& instance3D);
+		void Update3D(Audio::SoundInstance& instance, const Audio::SoundInstance3D& instance3D);
 
 	private:
-		AudioDevice* mAudioDevice = nullptr;
-		SoundInstance mMusicInst;
+		Audio::AudioDevice* mAudioDevice = nullptr;
+		Audio::SoundInstance mMusicInst;
 	};
-}
 }

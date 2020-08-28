@@ -12,7 +12,7 @@ namespace Cjing3D
 class GraphicsDeviceD3D11 : public GraphicsDevice
 {
 public:
-	GraphicsDeviceD3D11(HWND window, bool fullScreen, bool debugLayer);
+	GraphicsDeviceD3D11(HWND window, bool fullScreen, FORMAT backbufferFormat, bool debugLayer);
 
 	virtual void Initialize();
 	virtual void Uninitialize();

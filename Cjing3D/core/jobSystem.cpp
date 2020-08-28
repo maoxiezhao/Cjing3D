@@ -13,10 +13,13 @@ namespace Cjing3D
 		std::atomic<uint64_t> finishedLabel;
 	}
 
-	JobSystem::JobSystem(GlobalContext & context):
-		SubSystem(context),
+	JobSystem::JobSystem():
 		mThreadCount(0),
 		mIsMultThread(false)
+	{
+	}
+
+	JobSystem::~JobSystem()
 	{
 	}
 

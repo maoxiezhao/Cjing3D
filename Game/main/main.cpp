@@ -8,5 +8,13 @@ int WINAPI WinMain(
 	_In_ LPSTR lpCmdLine,
 	_In_ int nShowCmd)
 {
-	return Cjing3D::GameAppWin32("GameAssets").Run(new CjingGame::LevelEditor());
+	Cjing3D::Win32::GameAppWin32 gameApp;
+	gameApp.SetInstance(hInstance);
+	gameApp.SetAssetPath(".", "Assets");
+	gameApp.SetScreenSize({ DEFAULT_GAME_WINDOW_WIDTH, DEFAULT_GAME_WINDOW_HEIGHT });
+	gameApp.SetTitleName("Game");
+
+	gameApp.Run([](const std::shared_ptr<Engine>& engine) {
+		return std::make_unique<CjingGame::LevelEditor>(engine);
+	});
 }

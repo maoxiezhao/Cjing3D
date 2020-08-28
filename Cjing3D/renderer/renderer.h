@@ -22,17 +22,20 @@ class MaterialComponent;
 class PipelineStateManager;
 class RenderPass;
 class TerrainTree;
+struct PresentConfig;
 
 // Renderer被设计为一个仅仅提供各种渲染方法的集合（namespace)，具体的调用方式应该由renderPath决定
 namespace Renderer
 {
-	void Initialize(RenderingDeviceType deviceType, HWND window);
+	void Initialize();
 	void Uninitialize();
 	void UninitializeDevice();
 
 	void Render();
+	void PresentBegin();
 	void Compose();
-	void Present();
+	void PresentEnd();
+	void EndFrame();
 	void FixedUpdate();
 	void Update(F32 deltaTime);
 
@@ -49,6 +52,7 @@ namespace Renderer
 	RenderPath* GetRenderPath();
 
 	// base status
+	void SetDevice(const std::shared_ptr<GraphicsDevice>& device);
 	void SetGamma(F32 gamma);
 	F32 GetGamma();
 	U32 GetShadowCascadeCount();
@@ -238,11 +242,9 @@ namespace Renderer
 class RendererSystem : public SubSystem
 {
 public:
-	RendererSystem(GlobalContext& globalContext) : SubSystem(globalContext) {}
-
-	void Initialize(RenderingDeviceType deviceType, HWND window)
+	void Initialize()
 	{
-		Renderer::Initialize(deviceType, window);
+		Renderer::Initialize();
 	}
 	void Uninitialize()override
 	{

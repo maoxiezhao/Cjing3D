@@ -204,9 +204,6 @@ namespace Renderer2D {
 		void InitializePipelineState()
 		{
 			RenderPreset& renderPreset = Renderer::GetRenderPreset();
-			ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
-
-			const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_Shader);
 			VertexLayoutDesc posLayout[] =
 			{
 				{ "POSITION_TEXCOORD",     0u, VertexPosTex::format, 0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
@@ -218,11 +215,11 @@ namespace Renderer2D {
 				{ "COLOR",			       0u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
 				{ "INVERSE_SIZE",		   0u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u }
 			};
-			auto vsinfo = Renderer::LoadVertexShaderInfo(shaderPath + "spriteVS.cso", posLayout, ARRAYSIZE(posLayout));
+			auto vsinfo = Renderer::LoadVertexShaderInfo("spriteVS.cso", posLayout, ARRAYSIZE(posLayout));
 			PipelineStateDesc desc = {};
 			desc.mInputLayout = vsinfo.mInputLayout;
 			desc.mVertexShader = vsinfo.mVertexShader;
-			desc.mPixelShader = Renderer::LoadShader(SHADERSTAGES_PS, shaderPath + "spritePS.cso");
+			desc.mPixelShader = Renderer::LoadShader(SHADERSTAGES_PS, "spritePS.cso");
 			desc.mPrimitiveTopology = TRIANGLELIST;
 			desc.mBlendState = renderPreset.GetBlendState(BlendStateID_Transpranent);
 			desc.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_DepthNone);

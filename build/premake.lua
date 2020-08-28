@@ -156,7 +156,9 @@ project (EDITOR_NAME)
         EDITOR_DIR .. "/**.cpp",
         EDITOR_DIR .. "/**.hpp",
         EDITOR_DIR .. "/**.h",
-        EDITOR_DIR .. "/**.inl"
+        EDITOR_DIR .. "/**.inl",
+        "../ThirdParty/imgui/**.h",
+        "../ThirdParty/imgui/**.cpp"
     }
 
     -- Includes
@@ -165,6 +167,8 @@ project (EDITOR_NAME)
     includedirs { SHADER_DIR }
 
     IncludeThirdParty();
+
+    vpaths { ["editor/imgui/src"] =  {"../ThirdParty/imgui/**.h", "../ThirdParty/imgui/**.cpp"}}
 
     -- Libraries
     libdirs (LIBRARY_DIR)
@@ -203,8 +207,6 @@ project (CJING3D_NAME)
         CJING3D_DIR .. "/**.h",
         CJING3D_DIR .. "/**.inl",
         CJING3D_DIR .. "/**..bat",
-        "../ThirdParty/imgui/**.h",
-        "../ThirdParty/imgui/**.cpp"
     }
 
     -- ignore
@@ -215,8 +217,6 @@ project (CJING3D_NAME)
     includedirs { SHADER_DIR }
 
     IncludeThirdParty();
-
-    vpaths { ["gui/guiImGUI"] =  {"../ThirdParty/imgui/**.h", "../ThirdParty/imgui/**.cpp"}}
 
     -- Libraries
     libdirs (LIBRARY_DIR)

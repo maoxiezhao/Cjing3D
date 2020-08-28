@@ -1,7 +1,6 @@
 #pragma once
 
 #include "definitions\definitions.h"
-#include "core\gameComponent.h"
 #include "utils\signal\connectionList.h"
 #include "gui\guiAnimation\guiTimeline.h"
 

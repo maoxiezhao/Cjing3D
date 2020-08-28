@@ -9,7 +9,7 @@ namespace Cjing3D
 		if (!filePath.empty())
 		{
 			mFilePath = filePath;
-			mTextureResource = GlobalGetSubSystem<ResourceManager>().GetOrCreate<TextureResource>(filePath);
+			mTextureResource = GetGlobalContext().gResourceManager->GetOrCreate<TextureResource>(filePath);
 
 			if (mTextureResource->mTexture != nullptr) {
 				SetCurrentTextureInfo(*mTextureResource->mTexture);
@@ -44,8 +44,8 @@ namespace Cjing3D
 
 	bool Sprite::LoadTexture(const std::string& path)
 	{
+		mTextureResource = GetGlobalContext().gResourceManager->GetOrCreate<TextureResource>(path);
 		mFilePath = path;
-		mTextureResource = GlobalGetSubSystem<ResourceManager>().GetOrCreate<TextureResource>(path);
 
 		if (mTextureResource->mTexture != nullptr) 
 		{

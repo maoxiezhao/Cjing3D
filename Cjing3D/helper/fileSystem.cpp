@@ -210,7 +210,7 @@ namespace Cjing3D {
 			// add base dir
 			if (!PHYSFS_mount(assetPath_.c_str(), nullptr, 1))
 			{
-				Debug::Error(std::string("Failed to mount archive, path") + assetPath + ", " + PHYSFS_getLastError());
+				Debug::Error(std::string("Failed to mount archive, path:") + assetPath + ", " + PHYSFS_getLastError());
 				return false;
 			}
 

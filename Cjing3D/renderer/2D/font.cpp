@@ -6,8 +6,9 @@
 #include "helper\fileSystem.h"
 #include "utils\reckPacker\finders_interface.h"
 #include "utils\thread\spinLock.h"
+#include "platform\platform.h"
 #include "platform\gameWindow.h"
-#include "engine.h"
+#include "app\engine.h"
 
 #include <DirectXPackedVector.h>
 
@@ -133,7 +134,6 @@ namespace Font {
 		void InitializeImpl()
 		{
 			RenderPreset& renderPreset = Renderer::GetRenderPreset();
-			ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
 			GraphicsDevice& device = Renderer::GetDevice();
 
 			// create font constant buffer
@@ -156,17 +156,16 @@ namespace Font {
 			Debug::ThrowIfFailed(bufferResult, "Failed to create index buffer:%08x", bufferResult);
 
 			// create pipelinestate
-			const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_Shader);
 			VertexLayoutDesc posLayout[] =
 			{
 				{ "POSITION",  0u, FORMAT_R32G32_FLOAT, 0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
 				{ "TEXCOORD",  0u, FORMAT_R16G16_FLOAT, 0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
 			};
-			auto vsinfo = Renderer::LoadVertexShaderInfo(shaderPath + "fontVS.cso", posLayout, ARRAYSIZE(posLayout));
+			auto vsinfo = Renderer::LoadVertexShaderInfo("fontVS.cso", posLayout, ARRAYSIZE(posLayout));
 			PipelineStateDesc desc = {};
 			desc.mInputLayout = vsinfo.mInputLayout;
 			desc.mVertexShader = vsinfo.mVertexShader;
-			desc.mPixelShader = Renderer::LoadShader(SHADERSTAGES_PS, shaderPath + "fontPS.cso");
+			desc.mPixelShader = Renderer::LoadShader(SHADERSTAGES_PS, "fontPS.cso");
 			desc.mPrimitiveTopology = TRIANGLELIST;
 			desc.mBlendState = renderPreset.GetBlendState(BlendStateID_PreMultiplied);
 			desc.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_DepthNone);
@@ -363,7 +362,7 @@ namespace Font {
 			GuardSpinLock lock(mFontLock);
 
 			// 检查当前dpi，如果dpi发生变化需要重新生成字体纹理
-			I32 dpi = GlobalGetEngine()->GetWindow()->GetDPI();
+			I32 dpi = GetGlobalContext().GetEngine()->GetGameWindow()->GetDPI();
 			if (dpi != currentFontDPI)
 			{
 				currentFontDPI = dpi;

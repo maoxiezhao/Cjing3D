@@ -1,6 +1,6 @@
 #include "debug.h"
 #include "logger.h"
-#include "platform\gameWindow.h"
+#include "platform\platform.h"
 
 #include <stdexcept>
 
@@ -172,7 +172,7 @@ namespace Cjing3D
 		{
 			Logger::Fatal(dieMsg);
 			if (ShowMsgBox) {
-				GameWindow::ShowMessageBox(dieMsg);
+				Platform::ShowMessageBox(dieMsg);
 			}
 
 			if (AbortOnDie) {

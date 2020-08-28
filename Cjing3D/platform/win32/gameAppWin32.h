@@ -1,30 +1,40 @@
+#ifdef _WIN32
 #pragma once
 
-#ifdef _WIN32
+#include "common\common.h"
+#include "platform\win32\includeWin32.h"
+#include "utils\string\utf8String.h"
+#include "utils\signal\eventQueue.h"
 
-#include "engine.h"
-#include "platform\win32\gameWindowWin32.h"
-#include "core\gameComponent.h"
-#include "core\settings.h"
+#include <functional>
 
-namespace Cjing3D {
-
-#define GAME_APP_DEFAULT_ASSET_NAME "Assets"
-
+namespace Cjing3D
+{
+	class GameComponent;
+	class Engine;
+}
+namespace Cjing3D::Win32
+{
 	class GameAppWin32
 	{
 	public:
-		GameAppWin32(const std::string& assetName = GAME_APP_DEFAULT_ASSET_NAME);
-		~GameAppWin32();
+		GameAppWin32();
+		~GameAppWin32() = default;
 
-		int Run(GameComponent* game);
+		void SetInstance(HINSTANCE hInstance);
+		void SetAssetPath(const std::string& path, const std::string& name);
+		void SetTitleName(const UTF8String& string);
+		void SetScreenSize(const I32x2& screenSize);
 
-
+		using CreateGameFunc = std::function<std::unique_ptr<GameComponent>(const std::shared_ptr<Engine>)>;
+		void Run(const CreateGameFunc& createGame);
 
 	private:
-		std::unique_ptr<GameWindowWin32> mainWindow = nullptr;
-		std::unique_ptr<Engine> mainEngine = nullptr;
-		std::string mAssetName;
+		HINSTANCE   mHinstance;
+		std::string mAssetName = "";
+		std::string mAssetPath = "Assets";
+		UTF8String  mTitleName;
+		I32x2       mScreenSize = I32x2(0, 0);
 	};
 }
 

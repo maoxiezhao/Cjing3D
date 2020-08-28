@@ -197,10 +197,10 @@ namespace Cjing3D
 
 		SoundComponent& sound = *mSounds.Create(entity);
 		sound.mFileName = filePath;
-		sound.mSoundResource = GlobalGetSubSystem<ResourceManager>().GetOrCreate<SoundResource>(filePath);
+		sound.mSoundResource = GetGlobalContext().gResourceManager->GetOrCreate<SoundResource>(filePath);
 
 		if (sound.mSoundResource->mSound.IsValid()) {
-			GlobalGetSubSystem<Audio::AudioManager>().CreateInstance(sound.mSoundResource->mSound, sound.mSoundInstance);
+			GetGlobalContext().gAudioManager->CreateInstance(sound.mSoundResource->mSound, sound.mSoundInstance);
 		}
 
 		return entity;

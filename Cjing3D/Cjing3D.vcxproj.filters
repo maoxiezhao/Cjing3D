@@ -22,12 +22,6 @@
     <Filter Include="gui\guiCore">
       <UniqueIdentifier>{A72CD8A4-13E2-509A-9CD6-4A71088B479E}</UniqueIdentifier>
     </Filter>
-    <Filter Include="gui\guiEditor">
-      <UniqueIdentifier>{4595743F-B155-F075-7A90-39F3E60F3552}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="gui\guiImGUI">
-      <UniqueIdentifier>{19834840-05E6-D7E4-AE6B-109B9AADA367}</UniqueIdentifier>
-    </Filter>
     <Filter Include="gui\guiWidgets">
       <UniqueIdentifier>{5589E7A2-4157-DBA8-2AEB-4BCF1658B70D}</UniqueIdentifier>
     </Filter>
@@ -145,32 +139,17 @@
     <Filter Include="utils\tween">
       <UniqueIdentifier>{C860E430-3416-5D26-BD0A-57FD29BF532A}</UniqueIdentifier>
     </Filter>
+    <Filter Include="input\direct">
+      <UniqueIdentifier>{5cf26ada-d789-4800-8810-e4d94a4f3044}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="app">
+      <UniqueIdentifier>{c331288e-80f9-44de-acb6-08606d060d23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="input\win32">
+      <UniqueIdentifier>{3fc35641-2aa7-40c6-8913-c0380d0d0c90}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\ThirdParty\imgui\imconfig.h">
-      <Filter>gui\guiImGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ThirdParty\imgui\imgui.h">
-      <Filter>gui\guiImGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ThirdParty\imgui\imgui_impl_dx11.h">
-      <Filter>gui\guiImGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ThirdParty\imgui\imgui_impl_win32.h">
-      <Filter>gui\guiImGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ThirdParty\imgui\imgui_internal.h">
-      <Filter>gui\guiImGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ThirdParty\imgui\imstb_rectpack.h">
-      <Filter>gui\guiImGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ThirdParty\imgui\imstb_textedit.h">
-      <Filter>gui\guiImGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ThirdParty\imgui\imstb_truetype.h">
-      <Filter>gui\guiImGUI</Filter>
-    </ClInclude>
     <ClInclude Include="audio\audio.h">
       <Filter>audio</Filter>
     </ClInclude>
@@ -198,9 +177,6 @@
     <ClInclude Include="core\eventSystem.h">
       <Filter>core</Filter>
     </ClInclude>
-    <ClInclude Include="core\gameComponent.h">
-      <Filter>core</Filter>
-    </ClInclude>
     <ClInclude Include="core\globalContext.hpp">
       <Filter>core</Filter>
     </ClInclude>
@@ -219,7 +195,6 @@
     <ClInclude Include="core\subSystem.hpp">
       <Filter>core</Filter>
     </ClInclude>
-    <ClInclude Include="engine.h" />
     <ClInclude Include="gui\guiAnimation\guiAnimaionOptions.h">
       <Filter>gui\guiAnimation</Filter>
     </ClInclude>
@@ -252,12 +227,6 @@
     </ClInclude>
     <ClInclude Include="gui\guiCore\guiEvents.h">
       <Filter>gui\guiCore</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\guiEditor\guiEditorInclude.h">
-      <Filter>gui\guiEditor</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\guiEditor\guiEditorWidget.h">
-      <Filter>gui\guiEditor</Filter>
     </ClInclude>
     <ClInclude Include="gui\guiFactory.h">
       <Filter>gui</Filter>
@@ -337,9 +306,6 @@
     <ClInclude Include="gui\guiWidgets\window.h">
       <Filter>gui\guiWidgets</Filter>
     </ClInclude>
-    <ClInclude Include="gui\imguiStage.h">
-      <Filter>gui</Filter>
-    </ClInclude>
     <ClInclude Include="helper\IDGenerator.h">
       <Filter>helper</Filter>
     </ClInclude>
@@ -394,19 +360,7 @@
     <ClInclude Include="input\InputSystem.h">
       <Filter>input</Filter>
     </ClInclude>
-    <ClInclude Include="input\directInput.h">
-      <Filter>input</Filter>
-    </ClInclude>
     <ClInclude Include="note.h" />
-    <ClInclude Include="platform\gameWindow.h">
-      <Filter>platform</Filter>
-    </ClInclude>
-    <ClInclude Include="platform\win32\gameAppWin32.h">
-      <Filter>platform\win32</Filter>
-    </ClInclude>
-    <ClInclude Include="platform\win32\gameWindowWin32.h">
-      <Filter>platform\win32</Filter>
-    </ClInclude>
     <ClInclude Include="renderer\2D\font.h">
       <Filter>renderer\2D</Filter>
     </ClInclude>
@@ -860,26 +814,65 @@
     <ClInclude Include="utils\tween\tweeny.h">
       <Filter>utils\tween</Filter>
     </ClInclude>
+    <ClInclude Include="platform\platform.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\win32\gameAppWin32.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\win32\engineWin32.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="input\directInput.h">
+      <Filter>input\direct</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\gameWindow.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\win32\gameWindowWin32.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\win32\includeWin32.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\presentConfig.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="app\engine.h">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="app\gameComponent.h">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="input\keyboard.h">
+      <Filter>input</Filter>
+    </ClInclude>
+    <ClInclude Include="input\mouse.h">
+      <Filter>input</Filter>
+    </ClInclude>
+    <ClInclude Include="input\gamepad.h">
+      <Filter>input</Filter>
+    </ClInclude>
+    <ClInclude Include="input\keyCode.h">
+      <Filter>input</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\win32\inputSystemWin32.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\signal\event.h">
+      <Filter>utils\signal</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\systemEvent.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\signal\eventQueue.h">
+      <Filter>utils\signal</Filter>
+    </ClInclude>
+    <ClInclude Include="input\win32\keyboardWin32.h">
+      <Filter>input\win32</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\ThirdParty\imgui\imgui.cpp">
-      <Filter>gui\guiImGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ThirdParty\imgui\imgui_demo.cpp">
-      <Filter>gui\guiImGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ThirdParty\imgui\imgui_draw.cpp">
-      <Filter>gui\guiImGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ThirdParty\imgui\imgui_impl_dx11.cpp">
-      <Filter>gui\guiImGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ThirdParty\imgui\imgui_impl_win32.cpp">
-      <Filter>gui\guiImGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ThirdParty\imgui\imgui_widgets.cpp">
-      <Filter>gui\guiImGUI</Filter>
-    </ClCompile>
     <ClCompile Include="audio\audio.cpp">
       <Filter>audio</Filter>
     </ClCompile>
@@ -898,9 +891,6 @@
     <ClCompile Include="core\eventSystem.cpp">
       <Filter>core</Filter>
     </ClCompile>
-    <ClCompile Include="core\gameComponent.cpp">
-      <Filter>core</Filter>
-    </ClCompile>
     <ClCompile Include="core\jobSystem.cpp">
       <Filter>core</Filter>
     </ClCompile>
@@ -910,7 +900,6 @@
     <ClCompile Include="core\settings.cpp">
       <Filter>core</Filter>
     </ClCompile>
-    <ClCompile Include="engine.cpp" />
     <ClCompile Include="generates\luabind_registers.cpp">
       <Filter>generates</Filter>
     </ClCompile>
@@ -928,9 +917,6 @@
     </ClCompile>
     <ClCompile Include="gui\guiCore\guiDistributor.cpp">
       <Filter>gui\guiCore</Filter>
-    </ClCompile>
-    <ClCompile Include="gui\guiEditor\guiEditorWidget.cpp">
-      <Filter>gui\guiEditor</Filter>
     </ClCompile>
     <ClCompile Include="gui\guiFactory.cpp">
       <Filter>gui</Filter>
@@ -1001,9 +987,6 @@
     <ClCompile Include="gui\guiWidgets\window.cpp">
       <Filter>gui\guiWidgets</Filter>
     </ClCompile>
-    <ClCompile Include="gui\imguiStage.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
     <ClCompile Include="helper\IDGenerator.cpp">
       <Filter>helper</Filter>
     </ClCompile>
@@ -1046,18 +1029,6 @@
     <ClCompile Include="input\InputSystem.cpp">
       <Filter>input</Filter>
     </ClCompile>
-    <ClCompile Include="input\directInput.cpp">
-      <Filter>input</Filter>
-    </ClCompile>
-    <ClCompile Include="platform\gameWindow.cpp">
-      <Filter>platform</Filter>
-    </ClCompile>
-    <ClCompile Include="platform\win32\gameAppWin32.cpp">
-      <Filter>platform\win32</Filter>
-    </ClCompile>
-    <ClCompile Include="platform\win32\gameWindowWin32.cpp">
-      <Filter>platform\win32</Filter>
-    </ClCompile>
     <ClCompile Include="platform\win32\safeRefcountWin32.cpp">
       <Filter>platform\win32</Filter>
     </ClCompile>
@@ -1095,9 +1066,6 @@
       <Filter>renderer\passes\terrain</Filter>
     </ClCompile>
     <ClCompile Include="renderer\paths\renderImage.cpp">
-      <Filter>renderer\paths</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\paths\renderPath.cpp">
       <Filter>renderer\paths</Filter>
     </ClCompile>
     <ClCompile Include="renderer\paths\renderPath2D.cpp">
@@ -1414,6 +1382,48 @@
     </ClCompile>
     <ClCompile Include="utils\tlsf\tlsf.c">
       <Filter>utils\tlsf</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\win32\platformWin32.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\win32\gameAppWin32.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\win32\engineWin32.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="input\directInput.cpp">
+      <Filter>input\direct</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\win32\gameWindowWin32.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="app\engine.cpp">
+      <Filter>app</Filter>
+    </ClCompile>
+    <ClCompile Include="app\gameComponent.cpp">
+      <Filter>app</Filter>
+    </ClCompile>
+    <ClCompile Include="input\keyboard.cpp">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="input\keyCode.cpp">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="input\mouse.cpp">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\win32\inputSystemWin32.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\signal\eventQueue.cpp">
+      <Filter>utils\signal</Filter>
+    </ClCompile>
+    <ClCompile Include="input\win32\keyboardWin32.cpp">
+      <Filter>input\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="core\globalContext.cpp">
+      <Filter>core</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

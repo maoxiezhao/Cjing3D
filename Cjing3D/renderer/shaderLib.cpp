@@ -98,18 +98,22 @@ void ShaderLib::Reload()
 ShaderPtr ShaderLib::LoadShader(SHADERSTAGES stages, const std::string& path)
 {
 	// 目前所有shader都只是缓存了一份，但并未做索引，
+	auto resourceManager = GetGlobalContext().gResourceManager;
+	auto shaderDirectory = resourceManager->GetStandardResourceDirectory(Resource_Shader);
+
+	const std::string fullPath = shaderDirectory + path;
 	std::shared_ptr<Shader> shaderPtr = nullptr;
-	if (!FileData::IsFileExists(path))
+	if (!FileData::IsFileExists(fullPath))
 	{
-		Debug::Warning("Failed to load shader:" + path);
+		Debug::Warning("Failed to load shader:" + fullPath);
 		return shaderPtr;
 	}
 
 	size_t length = 0;
-	const char* byteData = FileData::ReadFileBytes(path, length);
+	const char* byteData = FileData::ReadFileBytes(fullPath, length);
 	if (byteData == nullptr)
 	{
-		Debug::Warning("Failed to load shader:" + path);
+		Debug::Warning("Failed to load shader:" + fullPath);
 		return shaderPtr;
 	}
 
@@ -123,18 +127,22 @@ ShaderPtr ShaderLib::LoadShader(SHADERSTAGES stages, const std::string& path)
 
 VertexShaderInfo ShaderLib::LoadVertexShaderInfo(const std::string& path, VertexLayoutDesc* desc, U32 numElements)
 {
+	auto resourceManager = GetGlobalContext().gResourceManager;
+	auto shaderDirectory = resourceManager->GetStandardResourceDirectory(Resource_Shader);
+
+	const std::string fullPath = shaderDirectory + path;
 	VertexShaderInfo vertexShaderInfo = {};
-	if (!FileData::IsFileExists(path))
+	if (!FileData::IsFileExists(fullPath))
 	{
-		Debug::Warning("Failed to load vertex shader:" + path);
+		Debug::Warning("Failed to load vertex shader:" + fullPath);
 		return vertexShaderInfo;
 	}
 
 	size_t length = 0;
-	const char* byteData = FileData::ReadFileBytes(path, length);
+	const char* byteData = FileData::ReadFileBytes(fullPath, length);
 	if (byteData == nullptr)
 	{
-		Debug::Warning("Failed to load vertex shader:" + path);
+		Debug::Warning("Failed to load vertex shader:" + fullPath);
 		return vertexShaderInfo;
 	}
 
@@ -147,5 +155,4 @@ VertexShaderInfo ShaderLib::LoadVertexShaderInfo(const std::string& path, Vertex
 
 	return vertexShaderInfo;
 }
-
 }

@@ -13,7 +13,7 @@ namespace Cjing3D
 	class Settings : public SubSystem
 	{
 	public:
-		Settings(GlobalContext& globalContext);
+		Settings();
 		~Settings();
 
 		void Initialize();

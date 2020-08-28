@@ -10,20 +10,23 @@ namespace Cjing3D {
 	class RenderPath
 	{
 	public:
-		RenderPath();
-		virtual ~RenderPath();
+		RenderPath() {};
+		virtual ~RenderPath() {};
 
-		virtual void Initialize() {};
-		virtual void Uninitialize() {};
+		virtual void Initialize()   { SetIsInitialized(true);  };
+		virtual void Uninitialize() { SetIsInitialized(false); };
 		virtual void Start() {};
 		virtual void Stop() {};
-		virtual void Update(F32 dt);
+		virtual void Update(F32 dt) {};
+		virtual void FixedUpdate() {};
 		virtual void Render() {};
 		virtual void Compose() {};
-		virtual void ResizeBuffers() {}
+
+		bool IsInitialized()const { return mIsInitialized; }
+		void SetIsInitialized(bool isInitialized) { mIsInitialized = isInitialized; }
 
 	private:
-		bool mIsBufferInitialized = false;
+		bool mIsInitialized = false;
 	};
 
 }

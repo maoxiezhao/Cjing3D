@@ -1,6 +1,7 @@
 #pragma once
 
-#include "gui\guiEditor\guiEditorWidget.h"
+#include "guiEditorWidget.h"
+#include "system\sceneSystem.h"
 
 namespace Cjing3D
 {

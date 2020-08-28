@@ -3,7 +3,7 @@
 #include "helper\fileSystem.h"
 #include "system\sceneSystem.h"
 #include "resource\resourceManager.h"
-#include "platform\gameWindow.h"
+#include "platform\platform.h"
 
 namespace Cjing3D
 {
@@ -11,7 +11,7 @@ namespace EditorHelper
 {
 	void LoadSceneFromOpenFile()
 	{
-		GameWindow::LoadFileFromOpenWindow(
+		Platform::LoadFileFromOpenWindow(
 			"Scene file(Model file)\0*.c3dscene;*.obj;*.gltf\0",
 			[](const std::string& filePath) {
 
@@ -35,7 +35,7 @@ namespace EditorHelper
 
 	void SaveSceneToOpenFile()
 	{
-		GameWindow::SaveFileToOpenWindow(
+		Platform::SaveFileToOpenWindow(
 			"Scene file\0*.c3dscene\0",
 			[](const std::string& filePath) {
 
@@ -44,13 +44,13 @@ namespace EditorHelper
 					path = path + ".c3dscene";
 				}
 				Scene::GetScene().SaveSceneToArchive(path);
-				GameWindow::ShowMessageBox("Scene saved successfully");
+				Platform::ShowMessageBox("Scene saved successfully");
 			});
 	}
 
 	void LoadSkyFromOpenFile()
 	{
-		GameWindow::LoadFileFromOpenWindow(
+		Platform::LoadFileFromOpenWindow(
 			"Cube map\0*.dds\0",
 			[](const std::string& filePath) {
 
@@ -77,7 +77,7 @@ namespace EditorHelper
 	std::string GetFileNameFromOpenFile(const char* filter)
 	{
 		std::string ret;
-		GameWindow::LoadFileFromOpenWindow(
+		Platform::LoadFileFromOpenWindow(
 			filter,
 			[&ret](const std::string& filePath) {
 				ret = filePath;

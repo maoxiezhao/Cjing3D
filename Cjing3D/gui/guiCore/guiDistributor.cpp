@@ -269,7 +269,7 @@ namespace Gui {
 
 			mLastClickWidget = mButtonFocuseWidget != nullptr ? mButtonFocuseWidget->GetNodePtr() : nullptr;
 			SetCurrentFocusedWidget(mLastClickWidget);
-			mLastPressedTime = GlobalGetCurrentTime();
+			mLastPressedTime = GetGlobalContext().GetCurrentTime();
 		}
 
 		void MouseButtonDistributor::SignalHandlerButtonUp(const I32x2& coords, std::vector<WidgetPtr>& widgets)
@@ -348,7 +348,7 @@ namespace Gui {
 
 		void MouseButtonDistributor::MouseButtonClick(Widget* widget, const I32x2& coords)
 		{
-			F32 currentTime = GlobalGetCurrentTime();
+			F32 currentTime = GetGlobalContext().GetCurrentTime();
 			if (mLastPressedTime + mouseClickDeltaTime >= currentTime &&
 				widget == mLastClickWidget.get())
 			{

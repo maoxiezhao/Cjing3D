@@ -829,7 +829,7 @@ namespace {
 
 }
 
-GraphicsDeviceD3D11::GraphicsDeviceD3D11(HWND window, bool fullScreen, bool debugLayer):
+GraphicsDeviceD3D11::GraphicsDeviceD3D11(HWND window, bool fullScreen, FORMAT backbufferFormat, bool debugLayer):
 	GraphicsDevice(GraphicsDeviceType_directx11),
 	mWindow(window),
 	mDebugLayer(debugLayer),
@@ -838,8 +838,7 @@ GraphicsDeviceD3D11::GraphicsDeviceD3D11(HWND window, bool fullScreen, bool debu
 	mSwapChain()
 {
 	mIsFullScreen = fullScreen;
-
-	mBackBufferFormat = FORMAT_R8G8B8A8_UNORM;
+	mBackBufferFormat = backbufferFormat;  
 
 	RECT rect = RECT();
 	GetClientRect(window, &rect);
