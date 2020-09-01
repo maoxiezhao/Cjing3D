@@ -47,7 +47,25 @@ namespace Cjing3D
 		Click_Left,
 		Click_Middle,
 		Click_Right,
-		key_count
+		// gamepad
+		Gamepad_CountStart,
+		Gamepad_Up,
+		Gamepad_Down,
+		Gamepad_Left,
+		Gamepad_Right,
+		Gamepad_A,
+		Gamepad_B,
+		Gamepad_X,
+		Gamepad_Y,
+		Gamepad_Start,
+		Gamepad_Back,
+		Gamepad_LeftShoulder,
+		Gamepad_RightShoulder,
+		Gamepad_LeftStick,
+		Gamepad_RightStick,
+		Gamepad_CountEnd,
+		key_count,
+		Gamepad_Count = Gamepad_CountEnd - Gamepad_CountStart - 1
 	};
 	ENUM_TRAITS_REGISTER_ENUM_HEADER(KeyCode)
 }

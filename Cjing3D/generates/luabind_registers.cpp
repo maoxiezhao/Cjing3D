@@ -28,17 +28,12 @@ LuaBinder(l)
 
 LuaBinder(l)
 .BeginClass<InputManager>("InputManager")
+.AddMethod("IsKeyDown", &InputManager::IsKeyDown)
 .AddMethod("IsKeyPressed", &InputManager::IsKeyPressed)
 .AddMethod("IsKeyReleased", &InputManager::IsKeyReleased)
 .AddMethod("IsKeyHold", &InputManager::IsKeyHold)
 .AddMethod("GetMousePos", &InputManager::GetMousePos)
 .AddMethod("GetMouseWheelDelta", &InputManager::GetMouseWheelDelta)
-.AddMethod("IsGamepadConnected", &InputManager::IsGamepadConnected)
-.AddMethod("IsGamepadButtonDown", &InputManager::IsGamepadButtonDown)
-.AddMethod("IsGamepadButtonUp", &InputManager::IsGamepadButtonUp)
-.AddMethod("IsGamepadButtonHold", &InputManager::IsGamepadButtonHold)
-.AddMethod("GetGamepadThumbStickLeft", &InputManager::GetGamepadThumbStickLeft)
-.AddMethod("GetGamepadThumbStickRight", &InputManager::GetGamepadThumbStickRight)
 .EndClass();
 
 LuaBinder(l)

@@ -19,20 +19,29 @@ namespace Cjing3D
 		GameComponent::FixedUpdate();
 
 		auto inputManager = mEngine->GetInputManager();
-		auto keyboard = inputManager->GetKeyBoard();
-		if (keyboard->IsKeyPressed(KeyCode::W))
+		if (inputManager->IsKeyPressed(KeyCode::W))
 		{
 			Logger::Info("Key press");
 		}
 
-		if (keyboard->IsKeyReleased(KeyCode::W))
+		if (inputManager->IsKeyReleased(KeyCode::W))
 		{
 			Logger::Info("Key release");
 		}
 
-		if (keyboard->IsKeyHold(KeyCode::W))
+		if (inputManager->IsKeyHold(KeyCode::W))
 		{
 			Logger::Info("Key hold");
+		}
+
+		if (inputManager->IsKeyPressed(KeyCode::Click_Right))
+		{
+			Logger::Info("Key hold");
+		}
+
+		if (inputManager->IsKeyPressed(KeyCode::Gamepad_A))
+		{
+			Logger::Info("Key Pressed");
 		}
 	}
 }

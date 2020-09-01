@@ -139,14 +139,14 @@
     <Filter Include="utils\tween">
       <UniqueIdentifier>{C860E430-3416-5D26-BD0A-57FD29BF532A}</UniqueIdentifier>
     </Filter>
-    <Filter Include="input\direct">
-      <UniqueIdentifier>{5cf26ada-d789-4800-8810-e4d94a4f3044}</UniqueIdentifier>
-    </Filter>
     <Filter Include="app">
       <UniqueIdentifier>{c331288e-80f9-44de-acb6-08606d060d23}</UniqueIdentifier>
     </Filter>
     <Filter Include="input\win32">
       <UniqueIdentifier>{3fc35641-2aa7-40c6-8913-c0380d0d0c90}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="input\xinput">
+      <UniqueIdentifier>{9977d83a-1766-4b03-80bf-a434fc7c12d9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -823,9 +823,6 @@
     <ClInclude Include="platform\win32\engineWin32.h">
       <Filter>platform\win32</Filter>
     </ClInclude>
-    <ClInclude Include="input\directInput.h">
-      <Filter>input\direct</Filter>
-    </ClInclude>
     <ClInclude Include="platform\gameWindow.h">
       <Filter>platform</Filter>
     </ClInclude>
@@ -870,6 +867,12 @@
     </ClInclude>
     <ClInclude Include="input\win32\keyboardWin32.h">
       <Filter>input\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="input\win32\mouseWin32.h">
+      <Filter>input\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="input\xinput\gamepadXInput.h">
+      <Filter>input\xinput</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1392,9 +1395,6 @@
     <ClCompile Include="platform\win32\engineWin32.cpp">
       <Filter>platform\win32</Filter>
     </ClCompile>
-    <ClCompile Include="input\directInput.cpp">
-      <Filter>input\direct</Filter>
-    </ClCompile>
     <ClCompile Include="platform\win32\gameWindowWin32.cpp">
       <Filter>platform\win32</Filter>
     </ClCompile>
@@ -1410,9 +1410,6 @@
     <ClCompile Include="input\keyCode.cpp">
       <Filter>input</Filter>
     </ClCompile>
-    <ClCompile Include="input\mouse.cpp">
-      <Filter>input</Filter>
-    </ClCompile>
     <ClCompile Include="platform\win32\inputSystemWin32.cpp">
       <Filter>platform\win32</Filter>
     </ClCompile>
@@ -1424,6 +1421,15 @@
     </ClCompile>
     <ClCompile Include="core\globalContext.cpp">
       <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="input\win32\mouseWin32.cpp">
+      <Filter>input\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="input\xinput\gamepadXInput.cpp">
+      <Filter>input\xinput</Filter>
+    </ClCompile>
+    <ClCompile Include="input\gamepad.cpp">
+      <Filter>input</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
