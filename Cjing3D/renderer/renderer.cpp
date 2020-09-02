@@ -5,7 +5,6 @@
 #include "textureHelper.h"
 #include "renderer\RHI\device.h"
 #include "core\globalContext.hpp"
-#include "core\eventSystem.h"
 #include "helper\profiler.h"
 #include "renderer\RHI\d3d11\deviceD3D11.h"
 #include "system\component\camera.h"
@@ -59,6 +58,9 @@ namespace {
 	F32x3 mDebugGridPosOffset = F32x3(0.0f, 0.0f, 0.0f);
 	I32 mDebugGridVertexCount = 0;
 	GPUBuffer mDebugGridVertexBuffer;
+
+	// connection
+	ScopedConnection mResolutionChangedConn;
 
 ///////////////////////////////////////////////////////////////////////////////////
 //  renderer variants
@@ -557,6 +559,15 @@ void Initialize()
 	// initialize render pass
 	InitializeRenderPasses();
 
+	// event callbacks
+	mResolutionChangedConn = EventSystem::Register(EVENT_RESOLUTION_CHANGE,
+		[](const VariantArray& variants) {
+			const U32 width  = variants[0].GetValue<U32>();
+			const U32 height = variants[1].GetValue<U32>();
+
+			SetScreenSize(width, height);
+		});
+
 	mIsInitialized = true;
 }
 
@@ -594,12 +605,11 @@ void Uninitialize()
 	mIsInitialized = false;
 }
 
-// Device从uninitialize中分离，在程序结束最后调用
 void UninitializeDevice()
 {
 	if (mGraphicsDevice != nullptr)
 	{
-		mGraphicsDevice->Uninitialize();
+		mGraphicsDevice.reset();
 		mGraphicsDevice = nullptr;
 	}
 }
@@ -940,11 +950,17 @@ void EndFrame()
 
 void SetScreenSize(U32 width, U32 height)
 {
-	mScreenSize[0] = width;
-	mScreenSize[1] = height;
+	if (width != mScreenSize[0] || height != mScreenSize[1])
+	{
+		mScreenSize[0] = width;
+		mScreenSize[1] = height;
 
-	mFrameData.mFrameScreenSize = { (F32)mScreenSize[0], (F32)mScreenSize[1] };
-	mFrameData.mFrameInvScreenSize = { 1.0f / (F32)mScreenSize[0], 1.0f / (F32)mScreenSize[1] };
+		mFrameData.mFrameScreenSize = { (F32)mScreenSize[0], (F32)mScreenSize[1] };
+		mFrameData.mFrameInvScreenSize = { 1.0f / (F32)mScreenSize[0], 1.0f / (F32)mScreenSize[1] };
+
+		GetCamera().SetupPerspective((F32)width, (F32)height, 0.1f, 800.0f);
+		GetDevice().SetResolution({ width, height });
+	}
 }
 
 U32x2 GetScreenSize()

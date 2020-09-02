@@ -57,8 +57,7 @@ namespace Cjing3D
 		for (int i = 0; i < std::size(mPlanes); i++)
 		{
 			const auto p = aabb.GetMaxPointAlongNormal(mPlanes[i]);
-			const auto result = XMPlaneDotCoord(mPlanes[i], p);
-			if (XMVectorGetX(result) < 0.0f)
+			if (XMVectorGetX(XMPlaneDotCoord(mPlanes[i], p)) < 0.0f)
 			{
 				return false;
 			}

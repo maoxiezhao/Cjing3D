@@ -2,6 +2,7 @@
 
 #include "renderPath.h"
 #include "gui\guiRenderer.h"
+#include "core\eventSystem.h"
 
 namespace Cjing3D {
 
@@ -30,6 +31,7 @@ namespace Cjing3D {
 	private:
 		Texture2D mRTFinal;
 		RenderBehavior mRBFinal;
+		ScopedConnection mResolutionChangedConn;
 	};
 
 }

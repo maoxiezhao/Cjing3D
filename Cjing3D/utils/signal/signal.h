@@ -54,6 +54,7 @@ namespace Cjing3D
 			void Disconnect(U32 index);
 			void Call(Args&&... args);
 			bool IsConnected(U32 index);
+			void ClearAll();
 
 		private:
 			void PushBackAddedListeners();
@@ -158,6 +159,13 @@ namespace Cjing3D
 		}
 
 		template<typename ...Args>
+		inline void SignalBody<void(Args...)>::ClearAll()
+		{
+			mObservers.clear();
+			mAddedObservers.clear();
+		}
+
+		template<typename ...Args>
 		inline void SignalBody<void(Args...)>::PushBackAddedListeners()
 		{
 			decltype(mAddedObservers) temporarySlots;
@@ -216,6 +224,12 @@ namespace Cjing3D
 		{
 			mSignalBody->Call(std::forward<Args>(args)...);
 		}
+
+		void ClearAll()
+		{
+			mSignalBody->ClearAll();
+		}
+
 	private:	
 		std::shared_ptr<SignalBody> mSignalBody ;
 	};

@@ -1,5 +1,6 @@
 ﻿#include "gameEditor.h"
 #include "editor\guiEditor.h"
+#include "core\eventSystem.h"
 
 namespace Cjing3D
 {
@@ -28,7 +29,7 @@ namespace Cjing3D
 		{
 			Logger::Info("Key release");
 		}
-
+		
 		if (inputManager->IsKeyHold(KeyCode::W))
 		{
 			Logger::Info("Key hold");

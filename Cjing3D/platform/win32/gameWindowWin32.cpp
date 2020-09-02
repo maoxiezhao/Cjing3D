@@ -201,6 +201,11 @@ namespace Cjing3D::Win32 {
 		return ::GetForegroundWindow() == mHwnd;
 	}
 
+	bool GameWindowWin32::IsFullScreen() const
+	{
+		return mIsFullScreen;
+	}
+
 	UTF8String GameWindowWin32::GetWindowTitle() const
 	{
 		return mTitleName;
@@ -295,12 +300,12 @@ namespace Cjing3D::Win32 {
 			if (window != nullptr) {
 				window->mEventQueue->Push<WindowCloseEvent>();
 			}
-			break;
+			return 0;
 		case WM_CLOSE:
 			if (window != nullptr) {
 				window->mEventQueue->Push<WindowCloseEvent>();
 			}
-			break;
+			return 0;
 		case WM_CHAR:
 			if (window != nullptr) 
 			{
@@ -308,7 +313,7 @@ namespace Cjing3D::Win32 {
 				text += static_cast<wchar_t>(wParam);
 				window->mEventQueue->Push<InputTextEvent>(Platform::WStringToString(text));
 			}
-			break;
+			return 0;
 		case WM_MOVE: 
 			if (window != nullptr) 
 			{
@@ -317,28 +322,36 @@ namespace Cjing3D::Win32 {
 			}
 			break;
 		case WM_INPUT: 
-		{
-			if (window != nullptr)
 			{
-				static RAWINPUT raw;
-				U32 rawSize = sizeof(raw);
-				GetRawInputData((HRAWINPUT)lParam, RID_INPUT, &raw, &rawSize, sizeof(RAWINPUTHEADER));
+				if (window != nullptr)
+				{
+					static RAWINPUT raw;
+					U32 rawSize = sizeof(raw);
+					GetRawInputData((HRAWINPUT)lParam, RID_INPUT, &raw, &rawSize, sizeof(RAWINPUTHEADER));
 			
-				if (raw.header.dwType == RIM_TYPEMOUSE)
-				{
-					window->mEventQueue->Push<RAWMOUSE>(raw.data.mouse);
-				}
-				else if (raw.header.dwType == RIM_TYPEKEYBOARD)
-				{
-					window->mEventQueue->Push<RAWKEYBOARD>(raw.data.keyboard);
+					if (raw.header.dwType == RIM_TYPEMOUSE) {
+						window->mEventQueue->Push<RAWMOUSE>(raw.data.mouse);
+					}
+					else if (raw.header.dwType == RIM_TYPEKEYBOARD) {
+						window->mEventQueue->Push<RAWKEYBOARD>(raw.data.keyboard);
+					}
 				}
 			}
-		}
 			break;
+		case WM_SIZE:
+			{
+				if (window != nullptr)
+				{
+					U32 width = static_cast<U32>(lParam & 0xffff);
+					U32 height = static_cast<U32>((lParam >> 16) & 0xffff);
+					window->mEventQueue->Push<ViewResizeEvent>(width, height);
+				}
+			}
+			return true;
 		default:
-			return DefWindowProc(hWnd, message, wParam, lParam);
+			break;
 		}
-		return 0;
+		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 }
 

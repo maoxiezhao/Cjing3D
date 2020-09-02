@@ -17,23 +17,24 @@ namespace Cjing3D
 	{
 		enum GraphicsFeature
 		{
-			VIEWPORT_AND_RENDERTARGET_ARRAYINDEX_WITHOUT_GS
+			VIEWPORT_AND_RENDERTARGET_ARRAYINDEX_WITHOUT_GS,
+			SUPPORT_TESSELLATION,
 		};
 		bool viewportAndRenderTargetArrayIndexWithoutGS_ = true;
+		bool supportTessellation_ = false;
 	};
 
 	class GraphicsDevice
 	{
 	public:
 		GraphicsDevice(GraphicsDeviceType type);
+		virtual ~GraphicsDevice();
 
-		virtual void Initialize();
-		virtual void Uninitialize();
 		virtual void PresentBegin();
 		virtual void PresentEnd();
-
 		virtual void BeginEvent(const std::string& name) = 0;
 		virtual void EndEvent() = 0;
+		virtual void SetResolution(const U32x2 size) = 0;
 
 		virtual void BindViewports(const ViewPort* viewports, U32 numViewports, GraphicsThread threadID) = 0;
 
@@ -116,10 +117,6 @@ namespace Cjing3D
 			return XMMatrixOrthographicOffCenterLH(0, (F32)mScreenSize[0], (F32)mScreenSize[1], 0, -1, 1);
 		}
 
-		bool IsMultithreadedRendering()const {
-			return mIsMultithreadedRendering;
-		}
-
 		ViewPort GetViewport()const {
 			return mViewport;
 		}
@@ -134,10 +131,6 @@ namespace Cjing3D
 		};
 		virtual GPUAllocation AllocateGPU(size_t dataSize) = 0;
 		virtual void UnAllocateGPU() = 0;
-
-		void AddGPUResource(GPUResource* resource);
-		void RemoveGPUResource(GPUResource* resource);
-		void ProcessRemovedGPUResouces();
 
 		GraphicsDeviceType GetGraphicsDeviceType()const { return mGraphicsDeviceType; }
 
@@ -165,19 +158,14 @@ namespace Cjing3D
 	protected:
 		GraphicsDeviceType mGraphicsDeviceType = GraphicsDeviceType_unknown;
 		bool mIsFullScreen;
-		FORMAT mBackBufferFormat;
+		FORMAT mBackBufferFormat = FORMAT_R8G8B8A8_UNORM;
 		U32x2 mScreenSize;
-		bool mIsMultithreadedRendering;                 // 启用多线程渲染
-		bool mIsVsync = true;							// 是否垂直同步 
+		bool mIsVsync = true;							
 		ViewPort mViewport;
 		uint64_t mCurrentFrameCount = 0;
-
 		GraphicsFeatureSupport mGraphicsFeatureSupport;
 
 		struct EmptyRhiState {};
 		std::shared_ptr<EmptyRhiState> mEmptyRhiState = nullptr;
-
-		std::list<GPUResource*> mGPUResource;  // 记录所有注册的GPUResource
-		std::vector<GPUResource*> mRemovedGPUResources;
 	};
 }

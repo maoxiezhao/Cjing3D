@@ -58,7 +58,7 @@ namespace Cjing3D {
 
 		// Setup Platform/Renderer bindings
 		GraphicsDeviceD3D11& deviceD3D11 = dynamic_cast<GraphicsDeviceD3D11&>(graphicsDevice);
-		HWND hwnd = deviceD3D11.GetHwnd();
+		HWND hwnd; // = deviceD3D11.GetHwnd();
 		ID3D11Device& device = deviceD3D11.GetDevice();
 		ID3D11DeviceContext& deviceContext = deviceD3D11.GetDeviceContext(GraphicsThread_IMMEDIATE);
 

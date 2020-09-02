@@ -1,5 +1,6 @@
 #include "renderer\RHI\d3d11\deviceD3D11.h"
 #include "renderer\RHI\d3d11\rhiResourceD3D11.h"
+#include "platform\gameWindow.h"
 
 namespace Cjing3D {
 
@@ -826,81 +827,101 @@ namespace {
 
 		return false;
 	}
-
 }
 
-GraphicsDeviceD3D11::GraphicsDeviceD3D11(HWND window, bool fullScreen, FORMAT backbufferFormat, bool debugLayer):
+GraphicsDeviceD3D11::GraphicsDeviceD3D11(const GameWindow& gameWindow, FORMAT backbufferFormat, bool debugLayer):
 	GraphicsDevice(GraphicsDeviceType_directx11),
-	mWindow(window),
 	mDebugLayer(debugLayer),
 	mDevice(),
 	mDeviceContext(),
 	mSwapChain()
 {
-	mIsFullScreen = fullScreen;
+	mIsFullScreen = gameWindow.IsFullScreen();
 	mBackBufferFormat = backbufferFormat;  
 
-	RECT rect = RECT();
-	GetClientRect(window, &rect);
-	mScreenSize[0] = rect.right - rect.left;
-	mScreenSize[1] = rect.bottom - rect.top;
-
-	ClearPrevStates();
-}
-
-void GraphicsDeviceD3D11::Initialize()
-{
-	GraphicsDevice::Initialize();
+	RectInt rect = gameWindow.GetClientBounds();
+	mScreenSize[0] = rect.mRight - rect.mLeft;
+	mScreenSize[1] = rect.mBottom - rect.mTop;
 
 	// 初始化device
-	InitializeDevice();
+	// 优先D3D_DRIVER_TYPE_HARDWARE
+	const static D3D_DRIVER_TYPE driverTypes[] =
+	{
+		D3D_DRIVER_TYPE_HARDWARE,
+		D3D_DRIVER_TYPE_WARP,
+		D3D_DRIVER_TYPE_REFERENCE,
+	};
+	U32 numTypes = ARRAYSIZE(driverTypes);
+
+	UINT createDeviceFlags = 0;
+	if (mDebugLayer == true) {
+		createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+	}
+
+	const static D3D_FEATURE_LEVEL featureLevels[] =
+	{
+		D3D_FEATURE_LEVEL_11_1,
+		D3D_FEATURE_LEVEL_11_0,
+	};
+	UINT numFeatureLevels = ARRAYSIZE(featureLevels);
+
+	for (int index = 0; index < numTypes; index++)
+	{
+		auto driverType = driverTypes[index];
+
+		ComPtr<ID3D11Device> device;
+		ComPtr<ID3D11DeviceContext> deviceContext;
+
+		const HRESULT result = D3D11CreateDevice(
+			nullptr,
+			driverType,
+			nullptr,
+			createDeviceFlags,
+			featureLevels,
+			numFeatureLevels,
+			D3D11_SDK_VERSION,
+			device.GetAddressOf(),
+			&mFeatureLevel,
+			deviceContext.GetAddressOf());
+
+		if (SUCCEEDED(result)) {
+			device.As(&mDevice);
+			deviceContext.As(&(mDeviceContext[GraphicsThread_IMMEDIATE]));
+
+			break;
+		}
+	}
+
+	if (mDevice == nullptr || mDeviceContext == nullptr)
+	{
+		Debug::Error("Failed to initialize d3d device.");
+		return;
+	}
 
 	// 初始化swapchain
 	mSwapChain = std::make_unique<SwapChainD3D11>(
 		*mDevice.Get(),
 		GetDeviceContext(GraphicsThread_IMMEDIATE),
-		mWindow,
+		gameWindow,
 		mScreenSize,
 		_ConvertFormat(GetBackBufferFormat())
-	);
+		);
 
-	// 创建ID3DUserDefinedAnnotation for GraphicsThread_IMMEDIATE
-	{
-		const auto result = GetDeviceContext(GraphicsThread_IMMEDIATE).QueryInterface(
-			__uuidof(mUserDefinedAnnotations[GraphicsThread_IMMEDIATE]),
-			reinterpret_cast<void**>(&mUserDefinedAnnotations[GraphicsThread_IMMEDIATE]));
-		Debug::ThrowIfFailed(result, "Failed to create ID3DUserDefinedAnnotation: %08X", result);
-	}
+	// check features
+	D3D_FEATURE_LEVEL featureLevel = mDevice->GetFeatureLevel();
+	mGraphicsFeatureSupport.supportTessellation_ = featureLevel >= D3D_FEATURE_LEVEL_11_0;
 
-	// 检查是否支持多线程
-	D3D11_FEATURE_DATA_THREADING threadingFeature;
-	mDevice->CheckFeatureSupport(D3D11_FEATURE_THREADING, &threadingFeature, sizeof(threadingFeature));
-	if (threadingFeature.DriverConcurrentCreates && threadingFeature.DriverCommandLists)
-	{
-		mIsMultithreadedRendering = true;
-		
-		for (int i = 0; i < GraphicsThread_COUNT; i++)
-		{
-			if (i == static_cast<U32>(GraphicsThread_IMMEDIATE)) {
-				continue;
-			}
-			// 创建deferredContext
-			ComPtr<ID3D11DeviceContext> deviceContext;
-			{
-				const auto result = mDevice->CreateDeferredContext(0, &deviceContext);
-				Debug::ThrowIfFailed(result, "Failed to create deferred context: %08X", result);
-			}
+	D3D11_FEATURE_DATA_D3D11_OPTIONS3 featureData;
+	mDevice->CheckFeatureSupport(D3D11_FEATURE_D3D11_OPTIONS3, &featureData, sizeof(featureData));
+	mGraphicsFeatureSupport.viewportAndRenderTargetArrayIndexWithoutGS_ = (featureData.VPAndRTArrayIndexFromAnyShaderFeedingRasterizer == TRUE);
 
-			// 创建ID3DUserDefinedAnnotation
-			{
-				const auto result = deviceContext->QueryInterface(
-					__uuidof(mUserDefinedAnnotations[i]),
-					reinterpret_cast<void**>(&mUserDefinedAnnotations[i]));
-				Debug::ThrowIfFailed(result, "Failed to create ID3DUserDefinedAnnotation: %08X", result);
-			}
-			deviceContext.As(&mDeviceContext[i]);
-		}
-	}
+	//// 创建ID3DUserDefinedAnnotation for GraphicsThread_IMMEDIATE
+	//{
+	//	const auto result = GetDeviceContext(GraphicsThread_IMMEDIATE).QueryInterface(
+	//		__uuidof(mUserDefinedAnnotations[GraphicsThread_IMMEDIATE]),
+	//		(void**)mUserDefinedAnnotations[GraphicsThread_IMMEDIATE].ReleaseAndGetAddressOf());
+	//	Debug::ThrowIfFailed(result, "Failed to create ID3DUserDefinedAnnotation: %08X", result);
+	//}
 
 	// 创建视口
 	mViewport.mWidth = static_cast<F32>(mScreenSize[0]);
@@ -919,37 +940,27 @@ void GraphicsDeviceD3D11::Initialize()
 	CreateBuffer(&mGPUAllocatorDesc, mGPUAllocator.buffer, nullptr);
 	SetResourceName(mGPUAllocator.buffer, "GPUAllocator");
 
-	// check graphics feature support
-	D3D11_FEATURE_DATA_D3D11_OPTIONS3 featureData;
-	mDevice->CheckFeatureSupport(D3D11_FEATURE_D3D11_OPTIONS3, &featureData, sizeof(featureData));
-	mGraphicsFeatureSupport.viewportAndRenderTargetArrayIndexWithoutGS_ = (featureData.VPAndRTArrayIndexFromAnyShaderFeedingRasterizer == TRUE);
-
 	Logger::Info("Initialized graphics device D3D11.");
 }
 
-void GraphicsDeviceD3D11::Uninitialize()
+GraphicsDeviceD3D11::~GraphicsDeviceD3D11()
 {
 	ClearPrevStates();
-
-	GraphicsDevice::Uninitialize();
-
 	mSwapChain.reset();
 
-	for (int i = 0; i < GraphicsThread_COUNT; i++) {
+	for (int i = 0; i < GraphicsThread_COUNT; i++) 
+	{
 		mDeviceContext[i]->ClearState();
 		mDeviceContext[i].Reset();
 	}
 
-	// debug, report live objects
 	if (mDebugLayer == true)
 	{
-#ifdef DEBUG_REPORT_LIVE_DEVICE_OBJECTS
 		ComPtr<ID3D11Debug> d3dDebug = nullptr;
 		HRESULT hr = mDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(d3dDebug.ReleaseAndGetAddressOf()));
 		if (SUCCEEDED(hr)) {
 			d3dDebug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
 		}
-#endif
 	}
 
 	if (mDevice != nullptr) {
@@ -988,14 +999,23 @@ void GraphicsDeviceD3D11::PresentEnd()
 
 void GraphicsDeviceD3D11::BeginEvent(const std::string & name)
 {
-	GetUserDefineAnnotation(GraphicsThread_IMMEDIATE).BeginEvent(
-		std::wstring(name.begin(), name.end()).c_str()
-	);
+	//GetUserDefineAnnotation(GraphicsThread_IMMEDIATE).BeginEvent(
+	//	std::wstring(name.begin(), name.end()).c_str()
+	//);
 }
 
 void GraphicsDeviceD3D11::EndEvent()
 {
-	GetUserDefineAnnotation(GraphicsThread_IMMEDIATE).EndEvent();
+	//GetUserDefineAnnotation(GraphicsThread_IMMEDIATE).EndEvent();
+}
+
+void GraphicsDeviceD3D11::SetResolution(const U32x2 size)
+{
+	if (size[0] != mScreenSize[0] || size[1] != mScreenSize[1])
+	{
+		mScreenSize = size;
+		mSwapChain->Resize(size);
+	}
 }
 
 // 绑定视口
@@ -2427,63 +2447,6 @@ void GraphicsDeviceD3D11::Unmap(const GPUResource* resource)
 	auto rhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(*resource);
 	if (rhiState != nullptr) {
 		GetDeviceContext(GraphicsThread_IMMEDIATE).Unmap(rhiState->mResource.Get(), 0);
-	}
-}
-
-void GraphicsDeviceD3D11::InitializeDevice()
-{
-	// 优先D3D_DRIVER_TYPE_HARDWARE
-	const static D3D_DRIVER_TYPE driverTypes[] =
-	{
-		D3D_DRIVER_TYPE_HARDWARE,
-		D3D_DRIVER_TYPE_WARP,
-		D3D_DRIVER_TYPE_REFERENCE,
-	};
-	U32 numTypes = ARRAYSIZE(driverTypes);
-
-	UINT createDeviceFlags = 0;
-	if (mDebugLayer == true) {
-		createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-	}
-
-	const static D3D_FEATURE_LEVEL featureLevels[] =
-	{
-		D3D_FEATURE_LEVEL_11_1,
-		D3D_FEATURE_LEVEL_11_0,
-	};
-	UINT numFeatureLevels = ARRAYSIZE(featureLevels);
-
-	for (int index = 0; index < numTypes; index++)
-	{
-		auto driverType = driverTypes[index];
-
-		ComPtr<ID3D11Device> device;
-		ComPtr<ID3D11DeviceContext> deviceContext;
-
-		const HRESULT result = D3D11CreateDevice(
-			nullptr,
-			driverType,
-			nullptr,
-			createDeviceFlags,
-			featureLevels,
-			numFeatureLevels,
-			D3D11_SDK_VERSION,
-			device.GetAddressOf(),
-			&mFeatureLevel,
-			deviceContext.GetAddressOf());
-		
-		if (SUCCEEDED(result)) {
-			device.As(&mDevice);
-			deviceContext.As(&(mDeviceContext[GraphicsThread_IMMEDIATE]));
-
-			break;
-		}
-	}
-
-	if (mDevice == nullptr || mDeviceContext == nullptr)
-	{
-		Debug::Error("Failed to initialize d3d device.");
-		return;
 	}
 }
 

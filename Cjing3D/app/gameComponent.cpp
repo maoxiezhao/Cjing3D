@@ -4,7 +4,6 @@
 #include "helper\enumInfo.h"
 #include "platform\platform.h"
 #include "platform\gameWindow.h"
-#include "core\eventSystem.h"
 #include "core\jobSystem.h"
 #include "core\settings.h"
 #include "input\InputSystem.h"
@@ -135,15 +134,12 @@ namespace Cjing3D
 	void GameComponent::FixedUpdate()
 	{
 		PROFILER_BEGIN_CPU_BLOCK("FixedUpdate");
-		FIRE_EVENT(EventType::EVENT_FIXED_TICK);
-
 		mLuaContext->FixedUpdate();
 		mGUIStage->FixedUpdate();
 
 		if (mCurrentRenderPath != nullptr) {
 			mCurrentRenderPath->FixedUpdate();
 		}
-
 		PROFILER_END_BLOCK();
 	}
 
@@ -166,15 +162,12 @@ namespace Cjing3D
 		}
 
 		PROFILER_BEGIN_CPU_BLOCK("Update");
-		FIRE_EVENT(EventType::EVENT_TICK);
-
 		mLuaContext->Update(deltaTime);
 		mGUIStage->Update(deltaTime);
 
 		if (mCurrentRenderPath != nullptr) {
 			mCurrentRenderPath->Update(deltaTime);
 		}
-
 		PROFILER_END_BLOCK();
 	}
 
@@ -188,12 +181,9 @@ namespace Cjing3D
 	void GameComponent::Render()
 	{
 		PROFILER_BEGIN_CPU_BLOCK("Render");
-		FIRE_EVENT(EventType::EVENT_RENDER);
-
 		if (mCurrentRenderPath != nullptr) {
 			mCurrentRenderPath->Render();
 		}
-
 		PROFILER_END_BLOCK();
 	}
 

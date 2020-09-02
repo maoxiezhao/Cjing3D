@@ -5,12 +5,14 @@
 
 namespace Cjing3D {
 
+	class GameWindow;
+
 	class SwapChainD3D11
 	{
 	public:
 		SwapChainD3D11(ID3D11Device& device,
 			ID3D11DeviceContext& deviceContext,
-			HWND window,
+			const GameWindow& gameWindow,
 			U32x2 resolution,
 			DXGI_FORMAT format);
 
@@ -20,16 +22,18 @@ namespace Cjing3D {
 
 		void Clear();
 		void Present(bool isVsync);
+		void Resize(const U32x2& size);
 
 	private:
 		void InitAdapterAndOutput();
-		void CreateSwapChain(DXGI_FORMAT format);
+		void CreateSwapChain(const GameWindow& gameWindow, DXGI_FORMAT format);
 		void CreateRenderTargetView();
 
 		U32x2 mResolution;
-		HWND mWindow;
 		ID3D11Device & mDevice;
 		ID3D11DeviceContext& mDeviceContext;
+		U32 mBackBufferCount = 2;
+		DXGI_FORMAT mBackBufferFormat;
 
 		ComPtr<IDXGIAdapter> mAdapter;
 		ComPtr<IDXGIOutput> mOutput;

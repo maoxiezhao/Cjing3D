@@ -8,19 +8,19 @@
 
 namespace Cjing3D
 {
+class GameWindow;
 
 class GraphicsDeviceD3D11 : public GraphicsDevice
 {
 public:
-	GraphicsDeviceD3D11(HWND window, bool fullScreen, FORMAT backbufferFormat, bool debugLayer);
+	GraphicsDeviceD3D11(const GameWindow& gameWindow, FORMAT backbufferFormat, bool debugLayer);
+	~GraphicsDeviceD3D11();
 
-	virtual void Initialize();
-	virtual void Uninitialize();
 	virtual void PresentBegin();
 	virtual void PresentEnd();
 	virtual void BeginEvent(const std::string& name);
 	virtual void EndEvent();
-
+	virtual void SetResolution(const U32x2 size);
 	virtual void BindViewports(const ViewPort* viewports, U32 numViewports, GraphicsThread threadID);
 
 	/** Creating function */
@@ -88,16 +88,14 @@ public:
 	virtual void Map(const GPUResource* resource, GPUResourceMapping& mapping);
 	virtual void Unmap(const GPUResource* resource);
 
-	inline HWND GetHwnd() { return mWindow; }
 	inline ID3D11Device& GetDevice() { return *mDevice.Get(); }
-
 	ID3D11DeviceContext& GetDeviceContext(GraphicsThread type) {
 		return *mDeviceContext[static_cast<U32>(type)].Get();
 	}
 
-	ID3DUserDefinedAnnotation& GetUserDefineAnnotation(GraphicsThread type) {
-		return *mUserDefinedAnnotations[static_cast<U32>(type)];
-	}
+	//ID3DUserDefinedAnnotation& GetUserDefineAnnotation(GraphicsThread type) {
+	//	return *mUserDefinedAnnotations[static_cast<U32>(type)].Get();
+	//}
 
 	void SetViewport(ViewPort viewport);
 
@@ -106,8 +104,6 @@ public:
 
 
 private:
-	void InitializeDevice();
-
 	// GPU Buffer∑÷≈‰
 	struct GPUAllocator
 	{
@@ -124,12 +120,11 @@ private:
 	void CommitAllocations();
 
 private:
-	HWND mWindow;
 	bool mDebugLayer;
 
 	ComPtr<ID3D11Device> mDevice;
 	ComPtr<ID3D11DeviceContext> mDeviceContext[GraphicsThread_COUNT];
-	ID3DUserDefinedAnnotation*	mUserDefinedAnnotations[GraphicsThread_COUNT];
+	ComPtr<ID3DUserDefinedAnnotation> mUserDefinedAnnotations[GraphicsThread_COUNT];
 	D3D_FEATURE_LEVEL mFeatureLevel;
 	std::unique_ptr< SwapChainD3D11> mSwapChain;
 
@@ -139,11 +134,9 @@ private:
 	ID3D11ComputeShader* mPrevComputeShader = nullptr;
 	ID3D11HullShader* mPrevHullShader = nullptr;
 	ID3D11DomainShader* mPrevDomainShader = nullptr;
-
 	ID3D11DepthStencilState* mPrevDepthStencilState = nullptr;
 	ID3D11BlendState* mPrevBlendState = nullptr;
 	ID3D11RasterizerState* mPrevRasterizerState = nullptr;
-
 	ID3D11InputLayout* mPrevInputLayout = nullptr;
 	PRIMITIVE_TOPOLOGY mPrevPrimitiveTopology = UNDEFINED_TOPOLOGY;
 };

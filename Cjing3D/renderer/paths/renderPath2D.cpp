@@ -45,18 +45,21 @@ namespace Cjing3D
 
 	void RenderPath2D::Initialize()
 	{
-		if (IsInitialized()) {
-			return;
-		}
-
 		RenderPath::Initialize();
+
+		if (!mResolutionChangedConn.IsConnected())
+		{
+			ResizeBuffers();
+			mResolutionChangedConn = EventSystem::Register(EVENT_RESOLUTION_CHANGE,
+				[this](const VariantArray& variants) {
+					ResizeBuffers();
+				});
+		}
 	}
 
 	void RenderPath2D::Uninitialize()
 	{
-		if (!IsInitialized()) {
-			return;
-		}
+
 
 		RenderPath::Uninitialize();
 	}

@@ -15,6 +15,7 @@ namespace Cjing3D {
 		virtual ~GameWindow() = default;
 
 		virtual bool IsWindowActive() const = 0;
+		virtual bool IsFullScreen()const = 0;
 		virtual UTF8String GetWindowTitle()const = 0;
 		virtual void SetWindowTitle(const UTF8String& title) = 0;
 		virtual bool IsMouseCursorVisible()const = 0;

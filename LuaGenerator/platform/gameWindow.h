@@ -34,7 +34,4 @@ namespace Cjing3D {
 		static void SaveFileToOpenWindow(const char* fileFilter, std::function<void(const std::string&)> callback);
 		static void ShowBrowseForFolder(const char* title, std::function<void(const std::string&)> callback);
 	};
-
-
-
 }

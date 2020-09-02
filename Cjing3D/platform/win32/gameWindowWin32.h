@@ -37,6 +37,7 @@ namespace Cjing3D::Win32 {
 		void AddMessageHandler(WindowMessageHandler handler);
 
 		bool IsWindowActive() const override;
+		bool IsFullScreen()const override;
 		UTF8String GetWindowTitle()const override;
 		void SetWindowTitle(const UTF8String& title) override;
 		bool IsMouseCursorVisible()const override;

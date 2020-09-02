@@ -13,7 +13,7 @@ public:
 	virtual void ResizeBuffers();
 	virtual void Render();
 
-private:
+protected:
 	Texture2D mRTMain;
 
 	RenderBehavior mRBDepthPrepass;

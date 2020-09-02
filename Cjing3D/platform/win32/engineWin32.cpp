@@ -1,9 +1,8 @@
 #include "engineWin32.h"
 #include "helper\fileSystem.h"
 #include "helper\profiler.h"
-#include "helper\enumInfo.h"
+#include "helper\variant.h"
 #include "platform\platform.h"
-#include "core\eventSystem.h"
 #include "core\jobSystem.h"
 #include "core\settings.h"
 #include "resource\resourceManager.h"
@@ -18,6 +17,7 @@
 #include "platform\win32\gameWindowWin32.h"
 #include "platform\win32\inputSystemWin32.h"
 #include "renderer\RHI\d3d11\deviceD3D11.h"
+#include "core\eventSystem.h"
 
 namespace Cjing3D::Win32
 {
@@ -70,14 +70,13 @@ namespace Cjing3D::Win32
 			GetGlobalContext().SetCurrentEngine(nullptr);
 		}
 
-		std::shared_ptr<GraphicsDevice> CreateGraphicsDeviceByType(RenderingDeviceType deviceType, HWND window, bool isFullScreen, FORMAT backBufferFormat, bool isDebug)
+		std::shared_ptr<GraphicsDevice> CreateGraphicsDeviceByType(RenderingDeviceType deviceType, const GameWindow& gameWindow,  FORMAT backBufferFormat, bool isDebug)
 		{
 			std::shared_ptr<GraphicsDevice> graphicsDevice = nullptr;
 			switch (deviceType)
 			{
 			case RenderingDeviceType_D3D11:
-				graphicsDevice = CJING_MAKE_SHARED<GraphicsDeviceD3D11>(window, isFullScreen, backBufferFormat, isDebug);	
-				graphicsDevice->Initialize();
+				graphicsDevice = CJING_MAKE_SHARED<GraphicsDeviceD3D11>(gameWindow, backBufferFormat, isDebug);
 				break;
 			}
 			return graphicsDevice;
@@ -118,12 +117,10 @@ namespace Cjing3D::Win32
 		mSettings		 = RegisterSubSystem<Settings>();
 		mJobSystem	     = RegisterSubSystem<JobSystem>();
 
-		auto presentConfig = GetPresentConfig();
 		auto graphicsDevice = CreateGraphicsDeviceByType(
 			RenderingDeviceType_D3D11,
-			mGameWindowWin32->GetHwnd(),
-			presentConfig.mIsFullScreen,
-			presentConfig.mBackBufferFormat,
+			*mGameWindowWin32,
+			mPresentConfig.mBackBufferFormat,
 			isDebuggin
 		);
 		Renderer::SetDevice(graphicsDevice);
@@ -188,6 +185,14 @@ namespace Cjing3D::Win32
 		{
 			const RAWKEYBOARD* event = systemEvent.As<RAWKEYBOARD>();
 			mInputManager->ProcessKeyboardEvent(*event);
+		}
+		else if (systemEvent.Is<ViewResizeEvent>())
+		{
+			const ViewResizeEvent* event = systemEvent.As<ViewResizeEvent>();
+			VariantArray variants;
+			variants.push_back(Variant(event->width));
+			variants.push_back(Variant(event->height));
+			EventSystem::Fire(EVENT_RESOLUTION_CHANGE, variants);
 		}
 	}
 

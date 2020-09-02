@@ -30,7 +30,10 @@ namespace Cjing3D
 			return mGameWindow;
 		}
 
-		PresentConfig& GetPresentConfig()const {
+		PresentConfig& GetPresentConfig() {
+			return mPresentConfig;
+		}
+		const PresentConfig& GetPresentConfig()const {
 			return mPresentConfig;
 		}
 
@@ -45,7 +48,7 @@ namespace Cjing3D
 		void SetIsExiting(bool isExiting) { mIsExiting = isExiting; }
 		bool GetIsExiting()const { return mIsExiting; }
 
-	private:
+	protected:
 		std::shared_ptr<GameWindow> mGameWindow = nullptr;
 		PresentConfig& mPresentConfig;
 		bool mIsExiting = false;
