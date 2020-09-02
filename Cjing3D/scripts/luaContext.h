@@ -62,7 +62,7 @@ private:
 	void OnMainStart();
 	void OnMainUpdate();
 	void OnMainFixedUpdate();
-	void OnMainUninitialize();
+	void OnMainStop();
 
 	lua_State* mLuaState = nullptr;
 };

@@ -102,8 +102,6 @@ void LuaContext::GC()
 
 void LuaContext::Uninitialize()
 {
-	StopMainScript();
-
 	mSystemExports.Clear();
 
 	lua_close(mLuaState);
@@ -195,7 +193,7 @@ void LuaContext::OnMainFixedUpdate()
 	DoLuaSystemFunctionWithIndex(CLIENT_LUA_MAIN_FIXED_UPDATE);
 }
 
-void LuaContext::OnMainUninitialize()
+void LuaContext::OnMainStop()
 {
 	DoLuaSystemFunctionWithIndex(CLIENT_LUA_MAIN_STOP);
 }
@@ -222,7 +220,7 @@ void LuaContext::StartMainScript()
 
 void LuaContext::StopMainScript()
 {
-	OnMainUninitialize();
+	OnMainStop();
 }
 
 void LuaContext::ChangeLuaScene(const std::string& name)

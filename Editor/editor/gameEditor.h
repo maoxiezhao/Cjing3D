@@ -2,7 +2,6 @@
 
 #include "definitions\definitions.h"
 #include "app\gameComponent.h"
-#include "renderer\paths\renderPath_tiledForward.h"
 
 namespace Cjing3D
 {
@@ -12,6 +11,7 @@ namespace Cjing3D
 		GameEditor(const std::shared_ptr<Engine>& engine);
 		virtual ~GameEditor();
 
+		void Initialize()override;
 		void FixedUpdate()override;
 	};
 

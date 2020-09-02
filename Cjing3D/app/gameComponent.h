@@ -19,11 +19,12 @@ namespace Cjing3D
 		virtual void Tick();
 		virtual void Uninitialize();
 
-		void SetRenderPath(RenderPath* renderPath);
-		RenderPath* GetCurrentRenderPath();
+		void SetRenderPath(const std::shared_ptr<RenderPath>& renderPath);
 		bool GetIsExiting()const { return mEngine->GetIsExiting(); }
 
 	protected:
+		virtual void OnLoad();
+		virtual void OnUnLoad();
 		virtual void FixedUpdate();
 		virtual void Update(F32 deltaTime);
 		virtual void UpdateInput(F32 deltaTime);
@@ -32,8 +33,6 @@ namespace Cjing3D
 		virtual void PostRender() {};
 		virtual void Compose();
 		virtual void EndFrame();
-		virtual void OnGameStart();
-		virtual void OnGameStop();
 		virtual void DoSystemEvents();
 
 	protected:
@@ -41,8 +40,8 @@ namespace Cjing3D
 		bool mIsSkipFrame = true;
 		F32 mDeltaTimeAccumulator = 0;
 
-		std::unique_ptr<RenderPath> mCurrentRenderPath = nullptr;
-		std::unique_ptr<RenderPath> mNextRenderPath = nullptr;
+		std::shared_ptr<RenderPath> mCurrentRenderPath = nullptr;
+		std::shared_ptr<RenderPath> mNextRenderPath = nullptr;
 		std::shared_ptr<Engine>     mEngine = nullptr;
 		std::shared_ptr<GameWindow> mGameWindow = nullptr;
 

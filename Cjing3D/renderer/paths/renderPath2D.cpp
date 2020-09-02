@@ -59,8 +59,6 @@ namespace Cjing3D
 
 	void RenderPath2D::Uninitialize()
 	{
-
-
 		RenderPath::Uninitialize();
 	}
 

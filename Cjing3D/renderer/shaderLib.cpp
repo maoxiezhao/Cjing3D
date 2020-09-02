@@ -149,8 +149,14 @@ VertexShaderInfo ShaderLib::LoadVertexShaderInfo(const std::string& path, Vertex
 	vertexShaderInfo.mVertexShader = GetOrCreateShader(path);
 	vertexShaderInfo.mInputLayout = GetOrCreateInputLayout(path);
 
+	// load shader
 	LoadShaderImpl(SHADERSTAGES_VS, byteData, length, vertexShaderInfo.mVertexShader);
-	LoadInputLayout(vertexShaderInfo.mVertexShader, desc, numElements, vertexShaderInfo.mInputLayout);
+
+	// load input layout
+	if (vertexShaderInfo.mVertexShader->IsValid() && desc != nullptr && numElements > 0) {
+		LoadInputLayout(vertexShaderInfo.mVertexShader, desc, numElements, vertexShaderInfo.mInputLayout);
+	}
+
 	SAFE_DELETE_ARRAY(byteData);
 
 	return vertexShaderInfo;

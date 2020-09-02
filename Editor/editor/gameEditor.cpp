@@ -1,6 +1,7 @@
 ﻿#include "gameEditor.h"
 #include "editor\guiEditor.h"
 #include "core\eventSystem.h"
+#include "renderer\paths\renderPath_tiledForward.h"
 
 namespace Cjing3D
 {
@@ -15,10 +16,17 @@ namespace Cjing3D
 	{
 	}
 
+	void GameEditor::Initialize()
+	{
+		GameComponent::Initialize();
+
+		auto renderPath = CJING_MAKE_SHARED<RenderPathTiledForward>();
+		renderPath->Initialize();
+		SetRenderPath(renderPath);
+	}
+
 	void GameEditor::FixedUpdate()
 	{
-		GameComponent::FixedUpdate();
-
 		auto inputManager = mEngine->GetInputManager();
 		if (inputManager->IsKeyPressed(KeyCode::W))
 		{
@@ -29,7 +37,7 @@ namespace Cjing3D
 		{
 			Logger::Info("Key release");
 		}
-		
+
 		if (inputManager->IsKeyHold(KeyCode::W))
 		{
 			Logger::Info("Key hold");

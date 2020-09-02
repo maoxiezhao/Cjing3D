@@ -45,7 +45,7 @@ namespace Cjing3D
 		mDeltaTimeAccumulator = 0;
 
 		// start game
-		OnGameStart();
+		OnLoad();
 
 		mIsInitialized = true;
 	}
@@ -57,7 +57,10 @@ namespace Cjing3D
 		}
 
 		// stop game
-		OnGameStop();
+		OnUnLoad();
+
+		mCurrentRenderPath.reset();
+		mNextRenderPath.reset();
 
 		// uninitialize sub systems
 		Scene::GetScene().Clear();
@@ -67,14 +70,9 @@ namespace Cjing3D
 		mIsInitialized = false;
 	}
 
-	void GameComponent::SetRenderPath(RenderPath* renderPath)
+	void GameComponent::SetRenderPath(const std::shared_ptr<RenderPath>& renderPath)
 	{
-		mNextRenderPath = std::unique_ptr<RenderPath>(renderPath);
-	}
-
-	RenderPath* GameComponent::GetCurrentRenderPath()
-	{
-		return mCurrentRenderPath.get();
+		mNextRenderPath = renderPath;
 	}
 
 	void GameComponent::Tick()
@@ -83,7 +81,7 @@ namespace Cjing3D
 
 		GetGlobalContext().UpdateTimer();
 
-		auto presentConfig = mEngine->GetPresentConfig();
+		const auto& presentConfig = mEngine->GetPresentConfig();
 		U32 targetFrameRate = presentConfig.mTargetFrameRate;
 		U32 isLockFrameRate = presentConfig.mIsLockFrameRate;
 
@@ -153,7 +151,8 @@ namespace Cjing3D
 				mCurrentRenderPath = nullptr;
 			}
 
-			mCurrentRenderPath = std::move(mNextRenderPath);
+			mCurrentRenderPath = mNextRenderPath;
+			mNextRenderPath = nullptr;
 
 			if (mCurrentRenderPath != nullptr)
 			{
@@ -210,12 +209,12 @@ namespace Cjing3D
 		PROFILER_END_BLOCK();
 	}
 
-	void GameComponent::OnGameStart()
+	void GameComponent::OnLoad()
 	{
 		mLuaContext->StartMainScript();
 	}
 
-	void GameComponent::OnGameStop()
+	void GameComponent::OnUnLoad()
 	{
 		mLuaContext->StopMainScript();
 	}
