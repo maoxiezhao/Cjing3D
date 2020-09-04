@@ -1,4 +1,5 @@
 #include "audio.h"
+#include "core\globalContext.hpp"
 #include "resource\resourceManager.h"
 
 namespace Cjing3D

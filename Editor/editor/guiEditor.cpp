@@ -60,10 +60,10 @@ namespace Cjing3D {
 		GraphicsDeviceD3D11& deviceD3D11 = dynamic_cast<GraphicsDeviceD3D11&>(graphicsDevice);
 		HWND hwnd; // = deviceD3D11.GetHwnd();
 		ID3D11Device& device = deviceD3D11.GetDevice();
-		ID3D11DeviceContext& deviceContext = deviceD3D11.GetDeviceContext(GraphicsThread_IMMEDIATE);
+		//ID3D11DeviceContext& deviceContext = deviceD3D11.GetDeviceContext(GraphicsThread_IMMEDIATE);
 
-		ImGui_ImplWin32_Init(hwnd);
-		ImGui_ImplDX11_Init(&device, &deviceContext);
+		//ImGui_ImplWin32_Init(hwnd);
+		//ImGui_ImplDX11_Init(&device, &deviceContext);
 
 		//auto window = GlobalGetEngine()->GetGameWindow();
 		//if (window != nullptr) {
@@ -141,21 +141,21 @@ namespace Cjing3D {
 			return;
 		}
 
-		GraphicsDevice& device = Renderer::GetDevice();
-		device.BeginEvent("RenderIMGUI");
+		//GraphicsDevice& device = Renderer::GetDevice();
+		//device.BeginEvent(cmd, "RenderIMGUI");
 
-		if (mIsNeedRender)
-		{
-			ImGui::Render();
-			ImGui::EndFrame();
-		}
+		//if (mIsNeedRender)
+		//{
+		//	ImGui::Render();
+		//	ImGui::EndFrame();
+		//}
 
-		auto drawData = ImGui::GetDrawData();
-		if (drawData != nullptr) {
-			ImGui_ImplDX11_RenderDrawData(drawData);
-		}
+		//auto drawData = ImGui::GetDrawData();
+		//if (drawData != nullptr) {
+		//	ImGui_ImplDX11_RenderDrawData(drawData);
+		//}
 
-		device.EndEvent();
+		//device.EndEvent(cmd);
 	}
 
 	void EditorStage::EndFrame()

@@ -1,5 +1,6 @@
 #include "sceneSystem.h"
 #include "helper\random.h"
+#include "helper\IDGenerator.h"
 
 namespace Cjing3D
 {

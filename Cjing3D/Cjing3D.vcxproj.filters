@@ -874,6 +874,12 @@
     <ClInclude Include="input\xinput\gamepadXInput.h">
       <Filter>input\xinput</Filter>
     </ClInclude>
+    <ClInclude Include="utils\string\stringHelper.h">
+      <Filter>utils\string</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\string\stringConvert.h">
+      <Filter>utils\string</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="audio\audio.cpp">
@@ -1430,6 +1436,9 @@
     </ClCompile>
     <ClCompile Include="input\gamepad.cpp">
       <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\string\stringHelper.cpp">
+      <Filter>utils\string</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

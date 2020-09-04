@@ -1,17 +1,11 @@
 #pragma once
 
-#include "renderer\renderableCommon.h"
+#include "common\common.h"
 
 namespace Cjing3D
 {
 
 #define	APPEND_ALIGNED_ELEMENT	( 0xffffffff )
-
-	enum GraphicsThread
-	{
-		GraphicsThread_IMMEDIATE,
-		GraphicsThread_COUNT
-	};
 
 	enum SHADERSTAGES
 	{
@@ -625,4 +619,6 @@ namespace Cjing3D
 		U64 mTimestamp = 0;
 		U64 mTimetampFrequency = 0;
 	};
+
+	using CommandList = U16;
 }

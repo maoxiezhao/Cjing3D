@@ -117,17 +117,27 @@ void TerrainTree::UpdatePerFrameData(F32 deltaTime)
 	UpdateTerrainTree(Renderer::GetCamera());
 }
 
-void TerrainTree::RefreshRenderData(TransformComponent& transform)
+void TerrainTree::RefreshRenderData(CommandList cmd, TransformComponent& transform)
 {
-	if (mTerrainBufferDirty) {
-		UpdateConstantBuffer(transform);
+	if (mTerrainBufferDirty) 
+	{
+		TerrainCB cb;
+		cb.gTerrainTransform = transform.GetWorldTransform();
+		cb.gTerrainResolution.x = mTerrainWidth;
+		cb.gTerrainResolution.y = mTerrainHeight;
+		cb.gTerrainInverseResolution.x = (1.0f / mTerrainWidth);
+		cb.gTerrainInverseResolution.y = (1.0f / mTerrainHeight);
+		cb.gTerrainElevation = (F32)mTerrainElevation;
+		cb.gTerrainHaveWeightDetailMap = (mTerrainMaterial.weightTexture != nullptr) ? 1 : 0;
+
+		Renderer::GetDevice().UpdateBuffer(cmd, mTerrainBuffer, &cb, sizeof(TerrainCB));
 	}
 }
 
-void TerrainTree::Render()
+void TerrainTree::Render(CommandList cmd)
 {
 	GraphicsDevice& device = Renderer::GetDevice();
-	device.BeginEvent("RenderTerrainTree");
+	device.BeginEvent(cmd, "RenderTerrainTree");
 
 	TerrrainRenderQueue renderQueue;
 	for (auto& terrainTile : mCulledTerrainTiles)
@@ -137,10 +147,10 @@ void TerrainTree::Render()
 
 	if (!renderQueue.IsEmpty())
 	{
-		ProcessTerrainRenderQueue(renderQueue);
+		ProcessTerrainRenderQueue(cmd, renderQueue);
 	}
 
-	device.EndEvent();
+	device.EndEvent(cmd);
 }
 
 void TerrainTree::LoadHeightMap(const std::string& path)
@@ -170,14 +180,14 @@ void TerrainTree::SetElevation(U32 elevation)
 	mTerrainBufferDirty = true;
 }
 
-void TerrainTree::ProcessTerrainRenderQueue(TerrrainRenderQueue& renderQueue)
+void TerrainTree::ProcessTerrainRenderQueue(CommandList cmd, TerrrainRenderQueue& renderQueue)
 {
 	GraphicsDevice& device = Renderer::GetDevice();
 
 	U32 batchCount = renderQueue.GetCount();
-	LinearAllocator& frameAllocator = Renderer::GetFrameAllocator(Renderer::FrameAllocatorType_Render);
+	LinearAllocator& renderAllocator = Renderer::GetRenderAllocator(cmd);
 	size_t instanceSize = sizeof(RenderTerrainInstance);
-	GraphicsDevice::GPUAllocation instances = device.AllocateGPU(batchCount * instanceSize);
+	GraphicsDevice::GPUAllocation instances = device.AllocateGPU(cmd, batchCount * instanceSize);
 
 	// build render batches
 	U32 prevIdentityHash = -1;
@@ -195,7 +205,7 @@ void TerrainTree::ProcessTerrainRenderQueue(TerrrainRenderQueue& renderQueue)
 			prevIdentityHash = identityHash;
 			instancedBatchCount++;
 
-			TerrainRenderBatchInstance* batchInstance = (TerrainRenderBatchInstance*)frameAllocator.Allocate(sizeof(TerrainRenderBatchInstance));
+			TerrainRenderBatchInstance* batchInstance = (TerrainRenderBatchInstance*)renderAllocator.Allocate(sizeof(TerrainRenderBatchInstance));
 			batchInstance->mVertexBuffer = terrainTile.GetVertexBuffer();
 			batchInstance->mIndexBuffer = terrainTile.GetIndexBuffer();
 			batchInstance->mIndiceCount = terrainTile.GetIndiceCount();
@@ -230,11 +240,11 @@ void TerrainTree::ProcessTerrainRenderQueue(TerrrainRenderQueue& renderQueue)
 	}
 
 	// TODO： 现在的绘制过程太过繁琐，后续会优化封装
-	Renderer::BindConstanceBuffer(SHADERSTAGES_DS);
+	Renderer::BindConstanceBuffer(cmd, SHADERSTAGES_DS);
 
-	device.BindConstantBuffer(SHADERSTAGES_VS, mTerrainBuffer, CBSLOT_TERRAIN);
-	device.BindConstantBuffer(SHADERSTAGES_DS, mTerrainBuffer, CBSLOT_TERRAIN);
-	device.BindConstantBuffer(SHADERSTAGES_PS, mTerrainBuffer, CBSLOT_TERRAIN);
+	device.BindConstantBuffer(cmd, SHADERSTAGES_VS, mTerrainBuffer, CBSLOT_TERRAIN);
+	device.BindConstantBuffer(cmd, SHADERSTAGES_DS, mTerrainBuffer, CBSLOT_TERRAIN);
+	device.BindConstantBuffer(cmd, SHADERSTAGES_PS, mTerrainBuffer, CBSLOT_TERRAIN);
 
 	for (auto& batchInstance : mRenderBatchInstances)
 	{
@@ -254,15 +264,15 @@ void TerrainTree::ProcessTerrainRenderQueue(TerrrainRenderQueue& renderQueue)
 			0,
 			batchInstance->mDataOffset
 		};
-		device.BindVertexBuffer(vbs, 0, ARRAYSIZE(vbs), strides, offsets);
-		device.BindIndexBuffer(*indexBuffer, IndexFormat::INDEX_FORMAT_32BIT, 0);
-		device.BindPipelineState(mTerrainPSO);
+		device.BindVertexBuffer(cmd, vbs, 0, ARRAYSIZE(vbs), strides, offsets);
+		device.BindIndexBuffer(cmd, *indexBuffer, IndexFormat::INDEX_FORMAT_32BIT, 0);
+		device.BindPipelineState(cmd, &mTerrainPSO);
 
 		// bind domain shader resource
 		GPUResource* vsResources[] = {
 			mHeightMap != nullptr ? mHeightMap->mTexture : nullptr,
 		};
-		device.BindGPUResources(SHADERSTAGES_DS, vsResources, TEXTURE_SLOT_0, 1);
+		device.BindGPUResources(cmd, SHADERSTAGES_DS, vsResources, TEXTURE_SLOT_0, 1);
 
 		// bind pixel shader resources
 		GPUResource* psResources[] = {
@@ -272,28 +282,14 @@ void TerrainTree::ProcessTerrainRenderQueue(TerrrainRenderQueue& renderQueue)
 			mTerrainMaterial.detailTexture2 != nullptr ? mTerrainMaterial.detailTexture2->mTexture : nullptr,
 			mTerrainMaterial.detailTexture3 != nullptr ? mTerrainMaterial.detailTexture3->mTexture : nullptr,
 		};
-		device.BindGPUResources(SHADERSTAGES_PS, psResources, TEXTURE_SLOT_0, ARRAYSIZE(psResources));
+		device.BindGPUResources(cmd, SHADERSTAGES_PS, psResources, TEXTURE_SLOT_0, ARRAYSIZE(psResources));
 
 		// draw instances
-		device.DrawIndexedInstanced(indiceCount, batchInstance->mInstanceCount, 0, 0, 0);
+		device.DrawIndexedInstanced(cmd, indiceCount, batchInstance->mInstanceCount, 0, 0, 0);
 	}
 
-	device.UnAllocateGPU();
-	frameAllocator.Free(sizeof(RenderBatchInstance) * instancedBatchCount);
-}
-
-void TerrainTree::UpdateConstantBuffer(TransformComponent& transform)
-{
-	TerrainCB cb;
-	cb.gTerrainTransform = transform.GetWorldTransform();
-	cb.gTerrainResolution.x = mTerrainWidth;
-	cb.gTerrainResolution.y = mTerrainHeight;
-	cb.gTerrainInverseResolution.x = (1.0f / mTerrainWidth);
-	cb.gTerrainInverseResolution.y = (1.0f / mTerrainHeight);
-	cb.gTerrainElevation = (F32)mTerrainElevation;
-	cb.gTerrainHaveWeightDetailMap = (mTerrainMaterial.weightTexture != nullptr) ? 1 : 0;
-
-	Renderer::GetDevice().UpdateBuffer(mTerrainBuffer, &cb, sizeof(TerrainCB));
+	device.UnAllocateGPU(cmd);
+	renderAllocator.Free(sizeof(RenderBatchInstance) * instancedBatchCount);
 }
 
 void TerrainTree::UpdateTerrainTree(CameraComponent& camera)
@@ -301,7 +297,7 @@ void TerrainTree::UpdateTerrainTree(CameraComponent& camera)
 	mTerrainQuadTree.Clear();
 	U32 treeNodeCount = 0;
 
-	LinearAllocator& frameAllocator = Renderer::GetFrameAllocator(Renderer::FrameAllocatorType_Render);
+	LinearAllocator& frameAllocator = Renderer::GetFrameAllocator();
 
 	std::stack<TerrainTreeNode*> currentTreeNodes;
 	auto& rootNode = mTerrainQuadTree.GetRootNode();

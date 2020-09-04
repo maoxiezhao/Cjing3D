@@ -174,7 +174,7 @@ namespace Cjing3D {
 		mCounterReadBackIndex++;
 	}
 
-	void ParticleComponent::UpdateGPU()
+	void ParticleComponent::UpdateGPU(CommandList cmd)
 	{
 		if (IsPaused()) {
 			return;
@@ -203,19 +203,19 @@ namespace Cjing3D {
 		particleCB.gParticleMeshIndexCount = mesh != nullptr ? mesh->mIndices.size() : 0;
 		particleCB.gParticleMeshVertexPosStride = sizeof(MeshComponent::VertexPosNormalSubset);
 
-		device.UpdateBuffer(mConstantBuffer, &particleCB);
-		device.BindConstantBuffer(SHADERSTAGES_CS, mConstantBuffer, CB_GETSLOT_NAME(ParticleCB));
+		device.UpdateBuffer(cmd, mConstantBuffer, &particleCB);
+		device.BindConstantBuffer(cmd, SHADERSTAGES_CS, mConstantBuffer, CB_GETSLOT_NAME(ParticleCB));
 	
 
 		auto renderPass = Renderer::GetRenderPass(STRING_ID(ParticlePass));
 		if (renderPass != nullptr)
 		{
 			ParticlePass& particlePass = dynamic_cast<ParticlePass&>(*renderPass);
-			particlePass.UpdateParticle(*this, mesh);
+			particlePass.UpdateParticle(cmd, *this, mesh);
 		}
 
 		U32 index = (mCounterReadBackIndex - 1) % CounterReadBackDelayCount;
-		device.CopyGPUResource(mCounterReadBackBuffer[index], mBufferCounters);
+		device.CopyGPUResource(cmd, mCounterReadBackBuffer[index], mBufferCounters);
 	}
 
 	void ParticleComponent::Burst(I32 count)

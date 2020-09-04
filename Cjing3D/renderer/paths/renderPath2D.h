@@ -16,12 +16,12 @@ namespace Cjing3D {
 		virtual void Uninitialize();
 		virtual void Update(F32 dt);
 		virtual void Render();
-		virtual void Compose();
+		virtual void Compose(CommandList cmd);
 		virtual void ResizeBuffers();
 
 	private:
-		virtual void RenderGUI();
-		virtual void Render2D();
+		virtual void RenderGUI(CommandList cmd);
+		virtual void Render2D(CommandList cmd);
 
 	protected:
 		virtual Texture2D* GetDepthBuffer() {

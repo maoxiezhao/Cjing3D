@@ -29,17 +29,17 @@ namespace Cjing3D
 	{
 	}
 
-	void Sprite::DrawImage()
+	void Sprite::DrawImage(CommandList cmd)
 	{
-		RenderImage::Render(*GetTexture(), mImageParams);
+		RenderImage::Render(cmd , *GetTexture(), mImageParams);
 	}
 
-	void Sprite::DrawImage(const F32x2& pos)
+	void Sprite::DrawImage(CommandList cmd, const F32x2& pos)
 	{
 		mImageParams.mPos[0] = pos[0];
 		mImageParams.mPos[1] = pos[1];
 
-		DrawImage();
+		DrawImage(cmd);
 	}
 
 	bool Sprite::LoadTexture(const std::string& path)

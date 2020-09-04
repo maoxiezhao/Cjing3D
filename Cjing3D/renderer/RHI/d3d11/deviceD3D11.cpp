@@ -1,6 +1,7 @@
 #include "renderer\RHI\d3d11\deviceD3D11.h"
 #include "renderer\RHI\d3d11\rhiResourceD3D11.h"
 #include "platform\gameWindow.h"
+#include "utils\string\stringHelper.h"
 
 namespace Cjing3D {
 
@@ -814,6 +815,18 @@ namespace {
 		return result;
 	}
 
+	inline D3D11_VIEWPORT _ConvertViewport(const ViewPort& viewport)
+	{
+		D3D11_VIEWPORT d3dViewports;
+		d3dViewports.Width    = viewport.mWidth;
+		d3dViewports.Height   = viewport.mHeight;
+		d3dViewports.MinDepth = viewport.mMinDepth;
+		d3dViewports.MaxDepth = viewport.mMaxDepth;
+		d3dViewports.TopLeftX = viewport.mTopLeftX;
+		d3dViewports.TopLeftY = viewport.mTopLeftY;
+		return d3dViewports;
+	}
+
 	inline bool IsFormatStencilSupport(FORMAT value)
 	{
 		switch (value)
@@ -831,13 +844,12 @@ namespace {
 
 GraphicsDeviceD3D11::GraphicsDeviceD3D11(const GameWindow& gameWindow, FORMAT backbufferFormat, bool debugLayer):
 	GraphicsDevice(GraphicsDeviceType_directx11),
-	mDebugLayer(debugLayer),
 	mDevice(),
-	mDeviceContext(),
 	mSwapChain()
 {
 	mIsFullScreen = gameWindow.IsFullScreen();
 	mBackBufferFormat = backbufferFormat;  
+	mDebugLayer = debugLayer;
 
 	RectInt rect = gameWindow.GetClientBounds();
 	mScreenSize[0] = rect.mRight - rect.mLeft;
@@ -886,13 +898,13 @@ GraphicsDeviceD3D11::GraphicsDeviceD3D11(const GameWindow& gameWindow, FORMAT ba
 
 		if (SUCCEEDED(result)) {
 			device.As(&mDevice);
-			deviceContext.As(&(mDeviceContext[GraphicsThread_IMMEDIATE]));
+			deviceContext.As(&(mImmediateContext));
 
 			break;
 		}
 	}
 
-	if (mDevice == nullptr || mDeviceContext == nullptr)
+	if (mDevice == nullptr || mImmediateContext == nullptr)
 	{
 		Debug::Error("Failed to initialize d3d device.");
 		return;
@@ -901,7 +913,7 @@ GraphicsDeviceD3D11::GraphicsDeviceD3D11(const GameWindow& gameWindow, FORMAT ba
 	// 初始化swapchain
 	mSwapChain = std::make_unique<SwapChainD3D11>(
 		*mDevice.Get(),
-		GetDeviceContext(GraphicsThread_IMMEDIATE),
+		*(mImmediateContext.Get()),
 		gameWindow,
 		mScreenSize,
 		_ConvertFormat(GetBackBufferFormat())
@@ -915,15 +927,6 @@ GraphicsDeviceD3D11::GraphicsDeviceD3D11(const GameWindow& gameWindow, FORMAT ba
 	mDevice->CheckFeatureSupport(D3D11_FEATURE_D3D11_OPTIONS3, &featureData, sizeof(featureData));
 	mGraphicsFeatureSupport.viewportAndRenderTargetArrayIndexWithoutGS_ = (featureData.VPAndRTArrayIndexFromAnyShaderFeedingRasterizer == TRUE);
 
-	//// 创建ID3DUserDefinedAnnotation for GraphicsThread_IMMEDIATE
-	//{
-	//	const auto result = GetDeviceContext(GraphicsThread_IMMEDIATE).QueryInterface(
-	//		__uuidof(mUserDefinedAnnotations[GraphicsThread_IMMEDIATE]),
-	//		(void**)mUserDefinedAnnotations[GraphicsThread_IMMEDIATE].ReleaseAndGetAddressOf());
-	//	Debug::ThrowIfFailed(result, "Failed to create ID3DUserDefinedAnnotation: %08X", result);
-	//}
-
-	// 创建视口
 	mViewport.mWidth = static_cast<F32>(mScreenSize[0]);
 	mViewport.mHeight = static_cast<F32>(mScreenSize[1]);
 	mViewport.mTopLeftX = 0.0f;
@@ -931,27 +934,30 @@ GraphicsDeviceD3D11::GraphicsDeviceD3D11(const GameWindow& gameWindow, FORMAT ba
 	mViewport.mMinDepth = 0.0f;
 	mViewport.mMaxDepth = 1.0f;
 
-	// 初始化gpu allocator
-	mGPUAllocatorDesc.mByteWidth = 1024 * 1024;
-	mGPUAllocatorDesc.mBindFlags = BIND_SHADER_RESOURCE | BIND_INDEX_BUFFER | BIND_VERTEX_BUFFER;
-	mGPUAllocatorDesc.mUsage = USAGE_DYNAMIC;
-	mGPUAllocatorDesc.mCPUAccessFlags = CPU_ACCESS_WRITE;
-	mGPUAllocatorDesc.mMiscFlags = RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
-	CreateBuffer(&mGPUAllocatorDesc, mGPUAllocator.buffer, nullptr);
-	SetResourceName(mGPUAllocator.buffer, "GPUAllocator");
-
 	Logger::Info("Initialized graphics device D3D11.");
 }
 
 GraphicsDeviceD3D11::~GraphicsDeviceD3D11()
 {
-	ClearPrevStates();
-	mSwapChain.reset();
-
-	for (int i = 0; i < GraphicsThread_COUNT; i++) 
+	for (int i = 0; i < MAX_COMMANDLIST_COUNT; i++) 
 	{
-		mDeviceContext[i]->ClearState();
-		mDeviceContext[i].Reset();
+		ClearPrevStates(i);
+
+		if (mDeviceContexts[i] != nullptr)
+		{
+			mDeviceContexts[i]->ClearState();
+			mDeviceContexts[i].Reset();
+		}
+	}
+
+	if (mImmediateContext != nullptr)
+	{
+		mImmediateContext->ClearState();
+		mImmediateContext.Reset();
+	}
+
+	if (mSwapChain != nullptr) {
+		mSwapChain.reset();
 	}
 
 	if (mDebugLayer == true)
@@ -970,56 +976,34 @@ GraphicsDeviceD3D11::~GraphicsDeviceD3D11()
 	Logger::Info("Uninitialized graphics device D3D11.");
 }
 
-void GraphicsDeviceD3D11::PresentBegin()
+void GraphicsDeviceD3D11::PresentBegin(CommandList cmd)
 {
-	BindViewports(&mViewport, 1, GraphicsThread_IMMEDIATE);
-
 	ID3D11RenderTargetView* renderTargetView = &mSwapChain->GetRenderTargetView();
 	float clearColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
-	auto& deviceContext = GetDeviceContext(GraphicsThread_IMMEDIATE);
-	deviceContext.OMSetRenderTargets(1, &renderTargetView, 0);
-	deviceContext.ClearRenderTargetView(renderTargetView, clearColor);
+	mDeviceContexts[cmd]->OMSetRenderTargets(1, &renderTargetView, 0);
+	mDeviceContexts[cmd]->ClearRenderTargetView(renderTargetView, clearColor);
 }
 
-void GraphicsDeviceD3D11::PresentEnd()
+void GraphicsDeviceD3D11::PresentEnd(CommandList cmd)
 {
-	GraphicsDevice::PresentEnd();
+	SubmitCommandList();
+	mCurrentFrameCount++;
 
 	mSwapChain->Present(mIsVsync);
-
-	auto& deviceContext = GetDeviceContext(GraphicsThread_IMMEDIATE);
-	deviceContext.OMSetRenderTargets(0, nullptr, nullptr);
-	deviceContext.ClearState();
-
-	BindPipelineState(PipelineState());
-	ClearPrevStates();
-
-	mCurrentFrameCount++;
 }
 
-void GraphicsDeviceD3D11::BeginEvent(const std::string & name)
+void GraphicsDeviceD3D11::BeginEvent(CommandList cmd, const std::string & name)
 {
-	//GetUserDefineAnnotation(GraphicsThread_IMMEDIATE).BeginEvent(
-	//	std::wstring(name.begin(), name.end()).c_str()
-	//);
+	mUserDefinedAnnotations[cmd]->BeginEvent(StringHelper::StringToWString(name).c_str());
 }
 
-void GraphicsDeviceD3D11::EndEvent()
+void GraphicsDeviceD3D11::EndEvent(CommandList cmd)
 {
-	//GetUserDefineAnnotation(GraphicsThread_IMMEDIATE).EndEvent();
-}
-
-void GraphicsDeviceD3D11::SetResolution(const U32x2 size)
-{
-	if (size[0] != mScreenSize[0] || size[1] != mScreenSize[1])
-	{
-		mScreenSize = size;
-		mSwapChain->Resize(size);
-	}
+	mUserDefinedAnnotations[cmd]->EndEvent();
 }
 
 // 绑定视口
-void GraphicsDeviceD3D11::BindViewports(const ViewPort * viewports, U32 numViewports, GraphicsThread threadID)
+void GraphicsDeviceD3D11::BindViewports(CommandList cmd, const ViewPort* viewports, U32 numViewports)
 {
 	Debug::ThrowIfFailed(numViewports <= 6);
 
@@ -1034,7 +1018,82 @@ void GraphicsDeviceD3D11::BindViewports(const ViewPort * viewports, U32 numViewp
 		d3dViewports[i].TopLeftY = viewports[i].mTopLeftY;
 	}
 
-	GetDeviceContext(threadID).RSSetViewports(numViewports, d3dViewports);
+	mDeviceContexts[cmd]->RSSetViewports(numViewports, d3dViewports);
+}
+
+void GraphicsDeviceD3D11::SetResolution(const U32x2 size)
+{
+	if (size[0] != mScreenSize[0] || size[1] != mScreenSize[1])
+	{
+		mScreenSize = size;
+		mSwapChain->Resize(size);
+	}
+}
+
+CommandList GraphicsDeviceD3D11::GetCommandList()
+{
+	CommandList cmd = mCommandListCount.fetch_add(1);
+	Debug::CheckAssertion(cmd < MAX_COMMANDLIST_COUNT);
+
+	if (mDeviceContexts[cmd] == nullptr)
+	{
+		HRESULT result = mDevice->CreateDeferredContext(0, &mDeviceContexts[cmd]);
+		Debug::ThrowIfFailed(result, "Failed to create deferred context: %08X", result);
+
+		result = mDeviceContexts[cmd].As(&mUserDefinedAnnotations[cmd]);
+		Debug::ThrowIfFailed(result, "Failed to get user defined annotations: %08X", result);
+
+		// 初始化gpu allocator
+		GPUBufferDesc allocatorDesc = {};
+		allocatorDesc.mByteWidth = 1024 * 1024;
+		allocatorDesc.mBindFlags = BIND_SHADER_RESOURCE | BIND_INDEX_BUFFER | BIND_VERTEX_BUFFER;
+		allocatorDesc.mUsage = USAGE_DYNAMIC;
+		allocatorDesc.mCPUAccessFlags = CPU_ACCESS_WRITE;
+		allocatorDesc.mMiscFlags = RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
+		CreateBuffer(&allocatorDesc, mGPUAllocator[cmd].buffer, nullptr);
+		SetResourceName(mGPUAllocator[cmd].buffer, "GPUAllocator");
+	}
+	// reset deviceContext states
+	ResetCommandList(cmd);
+
+	return cmd;
+}
+
+void GraphicsDeviceD3D11::SubmitCommandList()
+{
+	CommandList cmdCount = mCommandListCount.load();
+	mCommandListCount.store(0);
+
+	for (CommandList cmd = 0; cmd < cmdCount; cmd++)
+	{
+		mDeviceContexts[cmd]->FinishCommandList(false, &mCommandLists[cmd]);
+		mImmediateContext->ExecuteCommandList(mCommandLists[cmd].Get(), false);
+		mCommandLists[cmd].Reset();
+	}
+
+	mImmediateContext->ClearState();
+}
+
+void GraphicsDeviceD3D11::ResetCommandList(CommandList cmd)
+{
+	BindPipelineState(cmd, nullptr);
+	mBindedPSO[cmd] = nullptr;
+	mDirtyPSO[cmd] = false;
+
+	D3D11_VIEWPORT d3dViewport = _ConvertViewport(mViewport);
+	mDeviceContexts[cmd]->RSSetViewports(1, &d3dViewport);
+
+	D3D11_RECT rects[8];
+	for (uint32_t i = 0; i < 8; ++i)
+	{
+		rects[i].left   = INT32_MIN;
+		rects[i].top    = INT32_MIN;
+		rects[i].right  = INT32_MAX;
+		rects[i].bottom = INT32_MAX;
+	}
+	mDeviceContexts[cmd]->RSSetScissorRects(8, rects);
+
+	ClearPrevStates(cmd);
 }
 
 HRESULT GraphicsDeviceD3D11::CreateDepthStencilState(const DepthStencilStateDesc & desc, DepthStencilState & state)
@@ -1271,7 +1330,7 @@ HRESULT GraphicsDeviceD3D11::CreateBuffer(const GPUBufferDesc * desc, GPUBuffer 
 	return result;
 }
 
-void GraphicsDeviceD3D11::UpdateBuffer(GPUBuffer & buffer, const void * data, I32 dataSize)
+void GraphicsDeviceD3D11::UpdateBuffer(CommandList cmd, GPUBuffer & buffer, const void * data, I32 dataSize)
 {
 	const auto& desc = buffer.GetDesc();
 	Debug::CheckAssertion(desc.mUsage != USAGE_IMMUTABLE, "Cannot update IMMUTABLE Buffer");
@@ -1292,17 +1351,17 @@ void GraphicsDeviceD3D11::UpdateBuffer(GPUBuffer & buffer, const void * data, I3
 	if (desc.mUsage == USAGE_DYNAMIC)
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		HRESULT result = GetDeviceContext(GraphicsThread_IMMEDIATE).Map(rhiState->mResource.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		HRESULT result = mDeviceContexts[cmd]->Map(rhiState->mResource.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 		Debug::ThrowIfFailed(result, "Failed to map buffer:%08x", result);
 
 		dataSize = dataSize >= 0 ? dataSize : (I32)desc.mByteWidth;
 		memcpy(mappedResource.pData, data, dataSize);
 
-		GetDeviceContext(GraphicsThread_IMMEDIATE).Unmap(rhiState->mResource.Get(), 0);
+		mDeviceContexts[cmd]->Unmap(rhiState->mResource.Get(), 0);
 	}
 	else if (desc.mBindFlags & BIND_CONSTANT_BUFFER)
 	{
-		GetDeviceContext(GraphicsThread_IMMEDIATE).UpdateSubresource(rhiState->mResource.Get(), 0, nullptr, data, 0, 0);
+		mDeviceContexts[cmd]->UpdateSubresource(rhiState->mResource.Get(), 0, nullptr, data, 0, 0);
 	}
 	else
 	{
@@ -1314,11 +1373,11 @@ void GraphicsDeviceD3D11::UpdateBuffer(GPUBuffer & buffer, const void * data, I3
 		box.front = 0;
 		box.back = 1;
 
-		GetDeviceContext(GraphicsThread_IMMEDIATE).UpdateSubresource(rhiState->mResource.Get(), 0, &box, data, 0, 0);
+		mDeviceContexts[cmd]->UpdateSubresource(rhiState->mResource.Get(), 0, &box, data, 0, 0);
 	}
 }
 
-void GraphicsDeviceD3D11::BindConstantBuffer(SHADERSTAGES stage, GPUBuffer & buffer, U32 slot)
+void GraphicsDeviceD3D11::BindConstantBuffer(CommandList cmd, SHADERSTAGES stage, GPUBuffer & buffer, U32 slot)
 {
 	auto rhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(buffer);
 	if (rhiState == nullptr) {
@@ -1330,29 +1389,29 @@ void GraphicsDeviceD3D11::BindConstantBuffer(SHADERSTAGES stage, GPUBuffer & buf
 	switch (stage)
 	{
 	case Cjing3D::SHADERSTAGES_VS:
-		GetDeviceContext(GraphicsThread_IMMEDIATE).VSSetConstantBuffers(slot, 1, &d3dBuffer);
+		mDeviceContexts[cmd]->VSSetConstantBuffers(slot, 1, &d3dBuffer);
 		break;
 	case Cjing3D::SHADERSTAGES_GS:
-		GetDeviceContext(GraphicsThread_IMMEDIATE).GSSetConstantBuffers(slot, 1, &d3dBuffer);
+		mDeviceContexts[cmd]->GSSetConstantBuffers(slot, 1, &d3dBuffer);
 		break;
 	case Cjing3D::SHADERSTAGES_HS:
-		GetDeviceContext(GraphicsThread_IMMEDIATE).HSSetConstantBuffers(slot, 1, &d3dBuffer);
+		mDeviceContexts[cmd]->HSSetConstantBuffers(slot, 1, &d3dBuffer);
 		break;
 	case Cjing3D::SHADERSTAGES_DS:
-		GetDeviceContext(GraphicsThread_IMMEDIATE).DSSetConstantBuffers(slot, 1, &d3dBuffer);
+		mDeviceContexts[cmd]->DSSetConstantBuffers(slot, 1, &d3dBuffer);
 		break;
 	case Cjing3D::SHADERSTAGES_PS:
-		GetDeviceContext(GraphicsThread_IMMEDIATE).PSSetConstantBuffers(slot, 1, &d3dBuffer);
+		mDeviceContexts[cmd]->PSSetConstantBuffers(slot, 1, &d3dBuffer);
 		break;
 	case Cjing3D::SHADERSTAGES_CS:
-		GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetConstantBuffers(slot, 1, &d3dBuffer);
+		mDeviceContexts[cmd]->CSSetConstantBuffers(slot, 1, &d3dBuffer);
 		break;
 	default:
 		break;
 	}
 }
 
-void GraphicsDeviceD3D11::BindIndexBuffer(GPUBuffer & buffer, IndexFormat format, U32 offset)
+void GraphicsDeviceD3D11::BindIndexBuffer(CommandList cmd, GPUBuffer & buffer, IndexFormat format, U32 offset)
 {
 	auto rhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(buffer);
 	if (rhiState == nullptr) {
@@ -1362,10 +1421,10 @@ void GraphicsDeviceD3D11::BindIndexBuffer(GPUBuffer & buffer, IndexFormat format
 
 	ID3D11Buffer* d3d11Buffer = (ID3D11Buffer*)rhiState->mResource.Get();
 	DXGI_FORMAT d3d11Format = (format == IndexFormat::INDEX_FORMAT_32BIT) ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT;
-	GetDeviceContext(GraphicsThread_IMMEDIATE).IASetIndexBuffer(d3d11Buffer, d3d11Format, offset);
+	mDeviceContexts[cmd]->IASetIndexBuffer(d3d11Buffer, d3d11Format, offset);
 }
 
-void GraphicsDeviceD3D11::BindVertexBuffer(GPUBuffer* const* buffer, U32 slot, U32 num, const U32 * strides, const U32 * offsets)
+void GraphicsDeviceD3D11::BindVertexBuffer(CommandList cmd, GPUBuffer* const* buffer, U32 slot, U32 num, const U32 * strides, const U32 * offsets)
 {
 	ID3D11Buffer* buffers[8] = { nullptr };
 	for (size_t i = 0; i < num; i++)
@@ -1382,10 +1441,10 @@ void GraphicsDeviceD3D11::BindVertexBuffer(GPUBuffer* const* buffer, U32 slot, U
 		buffers[i] = (ID3D11Buffer*)rhiState->mResource.Get();
 	}
 	const U32* offsetD3D11 = offsets != nullptr ? offsets : reinterpret_cast<const U32*>(nullptrBlob);
-	GetDeviceContext(GraphicsThread_IMMEDIATE).IASetVertexBuffers(slot, num, buffers, strides, offsetD3D11);
+	mDeviceContexts[cmd]->IASetVertexBuffers(slot, num, buffers, strides, offsetD3D11);
 }
 
-void GraphicsDeviceD3D11::ClearVertexBuffer()
+void GraphicsDeviceD3D11::ClearVertexBuffer(CommandList cmd)
 {
 	GPUBuffer* vbs[] = {
 		nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr
@@ -1396,7 +1455,7 @@ void GraphicsDeviceD3D11::ClearVertexBuffer()
 	U32 offsets[] = {
 		0,0,0,0,0,0,0,0
 	};
-	BindVertexBuffer(vbs, 0, ARRAYSIZE(vbs), strides, offsets);
+	BindVertexBuffer(cmd, vbs, 0, ARRAYSIZE(vbs), strides, offsets);
 }
 
 // 创建采样器状态
@@ -1424,7 +1483,7 @@ HRESULT GraphicsDeviceD3D11::CreateSamplerState(const SamplerDesc * desc, Sample
 	return mDevice->CreateSamplerState(&samplerDesc, &rhiState->mHandle);
 }
 
-void GraphicsDeviceD3D11::BindSamplerState(SHADERSTAGES stage, SamplerState & state, U32 slot)
+void GraphicsDeviceD3D11::BindSamplerState(CommandList cmd, SHADERSTAGES stage, SamplerState & state, U32 slot)
 {
 	auto rhiState = GetGraphicsDeviceChildState<SamplerStateD3D11>(state);
 	if (rhiState == nullptr) {
@@ -1435,22 +1494,22 @@ void GraphicsDeviceD3D11::BindSamplerState(SHADERSTAGES stage, SamplerState & st
 	switch (stage)
 	{
 	case Cjing3D::SHADERSTAGES_VS:
-		GetDeviceContext(GraphicsThread_IMMEDIATE).VSSetSamplers(slot, 1, &samplerState);
+		mDeviceContexts[cmd]->VSSetSamplers(slot, 1, &samplerState);
 		break;
 	case Cjing3D::SHADERSTAGES_GS:
-		GetDeviceContext(GraphicsThread_IMMEDIATE).GSSetSamplers(slot, 1, &samplerState);
+		mDeviceContexts[cmd]->GSSetSamplers(slot, 1, &samplerState);
 		break;
 	case Cjing3D::SHADERSTAGES_HS:
-		GetDeviceContext(GraphicsThread_IMMEDIATE).HSSetSamplers(slot, 1, &samplerState);
+		mDeviceContexts[cmd]->HSSetSamplers(slot, 1, &samplerState);
 		break;
 	case Cjing3D::SHADERSTAGES_DS:
-		GetDeviceContext(GraphicsThread_IMMEDIATE).DSSetSamplers(slot, 1, &samplerState);
+		mDeviceContexts[cmd]->DSSetSamplers(slot, 1, &samplerState);
 		break;
 	case Cjing3D::SHADERSTAGES_PS:
-		GetDeviceContext(GraphicsThread_IMMEDIATE).PSSetSamplers(slot, 1, &samplerState);
+		mDeviceContexts[cmd]->PSSetSamplers(slot, 1, &samplerState);
 		break;
 	case Cjing3D::SHADERSTAGES_CS:
-		GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetSamplers(slot, 1, &samplerState);
+		mDeviceContexts[cmd]->CSSetSamplers(slot, 1, &samplerState);
 		break;
 	default:
 		break;
@@ -1491,7 +1550,7 @@ HRESULT GraphicsDeviceD3D11::CreateTexture2D(const TextureDesc * desc, const Sub
 	return result;
 }
 
-void GraphicsDeviceD3D11::CopyGPUResource(GPUResource& texDst, GPUResource& texSrc)
+void GraphicsDeviceD3D11::CopyGPUResource(CommandList cmd, GPUResource& texDst, GPUResource& texSrc)
 {
 	auto dstRhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(texDst);
 	if (dstRhiState == nullptr) {
@@ -1505,10 +1564,10 @@ void GraphicsDeviceD3D11::CopyGPUResource(GPUResource& texDst, GPUResource& texS
 
 	ID3D11Resource* dstResource = dstRhiState->mResource.Get();
 	ID3D11Resource* srcResource = srcRhiState->mResource.Get();
-	GetDeviceContext(GraphicsThread_IMMEDIATE).CopyResource(dstResource, srcResource);
+	mDeviceContexts[cmd]->CopyResource(dstResource, srcResource);
 }
 
-void GraphicsDeviceD3D11::BindRenderTarget(UINT numView, Texture2D* const *texture2D, Texture2D* depthStencilTexture, I32 subresourceIndex)
+void GraphicsDeviceD3D11::BindRenderTarget(CommandList cmd, UINT numView, Texture2D* const *texture2D, Texture2D* depthStencilTexture, I32 subresourceIndex)
 {
 	// get renderTargetView
 	ID3D11RenderTargetView* renderTargetViews[8] = {};
@@ -1535,7 +1594,7 @@ void GraphicsDeviceD3D11::BindRenderTarget(UINT numView, Texture2D* const *textu
 		}
 	}
 
-	GetDeviceContext(GraphicsThread_IMMEDIATE).OMSetRenderTargets(curNum, renderTargetViews, depthStencilView);
+	mDeviceContexts[cmd]->OMSetRenderTargets(curNum, renderTargetViews, depthStencilView);
 }
 
 I32 GraphicsDeviceD3D11::CreateRenderTargetView(Texture2D & texture)
@@ -1792,17 +1851,17 @@ I32 GraphicsDeviceD3D11::CreateUnordereddAccessView(Texture2D& texture, U32 arra
 	return subresourceIndex;
 }
 
-void GraphicsDeviceD3D11::ClearRenderTarget(Texture2D & texture, F32x4 color)
+void GraphicsDeviceD3D11::ClearRenderTarget(CommandList cmd, Texture2D & texture, F32x4 color)
 {
 	auto rhiState = GetGraphicsDeviceChildState<TextureD3D11>(texture);
 	if (rhiState == nullptr) {
 		return;
 	}
 
-	GetDeviceContext(GraphicsThread_IMMEDIATE).ClearRenderTargetView(rhiState->mRTV.Get(), color.data());
+	mDeviceContexts[cmd]->ClearRenderTargetView(rhiState->mRTV.Get(), color.data());
 }
 
-void GraphicsDeviceD3D11::ClearDepthStencil(Texture2D& texture, UINT clearFlag, F32 depth, U8 stencil, I32 subresourceIndex)
+void GraphicsDeviceD3D11::ClearDepthStencil(CommandList cmd, Texture2D& texture, UINT clearFlag, F32 depth, U8 stencil, I32 subresourceIndex)
 {
 	auto rhiState = GetGraphicsDeviceChildState<TextureD3D11>(texture);
 	if (rhiState == nullptr) {
@@ -1811,15 +1870,15 @@ void GraphicsDeviceD3D11::ClearDepthStencil(Texture2D& texture, UINT clearFlag, 
 
 	UINT flag = _ConvertClearFlag(clearFlag);
 	if (subresourceIndex < 0) {
-		GetDeviceContext(GraphicsThread_IMMEDIATE).ClearDepthStencilView(rhiState->mDSV.Get(), flag, depth, stencil);
+		mDeviceContexts[cmd]->ClearDepthStencilView(rhiState->mDSV.Get(), flag, depth, stencil);
 	}
 	else {
 		ID3D11DepthStencilView* dsv = rhiState->mSubresourceDSVs[subresourceIndex].Get();
-		GetDeviceContext(GraphicsThread_IMMEDIATE).ClearDepthStencilView(dsv, flag, depth, stencil);
+		mDeviceContexts[cmd]->ClearDepthStencilView(dsv, flag, depth, stencil);
 	}
 }
 
-void GraphicsDeviceD3D11::BindGPUResource(SHADERSTAGES stage, const GPUResource* resource, U32 slot, I32 subresourceIndex)
+void GraphicsDeviceD3D11::BindGPUResource(CommandList cmd, SHADERSTAGES stage, const GPUResource* resource, U32 slot, I32 subresourceIndex)
 {
 	if (resource == nullptr || !resource->IsValid()) {
 		return;
@@ -1847,29 +1906,29 @@ void GraphicsDeviceD3D11::BindGPUResource(SHADERSTAGES stage, const GPUResource*
 	switch (stage)
 	{
 	case Cjing3D::SHADERSTAGES_VS:
-		GetDeviceContext(GraphicsThread_IMMEDIATE).VSSetShaderResources(slot, 1, &srv);
+		mDeviceContexts[cmd]->VSSetShaderResources(slot, 1, &srv);
 		break;
 	case Cjing3D::SHADERSTAGES_GS:
-		GetDeviceContext(GraphicsThread_IMMEDIATE).GSSetShaderResources(slot, 1, &srv);
+		mDeviceContexts[cmd]->GSSetShaderResources(slot, 1, &srv);
 		break;
 	case Cjing3D::SHADERSTAGES_HS:
-		GetDeviceContext(GraphicsThread_IMMEDIATE).HSSetShaderResources(slot, 1, &srv);
+		mDeviceContexts[cmd]->HSSetShaderResources(slot, 1, &srv);
 		break;
 	case Cjing3D::SHADERSTAGES_DS:
-		GetDeviceContext(GraphicsThread_IMMEDIATE).DSSetShaderResources(slot, 1, &srv);
+		mDeviceContexts[cmd]->DSSetShaderResources(slot, 1, &srv);
 		break;
 	case Cjing3D::SHADERSTAGES_PS:
-		GetDeviceContext(GraphicsThread_IMMEDIATE).PSSetShaderResources(slot, 1, &srv);
+		mDeviceContexts[cmd]->PSSetShaderResources(slot, 1, &srv);
 		break;
 	case Cjing3D::SHADERSTAGES_CS:
-		GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetShaderResources(slot, 1, &srv);
+		mDeviceContexts[cmd]->CSSetShaderResources(slot, 1, &srv);
 		break;
 	default:
 		break;
 	}
 }
 
-void GraphicsDeviceD3D11::BindGPUResources(SHADERSTAGES stage, const GPUResource * const * resource, U32 slot, U32 count)
+void GraphicsDeviceD3D11::BindGPUResources(CommandList cmd, SHADERSTAGES stage, const GPUResource * const * resource, U32 slot, U32 count)
 {
 	ID3D11ShaderResourceView* srvs[8] = { nullptr };
 	for (int i = 0; i < count; i++) 
@@ -1888,34 +1947,34 @@ void GraphicsDeviceD3D11::BindGPUResources(SHADERSTAGES stage, const GPUResource
 	switch (stage)
 	{
 	case Cjing3D::SHADERSTAGES_VS:
-		GetDeviceContext(GraphicsThread_IMMEDIATE).VSSetShaderResources(slot, count, srvs);
+		mDeviceContexts[cmd]->VSSetShaderResources(slot, count, srvs);
 		break;
 	case Cjing3D::SHADERSTAGES_GS:
-		GetDeviceContext(GraphicsThread_IMMEDIATE).GSSetShaderResources(slot, count, srvs);
+		mDeviceContexts[cmd]->GSSetShaderResources(slot, count, srvs);
 		break;
 	case Cjing3D::SHADERSTAGES_HS:
-		GetDeviceContext(GraphicsThread_IMMEDIATE).HSSetShaderResources(slot, count, srvs);
+		mDeviceContexts[cmd]->HSSetShaderResources(slot, count, srvs);
 		break;
 	case Cjing3D::SHADERSTAGES_DS:
-		GetDeviceContext(GraphicsThread_IMMEDIATE).DSSetShaderResources(slot, count, srvs);
+		mDeviceContexts[cmd]->DSSetShaderResources(slot, count, srvs);
 		break;
 	case Cjing3D::SHADERSTAGES_PS:
-		GetDeviceContext(GraphicsThread_IMMEDIATE).PSSetShaderResources(slot, count, srvs);
+		mDeviceContexts[cmd]->PSSetShaderResources(slot, count, srvs);
 		break;
 	case Cjing3D::SHADERSTAGES_CS:
-		GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetShaderResources(slot, count, srvs);
+		mDeviceContexts[cmd]->CSSetShaderResources(slot, count, srvs);
 		break;
 	default:
 		break;
 	}
 }
 
-void GraphicsDeviceD3D11::UnbindGPUResources(U32 slot, U32 count)
+void GraphicsDeviceD3D11::UnbindGPUResources(CommandList cmd, U32 slot, U32 count)
 {
-	GetDeviceContext(GraphicsThread_IMMEDIATE).VSSetShaderResources(slot, count, (ID3D11ShaderResourceView**)nullptrBlob);
-	GetDeviceContext(GraphicsThread_IMMEDIATE).GSSetShaderResources(slot, count, (ID3D11ShaderResourceView**)nullptrBlob);
-	GetDeviceContext(GraphicsThread_IMMEDIATE).PSSetShaderResources(slot, count, (ID3D11ShaderResourceView**)nullptrBlob);
-	GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetShaderResources(slot, count, (ID3D11ShaderResourceView**)nullptrBlob);
+	mDeviceContexts[cmd]->VSSetShaderResources(slot, count, (ID3D11ShaderResourceView**)nullptrBlob);
+	mDeviceContexts[cmd]->GSSetShaderResources(slot, count, (ID3D11ShaderResourceView**)nullptrBlob);
+	mDeviceContexts[cmd]->PSSetShaderResources(slot, count, (ID3D11ShaderResourceView**)nullptrBlob);
+	mDeviceContexts[cmd]->CSSetShaderResources(slot, count, (ID3D11ShaderResourceView**)nullptrBlob);
 }
 
 void GraphicsDeviceD3D11::SetResourceName(GPUResource & resource, const std::string & name)
@@ -1935,7 +1994,7 @@ void GraphicsDeviceD3D11::CreateRenderBehavior(RenderBehaviorDesc& desc, RenderB
 	behavior.mDesc = desc;
 }
 
-void GraphicsDeviceD3D11::BeginRenderBehavior(RenderBehavior& behavior)
+void GraphicsDeviceD3D11::BeginRenderBehavior(CommandList cmd, RenderBehavior& behavior)
 {
 	ID3D11RenderTargetView* renderTargetViews[8] = {};
 	UINT rtCount = 0;
@@ -1963,7 +2022,7 @@ void GraphicsDeviceD3D11::BeginRenderBehavior(RenderBehavior& behavior)
 
 			if (param.mOperation == RenderBehaviorParam::RenderOperation_Clear) {
 				ClearValue value = texture->mDesc.mClearValue;
-				GetDeviceContext(GraphicsThread_IMMEDIATE).ClearRenderTargetView(renderTargetViews[rtCount], texture->mDesc.mClearValue.color);
+				mDeviceContexts[cmd]->ClearRenderTargetView(renderTargetViews[rtCount], texture->mDesc.mClearValue.color);
 			}
 
 			rtCount++;
@@ -1980,20 +2039,20 @@ void GraphicsDeviceD3D11::BeginRenderBehavior(RenderBehavior& behavior)
 				}
 
 				ClearValue value = texture->mDesc.mClearValue;
-				GetDeviceContext(GraphicsThread_IMMEDIATE).ClearDepthStencilView(depthStencilView, flag, value.depth, value.stencil);
+				mDeviceContexts[cmd]->ClearDepthStencilView(depthStencilView, flag, value.depth, value.stencil);
 			}
 		}
 	}
 
-	GetDeviceContext(GraphicsThread_IMMEDIATE).OMSetRenderTargets(rtCount, renderTargetViews, depthStencilView);
+	mDeviceContexts[cmd]->OMSetRenderTargets(rtCount, renderTargetViews, depthStencilView);
 }
 
-void GraphicsDeviceD3D11::EndRenderBehavior()
+void GraphicsDeviceD3D11::EndRenderBehavior(CommandList cmd)
 {
-	GetDeviceContext(GraphicsThread_IMMEDIATE).OMSetRenderTargets(0, nullptr, nullptr);
+	mDeviceContexts[cmd]->OMSetRenderTargets(0, nullptr, nullptr);
 }
 
-void GraphicsDeviceD3D11::BindScissorRects(U32 num, const RectInt* rects)
+void GraphicsDeviceD3D11::BindScissorRects(CommandList cmd, U32 num, const RectInt* rects)
 {
 	D3D11_RECT pRects[8];
 	for (uint32_t i = 0; i < num; ++i) {
@@ -2002,10 +2061,10 @@ void GraphicsDeviceD3D11::BindScissorRects(U32 num, const RectInt* rects)
 		pRects[i].right = (LONG)rects[i].mRight;
 		pRects[i].bottom = (LONG)rects[i].mBottom;
 	}
-	GetDeviceContext(GraphicsThread_IMMEDIATE).RSSetScissorRects(num, pRects);
+	mDeviceContexts[cmd]->RSSetScissorRects(num, pRects);
 }
 
-void GraphicsDeviceD3D11::BindComputeShader(ShaderPtr computeShader)
+void GraphicsDeviceD3D11::BindComputeShader(CommandList cmd, ShaderPtr computeShader)
 {
 	ID3D11ComputeShader* cs = nullptr;
 	if (computeShader != nullptr)
@@ -2016,19 +2075,20 @@ void GraphicsDeviceD3D11::BindComputeShader(ShaderPtr computeShader)
 		}
 	}
 
-	if (cs != mPrevComputeShader)
+	auto& prevState = mPrevPipelineStates[cmd];
+	if (cs != prevState.mPrevComputeShader)
 	{
-		GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetShader(cs, nullptr, 0);
-		mPrevComputeShader = cs;
+		mDeviceContexts[cmd]->CSSetShader(cs, nullptr, 0);
+		prevState.mPrevComputeShader = cs;
 	}
 }
 
-void GraphicsDeviceD3D11::Dispatch(U32 threadGroupCountX, U32 threadGroupCountY, U32 threadGroupCountZ)
+void GraphicsDeviceD3D11::Dispatch(CommandList cmd, U32 threadGroupCountX, U32 threadGroupCountY, U32 threadGroupCountZ)
 {
-	GetDeviceContext(GraphicsThread_IMMEDIATE).Dispatch(threadGroupCountX, threadGroupCountY, threadGroupCountZ);
+	mDeviceContexts[cmd]->Dispatch(threadGroupCountX, threadGroupCountY, threadGroupCountZ);
 }
 
-void GraphicsDeviceD3D11::DispatchIndirect(const GPUBuffer* buffer, U32 offset)
+void GraphicsDeviceD3D11::DispatchIndirect(CommandList cmd, const GPUBuffer* buffer, U32 offset)
 {
 	auto rhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(*buffer);
 	if (rhiState == nullptr) {
@@ -2036,22 +2096,21 @@ void GraphicsDeviceD3D11::DispatchIndirect(const GPUBuffer* buffer, U32 offset)
 		return;
 	}
 
-	GetDeviceContext(GraphicsThread_IMMEDIATE).DispatchIndirect(
-		(ID3D11Buffer*)rhiState->mResource.Get(), offset);
+	mDeviceContexts[cmd]->DispatchIndirect((ID3D11Buffer*)rhiState->mResource.Get(), offset);
 }
 
-void GraphicsDeviceD3D11::UnBindUAVs(U32 slot, U32 count)
+void GraphicsDeviceD3D11::UnBindUAVs(CommandList cmd, U32 slot, U32 count)
 {
 	Debug::CheckAssertion(count <= 8, "GraphicsDeviceD3D11::UnBindUAVs: Invalid count.");
-	GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetUnorderedAccessViews(slot, count, (ID3D11UnorderedAccessView**)nullptrBlob, nullptr);
+	mDeviceContexts[cmd]->CSSetUnorderedAccessViews(slot, count, (ID3D11UnorderedAccessView**)nullptrBlob, nullptr);
 }
 
-void GraphicsDeviceD3D11::UnBindAllUAVs()
+void GraphicsDeviceD3D11::UnBindAllUAVs(CommandList cmd)
 {
-	GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetUnorderedAccessViews(0, 8, (ID3D11UnorderedAccessView**)nullptrBlob, nullptr);
+	mDeviceContexts[cmd]->CSSetUnorderedAccessViews(0, 8, (ID3D11UnorderedAccessView**)nullptrBlob, nullptr);
 }
 
-void GraphicsDeviceD3D11::BindUAV(GPUResource* const resource, U32 slot, I32 subresourceIndex)
+void GraphicsDeviceD3D11::BindUAV(CommandList cmd, GPUResource* const resource, U32 slot, I32 subresourceIndex)
 {
 	if (resource == nullptr) return;
 
@@ -2074,10 +2133,10 @@ void GraphicsDeviceD3D11::BindUAV(GPUResource* const resource, U32 slot, I32 sub
 		return;
 	}
 
-	GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetUnorderedAccessViews(slot, 1, &uav, nullptr);
+	mDeviceContexts[cmd]->CSSetUnorderedAccessViews(slot, 1, &uav, nullptr);
 }
 
-void GraphicsDeviceD3D11::BindUAVs(GPUResource* const* resource, U32 slot, U32 count)
+void GraphicsDeviceD3D11::BindUAVs(CommandList cmd, GPUResource* const* resource, U32 slot, U32 count)
 {
 	ID3D11UnorderedAccessView* uavs[8] = { nullptr };
 	for (int i = 0; i < count; i++)
@@ -2096,79 +2155,95 @@ void GraphicsDeviceD3D11::BindUAVs(GPUResource* const* resource, U32 slot, U32 c
 		uavs[i] = rhiState->mUAV.Get();
 	}
 
-	GetDeviceContext(GraphicsThread_IMMEDIATE).CSSetUnorderedAccessViews(slot, count, uavs, nullptr);
+	mDeviceContexts[cmd]->CSSetUnorderedAccessViews(slot, count, uavs, nullptr);
 }
 
-void GraphicsDeviceD3D11::BindPipelineState(PipelineState state)
+void GraphicsDeviceD3D11::BindPipelineState(CommandList cmd, const PipelineState* state)
 {
-	PipelineStateDesc& desc = state.mDesc;
+	if (mBindedPSO[cmd] != state)
+	{
+		mBindedPSO[cmd] = state;
+		mDirtyPSO[cmd] = true;
+	}
+}
+
+void GraphicsDeviceD3D11::RefreshPipelineState(CommandList cmd)
+{
+	if (!mDirtyPSO[cmd]) {
+		return;
+	}
+	mDirtyPSO[cmd] = false;
+
+	PrevPipelineStateInfo& prevPipelineState = mPrevPipelineStates[cmd];
+	const PipelineState* state = mBindedPSO[cmd];
+	const PipelineStateDesc& desc = state->mDesc;
 
 	ID3D11VertexShader* vs = desc.mVertexShader != nullptr ?
 		GetGraphicsDeviceChildState<VertexShaderD3D11>(*desc.mVertexShader)->mHandle.Get() : nullptr;
-	if (vs != mPrevVertexShader)
+	if (vs != prevPipelineState.mPrevVertexShader)
 	{
-		GetDeviceContext(GraphicsThread_IMMEDIATE).VSSetShader(vs, nullptr, 0);
-		mPrevVertexShader = vs;
+		mDeviceContexts[cmd]->VSSetShader(vs, nullptr, 0);
+		prevPipelineState.mPrevVertexShader = vs;
 	}
 
-	ID3D11PixelShader* ps = desc.mPixelShader != nullptr ? 
+	ID3D11PixelShader* ps = desc.mPixelShader != nullptr ?
 		GetGraphicsDeviceChildState<PixelShaderD3D11>(*desc.mPixelShader)->mHandle.Get() : nullptr;
-	if (ps != mPrevPixelShader)
+	if (ps != prevPipelineState.mPrevPixelShader)
 	{
-		GetDeviceContext(GraphicsThread_IMMEDIATE).PSSetShader(ps, nullptr, 0);
-		mPrevPixelShader = ps;
+		mDeviceContexts[cmd]->PSSetShader(ps, nullptr, 0);
+		prevPipelineState.mPrevPixelShader = ps;
 	}
 
-	ID3D11HullShader* hs = desc.mHullShader != nullptr ? 
+	ID3D11HullShader* hs = desc.mHullShader != nullptr ?
 		GetGraphicsDeviceChildState<HullShaderD3D11>(*desc.mHullShader)->mHandle.Get() : nullptr;
-	if (hs != mPrevHullShader)
+	if (hs != prevPipelineState.mPrevHullShader)
 	{
-		GetDeviceContext(GraphicsThread_IMMEDIATE).HSSetShader(hs, nullptr, 0);
-		mPrevHullShader = hs;
+		mDeviceContexts[cmd]->HSSetShader(hs, nullptr, 0);
+		prevPipelineState.mPrevHullShader = hs;
 	}
 
-	ID3D11DomainShader* ds = desc.mDomainShader != nullptr ? 
+	ID3D11DomainShader* ds = desc.mDomainShader != nullptr ?
 		GetGraphicsDeviceChildState<DomainShaderD3D11>(*desc.mDomainShader)->mHandle.Get() : nullptr;
-	if (ds != mPrevDomainShader)
+	if (ds != prevPipelineState.mPrevDomainShader)
 	{
-		GetDeviceContext(GraphicsThread_IMMEDIATE).DSSetShader(ds, nullptr, 0);
-		mPrevDomainShader = ds;
+		mDeviceContexts[cmd]->DSSetShader(ds, nullptr, 0);
+		prevPipelineState.mPrevDomainShader = ds;
 	}
 
-	ID3D11BlendState* bs = desc.mBlendState != nullptr ? 
+	ID3D11BlendState* bs = desc.mBlendState != nullptr ?
 		GetGraphicsDeviceChildState<BlendStateD3D11>(*desc.mBlendState)->mHandle.Get() : nullptr;
-	if (bs != mPrevBlendState)
+	if (bs != prevPipelineState.mPrevBlendState)
 	{
 		const float factor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-		GetDeviceContext(GraphicsThread_IMMEDIATE).OMSetBlendState(bs, factor, 0xFFFFFFFF);
-		mPrevBlendState = bs;
+		mDeviceContexts[cmd]->OMSetBlendState(bs, factor, 0xFFFFFFFF);
+		prevPipelineState.mPrevBlendState = bs;
 	}
 
-	ID3D11RasterizerState* rs = desc.mRasterizerState != nullptr ? 
+	ID3D11RasterizerState* rs = desc.mRasterizerState != nullptr ?
 		GetGraphicsDeviceChildState<RasterizerStateD3D11>(*desc.mRasterizerState)->mHandle.Get() : nullptr;
-	if (rs != mPrevRasterizerState)
+	if (rs != prevPipelineState.mPrevRasterizerState)
 	{
-		GetDeviceContext(GraphicsThread_IMMEDIATE).RSSetState(rs);
-		mPrevRasterizerState = rs;
+		mDeviceContexts[cmd]->RSSetState(rs);
+		prevPipelineState.mPrevRasterizerState = rs;
 	}
 
-	ID3D11DepthStencilState* dss = desc.mDepthStencilState != nullptr ? 
+	ID3D11DepthStencilState* dss = desc.mDepthStencilState != nullptr ?
 		GetGraphicsDeviceChildState<DepthStencilStateD3D11>(*desc.mDepthStencilState)->mHandle.Get() : nullptr;
-	if (dss != mPrevDepthStencilState)
+	if (dss != prevPipelineState.mPrevDepthStencilState)
 	{
-		GetDeviceContext(GraphicsThread_IMMEDIATE).OMSetDepthStencilState(dss, 0);
-		mPrevDepthStencilState = dss;
+		mDeviceContexts[cmd]->OMSetDepthStencilState(dss, 0);
+		prevPipelineState.mPrevDepthStencilState = dss;
 	}
 
-	ID3D11InputLayout* il = desc.mInputLayout != nullptr ? 
+	ID3D11InputLayout* il = desc.mInputLayout != nullptr ?
 		GetGraphicsDeviceChildState<InputLayoutD3D11>(*desc.mInputLayout)->mHandle.Get() : nullptr;
-	if (il != mPrevInputLayout)
+	if (il != prevPipelineState.mPrevInputLayout)
 	{
-		GetDeviceContext(GraphicsThread_IMMEDIATE).IASetInputLayout(il);
-		mPrevInputLayout = il;
+		mDeviceContexts[cmd]->IASetInputLayout(il);
+		prevPipelineState.mPrevInputLayout = il;
 	}
 
-	if (desc.mPrimitiveTopology != mPrevPrimitiveTopology)
+	if (desc.mPrimitiveTopology != prevPipelineState.mPrevPrimitiveTopology)
 	{
 		D3D11_PRIMITIVE_TOPOLOGY primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		switch (desc.mPrimitiveTopology)
@@ -2196,17 +2271,12 @@ void GraphicsDeviceD3D11::BindPipelineState(PipelineState state)
 			break;
 		}
 
-		GetDeviceContext(GraphicsThread_IMMEDIATE).IASetPrimitiveTopology(primitiveTopology);
-		mPrevPrimitiveTopology = desc.mPrimitiveTopology;
+		mDeviceContexts[cmd]->IASetPrimitiveTopology(primitiveTopology);
+		prevPipelineState.mPrevPrimitiveTopology = desc.mPrimitiveTopology;
 	}
 }
 
-void GraphicsDeviceD3D11::SetViewport(ViewPort viewport)
-{
-	mViewport = viewport;
-}
-
-GraphicsDevice::GPUAllocation GraphicsDeviceD3D11::AllocateGPU(size_t dataSize)
+GraphicsDevice::GPUAllocation GraphicsDeviceD3D11::AllocateGPU(CommandList cmd, size_t dataSize)
 {
 	// 分配mGPUAllocator的buffer内存
 	GPUAllocation result;
@@ -2215,26 +2285,27 @@ GraphicsDevice::GPUAllocation GraphicsDeviceD3D11::AllocateGPU(size_t dataSize)
 		return result;
 	}
 
+	auto& allocator = mGPUAllocator[cmd];
 	// 如果分配的大小大于buffer大小，则分配对应2倍大小
-	size_t allocDataSize = mGPUAllocator.GetDataSize();
+	size_t allocDataSize = allocator.GetDataSize();
 	if (allocDataSize <= dataSize)
 	{
-		mGPUAllocatorDesc.mByteWidth = (dataSize + 1) * 2;
-		CreateBuffer(&mGPUAllocatorDesc, mGPUAllocator.buffer, nullptr);
-		SetResourceName(mGPUAllocator.buffer, "GPUAllocator");
-		mGPUAllocator.byteOffset = 0;
+		allocator.buffer.mDesc.mByteWidth = (dataSize + 1) * 2;
+		CreateBuffer(&allocator.buffer.mDesc, allocator.buffer, nullptr);
+		SetResourceName(allocator.buffer, "GPUAllocator");
+		allocator.byteOffset = 0;
 	}
 
-	auto rhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(mGPUAllocator.buffer);
+	auto rhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(allocator.buffer);
 	if (rhiState == nullptr) {
 		return result;
 	}
 
 	// 如果分配的大小超过了最大大小或者分配时处于新的一帧，则覆盖
 	bool wrap = false;
-	size_t position = mGPUAllocator.byteOffset;
-	if (position + dataSize > mGPUAllocator.GetDataSize() ||
-		mGPUAllocator.residentFrame != mCurrentFrameCount) {
+	size_t position = allocator.byteOffset;
+	if (position + dataSize > allocator.GetDataSize() ||
+		allocator.residentFrame != mCurrentFrameCount) {
 		wrap = true;
 	}
 	position = wrap ? 0 : position;
@@ -2242,59 +2313,60 @@ GraphicsDevice::GPUAllocation GraphicsDeviceD3D11::AllocateGPU(size_t dataSize)
 	// mapping data
 	D3D11_MAP mapping = wrap ? D3D11_MAP_WRITE_DISCARD : D3D11_MAP_WRITE_NO_OVERWRITE;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	const HRESULT hr = GetDeviceContext(GraphicsThread_IMMEDIATE).Map(rhiState->mResource.Get(), 0, mapping, 0, &mappedResource);
+	const HRESULT hr = mDeviceContexts[cmd]->Map(rhiState->mResource.Get(), 0, mapping, 0, &mappedResource);
 	Debug::ThrowIfFailed(hr, "Failed to mapped GPUBuffer.");
 
-	mGPUAllocator.residentFrame = mCurrentFrameCount;
-	mGPUAllocator.byteOffset = position + dataSize;
-	mGPUAllocator.dirty = true;
+	allocator.residentFrame = mCurrentFrameCount;
+	allocator.byteOffset = position + dataSize;
+	allocator.dirty = true;
 
-	result.buffer = &mGPUAllocator.buffer;
+	result.buffer = &allocator.buffer;
 	result.offset = (U32)position;
 	result.data = (void*)((size_t)mappedResource.pData + position);
 
 	return result;
 }
 
-void GraphicsDeviceD3D11::UnAllocateGPU()
+void GraphicsDeviceD3D11::UnAllocateGPU(CommandList cmd)
 {
-	CommitAllocations();
+	CommitAllocations(cmd);
 }
 
-void GraphicsDeviceD3D11::ClearPrevStates()
+void GraphicsDeviceD3D11::ClearPrevStates(CommandList cmd)
 {
-	mPrevVertexShader = nullptr;
-	mPrevPixelShader = nullptr;
-	mPrevComputeShader = nullptr;
-	mPrevHullShader = nullptr;
-	mPrevDomainShader = nullptr;
-	mPrevInputLayout = nullptr;
-	mPrevRasterizerState = nullptr;
-	mPrevDepthStencilState = nullptr;
-	mPrevBlendState = nullptr;
-
-	mPrevPrimitiveTopology = UNDEFINED_TOPOLOGY;
+	auto& prevState = mPrevPipelineStates[cmd];
+	prevState.mPrevVertexShader = nullptr;
+	prevState.mPrevPixelShader = nullptr;
+	prevState.mPrevComputeShader = nullptr;
+	prevState.mPrevHullShader = nullptr;
+	prevState.mPrevDomainShader = nullptr;
+	prevState.mPrevInputLayout = nullptr;
+	prevState.mPrevRasterizerState = nullptr;
+	prevState.mPrevDepthStencilState = nullptr;
+	prevState.mPrevBlendState = nullptr;
+	prevState.mPrevPrimitiveTopology = UNDEFINED_TOPOLOGY;
 }
 
-void GraphicsDeviceD3D11::Draw(UINT vertexCount, UINT startVertexLocation)
+void GraphicsDeviceD3D11::Draw(CommandList cmd, UINT vertexCount, UINT startVertexLocation)
 {
-	CommitAllocations();
-
-	GetDeviceContext(GraphicsThread_IMMEDIATE).Draw(vertexCount, startVertexLocation);
+	RefreshPipelineState(cmd);
+	CommitAllocations(cmd);
+	mDeviceContexts[cmd]->Draw(vertexCount, startVertexLocation);
 }
 
-void GraphicsDeviceD3D11::DrawIndexed(UINT indexCount, UINT startIndexLocation)
+void GraphicsDeviceD3D11::DrawIndexed(CommandList cmd, UINT indexCount, UINT startIndexLocation)
 {
-	CommitAllocations();
-
-	GetDeviceContext(GraphicsThread_IMMEDIATE).DrawIndexed(indexCount, startIndexLocation, 0);
+	RefreshPipelineState(cmd);
+	CommitAllocations(cmd);
+	mDeviceContexts[cmd]->DrawIndexed(indexCount, startIndexLocation, 0);
 }
 
-void GraphicsDeviceD3D11::DrawInstanced(U32 vertexCountPerInstance, U32 instanceCount, U32 startVertexLocation, U32 startInstanceLocation)
+void GraphicsDeviceD3D11::DrawInstanced(CommandList cmd, U32 vertexCountPerInstance, U32 instanceCount, U32 startVertexLocation, U32 startInstanceLocation)
 {
-	CommitAllocations();
+	RefreshPipelineState(cmd);
+	CommitAllocations(cmd);
 
-	GetDeviceContext(GraphicsThread_IMMEDIATE).DrawInstanced(
+	mDeviceContexts[cmd]->DrawInstanced(
 		vertexCountPerInstance,
 		instanceCount,
 		startVertexLocation,
@@ -2302,11 +2374,12 @@ void GraphicsDeviceD3D11::DrawInstanced(U32 vertexCountPerInstance, U32 instance
 	);
 }
 
-void GraphicsDeviceD3D11::DrawIndexedInstanced(U32 indexCount, U32 instanceCount, U32 startIndexLocation, U32 baseVertexLocation, U32 startInstanceLocation)
+void GraphicsDeviceD3D11::DrawIndexedInstanced(CommandList cmd, U32 indexCount, U32 instanceCount, U32 startIndexLocation, U32 baseVertexLocation, U32 startInstanceLocation)
 {
-	CommitAllocations();
+	RefreshPipelineState(cmd);
+	CommitAllocations(cmd);
 
-	GetDeviceContext(GraphicsThread_IMMEDIATE).DrawIndexedInstanced(
+	mDeviceContexts[cmd]->DrawIndexedInstanced(
 		indexCount,
 		instanceCount,
 		startIndexLocation,
@@ -2314,9 +2387,10 @@ void GraphicsDeviceD3D11::DrawIndexedInstanced(U32 indexCount, U32 instanceCount
 		startInstanceLocation);
 }
 
-void GraphicsDeviceD3D11::DrawInstancedIndirect(const GPUBuffer* buffer, U32 offset)
+void GraphicsDeviceD3D11::DrawInstancedIndirect(CommandList cmd, const GPUBuffer* buffer, U32 offset)
 {
-	CommitAllocations();
+	RefreshPipelineState(cmd);
+	CommitAllocations(cmd);
 
 	auto rhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(*buffer);
 	if (rhiState == nullptr) {
@@ -2324,7 +2398,7 @@ void GraphicsDeviceD3D11::DrawInstancedIndirect(const GPUBuffer* buffer, U32 off
 		return;
 	}
 
-	GetDeviceContext(GraphicsThread_IMMEDIATE).DrawInstancedIndirect(
+	mDeviceContexts[cmd]->DrawInstancedIndirect(
 		(ID3D11Buffer*)rhiState->mResource.Get(),
 		offset
 	);
@@ -2353,22 +2427,22 @@ HRESULT GraphicsDeviceD3D11::CreateQuery(const GPUQueryDesc& desc, GPUQuery& que
 	return mDevice->CreateQuery(&queryDesc, &rhiState->mHandle);
 }
 
-void GraphicsDeviceD3D11::BeginQuery(GPUQuery& query)
+void GraphicsDeviceD3D11::BeginQuery(CommandList cmd, GPUQuery& query)
 {
 	auto rhiState = GetGraphicsDeviceChildState<QueryD3D11>(query);
 	if (rhiState == nullptr) {
 		return;
 	}
-	GetDeviceContext(GraphicsThread_IMMEDIATE).Begin(rhiState->mHandle.Get());
+	mDeviceContexts[cmd]->Begin(rhiState->mHandle.Get());
 }
 
-void GraphicsDeviceD3D11::EndQuery(GPUQuery& query)
+void GraphicsDeviceD3D11::EndQuery(CommandList cmd, GPUQuery& query)
 {
 	auto rhiState = GetGraphicsDeviceChildState<QueryD3D11>(query);
 	if (rhiState == nullptr) {
 		return;
 	}
-	GetDeviceContext(GraphicsThread_IMMEDIATE).End(rhiState->mHandle.Get());
+	mDeviceContexts[cmd]->End(rhiState->mHandle.Get());
 }
 
 HRESULT GraphicsDeviceD3D11::ReadQuery(GPUQuery& query, GPUQueryResult& result)
@@ -2383,11 +2457,11 @@ HRESULT GraphicsDeviceD3D11::ReadQuery(GPUQuery& query, GPUQueryResult& result)
 	switch (type)
 	{
 	case GPU_QUERY_TYPE_TIMESTAMP:
-		GetDeviceContext(GraphicsThread_IMMEDIATE).GetData(rhiState->mHandle.Get(), &result.mTimestamp, sizeof(U64), D3D11_ASYNC_GETDATA_DONOTFLUSH);
+		mImmediateContext->GetData(rhiState->mHandle.Get(), &result.mTimestamp, sizeof(U64), D3D11_ASYNC_GETDATA_DONOTFLUSH);
 		break;
 	case GPU_QUERY_TYPE_TIMESTAMP_DISJOINT:
 		D3D11_QUERY_DATA_TIMESTAMP_DISJOINT disjointData;
-		GetDeviceContext(GraphicsThread_IMMEDIATE).GetData(rhiState->mHandle.Get(), &disjointData, sizeof(disjointData), D3D11_ASYNC_GETDATA_DONOTFLUSH);
+		mImmediateContext->GetData(rhiState->mHandle.Get(), &disjointData, sizeof(disjointData), D3D11_ASYNC_GETDATA_DONOTFLUSH);
 		result.mTimetampFrequency = disjointData.Frequency;
 		break;
 	default:
@@ -2427,7 +2501,7 @@ void GraphicsDeviceD3D11::Map(const GPUResource* resource, GPUResourceMapping& m
 	}
 
 	// 这里CPU不会等待GPU下载数据，所以外部map时需要做一个delay
-	HRESULT result = GetDeviceContext(GraphicsThread_IMMEDIATE).Map(rhiState->mResource.Get(), 0, mapType, D3D11_MAP_FLAG_DO_NOT_WAIT, &mappedResource);
+	HRESULT result = mImmediateContext->Map(rhiState->mResource.Get(), 0, mapType, D3D11_MAP_FLAG_DO_NOT_WAIT, &mappedResource);
 	if (SUCCEEDED(result))
 	{
 		mapping.mData = mappedResource.pData;
@@ -2446,22 +2520,23 @@ void GraphicsDeviceD3D11::Unmap(const GPUResource* resource)
 
 	auto rhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(*resource);
 	if (rhiState != nullptr) {
-		GetDeviceContext(GraphicsThread_IMMEDIATE).Unmap(rhiState->mResource.Get(), 0);
+		mImmediateContext->Unmap(rhiState->mResource.Get(), 0);
 	}
 }
 
-void GraphicsDeviceD3D11::CommitAllocations()
+void GraphicsDeviceD3D11::CommitAllocations(CommandList cmd)
 {
 	// 在执行操作前（例如draw)需要unmap buffer
-	if (mGPUAllocator.dirty)
+	auto allocator = mGPUAllocator[cmd];
+	if (allocator.dirty)
 	{
-		auto& buffer = mGPUAllocator.buffer;
+		auto& buffer = allocator.buffer;
 		auto rhiState = GetGraphicsDeviceChildState<GPUResourceD3D11>(buffer);
 		if (rhiState != nullptr) {
-			GetDeviceContext(GraphicsThread_IMMEDIATE).Unmap(rhiState->mResource.Get(), 0);
+			mDeviceContexts[cmd]->Unmap(rhiState->mResource.Get(), 0);
 		}
 
-		mGPUAllocator.dirty = false;
+		allocator.dirty = false;
 	}
 }
 

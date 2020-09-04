@@ -20,7 +20,7 @@ namespace Cjing3D {
 		virtual void Update(F32 dt) {};
 		virtual void FixedUpdate() {};
 		virtual void Render() {};
-		virtual void Compose() {};
+		virtual void Compose(CommandList cmd) {};
 	};
 
 }

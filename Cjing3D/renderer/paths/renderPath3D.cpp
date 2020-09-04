@@ -102,10 +102,10 @@ namespace Cjing3D
 		}
 	}
 
-	void RenderPath3D::Compose()
+	void RenderPath3D::Compose(CommandList cmd)
 	{
 		GraphicsDevice& device = Renderer::GetDevice();
-		device.BeginEvent("Composition");
+		device.BeginEvent(cmd, "Composition");
 
 		Texture2D* lastTexture = GetLastPostprocessRT();
 		if (lastTexture != nullptr && lastTexture->IsValid())
@@ -114,47 +114,47 @@ namespace Cjing3D
 			params.EnableFullScreen();
 			params.mBlendType = BlendType_Opaque;
 
-			RenderImage::Render(*lastTexture, params);
+			RenderImage::Render(cmd, *lastTexture, params);
 		}
 
-		RenderPath2D::Compose();
+		RenderPath2D::Compose(cmd);
 
-		device.EndEvent();
+		device.EndEvent(cmd);
 	}
 
-	void RenderPath3D::RenderShadowmaps()
+	void RenderPath3D::RenderShadowmaps(CommandList cmd)
 	{
 		if (!IsShadowEnable()) {
 			return;
 		}
 
-		Renderer::RenderShadowmaps(Renderer::GetCamera(), GetRenderLayerMask());
+		Renderer::RenderShadowmaps(cmd, Renderer::GetCamera(), GetRenderLayerMask());
 	}
 
-	void RenderPath3D::RenderDepthLinear()
+	void RenderPath3D::RenderDepthLinear(CommandList cmd)
 	{
-		Renderer::RenderLinearDepth(mDepthBufferTemp, mDepthBufferLinear);
+		Renderer::RenderLinearDepth(cmd, mDepthBufferTemp, mDepthBufferLinear);
 	}
 
-	void RenderPath3D::RenderAO()
+	void RenderPath3D::RenderAO(CommandList cmd)
 	{
 		switch (mAOType)
 		{
 		case Cjing3D::RenderPath3D::AOTYPE_SSAO:
-			Renderer::RenderSSAO(mDepthBufferTemp, mDepthBufferLinear, mAOTexture, GetAORange(), GetAOSampleCount());;
+			Renderer::RenderSSAO(cmd, mDepthBufferTemp, mDepthBufferLinear, mAOTexture, GetAORange(), GetAOSampleCount());;
 			break;
 		default:
 			break;
 		}
 	}
 
-	void RenderPath3D::RenderTransparents(RenderBehavior& renderBehavior, RenderPassType renderType)
+	void RenderPath3D::RenderTransparents(CommandList cmd, RenderBehavior& renderBehavior, RenderPassType renderType)
 	{
-		PROFILER_BEGIN_GPU_BLOCK("RenderTransparents");
+		PROFILER_BEGIN_GPU_BLOCK(cmd, "RenderTransparents");
 		GraphicsDevice& device = Renderer::GetDevice();
 		CameraComponent& camera = Renderer::GetCamera();
 
-		device.BeginRenderBehavior(renderBehavior);
+		device.BeginRenderBehavior(cmd, renderBehavior);
 		const Texture* rtTexture = renderBehavior.mDesc.mParams[0].mTexture;
 
 		ViewPort vp;
@@ -162,39 +162,38 @@ namespace Cjing3D
 		vp.mHeight = (F32)rtTexture->GetDesc().mHeight;
 		vp.mMinDepth = 0.0f;
 		vp.mMaxDepth = 1.0f;
-		device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
+		device.BindViewports(cmd, &vp, 1);
 
 		// transparent scene
-		Renderer::RenderSceneTransparent(camera, renderType);
+		Renderer::RenderSceneTransparent(cmd, camera, renderType);
 
 		// particles
-		PROFILER_BEGIN_GPU_BLOCK("RenderParticles");
-		Renderer::RenderParticles(camera, mDepthBufferLinear);
+		PROFILER_BEGIN_GPU_BLOCK(cmd, "RenderParticles");
+		Renderer::RenderParticles(cmd, camera, mDepthBufferLinear);
 		PROFILER_END_BLOCK();
 
 		// debug scene
-		Renderer::RenderDebugScene(camera);
+		Renderer::RenderDebugScene(cmd, camera);
 
-		device.EndRenderBehavior();
+		device.EndRenderBehavior(cmd);
 
 		PROFILER_END_BLOCK();
 	}
 
-	void RenderPath3D::RenderPostprocess(Texture2D & rtScreen)
+	void RenderPath3D::RenderPostprocess(CommandList cmd, Texture2D & rtScreen)
 	{
 		Texture2D* rtRead = &rtScreen;
 		Texture2D* rtWrite = GetLastPostprocessRT();
 
 		// HDR-> LDR
-		Renderer::PostprocessTonemap(*rtRead, *rtWrite, GetExposure());
+		Renderer::PostprocessTonemap(cmd, *rtRead, *rtWrite, GetExposure());
 
 		// FXAA
 		if (IsFXAAEnable())
 		{
 			rtRead = rtWrite;
 			rtWrite = &mRTPostprocessLDR1;
-
-			Renderer::PostprocessFXAA(*rtRead, *rtWrite);
+			Renderer::PostprocessFXAA(cmd, *rtRead, *rtWrite);
 		}
 
 		if (rtWrite != GetLastPostprocessRT()) {
@@ -202,7 +201,7 @@ namespace Cjing3D
 		}
 	}
 
-	void RenderPath3D::RenderDebug()
+	void RenderPath3D::RenderDebug(CommandList cmd)
 	{
 		
 	}

@@ -228,13 +228,13 @@ namespace Renderer2D {
 			Renderer::GetDevice().CreatePipelineState(desc, mSpriteBatchPSO);
 		}
 
-		void ProcessRenderQueue(SpriteRenderBatchQueue& queue)
+		void ProcessRenderQueue(CommandList cmd, SpriteRenderBatchQueue& queue)
 		{
-			if (queue.IsEmpty() == true) {
+			if (queue.IsEmpty()) {
 				return;
 			}
 
-			LinearAllocator& frameAllocator = Renderer::GetFrameAllocator(Renderer::FrameAllocatorType_Render);
+			LinearAllocator& renderAllocator = Renderer::GetRenderAllocator(cmd);
 			GraphicsDevice& graphicsDevice = Renderer::GetDevice();
 
 			size_t instanceSize = sizeof(SpriteRenderInstanceData);
@@ -248,7 +248,7 @@ namespace Renderer2D {
 				instanceCount += batch->mSprite->GetSpriteType() == Sprite::SpriteType_Normal ? 1 : 9;
 			}
 
-			GraphicsDevice::GPUAllocation instances = graphicsDevice.AllocateGPU(instanceCount * instanceSize);
+			GraphicsDevice::GPUAllocation instances = graphicsDevice.AllocateGPU(cmd, instanceCount * instanceSize);
 			U32 instancedBatchCount = 0;
 			size_t currentInstanceCount = 0;
 
@@ -271,7 +271,7 @@ namespace Renderer2D {
 					prevTexture = currentTexture;
 					instancedBatchCount++;
 
-					SpriteBatchInstance* batchInstance = (SpriteBatchInstance*)frameAllocator.Allocate(sizeof(SpriteBatchInstance));
+					SpriteBatchInstance* batchInstance = (SpriteBatchInstance*)renderAllocator.Allocate(sizeof(SpriteBatchInstance));
 					batchInstance->mTexture = sprite->GetTexture();
 					batchInstance->mDataOffset = instances.offset + currentInstanceCount * instanceSize;
 					batchInstance->mInstanceCount = 0;
@@ -333,7 +333,7 @@ namespace Renderer2D {
 
 			if (mRenderBatchInstances.size() > 0)
 			{
-				graphicsDevice.BindSamplerState(SHADERSTAGES_PS, *Renderer::GetRenderPreset().GetSamplerState(SamplerStateID_LinearClamp), SAMPLER_LINEAR_CLAMP_SLOT);
+				graphicsDevice.BindSamplerState(cmd, SHADERSTAGES_PS, *Renderer::GetRenderPreset().GetSamplerState(SamplerStateID_LinearClamp), SAMPLER_LINEAR_CLAMP_SLOT);
 			}
 
 			for (auto& bathInstance : mRenderBatchInstances)
@@ -357,15 +357,15 @@ namespace Renderer2D {
 					0,
 					bathInstance->mDataOffset	// 因为所有的batch公用一个buffer，所以提供offset
 				};
-				graphicsDevice.BindVertexBuffer(vbs, 0, ARRAYSIZE(vbs), strides, offsets);
-				graphicsDevice.BindIndexBuffer(mIndexBuffer, IndexFormat::INDEX_FORMAT_32BIT, 0);
-				graphicsDevice.BindPipelineState(state);
-				graphicsDevice.BindGPUResource(SHADERSTAGES_PS, bathInstance->mTexture, TEXTURE_SLOT_0);
-				graphicsDevice.DrawIndexedInstanced(6, bathInstance->mInstanceCount, 0, 0, 0);
+				graphicsDevice.BindVertexBuffer(cmd, vbs, 0, ARRAYSIZE(vbs), strides, offsets);
+				graphicsDevice.BindIndexBuffer(cmd, mIndexBuffer, IndexFormat::INDEX_FORMAT_32BIT, 0);
+				graphicsDevice.BindPipelineState(cmd, &state);
+				graphicsDevice.BindGPUResource(cmd, SHADERSTAGES_PS, bathInstance->mTexture, TEXTURE_SLOT_0);
+				graphicsDevice.DrawIndexedInstanced(cmd, 6, bathInstance->mInstanceCount, 0, 0, 0);
 			}
 
-			graphicsDevice.UnAllocateGPU();
-			frameAllocator.Free(instancedBatchCount * sizeof(SpriteBatchInstance));
+			graphicsDevice.UnAllocateGPU(cmd);
+			renderAllocator.Free(instancedBatchCount * sizeof(SpriteBatchInstance));
 		}
 
 
@@ -373,30 +373,30 @@ namespace Renderer2D {
 		///////////////////////////////////////////////////////////////////////////////////
 
 		SpriteRenderBatchQueue mSpriteRenderBatchQueue;
-		void RenderSprites()
+		void RenderSprites(CommandList cmd)
 		{
-			LinearAllocator& frameAllocator = Renderer::GetFrameAllocator(Renderer::FrameAllocatorType_Render);
+			LinearAllocator& renderAllocator = Renderer::GetRenderAllocator(cmd);
 			auto flushQueue = [&]()->void
 			{
 				//mSpriteRenderBatchQueue.Sort(SpriteRenderBatchQueue::BackToFront);
-				ProcessRenderQueue(mSpriteRenderBatchQueue);
+				ProcessRenderQueue(cmd, mSpriteRenderBatchQueue);
 				mSpriteRenderBatchQueue.Clear();
 
-				frameAllocator.Free(mSpriteRenderBatchQueue.mRenderBatchQueue.size() * sizeof(RenderBatch));
+				renderAllocator.Free(mSpriteRenderBatchQueue.mRenderBatchQueue.size() * sizeof(RenderBatch));
 			};
 
 			// update sprite buffer
 			SpriteCB cb = {};
 			DirectX::XMStoreFloat4x4(&cb.gSpriteCameraVP, Renderer::GetScreenProjection());
-			Renderer::GetDevice().UpdateBuffer(mSpriteBuffer, &cb, sizeof(SpriteCB));
-			Renderer::GetDevice().BindConstantBuffer(SHADERSTAGES_VS, mSpriteBuffer, CB_GETSLOT_NAME(SpriteCB));
+			Renderer::GetDevice().UpdateBuffer(cmd, mSpriteBuffer, &cb, sizeof(SpriteCB));
+			Renderer::GetDevice().BindConstantBuffer(cmd, SHADERSTAGES_VS, mSpriteBuffer, CB_GETSLOT_NAME(SpriteCB));
 
 			// render sprites
 			for (Sprite* sprite : mRenderRequestSprites)
 			{
 				if (sprite != nullptr && sprite->IsVisible())
 				{
-					SpriteRenderBatch* renderBatch = (SpriteRenderBatch*)frameAllocator.Allocate(sizeof(SpriteRenderBatch));
+					SpriteRenderBatch* renderBatch = (SpriteRenderBatch*)renderAllocator.Allocate(sizeof(SpriteRenderBatch));
 					renderBatch->Init(sprite);
 					mSpriteRenderBatchQueue.AddBatch(renderBatch);
 
@@ -415,14 +415,14 @@ namespace Renderer2D {
 
 		std::vector<UTF8String> mRenderUT8Strings;
 		std::vector<Font::FontParams> mRenderFontParams;
-		void RenderTextDrawables()
+		void RenderTextDrawables(CommandList cmd)
 		{
 			auto FlushQueue = [&]()->void
 			{
 				if (mRenderUT8Strings.size() <= 0 || mRenderFontParams.size() <= 0) {
 					return;
 				}
-				Font::Draw(mRenderUT8Strings, mRenderFontParams);
+				Font::Draw(cmd, mRenderUT8Strings, mRenderFontParams);
 
 				mRenderUT8Strings.clear();
 				mRenderFontParams.clear();
@@ -498,9 +498,9 @@ namespace Renderer2D {
 		Font::Uninitialize();
 	}
 
-	void Render2D()
+	void Render2D(CommandList cmd)
 	{
-		PROFILER_BEGIN_CPU_GPU_BLOCK("Render2D");
+		PROFILER_BEGIN_CPU_GPU_BLOCK(cmd, "Render2D");
 		for (auto& layer : mRenderLayers)
 		{
 			if (layer.mItems.empty()) {
@@ -530,12 +530,12 @@ namespace Renderer2D {
 					{
 					case RenderItem2D::RenderItemType_Sprite:
 						if (!mRenderRequestSprites.empty()) {
-							RenderSprites();
+							RenderSprites(cmd);
 						}
 						break;
 					case RenderItem2D::RenderItemType_Font:
 						if (!mRenderRequestTexts.empty()) {
-							RenderTextDrawables();
+							RenderTextDrawables(cmd);
 						}
 						break;
 					default:
@@ -555,7 +555,7 @@ namespace Renderer2D {
 					mRenderRequestTexts.push_back(item.mText);
 					break;
 				case RenderItem2D::RenderItemType_Scissor:
-					Renderer::GetDevice().BindScissorRects(1, &item.mScissorRect);
+					Renderer::GetDevice().BindScissorRects(cmd, 1, &item.mScissorRect);
 					break;
 				default:
 					break;
@@ -563,10 +563,10 @@ namespace Renderer2D {
 			}
 
 			if (!mRenderRequestSprites.empty()) {
-				RenderSprites();
+				RenderSprites(cmd);
 			}
 			if (!mRenderRequestTexts.empty()) {
-				RenderTextDrawables();
+				RenderTextDrawables(cmd);
 			}
 		}
 		PROFILER_END_CPU_GPU_BLOCK();

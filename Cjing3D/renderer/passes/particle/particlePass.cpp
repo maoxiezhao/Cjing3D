@@ -63,10 +63,10 @@ void ParticlePass::Uninitialize()
 	mParticleAlphaPSO.Clear();
 }
 
-void ParticlePass::UpdateParticle(ParticleComponent& particle, MeshComponent* mesh)
+void ParticlePass::UpdateParticle(CommandList cmd, ParticleComponent& particle, MeshComponent* mesh)
 {
 	GraphicsDevice& device = Renderer::GetDevice();
-	device.BeginEvent("ParticleUpdate");
+	device.BeginEvent(cmd, "ParticleUpdate");
 
 	GPUResource* uavs[] = {
 		&particle.mBufferParticles,
@@ -76,73 +76,73 @@ void ParticlePass::UpdateParticle(ParticleComponent& particle, MeshComponent* me
 		&particle.mBufferCounters,
 		&particle.mBufferIndirect
 	};
-	device.BindUAVs(uavs, 0, ARRAYSIZE(uavs));
+	device.BindUAVs(cmd, uavs, 0, ARRAYSIZE(uavs));
 
 	GPUResource* meshRes[] = {
 		mesh != nullptr ? mesh->GetFinalVertexBufferPos() : nullptr,
 		mesh != nullptr ? mesh->GetIndexBuffer() : nullptr
 	};
-	device.BindGPUResources(SHADERSTAGES_CS, meshRes, TEXTURE_SLOT_0, ARRAYSIZE(meshRes));
+	device.BindGPUResources(cmd, SHADERSTAGES_CS, meshRes, TEXTURE_SLOT_0, ARRAYSIZE(meshRes));
 
 	// start 
-	device.BeginEvent("ParticleStart");
-	device.BindComputeShader(mParticleStartCS);
-	device.Dispatch(1, 1, 1);
-	device.EndEvent();
+	device.BeginEvent(cmd, "ParticleStart");
+	device.BindComputeShader(cmd, mParticleStartCS);
+	device.Dispatch(cmd, 1, 1, 1);
+	device.EndEvent(cmd);
 	// emit
-	device.BeginEvent("ParticleEmit");
-	device.BindComputeShader(mesh != nullptr ? mParticleEmitMeshCS : mParticleEmitCS);
-	device.DispatchIndirect(&particle.mBufferIndirect, IndirectOffsetDispatchEmit);
-	device.EndEvent();
+	device.BeginEvent(cmd, "ParticleEmit");
+	device.BindComputeShader(cmd, mesh != nullptr ? mParticleEmitMeshCS : mParticleEmitCS);
+	device.DispatchIndirect(cmd, &particle.mBufferIndirect, IndirectOffsetDispatchEmit);
+	device.EndEvent(cmd);
 	// update
-	device.BeginEvent("ParticleUpdate");
-	device.BindComputeShader(mParticleUpdateCS);
-	device.DispatchIndirect(&particle.mBufferIndirect, IndirectOffsetDispatchUpdate);
-	device.EndEvent();
-	device.UnBindUAVs(0, ARRAYSIZE(uavs));
+	device.BeginEvent(cmd, "ParticleUpdate");
+	device.BindComputeShader(cmd, mParticleUpdateCS);
+	device.DispatchIndirect(cmd, &particle.mBufferIndirect, IndirectOffsetDispatchUpdate);
+	device.EndEvent(cmd);
+	device.UnBindUAVs(cmd, 0, ARRAYSIZE(uavs));
 
-	device.UnbindGPUResources(TEXTURE_SLOT_0, ARRAYSIZE(meshRes));
+	device.UnbindGPUResources(cmd, TEXTURE_SLOT_0, ARRAYSIZE(meshRes));
 
 	// finish
-	device.BeginEvent("ParticleFinish");
-	device.BindUAV(&particle.mBufferIndirect, 0);
-	device.BindComputeShader(mParticleFinishCS);
-	device.BindGPUResource(SHADERSTAGES_CS, &particle.mBufferCounters, TEXTURE_SLOT_0);
-	device.Dispatch(1, 1, 1);
-	device.UnBindUAVs(0, 1);
-	device.UnbindGPUResources(TEXTURE_SLOT_0, 1);
-	device.EndEvent();
+	device.BeginEvent(cmd, "ParticleFinish");
+	device.BindUAV(cmd, &particle.mBufferIndirect, 0);
+	device.BindComputeShader(cmd, mParticleFinishCS);
+	device.BindGPUResource(cmd, SHADERSTAGES_CS, &particle.mBufferCounters, TEXTURE_SLOT_0);
+	device.Dispatch(cmd, 1, 1, 1);
+	device.UnBindUAVs(cmd, 0, 1);
+	device.UnbindGPUResources(cmd, TEXTURE_SLOT_0, 1);
+	device.EndEvent(cmd);
 
-	device.EndEvent();
+	device.EndEvent(cmd);
 }
 
-void ParticlePass::DrawParticle(ParticleComponent& particle, MaterialComponent& material)
+void ParticlePass::DrawParticle(CommandList cmd, ParticleComponent& particle, MaterialComponent& material)
 {
 	GraphicsDevice &device = Renderer::GetDevice();
-	device.BeginEvent("RenderParticles");
+	device.BeginEvent(cmd, "RenderParticles");
 	switch (material.GetBlendMode())
 	{
 	case BlendType_Alpha:
-		device.BindPipelineState(mParticleAlphaPSO);
+		device.BindPipelineState(cmd, &mParticleAlphaPSO);
 		break;
 	default:
 		Debug::Warning("Invalid particle material blend mode");
-		device.EndEvent();
+		device.EndEvent(cmd);
 		return;
 		break;
 	}
 
-	device.BindGPUResource(SHADERSTAGES_PS, material.GetBaseColorMap(), TEXTURE_SLOT_0);
-	device.BindConstantBuffer(SHADERSTAGES_VS, particle.mConstantBuffer, CB_GETSLOT_NAME(ParticleCB));
-	device.BindConstantBuffer(SHADERSTAGES_PS, particle.mConstantBuffer, CB_GETSLOT_NAME(ParticleCB));
+	device.BindGPUResource(cmd, SHADERSTAGES_PS, material.GetBaseColorMap(), TEXTURE_SLOT_0);
+	device.BindConstantBuffer(cmd, SHADERSTAGES_VS, particle.mConstantBuffer, CB_GETSLOT_NAME(ParticleCB));
+	device.BindConstantBuffer(cmd, SHADERSTAGES_PS, particle.mConstantBuffer, CB_GETSLOT_NAME(ParticleCB));
 	
 	GPUResource* resources[] = {
 		&particle.mBufferParticles,
 		&particle.mBufferAliveListNew,
 	};
-	device.BindGPUResources(SHADERSTAGES_VS, resources, TEXTURE_SLOT_8, ARRAYSIZE(resources));
-	device.DrawInstancedIndirect(&particle.mBufferIndirect, IndirectOffsetInstanced);
-	device.EndEvent();
+	device.BindGPUResources(cmd, SHADERSTAGES_VS, resources, TEXTURE_SLOT_8, ARRAYSIZE(resources));
+	device.DrawInstancedIndirect(cmd, &particle.mBufferIndirect, IndirectOffsetInstanced);
+	device.EndEvent(cmd);
 }
 
 }

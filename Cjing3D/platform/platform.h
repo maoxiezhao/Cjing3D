@@ -21,17 +21,11 @@ namespace Cjing3D {
 
 	namespace Platform
 	{
-		// TEMP: string
-		std::string  WStringToString(const std::wstring& wstr);
-		std::wstring StringToWString(const std::string& str);
-
-		// console
 		void SetLoggerConsoleFontColor(ConsoleFontColor fontColor);
 		void ShowMessageBox(const UTF8String& msg);
 		void LoadFileFromOpenWindow(const char* fileFilter, std::function<void(const std::string&)> callback);
 		void SaveFileToOpenWindow(const char* fileFilter, std::function<void(const std::string&)> callback);
 		void ShowBrowseForFolder(const char* title, std::function<void(const std::string&)> callback);
-
 	}
 }
 

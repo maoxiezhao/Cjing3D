@@ -2,6 +2,7 @@
 #include "timer.h"
 #include "renderer\renderer.h"
 
+#include <unordered_map>
 #include <stack>
 #include <sstream>
 
@@ -28,6 +29,7 @@ namespace {
 		ProfileType type;
 		std::string name;
 		F32 time;
+		CommandList cmd;
 
 		Timer cpuBegin;
 		Timer cpuEnd;
@@ -84,13 +86,15 @@ void Profiler::BeginFrame()
 		disjoint.Initialize(desc);
 	}
 
+	auto& device = Renderer::GetDevice();
 	// 查询GPU时钟频率时需要调用BeginQuery/EndQuery
-	Renderer::GetDevice().BeginQuery(*disjoint.GetQueryForGPU());
-	Renderer::GetDevice().EndQuery(*disjoint.GetQueryForGPU());
+	CommandList cmd = device.GetCommandList();
+	device.BeginQuery(cmd , *disjoint.GetQueryForGPU());
+	device.EndQuery(cmd , *disjoint.GetQueryForGPU());
 
 	// begin frame
 	BeginCPUBlock(STRING_ID(CPU_FRAME));
-	BeginGPUBlock(STRING_ID(GPU_FRAME));
+	BeginGPUBlock(STRING_ID(GPU_FRAME), cmd);
 }
 
 void Profiler::EndFrame()
@@ -164,7 +168,7 @@ void Profiler::BeginCPUBlock(const StringID& name)
 	recordedBlock.push(hashValue);
 }
 
-void Profiler::BeginGPUBlock(const StringID& name)
+void Profiler::BeginGPUBlock(const StringID& name, CommandList cmd)
 {
 	if (!IsProfileEnable()) {
 		return;
@@ -179,6 +183,7 @@ void Profiler::BeginGPUBlock(const StringID& name)
 		cpuBlock.type = ProfilerType_GPU;
 		cpuBlock.name = name.GetString();
 		cpuBlock.time = 0;
+		cpuBlock.cmd = cmd;
 
 		GPUQueryDesc desc = {};
 		desc.mGPUQueryType = GPU_QUERY_TYPE_TIMESTAMP;
@@ -191,7 +196,7 @@ void Profiler::BeginGPUBlock(const StringID& name)
 
 	// 获取时间戳只要只执行QueryEnd即可
 	auto& gpuBegin = currentBlocks[hashValue].gpuBegin;
-	Renderer::GetDevice().EndQuery(*gpuBegin.GetQueryForGPU());
+	Renderer::GetDevice().EndQuery(cmd, *gpuBegin.GetQueryForGPU());
 }
 
 void Profiler::EndBlock()
@@ -223,7 +228,7 @@ void Profiler::EndBlock()
 		{
 			// 获取时间戳只要只执行QueryEnd即可
 			auto& gpuEnd = block.gpuEnd;
-			Renderer::GetDevice().EndQuery(*gpuEnd.GetQueryForGPU());
+			Renderer::GetDevice().EndQuery(block.cmd, *gpuEnd.GetQueryForGPU());
 		}
 	}
 }

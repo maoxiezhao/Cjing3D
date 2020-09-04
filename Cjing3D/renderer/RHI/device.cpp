@@ -14,14 +14,6 @@ GraphicsDevice::~GraphicsDevice()
 {
 }
 
-void GraphicsDevice::PresentBegin()
-{
-}
-
-void GraphicsDevice::PresentEnd()
-{
-}
-
 bool GraphicsDevice::CheckGraphicsFeatureSupport(GraphicsFeatureSupport::GraphicsFeature feature) const
 {
 	switch (feature)

@@ -86,8 +86,8 @@ namespace Cjing3D
 		virtual void Initialize(U32 width, U32 height);
 		virtual void Uninitialize();
 		virtual void UpdatePerFrameData(F32 deltaTime);
-		virtual void RefreshRenderData(TransformComponent& transform);
-		virtual void Render();
+		virtual void RefreshRenderData(CommandList cmd, TransformComponent& transform);
+		virtual void Render(CommandList cmd);
 
 		void LoadHeightMap(const std::string& path);
 		void LoadHeightMap(TextureResourcePtr heightMap);
@@ -101,8 +101,6 @@ namespace Cjing3D
 		void SetTerrainPSO(PipelineState& pso) { mTerrainPSO = pso; }
 
 	private:
-		void UpdateConstantBuffer(TransformComponent& transform);
-
 		struct TerrrainRenderQueue
 		{
 		public:
@@ -128,7 +126,7 @@ namespace Cjing3D
 
 			std::vector<TerrainTile*> mRenderTiles;
 		};
-		void ProcessTerrainRenderQueue(TerrrainRenderQueue& renderQueue);
+		void ProcessTerrainRenderQueue(CommandList cmd, TerrrainRenderQueue& renderQueue);
 
 	private:
 		PipelineState mTerrainPSO;

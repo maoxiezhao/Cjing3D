@@ -17,7 +17,7 @@ namespace Cjing3D
 		virtual void Initialize() {};
 		virtual void Uninitialize() {};
 		virtual void UpdatePerFrameData(F32 deltaTime) {};
-		virtual void RefreshRenderData() {};
-		virtual void Render() {};
+		virtual void RefreshRenderData(CommandList cmd) {};
+		virtual void Render(CommandList cmd) {};
 	};
 }

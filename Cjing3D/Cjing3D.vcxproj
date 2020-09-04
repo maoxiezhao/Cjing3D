@@ -331,6 +331,8 @@
     <ClInclude Include="utils\stb_utils\stb_image.h" />
     <ClInclude Include="utils\stb_utils\stb_image_include.h" />
     <ClInclude Include="utils\stb_utils\stb_truetype.h" />
+    <ClInclude Include="utils\string\stringConvert.h" />
+    <ClInclude Include="utils\string\stringHelper.h" />
     <ClInclude Include="utils\string\utf8.h" />
     <ClInclude Include="utils\string\utf8String.h" />
     <ClInclude Include="utils\string\utf8StringIt.h" />
@@ -533,6 +535,7 @@
     <ClCompile Include="utils\signal\connectionList.cpp" />
     <ClCompile Include="utils\signal\connectionMap.cpp" />
     <ClCompile Include="utils\signal\eventQueue.cpp" />
+    <ClCompile Include="utils\string\stringHelper.cpp" />
     <ClCompile Include="utils\string\utf8String.cpp" />
     <ClCompile Include="utils\string\utf8StringIt.cpp" />
     <ClCompile Include="utils\tinyxml2\tinyxml2.cpp" />

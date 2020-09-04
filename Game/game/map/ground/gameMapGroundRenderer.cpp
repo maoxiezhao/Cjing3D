@@ -304,8 +304,8 @@ namespace CjingGame
 			cb.gGroundTilesetInvWidth = 1.0f / (F32)cb.gGroundTilesetWidth;
 			cb.gGroundTilesetInvHeight = 1.0f / (F32)cb.gGroundTilesetHeight;
 
-			Renderer::GetDevice().UpdateBuffer(mGroundTilesetBuffer, &cb);
-			Renderer::GetDevice().BindConstantBuffer(SHADERSTAGES_VS, mGroundTilesetBuffer, CB_GETSLOT_NAME(GroundTileSetCB));
+		/*	Renderer::GetDevice().UpdateBuffer(mGroundTilesetBuffer, &cb);
+			Renderer::GetDevice().BindConstantBuffer(SHADERSTAGES_VS, mGroundTilesetBuffer, CB_GETSLOT_NAME(GroundTileSetCB));*/
 		}
 	}
 }

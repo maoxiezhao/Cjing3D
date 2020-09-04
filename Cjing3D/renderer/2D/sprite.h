@@ -21,8 +21,8 @@ namespace Cjing3D
 		virtual void Update(F32 deltaTime);
 		virtual void FixedUpdate();
 
-		void DrawImage();
-		void DrawImage(const F32x2& pos);
+		void DrawImage(CommandList cmd);
+		void DrawImage(CommandList cmd, const F32x2& pos);
 		bool LoadTexture(const std::string& path);
 		void SetTexture(TextureResourcePtr res);
 		void SetTexture(Texture2D* texture);

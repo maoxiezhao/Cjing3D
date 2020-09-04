@@ -554,10 +554,10 @@ namespace Font {
 		}
 
 		template<typename CharT>
-		void DrawImpl(const CharT* text, size_t length, const FontParams& params)
+		void DrawImpl(CommandList cmd, const CharT* text, size_t length, const FontParams& params)
 		{
 			GraphicsDevice& device = Renderer::GetDevice();
-			GraphicsDevice::GPUAllocation gpuMem = device.AllocateGPU(sizeof(FontVertexPosTex) * length * 4);
+			GraphicsDevice::GPUAllocation gpuMem = device.AllocateGPU(cmd, sizeof(FontVertexPosTex) * length * 4);
 			if (!gpuMem.IsValid()) {
 				return;
 			}
@@ -591,24 +591,24 @@ namespace Font {
 			U32 quadCount = GetFontQuadDataByText(text, length, currentFontParams, (FontVertexPosTex*)gpuMem.data);
 			if (quadCount <= 0)
 			{
-				device.UnAllocateGPU();
+				device.UnAllocateGPU(cmd);
 				UpdataPendingFontGlyphs();
 				return;
 			}
 
-			device.BeginEvent("RenderFontInst");
-			device.BindPipelineState(mFontPSO);
-			device.BindSamplerState(SHADERSTAGES_PS, *Renderer::GetRenderPreset().GetSamplerState(SamplerStateID_Font), SAMPLER_SLOT_0);
-			device.BindGPUResource(SHADERSTAGES_PS, &mFontGlyphsTexture, TEXTURE_SLOT_FONT);
-			device.BindConstantBuffer(SHADERSTAGES_VS, mFontBuffer, CB_GETSLOT_NAME(FontCB));
-			device.BindConstantBuffer(SHADERSTAGES_PS, mFontBuffer, CB_GETSLOT_NAME(FontCB));
+			device.BeginEvent(cmd, "RenderFontInst");
+			device.BindPipelineState(cmd, &mFontPSO);
+			device.BindSamplerState(cmd, SHADERSTAGES_PS, *Renderer::GetRenderPreset().GetSamplerState(SamplerStateID_Font), SAMPLER_SLOT_0);
+			device.BindGPUResource(cmd, SHADERSTAGES_PS, &mFontGlyphsTexture, TEXTURE_SLOT_FONT);
+			device.BindConstantBuffer(cmd, SHADERSTAGES_VS, mFontBuffer, CB_GETSLOT_NAME(FontCB));
+			device.BindConstantBuffer(cmd, SHADERSTAGES_PS, mFontBuffer, CB_GETSLOT_NAME(FontCB));
 
 			FontCB cb = {};
 			cb.gFontColor = XMConvert(currentFontParams.mColor.ToFloat4());
 			XMStoreFloat4x4(&cb.gFontTransform, 
 				XMMatrixTranslation(currentFontParams.mPos[0], currentFontParams.mPos[1], 0.0f) * 
 				Renderer::GetScreenProjection());
-			device.UpdateBuffer(mFontBuffer, &cb, sizeof(FontCB));
+			device.UpdateBuffer(cmd, mFontBuffer, &cb, sizeof(FontCB));
 
 			GPUBuffer* vbs[] = {
 				gpuMem.buffer,
@@ -619,20 +619,20 @@ namespace Font {
 			U32 offsets[] = {
 				gpuMem.offset,
 			};
-			device.BindVertexBuffer(vbs, 0, ARRAYSIZE(vbs), strides, offsets);
-			device.BindIndexBuffer(mIndexBuffer, IndexFormat::INDEX_FORMAT_16BIT, 0);
-			device.DrawIndexed(6 * quadCount, 0);
-			device.EndEvent();
-			device.UnAllocateGPU();
+			device.BindVertexBuffer(cmd, vbs, 0, ARRAYSIZE(vbs), strides, offsets);
+			device.BindIndexBuffer(cmd, mIndexBuffer, IndexFormat::INDEX_FORMAT_16BIT, 0);
+			device.DrawIndexed(cmd, 6 * quadCount, 0);
+			device.EndEvent(cmd);
+			device.UnAllocateGPU(cmd);
 
 			UpdataPendingFontGlyphs();
 		}
 
 		template<typename CharT>
-		void DrawImpl(const std::vector<std::vector<CharT>>& texts, const FontParams* params, size_t count, size_t totalLength)
+		void DrawImpl(CommandList cmd, const std::vector<std::vector<CharT>>& texts, const FontParams* params, size_t count, size_t totalLength)
 		{
 			GraphicsDevice& device = Renderer::GetDevice();
-			GraphicsDevice::GPUAllocation gpuMem = device.AllocateGPU(sizeof(FontVertexPosTex) * totalLength * 4);
+			GraphicsDevice::GPUAllocation gpuMem = device.AllocateGPU(cmd, sizeof(FontVertexPosTex) * totalLength * 4);
 			if (!gpuMem.IsValid()) {
 				return;
 			}
@@ -675,22 +675,22 @@ namespace Font {
 
 			if (totalQuadCount <= 0)
 			{
-				device.UnAllocateGPU();
+				device.UnAllocateGPU(cmd);
 				UpdataPendingFontGlyphs();
 				return;
 			}
 
 			FontParams currentFontParams = params[0];
-			device.BindPipelineState(mFontPSO);
-			device.BindSamplerState(SHADERSTAGES_PS, *Renderer::GetRenderPreset().GetSamplerState(SamplerStateID_Font), SAMPLER_SLOT_0);
-			device.BindGPUResource(SHADERSTAGES_PS, &mFontGlyphsTexture, TEXTURE_SLOT_FONT);
-			device.BindConstantBuffer(SHADERSTAGES_VS, mFontBuffer, CB_GETSLOT_NAME(FontCB));
-			device.BindConstantBuffer(SHADERSTAGES_PS, mFontBuffer, CB_GETSLOT_NAME(FontCB));
+			device.BindPipelineState(cmd, &mFontPSO);
+			device.BindSamplerState(cmd, SHADERSTAGES_PS, *Renderer::GetRenderPreset().GetSamplerState(SamplerStateID_Font), SAMPLER_SLOT_0);
+			device.BindGPUResource(cmd, SHADERSTAGES_PS, &mFontGlyphsTexture, TEXTURE_SLOT_FONT);
+			device.BindConstantBuffer(cmd, SHADERSTAGES_VS, mFontBuffer, CB_GETSLOT_NAME(FontCB));
+			device.BindConstantBuffer(cmd, SHADERSTAGES_PS, mFontBuffer, CB_GETSLOT_NAME(FontCB));
 
 			FontCB cb = {};
 			cb.gFontColor = XMConvert(currentFontParams.mColor.ToFloat4());
 			XMStoreFloat4x4(&cb.gFontTransform, Renderer::GetScreenProjection());
-			device.UpdateBuffer(mFontBuffer, &cb, sizeof(FontCB));
+			device.UpdateBuffer(cmd, mFontBuffer, &cb, sizeof(FontCB));
 
 			GPUBuffer* vbs[] = {
 				gpuMem.buffer,
@@ -701,10 +701,10 @@ namespace Font {
 			U32 offsets[] = {
 				gpuMem.offset,
 			};
-			device.BindVertexBuffer(vbs, 0, ARRAYSIZE(vbs), strides, offsets);
-			device.BindIndexBuffer(mIndexBuffer, IndexFormat::INDEX_FORMAT_16BIT, 0);
-			device.DrawIndexed(6 * totalQuadCount, 0);
-			device.UnAllocateGPU();
+			device.BindVertexBuffer(cmd, vbs, 0, ARRAYSIZE(vbs), strides, offsets);
+			device.BindIndexBuffer(cmd, mIndexBuffer, IndexFormat::INDEX_FORMAT_16BIT, 0);
+			device.DrawIndexed(cmd, 6 * totalQuadCount, 0);
+			device.UnAllocateGPU(cmd);
 
 			UpdataPendingFontGlyphs();
 		}
@@ -770,32 +770,32 @@ namespace Font {
 		return ret;
 	}
 
-	void Draw(const std::string& text, const FontParams& params)
+	void Draw(CommandList cmd, const std::string& text, const FontParams& params)
 	{
 		if (!mIsInitialized) {
 			return;
 		}
-		DrawImpl(text.c_str(), text.length(), params);
+		DrawImpl(cmd, text.c_str(), text.length(), params);
 	}
 
-	void Draw(const std::wstring& text, const FontParams& params)
+	void Draw(CommandList cmd, const std::wstring& text, const FontParams& params)
 	{
 		if (!mIsInitialized) {
 			return;
 		}
-		DrawImpl(text.c_str(), text.length(), params);
+		DrawImpl(cmd, text.c_str(), text.length(), params);
 	}
 
-	void Draw(const UTF8String& text, const FontParams& params)
+	void Draw(CommandList cmd, const UTF8String& text, const FontParams& params)
 	{
 		if (!mIsInitialized) {
 			return;
 		}
 		auto codepoints = text.GetCodePoints();
-		DrawImpl(codepoints.data(), codepoints.size(), params);
+		DrawImpl(cmd, codepoints.data(), codepoints.size(), params);
 	}
 
-	void Draw(const std::vector<UTF8String>& text, const std::vector<FontParams>& params)
+	void Draw(CommandList cmd, const std::vector<UTF8String>& text, const std::vector<FontParams>& params)
 	{
 		// 合并渲染需要保证所有字体的渲染参数一致（字体颜色）
 		if (!mIsInitialized) {
@@ -820,7 +820,7 @@ namespace Font {
 				codePoints.push_back(codepoints);
 			}
 
-			DrawImpl(codePoints, params.data() + lastEndIndex, currentIndex - lastEndIndex, totalLength);
+			DrawImpl(cmd, codePoints, params.data() + lastEndIndex, currentIndex - lastEndIndex, totalLength);
 			lastEndIndex = currentIndex;
 		};
 

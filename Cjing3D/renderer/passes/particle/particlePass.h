@@ -17,7 +17,7 @@ namespace Cjing3D
 		virtual void Initialize();
 		virtual void Uninitialize();
 
-		void UpdateParticle(ParticleComponent& particle, MeshComponent* mesh = nullptr);
-		void DrawParticle(ParticleComponent& particle, MaterialComponent& material);
+		void UpdateParticle(CommandList cmd, ParticleComponent& particle, MeshComponent* mesh = nullptr);
+		void DrawParticle(CommandList cmd, ParticleComponent& particle, MaterialComponent& material);
 	};
 }

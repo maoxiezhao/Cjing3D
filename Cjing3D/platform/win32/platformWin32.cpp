@@ -1,5 +1,6 @@
 #ifdef _WIN32
 #include "platform\platform.h"
+#include "utils\string\stringHelper.h"
 
 #include <windows.h>
 #include <string>
@@ -7,25 +8,6 @@
 
 namespace Cjing3D::Platform
 {
-	std::string WStringToString(const std::wstring& wstr)
-	{
-		if (wstr.empty()) return std::string();
-		int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
-		std::string strTo(size_needed, 0);
-		WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), &strTo[0], size_needed, NULL, NULL);
-		return strTo;
-	}
-
-	// Convert an UTF8 string to a wide Unicode String
-	std::wstring StringToWString(const std::string& str)
-	{
-		if (str.empty()) return std::wstring();
-		int size_needed = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
-		std::wstring wstrTo(size_needed, 0);
-		MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed);
-		return wstrTo;
-	}
-
 	void SetLoggerConsoleFontColor(ConsoleFontColor fontColor)
 	{
 		int color = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
@@ -103,7 +85,7 @@ namespace Cjing3D::Platform
 
 	void ShowBrowseForFolder(const char* title, std::function<void(const std::string&)> callback)
 	{
-		std::wstring nameWStr = StringToWString(title);
+		std::wstring nameWStr = StringHelper::StringToWString(title);
 		wchar_t szBuffer[256] = { '\0' };
 		BROWSEINFO bi;
 		ZeroMemory(&bi, sizeof(BROWSEINFO));
@@ -118,12 +100,12 @@ namespace Cjing3D::Platform
 		}
 
 		SHGetPathFromIDList(idl, szBuffer);
-		callback(WStringToString(nameWStr));
+		callback(StringHelper::WStringToString(nameWStr));
 	}
 
 	void ShowMessageBox(const UTF8String& msg)
 	{
-		std::wstring msgWStr = StringToWString(msg.C_Str());
+		std::wstring msgWStr = StringHelper::StringToWString(msg.C_Str());
 		MessageBoxW(NULL, LPCWSTR(msgWStr.c_str()), NULL, MB_OK);
 	}
 }

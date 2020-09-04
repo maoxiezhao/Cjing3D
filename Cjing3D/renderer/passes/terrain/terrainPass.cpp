@@ -127,7 +127,7 @@ void TerrainPass::UpdatePerFrameData(F32 deltaTime)
 	mToRemovedTerrainTree.clear();
 }
 
-void TerrainPass::RefreshRenderData()
+void TerrainPass::RefreshRenderData(CommandList cmd)
 {
 	Scene& scene = Scene::GetScene();
 	for (auto& kvp : mTerrainTreeMap) {
@@ -138,23 +138,23 @@ void TerrainPass::RefreshRenderData()
 				continue;
 			}
 
-			kvp.second->RefreshRenderData(*transform);
+			kvp.second->RefreshRenderData(cmd, *transform);
 		}
 	}
 }
 
-void TerrainPass::Render()
+void TerrainPass::Render(CommandList cmd)
 {
 
 	GraphicsDevice& device = Renderer::GetDevice();
-	device.BeginEvent("RenderTerrains");
+	device.BeginEvent(cmd, "RenderTerrains");
 
 	for (auto& kvp : mTerrainTreeMap) {
 		if (kvp.second != nullptr) {
-			kvp.second->Render();
+			kvp.second->Render(cmd);
 		}
 	}
-	device.EndEvent();
+	device.EndEvent(cmd);
 }
 
 U32 TerrainPass::GetElevation(ECS::Entity entity) const

@@ -13,8 +13,8 @@ namespace Cjing3D
 		virtual void Update(F32 deltaTime);
 		virtual void FixedUpdate();
 
-		void Draw();
-		void Draw(const F32x2& pos);
+		void Draw(CommandList cmd);
+		void Draw(CommandList cmd, const F32x2& pos);
 
 		bool IsVisible()const { return mIsVisible; }
 		void SetVisible(bool isVisible) { mIsVisible = isVisible; }

@@ -28,13 +28,13 @@ namespace {
 //  renderer members
 ///////////////////////////////////////////////////////////////////////////////////
 	bool mIsInitialized = false;
-	bool mIsRendering = false;
 	U32 mFrameNum = 0;
 	U32x2 mScreenSize = U32x2();
 	F32 mGamma = 2.2f;
 	CommonCB mCommonCB = {};
 	std::vector<int> mPendingUpdateMaterials;
-	LinearAllocator mFrameAllocator[FrameAllocatorType_Count];
+	LinearAllocator mFrameAllocator;
+	LinearAllocator mRenderAllocator[GraphicsDevice::MAX_COMMANDLIST_COUNT];
 
 	std::shared_ptr<GraphicsDevice> mGraphicsDevice = nullptr;
 
@@ -373,9 +373,9 @@ U32x2 GetCullingTiledCount()
 	};
 }
 
-void TiledLightCulling(Texture2D& depthBuffer)
+void TiledLightCulling(CommandList cmd, Texture2D& depthBuffer)
 {
-	PROFILER_BEGIN_GPU_BLOCK("TiledLightCulling");
+	PROFILER_BEGIN_GPU_BLOCK(cmd, "TiledLightCulling");
 
 	// 1. 在当前分辨率下创建用于保存frustum的structuredBuffer FrustumBuffer
 	// frustum buffer 保存4个裁剪面F32x4 * 4
@@ -435,37 +435,37 @@ void TiledLightCulling(Texture2D& depthBuffer)
 	{
 		lastCameraViewMatrix = currentViewMatrix;
 
-		mGraphicsDevice->BeginEvent("BuildTiledFrustum");
-		mGraphicsDevice->BindComputeShader(mRenderPreset->GetComputeShader(ComputeShaderType_TiledFrustum));
+		mGraphicsDevice->BeginEvent(cmd, "BuildTiledFrustum");
+		mGraphicsDevice->BindComputeShader(cmd, mRenderPreset->GetComputeShader(ComputeShaderType_TiledFrustum));
 
 		CSParamsCB cb;
 		cb.gCSNumThreads.x = cullingTiledCount[0];
 		cb.gCSNumThreads.y = cullingTiledCount[1];
 
 		GPUBuffer& buffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_CSParams);
-		mGraphicsDevice->UpdateBuffer(buffer, &cb, sizeof(CSParamsCB));
-		mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, buffer, CB_GETSLOT_NAME(CSParamsCB));
+		mGraphicsDevice->UpdateBuffer(cmd, buffer, &cb, sizeof(CSParamsCB));
+		mGraphicsDevice->BindConstantBuffer(cmd, SHADERSTAGES_CS, buffer, CB_GETSLOT_NAME(CSParamsCB));
 
 		GPUResource* uavs[] = { &frustumBuffer };
-		mGraphicsDevice->BindUAVs(uavs, 0, 1);
-		mGraphicsDevice->Dispatch(
+		mGraphicsDevice->BindUAVs(cmd, uavs, 0, 1);
+		mGraphicsDevice->Dispatch(cmd, 
 			(cullingTiledCount[0] + LIGHT_CULLING_TILED_BLOCK_SIZE - 1) / LIGHT_CULLING_TILED_BLOCK_SIZE,
 			(cullingTiledCount[1] + LIGHT_CULLING_TILED_BLOCK_SIZE - 1) / LIGHT_CULLING_TILED_BLOCK_SIZE,
 			1
 		);
-		mGraphicsDevice->UnBindUAVs(0, 1);
-		mGraphicsDevice->EndEvent();
+		mGraphicsDevice->UnBindUAVs(cmd, 0, 1);
+		mGraphicsDevice->EndEvent(cmd);
 	}
 
 	// 4. 对每一个tile执行光照裁剪，并获得一个有效Entity的bucket
 	{
-		mGraphicsDevice->BeginEvent("LightTiledCulling");
-		mGraphicsDevice->BindComputeShader(mRenderPreset->GetComputeShader(ComputeShaderType_LightTiledCulling));
+		mGraphicsDevice->BeginEvent(cmd, "LightTiledCulling");
+		mGraphicsDevice->BindComputeShader(cmd, mRenderPreset->GetComputeShader(ComputeShaderType_LightTiledCulling));
 
 		// bind resources
-		mGraphicsDevice->UnbindGPUResources(SBSLOT_TILED_LIGHTS, 1);
-		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &depthBuffer, TEXTURE_SLOT_DEPTH);
-		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &frustumBuffer, SBSLOT_TILED_FRUSTUMS);
+		mGraphicsDevice->UnbindGPUResources(cmd, SBSLOT_TILED_LIGHTS, 1);
+		mGraphicsDevice->BindGPUResource(cmd, SHADERSTAGES_CS, &depthBuffer, TEXTURE_SLOT_DEPTH);
+		mGraphicsDevice->BindGPUResource(cmd, SHADERSTAGES_CS, &frustumBuffer, SBSLOT_TILED_FRUSTUMS);
 
 		FrameCullings& frameCulling = mFrameCullings.at(&camera);
 		CSParamsCB cb;
@@ -476,24 +476,25 @@ void TiledLightCulling(Texture2D& depthBuffer)
 		cb.gCSNumLights = frameCulling.mCulledLights.size();
 
 		GPUBuffer& buffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_CSParams);
-		mGraphicsDevice->UpdateBuffer(buffer, &cb, sizeof(CSParamsCB));
-		mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, buffer, CB_GETSLOT_NAME(CSParamsCB));
+		mGraphicsDevice->UpdateBuffer(cmd, buffer, &cb, sizeof(CSParamsCB));
+		mGraphicsDevice->BindConstantBuffer(cmd, SHADERSTAGES_CS, buffer, CB_GETSLOT_NAME(CSParamsCB));
 
 		// bind output texture
 		GPUResource* uavs[] = { &tiledLightBuffer };
-		mGraphicsDevice->BindUAVs(uavs, 0, 1);
+		mGraphicsDevice->BindUAVs(cmd, uavs, 0, 1);
 
 		if (IsTiledCullingDebug()) {
-			mGraphicsDevice->BindUAV(&tiledCullingDebugTexture, 1);
+			mGraphicsDevice->BindUAV(cmd, &tiledCullingDebugTexture, 1);
 		}
 
 		mGraphicsDevice->Dispatch(
+			cmd,
 			cb.gCSNumThreadGroups.x,
 			cb.gCSNumThreadGroups.y,
 			1
 		);
-		mGraphicsDevice->UnBindAllUAVs();
-		mGraphicsDevice->EndEvent();
+		mGraphicsDevice->UnBindAllUAVs(cmd);
+		mGraphicsDevice->EndEvent(cmd);
 	}
 
 	PROFILER_END_BLOCK();
@@ -590,15 +591,17 @@ void Uninitialize()
 	Renderer2D::Uninitialize();
 
 	mPipelineStateManager->Uninitialize();
-	mPipelineStateManager.reset();
-
 	mRenderPreset->Uninitialize();
-	mRenderPreset.reset();
-
 	mShaderLib->Uninitialize();
-	mShaderLib.reset();
 
-	GetFrameAllocator(FrameAllocatorType_Render).FreeBuffer();
+	mFrameAllocator.FreeBuffer();
+	for (int i = 0; i < GraphicsDevice::MAX_COMMANDLIST_COUNT; i++) {
+		mRenderAllocator[i].FreeBuffer();
+	}
+
+	mPipelineStateManager.reset();
+	mRenderPreset.reset();
+	mShaderLib.reset();
 
 	UninitializeDevice();
 
@@ -725,7 +728,7 @@ void UpdatePerFrameData(F32 deltaTime, U32 renderLayerMask)
 			frameCulling.mCulledParticles.push_back((U32)i);
 		}
 
-		LinearAllocator& frameAllocator = GetFrameAllocator(FrameAllocatorType_Render);
+		LinearAllocator& frameAllocator = GetFrameAllocator();
 
 		F32x3 cameraPos = camera->GetCameraPos();
 		U32 culledLightCount = frameCulling.mCulledLights.size();
@@ -805,17 +808,17 @@ void UpdatePerFrameData(F32 deltaTime, U32 renderLayerMask)
 }
 
 // 在render阶段render前执行
-void RefreshRenderData()
+void RefreshRenderData(CommandList cmd)
 {
 	mFrameData.Clear();
 
-	BindCommonResource();
+	BindCommonResource(cmd);
 
 	auto& mainScene = GetMainScene();
 
 	// 处理延时生成的mipmap
 	if (mDeferredMIPGenerator != nullptr) {
-		mDeferredMIPGenerator->UpdateMipGenerating();
+		mDeferredMIPGenerator->UpdateMipGenerating(cmd);
 	}
 
 	CameraComponent& mainCamera = GetCamera();
@@ -826,17 +829,17 @@ void RefreshRenderData()
 		auto material = mainScene.mMaterials[materialIndex];
 
 		ShaderMaterial sm = material->CreateMaterialCB();
-		mGraphicsDevice->UpdateBuffer(material->GetConstantBuffer(), &sm, sizeof(sm));
+		mGraphicsDevice->UpdateBuffer(cmd, material->GetConstantBuffer(), &sm, sizeof(sm));
 	}
 
-	LinearAllocator& frameAllocator = GetFrameAllocator(FrameAllocatorType_Render);
+	LinearAllocator& renderAllocator = GetRenderAllocator(cmd);
 
 	// 更新shaderLightArray buffer
-	ShaderLight* shaderLights = (ShaderLight*)frameAllocator.Allocate(sizeof(ShaderLight) * SHADER_LIGHT_COUNT);
+	ShaderLight* shaderLights = (ShaderLight*)renderAllocator.Allocate(sizeof(ShaderLight) * SHADER_LIGHT_COUNT);
 	U32 lightCount = 0;
 
 	// 更新shaderMatrixArray buffer
-	XMMATRIX* shaderMatrixs = (XMMATRIX*)frameAllocator.Allocate(sizeof(XMMATRIX) * SHADER_MATRIX_COUNT);
+	XMMATRIX* shaderMatrixs = (XMMATRIX*)renderAllocator.Allocate(sizeof(XMMATRIX) * SHADER_MATRIX_COUNT);
 	U32 currentMatrixIndex = 0;
 
 	XMMATRIX viewMatrix = mainCamera.GetViewMatrix();
@@ -887,65 +890,37 @@ void RefreshRenderData()
 	mFrameData.mShaderLightArrayCount = lightCount;
 
 	// update buffer
-	mGraphicsDevice->UpdateBuffer(mRenderPreset->GetStructuredBuffer(StructuredBufferType_ShaderLight), 
-		shaderLights, sizeof(ShaderLight) * lightCount);
-	mGraphicsDevice->UpdateBuffer(mRenderPreset->GetStructuredBuffer(StructuredBufferType_MatrixArray),
-		shaderMatrixs, sizeof(XMMATRIX) * currentMatrixIndex);
+	mGraphicsDevice->UpdateBuffer(cmd, mRenderPreset->GetStructuredBuffer(StructuredBufferType_ShaderLight), shaderLights, sizeof(ShaderLight) * lightCount);
+	mGraphicsDevice->UpdateBuffer(cmd, mRenderPreset->GetStructuredBuffer(StructuredBufferType_MatrixArray), shaderMatrixs, sizeof(XMMATRIX) * currentMatrixIndex);
 
-	frameAllocator.Free(sizeof(XMMATRIX) * SHADER_MATRIX_COUNT);
-	frameAllocator.Free(sizeof(ShaderLight) * SHADER_LIGHT_COUNT);
+	renderAllocator.Free(sizeof(XMMATRIX) * SHADER_MATRIX_COUNT);
+	renderAllocator.Free(sizeof(ShaderLight) * SHADER_LIGHT_COUNT);
 
 	// 更新每一帧的基本信息
-	UpdateFrameCB();
+	UpdateFrameCB(cmd);
 
 	// mesh skinning
-	ProcessSkinning();
+	ProcessSkinning(cmd);
 
 	// particle
-	ProcessParticles(mainScene, frameCulling.mCulledParticles);
+	ProcessParticles(cmd, mainScene, frameCulling.mCulledParticles);
 
 	// refresh render pass 
 	for (auto kvp : mRenderPassMap)
 	{
 		auto renderPass = kvp.second;
 		if (renderPass != nullptr) {
-			renderPass->RefreshRenderData();
+			renderPass->RefreshRenderData(cmd);
 		}
 	}
 }
 
-void Render()
-{
-	mIsRendering = true;
-
-	if (mCurrentRenderPath != nullptr) {
-		mCurrentRenderPath->Render();
-	}
-
-	mIsRendering = false;
-}
-
-void PresentBegin()
-{
-	mGraphicsDevice->PresentBegin();
-}
-
-void Compose()
-{
-	if (mCurrentRenderPath != nullptr) {
-		mCurrentRenderPath->Compose();
-	}
-}
-
-void PresentEnd()
-{
-	mGraphicsDevice->PresentEnd();
-}
-
 void EndFrame()
 {
-	// end frame 
-	GetFrameAllocator(FrameAllocatorType_Render).Reset();
+	mFrameAllocator.Reset();
+	for (int i = 0; i < GraphicsDevice::MAX_COMMANDLIST_COUNT; i++) {
+		mRenderAllocator[i].Reset();
+	}
 }
 
 void SetScreenSize(U32 width, U32 height)
@@ -1034,22 +1009,22 @@ void SetAmbientColor(F32x3 color)
 	mFrameData.mFrameAmbient = color;
 }
 
-void SetAlphaCutRef(F32 alpha)
+void SetAlphaCutRef(CommandList cmd, F32 alpha)
 {
 	F32 newAlphaRef = 1.0f - alpha + 1.0f / 256.0f; // 加上一个单位(1.0f/256.f)使结果偏大
 	if (newAlphaRef != mCommonCB.gCommonAlphaCutRef)
 	{
 		mCommonCB.gCommonAlphaCutRef = newAlphaRef;
-		mGraphicsDevice->UpdateBuffer(mRenderPreset->GetConstantBuffer(ConstantBufferType_Common), &mCommonCB, sizeof(CommonCB));
+		mGraphicsDevice->UpdateBuffer(cmd, mRenderPreset->GetConstantBuffer(ConstantBufferType_Common), &mCommonCB, sizeof(CommonCB));
 	}
 }
 
-void ResetAlphaCutRef()
+void ResetAlphaCutRef(CommandList cmd)
 {
-	SetAlphaCutRef(1.0f);
+	SetAlphaCutRef(cmd, 1.0f);
 }
 
-void RenderShadowmaps(CameraComponent& camera, const U32 renderLayerMask)
+void RenderShadowmaps(CommandList cmd, CameraComponent& camera, const U32 renderLayerMask)
 {
 	FrameCullings& frameCulling = mFrameCullings[&camera];
 	auto& culledLights = frameCulling.mCulledLights;
@@ -1058,11 +1033,11 @@ void RenderShadowmaps(CameraComponent& camera, const U32 renderLayerMask)
 	}
 	auto& scene = GetMainScene();
 
-	PROFILER_BEGIN_GPU_BLOCK("RenderShadowmaps");
-	mGraphicsDevice->BeginEvent("RenderShadowmaps");
+	PROFILER_BEGIN_GPU_BLOCK(cmd, "RenderShadowmaps");
+	mGraphicsDevice->BeginEvent(cmd, "RenderShadowmaps");
 
 	// 为了写入shadowmap,需要先Unbind GPUResource
-	mGraphicsDevice->UnbindGPUResources(TEXTURE_SLOT_SHADOW_ARRAY_2D, 1);
+	mGraphicsDevice->UnbindGPUResources(cmd, TEXTURE_SLOT_SHADOW_ARRAY_2D, 1);
 
 	// 根据光源类型依次创建cascade shadowmaps
 	for (U32 lightTypeIndex = 0; lightTypeIndex < LightComponent::LightType_Count; lightTypeIndex++)
@@ -1082,10 +1057,10 @@ void RenderShadowmaps(CameraComponent& camera, const U32 renderLayerMask)
 			switch (lightType)
 			{
 			case Cjing3D::LightComponent::LightType_Directional:
-				RenderDirLightShadowmap(*light, camera, renderLayerMask);
+				RenderDirLightShadowmap(cmd, *light, camera, renderLayerMask);
 				break;
 			case Cjing3D::LightComponent::LightType_Point:
-				RenderPointLightShadowmap(*light, camera, renderLayerMask);
+				RenderPointLightShadowmap(cmd, *light, camera, renderLayerMask);
 				break;
 			default:
 				break;
@@ -1093,31 +1068,31 @@ void RenderShadowmaps(CameraComponent& camera, const U32 renderLayerMask)
 		}
 	}
 
-	mGraphicsDevice->BindRenderTarget(0, nullptr, nullptr);
-	mGraphicsDevice->EndEvent();
+	mGraphicsDevice->BindRenderTarget(cmd, 0, nullptr, nullptr);
+	mGraphicsDevice->EndEvent(cmd);
 	PROFILER_END_BLOCK();
 }
 
-void RenderSceneOpaque(CameraComponent& camera, RenderPassType renderPassType)
+void RenderSceneOpaque(CommandList cmd, CameraComponent& camera, RenderPassType renderPassType)
 {
-	mGraphicsDevice->BeginEvent("RenderScene");
+	mGraphicsDevice->BeginEvent(cmd, "RenderScene");
 
-	BindShadowMaps(SHADERSTAGES_PS);
+	BindShadowMaps(cmd, SHADERSTAGES_PS);
 
 	if (renderPassType == RenderPassType_TiledForward) 
 	{
 		GPUBuffer& tiledLightBuffer = mRenderPreset->GetOrCreateCustomBuffer("TiledLightBuffer");
 		if (tiledLightBuffer.IsValid()) {
-			mGraphicsDevice->BindGPUResource(SHADERSTAGES_PS, &tiledLightBuffer, SBSLOT_TILED_LIGHTS);
+			mGraphicsDevice->BindGPUResource(cmd, SHADERSTAGES_PS, &tiledLightBuffer, SBSLOT_TILED_LIGHTS);
 		}
 	}
 
 	// terrain render
-	GetRenderPass(STRING_ID(TerrainPass))->Render();
+	GetRenderPass(STRING_ID(TerrainPass))->Render(cmd);
 	// impostor render
-	RenderImpostor(camera, renderPassType);
+	RenderImpostor(cmd, camera, renderPassType);
 
-	LinearAllocator& frameAllocator = GetFrameAllocator(FrameAllocatorType_Render);
+	LinearAllocator& renderAllocator = GetRenderAllocator(cmd);
 	auto& scene = GetMainScene();
 
 	F32x3 cameraPos = camera.GetCameraPos();
@@ -1142,7 +1117,7 @@ void RenderSceneOpaque(CameraComponent& camera, RenderPassType renderPassType)
 			continue;
 		}
 
-		RenderBatch* renderBatch = (RenderBatch*)frameAllocator.Allocate(sizeof(RenderBatch));
+		RenderBatch* renderBatch = (RenderBatch*)renderAllocator.Allocate(sizeof(RenderBatch));
 		renderBatch->Init(objectEntity, object->mMeshID, DistanceEstimated(cameraPos, object->mCenter));
 
 		renderQueue.AddBatch(renderBatch);
@@ -1151,21 +1126,21 @@ void RenderSceneOpaque(CameraComponent& camera, RenderPassType renderPassType)
 	if (renderQueue.IsEmpty() == false)
 	{
 		renderQueue.Sort(RenderQueue::FrontToBack);
-		ProcessRenderQueue(renderQueue, renderPassType, RenderableType_Opaque);
+		ProcessRenderQueue(cmd, renderQueue, renderPassType, RenderableType_Opaque);
 
-		frameAllocator.Free(renderQueue.GetBatchCount() * sizeof(RenderBatch));
+		renderAllocator.Free(renderQueue.GetBatchCount() * sizeof(RenderBatch));
 	}
 
-	mGraphicsDevice->EndEvent();
+	mGraphicsDevice->EndEvent(cmd);
 }
 
-void RenderSceneTransparent(CameraComponent& camera, RenderPassType renderPassType)
+void RenderSceneTransparent(CommandList cmd, CameraComponent& camera, RenderPassType renderPassType)
 {
-	mGraphicsDevice->BeginEvent("RenderSceneTransparent");
+	mGraphicsDevice->BeginEvent(cmd, "RenderSceneTransparent");
 
-	BindShadowMaps(SHADERSTAGES_PS);
+	BindShadowMaps(cmd, SHADERSTAGES_PS);
 
-	LinearAllocator& frameAllocator = GetFrameAllocator(FrameAllocatorType_Render);
+	LinearAllocator& frameAllocator = GetRenderAllocator(cmd);
 	auto& scene = GetMainScene();
 
 	F32x3 cameraPos = camera.GetCameraPos();
@@ -1193,24 +1168,24 @@ void RenderSceneTransparent(CameraComponent& camera, RenderPassType renderPassTy
 	{
 		// 渲染透明物体时需要从远处往近处渲染
 		renderQueue.Sort(RenderQueue::BackToFront);
-		ProcessRenderQueue(renderQueue, renderPassType, RenderableType_Transparent);
+		ProcessRenderQueue(cmd, renderQueue, renderPassType, RenderableType_Transparent);
 
 		frameAllocator.Free(renderQueue.GetBatchCount() * sizeof(RenderBatch));
 	}
 
-	mGraphicsDevice->EndEvent();
+	mGraphicsDevice->EndEvent(cmd);
 }
 
-void RenderImpostor(CameraComponent& camera, RenderPassType renderPassType)
+void RenderImpostor(CommandList cmd, CameraComponent& camera, RenderPassType renderPassType)
 {
-	mGraphicsDevice->BeginEvent("RenderImpostor");
+	mGraphicsDevice->BeginEvent(cmd, "RenderImpostor");
 
-	mGraphicsDevice->EndEvent();
+	mGraphicsDevice->EndEvent(cmd);
 }
 
-void RenderSky()
+void RenderSky(CommandList cmd)
 {
-	mGraphicsDevice->BeginEvent("RenderSky");
+	mGraphicsDevice->BeginEvent(cmd, "RenderSky");
 
 	auto& scene = GetMainScene();
 	if (scene.mWeathers.GetCount() > 0)
@@ -1221,8 +1196,9 @@ void RenderSky()
 			PipelineState* pso = mPipelineStateManager->GetPipelineStateByID(PipelineStateID_SkyRendering);
 			if (pso != nullptr && pso->IsValid() && currentWeather->mSkyMap != nullptr)
 			{
-				mGraphicsDevice->BindPipelineState(*pso);
+				mGraphicsDevice->BindPipelineState(cmd, pso);
 				mGraphicsDevice->BindGPUResource(
+					cmd,
 					SHADERSTAGES_PS, 
 					currentWeather->mSkyMap->mTexture,
 					TEXTURE_SLOT_GLOBAL_ENV_MAP
@@ -1230,15 +1206,15 @@ void RenderSky()
 			}
 		}
 
-		mGraphicsDevice->Draw(3, 0);
+		mGraphicsDevice->Draw(cmd, 3, 0);
 	}
 
-	mGraphicsDevice->EndEvent();
+	mGraphicsDevice->EndEvent(cmd);
 }
 
-void RenderLinearDepth(Texture2D& depthBuffer, Texture2D& linearDepthBuffer)
+void RenderLinearDepth(CommandList cmd, Texture2D& depthBuffer, Texture2D& linearDepthBuffer)
 {
-	mGraphicsDevice->BeginEvent("RenderLinearDepth");
+	mGraphicsDevice->BeginEvent(cmd, "RenderLinearDepth");
 
 	// bind post process buffer
 	const TextureDesc linearDepthDesc = linearDepthBuffer.GetDesc();
@@ -1254,24 +1230,25 @@ void RenderLinearDepth(Texture2D& depthBuffer, Texture2D& linearDepthBuffer)
 	cb.gPPParam3 = (1.0f / cb.gPPParam1);
 	cb.gPPParam4 = (1.0f / cb.gPPParam2);
 	GPUBuffer& postprocessBuffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_Postprocess);
-	mGraphicsDevice->UpdateBuffer(postprocessBuffer, &cb, sizeof(PostprocessCB));
-	mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, postprocessBuffer, CB_GETSLOT_NAME(PostprocessCB));
+	mGraphicsDevice->UpdateBuffer(cmd, postprocessBuffer, &cb, sizeof(PostprocessCB));
+	mGraphicsDevice->BindConstantBuffer(cmd, SHADERSTAGES_CS, postprocessBuffer, CB_GETSLOT_NAME(PostprocessCB));
 
 	// bind shader
-	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &depthBuffer, TEXTURE_SLOT_UNIQUE_0);
-	mGraphicsDevice->BindComputeShader(mRenderPreset->GetComputeShader(ComputeShaderType_LinearDepth));
+	mGraphicsDevice->BindGPUResource(cmd, SHADERSTAGES_CS, &depthBuffer, TEXTURE_SLOT_UNIQUE_0);
+	mGraphicsDevice->BindComputeShader(cmd, mRenderPreset->GetComputeShader(ComputeShaderType_LinearDepth));
 
 	// bind output texture
 	for (int mipmap = 0; mipmap < 6; mipmap++) {
-		mGraphicsDevice->BindUAV(&linearDepthBuffer, mipmap, mipmap);
+		mGraphicsDevice->BindUAV(cmd, &linearDepthBuffer, mipmap, mipmap);
 	}
 	mGraphicsDevice->Dispatch(
+		cmd, 
 		(U32)((linearDepthDesc.mWidth  + SHADER_LINEARDEPTH_BLOCKSIZE - 1) / SHADER_LINEARDEPTH_BLOCKSIZE),
 		(U32)((linearDepthDesc.mHeight + SHADER_LINEARDEPTH_BLOCKSIZE - 1) / SHADER_LINEARDEPTH_BLOCKSIZE),
 		1
 	);
-	mGraphicsDevice->UnBindUAVs(0, 6);
-	mGraphicsDevice->EndEvent();
+	mGraphicsDevice->UnBindUAVs(cmd, 0, 6);
+	mGraphicsDevice->EndEvent(cmd);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1281,15 +1258,15 @@ Texture2D aoTemp;
 Texture2D aoTemp1;
 Texture2D aoDebug;
 bool ssaoDebug = false;
-void RenderSSAO(Texture2D& depthBuffer, Texture2D& linearDepthBuffer, Texture2D& aoTexture, F32 aoRange, U32 aoSampleCount)
+void RenderSSAO(CommandList cmd, Texture2D& depthBuffer, Texture2D& linearDepthBuffer, Texture2D& aoTexture, F32 aoRange, U32 aoSampleCount)
 {
 	// SSAO
 	// 1. 基于linnearDepthBuffer，根据AORange计算屏幕空间（ScreenSize)每个像素的遮蔽量，写到AOTemp中
 	// 2. 对得到的纹理做一次模糊，目的是为了缓解低采样量下的Banding问题
 	// 3. 因为临时的AOTemp大小问题（减轻Blur的消耗）,再执行Bilateral Unsample得到原始大小的AOTexture
 
-	PROFILER_BEGIN_GPU_BLOCK("SSAO");
-	mGraphicsDevice->BeginEvent("SSAO");
+	PROFILER_BEGIN_GPU_BLOCK(cmd, "SSAO");
+	mGraphicsDevice->BeginEvent(cmd, "SSAO");
 
 	// 0.创建temp texture,这里只创建四分之一大小的纹理，最后会unsample得到原始大小
 	auto& linearDesc = linearDepthBuffer.GetDesc();
@@ -1333,48 +1310,50 @@ void RenderSSAO(Texture2D& depthBuffer, Texture2D& linearDepthBuffer, Texture2D&
 	cb.gPPParam2 = (F32)aoSampleCount;
 
 	GPUBuffer& postprocessBuffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_Postprocess);
-	mGraphicsDevice->UpdateBuffer(postprocessBuffer, &cb, sizeof(PostprocessCB));
-	mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, postprocessBuffer, CB_GETSLOT_NAME(PostprocessCB));
+	mGraphicsDevice->UpdateBuffer(cmd, postprocessBuffer, &cb, sizeof(PostprocessCB));
+	mGraphicsDevice->BindConstantBuffer(cmd, SHADERSTAGES_CS, postprocessBuffer, CB_GETSLOT_NAME(PostprocessCB));
 
 	// bind shader
-	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &depthBuffer, TEXTURE_SLOT_DEPTH);
-	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &linearDepthBuffer, TEXTURE_SLOT_LINEAR_DEPTH);
-	mGraphicsDevice->BindComputeShader(mRenderPreset->GetComputeShader(ComputeShaderType_SSAO));
+	mGraphicsDevice->BindGPUResource(cmd, SHADERSTAGES_CS, &depthBuffer, TEXTURE_SLOT_DEPTH);
+	mGraphicsDevice->BindGPUResource(cmd, SHADERSTAGES_CS, &linearDepthBuffer, TEXTURE_SLOT_LINEAR_DEPTH);
+	mGraphicsDevice->BindComputeShader(cmd, mRenderPreset->GetComputeShader(ComputeShaderType_SSAO));
 
 	// bind output texture
 	if (ssaoDebug)
 	{
-		mGraphicsDevice->BindUAV(&aoTemp, 0);
-		mGraphicsDevice->BindUAV(&aoDebug, 1);
+		mGraphicsDevice->BindUAV(cmd, &aoTemp, 0);
+		mGraphicsDevice->BindUAV(cmd, &aoDebug, 1);
 		mGraphicsDevice->Dispatch(
+			cmd, 
 			(U32)((desc.mWidth + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
 			(U32)((desc.mHeight + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
 			1
 		);
-		mGraphicsDevice->UnBindUAVs(0, 2);
+		mGraphicsDevice->UnBindUAVs(cmd, 0, 2);
 	}
 	else
 	{
-		mGraphicsDevice->BindUAV(&aoTemp, 0);
+		mGraphicsDevice->BindUAV(cmd, &aoTemp, 0);
 		mGraphicsDevice->Dispatch(
+			cmd, 
 			(U32)((desc.mWidth + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
 			(U32)((desc.mHeight + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
 			1
 		);
-		mGraphicsDevice->UnBindUAVs(0, 1);
+		mGraphicsDevice->UnBindUAVs(cmd, 0, 1);
 	}
 
 	// 2.blur
-	BilateralBlur(aoTemp, aoTemp1, aoTemp, linearDepthBuffer, 1.0f);
+	BilateralBlur(cmd, aoTemp, aoTemp1, aoTemp, linearDepthBuffer, 1.0f);
 
 	// 3.Unsample
-	UpsampleBilateral(aoTemp, aoTexture, linearDepthBuffer, 1.0f);
+	UpsampleBilateral(cmd, aoTemp, aoTexture, linearDepthBuffer, 1.0f);
 
-	mGraphicsDevice->EndEvent();
+	mGraphicsDevice->EndEvent(cmd);
 	PROFILER_END_CPU_GPU_BLOCK();
 }
 
-void RenderParticles(CameraComponent& camera, Texture2D& linearDepthBuffer)
+void RenderParticles(CommandList cmd, CameraComponent& camera, Texture2D& linearDepthBuffer)
 {
 	auto& culledParticles = mFrameCullings.at(&camera).mCulledParticles;
 	if (culledParticles.empty()) {
@@ -1382,11 +1361,11 @@ void RenderParticles(CameraComponent& camera, Texture2D& linearDepthBuffer)
 	}
 
 	Scene& scene = GetMainScene();
-	LinearAllocator& frameAllocator = GetFrameAllocator(FrameAllocatorType_Render);
+	LinearAllocator& renderAllocator = GetRenderAllocator(cmd);
 
 	size_t culledParticleCount = culledParticles.size();
 	F32x3 cameraPos = camera.GetCameraPos();
-	U32* sortingHashes = (U32*)frameAllocator.Allocate(culledParticleCount * sizeof(U32));
+	U32* sortingHashes = (U32*)renderAllocator.Allocate(culledParticleCount * sizeof(U32));
 	U32 hashIndex = 0;
 	for (U32 i = 0; i < culledParticleCount; i++)
 	{
@@ -1403,7 +1382,7 @@ void RenderParticles(CameraComponent& camera, Texture2D& linearDepthBuffer)
 	}
 	std::sort(sortingHashes, sortingHashes + hashIndex, std::greater<U32>());
 
-	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &linearDepthBuffer, TEXTURE_SLOT_LINEAR_DEPTH);
+	mGraphicsDevice->BindGPUResource(cmd, SHADERSTAGES_CS, &linearDepthBuffer, TEXTURE_SLOT_LINEAR_DEPTH);
 
 	ParticlePass& particlePass = dynamic_cast<ParticlePass&>(*GetRenderPass(STRING_ID(ParticlePass)));
 	for (U32 i = 0; i < hashIndex; i++)
@@ -1414,23 +1393,22 @@ void RenderParticles(CameraComponent& camera, Texture2D& linearDepthBuffer)
 		}
 
 		MaterialComponent* material = scene.mMaterials.GetComponent(particle->GetCurrentEntity());
-		particlePass.DrawParticle(*particle, *material);
+		particlePass.DrawParticle(cmd, *particle, *material);
 	}
 
-	frameAllocator.Free(culledParticleCount * sizeof(U32));
+	renderAllocator.Free(culledParticleCount * sizeof(U32));
 }
 
-void RenderDebugScene(CameraComponent& camera)
+void RenderDebugScene(CommandList cmd, CameraComponent& camera)
 {
-	mGraphicsDevice->BeginEvent("RenderDebugScene");
-
+	mGraphicsDevice->BeginEvent(cmd, "RenderDebugScene");
 	// grid
 	if (mDebugGridSize.x() > 0 && mDebugGridSize.y() > 0)
 	{
 		PipelineState* pso = mPipelineStateManager->GetPipelineStateByID(PipelineStateID_GridHelper);
 		if (pso != nullptr && pso->IsValid() )
 		{
-			mGraphicsDevice->BindPipelineState(*pso);
+			mGraphicsDevice->BindPipelineState(cmd, pso);
 			if (!mDebugGridVertexBuffer.IsValid() || mSavedDebugGridSize != mDebugGridSize)
 			{
 				mSavedDebugGridSize = mDebugGridSize;
@@ -1484,8 +1462,8 @@ void RenderDebugScene(CameraComponent& camera)
 			XMStoreFloat4x4(&cb.gMiscTransform, offsetMat * GetCamera().GetViewProjectionMatrix());
 			
 			GPUBuffer& buffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_Misc);
-			mGraphicsDevice->UpdateBuffer(buffer, &cb);
-			mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_VS, buffer, CB_GETSLOT_NAME(RenderMiscCB));
+			mGraphicsDevice->UpdateBuffer(cmd, buffer, &cb);
+			mGraphicsDevice->BindConstantBuffer(cmd, SHADERSTAGES_VS, buffer, CB_GETSLOT_NAME(RenderMiscCB));
 	
 			GPUBuffer* vbs[] = {
 				&mDebugGridVertexBuffer
@@ -1493,8 +1471,8 @@ void RenderDebugScene(CameraComponent& camera)
 			const U32 strides[] = {
 				sizeof(XMFLOAT4) + sizeof(XMFLOAT4)
 			};
-			mGraphicsDevice->BindVertexBuffer(vbs, 0, ARRAYSIZE(vbs), strides, nullptr);
-			mGraphicsDevice->Draw(mDebugGridVertexCount, 0);
+			mGraphicsDevice->BindVertexBuffer(cmd, vbs, 0, ARRAYSIZE(vbs), strides, nullptr);
+			mGraphicsDevice->Draw(cmd, mDebugGridVertexCount, 0);
 		}
 	}
 	else
@@ -1502,7 +1480,7 @@ void RenderDebugScene(CameraComponent& camera)
 		mSavedDebugGridSize = mDebugGridSize;
 	}
 
-	mGraphicsDevice->EndEvent();
+	mGraphicsDevice->EndEvent(cmd);
 }
 
 void SetDebugGridSize(const I32x2& gridSize)
@@ -1515,7 +1493,7 @@ void SetDebugGridOffset(const F32x3& posOffset)
 	mDebugGridPosOffset = posOffset;
 }
 
-void GaussianBlur(Texture2D& input, Texture2D& temp, Texture2D& output)
+void GaussianBlur(CommandList cmd, Texture2D& input, Texture2D& temp, Texture2D& output)
 {
 	auto& desc = input.GetDesc();
 	ComputeShaderType csType = ComputeShaderType_Count;
@@ -1533,11 +1511,11 @@ void GaussianBlur(Texture2D& input, Texture2D& temp, Texture2D& output)
 		return;
 	}
 
-	mGraphicsDevice->BeginEvent("GaussianBlur");
-	mGraphicsDevice->BindComputeShader(mRenderPreset->GetComputeShader(csType));
+	mGraphicsDevice->BeginEvent(cmd, "GaussianBlur");
+	mGraphicsDevice->BindComputeShader(cmd, mRenderPreset->GetComputeShader(csType));
 
 	GPUBuffer& postprocessBuffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_Postprocess);
-	mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, postprocessBuffer, CB_GETSLOT_NAME(PostprocessCB));
+	mGraphicsDevice->BindConstantBuffer(cmd, SHADERSTAGES_CS, postprocessBuffer, CB_GETSLOT_NAME(PostprocessCB));
 
 	// 将blur分解成两次不同方向上的blur
 	// Horizontal:
@@ -1548,15 +1526,16 @@ void GaussianBlur(Texture2D& input, Texture2D& temp, Texture2D& output)
 		cb.gPPInverseResolution.x = (1.0f / cb.gPPResolution.x);
 		cb.gPPInverseResolution.y = (1.0f / cb.gPPResolution.y);
 
-		mGraphicsDevice->UpdateBuffer(postprocessBuffer, &cb, sizeof(PostprocessCB));
-		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &input, TEXTURE_SLOT_UNIQUE_0);
-		mGraphicsDevice->BindUAV(&temp, 0);
+		mGraphicsDevice->UpdateBuffer(cmd, postprocessBuffer, &cb, sizeof(PostprocessCB));
+		mGraphicsDevice->BindGPUResource(cmd, SHADERSTAGES_CS, &input, TEXTURE_SLOT_UNIQUE_0);
+		mGraphicsDevice->BindUAV(cmd, &temp, 0);
 		mGraphicsDevice->Dispatch(
+			cmd, 
 			(U32)((desc.mWidth + SHADER_GAUSSIAN_BLUR_BLOCKSIZE - 1) / SHADER_GAUSSIAN_BLUR_BLOCKSIZE),
 			desc.mHeight,
 			1
 		);
-		mGraphicsDevice->UnBindUAVs(0, 1);
+		mGraphicsDevice->UnBindUAVs(cmd, 0, 1);
 	}
 	// Vertical:
 	{
@@ -1566,21 +1545,22 @@ void GaussianBlur(Texture2D& input, Texture2D& temp, Texture2D& output)
 		cb.gPPInverseResolution.x = (1.0f / cb.gPPResolution.x);
 		cb.gPPInverseResolution.y = (1.0f / cb.gPPResolution.y);
 
-		mGraphicsDevice->UpdateBuffer(postprocessBuffer, &cb, sizeof(PostprocessCB));
-		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &temp, TEXTURE_SLOT_UNIQUE_0);
-		mGraphicsDevice->BindUAV(&output, 0);
+		mGraphicsDevice->UpdateBuffer(cmd, postprocessBuffer, &cb, sizeof(PostprocessCB));
+		mGraphicsDevice->BindGPUResource(cmd, SHADERSTAGES_CS, &temp, TEXTURE_SLOT_UNIQUE_0);
+		mGraphicsDevice->BindUAV(cmd, &output, 0);
 		mGraphicsDevice->Dispatch(
+			cmd, 
 			desc.mWidth,
 			(U32)((desc.mHeight + SHADER_GAUSSIAN_BLUR_BLOCKSIZE - 1) / SHADER_GAUSSIAN_BLUR_BLOCKSIZE),
 			1
 		);
-		mGraphicsDevice->UnBindUAVs(0, 1);
+		mGraphicsDevice->UnBindUAVs(cmd, 0, 1);
 	}
 
-	mGraphicsDevice->EndEvent();
+	mGraphicsDevice->EndEvent(cmd);
 }
 
-void BilateralBlur(Texture2D& input, Texture2D& temp, Texture2D& output, Texture2D& linearDepthBuffer, F32 depthThreshold)
+void BilateralBlur(CommandList cmd, Texture2D& input, Texture2D& temp, Texture2D& output, Texture2D& linearDepthBuffer, F32 depthThreshold)
 {
 	auto& desc = input.GetDesc();
 	ComputeShaderType csType = ComputeShaderType_Count;
@@ -1598,12 +1578,12 @@ void BilateralBlur(Texture2D& input, Texture2D& temp, Texture2D& output, Texture
 		return;
 	}
 
-	mGraphicsDevice->BeginEvent("BilateralBlur");
-	mGraphicsDevice->BindComputeShader(mRenderPreset->GetComputeShader(csType));
-	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &linearDepthBuffer, TEXTURE_SLOT_LINEAR_DEPTH);
+	mGraphicsDevice->BeginEvent(cmd, "BilateralBlur");
+	mGraphicsDevice->BindComputeShader(cmd, mRenderPreset->GetComputeShader(csType));
+	mGraphicsDevice->BindGPUResource(cmd, SHADERSTAGES_CS, &linearDepthBuffer, TEXTURE_SLOT_LINEAR_DEPTH);
 
 	GPUBuffer& postprocessBuffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_Postprocess);
-	mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, postprocessBuffer, CB_GETSLOT_NAME(PostprocessCB));
+	mGraphicsDevice->BindConstantBuffer(cmd, SHADERSTAGES_CS, postprocessBuffer, CB_GETSLOT_NAME(PostprocessCB));
 
 	// 将blur分解成两次不同方向上的blur
 	// Horizontal:
@@ -1617,15 +1597,16 @@ void BilateralBlur(Texture2D& input, Texture2D& temp, Texture2D& output, Texture
 		cb.gPPParam2 = 1;
 		cb.gPPParam3 = 0;
 
-		mGraphicsDevice->UpdateBuffer(postprocessBuffer, &cb, sizeof(PostprocessCB));
-		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &input, TEXTURE_SLOT_UNIQUE_0);
-		mGraphicsDevice->BindUAV(&temp, 0);
+		mGraphicsDevice->UpdateBuffer(cmd, postprocessBuffer, &cb, sizeof(PostprocessCB));
+		mGraphicsDevice->BindGPUResource(cmd, SHADERSTAGES_CS, &input, TEXTURE_SLOT_UNIQUE_0);
+		mGraphicsDevice->BindUAV(cmd, &temp, 0);
 		mGraphicsDevice->Dispatch(
+			cmd, 
 			(U32)((desc.mWidth + SHADER_GAUSSIAN_BLUR_BLOCKSIZE - 1) / SHADER_GAUSSIAN_BLUR_BLOCKSIZE),
 			desc.mHeight,
 			1
 		);
-		mGraphicsDevice->UnBindUAVs(0, 1);
+		mGraphicsDevice->UnBindUAVs(cmd, 0, 1);
 	}
 	// Vertical:
 	{
@@ -1638,21 +1619,22 @@ void BilateralBlur(Texture2D& input, Texture2D& temp, Texture2D& output, Texture
 		cb.gPPParam2 = 0;
 		cb.gPPParam3 = 1;
 
-		mGraphicsDevice->UpdateBuffer(postprocessBuffer, &cb, sizeof(PostprocessCB));
-		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &temp, TEXTURE_SLOT_UNIQUE_0);
-		mGraphicsDevice->BindUAV(&output, 0);
+		mGraphicsDevice->UpdateBuffer(cmd, postprocessBuffer, &cb, sizeof(PostprocessCB));
+		mGraphicsDevice->BindGPUResource(cmd, SHADERSTAGES_CS, &temp, TEXTURE_SLOT_UNIQUE_0);
+		mGraphicsDevice->BindUAV(cmd, &output, 0);
 		mGraphicsDevice->Dispatch(
+			cmd, 
 			desc.mWidth,
 			(U32)((desc.mHeight + SHADER_GAUSSIAN_BLUR_BLOCKSIZE - 1) / SHADER_GAUSSIAN_BLUR_BLOCKSIZE),
 			1
 		);
-		mGraphicsDevice->UnBindUAVs(0, 1);
+		mGraphicsDevice->UnBindUAVs(cmd, 0, 1);
 	}
 
-	mGraphicsDevice->EndEvent();
+	mGraphicsDevice->EndEvent(cmd);
 }
 
-void UpsampleBilateral(Texture2D& input, Texture2D& output, Texture2D& linearDepthBuffer, F32 depthThreshold)
+void UpsampleBilateral(CommandList cmd, Texture2D& input, Texture2D& output, Texture2D& linearDepthBuffer, F32 depthThreshold)
 {
 	auto& desc = output.GetDesc();
 	ComputeShaderType csType = ComputeShaderType_Count;
@@ -1669,9 +1651,9 @@ void UpsampleBilateral(Texture2D& input, Texture2D& output, Texture2D& linearDep
 		return;
 	}
 
-	mGraphicsDevice->BeginEvent("UnsampleBilateral");
-	mGraphicsDevice->BindComputeShader(mRenderPreset->GetComputeShader(csType));
-	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &linearDepthBuffer, TEXTURE_SLOT_LINEAR_DEPTH);
+	mGraphicsDevice->BeginEvent(cmd, "UnsampleBilateral");
+	mGraphicsDevice->BindComputeShader(cmd, mRenderPreset->GetComputeShader(csType));
+	mGraphicsDevice->BindGPUResource(cmd, SHADERSTAGES_CS, &linearDepthBuffer, TEXTURE_SLOT_LINEAR_DEPTH);
 	
 	GPUBuffer& postprocessBuffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_Postprocess);
 	PostprocessCB cb;
@@ -1685,30 +1667,29 @@ void UpsampleBilateral(Texture2D& input, Texture2D& output, Texture2D& linearDep
 	cb.gPPParam2 = (1.0f / inputDesc.mHeight);
 	cb.gPPParam3 = depthThreshold;
 
-	mGraphicsDevice->UpdateBuffer(postprocessBuffer, &cb, sizeof(PostprocessCB));
-	mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, postprocessBuffer, CB_GETSLOT_NAME(PostprocessCB));
-	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &input, TEXTURE_SLOT_UNIQUE_0);
-	mGraphicsDevice->BindUAV(&output, 0);
+	mGraphicsDevice->UpdateBuffer(cmd, postprocessBuffer, &cb, sizeof(PostprocessCB));
+	mGraphicsDevice->BindConstantBuffer(cmd, SHADERSTAGES_CS, postprocessBuffer, CB_GETSLOT_NAME(PostprocessCB));
+	mGraphicsDevice->BindGPUResource(cmd, SHADERSTAGES_CS, &input, TEXTURE_SLOT_UNIQUE_0);
+	mGraphicsDevice->BindUAV(cmd, &output, 0);
 	mGraphicsDevice->Dispatch(
+		cmd,
 		(U32)((desc.mWidth  + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
 		(U32)((desc.mHeight + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
 		1
 	);
-	mGraphicsDevice->UnBindUAVs(0, 1);
-	mGraphicsDevice->EndEvent();
+	mGraphicsDevice->UnBindUAVs(cmd, 0, 1);
+	mGraphicsDevice->EndEvent(cmd);
 }
 
-void PostprocessTonemap(Texture2D& input, Texture2D& output, F32 exposure)
+void PostprocessTonemap(CommandList cmd, Texture2D& input, Texture2D& output, F32 exposure)
 {
-	mGraphicsDevice->BeginEvent("Postprocess_Tonemap");
+	mGraphicsDevice->BeginEvent(cmd, "Postprocess_Tonemap");
 
-	//BindConstanceBuffer(SHADERSTAGES_CS);
-
-	mGraphicsDevice->BindRenderTarget(0, nullptr, nullptr);
-	mGraphicsDevice->BindComputeShader(mRenderPreset->GetComputeShader(ComputeShaderType_Tonemapping));
+	mGraphicsDevice->BindRenderTarget(cmd, 0, nullptr, nullptr);
+	mGraphicsDevice->BindComputeShader(cmd, mRenderPreset->GetComputeShader(ComputeShaderType_Tonemapping));
 
 	// bind input texture
-	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &input, TEXTURE_SLOT_UNIQUE_0);
+	mGraphicsDevice->BindGPUResource(cmd, SHADERSTAGES_CS, &input, TEXTURE_SLOT_UNIQUE_0);
 
 	// bind post process buffer
 	const TextureDesc desc = output.GetDesc();
@@ -1720,32 +1701,33 @@ void PostprocessTonemap(Texture2D& input, Texture2D& output, F32 exposure)
 	cb.gPPParam1 = exposure;
 
 	GPUBuffer& postprocessBuffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_Postprocess);
-	mGraphicsDevice->UpdateBuffer(postprocessBuffer, &cb, sizeof(PostprocessCB));
-	mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, postprocessBuffer, CB_GETSLOT_NAME(PostprocessCB));
+	mGraphicsDevice->UpdateBuffer(cmd, postprocessBuffer, &cb, sizeof(PostprocessCB));
+	mGraphicsDevice->BindConstantBuffer(cmd, SHADERSTAGES_CS, postprocessBuffer, CB_GETSLOT_NAME(PostprocessCB));
 
 	// bind output texture
 	GPUResource* uavs[] = { &output };
-	mGraphicsDevice->BindUAVs(uavs, 0, 1);
+	mGraphicsDevice->BindUAVs(cmd, uavs, 0, 1);
 	mGraphicsDevice->Dispatch(
+		cmd,
 		(U32)((desc.mWidth + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
 		(U32)((desc.mHeight + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
 		1
 	);
-	mGraphicsDevice->UnBindUAVs(0, 1);
-	mGraphicsDevice->EndEvent();
+	mGraphicsDevice->UnBindUAVs(cmd, 0, 1);
+	mGraphicsDevice->EndEvent(cmd);
 }
 
-void PostprocessFXAA(Texture2D& input, Texture2D& output)
+void PostprocessFXAA(CommandList cmd, Texture2D& input, Texture2D& output)
 {
-	mGraphicsDevice->BeginEvent("Postprocess_FXAA");
+	mGraphicsDevice->BeginEvent(cmd, "Postprocess_FXAA");
 
 	//BindConstanceBuffer(SHADERSTAGES_CS);
 
-	mGraphicsDevice->BindRenderTarget(0, nullptr, nullptr);
-	mGraphicsDevice->BindComputeShader(mRenderPreset->GetComputeShader(ComputeShaderType_FXAA));
+	mGraphicsDevice->BindRenderTarget(cmd, 0, nullptr, nullptr);
+	mGraphicsDevice->BindComputeShader(cmd, mRenderPreset->GetComputeShader(ComputeShaderType_FXAA));
 
 	// bind input texture
-	mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &input, TEXTURE_SLOT_UNIQUE_0);
+	mGraphicsDevice->BindGPUResource(cmd, SHADERSTAGES_CS, &input, TEXTURE_SLOT_UNIQUE_0);
 
 	// bind post process buffer
 	const TextureDesc desc = output.GetDesc();
@@ -1756,22 +1738,23 @@ void PostprocessFXAA(Texture2D& input, Texture2D& output)
 	cb.gPPInverseResolution.y = (1.0f / desc.mHeight);
 
 	GPUBuffer& postprocessBuffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_Postprocess);
-	mGraphicsDevice->UpdateBuffer(postprocessBuffer, &cb, sizeof(PostprocessCB));
-	mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_CS, postprocessBuffer, CB_GETSLOT_NAME(PostprocessCB));
+	mGraphicsDevice->UpdateBuffer(cmd, postprocessBuffer, &cb, sizeof(PostprocessCB));
+	mGraphicsDevice->BindConstantBuffer(cmd, SHADERSTAGES_CS, postprocessBuffer, CB_GETSLOT_NAME(PostprocessCB));
 
 	// bind output texture
 	GPUResource* uavs[] = { &output };
-	mGraphicsDevice->BindUAVs(uavs, 0, 1);
+	mGraphicsDevice->BindUAVs(cmd, uavs, 0, 1);
 	mGraphicsDevice->Dispatch(
+		cmd, 
 		(U32)((desc.mWidth + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
 		(U32)((desc.mHeight + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
 		1
 	);
-	mGraphicsDevice->UnBindUAVs(0, 1);
-	mGraphicsDevice->EndEvent();
+	mGraphicsDevice->UnBindUAVs(cmd, 0, 1);
+	mGraphicsDevice->EndEvent(cmd);
 }
 
-void BindCommonResource()
+void BindCommonResource(CommandList cmd)
 {
 	const std::pair<SamplerStateID, U32> stateIDs[] = {
 		{ SamplerStateID::SamplerStateID_PointClamp,          SAMPLER_POINT_CLAMP_SLOT },
@@ -1786,10 +1769,10 @@ void BindCommonResource()
 		for (const auto& kvp : stateIDs)
 		{
 			SamplerState& sampler = *mRenderPreset->GetSamplerState(kvp.first);
-			mGraphicsDevice->BindSamplerState(stage, sampler, kvp.second);
+			mGraphicsDevice->BindSamplerState(cmd, stage, sampler, kvp.second);
 		}
 
-		BindConstanceBuffer(stage);
+		BindConstanceBuffer(cmd, stage);
 	}
 
 	// bind shader light resource
@@ -1797,11 +1780,11 @@ void BindCommonResource()
 		&mRenderPreset->GetStructuredBuffer(StructuredBufferType_ShaderLight),
 		&mRenderPreset->GetStructuredBuffer(StructuredBufferType_MatrixArray)
 	};
-	mGraphicsDevice->BindGPUResources(SHADERSTAGES_PS, resources, SBSLOT_SHADER_LIGHT_ARRAY, ARRAYSIZE(resources));
-	mGraphicsDevice->BindGPUResources(SHADERSTAGES_CS, resources, SBSLOT_SHADER_LIGHT_ARRAY, ARRAYSIZE(resources));
+	mGraphicsDevice->BindGPUResources(cmd, SHADERSTAGES_PS, resources, SBSLOT_SHADER_LIGHT_ARRAY, ARRAYSIZE(resources));
+	mGraphicsDevice->BindGPUResources(cmd, SHADERSTAGES_CS, resources, SBSLOT_SHADER_LIGHT_ARRAY, ARRAYSIZE(resources));
 }
 
-void UpdateCameraCB(CameraComponent & camera)
+void UpdateCameraCB(CommandList cmd, CameraComponent & camera)
 {
 	CameraCB cb;
 
@@ -1819,10 +1802,10 @@ void UpdateCameraCB(CameraComponent & camera)
 	cb.gCameraInvFarZ = (1.0f / std::max(0.00001f, cb.gCameraFarZ));
 
 	GPUBuffer& cameraBuffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_Camera);
-	GetDevice().UpdateBuffer(cameraBuffer, &cb, sizeof(CameraCB));
+	GetDevice().UpdateBuffer(cmd, cameraBuffer, &cb, sizeof(CameraCB));
 }
 
-void UpdateFrameCB()
+void UpdateFrameCB(CommandList cmd)
 {
 	FrameCB frameCB;
 	frameCB.gFrameScreenSize = XMConvert(mFrameData.mFrameScreenSize);
@@ -1836,7 +1819,7 @@ void UpdateFrameCB()
 	frameCB.gFrameDeltaTime = mFrameData.mFrameDeltaTime;
 
 	GPUBuffer& frameBuffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_Frame);
-	mGraphicsDevice->UpdateBuffer(frameBuffer, &frameCB, sizeof(FrameCB));
+	mGraphicsDevice->UpdateBuffer(cmd, frameBuffer, &frameCB, sizeof(FrameCB));
 }
 
 Scene & GetMainScene()
@@ -1984,18 +1967,18 @@ void UninitializeRenderPasses()
 	mRenderPassMap.clear();
 }
 
-void ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPassType, RenderableType renderableType, U32 instanceReplicator, InstanceHandler* instanceHandler)
+void ProcessRenderQueue(CommandList cmd, RenderQueue & queue, RenderPassType renderPassType, RenderableType renderableType, U32 instanceReplicator, InstanceHandler* instanceHandler)
 {
 	if (queue.IsEmpty() == true) {
 		return;
 	}
 
-	LinearAllocator& frameAllocator = GetFrameAllocator(FrameAllocatorType_Render);
+	LinearAllocator& renderAllocator = GetRenderAllocator(cmd);
 	auto& scene = GetMainScene();
 
 	size_t instanceSize = sizeof(RenderInstance);
 	size_t allocSize = queue.GetBatchCount() * instanceReplicator * instanceSize;
-	GraphicsDevice::GPUAllocation instances = mGraphicsDevice->AllocateGPU(allocSize);
+	GraphicsDevice::GPUAllocation instances = mGraphicsDevice->AllocateGPU(cmd, allocSize);
 
 	// 对于使用相同mesh的object将创建同一个instanceBatch，包含相同的shader，
 	// 但是依然会为每个object创建一个instance（input layout）包含了颜色和世界坐标变换矩阵
@@ -2019,7 +2002,7 @@ void ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPassType, Rend
 			prevMeshEntity = meshEntity;
 			instancedBatchCount++;
 
-			RenderBatchInstance* batchInstance = (RenderBatchInstance*)frameAllocator.Allocate(sizeof(RenderBatchInstance));
+			RenderBatchInstance* batchInstance = (RenderBatchInstance*)renderAllocator.Allocate(sizeof(RenderBatchInstance));
 			batchInstance->mMeshEntity = meshEntity;
 			batchInstance->mDataOffset = instances.offset + currentInstanceCount * instanceSize;
 			batchInstance->mInstanceCount = 0;
@@ -2083,7 +2066,7 @@ void ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPassType, Rend
 			continue;
 		}
 
-		mGraphicsDevice->BindIndexBuffer(*mesh->GetIndexBuffer(), mesh->GetIndexFormat(), 0);
+		mGraphicsDevice->BindIndexBuffer(cmd, *mesh->GetIndexBuffer(), mesh->GetIndexFormat(), 0);
 
 		BoundVexterBufferType prevBoundType = BoundVexterBufferType_Nothing;
 		for (auto& subset : mesh->GetSubsets())
@@ -2177,7 +2160,7 @@ void ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPassType, Rend
 							0,
 							bathInstance->mDataOffset	// 因为所有的batch公用一个buffer，所以提供offset
 						};
-						mGraphicsDevice->BindVertexBuffer(vbs, 0, ARRAYSIZE(vbs), strides, offsets);
+						mGraphicsDevice->BindVertexBuffer(cmd, vbs, 0, ARRAYSIZE(vbs), strides, offsets);
 					}
 					break;
 				case BoundVexterBufferType_Pos:
@@ -2194,7 +2177,7 @@ void ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPassType, Rend
 							0,
 							bathInstance->mDataOffset	// 因为所有的batch公用一个buffer，所以提供offset
 						};
-						mGraphicsDevice->BindVertexBuffer(vbs, 0, ARRAYSIZE(vbs), strides, offsets);
+						mGraphicsDevice->BindVertexBuffer(cmd, vbs, 0, ARRAYSIZE(vbs), strides, offsets);
 					}
 					break;
 
@@ -2215,21 +2198,21 @@ void ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPassType, Rend
 							0,
 							bathInstance->mDataOffset	// 因为所有的batch公用一个buffer，所以提供offset
 						};
-						mGraphicsDevice->BindVertexBuffer(vbs, 0, ARRAYSIZE(vbs), strides, offsets);
+						mGraphicsDevice->BindVertexBuffer(cmd, vbs, 0, ARRAYSIZE(vbs), strides, offsets);
 					}
 					break;
 				}
 			}
 
 			// set alpha cut ref
-			SetAlphaCutRef(material->GetAlphaCutRef());
+			SetAlphaCutRef(cmd, material->GetAlphaCutRef());
 
 			// bind material state
-			mGraphicsDevice->BindPipelineState(*pso);
+			mGraphicsDevice->BindPipelineState(cmd, pso);
 
 			// bind material constant buffer
-			mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_VS, material->GetConstantBuffer(), CB_GETSLOT_NAME(MaterialCB));
-			mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_PS, material->GetConstantBuffer(), CB_GETSLOT_NAME(MaterialCB));
+			mGraphicsDevice->BindConstantBuffer(cmd, SHADERSTAGES_VS, material->GetConstantBuffer(), CB_GETSLOT_NAME(MaterialCB));
+			mGraphicsDevice->BindConstantBuffer(cmd, SHADERSTAGES_PS, material->GetConstantBuffer(), CB_GETSLOT_NAME(MaterialCB));
 
 			// bind material texture
 			if (simpleBindTexture)
@@ -2237,7 +2220,7 @@ void ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPassType, Rend
 				const GPUResource* resources[] = {
 					material->GetBaseColorMap(),
 				};
-				mGraphicsDevice->BindGPUResources(SHADERSTAGES_PS, resources, TEXTURE_SLOT_0, 1);
+				mGraphicsDevice->BindGPUResources(cmd, SHADERSTAGES_PS, resources, TEXTURE_SLOT_0, 1);
 			}
 			else
 			{
@@ -2246,42 +2229,42 @@ void ProcessRenderQueue(RenderQueue & queue, RenderPassType renderPassType, Rend
 					material->GetNormalMap(),
 					material->GetSurfaceMap(),
 				};
-				mGraphicsDevice->BindGPUResources(SHADERSTAGES_PS, resources, TEXTURE_SLOT_0, 3);
+				mGraphicsDevice->BindGPUResources(cmd, SHADERSTAGES_PS, resources, TEXTURE_SLOT_0, 3);
 			}
 
 			// draw
-			mGraphicsDevice->DrawIndexedInstanced(subset.mIndexCount, bathInstance->mInstanceCount, subset.mIndexOffset, 0, 0);
+			mGraphicsDevice->DrawIndexedInstanced(cmd, subset.mIndexCount, bathInstance->mInstanceCount, subset.mIndexOffset, 0, 0);
 		}
 	}
 
 	// remove alpha test
-	ResetAlphaCutRef();
+	ResetAlphaCutRef(cmd);
 
-	mGraphicsDevice->UnAllocateGPU();	
-	frameAllocator.Free(instancedBatchCount * sizeof(RenderBatchInstance));
+	mGraphicsDevice->UnAllocateGPU(cmd);	
+	renderAllocator.Free(instancedBatchCount * sizeof(RenderBatchInstance));
 }
 
-void BindConstanceBuffer(SHADERSTAGES stage)
+void BindConstanceBuffer(CommandList cmd, SHADERSTAGES stage)
 {
-	mGraphicsDevice->BindConstantBuffer(stage, mRenderPreset->GetConstantBuffer(ConstantBufferType_Common), CB_GETSLOT_NAME(CommonCB));
-	mGraphicsDevice->BindConstantBuffer(stage, mRenderPreset->GetConstantBuffer(ConstantBufferType_Camera), CB_GETSLOT_NAME(CameraCB));
-	mGraphicsDevice->BindConstantBuffer(stage, mRenderPreset->GetConstantBuffer(ConstantBufferType_Frame),  CB_GETSLOT_NAME(FrameCB));
+	mGraphicsDevice->BindConstantBuffer(cmd, stage, mRenderPreset->GetConstantBuffer(ConstantBufferType_Common), CB_GETSLOT_NAME(CommonCB));
+	mGraphicsDevice->BindConstantBuffer(cmd, stage, mRenderPreset->GetConstantBuffer(ConstantBufferType_Camera), CB_GETSLOT_NAME(CameraCB));
+	mGraphicsDevice->BindConstantBuffer(cmd, stage, mRenderPreset->GetConstantBuffer(ConstantBufferType_Frame),  CB_GETSLOT_NAME(FrameCB));
 }
 
-void BindShadowMaps(SHADERSTAGES stage)
+void BindShadowMaps(CommandList cmd, SHADERSTAGES stage)
 {
-	mGraphicsDevice->BindGPUResource(stage, &shadowMapArray2D,   TEXTURE_SLOT_SHADOW_ARRAY_2D);
-	mGraphicsDevice->BindGPUResource(stage, &shadowMapArrayCube, TEXTURE_SLOT_SHADOW_ARRAY_CUBE);
+	mGraphicsDevice->BindGPUResource(cmd, stage, &shadowMapArray2D,   TEXTURE_SLOT_SHADOW_ARRAY_2D);
+	mGraphicsDevice->BindGPUResource(cmd, stage, &shadowMapArrayCube, TEXTURE_SLOT_SHADOW_ARRAY_CUBE);
 }
 
-void RenderDirLightShadowmap(LightComponent& light, CameraComponent& camera, U32 renderLayerMask)
+void RenderDirLightShadowmap(CommandList cmd, LightComponent& light, CameraComponent& camera, U32 renderLayerMask)
 {
 	// 基于CSM的方向光阴影
 	// 1.将视锥体分成CASCADE_COUNT个子视锥体，对于每个子视锥体创建包围求和变换矩阵
 	std::vector<LightShadowCamera> cascadeShadowCameras;
 	CreateCascadeShadowCameras(light, camera, shadowCascadeCount, cascadeShadowCameras);
 
-	LinearAllocator& frameAllocator = GetFrameAllocator(FrameAllocatorType_Render);
+	LinearAllocator& RenderAllocator = GetRenderAllocator(cmd);
 	Scene& mainScene = GetMainScene();
 	GraphicsDevice& device = GetDevice();
 	GPUBuffer& cameraBuffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_Camera);
@@ -2315,7 +2298,7 @@ void RenderDirLightShadowmap(LightComponent& light, CameraComponent& camera, U32
 					continue;
 				}
 
-				RenderBatch* renderBatch = (RenderBatch*)frameAllocator.Allocate(sizeof(RenderBatch));
+				RenderBatch* renderBatch = (RenderBatch*)RenderAllocator.Allocate(sizeof(RenderBatch));
 				renderBatch->Init(object->GetCurrentEntity(), object->mMeshID, 0);
 				renderQueue.AddBatch(renderBatch);
 			}
@@ -2329,30 +2312,30 @@ void RenderDirLightShadowmap(LightComponent& light, CameraComponent& camera, U32
 
 			CameraCB cb;
 			DirectX::XMStoreFloat4x4(&cb.gCameraVP, cam.GetViewProjectionMatrix());
-			device.UpdateBuffer(cameraBuffer, &cb, sizeof(CameraCB));
+			device.UpdateBuffer(cmd, cameraBuffer, &cb, sizeof(CameraCB));
 
 			ViewPort vp = {};
 			vp.mWidth = (F32)shadowRes2DResolution;
 			vp.mHeight = (F32)shadowRes2DResolution;
 			vp.mMinDepth = 0.0f;
 			vp.mMaxDepth = 1.0f;
-			device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
+			device.BindViewports(cmd, &vp, 1);
 
-			device.BeginRenderBehavior(shadowRenderBehaviors[resourceIndex]);
-			ProcessRenderQueue(renderQueue, RenderPassType_Shadow, RenderableType_Opaque);
-			device.EndRenderBehavior();
+			device.BeginRenderBehavior(cmd, shadowRenderBehaviors[resourceIndex]);
+			ProcessRenderQueue(cmd, renderQueue, RenderPassType_Shadow, RenderableType_Opaque);
+			device.EndRenderBehavior(cmd);
 
-			frameAllocator.Free(renderQueue.GetBatchCount() * sizeof(RenderBatch));
+			RenderAllocator.Free(renderQueue.GetBatchCount() * sizeof(RenderBatch));
 		}
 		else if (resourceIndex >= 0 && shadowMapDirtyTable[resourceIndex])
 		{
 			shadowMapDirtyTable[resourceIndex] = false;
-			device.ClearDepthStencil(shadowMapArray2D, CLEAR_DEPTH, 0.0f, 0, resourceIndex);
+			device.ClearDepthStencil(cmd, shadowMapArray2D, CLEAR_DEPTH, 0.0f, 0, resourceIndex);
 		}
 	}
 }
 
-void RenderPointLightShadowmap(LightComponent& light, CameraComponent& camera, U32 renderLayerMask)
+void RenderPointLightShadowmap(CommandList cmd, LightComponent& light, CameraComponent& camera, U32 renderLayerMask)
 {
 	if (!GetDevice().CheckGraphicsFeatureSupport(GraphicsFeatureSupport::VIEWPORT_AND_RENDERTARGET_ARRAYINDEX_WITHOUT_GS)) 
 	{
@@ -2360,7 +2343,7 @@ void RenderPointLightShadowmap(LightComponent& light, CameraComponent& camera, U
 		return;
 	}
 
-	LinearAllocator& frameAllocator = GetFrameAllocator(FrameAllocatorType_Render);
+	LinearAllocator& renderAllocator = GetRenderAllocator(cmd);
 	RenderQueue renderQueue;
 
 	// 点光源根据范围创建球状包围盒
@@ -2388,7 +2371,7 @@ void RenderPointLightShadowmap(LightComponent& light, CameraComponent& camera, U
 				continue;
 			}
 
-			RenderBatch* renderBatch = (RenderBatch*)frameAllocator.Allocate(sizeof(RenderBatch));
+			RenderBatch* renderBatch = (RenderBatch*)renderAllocator.Allocate(sizeof(RenderBatch));
 			renderBatch->Init(object->GetCurrentEntity(), object->mMeshID, 0);
 			renderQueue.AddBatch(renderBatch);
 		}
@@ -2438,15 +2421,15 @@ void RenderPointLightShadowmap(LightComponent& light, CameraComponent& camera, U
 			}
 		}
 		auto buffer = mRenderPreset->GetConstantBuffer(ConstantBufferType_CubeMap);
-		mGraphicsDevice->UpdateBuffer(buffer, &cb, sizeof(CubemapRenderCB));
-		mGraphicsDevice->BindConstantBuffer(SHADERSTAGES_VS, buffer, CB_GETSLOT_NAME(CubemapRenderCB));
+		mGraphicsDevice->UpdateBuffer(cmd, buffer, &cb, sizeof(CubemapRenderCB));
+		mGraphicsDevice->BindConstantBuffer(cmd, SHADERSTAGES_VS, buffer, CB_GETSLOT_NAME(CubemapRenderCB));
 
 		ViewPort vp;
 		vp.mWidth = (F32)shadowResCubeResolution;
 		vp.mHeight = (F32)shadowResCubeResolution;
 		vp.mMinDepth = 0.0f;
 		vp.mMaxDepth = 1.0f;
-		device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
+		device.BindViewports(cmd, &vp, 1);
 
 		// instance handler
 		InstanceHandler instanceHandler;
@@ -2464,23 +2447,23 @@ void RenderPointLightShadowmap(LightComponent& light, CameraComponent& camera, U
 		};
 
 		// rendering
-		device.BeginRenderBehavior(shadowCubeRenderBehaviors[resourceIndex]);
-		ProcessRenderQueue(renderQueue, RenderPassType_ShadowCube, RenderableType_Opaque, availableCount, &instanceHandler);
-		device.EndRenderBehavior();
+		device.BeginRenderBehavior(cmd, shadowCubeRenderBehaviors[resourceIndex]);
+		ProcessRenderQueue(cmd, renderQueue, RenderPassType_ShadowCube, RenderableType_Opaque, availableCount, &instanceHandler);
+		device.EndRenderBehavior(cmd);
 
-		frameAllocator.Free(renderQueue.GetBatchCount() * sizeof(RenderBatch));
+		renderAllocator.Free(renderQueue.GetBatchCount() * sizeof(RenderBatch));
 	}
 	else if (resourceIndex >=0 && shadowCubeMapDirtyTable[resourceIndex])
 	{
 		shadowCubeMapDirtyTable[resourceIndex] = false;
-		device.ClearDepthStencil(shadowMapArrayCube, CLEAR_DEPTH, 0.0f, 0, resourceIndex);
+		device.ClearDepthStencil(cmd, shadowMapArrayCube, CLEAR_DEPTH, 0.0f, 0, resourceIndex);
 	}
 }
 
-void ProcessSkinning()
+void ProcessSkinning(CommandList cmd)
 {
-	PROFILER_BEGIN_GPU_BLOCK("Skinning");
-	mGraphicsDevice->BeginEvent("Skinning");
+	PROFILER_BEGIN_GPU_BLOCK(cmd, "Skinning");
+	mGraphicsDevice->BeginEvent(cmd, "Skinning");
 	auto& mainScene = GetMainScene();
 
 	bool isResourceSetup = false;
@@ -2502,13 +2485,13 @@ void ProcessSkinning()
 		{
 			isResourceSetup = true;
 			// 因为需要写入到顶点缓冲中，所以需要清除下VertexBuffer
-			mGraphicsDevice->ClearVertexBuffer();
-			mGraphicsDevice->BindComputeShader(mRenderPreset->GetComputeShader(ComputeShaderType_Skinning));
+			mGraphicsDevice->ClearVertexBuffer(cmd);
+			mGraphicsDevice->BindComputeShader(cmd, mRenderPreset->GetComputeShader(ComputeShaderType_Skinning));
 		}
 
 		// update bonePoses buffer
-		mGraphicsDevice->UpdateBuffer(armature->mBufferBonePoses, armature->mBonePoses.data(), sizeof(ArmatureComponent::BonePose) * armature->mBonePoses.size());
-		mGraphicsDevice->BindGPUResource(SHADERSTAGES_CS, &armature->mBufferBonePoses, SKINNING_SBSLOT_BONE_POSE_BUFFER);
+		mGraphicsDevice->UpdateBuffer(cmd, armature->mBufferBonePoses, armature->mBonePoses.data(), sizeof(ArmatureComponent::BonePose) * armature->mBonePoses.size());
+		mGraphicsDevice->BindGPUResource(cmd, SHADERSTAGES_CS, &armature->mBufferBonePoses, SKINNING_SBSLOT_BONE_POSE_BUFFER);
 
 		GPUResource* resoureces[] = { 
 			mesh.GetVertexBufferPos(),
@@ -2517,9 +2500,10 @@ void ProcessSkinning()
 		GPUResource* uavs[] = {
 			mesh.GetVertexBufferStreamoutPos()
 		};
-		mGraphicsDevice->BindGPUResources(SHADERSTAGES_CS, resoureces, SKINNING_SLOT_VERTEX_POS, ARRAYSIZE(resoureces));
-		mGraphicsDevice->BindUAVs(uavs, 0, 1);
+		mGraphicsDevice->BindGPUResources(cmd, SHADERSTAGES_CS, resoureces, SKINNING_SLOT_VERTEX_POS, ARRAYSIZE(resoureces));
+		mGraphicsDevice->BindUAVs(cmd, uavs, 0, 1);
 		mGraphicsDevice->Dispatch(
+			cmd,
 			(U32)((mesh.mVertexPositions.size() + SHADER_SKINNING_BLOCKSIZE - 1) / SHADER_SKINNING_BLOCKSIZE),
 			1,
 			1
@@ -2528,21 +2512,21 @@ void ProcessSkinning()
 
 	if (isResourceSetup)
 	{
-		mGraphicsDevice->UnBindUAVs(0, 1);
-		mGraphicsDevice->UnbindGPUResources(SKINNING_SLOT_VERTEX_POS, 2);
+		mGraphicsDevice->UnBindUAVs(cmd, 0, 1);
+		mGraphicsDevice->UnbindGPUResources(cmd, SKINNING_SLOT_VERTEX_POS, 2);
 	}
 
-	mGraphicsDevice->EndEvent();
+	mGraphicsDevice->EndEvent(cmd);
 	PROFILER_END_BLOCK();
 }
 
-void ProcessParticles(Scene& scene, const std::vector<U32>& culledParticles)
+void ProcessParticles(CommandList cmd, Scene& scene, const std::vector<U32>& culledParticles)
 {
 	if (culledParticles.empty()) {
 		return;
 	}
 
-	PROFILER_BEGIN_GPU_BLOCK("GPU Particles");
+	PROFILER_BEGIN_GPU_BLOCK(cmd, "GPU Particles");
 	for (const auto& particleIndex : culledParticles)
 	{
 		auto particle = scene.mParticles[particleIndex];
@@ -2550,21 +2534,26 @@ void ProcessParticles(Scene& scene, const std::vector<U32>& culledParticles)
 			continue;
 		}
 
-		particle->UpdateGPU();
+		particle->UpdateGPU(cmd);
 	}
 	PROFILER_END_BLOCK();
 }
 
-LinearAllocator& GetFrameAllocator(FrameAllocatorType type)
+LinearAllocator& GetFrameAllocator()
 {
-	LinearAllocator& allocator = mFrameAllocator[static_cast<U32>(type)];
+	if (mFrameAllocator.GetCapacity() <= 0) {
+		mFrameAllocator.Reserve((size_t)MAX_FRAME_ALLOCATOR_SIZE);
+	}
 
-	// 暂时只用一种frameAllocator
-	// 分配器在获取时，才会去分配内存
+	return mFrameAllocator;
+}
+
+LinearAllocator& GetRenderAllocator(CommandList cmd)
+{
+	auto& allocator = mRenderAllocator[cmd];
 	if (allocator.GetCapacity() <= 0) {
 		allocator.Reserve((size_t)MAX_FRAME_ALLOCATOR_SIZE);
 	}
-
 	return allocator;
 }
 

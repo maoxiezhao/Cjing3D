@@ -26,14 +26,15 @@ namespace Cjing3D {
 
 		virtual void Update(F32 dt);
 		virtual void ResizeBuffers();
-		virtual void Compose();
+		virtual void Compose(CommandList cmd);
 
 		// render method
-		virtual void RenderShadowmaps();
-		virtual void RenderDepthLinear();
-		virtual void RenderAO();
-		virtual void RenderTransparents(RenderBehavior& renderBehavior, RenderPassType renderType);
-		virtual void RenderPostprocess(Texture2D& rtScreen);
+		virtual void RenderShadowmaps(CommandList cmd);
+		virtual void RenderDepthLinear(CommandList cmd);
+		virtual void RenderAO(CommandList cmd);
+		virtual void RenderTransparents(CommandList cmd, RenderBehavior& renderBehavior, RenderPassType renderType);
+		virtual void RenderPostprocess(CommandList cmd, Texture2D& rtScreen);
+		void RenderDebug(CommandList cmd);
 
 		void SetExposure(F32 exposure) { mExposure = exposure; }
 		F32 GetExposure()const { return mExposure; }
@@ -51,9 +52,6 @@ namespace Cjing3D {
 		AOTYPE GetAOType()const { return mAOType; }
 		void SetRenderLayerMask(U32 layerMask) { mRenderLayerMask = layerMask; }
 		U32 GetRenderLayerMask()const { return mRenderLayerMask; }
-
-		// debug
-		void RenderDebug();
 
 	protected:
 		Texture2D* GetLastPostprocessRT() {

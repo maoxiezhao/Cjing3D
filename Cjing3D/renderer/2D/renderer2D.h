@@ -37,7 +37,7 @@ namespace Cjing3D
 	{
 		void Initialize();
 		void Uninitialize();
-		void Render2D();
+		void Render2D(CommandList cmd);
 
 		// sprite
 		void AddSprite(Sprite* sprite, bool isPersistent = true, const StringID& layerName = "");

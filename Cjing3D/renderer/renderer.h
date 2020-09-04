@@ -31,16 +31,12 @@ namespace Renderer
 	void Uninitialize();
 	void UninitializeDevice();
 
-	void Render();
-	void PresentBegin();
-	void Compose();
-	void PresentEnd();
 	void EndFrame();
 	void FixedUpdate();
 	void Update(F32 deltaTime);
 
 	void UpdatePerFrameData(F32 deltaTime, U32 renderLayerMask);
-	void RefreshRenderData();
+	void RefreshRenderData(CommandList cmd);
 
 	// getter
 	GraphicsDevice& GetDevice();
@@ -59,49 +55,49 @@ namespace Renderer
 	U32 GetShadowRes2DResolution();
 	F32x3 GetAmbientColor();
 	void SetAmbientColor(F32x3 color);
-	void SetAlphaCutRef(F32 alpha);
-	void ResetAlphaCutRef();
+	void SetAlphaCutRef(CommandList cmd, F32 alpha);
+	void ResetAlphaCutRef(CommandList cmd);
 	void SetScreenSize(U32 width, U32 height);
 	U32x2 GetScreenSize();
 	XMMATRIX GetScreenProjection();
 	Ray GetMainCameraMouseRay(const U32x2& pos);
 
 	// Render Method
-	void RenderSceneOpaque(CameraComponent& camera, RenderPassType renderPassType);
-	void RenderSceneTransparent(CameraComponent& camera, RenderPassType renderPassType);
-	void RenderImpostor(CameraComponent& camera, RenderPassType renderPassType);
-	void RenderSky();
-	void RenderLinearDepth(Texture2D& depthBuffer, Texture2D& linearDepthBuffer);
-	void RenderSSAO(Texture2D& depthBuffer, Texture2D& linearDepthBuffer, Texture2D& aoTexture, F32 aoRange, U32 aoSampleCount);
-	void RenderParticles(CameraComponent& camera, Texture2D& linearDepthBuffer);
+	void RenderSceneOpaque(CommandList cmd, CameraComponent& camera, RenderPassType renderPassType);
+	void RenderSceneTransparent(CommandList cmd, CameraComponent& camera, RenderPassType renderPassType);
+	void RenderImpostor(CommandList cmd, CameraComponent& camera, RenderPassType renderPassType);
+	void RenderSky(CommandList cmd);
+	void RenderLinearDepth(CommandList cmd, Texture2D& depthBuffer, Texture2D& linearDepthBuffer);
+	void RenderSSAO(CommandList cmd, Texture2D& depthBuffer, Texture2D& linearDepthBuffer, Texture2D& aoTexture, F32 aoRange, U32 aoSampleCount);
+	void RenderParticles(CommandList cmd, CameraComponent& camera, Texture2D& linearDepthBuffer);
 
 	// shadow
-	void RenderShadowmaps(CameraComponent& camera, U32 renderLayerMask);
-	void RenderDirLightShadowmap(LightComponent& light, CameraComponent& camera, U32 renderLayerMask);
-	void RenderPointLightShadowmap(LightComponent& light, CameraComponent& camera, U32 renderLayerMask);
+	void RenderShadowmaps(CommandList cmd, CameraComponent& camera, U32 renderLayerMask);
+	void RenderDirLightShadowmap(CommandList cmd, LightComponent& light, CameraComponent& camera, U32 renderLayerMask);
+	void RenderPointLightShadowmap(CommandList cmd, LightComponent& light, CameraComponent& camera, U32 renderLayerMask);
 
 	// blur
-	void GaussianBlur(Texture2D& input, Texture2D& temp, Texture2D& output);
-	void BilateralBlur(Texture2D& input, Texture2D& temp, Texture2D& output, Texture2D& linearDepthBuffer, F32 depthThreshold);
-	void UpsampleBilateral(Texture2D& input, Texture2D& output, Texture2D& linearDepthBuffer, F32 depthThreshold);
+	void GaussianBlur(CommandList cmd, Texture2D& input, Texture2D& temp, Texture2D& output);
+	void BilateralBlur(CommandList cmd, Texture2D& input, Texture2D& temp, Texture2D& output, Texture2D& linearDepthBuffer, F32 depthThreshold);
+	void UpsampleBilateral(CommandList cmd, Texture2D& input, Texture2D& output, Texture2D& linearDepthBuffer, F32 depthThreshold);
 
 	// tiled light culling
 	bool IsTiledCullingDebug();
 	U32x2 GetCullingTiledCount();
-	void TiledLightCulling(Texture2D& depthBuffer);
+	void TiledLightCulling(CommandList cmd, Texture2D& depthBuffer);
 
 	// postprocess
-	void PostprocessTonemap(Texture2D& input, Texture2D& output, F32 exposure);
-	void PostprocessFXAA(Texture2D& input, Texture2D& output);
+	void PostprocessTonemap(CommandList cmd, Texture2D& input, Texture2D& output, F32 exposure);
+	void PostprocessFXAA(CommandList cmd, Texture2D& input, Texture2D& output);
 
 	// Binding Method
-	void BindCommonResource();
-	void BindConstanceBuffer(SHADERSTAGES stage);
-	void BindShadowMaps(SHADERSTAGES stage);
+	void BindCommonResource(CommandList cmd);
+	void BindConstanceBuffer(CommandList cmd, SHADERSTAGES stage);
+	void BindShadowMaps(CommandList cmd, SHADERSTAGES stage);
 
 	// const buffer function
-	void UpdateCameraCB(CameraComponent& camera);
-	void UpdateFrameCB();
+	void UpdateCameraCB(CommandList cmd, CameraComponent& camera);
+	void UpdateFrameCB(CommandList cmd);
 
 	// render path method
 	void SetCurrentRenderPath(RenderPath* renderPath);
@@ -121,7 +117,7 @@ namespace Renderer
 	std::shared_ptr<TerrainTree> GetTerrainTree(ECS::Entity entity);
 
 	// debug
-	void RenderDebugScene(CameraComponent& camera);
+	void RenderDebugScene(CommandList cmd, CameraComponent& camera);
 	void SetDebugGridSize(const I32x2& gridSize);
 	void SetDebugGridOffset(const F32x3& posOffset);
 
@@ -133,9 +129,9 @@ namespace Renderer
 	PipelineState* GetPipelineStateByStringID(RenderPassType passType, const StringID& id);
 
 	GraphicsDevice* CreateGraphicsDeviceByType(RenderingDeviceType deviceType, HWND window);
-	void ProcessRenderQueue(RenderQueue& queue, RenderPassType renderPassType, RenderableType renderableType, U32 instanceReplicator = 1, InstanceHandler* instanceHandler = nullptr);
-	void ProcessSkinning();
-	void ProcessParticles(Scene& scene, const std::vector<U32>& culledParticles);
+	void ProcessRenderQueue(CommandList cmd, RenderQueue& queue, RenderPassType renderPassType, RenderableType renderableType, U32 instanceReplicator = 1, InstanceHandler* instanceHandler = nullptr);
+	void ProcessSkinning(CommandList cmd);
+	void ProcessParticles(CommandList cmd, Scene& scene, const std::vector<U32>& culledParticles);
 
 	// 当前帧的裁剪后的数据
 	struct FrameCullings
@@ -149,13 +145,8 @@ namespace Renderer
 	};
 
 	// 每帧所用的线性分配器
-	enum FrameAllocatorType
-	{
-		FrameAllocatorType_Update = 0,
-		FrameAllocatorType_Render,
-		FrameAllocatorType_Count
-	};
-	LinearAllocator& GetFrameAllocator(FrameAllocatorType type);
+	LinearAllocator& GetFrameAllocator();
+	LinearAllocator& GetRenderAllocator(CommandList cmd);
 
 	// 用于记录每一帧的基础数据
 	class RenderFrameData

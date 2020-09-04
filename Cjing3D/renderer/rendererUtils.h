@@ -2,6 +2,7 @@
 
 #include "system\ecsSystem.h"
 #include "renderer\RHI\rhiResource.h"
+#include "renderer\RHI\device.h"
 
 #include <functional>
 
@@ -31,8 +32,8 @@ namespace Cjing3D
 		DeferredMIPGenerator();
 
 		void AddTexture(Texture2D& texture, MipGenerateOption option = MipGenerateOption());
-		void UpdateMipGenerating();
-		void GenerateMipChain(Texture2D& texture, MIPGENFILTER filter, MipGenerateOption option = MipGenerateOption());
+		void UpdateMipGenerating(CommandList cmd);
+		void GenerateMipChain(CommandList cmd, Texture2D& texture, MIPGENFILTER filter, MipGenerateOption option = MipGenerateOption());
 
 	private:
 		// TODO; 可能存在某些纹理提前释放问题

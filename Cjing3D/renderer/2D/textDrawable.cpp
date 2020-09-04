@@ -18,17 +18,17 @@ namespace Cjing3D
 	{
 	}
 
-	void TextDrawable::Draw()
+	void TextDrawable::Draw(CommandList cmd)
 	{
-		Font::Draw(mText, mFontParams);
+		Font::Draw(cmd, mText, mFontParams);
 	}
 
-	void TextDrawable::Draw(const F32x2& pos)
+	void TextDrawable::Draw(CommandList cmd, const F32x2& pos)
 	{
 		mFontParams.mPos[0] = pos[0];
 		mFontParams.mPos[1] = pos[1];
 
-		Draw();
+		Draw(cmd);
 	}
 
 	void TextDrawable::SetPos(const F32x2& pos)

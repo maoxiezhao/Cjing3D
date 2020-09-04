@@ -2,6 +2,7 @@
 #include "resourceManager.h"
 #include "renderer\renderableCommon.h"
 #include "renderer\RHI\rhiShader.h"
+#include "helper\IDGenerator.h"
 
 namespace Cjing3D {
 

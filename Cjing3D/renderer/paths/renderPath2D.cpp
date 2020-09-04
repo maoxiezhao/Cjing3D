@@ -70,54 +70,54 @@ namespace Cjing3D
 	void RenderPath2D::Render()
 	{
 		GraphicsDevice& device = Renderer::GetDevice();
-		device.BeginEvent("Render2D");
+		CommandList cmd = device.GetCommandList();
+		device.BeginEvent(cmd, "Render2D");
 		{
-			device.BeginRenderBehavior(mRBFinal);
+			device.BeginRenderBehavior(cmd, mRBFinal);
 
 			ViewPort vp;
 			vp.mWidth = (F32)mRTFinal.GetDesc().mWidth;
 			vp.mHeight = (F32)mRTFinal.GetDesc().mHeight;
 			vp.mMinDepth = 0.0f;
 			vp.mMaxDepth = 1.0f;
-			device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
+			device.BindViewports(cmd , &vp, 1);
 			
 			RectInt rect;
 			rect.mBottom = INT32_MAX;
 			rect.mLeft = INT32_MIN;
 			rect.mRight = INT32_MAX;
 			rect.mTop = INT32_MIN;
-			device.BindScissorRects(1, &rect);
+			device.BindScissorRects(cmd, 1, &rect);
 
-			RenderGUI();
-			Render2D();
+			RenderGUI(cmd);
+			Render2D(cmd);
 
-			device.EndRenderBehavior();
+			device.EndRenderBehavior(cmd);
 		}
-
-		device.EndEvent();
+		device.EndEvent(cmd);
 
 		RenderPath::Render();
 	}
 
-	void RenderPath2D::RenderGUI()
+	void RenderPath2D::RenderGUI(CommandList cmd)
 	{
 		GraphicsDevice& device = Renderer::GetDevice();
-		device.BeginEvent("RenderGUI");
+		device.BeginEvent(cmd, "RenderGUI");
 
 		// 从guiStage中获取guiRenderer执行渲染过程
 		GetGlobalContext().gGUIStage->GetGUIRenderer().Render();
 	
-		device.EndEvent();
+		device.EndEvent(cmd);
 	}
 
-	void RenderPath2D::Render2D()
+	void RenderPath2D::Render2D(CommandList cmd)
 	{
-		Renderer::GetDevice().BeginEvent("2D");
-		Renderer2D::Render2D();
-		Renderer::GetDevice().EndEvent();
+		Renderer::GetDevice().BeginEvent(cmd,"Render2D");
+		Renderer2D::Render2D(cmd);
+		Renderer::GetDevice().EndEvent(cmd);
 	}
 
-	void RenderPath2D::Compose()
+	void RenderPath2D::Compose(CommandList cmd)
 	{
 		if (mRTFinal.IsValid())
 		{
@@ -125,9 +125,9 @@ namespace Cjing3D
 			params.EnableFullScreen();
 			params.mBlendType = BlendType_PreMultiplied;
 
-			RenderImage::Render(mRTFinal, params);
+			RenderImage::Render(cmd, mRTFinal, params);
 		}
 
-		RenderPath::Compose();
+		RenderPath::Compose(cmd);
 	}
 }

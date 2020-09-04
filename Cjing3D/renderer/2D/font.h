@@ -57,9 +57,9 @@ namespace Cjing3D
 		std::vector<F32> GetTextWidths(const UTF8String& text, const FontParams& params);
 
 		// TODO
-		void Draw(const std::string& text,  const FontParams& params);
-		void Draw(const std::wstring& text, const FontParams& params);
-		void Draw(const UTF8String& text,   const FontParams& params);
-		void Draw(const std::vector<UTF8String>& text, const std::vector<FontParams>& params);
+		void Draw(CommandList cmd, const std::string& text,  const FontParams& params);
+		void Draw(CommandList cmd, const std::wstring& text, const FontParams& params);
+		void Draw(CommandList cmd, const UTF8String& text,   const FontParams& params);
+		void Draw(CommandList cmd, const std::vector<UTF8String>& text, const std::vector<FontParams>& params);
 	}
 }

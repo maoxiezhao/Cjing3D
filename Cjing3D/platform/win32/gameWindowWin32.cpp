@@ -5,6 +5,7 @@
 #include "helper\profiler.h"
 #include "renderer\presentConfig.h"
 #include "platform\systemEvent.h"
+#include "utils\string\stringHelper.h"
 
 namespace Cjing3D::Win32 {
 
@@ -56,7 +57,7 @@ namespace Cjing3D::Win32 {
 		mIsFullScreen(config.mIsFullScreen)
 	{
 		
-		std::wstring nameWStr = Platform::StringToWString(mTitleName.String());
+		std::wstring nameWStr = StringHelper::StringToWString(mTitleName.String());
 
 		LONG adjustedWidth = static_cast<LONG>(mScreenSize[0]);
 		LONG adjustedHeight = static_cast<LONG>(mScreenSize[1]);
@@ -151,7 +152,7 @@ namespace Cjing3D::Win32 {
 			DestroyWindow(mHwnd);
 			mHwnd = NULL;
 
-			std::wstring nameWStr = Platform::StringToWString(mTitleName.String());
+			std::wstring nameWStr = StringHelper::StringToWString(mTitleName.String());
 			UnregisterClass(nameWStr.c_str(), mHinstance);
 			mHinstance = NULL;
 
@@ -246,7 +247,7 @@ namespace Cjing3D::Win32 {
 	void GameWindowWin32::SetWindowTitle(const UTF8String& titleName)
 	{
 		mTitleName = titleName;
-		SetWindowText(mHwnd, Platform::StringToWString(titleName.String()).c_str());
+		SetWindowText(mHwnd, StringHelper::StringToWString(titleName.String()).c_str());
 	}
 
 	bool GameWindowWin32::IsMouseCursorVisible() const
@@ -311,7 +312,7 @@ namespace Cjing3D::Win32 {
 			{
 				std::wstring text;
 				text += static_cast<wchar_t>(wParam);
-				window->mEventQueue->Push<InputTextEvent>(Platform::WStringToString(text));
+				window->mEventQueue->Push<InputTextEvent>(StringHelper::WStringToString(text));
 			}
 			return 0;
 		case WM_MOVE: 

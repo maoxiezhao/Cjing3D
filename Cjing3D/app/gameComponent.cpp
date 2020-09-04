@@ -190,11 +190,14 @@ namespace Cjing3D
 	{
 		PROFILER_BEGIN_CPU_BLOCK("Compose");
 
-		Renderer::PresentBegin();
+		auto& device = Renderer::GetDevice();
+		CommandList cmd = device.GetCommandList();
+
+		device.PresentBegin(cmd);
 		if (mCurrentRenderPath != nullptr) {
-			mCurrentRenderPath->Compose();
+			mCurrentRenderPath->Compose(cmd);
 		}
-		Renderer::PresentEnd();
+		device.PresentEnd(cmd);
 
 		PROFILER_END_BLOCK();
 	}

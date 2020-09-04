@@ -62,7 +62,7 @@ namespace Cjing3D {
 		void SetupRenderData();
 		void ClearRenderData();
 		void UpdateCPU(F32 deltaTime);
-		void UpdateGPU();
+		void UpdateGPU(CommandList cmd);
 		void Burst(I32 count);
 
 		void SetPaused(bool isPaused) { if (isPaused) { mStatusFlag |= ParticleFlag::PAUSED; } else { mStatusFlag &= ~ParticleFlag::PAUSED;} }

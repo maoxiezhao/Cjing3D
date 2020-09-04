@@ -51,6 +51,6 @@ namespace RenderImage
 		void EnableFullScreen() { mFlags |= FLAGS::FULLSCREEN; }
 	};
 
-	void Render(Texture2D & texture, ImageParams params);
+	void Render(CommandList cmd, Texture2D & texture, ImageParams params);
 }
 }
