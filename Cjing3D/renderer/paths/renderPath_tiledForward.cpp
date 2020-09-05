@@ -86,9 +86,6 @@ namespace Cjing3D
 
 			// postprocess
 			RenderPath3D::RenderPostprocess(cmd, mRTMain);
-
-			// render debug
-			RenderPath3D::RenderDebug(cmd);
 		}
 
 		// render 2D

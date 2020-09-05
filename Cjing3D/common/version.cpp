@@ -8,8 +8,8 @@ namespace CjingVersion
 	const int MajorVersion = 0;
 	// features [0-100]
 	const int MinorVersion = 1;
-	// small update; bug fixes [0-1000]
-	const int PatchVersion = 14;
+	// patch update; bug fixes [0-1000]
+	const int PatchVersion = 15;
 	// version string
 	const std::string VersionString = std::to_string(MajorVersion) + "." + std::to_string(MinorVersion) + "." + std::to_string(PatchVersion);
 

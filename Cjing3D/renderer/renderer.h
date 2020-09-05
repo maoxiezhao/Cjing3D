@@ -30,6 +30,7 @@ namespace Renderer
 	void Initialize();
 	void Uninitialize();
 	void UninitializeDevice();
+	bool IsInitialized();
 
 	void EndFrame();
 	void FixedUpdate();

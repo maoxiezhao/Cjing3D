@@ -200,9 +200,4 @@ namespace Cjing3D
 			TextureHelper::SwapTexture(*rtWrite, *GetLastPostprocessRT());
 		}
 	}
-
-	void RenderPath3D::RenderDebug(CommandList cmd)
-	{
-		
-	}
 }

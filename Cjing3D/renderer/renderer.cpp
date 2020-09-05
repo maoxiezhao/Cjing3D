@@ -426,12 +426,12 @@ void TiledLightCulling(CommandList cmd, Texture2D& depthBuffer)
 		UpdateTiledCullingDebugTexture(*mGraphicsDevice, screenSize[0], screenSize[1]);
 	}
 
-	//BindConstanceBuffer(SHADERSTAGES_CS);
+	BindCommonResource(cmd);
 
 	// 3. 构建每一个tile的frustum，保存在FrustumBuffer。仅当当前相机的view矩阵发生变化时执行
 	CameraComponent& camera = GetCamera();
 	XMMATRIX currentViewMatrix = camera.GetViewMatrix();
-	if (XMMatrixCompare(currentViewMatrix, lastCameraViewMatrix) == false)
+	if (isScreenSizeChanged || XMMatrixCompare(currentViewMatrix, lastCameraViewMatrix) == false)
 	{
 		lastCameraViewMatrix = currentViewMatrix;
 
@@ -615,6 +615,11 @@ void UninitializeDevice()
 		mGraphicsDevice.reset();
 		mGraphicsDevice = nullptr;
 	}
+}
+
+bool IsInitialized()
+{
+	return mIsInitialized;
 }
 
 void FixedUpdate()
@@ -1036,6 +1041,8 @@ void RenderShadowmaps(CommandList cmd, CameraComponent& camera, const U32 render
 	PROFILER_BEGIN_GPU_BLOCK(cmd, "RenderShadowmaps");
 	mGraphicsDevice->BeginEvent(cmd, "RenderShadowmaps");
 
+	BindCommonResource(cmd);
+
 	// 为了写入shadowmap,需要先Unbind GPUResource
 	mGraphicsDevice->UnbindGPUResources(cmd, TEXTURE_SLOT_SHADOW_ARRAY_2D, 1);
 
@@ -1077,6 +1084,7 @@ void RenderSceneOpaque(CommandList cmd, CameraComponent& camera, RenderPassType 
 {
 	mGraphicsDevice->BeginEvent(cmd, "RenderScene");
 
+	BindCommonResource(cmd);
 	BindShadowMaps(cmd, SHADERSTAGES_PS);
 
 	if (renderPassType == RenderPassType_TiledForward) 
@@ -1768,8 +1776,8 @@ void BindCommonResource(CommandList cmd)
 		SHADERSTAGES stage = static_cast<SHADERSTAGES>(stageIndex);
 		for (const auto& kvp : stateIDs)
 		{
-			SamplerState& sampler = *mRenderPreset->GetSamplerState(kvp.first);
-			mGraphicsDevice->BindSamplerState(cmd, stage, sampler, kvp.second);
+			auto sampler = mRenderPreset->GetSamplerState(kvp.first);
+			mGraphicsDevice->BindSamplerState(cmd, stage, *sampler, kvp.second);
 		}
 
 		BindConstanceBuffer(cmd, stage);

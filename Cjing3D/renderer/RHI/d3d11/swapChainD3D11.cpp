@@ -14,8 +14,27 @@ namespace Cjing3D {
 		mSwapChain(),
 		mRenderTargetView()
 	{
+		const Win32::GameWindowWin32* windowWin32 = dynamic_cast<const Win32::GameWindowWin32*>(&gameWindow);
+		if (windowWin32 == nullptr) {
+			Debug::Die("[CreateSwapChain] The gameWindow must is GameWindowWin32");
+			return;
+		}
+
 		InitAdapterAndOutput();
-		CreateSwapChain(gameWindow, format);
+		CreateSwapChain(windowWin32->GetHwnd(), windowWin32->IsFullScreen(), format);
+		CreateRenderTargetView();
+	}
+
+	SwapChainD3D11::SwapChainD3D11(ID3D11Device& device, ID3D11DeviceContext& deviceContext, HWND hWnd, bool isFullScreen, U32x2 resolution, DXGI_FORMAT format) :
+		mResolution(resolution),
+		mDevice(device),
+		mDeviceContext(deviceContext),
+		mBackBufferFormat(format),
+		mSwapChain(),
+		mRenderTargetView()
+	{
+		InitAdapterAndOutput();
+		CreateSwapChain(hWnd, isFullScreen, format);
 		CreateRenderTargetView();
 	}
 
@@ -95,14 +114,8 @@ namespace Cjing3D {
 		}
 	}
 
-	void SwapChainD3D11::CreateSwapChain(const GameWindow& gameWindow, DXGI_FORMAT format)
+	void SwapChainD3D11::CreateSwapChain(HWND hWnd, bool isFullScreen, DXGI_FORMAT format)
 	{
-		const Win32::GameWindowWin32* windowWin32 = dynamic_cast<const Win32::GameWindowWin32*>(&gameWindow);
-		if (windowWin32 == nullptr) {
-			Debug::Die("[CreateSwapChain] The gameWindow must is GameWindowWin32");
-			return;
-		}
-
 		ComPtr< IDXGIFactory2> factory;
 		{
 			const HRESULT result = mAdapter->GetParent(
@@ -140,14 +153,14 @@ namespace Cjing3D {
 		fullDesc.RefreshRate = { 60, 1 };
 		fullDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED; 
 		fullDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_PROGRESSIVE;
-		fullDesc.Windowed = !gameWindow.IsFullScreen();
+		fullDesc.Windowed = !isFullScreen;
 
 		// ´´½¨½»»»Á´
 		ComPtr<IDXGISwapChain1> swapChain1;
 		{
 			const HRESULT result = factory->CreateSwapChainForHwnd(
 				&mDevice,
-				windowWin32->GetHwnd(),
+				hWnd,
 				&desc,
 				&fullDesc,
 				nullptr,

@@ -76,7 +76,7 @@ namespace Cjing3D::Win32
 			switch (deviceType)
 			{
 			case RenderingDeviceType_D3D11:
-				graphicsDevice = CJING_MAKE_SHARED<GraphicsDeviceD3D11>(gameWindow, backBufferFormat, isDebug);
+				graphicsDevice = CJING_MAKE_SHARED<GraphicsDeviceD3D11>(gameWindow, backBufferFormat, isDebug);				graphicsDevice->Initialize();
 				break;
 			}
 			return graphicsDevice;

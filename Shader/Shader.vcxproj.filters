@@ -48,6 +48,9 @@
     <ClInclude Include="shaderInterop\shaderInteropRender.h">
       <Filter>shaderInterop</Filter>
     </ClInclude>
+    <ClInclude Include="shaderInterop\shaderInteropImGui.h">
+      <Filter>shaderInterop</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="cs\bilateralBlurCS.hlsl">
@@ -195,6 +198,12 @@
       <Filter>vs</Filter>
     </FxCompile>
     <FxCompile Include="vs\terrainVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="ps\imGuiPS.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
+    <FxCompile Include="vs\imGuiVS.hlsl">
       <Filter>vs</Filter>
     </FxCompile>
   </ItemGroup>

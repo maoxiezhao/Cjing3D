@@ -1,9 +1,9 @@
 #include "guiEditor.h"
+#include "editor\imgui\imguiRHI.h"
 #include "core\globalContext.hpp"
-#include "platform\platform.h"
+#include "platform\win32\gameWindowWin32.h"
 #include "renderer\renderer.h"
 #include "renderer\RHI\d3d11\deviceD3D11.h"
-#include "editor\imgui\imguiRHI.h"
 #include "helper\profiler.h"
 
 #include "editor\widget\guiEditorWidget.h"
@@ -24,12 +24,9 @@ namespace Cjing3D {
 		EditorWidget* mWidgetToolbar = nullptr;
 	}
 
-	EditorStage::EditorStage()
+	EditorStage::EditorStage(GameWindow& gameWindow) :
+		mGameWindow(gameWindow)
 	{
-		mConfigFlag =
-			ImGuiConfigFlags_NavEnableKeyboard |
-			ImGuiConfigFlags_DockingEnable |
-			ImGuiConfigFlags_ViewportsEnable;
 	}
 
 	EditorStage::~EditorStage()
@@ -38,8 +35,17 @@ namespace Cjing3D {
 
 	void EditorStage::Initialize()
 	{
+		if (mIsInitialized) {
+			return;
+		}
+
 		GraphicsDevice& graphicsDevice = Renderer::GetDevice();
 		if (graphicsDevice.GetGraphicsDeviceType() != GraphicsDeviceType::GraphicsDeviceType_directx11) {
+			return;
+		}
+
+		auto gameWindowWin32 = dynamic_cast<Win32::GameWindowWin32*>(&mGameWindow);
+		if (gameWindowWin32 == nullptr) {
 			return;
 		}
 
@@ -47,8 +53,10 @@ namespace Cjing3D {
 		ImGui::CreateContext();
 
 		ImGuiIO& io = ImGui::GetIO();
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-		io.ConfigFlags |= mConfigFlag;
+		io.ConfigFlags = 
+			ImGuiConfigFlags_NavEnableKeyboard |
+			ImGuiConfigFlags_DockingEnable |
+			ImGuiConfigFlags_ViewportsEnable;
 
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
@@ -56,23 +64,16 @@ namespace Cjing3D {
 			io.ConfigViewportsNoTaskBarIcon = true;
 		}
 
-		// Setup Platform/Renderer bindings
-		GraphicsDeviceD3D11& deviceD3D11 = dynamic_cast<GraphicsDeviceD3D11&>(graphicsDevice);
-		HWND hwnd; // = deviceD3D11.GetHwnd();
-		ID3D11Device& device = deviceD3D11.GetDevice();
-		//ID3D11DeviceContext& deviceContext = deviceD3D11.GetDeviceContext(GraphicsThread_IMMEDIATE);
+		HWND hwnd = gameWindowWin32->GetHwnd();
+		ImGui_ImplWin32_Init(hwnd);
+		ImGui::RHI::Initialize();
 
-		//ImGui_ImplWin32_Init(hwnd);
-		//ImGui_ImplDX11_Init(&device, &deviceContext);
+		gameWindowWin32->AddMessageHandler([this](const Win32::WindowMessageData& window) {
+			ImGui_ImplWin32_WndProcHandler(window.handle, window.message, window.wparam, window.lparam);
+			return false;
+		});
 
-		//auto window = GlobalGetEngine()->GetGameWindow();
-		//if (window != nullptr) {
-		//	mMessageHandler = std::make_shared<IMGUIMessageHandler>();
-		//	window->AddMessageHandler(mMessageHandler);
-		//}
-
-		InitializeImpl();
-
+		InitializeWidgets();
 		mIsInitialized = true;
 	}
 
@@ -88,21 +89,14 @@ namespace Cjing3D {
 		}
 		mRegisteredWidgets.clear();
 
-		//GameWindow* window = GlobalGetEngine()->GetWindow();
-		//if (window != nullptr) {
-		//	mMessageHandler = std::make_shared<IMGUIMessageHandler>();
-		//	window->RemoveHandler(mMessageHandler);
-		//}
-
-		// Cleanup
-		ImGui_ImplDX11_Shutdown();
+		ImGui::RHI::Uninitilize();
 		ImGui_ImplWin32_Shutdown();
 		ImGui::DestroyContext();
 
 		mIsInitialized = true;
 	}
 
-	void EditorStage::InitializeImpl()
+	void EditorStage::InitializeWidgets()
 	{
 		RegisterCustomWidget(CJING_MAKE_SHARED<EditorWidgetMenu>(*this));
 		RegisterCustomWidget(CJING_MAKE_SHARED<EditorWidgetToolbar>(*this));

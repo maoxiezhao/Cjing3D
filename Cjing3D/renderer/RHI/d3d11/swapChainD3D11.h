@@ -1,7 +1,9 @@
 #pragma once
+#ifdef _WIN32
 
 #include "renderer\renderableCommon.h"
 #include "renderer\RHI\d3d11\includeD3D11.h"
+#include "renderer\RHI\rhiDefinition.h"
 
 namespace Cjing3D {
 
@@ -16,6 +18,13 @@ namespace Cjing3D {
 			U32x2 resolution,
 			DXGI_FORMAT format);
 
+		SwapChainD3D11(ID3D11Device& device,
+			ID3D11DeviceContext& deviceContext,
+			HWND hWnd,
+			bool isFullScreen,
+			U32x2 resolution,
+			DXGI_FORMAT format);
+
 		ID3D11RenderTargetView& GetRenderTargetView()const {
 			return *mRenderTargetView.Get();
 		}
@@ -26,7 +35,7 @@ namespace Cjing3D {
 
 	private:
 		void InitAdapterAndOutput();
-		void CreateSwapChain(const GameWindow& gameWindow, DXGI_FORMAT format);
+		void CreateSwapChain(HWND hWnd, bool isFullScreen, DXGI_FORMAT format);
 		void CreateRenderTargetView();
 
 		U32x2 mResolution;
@@ -42,3 +51,4 @@ namespace Cjing3D {
 
 	};
 }
+#endif

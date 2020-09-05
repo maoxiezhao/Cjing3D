@@ -16,6 +16,7 @@ public:
 	GraphicsDeviceD3D11(const GameWindow& gameWindow, FORMAT backbufferFormat, bool debugLayer);
 	~GraphicsDeviceD3D11();
 
+	virtual void Initialize();
 	virtual void PresentBegin(CommandList cmd);
 	virtual void PresentEnd(CommandList cmd);
 	virtual void BeginEvent(CommandList cmd, const std::string& name);
@@ -71,7 +72,7 @@ public:
 	virtual void BindPipelineState(CommandList cmd, const PipelineState* state);
 	virtual void RefreshPipelineState(CommandList cmd);
 	virtual void Draw(CommandList cmd, UINT vertexCount, UINT startVertexLocation);
-	virtual void DrawIndexed(CommandList cmd, UINT indexCount, UINT startIndexLocation) ;
+	virtual void DrawIndexed(CommandList cmd, UINT indexCount, UINT startIndexLocation, UINT baseVertexLocation = 0) ;
 	virtual void DrawInstanced(CommandList cmd, U32 vertexCountPerInstance, U32 instanceCount, U32 startVertexLocation, U32 startInstanceLocation);
 	virtual void DrawIndexedInstanced(CommandList cmd, U32 indexCount, U32 instanceCount, U32 startIndexLocation, U32 baseVertexLocation, U32 startInstanceLocation);
 	virtual void DrawInstancedIndirect(CommandList cmd, const GPUBuffer* buffer, U32 offset);
@@ -95,10 +96,11 @@ public:
 	inline ID3D11Device& GetDevice() { return *mDevice.Get(); }
 	ID3D11DeviceContext& GetImmediateDeviceContext() { return *mImmediateContext.Get(); }
 	ID3D11DeviceContext& GetDeviceContext(CommandList cmd) { return *mDeviceContexts[cmd].Get();}
-
+	virtual DXGI_FORMAT ConvertFormat(FORMAT format)const;
 	virtual void SetResolution(const U32x2 size);
 
 private:
+	const GameWindow& mGameWindow;
 	ComPtr<ID3D11Device> mDevice;
 	ComPtr<ID3D11DeviceContext> mImmediateContext;
 	ComPtr<ID3D11DeviceContext> mDeviceContexts[MAX_COMMANDLIST_COUNT];

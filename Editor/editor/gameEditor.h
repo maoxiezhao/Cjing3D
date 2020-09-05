@@ -12,6 +12,7 @@ namespace Cjing3D
 		virtual ~GameEditor();
 
 		void Initialize()override;
+		void Uninitialize()override;
 		void FixedUpdate()override;
 	};
 

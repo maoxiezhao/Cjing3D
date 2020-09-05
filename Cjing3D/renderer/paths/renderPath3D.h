@@ -34,7 +34,6 @@ namespace Cjing3D {
 		virtual void RenderAO(CommandList cmd);
 		virtual void RenderTransparents(CommandList cmd, RenderBehavior& renderBehavior, RenderPassType renderType);
 		virtual void RenderPostprocess(CommandList cmd, Texture2D& rtScreen);
-		void RenderDebug(CommandList cmd);
 
 		void SetExposure(F32 exposure) { mExposure = exposure; }
 		F32 GetExposure()const { return mExposure; }

@@ -102,7 +102,6 @@
   <ItemGroup>
     <ClInclude Include="..\ThirdParty\imgui\imconfig.h" />
     <ClInclude Include="..\ThirdParty\imgui\imgui.h" />
-    <ClInclude Include="..\ThirdParty\imgui\imgui_impl_dx11.h" />
     <ClInclude Include="..\ThirdParty\imgui\imgui_impl_win32.h" />
     <ClInclude Include="..\ThirdParty\imgui\imgui_internal.h" />
     <ClInclude Include="..\ThirdParty\imgui\imstb_rectpack.h" />
@@ -126,7 +125,6 @@
     <ClCompile Include="..\ThirdParty\imgui\imgui.cpp" />
     <ClCompile Include="..\ThirdParty\imgui\imgui_demo.cpp" />
     <ClCompile Include="..\ThirdParty\imgui\imgui_draw.cpp" />
-    <ClCompile Include="..\ThirdParty\imgui\imgui_impl_dx11.cpp" />
     <ClCompile Include="..\ThirdParty\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="..\ThirdParty\imgui\imgui_widgets.cpp" />
     <ClCompile Include="editor\gameEditor.cpp" />

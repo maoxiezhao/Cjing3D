@@ -33,6 +33,7 @@ namespace Cjing3D
 		GraphicsDevice(GraphicsDeviceType type);
 		virtual ~GraphicsDevice();
 
+		virtual void Initialize() = 0;
 		virtual void PresentBegin(CommandList cmd) = 0;
 		virtual void PresentEnd(CommandList cmd) = 0;
 		virtual void BeginEvent(CommandList cmd, const std::string& name) = 0;
@@ -89,7 +90,7 @@ namespace Cjing3D
 		virtual void BindPipelineState(CommandList cmd, const PipelineState* state) = 0;
 		virtual void RefreshPipelineState(CommandList cmd) = 0;
 		virtual void Draw(CommandList cmd, UINT vertexCount, UINT startVertexLocation) = 0;
-		virtual void DrawIndexed(CommandList cmd, UINT indexCount, UINT startIndexLocation) = 0;
+		virtual void DrawIndexed(CommandList cmd, UINT indexCount, UINT startIndexLocation, UINT baseVertexLocation = 0) = 0;
 		virtual void DrawInstanced(CommandList cmd, U32 vertexCountPerInstance, U32 instanceCount, U32 startVertexLocation, U32 startInstanceLocation) = 0;
 		virtual void DrawIndexedInstanced(CommandList cmd, U32 indexCount, U32 instanceCount, U32 startIndexLocation, U32 baseVertexLocation, U32 startInstanceLocation) = 0;
 		virtual void DrawInstancedIndirect(CommandList cmd, const GPUBuffer* buffer, U32 offset) = 0;
@@ -105,6 +106,7 @@ namespace Cjing3D
 		virtual void Unmap(const GPUResource* resource) = 0;
 
 		// status
+		bool IsFullScreen()const { return mIsFullScreen; }
 		void SetViewport(ViewPort viewport) { mViewport = viewport; }
 		ViewPort GetViewport()const { return mViewport; }
 		U32 GetFormatStride(FORMAT value) const;
@@ -117,6 +119,7 @@ namespace Cjing3D
 		void SetIsVsync(bool isVsync) { mIsVsync = isVsync; }
 		bool CheckGraphicsFeatureSupport(GraphicsFeatureSupport::GraphicsFeature feature)const;
 		virtual void SetResolution(const U32x2 size) = 0;
+		virtual DXGI_FORMAT ConvertFormat(FORMAT format)const = 0;
 
 	public:
 		// gpu allocation

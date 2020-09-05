@@ -18,6 +18,7 @@
 #define CBSLOT_CS_PARAMS            7
 #define CBSLOT_SPRITE               7
 #define CBSLOT_PARTICLE             7
+#define CBSLOT_IMGUI                7
 
 // CBUFFER Game Slot
 #define CBSLOT_GAME_GROUND_TILESET  8

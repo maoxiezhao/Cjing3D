@@ -30,9 +30,6 @@
     <ClInclude Include="..\ThirdParty\imgui\imgui.h">
       <Filter>editor\imgui\src</Filter>
     </ClInclude>
-    <ClInclude Include="..\ThirdParty\imgui\imgui_impl_dx11.h">
-      <Filter>editor\imgui\src</Filter>
-    </ClInclude>
     <ClInclude Include="..\ThirdParty\imgui\imgui_impl_win32.h">
       <Filter>editor\imgui\src</Filter>
     </ClInclude>
@@ -96,9 +93,6 @@
       <Filter>editor\imgui\src</Filter>
     </ClCompile>
     <ClCompile Include="..\ThirdParty\imgui\imgui_draw.cpp">
-      <Filter>editor\imgui\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ThirdParty\imgui\imgui_impl_dx11.cpp">
       <Filter>editor\imgui\src</Filter>
     </ClCompile>
     <ClCompile Include="..\ThirdParty\imgui\imgui_impl_win32.cpp">

@@ -844,6 +844,7 @@ namespace {
 
 GraphicsDeviceD3D11::GraphicsDeviceD3D11(const GameWindow& gameWindow, FORMAT backbufferFormat, bool debugLayer):
 	GraphicsDevice(GraphicsDeviceType_directx11),
+	mGameWindow(gameWindow),
 	mDevice(),
 	mSwapChain()
 {
@@ -854,87 +855,6 @@ GraphicsDeviceD3D11::GraphicsDeviceD3D11(const GameWindow& gameWindow, FORMAT ba
 	RectInt rect = gameWindow.GetClientBounds();
 	mScreenSize[0] = rect.mRight - rect.mLeft;
 	mScreenSize[1] = rect.mBottom - rect.mTop;
-
-	// 初始化device
-	// 优先D3D_DRIVER_TYPE_HARDWARE
-	const static D3D_DRIVER_TYPE driverTypes[] =
-	{
-		D3D_DRIVER_TYPE_HARDWARE,
-		D3D_DRIVER_TYPE_WARP,
-		D3D_DRIVER_TYPE_REFERENCE,
-	};
-	U32 numTypes = ARRAYSIZE(driverTypes);
-
-	UINT createDeviceFlags = 0;
-	if (mDebugLayer == true) {
-		createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-	}
-
-	const static D3D_FEATURE_LEVEL featureLevels[] =
-	{
-		D3D_FEATURE_LEVEL_11_1,
-		D3D_FEATURE_LEVEL_11_0,
-	};
-	UINT numFeatureLevels = ARRAYSIZE(featureLevels);
-
-	for (int index = 0; index < numTypes; index++)
-	{
-		auto driverType = driverTypes[index];
-
-		ComPtr<ID3D11Device> device;
-		ComPtr<ID3D11DeviceContext> deviceContext;
-
-		const HRESULT result = D3D11CreateDevice(
-			nullptr,
-			driverType,
-			nullptr,
-			createDeviceFlags,
-			featureLevels,
-			numFeatureLevels,
-			D3D11_SDK_VERSION,
-			device.GetAddressOf(),
-			&mFeatureLevel,
-			deviceContext.GetAddressOf());
-
-		if (SUCCEEDED(result)) {
-			device.As(&mDevice);
-			deviceContext.As(&(mImmediateContext));
-
-			break;
-		}
-	}
-
-	if (mDevice == nullptr || mImmediateContext == nullptr)
-	{
-		Debug::Error("Failed to initialize d3d device.");
-		return;
-	}
-
-	// 初始化swapchain
-	mSwapChain = std::make_unique<SwapChainD3D11>(
-		*mDevice.Get(),
-		*(mImmediateContext.Get()),
-		gameWindow,
-		mScreenSize,
-		_ConvertFormat(GetBackBufferFormat())
-		);
-
-	// check features
-	D3D_FEATURE_LEVEL featureLevel = mDevice->GetFeatureLevel();
-	mGraphicsFeatureSupport.supportTessellation_ = featureLevel >= D3D_FEATURE_LEVEL_11_0;
-
-	D3D11_FEATURE_DATA_D3D11_OPTIONS3 featureData;
-	mDevice->CheckFeatureSupport(D3D11_FEATURE_D3D11_OPTIONS3, &featureData, sizeof(featureData));
-	mGraphicsFeatureSupport.viewportAndRenderTargetArrayIndexWithoutGS_ = (featureData.VPAndRTArrayIndexFromAnyShaderFeedingRasterizer == TRUE);
-
-	mViewport.mWidth = static_cast<F32>(mScreenSize[0]);
-	mViewport.mHeight = static_cast<F32>(mScreenSize[1]);
-	mViewport.mTopLeftX = 0.0f;
-	mViewport.mTopLeftY = 0.0f;
-	mViewport.mMinDepth = 0.0f;
-	mViewport.mMaxDepth = 1.0f;
-
-	Logger::Info("Initialized graphics device D3D11.");
 }
 
 GraphicsDeviceD3D11::~GraphicsDeviceD3D11()
@@ -948,6 +868,9 @@ GraphicsDeviceD3D11::~GraphicsDeviceD3D11()
 			mDeviceContexts[i]->ClearState();
 			mDeviceContexts[i].Reset();
 		}
+
+		mUserDefinedAnnotations[i].Reset();
+		mCommandLists[i].Reset();
 	}
 
 	if (mImmediateContext != nullptr)
@@ -974,6 +897,82 @@ GraphicsDeviceD3D11::~GraphicsDeviceD3D11()
 	}
 
 	Logger::Info("Uninitialized graphics device D3D11.");
+}
+
+void GraphicsDeviceD3D11::Initialize()
+{
+	// 初始化device
+	// 优先D3D_DRIVER_TYPE_HARDWARE
+	const static D3D_DRIVER_TYPE driverTypes[] =
+	{
+		D3D_DRIVER_TYPE_HARDWARE,
+		D3D_DRIVER_TYPE_WARP,
+		D3D_DRIVER_TYPE_REFERENCE,
+	};
+	U32 numTypes = ARRAYSIZE(driverTypes);
+
+	UINT createDeviceFlags = 0;
+	if (mDebugLayer) {
+		createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+	}
+
+	const static D3D_FEATURE_LEVEL featureLevels[] =
+	{
+		D3D_FEATURE_LEVEL_11_1,
+		D3D_FEATURE_LEVEL_11_0,
+	};
+	UINT numFeatureLevels = ARRAYSIZE(featureLevels);
+
+	for (int index = 0; index < numTypes; index++)
+	{
+		HRESULT result = D3D11CreateDevice(
+			nullptr,
+			driverTypes[index],
+			nullptr,
+			createDeviceFlags,
+			featureLevels,
+			numFeatureLevels,
+			D3D11_SDK_VERSION,
+			&mDevice,
+			&mFeatureLevel,
+			&mImmediateContext);
+
+		if (SUCCEEDED(result)) {
+			break;
+		}
+	}
+
+	if (mDevice == nullptr || mImmediateContext == nullptr)
+	{
+		Debug::Error("Failed to initialize d3d device.");
+		return;
+	}
+
+	// 初始化swapchain
+	mSwapChain = std::make_unique<SwapChainD3D11>(
+		*mDevice.Get(),
+		*(mImmediateContext.Get()),
+		mGameWindow,
+		mScreenSize,
+		_ConvertFormat(GetBackBufferFormat())
+		);
+
+	// check features
+	D3D_FEATURE_LEVEL featureLevel = mDevice->GetFeatureLevel();
+	mGraphicsFeatureSupport.supportTessellation_ = featureLevel >= D3D_FEATURE_LEVEL_11_0;
+
+	D3D11_FEATURE_DATA_D3D11_OPTIONS3 featureData;
+	mDevice->CheckFeatureSupport(D3D11_FEATURE_D3D11_OPTIONS3, &featureData, sizeof(featureData));
+	mGraphicsFeatureSupport.viewportAndRenderTargetArrayIndexWithoutGS_ = (featureData.VPAndRTArrayIndexFromAnyShaderFeedingRasterizer == TRUE);
+
+	mViewport.mWidth = static_cast<F32>(mScreenSize[0]);
+	mViewport.mHeight = static_cast<F32>(mScreenSize[1]);
+	mViewport.mTopLeftX = 0.0f;
+	mViewport.mTopLeftY = 0.0f;
+	mViewport.mMinDepth = 0.0f;
+	mViewport.mMaxDepth = 1.0f;
+
+	Logger::Info("Initialized graphics device D3D11.");
 }
 
 void GraphicsDeviceD3D11::PresentBegin(CommandList cmd)
@@ -1019,6 +1018,11 @@ void GraphicsDeviceD3D11::BindViewports(CommandList cmd, const ViewPort* viewpor
 	}
 
 	mDeviceContexts[cmd]->RSSetViewports(numViewports, d3dViewports);
+}
+
+DXGI_FORMAT GraphicsDeviceD3D11::ConvertFormat(FORMAT format) const
+{
+	return _ConvertFormat(format);
 }
 
 void GraphicsDeviceD3D11::SetResolution(const U32x2 size)
@@ -2354,11 +2358,11 @@ void GraphicsDeviceD3D11::Draw(CommandList cmd, UINT vertexCount, UINT startVert
 	mDeviceContexts[cmd]->Draw(vertexCount, startVertexLocation);
 }
 
-void GraphicsDeviceD3D11::DrawIndexed(CommandList cmd, UINT indexCount, UINT startIndexLocation)
+void GraphicsDeviceD3D11::DrawIndexed(CommandList cmd, UINT indexCount, UINT startIndexLocation, UINT baseVertexLocation)
 {
 	RefreshPipelineState(cmd);
 	CommitAllocations(cmd);
-	mDeviceContexts[cmd]->DrawIndexed(indexCount, startIndexLocation, 0);
+	mDeviceContexts[cmd]->DrawIndexed(indexCount, startIndexLocation, baseVertexLocation);
 }
 
 void GraphicsDeviceD3D11::DrawInstanced(CommandList cmd, U32 vertexCountPerInstance, U32 instanceCount, U32 startVertexLocation, U32 startInstanceLocation)

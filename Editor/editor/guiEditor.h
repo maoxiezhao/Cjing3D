@@ -7,13 +7,14 @@
 namespace Cjing3D
 {
 	class EditorWidget;
+	class GameWindow;
 
 	class EditorStage
 	{
 	public:
 		using CustomWindowFunc = std::function<void(F32)>;
 
-		EditorStage();
+		EditorStage(GameWindow& gameWindow);
 		~EditorStage();
 
 		void Initialize();
@@ -46,7 +47,7 @@ namespace Cjing3D
 	protected:
 		void DockingBegin();
 		void DockingEnd();
-		void InitializeImpl();
+		void InitializeWidgets();
 		void FixedUpdateImpl(F32 deltaTime);
 
 	protected:
@@ -56,7 +57,8 @@ namespace Cjing3D
 		bool mIsShowDemo = false;
 		bool mIsDockingEnable = false;
 		bool mIsDockingBegin = false;
-		int mConfigFlag = 0;
+
+		GameWindow& mGameWindow;
 
 		std::vector<CustomWindowFunc> mRegisteredWindows;
 		std::vector<std::shared_ptr<EditorWidget>> mRegisteredWidgets;

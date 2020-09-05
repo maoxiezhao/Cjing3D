@@ -20,37 +20,20 @@ namespace Cjing3D
 	{
 		GameComponent::Initialize();
 
-		auto renderPath = CJING_MAKE_SHARED<RenderPathTiledForward>();
-		renderPath->Initialize();
-		SetRenderPath(renderPath);
+		mEditorStage = std::make_unique<EditorStage>(mGameWindow.get());
+		mEditorStage->Initialize();
+	}
+
+	void GameEditor::Uninitialize()
+	{
+		if (mEditorStage != nullptr) {
+			mEditorStage->Uninitialize();
+		}
+
+		GameComponent::Uninitialize();
 	}
 
 	void GameEditor::FixedUpdate()
 	{
-		auto inputManager = mEngine->GetInputManager();
-		if (inputManager->IsKeyPressed(KeyCode::W))
-		{
-			Logger::Info("Key press");
-		}
-
-		if (inputManager->IsKeyReleased(KeyCode::W))
-		{
-			Logger::Info("Key release");
-		}
-
-		if (inputManager->IsKeyHold(KeyCode::W))
-		{
-			Logger::Info("Key hold");
-		}
-
-		if (inputManager->IsKeyPressed(KeyCode::Click_Right))
-		{
-			Logger::Info("Key hold");
-		}
-
-		if (inputManager->IsKeyPressed(KeyCode::Gamepad_A))
-		{
-			Logger::Info("Key Pressed");
-		}
 	}
 }
