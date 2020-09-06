@@ -7,6 +7,7 @@
 #include "renderer\RHI\d3d11\deviceD3D11.h"
 #include "renderer\RHI\d3d11\swapChainD3D11.h"
 #include "renderer\renderer.h"
+#include "renderer\textureHelper.h"
 #include "renderer\preset\renderPreset.h"
 #include "utils\math.h"
 #include "shaderInterop\shaderInteropImGui.h"
@@ -23,6 +24,9 @@ using namespace Cjing3D;
 
 namespace ImGui::RHI
 {
+	// Forward Declarations
+	void InitPlatformInterface();
+
 	namespace {
 		GraphicsDeviceD3D11* mDevice = nullptr;
 		PipelineState mImGuiPipelineState;
@@ -56,6 +60,7 @@ namespace ImGui::RHI
 			subresourceData.mSysMemPitch = desc.mWidth * 4;
 
 			Renderer::GetDevice().CreateTexture2D(&desc, &subresourceData, mFontTextureView);
+			io.Fonts->TexID = (ImTextureID)(&mFontTextureView);
 		}
 
 		void InitDeviceObject()
@@ -73,6 +78,8 @@ namespace ImGui::RHI
 				desc.mRenderTarget[0].mDstBlendAlpha = BLEND_ZERO;
 				desc.mRenderTarget[0].mBlendOpAlpha = BLEND_OP_ADD;
 				desc.mRenderTarget[0].mRenderTargetWriteMask = COLOR_WRITE_ENABLE_ALL;
+
+				mBlendState = std::make_shared<BlendState>();
 				const auto result = device.CreateBlendState(desc, *mBlendState);
 				Debug::ThrowIfFailed(result, "Failed to create imgui blendState", result);
 			}
@@ -80,6 +87,8 @@ namespace ImGui::RHI
 				DepthStencilStateDesc desc;
 				desc.mDepthEnable = false;
 				desc.mStencilEnable = false;
+
+				mDepthStencilState = std::make_shared<DepthStencilState>();
 				const auto result = device.CreateDepthStencilState(desc, *mDepthStencilState);
 				Debug::ThrowIfFailed(result, "Failed to create imgui depthStencilState", result);
 			}
@@ -89,6 +98,7 @@ namespace ImGui::RHI
 				desc.mCullMode = CULL_NONE;
 				desc.mDepthClipEnable = true;
 
+				mRasterizerState = std::make_shared<RasterizerState>();
 				const auto result = device.CreateRasterizerState(desc, *mRasterizerState);
 				Debug::ThrowIfFailed(result, "Failed to create imgui rasterizerState", result);
 			}
@@ -135,104 +145,19 @@ namespace ImGui::RHI
 			mDepthStencilState->Clear();
 			mBlendState->Clear();
 			mImGuiPipelineState.Clear();
-		}
 
-		///////////////////////////////////////////////////////////////
-
-		inline SwapChainD3D11* GetSwapchain(ImGuiViewport* viewport)
-		{
-			SwapChainD3D11* swapChain = nullptr;
-			if (!viewport) {
-				return swapChain;
-			}
-
-			swapChain = static_cast<SwapChainD3D11*>(viewport->RendererUserData);
-
-			if (!swapChain) {
-				return swapChain;
-			}
-
-			return swapChain;
-		}
-
-		static void ImGuiCreateWindow(ImGuiViewport* viewport)
-		{
-			if (!viewport) {
-				return;
-			}
-		
-			// TEMP
-			viewport->RendererUserData = new SwapChainD3D11
-			(
-				mDevice->GetDevice(),
-				mDevice->GetImmediateDeviceContext(),
-				(HWND)viewport->PlatformHandle,
-				mDevice->IsFullScreen(),
-				U32x2(static_cast<U32>(viewport->Size.x), static_cast<U32>(viewport->Size.y)),
-				mDevice->ConvertFormat(mDevice->GetBackBufferFormat())
-			);
-		}
-
-		static void ImGuiDestroyWindow(ImGuiViewport* viewport)
-		{
-			SwapChainD3D11* swapChain = GetSwapchain(viewport);
-			if (!swapChain) {
-				return;
-			}
-
-			SAFE_DELETE(swapChain);
-			viewport->RendererUserData = nullptr;
-		}
-
-		static void ImGuiSetWindowSize(ImGuiViewport* viewport, ImVec2 size)
-		{
-			SwapChainD3D11* swapChain = GetSwapchain(viewport);
-			if (!swapChain) {
-				return;
-			}
-
-			swapChain->Resize(U32x2((U32)size.x, (U32)size.y));
-		}
-
-		static void ImGuiRenderWindow(ImGuiViewport* viewport, void*)
-		{
-			SwapChainD3D11* swapChain = GetSwapchain(viewport);
-			if (!swapChain) {
-				return;
-			}
-
-			// TODO
-			CommandList cmd = mDevice->GetCommandList();
-			auto& deviceContext = mDevice->GetDeviceContext(cmd);
-
-			ID3D11RenderTargetView* renderTargetView = &swapChain->GetRenderTargetView();
-			deviceContext.OMSetRenderTargets(1, &renderTargetView, NULL);
-			if (!(viewport->Flags & ImGuiViewportFlags_NoRendererClear)) {
-				deviceContext.ClearRenderTargetView(renderTargetView, (float*)&ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
-			}
-
-			Render(cmd, viewport->DrawData);
-
-			mDevice->SubmitCommandList();
-		}
-
-		static void ImGuiSwapBuffers(ImGuiViewport* viewport, void*)
-		{
-			SwapChainD3D11* swapChain = GetSwapchain(viewport);
-			if (!swapChain) {
-				return;
-			}
-
-			swapChain->Present(mDevice->GetIsVsync());
+			mBlendState.reset();
+			mRasterizerState.reset();
+			mDepthStencilState.reset();
 		}
 	}
 
-	bool Initialize()
+	inline bool Initialize()
 	{
 		if (!Renderer::IsInitialized())
 		{
 			Debug::Error("The renderer must is initialized before imgui.");
-			return;
+			return false;
 		}
 
 		mDevice = dynamic_cast<GraphicsDeviceD3D11*>(&Renderer::GetDevice());
@@ -253,14 +178,14 @@ namespace ImGui::RHI
 		return true;
 	}
 
-	void Uninitilize()
+	inline void Uninitilize()
 	{
 		UninitDeviceObject();
 
 		mDevice = nullptr;
 	}
 
-	void Render(CommandList cmd, ImDrawData* drawData)
+	inline void Render(CommandList cmd, ImDrawData* drawData)
 	{
 		// Avoid rendering when minimized
 		if (!drawData || drawData->DisplaySize.x <= 0.0f || drawData->DisplaySize.y <= 0.0f) {
@@ -376,13 +301,18 @@ namespace ImGui::RHI
 				}
 				else
 				{
-					scissorRect.mLeft   = pcmd->ClipRect.x - clip_off.x;
-					scissorRect.mTop    = pcmd->ClipRect.y - clip_off.y;
-					scissorRect.mRight  = pcmd->ClipRect.z - clip_off.x;
-					scissorRect.mBottom = pcmd->ClipRect.w - clip_off.y;
+					scissorRect.mLeft   = (I32)(pcmd->ClipRect.x - clip_off.x);
+					scissorRect.mTop    = (I32)(pcmd->ClipRect.y - clip_off.y);
+					scissorRect.mRight  = (I32)(pcmd->ClipRect.z - clip_off.x);
+					scissorRect.mBottom = (I32)(pcmd->ClipRect.w - clip_off.y);
+
+					auto texture = (Texture2D*)pcmd->TextureId;
+					if (texture == nullptr) {
+						texture = TextureHelper::GetWhite();
+					}
 
 					device.BindScissorRects(cmd, 1, &scissorRect);
-					device.BindGPUResource(cmd, SHADERSTAGES_PS, (Texture2D*)pcmd->TextureId, TEXTURE_SLOT_0);
+					device.BindGPUResource(cmd, SHADERSTAGES_PS, texture, TEXTURE_SLOT_0);
 					device.DrawIndexed(cmd, pcmd->ElemCount, pcmd->IdxOffset + globalIdxOffset, pcmd->VtxOffset + globalVtxOffset);
 				}
 
@@ -392,7 +322,96 @@ namespace ImGui::RHI
 		}
 	}
 
-	void InitPlatformInterface()
+	///////////////////////////////////////////////////////////////
+
+	inline SwapChainD3D11* GetSwapchain(ImGuiViewport* viewport)
+	{
+		SwapChainD3D11* swapChain = nullptr;
+		if (!viewport) {
+			return swapChain;
+		}
+
+		swapChain = static_cast<SwapChainD3D11*>(viewport->RendererUserData);
+
+		if (!swapChain) {
+			return swapChain;
+		}
+
+		return swapChain;
+	}
+
+	static void ImGuiCreateWindow(ImGuiViewport* viewport)
+	{
+		if (!viewport) {
+			return;
+		}
+
+		// TEMP
+		viewport->RendererUserData = new SwapChainD3D11
+		(
+			mDevice->GetDevice(),
+			mDevice->GetImmediateDeviceContext(),
+			(HWND)viewport->PlatformHandle,
+			mDevice->IsFullScreen(),
+			U32x2(static_cast<U32>(viewport->Size.x), static_cast<U32>(viewport->Size.y)),
+			mDevice->ConvertFormat(mDevice->GetBackBufferFormat())
+		);
+	}
+
+	static void ImGuiDestroyWindow(ImGuiViewport* viewport)
+	{
+		SwapChainD3D11* swapChain = GetSwapchain(viewport);
+		if (!swapChain) {
+			return;
+		}
+
+		SAFE_DELETE(swapChain);
+		viewport->RendererUserData = nullptr;
+	}
+
+	static void ImGuiSetWindowSize(ImGuiViewport* viewport, ImVec2 size)
+	{
+		SwapChainD3D11* swapChain = GetSwapchain(viewport);
+		if (!swapChain) {
+			return;
+		}
+
+		swapChain->Resize(U32x2((U32)size.x, (U32)size.y));
+	}
+
+	static void ImGuiRenderWindow(ImGuiViewport* viewport, void*)
+	{
+		SwapChainD3D11* swapChain = GetSwapchain(viewport);
+		if (!swapChain) {
+			return;
+		}
+
+		// TODO
+		CommandList cmd = mDevice->GetCommandList();
+		auto& deviceContext = mDevice->GetDeviceContext(cmd);
+
+		ID3D11RenderTargetView* renderTargetView = &swapChain->GetRenderTargetView();
+		deviceContext.OMSetRenderTargets(1, &renderTargetView, NULL);
+		if (!(viewport->Flags & ImGuiViewportFlags_NoRendererClear)) {
+			deviceContext.ClearRenderTargetView(renderTargetView, (float*)&ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+		}
+
+		Render(cmd, viewport->DrawData);
+
+		mDevice->SubmitCommandList();
+	}
+
+	static void ImGuiSwapBuffers(ImGuiViewport* viewport, void*)
+	{
+		SwapChainD3D11* swapChain = GetSwapchain(viewport);
+		if (!swapChain) {
+			return;
+		}
+
+		swapChain->Present(mDevice->GetIsVsync());
+	}
+
+	inline void InitPlatformInterface()
 	{
 		ImGuiPlatformIO& platform_io = ImGui::GetPlatformIO();
 		platform_io.Renderer_CreateWindow  = ImGuiCreateWindow;

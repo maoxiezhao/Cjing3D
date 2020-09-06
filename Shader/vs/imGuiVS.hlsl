@@ -17,7 +17,7 @@ struct PS_INPUT
 PS_INPUT main(VS_INPUT input)
 {
     PS_INPUT output;
-    output.pos = mul(gImGuiWorldTransform, float4(input.pos.xy, 0.f, 1.f));
+    output.pos = mul(float4(input.pos.xy, 0.f, 1.f), gImGuiWorldTransform);
     output.col = input.col;
     output.uv  = input.uv;
     return output;

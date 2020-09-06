@@ -15,5 +15,10 @@ namespace Cjing3D
 
 	void EditorWidgetEntityList::Update(F32 deltaTime)
 	{
+		if (ImGui::TreeNodeEx("Root", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+
+			ImGui::TreePop();
+		}
 	}
 }

@@ -210,6 +210,7 @@
     <FxCompile Include="ps\imGuiPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Assets/Shaders/imGuiPS.cso</ObjectFileOutput>
     </FxCompile>
     <FxCompile Include="ps\mapGroundPS.hlsl">
       <ShaderType>Pixel</ShaderType>
@@ -270,10 +271,12 @@
     <FxCompile Include="vs\imageVS.hlsl">
       <ShaderType>Vertex</ShaderType>
       <ObjectFileOutput>../Assets/Shaders/imageVS.cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Assets/Shaders/imageVS.cso</ObjectFileOutput>
     </FxCompile>
     <FxCompile Include="vs\imGuiVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Assets/Shaders/imGuiVS.cso</ObjectFileOutput>
     </FxCompile>
     <FxCompile Include="vs\mapGroundVS.hlsl">
       <ShaderType>Vertex</ShaderType>

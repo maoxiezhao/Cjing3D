@@ -6,25 +6,6 @@
 
 namespace Cjing3D {
 
-	SwapChainD3D11::SwapChainD3D11(ID3D11Device& device, ID3D11DeviceContext& deviceContext, const GameWindow& gameWindow, U32x2 resolution, DXGI_FORMAT format) :
-		mResolution(resolution),
-		mDevice(device),
-		mDeviceContext(deviceContext),
-		mBackBufferFormat(format),
-		mSwapChain(),
-		mRenderTargetView()
-	{
-		const Win32::GameWindowWin32* windowWin32 = dynamic_cast<const Win32::GameWindowWin32*>(&gameWindow);
-		if (windowWin32 == nullptr) {
-			Debug::Die("[CreateSwapChain] The gameWindow must is GameWindowWin32");
-			return;
-		}
-
-		InitAdapterAndOutput();
-		CreateSwapChain(windowWin32->GetHwnd(), windowWin32->IsFullScreen(), format);
-		CreateRenderTargetView();
-	}
-
 	SwapChainD3D11::SwapChainD3D11(ID3D11Device& device, ID3D11DeviceContext& deviceContext, HWND hWnd, bool isFullScreen, U32x2 resolution, DXGI_FORMAT format) :
 		mResolution(resolution),
 		mDevice(device),

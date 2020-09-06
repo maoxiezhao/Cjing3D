@@ -1,6 +1,8 @@
 #pragma once
 
 #include "definitions\definitions.h"
+#include "renderer\renderer.h"
+#include "utils\signal\signal.h"
 
 #include <functional>
 
@@ -19,8 +21,7 @@ namespace Cjing3D
 
 		void Initialize();
 		void Uninitialize();
-		void FixedUpdate();
-		void Render();
+		void Render(CommandList cmd);
 		void EndFrame();
 
 		void RegisterCustomWindow(CustomWindowFunc func);
@@ -32,6 +33,10 @@ namespace Cjing3D
 		bool IsDemoVisible()const { return mIsShowDemo; }
 		void SetDockingEnable(bool isDockingEnable);
 		bool IsDockingEnable()const { return mIsDockingEnable; }
+
+		Texture2D* GetViewportRenderTarget() {
+			return &mViewportRenderTarget;
+		}
 
 		template<typename T>
 		T* GetCustomWidget()
@@ -49,6 +54,7 @@ namespace Cjing3D
 		void DockingEnd();
 		void InitializeWidgets();
 		void FixedUpdateImpl(F32 deltaTime);
+		void CreateViewportRenderTarget(U32 width, U32 height);
 
 	protected:
 		bool mIsInitialized = false;
@@ -59,6 +65,8 @@ namespace Cjing3D
 		bool mIsDockingBegin = false;
 
 		GameWindow& mGameWindow;
+		Texture2D mViewportRenderTarget;
+		ScopedConnection mResolutionChangedConn;
 
 		std::vector<CustomWindowFunc> mRegisteredWindows;
 		std::vector<std::shared_ptr<EditorWidget>> mRegisteredWidgets;

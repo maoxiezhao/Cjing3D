@@ -84,6 +84,9 @@
     <ClInclude Include="test\guiTest.h">
       <Filter>test</Filter>
     </ClInclude>
+    <ClInclude Include="test\testGame.h">
+      <Filter>test</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ThirdParty\imgui\imgui.cpp">
@@ -132,6 +135,9 @@
       <Filter>main</Filter>
     </ClCompile>
     <ClCompile Include="test\guiTest.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="test\testGame.cpp">
       <Filter>test</Filter>
     </ClCompile>
   </ItemGroup>

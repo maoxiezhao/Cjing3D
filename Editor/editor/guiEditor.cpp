@@ -1,8 +1,7 @@
 #include "guiEditor.h"
 #include "editor\imgui\imguiRHI.h"
-#include "core\globalContext.hpp"
+#include "core\eventSystem.h"
 #include "platform\win32\gameWindowWin32.h"
-#include "renderer\renderer.h"
 #include "renderer\RHI\d3d11\deviceD3D11.h"
 #include "helper\profiler.h"
 
@@ -11,6 +10,7 @@
 #include "editor\widget\guiEditorToolbar.h"
 #include "editor\widget\guiEditorEntityList.h"
 #include "editor\widget\guiEditorProperties.h"
+#include "editor\widget\guiEditorViewport.h"
 
 // TODO: Move to Imgui_RHI
 #ifdef _WIN32
@@ -74,6 +74,20 @@ namespace Cjing3D {
 		});
 
 		InitializeWidgets();
+
+		if (!mResolutionChangedConn.IsConnected())
+		{
+			auto screenSize = Renderer::GetScreenSize();
+			CreateViewportRenderTarget(screenSize[0], screenSize[1]);
+			mResolutionChangedConn = EventSystem::Register(EVENT_RESOLUTION_CHANGE,
+				[this](const VariantArray& variants) {
+					const U32 width = variants[0].GetValue<U32>();
+					const U32 height = variants[1].GetValue<U32>();
+
+					CreateViewportRenderTarget(width, height);
+				});
+		}
+
 		mIsInitialized = true;
 	}
 
@@ -102,6 +116,7 @@ namespace Cjing3D {
 		RegisterCustomWidget(CJING_MAKE_SHARED<EditorWidgetToolbar>(*this));
 		RegisterCustomWidget(CJING_MAKE_SHARED<EditorWidgetEntityList>(*this));
 		RegisterCustomWidget(CJING_MAKE_SHARED<EditorWidgetProperties>(*this));
+		RegisterCustomWidget(CJING_MAKE_SHARED<EditorWidgetViewport>(*this));
 
 		mWidgetMenu = GetCustomWidget<EditorWidgetMenu>();
 		mWidgetToolbar = GetCustomWidget<EditorWidgetToolbar>();
@@ -109,47 +124,21 @@ namespace Cjing3D {
 
 	//////////////////////////////////////////////////////////////////////////////
 
-	void EditorStage::FixedUpdate()
+	void EditorStage::Render(CommandList cmd)
 	{
 		if (mIsInitialized == false) {
 			return;
 		}
 
-		PROFILER_BEGIN_CPU_BLOCK("ImGuiFixedUpdate");
-		if (!mIsNeedRender)
-		{
-			mIsNeedRender = true;
+		ImGui_ImplWin32_NewFrame();
+		ImGui::NewFrame();
 
-			ImGui_ImplDX11_NewFrame();
-			ImGui_ImplWin32_NewFrame();
-			ImGui::NewFrame();
+		FixedUpdateImpl(GetGlobalContext().GetDelatTime());
 
-			FixedUpdateImpl(GetGlobalContext().GetDelatTime());
-		}
-		PROFILER_END_BLOCK();
-	}
-
-	void EditorStage::Render()
-	{
-		if (mIsInitialized == false) {
-			return;
-		}
-
-		//GraphicsDevice& device = Renderer::GetDevice();
-		//device.BeginEvent(cmd, "RenderIMGUI");
-
-		//if (mIsNeedRender)
-		//{
-		//	ImGui::Render();
-		//	ImGui::EndFrame();
-		//}
-
-		//auto drawData = ImGui::GetDrawData();
-		//if (drawData != nullptr) {
-		//	ImGui_ImplDX11_RenderDrawData(drawData);
-		//}
-
-		//device.EndEvent(cmd);
+		Renderer::GetDevice().BeginEvent(cmd, "RenderIMGUI");
+		ImGui::Render();
+		ImGui::RHI::Render(cmd, ImGui::GetDrawData());
+		Renderer::GetDevice().EndEvent(cmd);
 	}
 
 	void EditorStage::EndFrame()
@@ -158,15 +147,10 @@ namespace Cjing3D {
 			return;
 		}
 
-		if (mIsNeedRender)
+		if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_DockingEnable)
 		{
-			mIsNeedRender = false;
-
-			if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_DockingEnable)
-			{
-				ImGui::UpdatePlatformWindows();
-				ImGui::RenderPlatformWindowsDefault();
-			}
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
 		}
 	}
 
@@ -239,6 +223,23 @@ namespace Cjing3D {
 		}
 	}
 
+	void EditorStage::CreateViewportRenderTarget(U32 width, U32 height)
+	{
+		auto& device = Renderer::GetDevice();
+
+		TextureDesc desc = {};
+		desc.mWidth = width;
+		desc.mHeight = height;
+		desc.mFormat = device.GetBackBufferFormat();
+		desc.mSampleDesc.mCount = 1;
+		desc.mBindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
+		{
+			const auto result = device.CreateTexture2D(&desc, nullptr, mViewportRenderTarget);
+			Debug::ThrowIfFailed(result, "Failed to create viewport render target:%08x", result);
+			device.SetResourceName(mViewportRenderTarget, "ViewportRT");
+		}
+	}
+
 	/////////////////////////////////////////////////////////////////////////////
 
 	void EditorStage::DockingBegin()
@@ -284,13 +285,14 @@ namespace Cjing3D {
 
 				ImGuiID dockMainID = mainWindow;
 				// split node
-				ImGuiID dockLeft  = ImGui::DockBuilderSplitNode(mainWindow, ImGuiDir_Left, 0.2f, nullptr, &dockMainID);
-				ImGuiID dockRight = ImGui::DockBuilderSplitNode(mainWindow, ImGuiDir_Left, 0.6f, nullptr, &dockMainID);
+				ImGuiID dockLeft  = ImGui::DockBuilderSplitNode(dockMainID, ImGuiDir_Left,  0.2f, nullptr, &dockMainID);
+				ImGuiID dockRight = ImGui::DockBuilderSplitNode(dockMainID, ImGuiDir_Right, 0.2f, nullptr, &dockMainID);
 
 				// build window
 				ImGui::DockBuilderDockWindow("EntityList", dockLeft);
 				ImGui::DockBuilderDockWindow("Properties", dockRight);
-				ImGui::DockBuilderFinish(mainWindow);
+				ImGui::DockBuilderDockWindow("Viewport",   dockMainID);
+				ImGui::DockBuilderFinish(dockMainID);
 			}
 
 			ImGui::DockSpace(mainWindow, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);

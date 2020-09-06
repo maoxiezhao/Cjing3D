@@ -120,6 +120,7 @@
     <ClInclude Include="editor\widget\guiEditorViewport.h" />
     <ClInclude Include="editor\widget\guiEditorWidget.h" />
     <ClInclude Include="test\guiTest.h" />
+    <ClInclude Include="test\testGame.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ThirdParty\imgui\imgui.cpp" />
@@ -138,6 +139,7 @@
     <ClCompile Include="editor\widget\guiEditorWidget.cpp" />
     <ClCompile Include="main\main.cpp" />
     <ClCompile Include="test\guiTest.cpp" />
+    <ClCompile Include="test\testGame.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cjing3D\Cjing3D.vcxproj">

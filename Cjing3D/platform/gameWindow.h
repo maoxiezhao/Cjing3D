@@ -14,6 +14,7 @@ namespace Cjing3D {
 		GameWindow& operator=(const GameWindow&) = delete;
 		virtual ~GameWindow() = default;
 
+		virtual void* GetWindowHandle() const = 0;
 		virtual bool IsWindowActive() const = 0;
 		virtual bool IsFullScreen()const = 0;
 		virtual UTF8String GetWindowTitle()const = 0;

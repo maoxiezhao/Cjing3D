@@ -2,6 +2,7 @@
 #include "renderer\RHI\d3d11\rhiResourceD3D11.h"
 #include "platform\gameWindow.h"
 #include "utils\string\stringHelper.h"
+#include "platform\win32\gameWindowWin32.h"
 
 namespace Cjing3D {
 
@@ -948,11 +949,18 @@ void GraphicsDeviceD3D11::Initialize()
 		return;
 	}
 
+	const Win32::GameWindowWin32* windowWin32 = dynamic_cast<const Win32::GameWindowWin32*>(&mGameWindow);
+	if (windowWin32 == nullptr) {
+		Debug::Die("[CreateSwapChain] The gameWindow must is GameWindowWin32");
+		return;
+	}
+
 	// 初始化swapchain
 	mSwapChain = std::make_unique<SwapChainD3D11>(
 		*mDevice.Get(),
 		*(mImmediateContext.Get()),
-		mGameWindow,
+		windowWin32->GetHwnd(), 
+		windowWin32->IsFullScreen(),
 		mScreenSize,
 		_ConvertFormat(GetBackBufferFormat())
 		);
@@ -2491,7 +2499,7 @@ void GraphicsDeviceD3D11::Map(const GPUResource* resource, GPUResourceMapping& m
 	}
 
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	D3D11_MAP mapType = D3D11_MAP_WRITE_NO_OVERWRITE;
+	D3D11_MAP mapType = D3D11_MAP_WRITE_DISCARD;
 	if (mapping.mFlags & GPUResourceMapping::FLAG_READ)
 	{
 		if (mapping.mFlags & GPUResourceMapping::FLAG_WRITE)
@@ -2502,17 +2510,29 @@ void GraphicsDeviceD3D11::Map(const GPUResource* resource, GPUResourceMapping& m
 		{
 			mapType = D3D11_MAP_READ;
 		}
-	}
 
-	// 这里CPU不会等待GPU下载数据，所以外部map时需要做一个delay
-	HRESULT result = mImmediateContext->Map(rhiState->mResource.Get(), 0, mapType, D3D11_MAP_FLAG_DO_NOT_WAIT, &mappedResource);
-	if (SUCCEEDED(result))
-	{
-		mapping.mData = mappedResource.pData;
+		// 这里CPU不会等待GPU下载数据，所以外部map时需要做一个delay
+		HRESULT result = mImmediateContext->Map(rhiState->mResource.Get(), 0, mapType, D3D11_MAP_FLAG_DO_NOT_WAIT, &mappedResource);
+		if (SUCCEEDED(result))
+		{
+			mapping.mData = mappedResource.pData;
+		}
+		else
+		{
+			mapping.mData = nullptr;
+		}
 	}
 	else
 	{
-		mapping.mData = nullptr;
+		HRESULT result = mImmediateContext->Map(rhiState->mResource.Get(), 0, mapType, 0, &mappedResource);
+		if (SUCCEEDED(result))
+		{
+			mapping.mData = mappedResource.pData;
+		}
+		else
+		{
+			mapping.mData = nullptr;
+		}
 	}
 }
 

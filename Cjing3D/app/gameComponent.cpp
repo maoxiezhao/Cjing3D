@@ -86,7 +86,11 @@ namespace Cjing3D
 		U32 isLockFrameRate = presentConfig.mIsLockFrameRate;
 
 		F32 deltaTime = GetGlobalContext().GetDelatTime();
-		if (mGameWindow->IsWindowActive())
+		bool isActived = mGameWindow->IsWindowActive();
+#ifdef CJING_DEBUG
+		isActived = true;
+#endif
+		if (isActived)
 		{
 			const F32 dt = isLockFrameRate ? (1.0f / targetFrameRate) : deltaTime;
 			if (!mIsSkipFrame)

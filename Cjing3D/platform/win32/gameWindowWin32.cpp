@@ -197,6 +197,11 @@ namespace Cjing3D::Win32 {
 		mHandlers.push_back(handler);
 	}
 
+	void* GameWindowWin32::GetWindowHandle() const
+	{
+		return (void*)GetHwnd();
+	}
+
 	bool GameWindowWin32::IsWindowActive() const
 	{
 		return ::GetForegroundWindow() == mHwnd;
