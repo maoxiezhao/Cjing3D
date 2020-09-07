@@ -36,10 +36,6 @@ namespace Cjing3D
 		GameComponent::Uninitialize();
 	}
 
-	void GameEditor::FixedUpdate()
-	{
-	}
-
 	void GameEditor::Compose()
 	{
 		PROFILER_BEGIN_CPU_BLOCK("Compose");

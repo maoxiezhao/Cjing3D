@@ -1,5 +1,5 @@
 #include "guiEditorHelper.h"
-
+#include "editor\imgui\imguiRHI.h"
 #include "helper\fileSystem.h"
 #include "system\sceneSystem.h"
 #include "resource\resourceManager.h"
@@ -9,6 +9,42 @@ namespace Cjing3D
 {
 namespace EditorHelper
 {
+	ECS::Entity mSelectedEntity = INVALID_ENTITY;
+
+	////////////////////////////////////////////////////////////////////////////////////////////
+
+	ECS::Entity GetSelectedEntity()
+	{
+		return mSelectedEntity;
+	}
+
+	void SetSelectedEntity(ECS::Entity entity)
+	{
+		mSelectedEntity = entity;
+	}
+
+	void SetDragDropPayload(EditorDragPayload& payLoad)
+	{
+		ImGui::SetDragDropPayload((const char*)(&payLoad.type), (const void*)(&payLoad), sizeof(payLoad), ImGuiCond_Once);
+	}
+
+	EditorDragPayload* AcceptDragDropPayload(EditorDragType type)
+	{
+		if (ImGui::BeginDragDropTarget())
+		{
+			auto type = EditorDragType_Entity;
+			const auto payloadImgui = ImGui::AcceptDragDropPayload(reinterpret_cast<const char*>(&type));
+			if (payloadImgui != nullptr) {
+				return static_cast<EditorDragPayload*>(payloadImgui->Data);
+			}
+			ImGui::EndDragDropTarget();
+		}
+
+		return nullptr;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////
+
 	void LoadSceneFromOpenFile()
 	{
 		Platform::LoadFileFromOpenWindow(
@@ -116,5 +152,6 @@ namespace EditorHelper
 
 		return entityNameList;
 	}
+
 }
 }

@@ -13,7 +13,6 @@ namespace Cjing3D
 
 		void Initialize()override;
 		void Uninitialize()override;
-		void FixedUpdate()override;
 		void Compose()override;
 		void EndFrame()override;
 	};

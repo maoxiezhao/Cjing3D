@@ -39,6 +39,9 @@ namespace Cjing3D {
 		LightComponent& GetOrCreateLightByEntity(ECS::Entity entity);
 		ObjectComponent& GetOrCreateObjectByEntity(ECS::Entity entity);
 		LayerComponent& GetOrCreateLayerByEntity(ECS::Entity entity);
+		ParticleComponent& GetOrCreateParticleByEntity(ECS::Entity entity);
+		SoundComponent& GetOrCreateSoundByEntity(ECS::Entity entity);
+		TerrainComponent& GetOrCreateTerrainByEntity(ECS::Entity entity);
 
 		ECS::Entity CreateEntityByName(const std::string& name);
 		ECS::Entity GetEntityByName(const StringID& name);
@@ -49,8 +52,11 @@ namespace Cjing3D {
 		void AttachEntity(ECS::Entity entity, ECS::Entity parent, bool alreadyInLocalSpace = false, bool detachIfAttached = true);
 		void DetachEntity(ECS::Entity entity);
 		void DetachEntityChildren(ECS::Entity entity);
+		bool IsEntityAttached(ECS::Entity entity)const;
 		ECS::Entity DuplicateEntity(ECS::Entity entity);
 		void SetEntityLayerMask(ECS::Entity entity, U32 layerMask);
+		std::string GetEntityName(ECS::Entity entity)const;
+		void RemoveComponentByType(ECS::Entity entity, ComponentType type);
 
 		struct PickResult
 		{

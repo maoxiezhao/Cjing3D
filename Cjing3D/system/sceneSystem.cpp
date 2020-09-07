@@ -150,6 +150,8 @@ namespace Cjing3D
 		TransformComponent& transform = *mTransforms.Create(entity);
 		transform.Update();
 
+		mLayers.Create(entity);
+
 		TerrainComponent& terrain = *mTerrains.Create(entity);
 		terrain.SetElevation(elevation);
 		terrain.SetTerrainSize(width, height);
@@ -281,6 +283,48 @@ namespace Cjing3D
 		}
 
 		return *mLayers.Create(entity);
+	}
+
+	ParticleComponent& Scene::GetOrCreateParticleByEntity(ECS::Entity entity)
+	{
+		auto particle = mParticles.GetComponent(entity);
+		if (particle != nullptr) {
+			return *particle;
+		}
+
+		particle = mParticles.Create(entity);
+		mLayers.Create(entity);
+		mMaterials.Create(entity)->SetBlendMode(BlendType_Alpha);
+		GetOrCreateTransformByEntity(entity);
+
+		return *particle;
+	}
+
+	SoundComponent& Scene::GetOrCreateSoundByEntity(ECS::Entity entity)
+	{
+		auto sound = mSounds.GetComponent(entity);
+		if (sound != nullptr) {
+			return *sound;
+		}
+
+		sound = mSounds.Create(entity);
+		GetOrCreateTransformByEntity(entity);
+
+		return *sound;
+	}
+
+	TerrainComponent& Scene::GetOrCreateTerrainByEntity(ECS::Entity entity)
+	{
+		auto terrain = mTerrains.GetComponent(entity);
+		if (terrain == nullptr) {
+			return *terrain;
+		}
+
+		terrain = mTerrains.Create(entity);
+		mLayers.Create(entity);
+		GetOrCreateTransformByEntity(entity);
+
+		return *terrain;
 	}
 
 	ECS::Entity Scene::CreateEntityByName(const std::string & name)
@@ -459,6 +503,12 @@ namespace Cjing3D
 		}
 	}
 
+	bool Scene::IsEntityAttached(ECS::Entity entity) const
+	{
+		auto hierarchy = mHierarchies.GetComponent(entity);
+		return (hierarchy != nullptr && hierarchy->mParent != INVALID_ENTITY);
+	}
+
 	ECS::Entity Scene::DuplicateEntity(ECS::Entity entity)
 	{
 		ECS::Entity newEntity = CreateEntity();
@@ -474,6 +524,55 @@ namespace Cjing3D
 	{
 		auto layer = mLayers.GetOrCreateComponent(entity);
 		layer->SetLayerMask(layerMask);
+	}
+
+	std::string Scene::GetEntityName(ECS::Entity entity) const
+	{
+		auto name = mNames.GetComponent(entity);
+		return name != nullptr ? name->GetString() : (entity != INVALID_ENTITY ? std::to_string(entity) : "");
+	}
+
+	void Scene::RemoveComponentByType(ECS::Entity entity, ComponentType type)
+	{
+		switch (type)
+		{
+		case Cjing3D::ComponentType_Camera:
+			break;
+		case Cjing3D::ComponentType_Ojbect:
+			mObjects.Remove(entity);
+			mObjectAABBs.Remove(entity);
+			break;
+		case Cjing3D::ComponentType_Mesh:
+			mMeshes.Remove(entity);
+			break;
+		case Cjing3D::ComponentType_Material:
+			mMeshes.Remove(entity);
+			break;
+		case Cjing3D::ComponentType_Light:
+			mLights.Remove(entity);
+			mLightAABBs.Remove(entity);
+			break;
+		case Cjing3D::ComponentType_Terrain:
+			mTerrains.Remove(entity);
+			break;
+		case Cjing3D::ComponentType_Animation:
+			mAnimations.Remove(entity);
+			break;
+		case Cjing3D::ComponentType_Armature:
+			mArmatures.Remove(entity);
+			break;
+		case Cjing3D::ComponentType_Weather:
+			mWeathers.Remove(entity);
+			break;
+		case Cjing3D::ComponentType_Sound:
+			mSounds.Remove(entity);
+			break;
+		case Cjing3D::ComponentType_Particle:
+			mParticles.Remove(entity);
+			break;
+		default:
+			break;
+		}
 	}
 
 	Scene::PickResult Scene::MousePickObjects(const U32x2& mousePos, const U32 layerMask, bool triangleIntersect)

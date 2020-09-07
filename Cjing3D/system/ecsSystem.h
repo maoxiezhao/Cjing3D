@@ -196,6 +196,7 @@ namespace ECS
 					DestroyComponent(ptr);
 				}
 
+				mComponents.pop_back();
 				mEntities.pop_back();
 				mLookup.erase(entity);
 			}
