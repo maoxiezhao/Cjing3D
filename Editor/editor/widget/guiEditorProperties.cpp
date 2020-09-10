@@ -113,7 +113,7 @@ namespace Cjing3D
 		XMFLOAT3 translation = transform->GetTranslationLocal();
 		float vec3f[3] = { translation.x, translation.y, translation.z };
 		ImGui::Text("Position");
-		if (ImGui::DragFloat3("", vec3f, 0.005f, -1000, 1000))
+		if (ImGui::DragFloat3("##Position", vec3f, 0.005f, -1000, 1000))
 		{
 			translation.x = vec3f[0];
 			translation.y = vec3f[1];
@@ -126,7 +126,7 @@ namespace Cjing3D
 		XMFLOAT3 rotation = QuaternionToRollPitchYaw(quaternion);
 		float rVec3f[3] = { rotation.x, rotation.y, rotation.z };
 		ImGui::Text("Rotation");
-		if (ImGui::DragFloat3("", rVec3f, 0.01f, -XM_2PI, XM_2PI))
+		if (ImGui::DragFloat3("##Rotation", rVec3f, 0.01f, -XM_2PI, XM_2PI))
 		{
 			rotation.x = rVec3f[0];
 			rotation.y = rVec3f[1];
@@ -138,7 +138,7 @@ namespace Cjing3D
 		XMFLOAT3 scale = transform->GetScaleLocal();
 		float sVec3f[3] = { scale.x, scale.y, scale.z };
 		ImGui::Text("Scale");
-		if (ImGui::DragFloat3("", sVec3f, 0.005f, 0, 10))
+		if (ImGui::DragFloat3("##Scale", sVec3f, 0.005f, 0, 10))
 		{
 			scale.x = sVec3f[0];
 			scale.y = sVec3f[1];

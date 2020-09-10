@@ -120,9 +120,13 @@ namespace Cjing3D {
 
 			bool ReadFileBytesByPhysfs(const std::string& name, std::vector<unsigned char>& data)
 			{
-				// 确保文件存在
-				Debug::CheckAssertion(PHYSFS_exists(name.c_str()),
-					std::string("the file:") + name + " isn't exits.");
+				//Debug::CheckAssertion(PHYSFS_exists(name.c_str()),
+				//	std::string("the file:") + name + " isn't exits.");
+				if (!PHYSFS_exists(name.c_str()))
+				{
+					Debug::Warning(std::string("the file : ") + name + " isn't exits.");
+					return false;
+				}
 
 				PHYSFS_file* file = PHYSFS_openRead(name.c_str());
 				Debug::CheckAssertion(file != nullptr,
