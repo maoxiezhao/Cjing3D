@@ -4,6 +4,7 @@
 #include "sceneApi.h"
 #include "uiApi.h"
 #include "utilsApi.h"
+#include "jsonApi.h"
 #include "helper\logger.h"
 
 namespace Cjing3D {
@@ -14,6 +15,7 @@ namespace LuaApi {
 		BindUtilsModules(l);
 		BindLuaMatrixApi(l);
 		BindLuaVectorApi(l);
+		BindJsonModules(l);
 
 		BindSystemModules(l);
 		BindRenderModules(l);

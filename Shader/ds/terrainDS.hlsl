@@ -1,7 +1,7 @@
 #include "..\hf\objectInput.hlsli"
 #include "..\hf\global.hlsli"
 
-TEXTURE2D(heightMap, TEXTURE_SLOT_0);
+TEXTURE2D(heightMap, float4, TEXTURE_SLOT_0);
 
 struct HullOutType
 {
@@ -37,6 +37,7 @@ PixelInputType main(
     Output.tex = tex;
     Output.color = color;
     Output.nor = float3(0.0f, 1.0f, 0.0f);
+    Output.pos2D = Output.pos;
     
 	return Output;
 }

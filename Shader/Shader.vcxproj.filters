@@ -1,105 +1,138 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="ps">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="vs">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="hf">
-      <UniqueIdentifier>{51fa7c58-692b-4ba9-86c2-575fcaece361}</UniqueIdentifier>
-    </Filter>
     <Filter Include="cs">
-      <UniqueIdentifier>{6368279f-f2de-4593-9047-3876ef1675b7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="hs">
-      <UniqueIdentifier>{f9516714-e351-4772-ab14-79bf87434f64}</UniqueIdentifier>
+      <UniqueIdentifier>{7B775900-6703-880B-D0B1-880BBC5C880B}</UniqueIdentifier>
     </Filter>
     <Filter Include="ds">
-      <UniqueIdentifier>{2da8f1ba-f179-415c-8b55-635bc7408cd1}</UniqueIdentifier>
+      <UniqueIdentifier>{9C775900-8803-880B-F1B1-880BDD5C880B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hf">
+      <UniqueIdentifier>{13785900-FF03-880B-68B2-880B545D880B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hs">
+      <UniqueIdentifier>{20785900-0C04-880B-75B2-880B615D880B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ps">
+      <UniqueIdentifier>{28795900-1405-880B-7DB3-880B695E880B}</UniqueIdentifier>
     </Filter>
     <Filter Include="shaderInterop">
-      <UniqueIdentifier>{d01c5e4d-7bdf-482d-96e7-91ca5f45835c}</UniqueIdentifier>
+      <UniqueIdentifier>{3D82943A-A942-1071-727D-59EEDEFC544D}</UniqueIdentifier>
     </Filter>
-    <Filter Include="shaderInterop\gpuMapping">
-      <UniqueIdentifier>{5c94d14c-ed4f-407f-99b7-592289083b47}</UniqueIdentifier>
+    <Filter Include="vs">
+      <UniqueIdentifier>{EE795900-DA05-880B-43B4-880B2F5F880B}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="shaderInterop\constantBufferMapping.h">
+      <Filter>shaderInterop</Filter>
+    </ClInclude>
+    <ClInclude Include="shaderInterop\resourceMapping.h">
+      <Filter>shaderInterop</Filter>
+    </ClInclude>
+    <ClInclude Include="shaderInterop\shaderDefine.h">
+      <Filter>shaderInterop</Filter>
+    </ClInclude>
+    <ClInclude Include="shaderInterop\shaderInterop.h">
+      <Filter>shaderInterop</Filter>
+    </ClInclude>
+    <ClInclude Include="shaderInterop\shaderInteropGame.h">
+      <Filter>shaderInterop</Filter>
+    </ClInclude>
+    <ClInclude Include="shaderInterop\shaderInteropImage.h">
+      <Filter>shaderInterop</Filter>
+    </ClInclude>
+    <ClInclude Include="shaderInterop\shaderInteropParticle.h">
+      <Filter>shaderInterop</Filter>
+    </ClInclude>
+    <ClInclude Include="shaderInterop\shaderInteropRender.h">
+      <Filter>shaderInterop</Filter>
+    </ClInclude>
+    <ClInclude Include="shaderInterop\shaderInteropImGui.h">
+      <Filter>shaderInterop</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="cs\bilateralBlurCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\bilateralUpsampleCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\fxaaCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\gaussianBlurCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\lightTiledCullingCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\linearDepthCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\mipmapGenerateCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\mipmapGenerateCubeCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\mipmapGenerateCubeUnormCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\mipmapGenerateUnormCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\particleEmitCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\particleEmitMeshCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\particleFinishCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\particleStartCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\particleUpdateCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\skinningCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\ssaoCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
+    <FxCompile Include="cs\tileFrustumCS.hlsl">
+      <Filter>cs</Filter>
+    </FxCompile>
     <FxCompile Include="cs\toneMapping.hlsl">
       <Filter>cs</Filter>
     </FxCompile>
-    <FxCompile Include="cs\mipmapGenerate.hlsl">
-      <Filter>cs</Filter>
+    <FxCompile Include="ds\terrainDS.hlsl">
+      <Filter>ds</Filter>
     </FxCompile>
-    <FxCompile Include="vs\imageVS.hlsl">
-      <Filter>vs</Filter>
+    <FxCompile Include="hs\terrainHS.hlsl">
+      <Filter>hs</Filter>
     </FxCompile>
-    <FxCompile Include="vs\objectVS.hlsl">
-      <Filter>vs</Filter>
-    </FxCompile>
-    <FxCompile Include="vs\screenVS.hlsl">
-      <Filter>vs</Filter>
+    <FxCompile Include="ps\fontPS.hlsl">
+      <Filter>ps</Filter>
     </FxCompile>
     <FxCompile Include="ps\imagePS.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
+    <FxCompile Include="ps\mapGroundPS.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
+    <FxCompile Include="ps\objectAlphaTestPS.hlsl">
       <Filter>ps</Filter>
     </FxCompile>
     <FxCompile Include="ps\objectForwardPS.hlsl">
       <Filter>ps</Filter>
     </FxCompile>
-    <FxCompile Include="ps\screenPS.hlsl">
-      <Filter>ps</Filter>
-    </FxCompile>
-    <FxCompile Include="cs\fxaaCS.hlsl">
-      <Filter>cs</Filter>
-    </FxCompile>
-    <FxCompile Include="vs\shadowVS.hlsl">
-      <Filter>vs</Filter>
-    </FxCompile>
-    <FxCompile Include="vs\terrainVS.hlsl">
-      <Filter>vs</Filter>
-    </FxCompile>
-    <FxCompile Include="ps\terrainPS.hlsl">
-      <Filter>ps</Filter>
-    </FxCompile>
-    <FxCompile Include="hs\terrainHS.hlsl">
-      <Filter>hs</Filter>
-    </FxCompile>
-    <FxCompile Include="ds\terrainDS.hlsl">
-      <Filter>ds</Filter>
-    </FxCompile>
-    <FxCompile Include="cs\skinningCS.hlsl">
-      <Filter>cs</Filter>
-    </FxCompile>
-    <FxCompile Include="vs\skyVS.hlsl">
-      <Filter>vs</Filter>
-    </FxCompile>
-    <FxCompile Include="ps\skyPS.hlsl">
-      <Filter>ps</Filter>
-    </FxCompile>
-    <FxCompile Include="vs\objectPosVS.hlsl">
-      <Filter>vs</Filter>
-    </FxCompile>
-    <FxCompile Include="vs\objectPosTexVS.hlsl">
-      <Filter>vs</Filter>
-    </FxCompile>
-    <FxCompile Include="ps\objectAlphaTestPS.hlsl">
-      <Filter>ps</Filter>
-    </FxCompile>
     <FxCompile Include="ps\objectForwardTransparentPS.hlsl">
       <Filter>ps</Filter>
-    </FxCompile>
-    <FxCompile Include="vs\cubeShadowVS.hlsl">
-      <Filter>vs</Filter>
-    </FxCompile>
-    <FxCompile Include="cs\tileFrustumCS.hlsl">
-      <Filter>cs</Filter>
-    </FxCompile>
-    <FxCompile Include="cs\lightTiledCullingCS.hlsl">
-      <Filter>cs</Filter>
     </FxCompile>
     <FxCompile Include="ps\objectTiledForwardPS.hlsl">
       <Filter>ps</Filter>
@@ -107,51 +140,106 @@
     <FxCompile Include="ps\objectTiledForwardTransparentPS.hlsl">
       <Filter>ps</Filter>
     </FxCompile>
+    <FxCompile Include="ps\particlePS.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
+    <FxCompile Include="ps\posColorPS.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
+    <FxCompile Include="ps\screenPS.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
+    <FxCompile Include="ps\skyPS.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
+    <FxCompile Include="ps\spritePS.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
+    <FxCompile Include="ps\terrainPS.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
+    <FxCompile Include="vs\cubeShadowVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="vs\fontVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="vs\imageVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="vs\mapGroundVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="vs\objectPosTexVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="vs\objectPosVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="vs\objectVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="vs\particleVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="vs\posColorVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="vs\screenVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="vs\shadowVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="vs\skyVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="vs\spriteVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="vs\terrainVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
+    <FxCompile Include="ps\imGuiPS.hlsl">
+      <Filter>ps</Filter>
+    </FxCompile>
+    <FxCompile Include="vs\imGuiVS.hlsl">
+      <Filter>vs</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="hf\objectInput.hlsli">
-      <Filter>hf</Filter>
-    </None>
-    <None Include="hf\objectHF.hlsli">
-      <Filter>hf</Filter>
-    </None>
     <None Include="hf\brdf.hlsli">
       <Filter>hf</Filter>
     </None>
     <None Include="hf\fullScreenHF.hlsli">
       <Filter>hf</Filter>
     </None>
-    <None Include="hf\global.hlsli">
+    <None Include="hf\gameHF.hlsli">
       <Filter>hf</Filter>
     </None>
-    <None Include="hf\lightingHF.hlsli">
+    <None Include="hf\global.hlsli">
       <Filter>hf</Filter>
     </None>
     <None Include="hf\imageHF.hlsli">
       <Filter>hf</Filter>
     </None>
+    <None Include="hf\lightingHF.hlsli">
+      <Filter>hf</Filter>
+    </None>
     <None Include="hf\nvidiaFxaa.hlsli">
+      <Filter>hf</Filter>
+    </None>
+    <None Include="hf\objectHF.hlsli">
+      <Filter>hf</Filter>
+    </None>
+    <None Include="hf\objectInput.hlsli">
+      <Filter>hf</Filter>
+    </None>
+    <None Include="hf\particleHF.hlsli">
       <Filter>hf</Filter>
     </None>
     <None Include="hf\tiledCullingHF.hlsli">
       <Filter>hf</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="hf\shaderInterop.h">
-      <Filter>shaderInterop</Filter>
-    </ClInclude>
-    <ClInclude Include="hf\shaderDefine.h">
-      <Filter>shaderInterop</Filter>
-    </ClInclude>
-    <ClInclude Include="hf\shaderInteropRender.h">
-      <Filter>shaderInterop</Filter>
-    </ClInclude>
-    <ClInclude Include="hf\constantBufferMapping.h">
-      <Filter>shaderInterop\gpuMapping</Filter>
-    </ClInclude>
-    <ClInclude Include="hf\resourceMapping.h">
-      <Filter>shaderInterop\gpuMapping</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

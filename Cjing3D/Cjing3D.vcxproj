@@ -1,14 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|Win32">
-      <Configuration>Release</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
@@ -19,48 +11,27 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{B0A02590-E94E-4CAE-8DDA-CD8758E91C04}</ProjectGuid>
+    <ProjectGuid>{27722A28-9351-A9C3-9C69-349A08C80F25}</ProjectGuid>
+    <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
+    <Keyword>Win32Proj</Keyword>
     <RootNamespace>Cjing3D</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v142</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-  </ImportGroup>
-  <ImportGroup Label="Shared">
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -69,118 +40,137 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
-    <IntDir>$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)\Cjing3D\;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>Temp\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)\Cjing3D\;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <OutDir>..\bin\x64\Debug\</OutDir>
+    <IntDir>Temp\x64\Debug\</IntDir>
+    <TargetName>Cjing3D</TargetName>
+    <TargetExt>.lib</TargetExt>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
-    </ClCompile>
-  </ItemDefinitionGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>..\bin\x64\Release\</OutDir>
+    <IntDir>Temp\x64\Release\</IntDir>
+    <TargetName>Cjing3D</TargetName>
+    <TargetExt>.lib</TargetExt>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;..\Shader;..\ThirdParty\imgui;..\ThirdParty\optick;..\ThirdParty\physfs_3.0.2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\ThirdParty\;..\ThirdParty\Assimp_4.1.0\;../Shader;..\ThirdParty\lua_5.3.1\;..\ThirdParty\optick\</AdditionalIncludeDirectories>
+      <MinimalRebuild>false</MinimalRebuild>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
-    </ClCompile>
-    <Lib>
-      <AdditionalDependencies>physfs.lib;assimp.lib</AdditionalDependencies>
-    </Lib>
-    <Lib>
-      <AdditionalLibraryDirectories>$(SolutionDir)\lib;</AdditionalLibraryDirectories>
-    </Lib>
-    <PreBuildEvent>
-      <Command>$(SolutionDir)Cjing3D\precompile.bat $(Platform) $(Configuration)</Command>
-    </PreBuildEvent>
-    <PreBuildEvent>
-      <Message>
-      </Message>
-    </PreBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalDependencies>physfs-static-debug.lib;dinput8.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+    <PreBuildEvent>
+      <Command>$(SolutionDir)Cjing3D/precompile.bat $(Platform) $(Configuration)</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;..\Shader;..\ThirdParty\imgui;..\ThirdParty\optick;..\ThirdParty\physfs_3.0.2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <Lib>
+      <AdditionalDependencies>physfs-static.lib;dinput8.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+    <PreBuildEvent>
+      <Command>$(SolutionDir)Cjing3D/precompile.bat $(Platform) $(Configuration)</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\ThirdParty\imgui\imconfig.h" />
-    <ClInclude Include="..\ThirdParty\imgui\imgui.h" />
-    <ClInclude Include="..\ThirdParty\imgui\imgui_impl_dx11.h" />
-    <ClInclude Include="..\ThirdParty\imgui\imgui_impl_win32.h" />
-    <ClInclude Include="..\ThirdParty\imgui\imgui_internal.h" />
-    <ClInclude Include="..\ThirdParty\optick\optick.config.h" />
-    <ClInclude Include="..\ThirdParty\optick\optick.h" />
+    <ClInclude Include="app\engine.h" />
+    <ClInclude Include="app\gameComponent.h" />
+    <ClInclude Include="audio\audio.h" />
+    <ClInclude Include="audio\audioDevice.h" />
+    <ClInclude Include="audio\audioDeviceX.h" />
     <ClInclude Include="common\common.h" />
     <ClInclude Include="common\definitions.h" />
     <ClInclude Include="common\version.h" />
     <ClInclude Include="core\allocator.h" />
     <ClInclude Include="core\eventDefine.h" />
     <ClInclude Include="core\eventSystem.h" />
-    <ClInclude Include="core\gameComponent.h" />
+    <ClInclude Include="core\globalContext.hpp" />
     <ClInclude Include="core\jobSystem.h" />
     <ClInclude Include="core\memory.h" />
     <ClInclude Include="core\safeRefcount.h" />
-    <ClInclude Include="core\systemContext.hpp" />
+    <ClInclude Include="core\settings.h" />
     <ClInclude Include="core\subSystem.hpp" />
-    <ClInclude Include="core\threadSafeSystem.h" />
-    <ClInclude Include="engine.h" />
+    <ClInclude Include="gui\guiAnimation\guiAnimaionOptions.h" />
+    <ClInclude Include="gui\guiAnimation\guiAnimation.h" />
+    <ClInclude Include="gui\guiAnimation\guiAnimationManager.h" />
+    <ClInclude Include="gui\guiAnimation\guiTimeline.h" />
+    <ClInclude Include="gui\guiAnimation\note.h" />
+    <ClInclude Include="gui\guiAnimation\valueAnimation.h" />
+    <ClInclude Include="gui\guiAnimation\valueAnimation_impl.h" />
     <ClInclude Include="gui\guiCore\guiDispatcher.h" />
     <ClInclude Include="gui\guiCore\guiDispatcher_impl.h" />
+    <ClInclude Include="gui\guiCore\guiDistributor.h" />
     <ClInclude Include="gui\guiCore\guiEvents.h" />
-    <ClInclude Include="gui\guiEditor\guiEditorInclude.h" />
     <ClInclude Include="gui\guiFactory.h" />
     <ClInclude Include="gui\guiInclude.h" />
     <ClInclude Include="gui\guiRenderer.h" />
-    <ClInclude Include="gui\guiWidgets\Panel.h" />
-    <ClInclude Include="gui\imguiStage.h" />
+    <ClInclude Include="gui\guiScheme.h" />
     <ClInclude Include="gui\guiStage.h" />
-    <ClInclude Include="gui\widgetManager.h" />
-    <ClInclude Include="gui\widgets.h" />
-    <ClInclude Include="gui\widget_properties.h" />
+    <ClInclude Include="gui\guiWidgets\button.h" />
+    <ClInclude Include="gui\guiWidgets\checkBox.h" />
+    <ClInclude Include="gui\guiWidgets\container.h" />
+    <ClInclude Include="gui\guiWidgets\image.h" />
+    <ClInclude Include="gui\guiWidgets\inputField.h" />
+    <ClInclude Include="gui\guiWidgets\label.h" />
+    <ClInclude Include="gui\guiWidgets\layouts\boxLayout.h" />
+    <ClInclude Include="gui\guiWidgets\layouts\gridLayout.h" />
+    <ClInclude Include="gui\guiWidgets\layouts\layout.h" />
+    <ClInclude Include="gui\guiWidgets\listPanel.h" />
+    <ClInclude Include="gui\guiWidgets\ninePatchImage.h" />
+    <ClInclude Include="gui\guiWidgets\popup.h" />
+    <ClInclude Include="gui\guiWidgets\scrollView.h" />
+    <ClInclude Include="gui\guiWidgets\stackPanel.h" />
+    <ClInclude Include="gui\guiWidgets\textEdit.h" />
+    <ClInclude Include="gui\guiWidgets\widgetHierarchy.h" />
+    <ClInclude Include="gui\guiWidgets\widgetInclude.h" />
+    <ClInclude Include="gui\guiWidgets\widgetManager.h" />
+    <ClInclude Include="gui\guiWidgets\widget_properties.h" />
+    <ClInclude Include="gui\guiWidgets\widgets.h" />
+    <ClInclude Include="gui\guiWidgets\window.h" />
+    <ClInclude Include="helper\IDGenerator.h" />
     <ClInclude Include="helper\archive.h" />
+    <ClInclude Include="helper\binaryArchive.h" />
     <ClInclude Include="helper\debug.h" />
     <ClInclude Include="helper\enumInfo.h" />
+    <ClInclude Include="helper\enumInfo.inl" />
     <ClInclude Include="helper\fileSystem.h" />
     <ClInclude Include="helper\helper.h" />
-    <ClInclude Include="helper\IDGenerator.h" />
+    <ClInclude Include="helper\jsonArchive.h" />
     <ClInclude Include="helper\logger.h" />
     <ClInclude Include="helper\profiler.h" />
     <ClInclude Include="helper\random.h" />
@@ -188,61 +178,82 @@
     <ClInclude Include="helper\systemTime.h" />
     <ClInclude Include="helper\timer.h" />
     <ClInclude Include="helper\variant.h" />
-    <ClInclude Include="input\directInput.h" />
+    <ClInclude Include="helper\variant.inl" />
+    <ClInclude Include="input\gamepad.h" />
     <ClInclude Include="input\InputSystem.h" />
+    <ClInclude Include="input\keyboard.h" />
+    <ClInclude Include="input\keyCode.h" />
+    <ClInclude Include="input\mouse.h" />
+    <ClInclude Include="input\win32\keyboardWin32.h" />
+    <ClInclude Include="input\win32\mouseWin32.h" />
+    <ClInclude Include="input\xinput\gamepadXInput.h" />
     <ClInclude Include="note.h" />
-    <ClInclude Include="renderer\bufferManager.h" />
-    <ClInclude Include="renderer\includeD3D11.h" />
-    <ClInclude Include="renderer\passes\note.h" />
-    <ClInclude Include="renderer\passes\renderPass.h" />
-    <ClInclude Include="renderer\passes\terrainPass.h" />
-    <ClInclude Include="renderer\passes\terrainRender.h" />
-    <ClInclude Include="renderer\passes\terrainTree.h" />
-    <ClInclude Include="renderer\paths\renderPath2D.h" />
-    <ClInclude Include="renderer\paths\renderPath3D.h" />
-    <ClInclude Include="renderer\paths\renderPath_forward.h" />
-    <ClInclude Include="renderer\paths\renderImage.h" />
-    <ClInclude Include="renderer\paths\renderPath.h" />
-    <ClInclude Include="renderer\paths\renderPath_tiledForward.h" />
-    <ClInclude Include="renderer\pipelineStates\pipelineStateManager.h" />
-    <ClInclude Include="renderer\renderableCommon.h" />
-    <ClInclude Include="renderer\renderer.h" />
-    <ClInclude Include="renderer\renderer2D.h" />
-    <ClInclude Include="renderer\rendererUtils.h" />
-    <ClInclude Include="renderer\renderNote.h" />
+    <ClInclude Include="platform\gameWindow.h" />
+    <ClInclude Include="platform\platform.h" />
+    <ClInclude Include="platform\systemEvent.h" />
+    <ClInclude Include="platform\win32\engineWin32.h" />
+    <ClInclude Include="platform\win32\gameAppWin32.h" />
+    <ClInclude Include="platform\win32\gameWindowWin32.h" />
+    <ClInclude Include="platform\win32\includeWin32.h" />
+    <ClInclude Include="platform\win32\inputSystemWin32.h" />
+    <ClInclude Include="renderer\2D\font.h" />
+    <ClInclude Include="renderer\2D\renderer2D.h" />
+    <ClInclude Include="renderer\2D\sprite.h" />
+    <ClInclude Include="renderer\2D\textDrawable.h" />
+    <ClInclude Include="renderer\presentConfig.h" />
+    <ClInclude Include="renderer\RHI\d3d11\deviceD3D11.h" />
+    <ClInclude Include="renderer\RHI\d3d11\includeD3D11.h" />
     <ClInclude Include="renderer\RHI\d3d11\rhiResourceD3D11.h" />
+    <ClInclude Include="renderer\RHI\d3d11\swapChainD3D11.h" />
+    <ClInclude Include="renderer\RHI\device.h" />
+    <ClInclude Include="renderer\RHI\rhiDefinition.h" />
     <ClInclude Include="renderer\RHI\rhiFactory.h" />
     <ClInclude Include="renderer\RHI\rhiResource.h" />
     <ClInclude Include="renderer\RHI\rhiShader.h" />
+    <ClInclude Include="renderer\passes\note.h" />
+    <ClInclude Include="renderer\passes\particle\particlePass.h" />
+    <ClInclude Include="renderer\passes\renderPass.h" />
+    <ClInclude Include="renderer\passes\terrain\terrainPass.h" />
+    <ClInclude Include="renderer\passes\terrain\terrainRender.h" />
+    <ClInclude Include="renderer\passes\terrain\terrainTree.h" />
+    <ClInclude Include="renderer\paths\renderImage.h" />
+    <ClInclude Include="renderer\paths\renderPath.h" />
+    <ClInclude Include="renderer\paths\renderPath2D.h" />
+    <ClInclude Include="renderer\paths\renderPath3D.h" />
+    <ClInclude Include="renderer\paths\renderPath_forward.h" />
+    <ClInclude Include="renderer\paths\renderPath_tiledForward.h" />
+    <ClInclude Include="renderer\pipelineStates\pipelineStateManager.h" />
+    <ClInclude Include="renderer\preset\presetDefinitions.h" />
+    <ClInclude Include="renderer\preset\renderPreset.h" />
+    <ClInclude Include="renderer\preset\shaderDefinitions.h" />
+    <ClInclude Include="renderer\renderNote.h" />
+    <ClInclude Include="renderer\renderableCommon.h" />
+    <ClInclude Include="renderer\renderer.h" />
+    <ClInclude Include="renderer\rendererUtils.h" />
     <ClInclude Include="renderer\shaderLib.h" />
-    <ClInclude Include="renderer\RHI\device.h" />
-    <ClInclude Include="renderer\RHI\deviceD3D11.h" />
-    <ClInclude Include="renderer\RHI\rhiDefinition.h" />
-    <ClInclude Include="renderer\RHI\rhiStructure.h" />
-    <ClInclude Include="renderer\RHI\swapChainD3D11.h" />
-    <ClInclude Include="renderer\stateManager.h" />
     <ClInclude Include="renderer\textureHelper.h" />
-    <ClInclude Include="resource\modelImporter.h" />
+    <ClInclude Include="resource\modelImporter\modelImporter.h" />
     <ClInclude Include="resource\resource.h" />
     <ClInclude Include="resource\resourceManager.h" />
+    <ClInclude Include="resource\resourceManager.inl" />
     <ClInclude Include="resource\resourcePool.hpp" />
+    <ClInclude Include="scripts\api\jsonApi.h" />
     <ClInclude Include="scripts\api\luaApi.h" />
     <ClInclude Include="scripts\api\matrixApi.h" />
     <ClInclude Include="scripts\api\sceneApi.h" />
     <ClInclude Include="scripts\api\uiApi.h" />
     <ClInclude Include="scripts\api\utilsApi.h" />
     <ClInclude Include="scripts\api\vectorApi.h" />
-    <ClInclude Include="scripts\luaArg.h" />
-    <ClInclude Include="scripts\luaBinder.h" />
-    <ClInclude Include="scripts\luaBinder_impl.h" />
-    <ClInclude Include="scripts\luaCommon.h" />
-    <ClInclude Include="scripts\luaContext.h" />
-    <ClInclude Include="scripts\luaException.h" />
-    <ClInclude Include="scripts\luaInvoke.h" />
-    <ClInclude Include="scripts\luaObject.h" />
-    <ClInclude Include="scripts\luaRef.h" />
-    <ClInclude Include="scripts\luaTools.h" />
-    <ClInclude Include="scripts\luaTypeMapping.h" />
+    <ClInclude Include="scripts\binder\luaArg.h" />
+    <ClInclude Include="scripts\binder\luaBinder.h" />
+    <ClInclude Include="scripts\binder\luaBinder_impl.h" />
+    <ClInclude Include="scripts\binder\luaCommon.h" />
+    <ClInclude Include="scripts\binder\luaException.h" />
+    <ClInclude Include="scripts\binder\luaInvoke.h" />
+    <ClInclude Include="scripts\binder\luaObject.h" />
+    <ClInclude Include="scripts\binder\luaRef.h" />
+    <ClInclude Include="scripts\binder\luaTools.h" />
+    <ClInclude Include="scripts\binder\luaTypeMapping.h" />
     <ClInclude Include="scripts\lua\lapi.h" />
     <ClInclude Include="scripts\lua\lauxlib.h" />
     <ClInclude Include="scripts\lua\lcode.h" />
@@ -269,24 +280,29 @@
     <ClInclude Include="scripts\lua\lundump.h" />
     <ClInclude Include="scripts\lua\lvm.h" />
     <ClInclude Include="scripts\lua\lzio.h" />
+    <ClInclude Include="scripts\luaContext.h" />
+    <ClInclude Include="scripts\luaContext.inl" />
     <ClInclude Include="system\component\animation.h" />
     <ClInclude Include="system\component\camera.h" />
-    <ClInclude Include="system\component\genericType.h" />
     <ClInclude Include="system\component\component.h" />
     <ClInclude Include="system\component\componentInclude.h" />
+    <ClInclude Include="system\component\genericType.h" />
     <ClInclude Include="system\component\light.h" />
     <ClInclude Include="system\component\material.h" />
     <ClInclude Include="system\component\mesh.h" />
     <ClInclude Include="system\component\object.h" />
+    <ClInclude Include="system\component\particle.h" />
+    <ClInclude Include="system\component\sound.h" />
     <ClInclude Include="system\component\terrain.h" />
     <ClInclude Include="system\component\transform.h" />
     <ClInclude Include="system\component\weather.h" />
     <ClInclude Include="system\ecsSystem.h" />
     <ClInclude Include="system\sceneSystem.h" />
+    <ClInclude Include="system\sceneSystem.inl" />
+    <ClInclude Include="system\sceneSystemInclude.h" />
     <ClInclude Include="utils\allocator\linearAllocator.h" />
     <ClInclude Include="utils\allocator\tlsfAllocator.h" />
     <ClInclude Include="utils\array.h" />
-    <ClInclude Include="utils\baseWindow.h" />
     <ClInclude Include="utils\color.h" />
     <ClInclude Include="utils\container\dynamicArray.h" />
     <ClInclude Include="utils\container\hashMap.h" />
@@ -298,9 +314,29 @@
     <ClInclude Include="utils\math.h" />
     <ClInclude Include="utils\objectPool.h" />
     <ClInclude Include="utils\quadTree.h" />
-    <ClInclude Include="utils\stb_image.h" />
-    <ClInclude Include="utils\stb_image_include.h" />
-    <ClInclude Include="utils\stb_truetype.h" />
+    <ClInclude Include="utils\reckPacker\best_bin_finder.h" />
+    <ClInclude Include="utils\reckPacker\empty_space_allocators.h" />
+    <ClInclude Include="utils\reckPacker\empty_spaces.h" />
+    <ClInclude Include="utils\reckPacker\finders_interface.h" />
+    <ClInclude Include="utils\reckPacker\insert_and_split.h" />
+    <ClInclude Include="utils\reckPacker\rect_structs.h" />
+    <ClInclude Include="utils\signal\connection.h" />
+    <ClInclude Include="utils\signal\connectionList.h" />
+    <ClInclude Include="utils\signal\connectionMap.h" />
+    <ClInclude Include="utils\signal\event.h" />
+    <ClInclude Include="utils\signal\eventQueue.h" />
+    <ClInclude Include="utils\signal\signal.h" />
+    <ClInclude Include="utils\signal\signalInclude.h" />
+    <ClInclude Include="utils\singleton.h" />
+    <ClInclude Include="utils\stb_utils\stb_image.h" />
+    <ClInclude Include="utils\stb_utils\stb_image_include.h" />
+    <ClInclude Include="utils\stb_utils\stb_truetype.h" />
+    <ClInclude Include="utils\string\stringConvert.h" />
+    <ClInclude Include="utils\string\stringHelper.h" />
+    <ClInclude Include="utils\string\utf8.h" />
+    <ClInclude Include="utils\string\utf8String.h" />
+    <ClInclude Include="utils\string\utf8StringIt.h" />
+    <ClInclude Include="utils\thread\spinLock.h" />
     <ClInclude Include="utils\threadSafeBuffer.h" />
     <ClInclude Include="utils\tinyddsloader.h" />
     <ClInclude Include="utils\tinygltf\tiny_gltf.h" />
@@ -308,70 +344,119 @@
     <ClInclude Include="utils\tinyxml2\tinyxml2.h" />
     <ClInclude Include="utils\tlsf\tlsf.h" />
     <ClInclude Include="utils\treeNode.h" />
+    <ClInclude Include="utils\tween\dispatcher.h" />
+    <ClInclude Include="utils\tween\easing.h" />
+    <ClInclude Include="utils\tween\easingresolve.h" />
+    <ClInclude Include="utils\tween\int2type.h" />
+    <ClInclude Include="utils\tween\tween.h" />
+    <ClInclude Include="utils\tween\tweenpoint.h" />
+    <ClInclude Include="utils\tween\tweentraits.h" />
+    <ClInclude Include="utils\tween\tweeny.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\ThirdParty\imgui\imgui.cpp" />
-    <ClCompile Include="..\ThirdParty\imgui\imgui_demo.cpp" />
-    <ClCompile Include="..\ThirdParty\imgui\imgui_draw.cpp" />
-    <ClCompile Include="..\ThirdParty\imgui\imgui_impl_dx11.cpp" />
-    <ClCompile Include="..\ThirdParty\imgui\imgui_impl_win32.cpp" />
-    <ClCompile Include="..\ThirdParty\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="app\engine.cpp" />
+    <ClCompile Include="app\gameComponent.cpp" />
+    <ClCompile Include="audio\audio.cpp" />
+    <ClCompile Include="audio\audioDevice.cpp" />
+    <ClCompile Include="audio\audioDeviceX.cpp" />
+    <ClCompile Include="common\version.cpp" />
     <ClCompile Include="core\allocator.cpp" />
     <ClCompile Include="core\eventSystem.cpp" />
-    <ClCompile Include="core\gameComponent.cpp" />
+    <ClCompile Include="core\globalContext.cpp" />
     <ClCompile Include="core\jobSystem.cpp" />
     <ClCompile Include="core\memory.cpp" />
-    <ClCompile Include="core\safeRefcount.cpp" />
-    <ClCompile Include="core\threadSafeSystem.cpp" />
-    <ClCompile Include="engine.cpp" />
+    <ClCompile Include="core\settings.cpp" />
     <ClCompile Include="generates\luabind_registers.cpp" />
+    <ClCompile Include="gui\guiAnimation\guiAnimation.cpp" />
+    <ClCompile Include="gui\guiAnimation\guiAnimationManager.cpp" />
+    <ClCompile Include="gui\guiAnimation\guiTimeline.cpp" />
     <ClCompile Include="gui\guiCore\guiDispatcher.cpp" />
+    <ClCompile Include="gui\guiCore\guiDistributor.cpp" />
     <ClCompile Include="gui\guiFactory.cpp" />
     <ClCompile Include="gui\guiRenderer.cpp" />
-    <ClCompile Include="gui\guiWidgets\Panel.cpp" />
-    <ClCompile Include="gui\imguiStage.cpp" />
+    <ClCompile Include="gui\guiScheme.cpp" />
     <ClCompile Include="gui\guiStage.cpp" />
-    <ClCompile Include="gui\widgetManager.cpp" />
-    <ClCompile Include="gui\widgets.cpp" />
-    <ClCompile Include="gui\widget_properties.cpp" />
+    <ClCompile Include="gui\guiWidgets\button.cpp" />
+    <ClCompile Include="gui\guiWidgets\checkBox.cpp" />
+    <ClCompile Include="gui\guiWidgets\container.cpp" />
+    <ClCompile Include="gui\guiWidgets\image.cpp" />
+    <ClCompile Include="gui\guiWidgets\inputField.cpp" />
+    <ClCompile Include="gui\guiWidgets\label.cpp" />
+    <ClCompile Include="gui\guiWidgets\layouts\boxLayout.cpp" />
+    <ClCompile Include="gui\guiWidgets\layouts\gridLayout.cpp" />
+    <ClCompile Include="gui\guiWidgets\listPanel.cpp" />
+    <ClCompile Include="gui\guiWidgets\ninePatchImage.cpp" />
+    <ClCompile Include="gui\guiWidgets\popup.cpp" />
+    <ClCompile Include="gui\guiWidgets\scrollView.cpp" />
+    <ClCompile Include="gui\guiWidgets\stackPanel.cpp" />
+    <ClCompile Include="gui\guiWidgets\textEdit.cpp" />
+    <ClCompile Include="gui\guiWidgets\widgetHierarchy.cpp" />
+    <ClCompile Include="gui\guiWidgets\widgetManager.cpp" />
+    <ClCompile Include="gui\guiWidgets\widget_properties.cpp" />
+    <ClCompile Include="gui\guiWidgets\widgets.cpp" />
+    <ClCompile Include="gui\guiWidgets\window.cpp" />
+    <ClCompile Include="helper\IDGenerator.cpp" />
     <ClCompile Include="helper\archive.cpp" />
+    <ClCompile Include="helper\binaryArchive.cpp" />
     <ClCompile Include="helper\debug.cpp" />
     <ClCompile Include="helper\fileSystem.cpp" />
-    <ClCompile Include="helper\IDGenerator.cpp" />
+    <ClCompile Include="helper\jsonArchive.cpp" />
     <ClCompile Include="helper\logger.cpp" />
     <ClCompile Include="helper\profiler.cpp" />
     <ClCompile Include="helper\random.cpp" />
     <ClCompile Include="helper\stringID.cpp" />
     <ClCompile Include="helper\systemTime.cpp" />
     <ClCompile Include="helper\timer.cpp" />
-    <ClCompile Include="input\directInput.cpp" />
+    <ClCompile Include="helper\variant.cpp" />
+    <ClCompile Include="input\gamepad.cpp" />
     <ClCompile Include="input\InputSystem.cpp" />
-    <ClCompile Include="renderer\bufferManager.cpp" />
-    <ClCompile Include="renderer\passes\terrainPass.cpp" />
-    <ClCompile Include="renderer\passes\terrainTree.cpp" />
+    <ClCompile Include="input\keyboard.cpp" />
+    <ClCompile Include="input\keyCode.cpp" />
+    <ClCompile Include="input\win32\keyboardWin32.cpp" />
+    <ClCompile Include="input\win32\mouseWin32.cpp" />
+    <ClCompile Include="input\xinput\gamepadXInput.cpp" />
+    <ClCompile Include="platform\win32\engineWin32.cpp" />
+    <ClCompile Include="platform\win32\gameAppWin32.cpp" />
+    <ClCompile Include="platform\win32\gameWindowWin32.cpp" />
+    <ClCompile Include="platform\win32\inputSystemWin32.cpp" />
+    <ClCompile Include="platform\win32\platformWin32.cpp" />
+    <ClCompile Include="platform\win32\safeRefcountWin32.cpp" />
+    <ClCompile Include="renderer\2D\font.cpp" />
+    <ClCompile Include="renderer\2D\renderer2D.cpp" />
+    <ClCompile Include="renderer\2D\sprite.cpp" />
+    <ClCompile Include="renderer\2D\textDrawable.cpp" />
+    <ClCompile Include="renderer\RHI\d3d11\deviceD3D11.cpp" />
+    <ClCompile Include="renderer\RHI\d3d11\swapChainD3D11.cpp" />
+    <ClCompile Include="renderer\RHI\device.cpp" />
+    <ClCompile Include="renderer\RHI\rhiFactory.cpp" />
+    <ClCompile Include="renderer\passes\particle\particlePass.cpp" />
+    <ClCompile Include="renderer\passes\terrain\terrainPass.cpp" />
+    <ClCompile Include="renderer\passes\terrain\terrainTree.cpp" />
+    <ClCompile Include="renderer\paths\renderImage.cpp" />
     <ClCompile Include="renderer\paths\renderPath2D.cpp" />
     <ClCompile Include="renderer\paths\renderPath3D.cpp" />
     <ClCompile Include="renderer\paths\renderPath_forward.cpp" />
-    <ClCompile Include="renderer\paths\renderImage.cpp" />
-    <ClCompile Include="renderer\paths\renderPath.cpp" />
     <ClCompile Include="renderer\paths\renderPath_tiledForward.cpp" />
     <ClCompile Include="renderer\pipelineStates\imagePipelineStates.cpp" />
     <ClCompile Include="renderer\pipelineStates\normalPipelineStates.cpp" />
     <ClCompile Include="renderer\pipelineStates\pipelineStateManager.cpp" />
+    <ClCompile Include="renderer\preset\impl\blendState.cpp" />
+    <ClCompile Include="renderer\preset\impl\constantBuffer.cpp" />
+    <ClCompile Include="renderer\preset\impl\depthStencilState.cpp" />
+    <ClCompile Include="renderer\preset\impl\rasterizerState.cpp" />
+    <ClCompile Include="renderer\preset\impl\samplerState.cpp" />
+    <ClCompile Include="renderer\preset\impl\shaderPreset.cpp" />
+    <ClCompile Include="renderer\preset\impl\structuredBuffer.cpp" />
+    <ClCompile Include="renderer\preset\renderPreset.cpp" />
     <ClCompile Include="renderer\renderer.cpp" />
-    <ClCompile Include="renderer\renderer2D.cpp" />
     <ClCompile Include="renderer\rendererUtils.cpp" />
-    <ClCompile Include="renderer\RHI\rhiFactory.cpp" />
     <ClCompile Include="renderer\shaderLib.cpp" />
-    <ClCompile Include="renderer\RHI\device.cpp" />
-    <ClCompile Include="renderer\RHI\deviceD3D11.cpp" />
-    <ClCompile Include="renderer\RHI\swapChainD3D11.cpp" />
-    <ClCompile Include="renderer\stateManager.cpp" />
     <ClCompile Include="renderer\textureHelper.cpp" />
     <ClCompile Include="resource\modelImporter\modelImporterGLTF.cpp" />
     <ClCompile Include="resource\modelImporter\modelImporterObj.cpp" />
     <ClCompile Include="resource\resource.cpp" />
     <ClCompile Include="resource\resourceManager.cpp" />
+    <ClCompile Include="scripts\api\jsonApi.cpp" />
     <ClCompile Include="scripts\api\luaApi.cpp" />
     <ClCompile Include="scripts\api\matrixApi.cpp" />
     <ClCompile Include="scripts\api\rendererApi.cpp" />
@@ -380,13 +465,12 @@
     <ClCompile Include="scripts\api\uiApi.cpp" />
     <ClCompile Include="scripts\api\utilsApi.cpp" />
     <ClCompile Include="scripts\api\vectorApi.cpp" />
-    <ClCompile Include="scripts\luaBinder.cpp" />
-    <ClCompile Include="scripts\luaBinder_impl.cpp" />
-    <ClCompile Include="scripts\luaContext.cpp" />
-    <ClCompile Include="scripts\luaException.cpp" />
-    <ClCompile Include="scripts\luaObject.cpp" />
-    <ClCompile Include="scripts\luaRef.cpp" />
-    <ClCompile Include="scripts\luaTools.cpp" />
+    <ClCompile Include="scripts\binder\luaBinder.cpp" />
+    <ClCompile Include="scripts\binder\luaBinder_impl.cpp" />
+    <ClCompile Include="scripts\binder\luaException.cpp" />
+    <ClCompile Include="scripts\binder\luaObject.cpp" />
+    <ClCompile Include="scripts\binder\luaRef.cpp" />
+    <ClCompile Include="scripts\binder\luaTools.cpp" />
     <ClCompile Include="scripts\lua\lapi.c" />
     <ClCompile Include="scripts\lua\lauxlib.c" />
     <ClCompile Include="scripts\lua\lbaselib.c" />
@@ -417,11 +501,11 @@
     <ClCompile Include="scripts\lua\ltablib.c" />
     <ClCompile Include="scripts\lua\ltm.c" />
     <ClCompile Include="scripts\lua\lua.c" />
-    <ClCompile Include="scripts\lua\luac.c" />
     <ClCompile Include="scripts\lua\lundump.c" />
     <ClCompile Include="scripts\lua\lutf8lib.c" />
     <ClCompile Include="scripts\lua\lvm.c" />
     <ClCompile Include="scripts\lua\lzio.c" />
+    <ClCompile Include="scripts\luaContext.cpp" />
     <ClCompile Include="system\component\animation.cpp" />
     <ClCompile Include="system\component\camera.cpp" />
     <ClCompile Include="system\component\component.cpp" />
@@ -430,34 +514,32 @@
     <ClCompile Include="system\component\material.cpp" />
     <ClCompile Include="system\component\mesh.cpp" />
     <ClCompile Include="system\component\object.cpp" />
+    <ClCompile Include="system\component\particle.cpp" />
+    <ClCompile Include="system\component\sound.cpp" />
     <ClCompile Include="system\component\terrain.cpp" />
     <ClCompile Include="system\component\transform.cpp" />
     <ClCompile Include="system\component\weather.cpp" />
-    <ClCompile Include="system\sceneLightSystem.cpp" />
-    <ClCompile Include="system\sceneObjectSystem.cpp" />
     <ClCompile Include="system\sceneSerializers.cpp" />
     <ClCompile Include="system\sceneSystem.cpp" />
-    <ClCompile Include="system\sceneTransformSystem.cpp" />
     <ClCompile Include="system\systems\sceneAnimationSystem.cpp" />
+    <ClCompile Include="system\systems\sceneLightSystem.cpp" />
+    <ClCompile Include="system\systems\sceneObjectSystem.cpp" />
+    <ClCompile Include="system\systems\sceneParticleSystem.cpp" />
+    <ClCompile Include="system\systems\sceneSoundSystem.cpp" />
     <ClCompile Include="system\systems\sceneTerrainSystem.cpp" />
+    <ClCompile Include="system\systems\sceneTransformSystem.cpp" />
     <ClCompile Include="utils\allocator\tlsfAllocator.cpp" />
-    <ClCompile Include="utils\baseWindow.cpp" />
     <ClCompile Include="utils\geometry.cpp" />
     <ClCompile Include="utils\intersectable.cpp" />
+    <ClCompile Include="utils\signal\connection.cpp" />
+    <ClCompile Include="utils\signal\connectionList.cpp" />
+    <ClCompile Include="utils\signal\connectionMap.cpp" />
+    <ClCompile Include="utils\signal\eventQueue.cpp" />
+    <ClCompile Include="utils\string\stringHelper.cpp" />
+    <ClCompile Include="utils\string\utf8String.cpp" />
+    <ClCompile Include="utils\string\utf8StringIt.cpp" />
     <ClCompile Include="utils\tinyxml2\tinyxml2.cpp" />
     <ClCompile Include="utils\tlsf\tlsf.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="helper\enumInfo.inl" />
-    <None Include="precompile.bat" />
-    <None Include="resource\resourceManager.inl" />
-    <None Include="scripts\luaContext.inl" />
-    <None Include="system\sceneSystem.inl" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Common\Common.vcxproj">
-      <Project>{90d41522-cb41-46d0-a1c3-174fb87ee0e9}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

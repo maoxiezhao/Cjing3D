@@ -2,24 +2,26 @@
 
 #include "renderPath.h"
 #include "gui\guiRenderer.h"
+#include "core\eventSystem.h"
 
 namespace Cjing3D {
 
 	class RenderPath2D : public RenderPath
 	{
 	public:
-		RenderPath2D(Renderer& renderer);
+		RenderPath2D();
 		~RenderPath2D();
 
 		virtual void Initialize();
 		virtual void Uninitialize();
 		virtual void Update(F32 dt);
 		virtual void Render();
-		virtual void Compose();
+		virtual void Compose(CommandList cmd);
 		virtual void ResizeBuffers();
 
 	private:
-		void RenderGUI();
+		virtual void RenderGUI(CommandList cmd);
+		virtual void Render2D(CommandList cmd);
 
 	protected:
 		virtual Texture2D* GetDepthBuffer() {
@@ -29,6 +31,7 @@ namespace Cjing3D {
 	private:
 		Texture2D mRTFinal;
 		RenderBehavior mRBFinal;
+		ScopedConnection mResolutionChangedConn;
 	};
 
 }

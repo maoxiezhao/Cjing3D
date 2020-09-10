@@ -57,8 +57,7 @@ namespace Cjing3D
 		for (int i = 0; i < std::size(mPlanes); i++)
 		{
 			const auto p = aabb.GetMaxPointAlongNormal(mPlanes[i]);
-			const auto result = XMPlaneDotCoord(mPlanes[i], p);
-			if (XMVectorGetX(result) < 0.0f)
+			if (XMVectorGetX(XMPlaneDotCoord(mPlanes[i], p)) < 0.0f)
 			{
 				return false;
 			}
@@ -127,6 +126,61 @@ namespace Cjing3D
 		return true;
 	}
 
+	bool AABB::Intersects(const Ray& other, F32* t) const
+	{
+		// 射线与轴对称包围盒相交检测
+		// 当存在某一方向轴的最小值大于方向轴的最大值时，说明未相交
+		if (Intersects(other.mOrigin)) {
+			return true;
+		}
+
+		F32 maxValue = 0.0f;
+		F32 minValue = 0.0f;
+
+		// x axis
+		F32 tx1 = (mMin.x - other.mOrigin.x) * other.mInvDirection.x;
+		F32 tx2 = (mMax.x - other.mOrigin.x) * other.mInvDirection.x;
+		minValue = std::min(tx1, tx2);
+		maxValue = std::max(tx1, tx2);
+
+		// y axis
+		F32 ty1 = (mMin.y - other.mOrigin.y) * other.mInvDirection.y;
+		F32 ty2 = (mMax.y - other.mOrigin.y) * other.mInvDirection.y;
+		// 找到最大的最小变和最小的最大边
+		minValue = std::max(minValue, std::min(ty1, ty2));
+		maxValue = std::min(maxValue, std::max(ty1, ty2));
+
+		// z axis
+		F32 tz1 = (mMin.z - other.mOrigin.z) * other.mInvDirection.z;
+		F32 tz2 = (mMax.z - other.mOrigin.z) * other.mInvDirection.z;
+		// 找到最大的最小变和最小的最大边
+		minValue = std::max(minValue, std::min(tz1, tz2));
+		maxValue = std::min(maxValue, std::max(tz1, tz2));
+
+		bool isIntersected = maxValue >= minValue;
+		if (isIntersected && t != nullptr) {
+			*t = minValue;
+		}
+
+		return isIntersected;
+	}
+
+	bool AABB::Intersects(const F32x3& pos) const
+	{
+		if (pos.x() < mMin.x || pos.x() > mMax.x) return false;
+		if (pos.y() < mMin.y || pos.y() > mMax.y) return false;
+		if (pos.z() < mMin.z || pos.z() > mMax.z) return false;
+		return true;
+	}
+
+	bool AABB::Intersects(const XMFLOAT3& pos) const
+	{
+		if (pos.x < mMin.x || pos.x > mMax.x) return false;
+		if (pos.y < mMin.y || pos.y > mMax.y) return false;
+		if (pos.z < mMin.z || pos.z > mMax.z) return false;
+		return true;
+	}
+
 	void AABB::Serialize(Archive& archive, U32 seed)
 	{
 		archive >> mMin;
@@ -149,4 +203,23 @@ namespace Cjing3D
 	{
 		return XMDistance(mCenter, other.mCenter) < (mRadius + other.mRadius);
 	}
+
+	bool Sphere::Intersects(const Ray& other) const
+	{
+		XMVECTOR origin = XMLoadFloat3(&other.mOrigin);
+		XMVECTOR dir = XMLoadFloat3(&other.mDirection);
+		XMVECTOR dist = DirectX::XMVector3LinePointDistance(origin, origin + dir, XMLoadFloat3(&mCenter));
+		return DirectX::XMVectorGetX(dist) <= mRadius;
+	}
+
+	bool Ray::Intersects(const Sphere& sphere) const
+	{
+		return sphere.Intersects(*this);
+	}
+
+	bool Ray::Intersects(const AABB& aabb, F32* t) const
+	{
+		return aabb.Intersects(*this, t);
+	}
+
 }

@@ -7,13 +7,13 @@ namespace Cjing3D {
 class RenderPathForward : public RenderPath3D
 {
 public:
-	RenderPathForward(Renderer& renderer);
+	RenderPathForward();
 	~RenderPathForward();
 
 	virtual void ResizeBuffers();
 	virtual void Render();
 
-private:
+protected:
 	Texture2D mRTMain;
 
 	RenderBehavior mRBDepthPrepass;

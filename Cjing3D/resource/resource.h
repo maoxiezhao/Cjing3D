@@ -2,25 +2,20 @@
 
 #include "common\common.h"
 #include "helper\stringID.h"
+#include "renderer\RHI\rhiResource.h"
+#include "audio\audioDevice.h"
 
 namespace Cjing3D
 {
 	class ResourceManager;
 
-	enum Resource_Type
+	enum ResourceType
 	{
 		Resource_Unknown,
-		Resrouce_VertexShader,
-		Resrouce_PixelShader,
-		Resource_ComputeShader,
-		Resource_HullShader,
-		Resource_DomainShader,
-		Resource_InputLayout,
 		Resource_Texture,
-		Resource_Model
-
-		//Resource_Mesh,
-		//Resource_Material
+		Resource_Shader,
+		Resource_Model,
+		Resource_Sound,
 	};
 
 	/**
@@ -29,32 +24,46 @@ namespace Cjing3D
 	class Resource : public std::enable_shared_from_this<Resource>
 	{
 	public:
-		Resource(Resource_Type type);
+		Resource(ResourceType type);
 		Resource(const Resource& rhs) = delete;
 		Resource(Resource&& rhs) = default;
+		virtual ~Resource() {};
 
 		Resource& operator= (const Resource& other) = delete;
 		Resource& operator= (Resource&& other) = default;
 
-		virtual ~Resource() {};
-
-		Resource_Type GetResourceType()const { return mType; }
+		ResourceType GetResourceType()const { return mType; }
 		U32 GetGUID()const { return mGUID; }
-		
-		StringID GetResourceName()const { return mName; }
-		void SetResourceName(const std::string& name) { mName = StringID(name); }
-
-		virtual bool SaveToFile(const std::string& filePath) { return false; };
-		virtual bool LoadFromFile(const std::string& filePath) { return false; };
-
-		template <typename T>
-		static Resource_Type DeduceResourceType();
-
+	
 	private:
 		U32 mGUID;
-		StringID mName;
-		Resource_Type mType;
+		ResourceType mType;
 	};
 
 	using ResourcePtr = std::shared_ptr<Resource>;
+
+	// TODO: texture pointer的管理问题
+	class TextureResource : public Resource
+	{
+	public:
+		TextureResource();
+		~TextureResource();
+
+		Texture2D* CreateNewTexture();
+		Texture2D* mTexture = nullptr;
+
+	private:
+		bool mAutoRelease = false;
+	};
+	using TextureResourcePtr = std::shared_ptr<TextureResource>;
+
+	class SoundResource : public Resource
+	{
+	public:
+		SoundResource();
+		~SoundResource();
+
+		Audio::SoundResource mSound;
+	};
+	using SoundResourcePtr = std::shared_ptr<SoundResource>;
 }

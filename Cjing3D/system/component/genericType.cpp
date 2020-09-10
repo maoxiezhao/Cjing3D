@@ -30,4 +30,14 @@ namespace Cjing3D
 	{
 		mName.Unserialize(archive);
 	}
+
+	void LayerComponent::Serialize(Archive& archive, U32 seed)
+	{
+		archive >> mLayerMask;
+	}
+
+	void LayerComponent::Unserialize(Archive& archive) const
+	{
+		archive << mLayerMask;
+	}
 }

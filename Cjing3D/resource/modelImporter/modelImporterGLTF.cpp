@@ -1,9 +1,9 @@
-#include "resource\modelImporter.h"
-#include "core\systemContext.hpp"
+#include "resource\modelImporter\modelImporter.h"
+#include "core\globalContext.hpp"
 #include "resource\resourceManager.h"
 #include "system\sceneSystem.h"
-
-#include "utils\stb_image.h"
+#include "renderer\renderer.h"
+#include "utils\stb_utils\stb_image.h"
 
 #define TINYGLTF_IMPLEMENTATION
 #define TINYGLTF_NO_STB_IMAGE
@@ -73,25 +73,23 @@ namespace ModelImporter {
 		tinygltf::Model gltfModel;
 		Cjing3D::Scene scene;
 		std::map<U32, ECS::Entity> nodeEntityMap;
-		std::vector<Texture2DPtr> loadedTextures;
+		std::vector<TextureResourcePtr> loadedTextures;
 	};
 
-	void LoadTextureFromImageData(tinygltf::Image& image, std::vector<Texture2DPtr>& loadedTextures)
+	void LoadTextureFromImageData(tinygltf::Image& image, std::vector<TextureResourcePtr>& loadedTextures)
 	{
 		if (image.image.empty()) {
 			return;
 		}
 
-		ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
-		if (!resourceManager.Contains<Texture2D>(StringID(image.uri)))
+		auto resourceManager = GetGlobalContext().gResourceManager;
+		if (!resourceManager->Contains<TextureResource>(StringID(image.uri)))
 		{
 			int width = image.width;
 			int height = image.height;
 			int channelCount = image.component;
 
-			Renderer& renderer = GlobalGetSubSystem<Renderer>();
-			GraphicsDevice& device = renderer.GetDevice();
-
+			GraphicsDevice& device = Renderer::GetDevice();
 			TextureDesc desc = {};
 			desc.mWidth = width;
 			desc.mHeight = height;
@@ -112,42 +110,43 @@ namespace ModelImporter {
 				mipWidth = std::max(1u, mipWidth / 2);
 			}
 
-			Texture2DPtr texture = resourceManager.GetOrCreateEmptyResource<Texture2D>(StringID(image.uri));
-			if (texture == nullptr)
+			TextureResourcePtr textureResource = resourceManager->GetOrCreateEmptyResource<TextureResource>(StringID(image.uri));
+			if (textureResource == nullptr)
 			{
 				Debug::Warning("Resource Manager can not create texture resource:" + image.uri);
 				return;
 			}
 
-			const auto result = renderer.GetDevice().CreateTexture2D(&desc, resourceData.data(), *texture);
+			Texture2D& texture = *textureResource->mTexture;
+			const auto result = device.CreateTexture2D(&desc, resourceData.data(), texture);
 			if (FAILED(result))
 			{
-				resourceManager.ClearResource<Texture2D>(StringID(image.uri));
+				resourceManager->ClearResource<TextureResource>(StringID(image.uri));
 				Debug::Warning("Failed to create render target" + image.uri);
 				return;
 			}
 
-			renderer.GetDevice().SetResourceName(*texture, image.uri);
+			device.SetResourceName(texture, image.uri);
 
 			// 创建各个subresource的srv和uav
 			for (int mipLevel = 0; mipLevel < desc.mMipLevels; mipLevel++)
 			{
-				renderer.GetDevice().CreateShaderResourceView(*texture, 0, -1, mipLevel, 1);
-				renderer.GetDevice().CreateUnordereddAccessView(*texture, mipLevel);
+				device.CreateShaderResourceView(texture, 0, -1, mipLevel, 1);
+				device.CreateUnordereddAccessView(texture, 0, -1, mipLevel);
 			}
 
 			if (desc.mMipLevels > 1) {
-				renderer.AddDeferredTextureMipGen(*texture);
+				Renderer::AddDeferredTextureMipGen(texture);
 			}
 
 			// add texture ref count, it will clear in the end.
-			loadedTextures.push_back(texture);
+			loadedTextures.push_back(textureResource);
 		}
 	}
 
 	void LoadMaterials(LoaderInfo& loaderInfo, const std::string& parentPath)
 	{
-		auto& resourceManager = GlobalGetSubSystem<ResourceManager>();
+		auto resourceManager = GetGlobalContext().gResourceManager;
 		tinygltf::Model& gltfModel = loaderInfo.gltfModel;
 		Scene& newScene = loaderInfo.scene;
 
@@ -213,15 +212,15 @@ namespace ModelImporter {
 			// load textures
 			if (material->mBaseColorMapName.empty() == false)
 			{
-				material->mBaseColorMap = resourceManager.GetOrCreate<Texture2D>(StringID(material->mBaseColorMapName));
+				material->mBaseColorMap = resourceManager->GetOrCreate<TextureResource>(StringID(material->mBaseColorMapName));
 			}
 			if (material->mNormalMapName.empty() == false)
 			{
-				material->mNormalMap = resourceManager.GetOrCreate<Texture2D>(StringID(material->mNormalMapName));
+				material->mNormalMap = resourceManager->GetOrCreate<TextureResource>(StringID(material->mNormalMapName));
 			}
 			if (material->mSurfaceMapName.empty() == false)
 			{
-				material->mSurfaceMap = resourceManager.GetOrCreate<Texture2D>(StringID(material->mSurfaceMapName));
+				material->mSurfaceMap = resourceManager->GetOrCreate<TextureResource>(StringID(material->mSurfaceMapName));
 			}
 
 			if (alphaCutoff != gltfMaterial.additionalValues.end())
@@ -245,8 +244,7 @@ namespace ModelImporter {
 
 	void LoadMeshes(LoaderInfo& loaderInfo)
 	{
-		auto& renderer = GlobalGetSubSystem<Renderer>();
-		auto& device = renderer.GetDevice();
+		auto& device = Renderer::GetDevice();
 
 		tinygltf::Model& gltfModel = loaderInfo.gltfModel;
 		Scene& newScene = loaderInfo.scene;
@@ -604,12 +602,11 @@ namespace ModelImporter {
 		}
 	}
 
-	ECS::Entity ImportModelGLTF(const std::string& fileName)
+	ECS::Entity ImportModelGLTF(const std::string& fileName, Scene& scene)
 	{
 		std::filesystem::path path(fileName);
 
-		auto& renderer = GlobalGetSubSystem<Renderer>();
-		auto& device = renderer.GetDevice();
+		GraphicsDevice& device = Renderer::GetDevice();
 
 		tinygltf::TinyGLTF loader;
 		loader.SetImageLoader(tinygltf::LoadImageData, nullptr);
@@ -710,7 +707,7 @@ namespace ModelImporter {
 		loaderInfo.loadedTextures.clear();
 
 		// update scene
-		Scene::GetScene().Merge(loaderInfo.scene);
+		scene.Merge(loaderInfo.scene);
 
 		return rootEntity;
 	}

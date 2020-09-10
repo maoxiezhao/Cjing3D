@@ -1,4 +1,4 @@
-#include "..\hf\objectHF.hlsli"
+#include "..\hf\objectInput.hlsli"
 
 float4 main(InputObjectPos input) : SV_POSITION
 {

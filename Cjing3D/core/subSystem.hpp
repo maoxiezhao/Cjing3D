@@ -1,29 +1,20 @@
 #pragma once
 
 #include "common\common.h"
-#include "core\threadSafeSystem.h"
-#include "core\eventSystem.h"
 
+#include <memory>
 #include <vector>
 
 namespace Cjing3D
 {
 
-class SystemContext;
-
-class SubSystem : public ThreadSafeSystem
+class SubSystem : public std::enable_shared_from_this<SubSystem>
 {
 public:
-	SubSystem(SystemContext& gameContext) :
-		mGameContext(gameContext)
-	{}
+	SubSystem() = default;
 	virtual ~SubSystem() = default;
 
-	virtual void Update(F32 deltaTime) {};
-	SystemContext& GetGameContext() { return mGameContext; }
-
-protected:
-	SystemContext & mGameContext;
+	virtual void Uninitialize() {}
 };
 
 }

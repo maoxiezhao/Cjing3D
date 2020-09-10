@@ -3,10 +3,12 @@
 #include "utils\math.h"
 #include "utils\geometry.h"
 
+#include "helper\binaryArchive.h"
+
 namespace Cjing3D
 {
-	class Archive;
 	class AABB;
+	class Ray;
 
 	class Sphere final
 	{
@@ -19,6 +21,7 @@ namespace Cjing3D
 
 		bool Intersects(const AABB& other)const;
 		bool Intersects(const Sphere& other)const;
+		bool Intersects(const Ray& other)const;
 	};
 
 	// Öá¶Ô³Æ°üÎ§ºÐ
@@ -29,12 +32,12 @@ namespace Cjing3D
 		XMFLOAT3 mMax;
 
 	public:
-		AABB() : AABB(g_XMInfinity, -g_XMInfinity) {};
-		AABB(XMVECTOR p) { XMStoreFloat3(&mMin, p); XMStoreFloat3(&mMax, p); };
-		AABB(XMVECTOR min, XMVECTOR max) { XMStoreFloat3(&mMin, min); XMStoreFloat3(&mMax, max); };
-		AABB(XMFLOAT3 p) : mMin(p), mMax(p) {};
-		AABB(XMFLOAT3 min, XMFLOAT3 max) : mMin(min), mMax(max) {};
-		AABB(F32x3 min, F32x3 max) : mMin(XMConvert(min)), mMax(XMConvert(max)) {}
+		AABB() : AABB(XMFLOAT3(FLT_MAX, FLT_MAX, FLT_MAX), XMFLOAT3(-FLT_MAX, -FLT_MAX, -FLT_MAX)) {};
+		explicit AABB(XMVECTOR p) { XMStoreFloat3(&mMin, p); XMStoreFloat3(&mMax, p); };
+		explicit AABB(XMVECTOR min, XMVECTOR max) { XMStoreFloat3(&mMin, min); XMStoreFloat3(&mMax, max); };
+		explicit AABB(XMFLOAT3 p) : mMin(p), mMax(p) {};
+		explicit AABB(XMFLOAT3 min, XMFLOAT3 max) : mMin(min), mMax(max) {};
+		explicit AABB(F32x3 min, F32x3 max) : mMin(XMConvert(min)), mMax(XMConvert(max)) {}
 		AABB(const AABB& aabb) = default;
 		AABB(AABB&& aabb) = default;
 		~AABB() = default;
@@ -57,7 +60,7 @@ namespace Cjing3D
 		}
 		const XMVECTOR XM_CALLCONV GetCenter()const {
 
-			return 0.5f * (GetMin() + GetMax());
+			return (GetMin() + GetMax()) * 0.5f;
 		}
 		const XMVECTOR XM_CALLCONV GetDiagonal()const {
 			return (GetMax() - GetMin());
@@ -102,7 +105,11 @@ namespace Cjing3D
 		AABB GetByTransforming(const XMFLOAT4X4& mat)const;
 		XMMATRIX GetBoxMatrix()const;
 		void CopyFromOther(const AABB& aabb);
+
 		bool Intersects(const AABB& other)const;
+		bool Intersects(const Ray& other, F32* t = nullptr)const;
+		bool Intersects(const F32x3& pos)const;
+		bool Intersects(const XMFLOAT3& pos)const;
 
 		inline XMVECTOR corner(int index) const
 		{
@@ -157,5 +164,45 @@ namespace Cjing3D
 			};
 			XMVECTOR mPlanes[6];
 		};
+	};
+
+	// Direct::BoundingFrustum
+	inline DirectX::BoundingFrustum CreateBoundingFrustum(const XMMATRIX& projection)
+	{
+		BoundingFrustum newFrustum;
+		BoundingFrustum::CreateFromMatrix(newFrustum, projection);
+		std::swap(newFrustum.Near, newFrustum.Far);
+		return newFrustum;
+	}
+
+	inline void TransformBoundingFrustum(DirectX::BoundingFrustum& frustum, const XMMATRIX& transform)
+	{
+		frustum.Transform(frustum, transform);
+		XMStoreFloat4(&frustum.Orientation, XMQuaternionNormalize(XMLoadFloat4(&frustum.Orientation)));
+	}
+
+	class Ray
+	{
+	public:
+		XMFLOAT3 mOrigin = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		XMFLOAT3 mDirection = XMFLOAT3(0.0f, 0.0f, 1.0f);
+		XMFLOAT3 mInvDirection = XMFLOAT3(0.0f, 0.0f, 1.0f);
+
+		Ray() = default;
+		Ray(const XMFLOAT3& origin, const XMFLOAT3& direction) :
+			mOrigin(origin), 
+			mDirection(direction) 
+		{
+			XMStoreFloat3(&mInvDirection, XMVectorReplicate(1.0f) / XMLoadFloat3(&mDirection));
+		}
+		Ray(const XMVECTOR& origin, const XMVECTOR& direction) 
+		{
+			XMStoreFloat3(&mOrigin, origin);
+			XMStoreFloat3(&mDirection, direction);
+			XMStoreFloat3(&mInvDirection, XMVectorReplicate(1.0f) / XMLoadFloat3(&mDirection));
+		}
+
+		bool Intersects(const Sphere& sphere)const;
+		bool Intersects(const AABB& aabb, F32* t = nullptr)const;
 	};
 }

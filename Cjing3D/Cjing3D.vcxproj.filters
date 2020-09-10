@@ -1,128 +1,1029 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="core">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="renderer">
-      <UniqueIdentifier>{1c5438a2-0632-44fc-833e-ddba1e051fd2}</UniqueIdentifier>
+    <Filter Include="audio">
+      <UniqueIdentifier>{B7281C0F-233D-44C0-ECBE-E71F589240F1}</UniqueIdentifier>
     </Filter>
     <Filter Include="common">
-      <UniqueIdentifier>{f62268fb-302c-4224-8257-0896728c9b93}</UniqueIdentifier>
+      <UniqueIdentifier>{AEFEE3F6-9AA0-0ECD-835B-22216F9C951D}</UniqueIdentifier>
     </Filter>
-    <Filter Include="utils">
-      <UniqueIdentifier>{fe4bb653-0364-4114-b13f-1cb11a3fd883}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="helper">
-      <UniqueIdentifier>{ebce1040-5acf-412f-878a-2a6ac2d4b492}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="renderer\rhi">
-      <UniqueIdentifier>{804ea12d-9833-4ca4-81b0-5949f085ae4b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="renderer\rhi\d3d11">
-      <UniqueIdentifier>{4700f898-3ca9-45f9-8e84-375e84855299}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="resource">
-      <UniqueIdentifier>{807e886c-a71a-42ec-bdcb-bbee389f4ea8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="resource\importer">
-      <UniqueIdentifier>{58001ee6-99dc-456b-b56a-6f803a557fda}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="scripts">
-      <UniqueIdentifier>{bda65b4b-b51e-4eb6-aaa6-764b457d2ed2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="gui">
-      <UniqueIdentifier>{289f993e-822d-49f7-b59f-511fe9b2fc6c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="system">
-      <UniqueIdentifier>{001fdb9e-f2f6-43b6-beed-06ca29094e09}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="system\component">
-      <UniqueIdentifier>{4f8d85c3-1f5e-4e1c-95eb-16f9a7960f52}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="system\systems">
-      <UniqueIdentifier>{fac0c28b-8333-46a1-8f10-9a623abc1d1b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="scripts\binder">
-      <UniqueIdentifier>{4662fa22-88b1-4c96-8480-2d829b5c4d1f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="scripts\lua">
-      <UniqueIdentifier>{f255507f-089f-4c6f-8bb2-704143db939f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="scripts\api">
-      <UniqueIdentifier>{d8003627-7d0e-42bd-a16a-08332589c07c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="input">
-      <UniqueIdentifier>{00e7fb44-e761-460f-9b71-649a19a15b07}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="renderer\paths">
-      <UniqueIdentifier>{85d86095-fd43-455c-829c-50f748036545}</UniqueIdentifier>
+    <Filter Include="core">
+      <UniqueIdentifier>{4E40957C-3A77-960D-E363-7C10CF79120F}</UniqueIdentifier>
     </Filter>
     <Filter Include="generates">
-      <UniqueIdentifier>{95837ed7-6ef3-4928-afec-2cf455dcd6b3}</UniqueIdentifier>
+      <UniqueIdentifier>{63368C0D-CFA0-4084-18DF-F12984881ED9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="utils\tinyxml2">
-      <UniqueIdentifier>{316d6612-6111-4237-9446-725bb86d82a6}</UniqueIdentifier>
+    <Filter Include="gui">
+      <UniqueIdentifier>{8A78880B-F681-887C-7FFD-9E7CEB05947C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="utils\optick">
-      <UniqueIdentifier>{2222258e-268a-4308-9543-d23785027f6c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="utils\tinygltf">
-      <UniqueIdentifier>{22c7c0b8-fb3c-48cd-984a-8c5435bd0638}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="utils\json">
-      <UniqueIdentifier>{279d324f-8fea-4bf5-9564-f5e482f90caa}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="utils\stb_image">
-      <UniqueIdentifier>{f0c695a9-8838-4b8e-b9fd-a1bee47eeb3e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="gui\guiEditor">
-      <UniqueIdentifier>{1afb078f-fe5b-411a-9efc-e22e3f5c00db}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="gui\guiEditor\imgui">
-      <UniqueIdentifier>{89cc6ab1-2726-48b0-b20d-221e6e4329a9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="renderer\passes">
-      <UniqueIdentifier>{5f37daed-16eb-4b11-9f21-4589de95b4ed}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="renderer\passes\terrain">
-      <UniqueIdentifier>{1c8f2cb5-f8f4-4fba-b3d5-05bb2fa02c44}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="utils\allocator">
-      <UniqueIdentifier>{4c67ba05-cb6d-4c14-b411-7543968eae4c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="utils\tlsf">
-      <UniqueIdentifier>{b1ef336f-3f1b-4701-8a3c-a2b38b9dce3e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="utils\container">
-      <UniqueIdentifier>{8493e0b2-8923-47f1-a0e4-968e650daace}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="renderer\pipelineStates">
-      <UniqueIdentifier>{642de6e7-1c44-4b3a-b558-21c6178ee6f2}</UniqueIdentifier>
+    <Filter Include="gui\guiAnimation">
+      <UniqueIdentifier>{9E4A2024-8A43-3F76-B375-24FB9FCD1E82}</UniqueIdentifier>
     </Filter>
     <Filter Include="gui\guiCore">
-      <UniqueIdentifier>{e62d1fda-9321-4229-a617-84af1c9c05cf}</UniqueIdentifier>
+      <UniqueIdentifier>{A72CD8A4-13E2-509A-9CD6-4A71088B479E}</UniqueIdentifier>
     </Filter>
     <Filter Include="gui\guiWidgets">
-      <UniqueIdentifier>{bc7a284d-7f86-48ae-ae01-8734129f031b}</UniqueIdentifier>
+      <UniqueIdentifier>{5589E7A2-4157-DBA8-2AEB-4BCF1658B70D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui\guiWidgets\layouts">
+      <UniqueIdentifier>{359E6AA4-2198-93F6-0A05-2A07F69DF962}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="helper">
+      <UniqueIdentifier>{E553D801-D1F5-02D8-BAB0-162CA6F18928}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="input">
+      <UniqueIdentifier>{B54AA90F-215F-D1C0-EAE0-742056B4CDF1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="platform">
+      <UniqueIdentifier>{4A63C33C-3630-1E48-5F49-0CF04B7553D6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="platform\win32">
+      <UniqueIdentifier>{CC7A1EFF-B848-1205-A1DC-822B8D49EE69}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer">
+      <UniqueIdentifier>{9C6AA017-8837-FB22-B150-E9CA9D7C30B1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\2D">
+      <UniqueIdentifier>{C18316AE-2D39-8FA3-B62D-897A22E285A7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\RHI">
+      <UniqueIdentifier>{CE84E770-BAE7-7615-636D-AFCB4FAF4298}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\RHI\d3d11">
+      <UniqueIdentifier>{7A16A9AF-66FA-6905-CF5A-6458BB5D5487}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\passes">
+      <UniqueIdentifier>{1A2032AC-86AB-9F70-8FBC-2265FBC6FB70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\passes\particle">
+      <UniqueIdentifier>{7D3D7A3C-6962-C9BC-92AD-AE4C7E31C8DA}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\passes\terrain">
+      <UniqueIdentifier>{9E555756-0A8D-9FED-1397-03117F4DC6E6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\paths">
+      <UniqueIdentifier>{AB49094B-9717-FD50-80AB-6D776C18D9B5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\pipelineStates">
+      <UniqueIdentifier>{755579FA-E18C-C191-EA96-25B5564DE88A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\preset">
+      <UniqueIdentifier>{5E135EAD-CA9E-CB71-D3AF-4E663FBA2772}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\preset\impl">
+      <UniqueIdentifier>{1FD0F4E8-0B5F-7EB2-B47D-92ADA0EB8E58}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resource">
+      <UniqueIdentifier>{0D091A24-F9D5-742F-22EF-62D70E1BAABD}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resource\modelImporter">
+      <UniqueIdentifier>{FFAB6B04-EBA5-9456-D412-2B67C0ABFAC2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scripts">
+      <UniqueIdentifier>{6D076287-D9E6-E022-E2FE-6BF94E5D4784}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scripts\api">
+      <UniqueIdentifier>{3667DDEE-A21C-56E4-2B11-50BB97C54CE8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scripts\binder">
+      <UniqueIdentifier>{50953098-3C63-249E-25F7-94C411640003}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scripts\lua">
+      <UniqueIdentifier>{9E96DDEE-0A4C-56E4-9340-50BBFFF44CE8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="system">
+      <UniqueIdentifier>{8AE4EE1C-7686-19F3-5F41-2D474B82A043}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="system\component">
+      <UniqueIdentifier>{8C915522-788A-7474-A1BC-59F98D145480}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="system\systems">
+      <UniqueIdentifier>{B1BCC9E1-9D8A-BDE7-861E-2E0E728B994C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils">
+      <UniqueIdentifier>{169C8510-82B0-ADC1-4B32-5121B705AAF2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils\allocator">
+      <UniqueIdentifier>{065BC23F-72E6-2F04-7BF7-B2F8E7018C04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils\container">
+      <UniqueIdentifier>{8817FF92-F4A2-6C57-FDB3-EF4B69BEC857}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils\json">
+      <UniqueIdentifier>{9F314747-8BE9-8894-F4F0-61F0E0C72385}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils\reckPacker">
+      <UniqueIdentifier>{6070C59E-4C69-E4F0-759B-C97561F3C3FC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils\signal">
+      <UniqueIdentifier>{E3371F4A-CF9A-AEEE-7820-E7A464627A71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils\stb_utils">
+      <UniqueIdentifier>{9EFFC7AC-0A8B-3571-139C-B8657FA69171}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils\string">
+      <UniqueIdentifier>{FC39EC4A-E89C-7BEF-9122-B4A57D644772}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils\thread">
+      <UniqueIdentifier>{DD29684C-C98C-F7F0-7212-30A75E54C373}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils\tinygltf">
+      <UniqueIdentifier>{16152D4C-02E3-2052-EB76-9178D7E3FCB6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils\tinyxml2">
+      <UniqueIdentifier>{8C6A364C-7838-2A52-61CC-9A784D3906B7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils\tlsf">
+      <UniqueIdentifier>{1E904C47-0A48-8E94-734F-67F05F262985}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils\tween">
+      <UniqueIdentifier>{C860E430-3416-5D26-BD0A-57FD29BF532A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="app">
+      <UniqueIdentifier>{c331288e-80f9-44de-acb6-08606d060d23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="input\win32">
+      <UniqueIdentifier>{3fc35641-2aa7-40c6-8913-c0380d0d0c90}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="input\xinput">
+      <UniqueIdentifier>{9977d83a-1766-4b03-80bf-a434fc7c12d9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="engine.cpp" />
-    <ClCompile Include="helper\logger.cpp">
+    <ClInclude Include="audio\audio.h">
+      <Filter>audio</Filter>
+    </ClInclude>
+    <ClInclude Include="audio\audioDevice.h">
+      <Filter>audio</Filter>
+    </ClInclude>
+    <ClInclude Include="audio\audioDeviceX.h">
+      <Filter>audio</Filter>
+    </ClInclude>
+    <ClInclude Include="common\common.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\definitions.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\version.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="core\allocator.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\eventDefine.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\eventSystem.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\globalContext.hpp">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\jobSystem.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\memory.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\safeRefcount.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\settings.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\subSystem.hpp">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiAnimation\guiAnimaionOptions.h">
+      <Filter>gui\guiAnimation</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiAnimation\guiAnimation.h">
+      <Filter>gui\guiAnimation</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiAnimation\guiAnimationManager.h">
+      <Filter>gui\guiAnimation</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiAnimation\guiTimeline.h">
+      <Filter>gui\guiAnimation</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiAnimation\note.h">
+      <Filter>gui\guiAnimation</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiAnimation\valueAnimation.h">
+      <Filter>gui\guiAnimation</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiAnimation\valueAnimation_impl.h">
+      <Filter>gui\guiAnimation</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiCore\guiDispatcher.h">
+      <Filter>gui\guiCore</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiCore\guiDispatcher_impl.h">
+      <Filter>gui\guiCore</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiCore\guiDistributor.h">
+      <Filter>gui\guiCore</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiCore\guiEvents.h">
+      <Filter>gui\guiCore</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiFactory.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiInclude.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiRenderer.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiScheme.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiStage.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\button.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\checkBox.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\container.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\image.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\inputField.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\label.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\layouts\boxLayout.h">
+      <Filter>gui\guiWidgets\layouts</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\layouts\gridLayout.h">
+      <Filter>gui\guiWidgets\layouts</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\layouts\layout.h">
+      <Filter>gui\guiWidgets\layouts</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\listPanel.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\ninePatchImage.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\popup.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\scrollView.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\stackPanel.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\textEdit.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\widgetHierarchy.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\widgetInclude.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\widgetManager.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\widget_properties.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\widgets.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\guiWidgets\window.h">
+      <Filter>gui\guiWidgets</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\IDGenerator.h">
+      <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\archive.h">
+      <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\binaryArchive.h">
+      <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\debug.h">
+      <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\enumInfo.h">
+      <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\enumInfo.inl">
+      <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\fileSystem.h">
+      <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\helper.h">
+      <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\jsonArchive.h">
+      <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\logger.h">
+      <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\profiler.h">
+      <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\random.h">
+      <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\stringID.h">
+      <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\systemTime.h">
+      <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\timer.h">
+      <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\variant.h">
+      <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="helper\variant.inl">
+      <Filter>helper</Filter>
+    </ClInclude>
+    <ClInclude Include="input\InputSystem.h">
+      <Filter>input</Filter>
+    </ClInclude>
+    <ClInclude Include="note.h" />
+    <ClInclude Include="renderer\2D\font.h">
+      <Filter>renderer\2D</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\2D\renderer2D.h">
+      <Filter>renderer\2D</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\2D\sprite.h">
+      <Filter>renderer\2D</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\2D\textDrawable.h">
+      <Filter>renderer\2D</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\RHI\d3d11\deviceD3D11.h">
+      <Filter>renderer\RHI\d3d11</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\RHI\d3d11\includeD3D11.h">
+      <Filter>renderer\RHI\d3d11</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\RHI\d3d11\rhiResourceD3D11.h">
+      <Filter>renderer\RHI\d3d11</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\RHI\d3d11\swapChainD3D11.h">
+      <Filter>renderer\RHI\d3d11</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\RHI\device.h">
+      <Filter>renderer\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\RHI\rhiDefinition.h">
+      <Filter>renderer\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\RHI\rhiFactory.h">
+      <Filter>renderer\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\RHI\rhiResource.h">
+      <Filter>renderer\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\RHI\rhiShader.h">
+      <Filter>renderer\RHI</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\passes\note.h">
+      <Filter>renderer\passes</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\passes\particle\particlePass.h">
+      <Filter>renderer\passes\particle</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\passes\renderPass.h">
+      <Filter>renderer\passes</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\passes\terrain\terrainPass.h">
+      <Filter>renderer\passes\terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\passes\terrain\terrainRender.h">
+      <Filter>renderer\passes\terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\passes\terrain\terrainTree.h">
+      <Filter>renderer\passes\terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\paths\renderImage.h">
+      <Filter>renderer\paths</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\paths\renderPath.h">
+      <Filter>renderer\paths</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\paths\renderPath2D.h">
+      <Filter>renderer\paths</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\paths\renderPath3D.h">
+      <Filter>renderer\paths</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\paths\renderPath_forward.h">
+      <Filter>renderer\paths</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\paths\renderPath_tiledForward.h">
+      <Filter>renderer\paths</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\pipelineStates\pipelineStateManager.h">
+      <Filter>renderer\pipelineStates</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\preset\presetDefinitions.h">
+      <Filter>renderer\preset</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\preset\renderPreset.h">
+      <Filter>renderer\preset</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\preset\shaderDefinitions.h">
+      <Filter>renderer\preset</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\renderNote.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\renderableCommon.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\renderer.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\rendererUtils.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\shaderLib.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\textureHelper.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="resource\modelImporter\modelImporter.h">
+      <Filter>resource\modelImporter</Filter>
+    </ClInclude>
+    <ClInclude Include="resource\resource.h">
+      <Filter>resource</Filter>
+    </ClInclude>
+    <ClInclude Include="resource\resourceManager.h">
+      <Filter>resource</Filter>
+    </ClInclude>
+    <ClInclude Include="resource\resourceManager.inl">
+      <Filter>resource</Filter>
+    </ClInclude>
+    <ClInclude Include="resource\resourcePool.hpp">
+      <Filter>resource</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\api\jsonApi.h">
+      <Filter>scripts\api</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\api\luaApi.h">
+      <Filter>scripts\api</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\api\matrixApi.h">
+      <Filter>scripts\api</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\api\sceneApi.h">
+      <Filter>scripts\api</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\api\uiApi.h">
+      <Filter>scripts\api</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\api\utilsApi.h">
+      <Filter>scripts\api</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\api\vectorApi.h">
+      <Filter>scripts\api</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\binder\luaArg.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\binder\luaBinder.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\binder\luaBinder_impl.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\binder\luaCommon.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\binder\luaException.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\binder\luaInvoke.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\binder\luaObject.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\binder\luaRef.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\binder\luaTools.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\binder\luaTypeMapping.h">
+      <Filter>scripts\binder</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\lua\lapi.h">
+      <Filter>scripts\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\lua\lauxlib.h">
+      <Filter>scripts\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\lua\lcode.h">
+      <Filter>scripts\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\lua\lctype.h">
+      <Filter>scripts\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\lua\ldebug.h">
+      <Filter>scripts\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\lua\ldo.h">
+      <Filter>scripts\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\lua\lfunc.h">
+      <Filter>scripts\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\lua\lgc.h">
+      <Filter>scripts\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\lua\llex.h">
+      <Filter>scripts\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\lua\llimits.h">
+      <Filter>scripts\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\lua\lmem.h">
+      <Filter>scripts\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\lua\lobject.h">
+      <Filter>scripts\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\lua\lopcodes.h">
+      <Filter>scripts\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\lua\lparser.h">
+      <Filter>scripts\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\lua\lprefix.h">
+      <Filter>scripts\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\lua\lstate.h">
+      <Filter>scripts\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\lua\lstring.h">
+      <Filter>scripts\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\lua\ltable.h">
+      <Filter>scripts\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\lua\ltm.h">
+      <Filter>scripts\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\lua\lua.h">
+      <Filter>scripts\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\lua\lua.hpp">
+      <Filter>scripts\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\lua\luaconf.h">
+      <Filter>scripts\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\lua\lualib.h">
+      <Filter>scripts\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\lua\lundump.h">
+      <Filter>scripts\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\lua\lvm.h">
+      <Filter>scripts\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\lua\lzio.h">
+      <Filter>scripts\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\luaContext.h">
+      <Filter>scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\luaContext.inl">
+      <Filter>scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="system\component\animation.h">
+      <Filter>system\component</Filter>
+    </ClInclude>
+    <ClInclude Include="system\component\camera.h">
+      <Filter>system\component</Filter>
+    </ClInclude>
+    <ClInclude Include="system\component\component.h">
+      <Filter>system\component</Filter>
+    </ClInclude>
+    <ClInclude Include="system\component\componentInclude.h">
+      <Filter>system\component</Filter>
+    </ClInclude>
+    <ClInclude Include="system\component\genericType.h">
+      <Filter>system\component</Filter>
+    </ClInclude>
+    <ClInclude Include="system\component\light.h">
+      <Filter>system\component</Filter>
+    </ClInclude>
+    <ClInclude Include="system\component\material.h">
+      <Filter>system\component</Filter>
+    </ClInclude>
+    <ClInclude Include="system\component\mesh.h">
+      <Filter>system\component</Filter>
+    </ClInclude>
+    <ClInclude Include="system\component\object.h">
+      <Filter>system\component</Filter>
+    </ClInclude>
+    <ClInclude Include="system\component\particle.h">
+      <Filter>system\component</Filter>
+    </ClInclude>
+    <ClInclude Include="system\component\sound.h">
+      <Filter>system\component</Filter>
+    </ClInclude>
+    <ClInclude Include="system\component\terrain.h">
+      <Filter>system\component</Filter>
+    </ClInclude>
+    <ClInclude Include="system\component\transform.h">
+      <Filter>system\component</Filter>
+    </ClInclude>
+    <ClInclude Include="system\component\weather.h">
+      <Filter>system\component</Filter>
+    </ClInclude>
+    <ClInclude Include="system\ecsSystem.h">
+      <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="system\sceneSystem.h">
+      <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="system\sceneSystem.inl">
+      <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="system\sceneSystemInclude.h">
+      <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\allocator\linearAllocator.h">
+      <Filter>utils\allocator</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\allocator\tlsfAllocator.h">
+      <Filter>utils\allocator</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\array.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\color.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\container\dynamicArray.h">
+      <Filter>utils\container</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\container\hashMap.h">
+      <Filter>utils\container</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\container\map.h">
+      <Filter>utils\container</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\container\staticArray.h">
+      <Filter>utils\container</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\geometry.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\intersectable.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\json\json.hpp">
+      <Filter>utils\json</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\math.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\objectPool.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\quadTree.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\reckPacker\best_bin_finder.h">
+      <Filter>utils\reckPacker</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\reckPacker\empty_space_allocators.h">
+      <Filter>utils\reckPacker</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\reckPacker\empty_spaces.h">
+      <Filter>utils\reckPacker</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\reckPacker\finders_interface.h">
+      <Filter>utils\reckPacker</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\reckPacker\insert_and_split.h">
+      <Filter>utils\reckPacker</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\reckPacker\rect_structs.h">
+      <Filter>utils\reckPacker</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\signal\connection.h">
+      <Filter>utils\signal</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\signal\connectionList.h">
+      <Filter>utils\signal</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\signal\connectionMap.h">
+      <Filter>utils\signal</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\signal\signal.h">
+      <Filter>utils\signal</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\signal\signalInclude.h">
+      <Filter>utils\signal</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\singleton.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\stb_utils\stb_image.h">
+      <Filter>utils\stb_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\stb_utils\stb_image_include.h">
+      <Filter>utils\stb_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\stb_utils\stb_truetype.h">
+      <Filter>utils\stb_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\string\utf8.h">
+      <Filter>utils\string</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\string\utf8String.h">
+      <Filter>utils\string</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\string\utf8StringIt.h">
+      <Filter>utils\string</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\thread\spinLock.h">
+      <Filter>utils\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\threadSafeBuffer.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tinyddsloader.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tinygltf\tiny_gltf.h">
+      <Filter>utils\tinygltf</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tinyobjloader.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tinyxml2\tinyxml2.h">
+      <Filter>utils\tinyxml2</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tlsf\tlsf.h">
+      <Filter>utils\tlsf</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\treeNode.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tween\dispatcher.h">
+      <Filter>utils\tween</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tween\easing.h">
+      <Filter>utils\tween</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tween\easingresolve.h">
+      <Filter>utils\tween</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tween\int2type.h">
+      <Filter>utils\tween</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tween\tween.h">
+      <Filter>utils\tween</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tween\tweenpoint.h">
+      <Filter>utils\tween</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tween\tweentraits.h">
+      <Filter>utils\tween</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\tween\tweeny.h">
+      <Filter>utils\tween</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\platform.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\win32\gameAppWin32.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\win32\engineWin32.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\gameWindow.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\win32\gameWindowWin32.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\win32\includeWin32.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\presentConfig.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="app\engine.h">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="app\gameComponent.h">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="input\keyboard.h">
+      <Filter>input</Filter>
+    </ClInclude>
+    <ClInclude Include="input\mouse.h">
+      <Filter>input</Filter>
+    </ClInclude>
+    <ClInclude Include="input\gamepad.h">
+      <Filter>input</Filter>
+    </ClInclude>
+    <ClInclude Include="input\keyCode.h">
+      <Filter>input</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\win32\inputSystemWin32.h">
+      <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\signal\event.h">
+      <Filter>utils\signal</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\systemEvent.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\signal\eventQueue.h">
+      <Filter>utils\signal</Filter>
+    </ClInclude>
+    <ClInclude Include="input\win32\keyboardWin32.h">
+      <Filter>input\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="input\win32\mouseWin32.h">
+      <Filter>input\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="input\xinput\gamepadXInput.h">
+      <Filter>input\xinput</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\string\stringHelper.h">
+      <Filter>utils\string</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\string\stringConvert.h">
+      <Filter>utils\string</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="audio\audio.cpp">
+      <Filter>audio</Filter>
+    </ClCompile>
+    <ClCompile Include="audio\audioDevice.cpp">
+      <Filter>audio</Filter>
+    </ClCompile>
+    <ClCompile Include="audio\audioDeviceX.cpp">
+      <Filter>audio</Filter>
+    </ClCompile>
+    <ClCompile Include="common\version.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="core\allocator.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\eventSystem.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\jobSystem.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\memory.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\settings.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="generates\luabind_registers.cpp">
+      <Filter>generates</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiAnimation\guiAnimation.cpp">
+      <Filter>gui\guiAnimation</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiAnimation\guiAnimationManager.cpp">
+      <Filter>gui\guiAnimation</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiAnimation\guiTimeline.cpp">
+      <Filter>gui\guiAnimation</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiCore\guiDispatcher.cpp">
+      <Filter>gui\guiCore</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiCore\guiDistributor.cpp">
+      <Filter>gui\guiCore</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiFactory.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiRenderer.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiScheme.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiStage.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\button.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\checkBox.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\container.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\image.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\inputField.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\label.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\layouts\boxLayout.cpp">
+      <Filter>gui\guiWidgets\layouts</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\layouts\gridLayout.cpp">
+      <Filter>gui\guiWidgets\layouts</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\listPanel.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\ninePatchImage.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\popup.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\scrollView.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\stackPanel.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\textEdit.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\widgetHierarchy.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\widgetManager.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\widget_properties.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\widgets.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\guiWidgets\window.cpp">
+      <Filter>gui\guiWidgets</Filter>
+    </ClCompile>
+    <ClCompile Include="helper\IDGenerator.cpp">
+      <Filter>helper</Filter>
+    </ClCompile>
+    <ClCompile Include="helper\archive.cpp">
+      <Filter>helper</Filter>
+    </ClCompile>
+    <ClCompile Include="helper\binaryArchive.cpp">
       <Filter>helper</Filter>
     </ClCompile>
     <ClCompile Include="helper\debug.cpp">
       <Filter>helper</Filter>
     </ClCompile>
-    <ClCompile Include="helper\stringID.cpp">
+    <ClCompile Include="helper\fileSystem.cpp">
       <Filter>helper</Filter>
     </ClCompile>
-    <ClCompile Include="core\gameComponent.cpp">
-      <Filter>core</Filter>
+    <ClCompile Include="helper\jsonArchive.cpp">
+      <Filter>helper</Filter>
+    </ClCompile>
+    <ClCompile Include="helper\logger.cpp">
+      <Filter>helper</Filter>
     </ClCompile>
     <ClCompile Include="helper\profiler.cpp">
+      <Filter>helper</Filter>
+    </ClCompile>
+    <ClCompile Include="helper\random.cpp">
+      <Filter>helper</Filter>
+    </ClCompile>
+    <ClCompile Include="helper\stringID.cpp">
       <Filter>helper</Filter>
     </ClCompile>
     <ClCompile Include="helper\systemTime.cpp">
@@ -131,62 +1032,164 @@
     <ClCompile Include="helper\timer.cpp">
       <Filter>helper</Filter>
     </ClCompile>
-    <ClCompile Include="helper\IDGenerator.cpp">
+    <ClCompile Include="helper\variant.cpp">
       <Filter>helper</Filter>
+    </ClCompile>
+    <ClCompile Include="input\InputSystem.cpp">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\win32\safeRefcountWin32.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\2D\font.cpp">
+      <Filter>renderer\2D</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\2D\renderer2D.cpp">
+      <Filter>renderer\2D</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\2D\sprite.cpp">
+      <Filter>renderer\2D</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\2D\textDrawable.cpp">
+      <Filter>renderer\2D</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\RHI\d3d11\deviceD3D11.cpp">
+      <Filter>renderer\RHI\d3d11</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\RHI\d3d11\swapChainD3D11.cpp">
+      <Filter>renderer\RHI\d3d11</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\RHI\device.cpp">
+      <Filter>renderer\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\RHI\rhiFactory.cpp">
+      <Filter>renderer\RHI</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\passes\particle\particlePass.cpp">
+      <Filter>renderer\passes\particle</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\passes\terrain\terrainPass.cpp">
+      <Filter>renderer\passes\terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\passes\terrain\terrainTree.cpp">
+      <Filter>renderer\passes\terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\paths\renderImage.cpp">
+      <Filter>renderer\paths</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\paths\renderPath2D.cpp">
+      <Filter>renderer\paths</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\paths\renderPath3D.cpp">
+      <Filter>renderer\paths</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\paths\renderPath_forward.cpp">
+      <Filter>renderer\paths</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\paths\renderPath_tiledForward.cpp">
+      <Filter>renderer\paths</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\pipelineStates\imagePipelineStates.cpp">
+      <Filter>renderer\pipelineStates</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\pipelineStates\normalPipelineStates.cpp">
+      <Filter>renderer\pipelineStates</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\pipelineStates\pipelineStateManager.cpp">
+      <Filter>renderer\pipelineStates</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\preset\impl\blendState.cpp">
+      <Filter>renderer\preset\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\preset\impl\constantBuffer.cpp">
+      <Filter>renderer\preset\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\preset\impl\depthStencilState.cpp">
+      <Filter>renderer\preset\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\preset\impl\rasterizerState.cpp">
+      <Filter>renderer\preset\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\preset\impl\samplerState.cpp">
+      <Filter>renderer\preset\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\preset\impl\shaderPreset.cpp">
+      <Filter>renderer\preset\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\preset\impl\structuredBuffer.cpp">
+      <Filter>renderer\preset\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\preset\renderPreset.cpp">
+      <Filter>renderer\preset</Filter>
     </ClCompile>
     <ClCompile Include="renderer\renderer.cpp">
       <Filter>renderer</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\RHI\device.cpp">
-      <Filter>renderer\rhi</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\RHI\swapChainD3D11.cpp">
-      <Filter>renderer\rhi\d3d11</Filter>
+    <ClCompile Include="renderer\rendererUtils.cpp">
+      <Filter>renderer</Filter>
     </ClCompile>
     <ClCompile Include="renderer\shaderLib.cpp">
       <Filter>renderer</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\stateManager.cpp">
+    <ClCompile Include="renderer\textureHelper.cpp">
       <Filter>renderer</Filter>
     </ClCompile>
-    <ClCompile Include="core\threadSafeSystem.cpp">
-      <Filter>core</Filter>
+    <ClCompile Include="resource\modelImporter\modelImporterGLTF.cpp">
+      <Filter>resource\modelImporter</Filter>
     </ClCompile>
-    <ClCompile Include="resource\resourceManager.cpp">
-      <Filter>resource</Filter>
+    <ClCompile Include="resource\modelImporter\modelImporterObj.cpp">
+      <Filter>resource\modelImporter</Filter>
     </ClCompile>
     <ClCompile Include="resource\resource.cpp">
       <Filter>resource</Filter>
     </ClCompile>
-    <ClCompile Include="helper\fileSystem.cpp">
-      <Filter>helper</Filter>
+    <ClCompile Include="resource\resourceManager.cpp">
+      <Filter>resource</Filter>
     </ClCompile>
-    <ClCompile Include="core\eventSystem.cpp">
-      <Filter>core</Filter>
+    <ClCompile Include="scripts\api\jsonApi.cpp">
+      <Filter>scripts\api</Filter>
     </ClCompile>
-    <ClCompile Include="core\jobSystem.cpp">
-      <Filter>core</Filter>
+    <ClCompile Include="scripts\api\luaApi.cpp">
+      <Filter>scripts\api</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\RHI\deviceD3D11.cpp">
-      <Filter>renderer\rhi\d3d11</Filter>
+    <ClCompile Include="scripts\api\matrixApi.cpp">
+      <Filter>scripts\api</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\RHI\rhiFactory.cpp">
-      <Filter>renderer\rhi</Filter>
+    <ClCompile Include="scripts\api\rendererApi.cpp">
+      <Filter>scripts\api</Filter>
     </ClCompile>
-    <ClCompile Include="utils\intersectable.cpp">
-      <Filter>utils</Filter>
+    <ClCompile Include="scripts\api\sceneApi.cpp">
+      <Filter>scripts\api</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\rendererUtils.cpp">
-      <Filter>renderer</Filter>
+    <ClCompile Include="scripts\api\systemApi.cpp">
+      <Filter>scripts\api</Filter>
     </ClCompile>
-    <ClCompile Include="resource\modelImporter\modelImporterObj.cpp">
-      <Filter>resource\importer</Filter>
+    <ClCompile Include="scripts\api\uiApi.cpp">
+      <Filter>scripts\api</Filter>
     </ClCompile>
-    <ClCompile Include="helper\random.cpp">
-      <Filter>helper</Filter>
+    <ClCompile Include="scripts\api\utilsApi.cpp">
+      <Filter>scripts\api</Filter>
     </ClCompile>
-    <ClCompile Include="scripts\luaContext.cpp">
-      <Filter>scripts</Filter>
+    <ClCompile Include="scripts\api\vectorApi.cpp">
+      <Filter>scripts\api</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\binder\luaBinder.cpp">
+      <Filter>scripts\binder</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\binder\luaBinder_impl.cpp">
+      <Filter>scripts\binder</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\binder\luaException.cpp">
+      <Filter>scripts\binder</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\binder\luaObject.cpp">
+      <Filter>scripts\binder</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\binder\luaRef.cpp">
+      <Filter>scripts\binder</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\binder\luaTools.cpp">
+      <Filter>scripts\binder</Filter>
     </ClCompile>
     <ClCompile Include="scripts\lua\lapi.c">
       <Filter>scripts\lua</Filter>
@@ -278,9 +1281,6 @@
     <ClCompile Include="scripts\lua\lua.c">
       <Filter>scripts\lua</Filter>
     </ClCompile>
-    <ClCompile Include="scripts\lua\luac.c">
-      <Filter>scripts\lua</Filter>
-    </ClCompile>
     <ClCompile Include="scripts\lua\lundump.c">
       <Filter>scripts\lua</Filter>
     </ClCompile>
@@ -293,10 +1293,22 @@
     <ClCompile Include="scripts\lua\lzio.c">
       <Filter>scripts\lua</Filter>
     </ClCompile>
+    <ClCompile Include="scripts\luaContext.cpp">
+      <Filter>scripts</Filter>
+    </ClCompile>
+    <ClCompile Include="system\component\animation.cpp">
+      <Filter>system\component</Filter>
+    </ClCompile>
     <ClCompile Include="system\component\camera.cpp">
       <Filter>system\component</Filter>
     </ClCompile>
     <ClCompile Include="system\component\component.cpp">
+      <Filter>system\component</Filter>
+    </ClCompile>
+    <ClCompile Include="system\component\genericType.cpp">
+      <Filter>system\component</Filter>
+    </ClCompile>
+    <ClCompile Include="system\component\light.cpp">
       <Filter>system\component</Filter>
     </ClCompile>
     <ClCompile Include="system\component\material.cpp">
@@ -305,729 +1317,128 @@
     <ClCompile Include="system\component\mesh.cpp">
       <Filter>system\component</Filter>
     </ClCompile>
-    <ClCompile Include="system\component\transform.cpp">
-      <Filter>system\component</Filter>
-    </ClCompile>
-    <ClCompile Include="system\sceneSystem.cpp">
-      <Filter>system</Filter>
-    </ClCompile>
-    <ClCompile Include="system\sceneObjectSystem.cpp">
-      <Filter>system\systems</Filter>
-    </ClCompile>
-    <ClCompile Include="system\sceneTransformSystem.cpp">
-      <Filter>system\systems</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\luaBinder.cpp">
-      <Filter>scripts\binder</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\luaException.cpp">
-      <Filter>scripts\binder</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\luaObject.cpp">
-      <Filter>scripts\binder</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\luaTools.cpp">
-      <Filter>scripts\binder</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\api\luaApi.cpp">
-      <Filter>scripts\api</Filter>
-    </ClCompile>
-    <ClCompile Include="input\InputSystem.cpp">
-      <Filter>input</Filter>
-    </ClCompile>
-    <ClCompile Include="input\directInput.cpp">
-      <Filter>input</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\luaRef.cpp">
-      <Filter>scripts\binder</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\luaBinder_impl.cpp">
-      <Filter>scripts\binder</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\paths\renderImage.cpp">
-      <Filter>renderer\paths</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\paths\renderPath.cpp">
-      <Filter>renderer\paths</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\paths\renderPath_forward.cpp">
-      <Filter>renderer\paths</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\paths\renderPath2D.cpp">
-      <Filter>renderer\paths</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\paths\renderPath3D.cpp">
-      <Filter>renderer\paths</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\api\systemApi.cpp">
-      <Filter>scripts\api</Filter>
-    </ClCompile>
-    <ClCompile Include="generates\luabind_registers.cpp">
-      <Filter>generates</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\api\rendererApi.cpp">
-      <Filter>scripts\api</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\api\vectorApi.cpp">
-      <Filter>scripts\api</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\api\matrixApi.cpp">
-      <Filter>scripts\api</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\renderer2D.cpp">
-      <Filter>renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="system\component\light.cpp">
-      <Filter>system\component</Filter>
-    </ClCompile>
-    <ClCompile Include="system\sceneLightSystem.cpp">
-      <Filter>system\systems</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\bufferManager.cpp">
-      <Filter>renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\api\sceneApi.cpp">
-      <Filter>scripts\api</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ThirdParty\imgui\imgui.cpp">
-      <Filter>gui\guiEditor\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ThirdParty\imgui\imgui_demo.cpp">
-      <Filter>gui\guiEditor\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ThirdParty\imgui\imgui_draw.cpp">
-      <Filter>gui\guiEditor\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ThirdParty\imgui\imgui_widgets.cpp">
-      <Filter>gui\guiEditor\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="gui\imguiStage.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="gui\guiStage.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ThirdParty\imgui\imgui_impl_dx11.cpp">
-      <Filter>gui\guiEditor\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ThirdParty\imgui\imgui_impl_win32.cpp">
-      <Filter>gui\guiEditor\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="utils\baseWindow.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="gui\guiRenderer.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="utils\geometry.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\textureHelper.cpp">
-      <Filter>renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="utils\tinyxml2\tinyxml2.cpp">
-      <Filter>utils\tinyxml2</Filter>
-    </ClCompile>
-    <ClCompile Include="helper\archive.cpp">
-      <Filter>helper</Filter>
-    </ClCompile>
-    <ClCompile Include="gui\guiWidgets\Panel.cpp">
-      <Filter>gui\guiWidgets</Filter>
-    </ClCompile>
-    <ClCompile Include="gui\guiCore\guiDispatcher.cpp">
-      <Filter>gui\guiCore</Filter>
-    </ClCompile>
     <ClCompile Include="system\component\object.cpp">
       <Filter>system\component</Filter>
     </ClCompile>
-    <ClCompile Include="system\sceneSerializers.cpp">
-      <Filter>system</Filter>
+    <ClCompile Include="system\component\particle.cpp">
+      <Filter>system\component</Filter>
     </ClCompile>
-    <ClCompile Include="scripts\api\uiApi.cpp">
-      <Filter>scripts\api</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\api\utilsApi.cpp">
-      <Filter>scripts\api</Filter>
-    </ClCompile>
-    <ClCompile Include="system\component\genericType.cpp">
+    <ClCompile Include="system\component\sound.cpp">
       <Filter>system\component</Filter>
     </ClCompile>
     <ClCompile Include="system\component\terrain.cpp">
       <Filter>system\component</Filter>
     </ClCompile>
-    <ClCompile Include="system\systems\sceneTerrainSystem.cpp">
-      <Filter>system\systems</Filter>
-    </ClCompile>
-    <ClCompile Include="system\component\animation.cpp">
+    <ClCompile Include="system\component\transform.cpp">
       <Filter>system\component</Filter>
-    </ClCompile>
-    <ClCompile Include="resource\modelImporter\modelImporterGLTF.cpp">
-      <Filter>resource\importer</Filter>
-    </ClCompile>
-    <ClCompile Include="system\systems\sceneAnimationSystem.cpp">
-      <Filter>system\systems</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\passes\terrainPass.cpp">
-      <Filter>renderer\passes\terrain</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\passes\terrainTree.cpp">
-      <Filter>renderer\passes\terrain</Filter>
     </ClCompile>
     <ClCompile Include="system\component\weather.cpp">
       <Filter>system\component</Filter>
     </ClCompile>
-    <ClCompile Include="core\memory.cpp">
-      <Filter>core</Filter>
+    <ClCompile Include="system\sceneSerializers.cpp">
+      <Filter>system</Filter>
     </ClCompile>
-    <ClCompile Include="utils\tlsf\tlsf.c">
-      <Filter>utils\tlsf</Filter>
+    <ClCompile Include="system\sceneSystem.cpp">
+      <Filter>system</Filter>
     </ClCompile>
-    <ClCompile Include="core\allocator.cpp">
-      <Filter>core</Filter>
+    <ClCompile Include="system\systems\sceneAnimationSystem.cpp">
+      <Filter>system\systems</Filter>
     </ClCompile>
-    <ClCompile Include="core\safeRefcount.cpp">
-      <Filter>core</Filter>
+    <ClCompile Include="system\systems\sceneLightSystem.cpp">
+      <Filter>system\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="system\systems\sceneObjectSystem.cpp">
+      <Filter>system\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="system\systems\sceneParticleSystem.cpp">
+      <Filter>system\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="system\systems\sceneSoundSystem.cpp">
+      <Filter>system\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="system\systems\sceneTerrainSystem.cpp">
+      <Filter>system\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="system\systems\sceneTransformSystem.cpp">
+      <Filter>system\systems</Filter>
     </ClCompile>
     <ClCompile Include="utils\allocator\tlsfAllocator.cpp">
       <Filter>utils\allocator</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\pipelineStates\imagePipelineStates.cpp">
-      <Filter>renderer\pipelineStates</Filter>
+    <ClCompile Include="utils\geometry.cpp">
+      <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\pipelineStates\normalPipelineStates.cpp">
-      <Filter>renderer\pipelineStates</Filter>
+    <ClCompile Include="utils\intersectable.cpp">
+      <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\pipelineStates\pipelineStateManager.cpp">
-      <Filter>renderer\pipelineStates</Filter>
+    <ClCompile Include="utils\signal\connection.cpp">
+      <Filter>utils\signal</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\paths\renderPath_tiledForward.cpp">
-      <Filter>renderer\paths</Filter>
+    <ClCompile Include="utils\signal\connectionList.cpp">
+      <Filter>utils\signal</Filter>
     </ClCompile>
-    <ClCompile Include="gui\guiFactory.cpp">
-      <Filter>gui</Filter>
+    <ClCompile Include="utils\signal\connectionMap.cpp">
+      <Filter>utils\signal</Filter>
     </ClCompile>
-    <ClCompile Include="gui\widget_properties.cpp">
-      <Filter>gui</Filter>
+    <ClCompile Include="utils\string\utf8String.cpp">
+      <Filter>utils\string</Filter>
     </ClCompile>
-    <ClCompile Include="gui\widgetManager.cpp">
-      <Filter>gui</Filter>
+    <ClCompile Include="utils\string\utf8StringIt.cpp">
+      <Filter>utils\string</Filter>
     </ClCompile>
-    <ClCompile Include="gui\widgets.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="engine.h" />
-    <ClInclude Include="common\common.h">
-      <Filter>common</Filter>
-    </ClInclude>
-    <ClInclude Include="core\gameComponent.h">
-      <Filter>core</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\renderableCommon.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\renderer.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\array.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\math.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="helper\logger.h">
-      <Filter>helper</Filter>
-    </ClInclude>
-    <ClInclude Include="helper\debug.h">
-      <Filter>helper</Filter>
-    </ClInclude>
-    <ClInclude Include="helper\stringID.h">
-      <Filter>helper</Filter>
-    </ClInclude>
-    <ClInclude Include="helper\profiler.h">
-      <Filter>helper</Filter>
-    </ClInclude>
-    <ClInclude Include="helper\systemTime.h">
-      <Filter>helper</Filter>
-    </ClInclude>
-    <ClInclude Include="helper\timer.h">
-      <Filter>helper</Filter>
-    </ClInclude>
-    <ClInclude Include="helper\IDGenerator.h">
-      <Filter>helper</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\RHI\device.h">
-      <Filter>renderer\rhi</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\RHI\rhiDefinition.h">
-      <Filter>renderer\rhi</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\RHI\swapChainD3D11.h">
-      <Filter>renderer\rhi\d3d11</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\RHI\rhiStructure.h">
-      <Filter>renderer\rhi</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\shaderLib.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\stateManager.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\RHI\rhiResource.h">
-      <Filter>renderer\rhi</Filter>
-    </ClInclude>
-    <ClInclude Include="core\threadSafeSystem.h">
-      <Filter>core</Filter>
-    </ClInclude>
-    <ClInclude Include="resource\resource.h">
-      <Filter>resource</Filter>
-    </ClInclude>
-    <ClInclude Include="resource\resourceManager.h">
-      <Filter>resource</Filter>
-    </ClInclude>
-    <ClInclude Include="resource\resourcePool.hpp">
-      <Filter>resource</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\RHI\rhiShader.h">
-      <Filter>renderer\rhi</Filter>
-    </ClInclude>
-    <ClInclude Include="helper\fileSystem.h">
-      <Filter>helper</Filter>
-    </ClInclude>
-    <ClInclude Include="resource\modelImporter.h">
-      <Filter>resource\importer</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\geometry.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="core\eventSystem.h">
-      <Filter>core</Filter>
-    </ClInclude>
-    <ClInclude Include="helper\variant.h">
-      <Filter>helper</Filter>
-    </ClInclude>
-    <ClInclude Include="core\systemContext.hpp">
-      <Filter>core</Filter>
-    </ClInclude>
-    <ClInclude Include="core\subSystem.hpp">
-      <Filter>core</Filter>
-    </ClInclude>
-    <ClInclude Include="core\jobSystem.h">
-      <Filter>core</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\threadSafeBuffer.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\includeD3D11.h">
-      <Filter>renderer\rhi\d3d11</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\RHI\deviceD3D11.h">
-      <Filter>renderer\rhi\d3d11</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\RHI\rhiFactory.h">
-      <Filter>renderer\rhi</Filter>
-    </ClInclude>
-    <ClInclude Include="core\eventDefine.h">
-      <Filter>core</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\intersectable.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\rendererUtils.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="helper\helper.h">
-      <Filter>helper</Filter>
-    </ClInclude>
-    <ClInclude Include="helper\random.h">
-      <Filter>helper</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaContext.h">
-      <Filter>scripts</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\lua\lapi.h">
-      <Filter>scripts\lua</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\lua\lauxlib.h">
-      <Filter>scripts\lua</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\lua\lcode.h">
-      <Filter>scripts\lua</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\lua\lctype.h">
-      <Filter>scripts\lua</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\lua\ldebug.h">
-      <Filter>scripts\lua</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\lua\ldo.h">
-      <Filter>scripts\lua</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\lua\lfunc.h">
-      <Filter>scripts\lua</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\lua\lgc.h">
-      <Filter>scripts\lua</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\lua\llex.h">
-      <Filter>scripts\lua</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\lua\llimits.h">
-      <Filter>scripts\lua</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\lua\lmem.h">
-      <Filter>scripts\lua</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\lua\lobject.h">
-      <Filter>scripts\lua</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\lua\lopcodes.h">
-      <Filter>scripts\lua</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\lua\lparser.h">
-      <Filter>scripts\lua</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\lua\lprefix.h">
-      <Filter>scripts\lua</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\lua\lstate.h">
-      <Filter>scripts\lua</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\lua\lstring.h">
-      <Filter>scripts\lua</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\lua\ltable.h">
-      <Filter>scripts\lua</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\lua\ltm.h">
-      <Filter>scripts\lua</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\lua\lua.h">
-      <Filter>scripts\lua</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\lua\lua.hpp">
-      <Filter>scripts\lua</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\lua\luaconf.h">
-      <Filter>scripts\lua</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\lua\lualib.h">
-      <Filter>scripts\lua</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\lua\lundump.h">
-      <Filter>scripts\lua</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\lua\lvm.h">
-      <Filter>scripts\lua</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\lua\lzio.h">
-      <Filter>scripts\lua</Filter>
-    </ClInclude>
-    <ClInclude Include="note.h" />
-    <ClInclude Include="system\component\camera.h">
-      <Filter>system\component</Filter>
-    </ClInclude>
-    <ClInclude Include="system\component\component.h">
-      <Filter>system\component</Filter>
-    </ClInclude>
-    <ClInclude Include="system\component\componentInclude.h">
-      <Filter>system\component</Filter>
-    </ClInclude>
-    <ClInclude Include="system\component\material.h">
-      <Filter>system\component</Filter>
-    </ClInclude>
-    <ClInclude Include="system\component\mesh.h">
-      <Filter>system\component</Filter>
-    </ClInclude>
-    <ClInclude Include="system\component\object.h">
-      <Filter>system\component</Filter>
-    </ClInclude>
-    <ClInclude Include="system\component\transform.h">
-      <Filter>system\component</Filter>
-    </ClInclude>
-    <ClInclude Include="system\ecsSystem.h">
-      <Filter>system</Filter>
-    </ClInclude>
-    <ClInclude Include="system\sceneSystem.h">
-      <Filter>system</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaArg.h">
-      <Filter>scripts\binder</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaBinder.h">
-      <Filter>scripts\binder</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaBinder_impl.h">
-      <Filter>scripts\binder</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaCommon.h">
-      <Filter>scripts\binder</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaException.h">
-      <Filter>scripts\binder</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaInvoke.h">
-      <Filter>scripts\binder</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaObject.h">
-      <Filter>scripts\binder</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaRef.h">
-      <Filter>scripts\binder</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaTools.h">
-      <Filter>scripts\binder</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\luaTypeMapping.h">
-      <Filter>scripts\binder</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\api\luaApi.h">
-      <Filter>scripts\api</Filter>
-    </ClInclude>
-    <ClInclude Include="input\InputSystem.h">
-      <Filter>input</Filter>
-    </ClInclude>
-    <ClInclude Include="input\directInput.h">
-      <Filter>input</Filter>
-    </ClInclude>
-    <ClInclude Include="helper\enumInfo.h">
-      <Filter>helper</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\paths\renderPath.h">
-      <Filter>renderer\paths</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\paths\renderImage.h">
-      <Filter>renderer\paths</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\paths\renderPath_forward.h">
-      <Filter>renderer\paths</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\paths\renderPath2D.h">
-      <Filter>renderer\paths</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\paths\renderPath3D.h">
-      <Filter>renderer\paths</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\api\vectorApi.h">
-      <Filter>scripts\api</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\api\matrixApi.h">
-      <Filter>scripts\api</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\renderer2D.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\tinyddsloader.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\tinyobjloader.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="system\component\light.h">
-      <Filter>system\component</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\bufferManager.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\renderNote.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\api\sceneApi.h">
-      <Filter>scripts\api</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ThirdParty\imgui\imconfig.h">
-      <Filter>gui\guiEditor\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ThirdParty\imgui\imgui.h">
-      <Filter>gui\guiEditor\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ThirdParty\imgui\imgui_internal.h">
-      <Filter>gui\guiEditor\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\imguiStage.h">
-      <Filter>gui</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\guiStage.h">
-      <Filter>gui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ThirdParty\imgui\imgui_impl_dx11.h">
-      <Filter>gui\guiEditor\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ThirdParty\imgui\imgui_impl_win32.h">
-      <Filter>gui\guiEditor\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\baseWindow.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\guiRenderer.h">
-      <Filter>gui</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\treeNode.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\guiInclude.h">
-      <Filter>gui</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\color.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\textureHelper.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\tinyxml2\tinyxml2.h">
+    <ClCompile Include="utils\tinyxml2\tinyxml2.cpp">
       <Filter>utils\tinyxml2</Filter>
-    </ClInclude>
-    <ClInclude Include="helper\archive.h">
-      <Filter>helper</Filter>
-    </ClInclude>
-    <ClInclude Include="common\definitions.h">
-      <Filter>common</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\guiWidgets\Panel.h">
-      <Filter>gui\guiWidgets</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\guiCore\guiDispatcher.h">
-      <Filter>gui\guiCore</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\guiCore\guiDispatcher_impl.h">
-      <Filter>gui\guiCore</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\guiCore\guiEvents.h">
-      <Filter>gui\guiCore</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\api\uiApi.h">
-      <Filter>scripts\api</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\api\utilsApi.h">
-      <Filter>scripts\api</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ThirdParty\optick\optick.config.h">
-      <Filter>utils\optick</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ThirdParty\optick\optick.h">
-      <Filter>utils\optick</Filter>
-    </ClInclude>
-    <ClInclude Include="system\component\genericType.h">
-      <Filter>system\component</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\quadTree.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="system\component\terrain.h">
-      <Filter>system\component</Filter>
-    </ClInclude>
-    <ClInclude Include="system\component\animation.h">
-      <Filter>system\component</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\tinygltf\tiny_gltf.h">
-      <Filter>utils\tinygltf</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\json\json.hpp">
-      <Filter>utils\json</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\stb_image_include.h">
-      <Filter>utils\stb_image</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\stb_image.h">
-      <Filter>utils\stb_image</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\stb_truetype.h">
-      <Filter>utils\stb_image</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\RHI\d3d11\rhiResourceD3D11.h">
-      <Filter>renderer\rhi\d3d11</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\passes\note.h">
-      <Filter>renderer\passes</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\passes\renderPass.h">
-      <Filter>renderer\passes</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\passes\terrainPass.h">
-      <Filter>renderer\passes\terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\passes\terrainRender.h">
-      <Filter>renderer\passes\terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\passes\terrainTree.h">
-      <Filter>renderer\passes\terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="system\component\weather.h">
-      <Filter>system\component</Filter>
-    </ClInclude>
-    <ClInclude Include="core\memory.h">
-      <Filter>core</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\allocator\linearAllocator.h">
-      <Filter>utils\allocator</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\objectPool.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\allocator\tlsfAllocator.h">
-      <Filter>utils\allocator</Filter>
-    </ClInclude>
-    <ClInclude Include="core\allocator.h">
-      <Filter>core</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\tlsf\tlsf.h">
+    </ClCompile>
+    <ClCompile Include="utils\tlsf\tlsf.c">
       <Filter>utils\tlsf</Filter>
-    </ClInclude>
-    <ClInclude Include="core\safeRefcount.h">
+    </ClCompile>
+    <ClCompile Include="platform\win32\platformWin32.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\win32\gameAppWin32.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\win32\engineWin32.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\win32\gameWindowWin32.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="app\engine.cpp">
+      <Filter>app</Filter>
+    </ClCompile>
+    <ClCompile Include="app\gameComponent.cpp">
+      <Filter>app</Filter>
+    </ClCompile>
+    <ClCompile Include="input\keyboard.cpp">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="input\keyCode.cpp">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\win32\inputSystemWin32.cpp">
+      <Filter>platform\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\signal\eventQueue.cpp">
+      <Filter>utils\signal</Filter>
+    </ClCompile>
+    <ClCompile Include="input\win32\keyboardWin32.cpp">
+      <Filter>input\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="core\globalContext.cpp">
       <Filter>core</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\container\dynamicArray.h">
-      <Filter>utils\container</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\container\map.h">
-      <Filter>utils\container</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\container\staticArray.h">
-      <Filter>utils\container</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\container\hashMap.h">
-      <Filter>utils\container</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\pipelineStates\pipelineStateManager.h">
-      <Filter>renderer\pipelineStates</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\paths\renderPath_tiledForward.h">
-      <Filter>renderer\paths</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\guiEditor\guiEditorInclude.h">
-      <Filter>gui\guiEditor</Filter>
-    </ClInclude>
-    <ClInclude Include="common\version.h">
-      <Filter>common</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\guiFactory.h">
-      <Filter>gui</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\widget_properties.h">
-      <Filter>gui</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\widgetManager.h">
-      <Filter>gui</Filter>
-    </ClInclude>
-    <ClInclude Include="gui\widgets.h">
-      <Filter>gui</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="resource\resourceManager.inl">
-      <Filter>resource</Filter>
-    </None>
-    <None Include="system\sceneSystem.inl">
-      <Filter>system</Filter>
-    </None>
-    <None Include="scripts\luaContext.inl">
-      <Filter>scripts</Filter>
-    </None>
-    <None Include="helper\enumInfo.inl">
-      <Filter>helper</Filter>
-    </None>
-    <None Include="precompile.bat" />
+    </ClCompile>
+    <ClCompile Include="input\win32\mouseWin32.cpp">
+      <Filter>input\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="input\xinput\gamepadXInput.cpp">
+      <Filter>input\xinput</Filter>
+    </ClCompile>
+    <ClCompile Include="input\gamepad.cpp">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\string\stringHelper.cpp">
+      <Filter>utils\string</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

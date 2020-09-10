@@ -81,10 +81,9 @@ namespace Cjing3D {
 		}
 	}
 
-	void UpdateSceneAnimationSystem(Scene& scene)
+	void SceneSystem::UpdateSceneAnimationSystem(Scene& scene)
 	{
-		SystemContext& systemContext = SystemContext::GetSystemContext();
-		F32 deltaTime = systemContext.GetDelatTime();
+		F32 deltaTime = GetGlobalContext().GetDelatTime();
 
 		ECS::ComponentManager<AnimationComponent>& animations = scene.mAnimations;
 		ECS::ComponentManager<TransformComponent>& transforms = scene.mTransforms;
@@ -133,7 +132,7 @@ namespace Cjing3D {
 
 			if (animation.IsPlaying())
 			{
-				animation.mCurrentTimer += deltaTime;
+				animation.mCurrentTimer += deltaTime * animation.mSpeed;
 
 				// reset current timer if animation is looped
 				if (animation.mCurrentTimer > animation.mTimeEnd && animation.IsLooped()) {
@@ -143,7 +142,7 @@ namespace Cjing3D {
 		}
 	}
 
-	void UpdateSceneArmatureSystem(Scene& scene)
+	void SceneSystem::UpdateSceneArmatureSystem(Scene& scene)
 	{
 		ECS::ComponentManager<ArmatureComponent>& armatures = scene.mArmatures;
 		ECS::ComponentManager<TransformComponent>& transforms = scene.mTransforms;

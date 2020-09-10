@@ -1,6 +1,6 @@
 #pragma once
 
-#include "scripts\luaBinder.h"
+#include "scripts\binder\luaBinder.h"
 #include "scripts\api\vectorApi.h"
 
 namespace Cjing3D

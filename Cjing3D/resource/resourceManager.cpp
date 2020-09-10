@@ -1,38 +1,41 @@
 #include "resourceManager.h"
 #include "helper\fileSystem.h"
-#include "utils\utilsCommon.h"
 #include "renderer\renderer.h"
-#include "core\systemContext.hpp"
-
-#include "utils\stb_image_include.h"
+#include "renderer\RHI\device.h"
+#include "core\globalContext.hpp"
+#include "audio\audio.h"
+#include "utils\stb_utils\stb_image_include.h"
 
 #define TINYDDSLOADER_IMPLEMENTATION
 #include "utils\tinyddsloader.h"
 
 namespace Cjing3D
 {
+ResourceManager::ResourceManager()
+{
+}
+
+ResourceManager::~ResourceManager()
+{
+}
+
 void ResourceManager::Initialize()
 {
-	AddStandardResourceDirectory(Resrouce_VertexShader, "Shaders/");
-	AddStandardResourceDirectory(Resrouce_PixelShader, "Shaders/");
-	AddStandardResourceDirectory(Resource_ComputeShader, "Shaders/");
-	AddStandardResourceDirectory(Resource_HullShader, "Shaders/");
-	AddStandardResourceDirectory(Resource_DomainShader, "Shaders/");
-
+	AddStandardResourceDirectory(Resource_Shader, "Shaders/");
 	AddStandardResourceDirectory(Resource_Model, "Models/");
-
+	AddStandardResourceDirectory(Resource_Sound, "Sounds/");
 }
 
 void ResourceManager::Uninitialize()
 {
 }
 
-void ResourceManager::AddStandardResourceDirectory(Resource_Type type, const std::string & path)
+void ResourceManager::AddStandardResourceDirectory(ResourceType type, const std::string & path)
 {
 	mResourceDirectories[type] = path;
 }
 
-const std::string & ResourceManager::GetStandardResourceDirectory(Resource_Type type) const
+const std::string & ResourceManager::GetStandardResourceDirectory(ResourceType type) const
 {
 	auto findIt = mResourceDirectories.find(type);
 	if (findIt != mResourceDirectories.end())
@@ -41,12 +44,12 @@ const std::string & ResourceManager::GetStandardResourceDirectory(Resource_Type 
 	}
 }
 
-ResourcePtr ResourceManager::GetOrCreateByType(const StringID & name, Resource_Type type)
+ResourcePtr ResourceManager::GetOrCreateByType(const StringID & name, ResourceType type)
 {
 	return ResourcePtr();
 }
 
-void ResourceManager::LoadTextureFromFilePath(const std::filesystem::path& filePath, RhiTexture2D& texture, FORMAT textureFormat, U32 channelCount, U32 bindFlag, bool generateMipmap)
+void ResourceManager::LoadTextureFromFilePath(const std::filesystem::path& filePath, Texture2D& texture, FORMAT textureFormat, U32 channelCount, U32 bindFlag, bool generateMipmap)
 {
 	Logger::Info("LoadTextureFromFilePath:" + filePath.string());
 
@@ -119,9 +122,21 @@ void ResourceManager::LoadTextureFromFilePath(const std::filesystem::path& fileP
 				case tinyddsloader::DDSFile::DXGIFormat::R8_SNorm: desc.mFormat = FORMAT_R8_SNORM; break;
 				case tinyddsloader::DDSFile::DXGIFormat::R8_SInt: desc.mFormat = FORMAT_R8_SINT; break;
 				case tinyddsloader::DDSFile::DXGIFormat::BC1_UNorm: desc.mFormat = FORMAT_BC1_UNORM; break;
-			default:
+				case tinyddsloader::DDSFile::DXGIFormat::BC1_UNorm_SRGB: desc.mFormat = FORMAT_BC1_UNORM_SRGB; break;
+				case tinyddsloader::DDSFile::DXGIFormat::BC2_UNorm: desc.mFormat = FORMAT_BC2_UNORM; break;
+				case tinyddsloader::DDSFile::DXGIFormat::BC2_UNorm_SRGB: desc.mFormat = FORMAT_BC2_UNORM_SRGB; break;
+				case tinyddsloader::DDSFile::DXGIFormat::BC3_UNorm: desc.mFormat = FORMAT_BC3_UNORM; break;
+				case tinyddsloader::DDSFile::DXGIFormat::BC3_UNorm_SRGB: desc.mFormat = FORMAT_BC3_UNORM_SRGB; break;
+				case tinyddsloader::DDSFile::DXGIFormat::BC4_UNorm: desc.mFormat = FORMAT_BC4_UNORM; break;
+				case tinyddsloader::DDSFile::DXGIFormat::BC4_SNorm: desc.mFormat = FORMAT_BC4_SNORM; break;
+				case tinyddsloader::DDSFile::DXGIFormat::BC5_UNorm: desc.mFormat = FORMAT_BC5_UNORM; break;
+				case tinyddsloader::DDSFile::DXGIFormat::BC5_SNorm: desc.mFormat = FORMAT_BC5_SNORM; break;
+				case tinyddsloader::DDSFile::DXGIFormat::BC7_UNorm: desc.mFormat = FORMAT_BC7_UNORM; break;
+				case tinyddsloader::DDSFile::DXGIFormat::BC7_UNorm_SRGB: desc.mFormat = FORMAT_BC7_UNORM_SRGB; break;
+				default:
 				Debug::Warning("Invalid dds texture format [" + std::to_string(static_cast<U32>(ddsFormat)) + ", " + path + "]");
-				break;
+				SAFE_DELETE_ARRAY(data);
+				return;
 			}
 
 			std::vector<SubresourceData> resourceData;
@@ -140,14 +155,15 @@ void ResourceManager::LoadTextureFromFilePath(const std::filesystem::path& fileP
 			}
 
 			// only support texture2D now.
-			if (ddsFile.GetTextureDimension() != tinyddsloader::DDSFile::TextureDimension::Texture2D) {
+			if (ddsFile.GetTextureDimension() != tinyddsloader::DDSFile::TextureDimension::Texture2D) 
+			{
+				SAFE_DELETE_ARRAY(data);
 				return;
 			}
 
-			Renderer& renderer = GlobalGetSubSystem<Renderer>();
-			const auto result = renderer.GetDevice().CreateTexture2D(&desc, resourceData.data(), texture);
+			const auto result = Renderer::GetDevice().CreateTexture2D(&desc, resourceData.data(), texture);
 			Debug::ThrowIfFailed(result, "Failed to create texture:%08x", result);
-			renderer.GetDevice().SetResourceName(texture, path.c_str());
+			Renderer::GetDevice().SetResourceName(texture, path.c_str());
 		}
 
 		SAFE_DELETE_ARRAY(data);
@@ -162,9 +178,7 @@ void ResourceManager::LoadTextureFromFilePath(const std::filesystem::path& fileP
 		unsigned char* rgb = stbi_load_from_memory(data, length, &width, &height, &bpp, channelCount);
 		if (rgb != nullptr)
 		{
-			SystemContext& systemContext = SystemContext::GetSystemContext();
-			Renderer& renderer = systemContext.GetSubSystem<Renderer>();
-			GraphicsDevice& device = renderer.GetDevice();
+			GraphicsDevice& device = Renderer::GetDevice();
 
 			TextureDesc desc = {};
 			desc.mWidth = width;
@@ -186,19 +200,19 @@ void ResourceManager::LoadTextureFromFilePath(const std::filesystem::path& fileP
 				mipWidth = std::max(1u, mipWidth / 2);
 			}
 
-			const auto result = renderer.GetDevice().CreateTexture2D(&desc, resourceData.data(), texture);
+			const auto result = device.CreateTexture2D(&desc, resourceData.data(), texture);
 			Debug::ThrowIfFailed(result, "Failed to create texture:%08x", result);
-			renderer.GetDevice().SetResourceName(texture, path.c_str());
+			device.SetResourceName(texture, path.c_str());
 
 			// 创建各个subresource的srv和uav,用于deferred generate mipmap
 			for (int mipLevel = 0; mipLevel < desc.mMipLevels; mipLevel++)
 			{
-				renderer.GetDevice().CreateShaderResourceView(texture, 0, -1, mipLevel, 1);
-				renderer.GetDevice().CreateUnordereddAccessView(texture, mipLevel);
+				device.CreateShaderResourceView(texture, 0, -1, mipLevel, 1);
+				device.CreateUnordereddAccessView(texture, 0, -1, mipLevel);
 			}
 
 			if (desc.mMipLevels > 1) {
-				renderer.AddDeferredTextureMipGen(texture);
+				Renderer::AddDeferredTextureMipGen(texture);
 			}
 		}
 
@@ -207,6 +221,107 @@ void ResourceManager::LoadTextureFromFilePath(const std::filesystem::path& fileP
 		if (data != nullptr) {
 			delete[] data;
 		}
+	}
+}
+
+void ResourceManager::LoadCubeTextureFromFilePath(const std::vector<std::filesystem::path>& filePaths, Texture2D& texture, const I32x2& size, FORMAT textureFormat, U32 bindFlag, bool generateMipmap)
+{
+	// TODO: fix bug
+
+	if (filePaths.size() < 6) {
+		Logger::Warning("Cube Texture must requires 6 textures");
+		return;
+	}
+
+	Logger::Info("LoadCubeTextureFromFilePath:");
+
+	TextureDesc desc = {};
+	desc.mWidth = size.x();
+	desc.mHeight = size.y();
+	desc.mArraySize = 6;
+	desc.mMipLevels = 1; // generateMipmap ? static_cast<U32>(std::log2(std::max(desc.mWidth, desc.mHeight))) : 1;
+	desc.mFormat = textureFormat;
+	desc.mBindFlags = bindFlag;
+	desc.mUsage = USAGE_DEFAULT;
+	desc.mMiscFlags = RESOURCE_MISC_TEXTURECUBE;
+
+	std::vector<SubresourceData> resourceData(desc.mMipLevels * desc.mArraySize);
+	std::vector<unsigned char*> loadedRGBs;
+	size_t index = 0;
+	for (const auto& filePath : filePaths)
+	{
+		Logger::Info(std::to_string(index) + filePath.string());
+
+		std::wstring extension(filePath.extension());
+		if (extension == L".dds") {
+			return;
+		}
+
+		const std::string path = filePath.generic_string();
+		size_t length = 0;
+		unsigned char* data = (unsigned char*)FileData::ReadFileBytes(path, length);
+		if (data == nullptr) {
+			return;
+		}
+
+		int width, height, bpp;
+		int channelCount = 4;
+		unsigned char* rgb = stbi_load_from_memory(data, length, &width, &height, &bpp, 4);
+		if (rgb != nullptr)
+		{
+			if (width != desc.mWidth || height != desc.mHeight) {
+				stbi_image_free(rgb);
+			}
+
+			// 对于非dds纹理加载，需要自建mipmap
+			U32 mipWidth = width;
+			for (int mipLevel = 0; mipLevel < desc.mMipLevels; mipLevel++)
+			{
+				size_t realIndex = mipLevel + index * desc.mMipLevels;
+				resourceData[realIndex].mSysMem = rgb;
+				resourceData[realIndex].mSysMemPitch = mipWidth * channelCount;
+				resourceData[realIndex].mSysMemSlicePitch = 0; //imageData->m_memSlicePitch;
+
+				mipWidth = std::max(1u, mipWidth / 2);
+			}
+		}
+
+		if (data != nullptr) {
+			delete[] data;
+		}
+	}
+
+	GraphicsDevice& device = Renderer::GetDevice();
+	const auto result = device.CreateTexture2D(&desc, nullptr, texture);
+	Debug::ThrowIfFailed(result, "Failed to create cube map:%08x", result);
+	device.SetResourceName(texture, filePaths[0].string());
+
+	// 创建各个subresource的srv和uav,用于deferred generate mipmap
+	for (int mipLevel = 0; mipLevel < desc.mMipLevels; mipLevel++)
+	{
+		device.CreateShaderResourceView(texture, 0, desc.mArraySize, mipLevel, 1);
+		device.CreateUnordereddAccessView(texture, 0, desc.mArraySize, mipLevel);
+	}
+
+	if (desc.mMipLevels > 1) {
+		Renderer::AddDeferredTextureMipGen(texture);
+	}
+
+	for (unsigned char* rgb : loadedRGBs) {
+		stbi_image_free(rgb);
+	}
+}
+
+void ResourceManager::LoadSoundFromFilePath(const std::filesystem::path& filePath, SoundResource& soundResource)
+{
+	Logger::Info("LoadSoundFromFilePath:" + filePath.string());
+
+	auto audioManager = GetGlobalContext().gAudioManager;
+	if (!audioManager->LoadSound(filePath.string(), soundResource.mSound))
+	{
+		soundResource.mSound.Clear();
+		Debug::Warning("LoadSoundFromFilePath failed:" + filePath.string());
+		return;
 	}
 }
 

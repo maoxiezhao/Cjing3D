@@ -11,16 +11,13 @@ namespace Cjing3D
 	class RenderPass
 	{
 	public:
-		RenderPass(Renderer& renderer) : mRenderer(renderer) {};
+		RenderPass() {};
 		virtual ~RenderPass() {}
 
 		virtual void Initialize() {};
 		virtual void Uninitialize() {};
 		virtual void UpdatePerFrameData(F32 deltaTime) {};
-		virtual void RefreshRenderData() {};
-		virtual void Render() {};
-
-	protected:
-		Renderer& mRenderer;
+		virtual void RefreshRenderData(CommandList cmd) {};
+		virtual void Render(CommandList cmd) {};
 	};
 }

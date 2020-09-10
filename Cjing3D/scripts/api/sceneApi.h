@@ -1,7 +1,7 @@
 #pragma once
 
-#include "scripts\luaBinder.h"
-#include "scripts\luaTypeMapping.h"
+#include "scripts\binder\luaBinder.h"
+#include "scripts\binder\luaTypeMapping.h"
 #include "system\sceneSystem.h"
 
 namespace Cjing3D
@@ -20,10 +20,19 @@ namespace Cjing3D
 
 			static int GetMainScene(lua_State* l);
 			
+			void ClearScene();
 			ECS::Entity CreateEntity();
+			void RemoveEntity(ECS::Entity entity);
+			ECS::Entity DuplicateEntity(ECS::Entity entity);
 			LightComponent& CreateLight(ECS::Entity entity);
 			TransformComponent& CreateTransform(ECS::Entity entity);
-			
+			ECS::Entity LoadModel(const std::string& path);
+
+
+			TransformComponent* GetTransform(ECS::Entity entity);
+
+			static int MouseRayCast(lua_State* l);
+
 		private:
 			Scene & mScene;
 		};

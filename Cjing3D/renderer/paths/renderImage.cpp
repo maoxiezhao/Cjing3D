@@ -1,38 +1,28 @@
 #include "renderImage.h"
 #include "renderer\renderer.h"
 #include "renderer\RHI\device.h"
-#include "renderer\stateManager.h"
+#include "renderer\preset\renderPreset.h"
 #include "renderer\shaderLib.h"
 #include "renderer\pipelineStates\pipelineStateManager.h"
-#include "renderer\bufferManager.h"
 
 namespace Cjing3D
 {
 namespace RenderImage
 {
-	void Initialize()
+	void Render(CommandList cmd, Texture2D & texture, ImageParams params)
 	{
-	}
+		auto& device = Renderer::GetDevice();
+		auto& shaderLib = Renderer::GetShaderLib();
+		auto& renderPreset = Renderer::GetRenderPreset();
+		auto& pipelineStateManager = Renderer::GetPipelineStateManager();
 
-	void Uninitialize()
-	{
-	}
-
-	void Render(RhiTexture2D & texture, ImageParams params, Renderer& renderer)
-	{
-		auto& device = renderer.GetDevice();
-		auto& shaderLib = renderer.GetShaderLib();
-		auto& stateManager = renderer.GetStateManager();
-		auto& pipelineStateManager = renderer.GetPipelineStateManager();
-		auto& bufferManager = renderer.GetBufferManager();
-
-		device.BindSamplerState(SHADERSTAGES_PS, *stateManager.GetSamplerState(SamplerStateID_LinearClampGreater), SAMPLER_LINEAR_CLAMP_SLOT);
-		device.BindGPUResource(SHADERSTAGES_PS, texture, TEXTURE_SLOT_0);
+		device.BindSamplerState(cmd, SHADERSTAGES_PS, *renderPreset.GetSamplerState(SamplerStateID_LinearClamp), SAMPLER_LINEAR_CLAMP_SLOT);
+		device.BindGPUResource(cmd, SHADERSTAGES_PS, &texture, TEXTURE_SLOT_0);
 
 		if (params.IsFullScreenEnabled()) 
 		{
-			device.BindPipelineState(pipelineStateManager.GetImagePipelineState(params));
-			device.Draw(3, 0);
+			device.BindPipelineState(cmd, pipelineStateManager.GetImagePipelineState(params));
+			device.Draw(cmd, 3, 0);
 		}
 		else
 		{
@@ -41,7 +31,7 @@ namespace RenderImage
 				* XMMatrixTranslation(params.mPos[0], params.mPos[1], 0)
 				* device.GetScreenProjection();
 
-			auto& buffer = bufferManager.GetConstantBuffer(ConstantBufferType_Image);
+			auto& buffer = renderPreset.GetConstantBuffer(ConstantBufferType_Image);
 			ImageCB cb;
 			cb.gImageColor = XMConvert(params.mColor);
 
@@ -51,13 +41,13 @@ namespace RenderImage
 				v = XMVector2Transform(v, matrix);
 				XMStoreFloat4(&cb.gImageCorners[i], v);
 			}
-			device.UpdateBuffer(buffer, &cb, sizeof(ImageCB));
+			device.UpdateBuffer(cmd, buffer, &cb, sizeof(ImageCB));
 			
-			device.BindConstantBuffer(SHADERSTAGES_VS, buffer, CB_GETSLOT_NAME(ImageCB));
-			device.BindConstantBuffer(SHADERSTAGES_PS, buffer, CB_GETSLOT_NAME(ImageCB));
-			device.BindPipelineState(pipelineStateManager.GetImagePipelineState(params));
+			device.BindConstantBuffer(cmd, SHADERSTAGES_VS, buffer, CB_GETSLOT_NAME(ImageCB));
+			device.BindConstantBuffer(cmd, SHADERSTAGES_PS, buffer, CB_GETSLOT_NAME(ImageCB));
+			device.BindPipelineState(cmd, pipelineStateManager.GetImagePipelineState(params));
 
-			device.Draw(4, 0);
+			device.Draw(cmd, 4, 0);
 		}
 	}
 }

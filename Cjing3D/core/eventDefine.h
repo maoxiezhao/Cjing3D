@@ -1,13 +1,12 @@
 #pragma once
 
+#include "utils\signal\signal.h"
+
 namespace Cjing3D
 {
 	/** 事件类型定义 */
-	enum EventType {
-		EVENT_FRAME_START,
-		EVENT_FRAME_END,
-		EVENT_FIXED_TICK,
-		EVENT_TICK,
-		EVENT_RENDER
+	enum EventType 
+	{
+		EVENT_RESOLUTION_CHANGE,
 	};
 }

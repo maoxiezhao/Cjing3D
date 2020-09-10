@@ -12,7 +12,7 @@
 //#define USE_CPLUSPLUS_PARSE
 
 // 是否开启自动分析头文件生成lua绑定代码
-//#define __ENABLE_GENERATE_LUA_BINDING_CODES__
+#define __ENABLE_GENERATE_LUA_BINDING_CODES__
 
 int main(int argc, char** argv)
 {
@@ -39,21 +39,18 @@ int main(int argc, char** argv)
 	if (mode.find("-bind") == std::string::npos)
 	{
 		Cjing3D::Debug::Error("Error mode:" + mode);
-		OutputDebugString("Invalid generate mode.");
 		return 0;
 	}
 
 	sourcePath = argv[2];
 	if (sourcePath == "") {
 		Cjing3D::Debug::Error("Error sourcePath:" + sourcePath);
-		OutputDebugString("Invalid source file path.");
 		return 0;
 	}
 
 	generatePath = argv[3];
 	if (generatePath == "") {
 		Cjing3D::Debug::Error("Error generatePath:" + generatePath);
-		OutputDebugString("Invalid generate file path.");
 		return 0;
 	}
 #endif

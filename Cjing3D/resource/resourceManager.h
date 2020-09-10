@@ -4,14 +4,7 @@
 #include "helper\fileSystem.h"
 #include "resource\resource.h"
 #include "resource\resourcePool.hpp"
-#include "resource\modelImporter.h"
-#include "renderer\renderer.h"
-#include "renderer\RHI\rhiResource.h"
-#include "renderer\RHI\device.h"
-#include "renderer\RHI\rhiShader.h"
-#include "core\systemContext.hpp"
-
-#include <filesystem>
+#include "resource\modelImporter\modelImporter.h"
 
 namespace Cjing3D
 {
@@ -20,77 +13,46 @@ namespace Cjing3D
 *	
 *	SUPPORT:
 *		Resource_Texture,
-*
-*  TODO: refactor
-// 1. 支持持久化的texture和引用计数的texture
-// 2. 资源结构优化
-// 3. 异步加载支持
+*		Resource_Sound
 */
 class ResourceManager : public SubSystem
 {
 public:
-	ResourceManager(SystemContext& gameContext) :
-		SubSystem(gameContext) {}
-	~ResourceManager() = default;
+	template <typename ResourceT>
+	using PoolType = ResourcePool < StringID, ResourceT>;
+	template <typename ResourceT>
+	using KeyType = typename PoolType<ResourceT>::KeyType;
+	template <typename ResourceT>
+	using PoolResourceType = typename PoolType<ResourceT>::PoolResourceType;
+
+
+	ResourceManager();
+	~ResourceManager();
 
 	void Initialize();
-	void Uninitialize();
+	void Uninitialize()override;
 	
-	void AddStandardResourceDirectory(Resource_Type type, const std::string& path);
-	const std::string& GetStandardResourceDirectory(Resource_Type type)const;
+	void AddStandardResourceDirectory(ResourceType type, const std::string& path);
+	const std::string& GetStandardResourceDirectory(ResourceType type)const;
 
 	//----------------------------------------------------------------
 	//	Common Method
 	//----------------------------------------------------------------
-
-	template< typename ResourceT, typename Enable = void>
-	struct ResourceRecord;
-
-	// 如果资源类型是Shader类型，则使用持久化资源池
-	template<typename ResourceT>
-	struct ResourceRecord<ResourceT, std::enable_if_t<is_shader<ResourceT>::value> >
+	template <typename ResourceT>
+	std::shared_ptr<typename PoolResourceType<ResourceT> > Get(const typename KeyType<ResourceT>& guid)
 	{
-	public:
-		using poolType = PersistentResourcePool < StringID, ResourceT>;
-	};
+		auto& shaderPool = GetPool< ResourceT >();
+		return shaderPool.Get(guid);
+	}
 
-	// 如果资源为非Shader类型（Texture),则使用普通资源池
-	template< typename ResourceT>
-	struct ResourceRecord<ResourceT, std::enable_if_t<!is_shader<ResourceT>::value> >
+	template <typename ResourceT>
+	bool Contains(const typename KeyType<ResourceT>& guid)const
 	{
-		using poolType = ResourcePool < StringID, ResourceT>;
-	};
+		auto& shaderPool = GetPool< ResourceT >();
+		return shaderPool.Contains(guid);
+	}
 
-	// 获取指定资源的Key类型和Resource类型
-	template <typename ResourceT>
-	using PoolType = typename ResourceRecord<ResourceT>::poolType;
-	template <typename ResourceT>
-	using KeyType = typename PoolType<ResourceT>::KeyType;
-	template <typename ResourceT>
-	using ResourceType = typename PoolType<ResourceT>::ResourceType;
-
-	template <typename ResourceT>
-	std::shared_ptr<typename ResourceType<ResourceT> > Get(const typename KeyType<ResourceT>& guid);
-
-	template <typename ResourceT>
-	bool Contains(const typename KeyType<ResourceT>& guid)const;
-
-	//----------------------------------------------------------------
-	//	Special Method
-	//----------------------------------------------------------------
-
-	ResourcePtr GetOrCreateByType(const StringID& name, Resource_Type type);
-
-	template<typename ResourceT>
-	std::shared_ptr< ResourceT> GetOrCreateEmptyResource(const StringID& name);
-
-	template<typename ResourceT>
-	std::enable_if_t<std::is_same<ResourceT, RhiTexture2D>::value, std::shared_ptr<RhiTexture2D>>
-		GetOrCreate(const StringID & filePath);
-
-	template<typename ResourceT>
-	std::enable_if_t<std::is_same<ResourceT, RhiTexture2D>::value, std::shared_ptr<RhiTexture2D>>
-		GetOrCreate(const StringID& filePath, FORMAT textureFormat, U32 channelCount = 4, U32 bindFlag = BIND_SHADER_RESOURCE, bool generateMipmap = false);
+	ResourcePtr GetOrCreateByType(const StringID& name, ResourceType type);
 
 	template<typename ResourceT>
 	void ClearResource(const StringID& name)
@@ -106,19 +68,42 @@ public:
 		pool.RemoveAll();
 	}
 
-	void LoadTextureFromFilePath(const std::filesystem::path& filePath, RhiTexture2D& texture, FORMAT textureFormat = FORMAT_R8G8B8A8_UNORM, U32 channelCount = 4, U32 bindFlag = BIND_SHADER_RESOURCE, bool generateMipmap = false);
+	//----------------------------------------------------------------
+	//	Creating Method
+	//----------------------------------------------------------------
+	template<typename ResourceT>
+	std::shared_ptr< ResourceT> GetOrCreateEmptyResource(const StringID& name);
 
-private:
+	template<typename ResourceT>
+	std::enable_if_t<std::is_same<ResourceT, TextureResource>::value, std::shared_ptr<TextureResource>>
+		GetOrCreate(const StringID& filePath, FORMAT textureFormat = FORMAT_R8G8B8A8_UNORM, U32 channelCount = 4, U32 bindFlag = BIND_SHADER_RESOURCE, bool generateMipmap = false);
+
+	template<typename ResourceT>
+	std::enable_if_t<std::is_same<ResourceT, SoundResource>::value, std::shared_ptr<SoundResource>>
+		GetOrCreate(const StringID& filePath);
+
+public:
 	template <typename ResourceT>
-	PoolType<ResourceT>& GetPool();
+	PoolType<ResourceT>& GetPool()
+	{
+		return const_cast<PoolType<ResourceT>&>(
+			static_cast<const ResourceManager*>(this)->GetPool<ResourceT>());
+	}
 
 	template <typename ResourceT>
 	const PoolType<ResourceT>& GetPool()const;
 
+	void LoadTextureFromFilePath(const std::filesystem::path& filePath, Texture2D& texture, FORMAT textureFormat = FORMAT_R8G8B8A8_UNORM, U32 channelCount = 4, U32 bindFlag = BIND_SHADER_RESOURCE, bool generateMipmap = false);
+	void LoadCubeTextureFromFilePath(const std::vector<std::filesystem::path>& filePaths, Texture2D& texture, const I32x2& size, FORMAT textureFormat = FORMAT_R8G8B8A8_UNORM, U32 bindFlag = BIND_SHADER_RESOURCE, bool generateMipmap = false);
+	
 private:
-	std::map<Resource_Type, std::string> mResourceDirectories;
+	void LoadSoundFromFilePath(const std::filesystem::path& filePath, SoundResource& soundResource);
 
-	PoolType<RhiTexture2D> mTexture2DPool;
+private:
+	std::map<ResourceType, std::string> mResourceDirectories;
+
+	PoolType<TextureResource> mTexture2DPool;
+	PoolType<SoundResource> mSoundPool;
 };
 
 #include "resource\resourceManager.inl"

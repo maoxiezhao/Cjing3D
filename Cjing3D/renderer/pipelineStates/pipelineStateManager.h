@@ -10,6 +10,7 @@ namespace Cjing3D {
 
 enum PipelineStateID {
 	PipelineStateID_SkyRendering = 0,
+	PipelineStateID_GridHelper,
 };
 
 struct NormalRenderParams
@@ -24,19 +25,23 @@ struct NormalRenderParams
 class PipelineStateManager
 {
 public:
-	PipelineStateManager(Renderer& renderer);
+	PipelineStateManager();
 	~PipelineStateManager();
 
 	void Initialize();
 	void Uninitialize();
 
-	PipelineState GetNormalPipelineState(RenderPassType renderPassType, MaterialComponent& material, bool forceAlphaTest = false);
-	PipelineState GetImagePipelineState(RenderImage::ImageParams params);
-	PipelineState GetPipelineStateByID(PipelineStateID stateID);
+	PipelineState* GetNormalPipelineState(RenderPassType renderPassType, MaterialComponent& material, bool forceAlphaTest = false);
+	PipelineState* GetImagePipelineState(RenderImage::ImageParams params);
+	PipelineState* GetPipelineStateByID(PipelineStateID stateID);
 
 	void RegisterPipelineState(RenderImage::ImageParams params, PipelineStateDesc desc);
 	void RegisterPipelineState(NormalRenderParams params, PipelineStateDesc desc);
 	void RegisterPipelineState(PipelineStateID stateID, PipelineStateDesc desc);
+
+	// custom pso
+	PipelineState* GetCustomPipelineState(RenderPassType passType, const StringID& id);
+	void RegisterCustomPipelineState(RenderPassType passType, const StringID& name, PipelineStateDesc desc);
 
 private:
 	U32 RegisterPipelineState(PipelineStateDesc desc);
@@ -45,13 +50,19 @@ private:
 	void SetupImagePipelineStates();
 	void SetupPipelineStateIDs();
 
-	Renderer & mRenderer;
-
 	std::vector<PipelineState> mPipelineStates;	
-
 	std::map<U32, U32> mImagePipelineStateIndexMap;
 	std::map<U32, U32> mNormalPipelineStateIndexMap;
 	std::map<U32, U32> mPipelineStateIDMap;
+
+	struct CustomPipelineStates
+	{
+		struct PassPipelineState {
+			std::map<U32, U32> mPSONameMap;
+		};
+		PassPipelineState mPassPSOs[RenderPassType_Count] = {};
+	};
+	CustomPipelineStates mCustomPipelineStateMap;
 };
 
 }

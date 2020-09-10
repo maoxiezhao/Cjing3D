@@ -3,38 +3,16 @@
 #include "..\hf\brdf.hlsli"
 #include "..\hf\lightingHF.hlsli"
 
+#define _DISABLE_OBJECT_PS_
+#include "..\hf\objectHF.hlsli"
+
 SAMPLERSTATE(terrainSampler, SAMPLER_LINEAR_CLAMP_SLOT);
 
-TEXTURE2D(heightMap,      TEXTURE_SLOT_0);
-TEXTURE2D(weightTexture,  TEXTURE_SLOT_1);
-TEXTURE2D(detailTexture1, TEXTURE_SLOT_2);
-TEXTURE2D(detailTexture2, TEXTURE_SLOT_3);
-TEXTURE2D(detailTexture3, TEXTURE_SLOT_4);
-
-float4 SimpleLighting(in Surface surface)
-{
-    float3 color = GetAmbientLight().rgb;
-
-	// 简单光照下，不考虑光源的culling,直接遍历传递过来的所有光源并执行对应光照计算
-    for (uint lightIndex = 0; lightIndex < gShaderLightArrayCount; lightIndex++)
-    {
-        ShaderLight light = LightArray[lightIndex];
-		
-        switch (light.GetLightType())
-        {
-            case SHADER_LIGHT_TYPE_DIRECTIONAL:
-                color += DirectionalLight(light, surface);
-                break;
-            case SHADER_LIGHT_TYPE_POINT:
-                color += PointLight(light, surface);
-                break;
-            case SHADER_LIGHT_TYPE_SPOT:
-                break;
-        }
-    }
-
-    return float4(color.rgb, 1.0f);
-}
+TEXTURE2D(heightMap,      float4, TEXTURE_SLOT_0);
+TEXTURE2D(weightTexture,  float4, TEXTURE_SLOT_1);
+TEXTURE2D(detailTexture1, float4, TEXTURE_SLOT_2);
+TEXTURE2D(detailTexture2, float4, TEXTURE_SLOT_3);
+TEXTURE2D(detailTexture3, float4, TEXTURE_SLOT_4);
 
 float3 CalculateNormal(float2 tex)
 {
@@ -81,6 +59,7 @@ float4 main(PixelInputType input) : SV_TARGET
     color *= diffColor;
     
     float3 pos3D = input.pos3D.xyz;
+    float2 screenPos = input.pos2D.xy * float2(0.5f, -0.5f) + float2(0.5f, 0.5f); // NDC => Screen
     float3 view = gCameraPos - pos3D;
     float dist = length(view);
 
@@ -89,20 +68,32 @@ float4 main(PixelInputType input) : SV_TARGET
     surface.normal = CalculateNormal(input.tex);
     surface.view = normalize(view / dist);
 	
+    float occlusion = 1.0f;
+#ifndef _TRNAPARENT_
+    occlusion = texture_ao.SampleLevel(sampler_linear_clamp, screenPos, 0.0f).r;
+#endif
+    
     surface = CreateSurface(
 		surface.position,
 		surface.normal,
 		surface.view,
-		input.color,
-	    float3(1.0f, 1.0f, 1.0f)
+		color,
+	    float3(1.0f, 1.0f, 1.0f),
+        occlusion
 	);
 
-#ifndef _SIMPLE_BASE_LIGHT_
-    color *= ForwardLighting(surface);
-#else
-    color *= SimpleLighting(surface);
+    Lighting lighting = CreateLighting(0.0f, 0.0f, GetAmbientLight());
+    
+#ifdef _TILED_FORWRAD_LIGHTING_
+    TiledForwardLighting(input.pos.xy, surface, lighting);
+#endif
+    
+#ifdef _FORWRAD_LIGHTING_
+    ForwardLighting(surface, lighting);
 #endif
 		
+    color.rgb = ApplyLight(surface, lighting);
+    
     return color;
 
 }

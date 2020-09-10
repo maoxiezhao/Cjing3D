@@ -28,6 +28,7 @@ namespace Cjing3D {
 		inline XMMATRIX GetViewMatrix()const { return XMLoadFloat4x4(&mView); };
 		inline XMMATRIX GetProjectionMatrix()const { return XMLoadFloat4x4(&mProjection); };
 		inline XMMATRIX GetViewProjectionMatrix()const { return XMLoadFloat4x4(&mViewProjection); };
+		inline XMMATRIX GetInvViewMatrix()const { return XMLoadFloat4x4(&mInvView); }
 		inline XMMATRIX GetInvProjectionMatrix()const { return XMLoadFloat4x4(&mInvProjection); }
 		inline XMMATRIX GetInvViewProjectionMatrix()const { return XMLoadFloat4x4(&mInvViewProjection); }
 
@@ -35,6 +36,10 @@ namespace Cjing3D {
 		F32 GetFarPlane() { return mFarPlane; }
 		Frustum GetFrustum()const { return mFrustum; }
 		F32x3 GetCameraPos()const { return mEye; }
+		F32x3 GetCameraUP()const { return mUp; }
+		F32x3 GetCameraFront()const { return mAt; }
+
+		Ray ScreenPointToRay(const U32x2& screenPos)const;
 
 		void SetupPerspective(F32 width, F32 height, F32 nearPlane, F32 farPlane, F32 fov = XM_PI/3.0f);
 		void SetCameraStatus(F32x3 eye, F32x3 at, F32x3 up = { 0.0f, 1.0f, 0.0f });
@@ -56,6 +61,7 @@ namespace Cjing3D {
 		XMFLOAT4X4 mView;
 		XMFLOAT4X4 mProjection;
 		XMFLOAT4X4 mViewProjection;
+		XMFLOAT4X4 mInvView;
 		XMFLOAT4X4 mInvProjection;
 		XMFLOAT4X4 mInvViewProjection;
 	};

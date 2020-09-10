@@ -1,16 +1,22 @@
 #pragma once
 
-#include <DirectXMath.h>
-#include <algorithm>
-
 #include "common\definitions.h"
 #include "array.h"
 
-#undef min
-#undef max
+#if __has_include("DirectXMath.h")
+#include <DirectXMath.h>
+#include <DirectXPackedVector.h>
+#include <DirectXCollision.h>
+#else
+
+#endif
+
+using namespace DirectX;
+using namespace DirectX::PackedVector;
 
 namespace Cjing3D {
-	using namespace DirectX;
+
+	const XMFLOAT4X4 IDENTITYMATRIX = XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
 	using U32x2 = Array<U32, 2>;
 	using U32x3 = Array<U32, 3>;
@@ -79,7 +85,6 @@ namespace Cjing3D {
 		return result;
 	}
 
-
 	inline const XMUINT2 XM_CALLCONV XMConvert(const U32x2& src) {
 		XMUINT2 result;
 		XMStoreUInt2(&result, XMLoad(src));
@@ -132,10 +137,44 @@ namespace Cjing3D {
 		return dst;
 	}
 
+	inline const F32x2 XM_CALLCONV XMConvert(const XMFLOAT2& src) {
+		return XMStore<F32x2>(XMLoadFloat2(&src));
+	}
+
+	inline const F32x3 XM_CALLCONV XMConvert(const XMFLOAT3& src) {
+		return XMStore<F32x3>(XMLoadFloat3(&src));
+	}
+
 	// SDBM Hash
 	inline unsigned int SDBMHash(unsigned int hash, unsigned char c)
 	{
 		return c + (hash << 6) + (hash << 16) - hash;
+	}
+
+	inline bool IsF32EqualZero(F32 v)
+	{
+		return abs(v) < 0.000001f;
+	}
+
+	inline bool IsF32EqualF32(F32 v1, F32 v2)
+	{
+		return abs(v2 - v1) < 0.000001f;
+	}
+
+	inline F32x2 F32x2Max(F32x2 a, F32x2 b)
+	{
+		return F32x2(
+			std::max(a[0], b[0]),
+			std::max(a[1], b[1])
+		);
+	}
+
+	inline F32x2 F32x2Min(F32x2 a, F32x2 b)
+	{
+		return F32x2(
+			std::min(a[0], b[0]),
+			std::min(a[1], b[1])
+		);
 	}
 
 	inline F32x3 F32x3Max(F32x3 a, F32x3 b)
@@ -234,5 +273,58 @@ namespace Cjing3D {
 	inline bool XMMatrixCompare(const XMMATRIX& m1, const XMMATRIX& m2)
 	{
 		return memcmp(&m1, &m2, sizeof(XMFLOAT4X4)) == 0;
+	}
+
+	// based on "Fast, Minimum Storage Ray-Triangle Intersection"
+	// https://www.cnblogs.com/graphics/archive/2010/08/09/1795348.html
+	inline bool TriangleRayInstersects(const XMVECTOR& origin, const XMVECTOR& dir, const XMVECTOR& p0, const XMVECTOR& p1, const XMVECTOR& p2, F32& dist, F32x2& bary)
+	{
+		XMVECTOR e1 = p1 - p0;
+		XMVECTOR e2 = p2 - p0;
+		XMVECTOR P = XMVector3Cross(dir, e2);
+		F32 det = XMVectorGetX(XMVector3Dot(e1, P));
+
+		XMVECTOR T;
+		if (det >= 1e-20f)
+		{
+			T = origin - p0;
+		}
+		else if (det <= -1e-20f)
+		{
+			T = p0 - origin;
+			det = -det;
+		}
+		else
+		{
+			dist = 0.0f;
+			return false;
+		}
+
+		F32 u = XMVectorGetX(XMVector3Dot(T, P));
+		if (u < 0.0f || u > det) 
+		{
+			dist = 0.0f;
+			return false;
+		}
+
+		XMVECTOR Q = XMVector3Cross(T, e1);
+		F32 v = XMVectorGetX(XMVector3Dot(dir, Q));
+		if (v < 0.0f || (v + u) > det)
+		{
+			dist = 0.0f;
+			return false;
+		}
+
+		F32 t = XMVectorGetX(XMVector3Dot(e2, Q));
+		F32 invDet = 1.0f / det;
+		t *= invDet;
+		u *= invDet;
+		v *= invDet;
+
+		dist = t;
+		bary[0] = u;
+		bary[1] = v;
+
+		return true;
 	}
 }

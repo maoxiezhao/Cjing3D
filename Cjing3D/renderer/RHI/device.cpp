@@ -5,82 +5,24 @@ namespace Cjing3D
 
 GraphicsDevice::GraphicsDevice(GraphicsDeviceType type):
 	mGraphicsDeviceType(type),
-	mIsFullScreen(false),
-	mIsMultithreadedRendering(false)
-{
-}
-
-void GraphicsDevice::Initialize()
+	mIsFullScreen(false)
 {
 	mEmptyRhiState = std::make_shared<EmptyRhiState>();
 }
 
-void GraphicsDevice::Uninitialize()
+GraphicsDevice::~GraphicsDevice()
 {
-	ProcessRemovedGPUResouces();
-
-	for (GPUResource* resource : mGPUResource){
-		if (resource != nullptr) {
-			resource->Clear();
-		}
-	}
-
-	mGPUResource.clear();
-	mRemovedGPUResources.clear();
-}
-
-void GraphicsDevice::PresentBegin()
-{
-}
-
-void GraphicsDevice::PresentEnd()
-{
-	ProcessRemovedGPUResouces();
-}
-
-void GraphicsDevice::AddGPUResource(GPUResource * resource)
-{
-	// 如果添加的Resouce正好在删除队列中，则直接将队列中的移除即可
-	auto it = std::find(mRemovedGPUResources.begin(), mRemovedGPUResources.end(), resource);
-	if (it != mRemovedGPUResources.end())
-	{
-		mRemovedGPUResources.erase(it);
-		return;
-	}
-
-	if (std::find(mGPUResource.begin(), mGPUResource.end(), resource) == mGPUResource.end())
-	{
-		mGPUResource.push_back(resource);
-	}
-}
-
-void GraphicsDevice::RemoveGPUResource(GPUResource * resource)
-{
-	if (std::find(mRemovedGPUResources.begin(), mRemovedGPUResources.end(), resource) == mRemovedGPUResources.end())
-	{
-		mRemovedGPUResources.push_back(resource);
-	}
-}
-
-void GraphicsDevice::ProcessRemovedGPUResouces()
-{
-	if (mRemovedGPUResources.empty()) {
-		return;
-	}
-
-	for (GPUResource* resource : mRemovedGPUResources) {
-		mGPUResource.remove(resource);
-	}
-	mRemovedGPUResources.clear();
 }
 
 bool GraphicsDevice::CheckGraphicsFeatureSupport(GraphicsFeatureSupport::GraphicsFeature feature) const
 {
 	switch (feature)
 	{
-	case Cjing3D::GraphicsFeatureSupport::VIEWPORT_AND_RENDERTARGET_ARRAYINDEX_WITHOUT_GS:
+	case GraphicsFeatureSupport::VIEWPORT_AND_RENDERTARGET_ARRAYINDEX_WITHOUT_GS:
 		return mGraphicsFeatureSupport.viewportAndRenderTargetArrayIndexWithoutGS_;
 		break;
+	case GraphicsFeatureSupport::SUPPORT_TESSELLATION:
+		return mGraphicsFeatureSupport.supportTessellation_;
 	default:
 		break;
 	}
@@ -164,6 +106,28 @@ U32 GraphicsDevice::GetFormatStride(FORMAT value) const
 	}
 
 	return 16;
+}
+
+bool GraphicsDevice::IsFormatUnorm(FORMAT value) const
+{
+	switch (value)
+	{
+	case FORMAT_R16G16B16A16_UNORM:
+	case FORMAT_R10G10B10A2_UNORM:
+	case FORMAT_R8G8B8A8_UNORM:
+	case FORMAT_R8G8B8A8_UNORM_SRGB:
+	case FORMAT_B8G8R8A8_UNORM:
+	case FORMAT_B8G8R8A8_UNORM_SRGB:
+	case FORMAT_R16G16_UNORM:
+	case FORMAT_D24_UNORM_S8_UINT:
+	case FORMAT_R8G8_UNORM:
+	case FORMAT_D16_UNORM:
+	case FORMAT_R16_UNORM:
+	case FORMAT_R8_UNORM:
+		return true;
+	}
+
+	return false;
 }
 
 void GraphicsDevice::CreatePipelineState(PipelineStateDesc& desc, PipelineState& state)

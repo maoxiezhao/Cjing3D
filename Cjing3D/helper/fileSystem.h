@@ -2,6 +2,7 @@
 
 #include "common\common.h"
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -12,7 +13,8 @@ namespace Cjing3D {
 		static const char* NOT_ASSIGNED = "N/A";
 		static const char* DATA_FORMAT_EXTENSION = ".xml";
 
-		bool OpenData(const std::string&dataName, const std::string& dataPath);
+		bool OpenData(const std::string& programName, const std::string& assetPath, const std::string& assetName);
+		bool IsDataOpened();
 		void CloseData();
 		void Reset();
 
@@ -35,5 +37,6 @@ namespace Cjing3D {
 		std::string GetParentPath(const std::string& filePath);
 		bool IsAbsolutePath(const std::string& path);
 		std::string ConvertToAvailablePath(const std::string& path);
+		std::string CombinePath(const std::string& path1, const std::string& path2);
 	}
 }

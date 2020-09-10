@@ -1,8 +1,8 @@
 #pragma once
 
-#include "scripts\luaBinder.h"
-#include "scripts\luaTypeMapping.h"
-#include "core\systemContext.hpp"
+#include "scripts\binder\luaBinder.h"
+#include "scripts\binder\luaTypeMapping.h"
+#include "core\globalContext.hpp"
 #include "gui\guiStage.h"
 
 namespace Cjing3D

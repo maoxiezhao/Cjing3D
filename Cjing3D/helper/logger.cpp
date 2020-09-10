@@ -1,23 +1,35 @@
 #include "logger.h"
+#include "platform\platform.h"
+#include "common\version.h"
 
 #include <fstream>
 #include <chrono>
-#include <windows.h>
 #include <iostream>
-
-using std::string;
+#include <stdarg.h>
 
 namespace Cjing3D {
 	namespace Logger {
+		using std::string;
+
 		namespace {
 			const string errorLogFileName = "error.txt";
 			std::ofstream errorFile;
+
+			const string generalLogFileName = "logger.txt";
+			std::ofstream loggerFile;
 
 			std::ofstream& GetErrorFile()
 			{
 				if (!errorFile.is_open())
 					errorFile.open(errorLogFileName);
 				return errorFile;
+			}
+
+			std::ofstream& GetLoggerFile()
+			{
+				if (!loggerFile.is_open())
+					loggerFile.open(generalLogFileName);
+				return loggerFile;
 			}
 
 			std::string GetCurSystemTimeStr()
@@ -30,17 +42,6 @@ namespace Cjing3D {
 					(int)ptm.tm_hour, (int)ptm.tm_min, (int)ptm.tm_sec);
 				return std::string(date);
 			}
-
-			const int CONSOLE_FONT_WHITE = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
-			const int CONSOLE_FONT_BLUE = FOREGROUND_BLUE;
-			const int CONSOLE_FONT_YELLOW = FOREGROUND_RED | FOREGROUND_GREEN;
-			const int CONSOLE_FONT_GREEN = FOREGROUND_GREEN;
-			const int CONSOLE_FONT_RED = FOREGROUND_RED;
-			void SetLoggerConsoleFontColor(int fontColor)
-			{
-				HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
-				SetConsoleTextAttribute(handle, FOREGROUND_INTENSITY | static_cast<WORD>(fontColor));
-			}
 		}
 
 		void Logger::Print(const string & msg, std::ostream & out)
@@ -51,8 +52,8 @@ namespace Cjing3D {
 
 		void PrintConsoleHeader()
 		{
-			std::cout << "Cjing3D Version 0.0.1\n" << std::endl;
-			std::cout << "Copyright (c) 2019-2020 by ZZZY." << std::endl;
+			std::cout << "Cjing3D Version " << CjingVersion::GetVersionString() << std::endl;
+			std::cout << "Copyright (c) 2019-2020 by ZZZY" << std::endl;
 			std::cout << std::endl;
 		}
 
@@ -63,9 +64,10 @@ namespace Cjing3D {
 
 		void Logger::Info(const string & msg)
 		{
-			SetLoggerConsoleFontColor(CONSOLE_FONT_GREEN);
+			Platform::SetLoggerConsoleFontColor(CONSOLE_FONT_GREEN);
 			Print("[Info]  " + msg);
-			SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
+			Print("[Info]  " + msg, GetLoggerFile());
+			Platform::SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
 		}
 
 		void InfoEx(const char* format, ...)
@@ -76,35 +78,38 @@ namespace Cjing3D {
 			vsnprintf_s(msg, std::size(msg), format, args);
 			va_end(args);
 
-			SetLoggerConsoleFontColor(CONSOLE_FONT_GREEN);
+			Platform::SetLoggerConsoleFontColor(CONSOLE_FONT_GREEN);
 			Print("[Info]  " + std::string(msg));
-			SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
+			Print("[Info]  " + std::string(msg), GetLoggerFile());
+			Platform::SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
 		}
 
 		void Logger::Warning(const string & msg)
 		{
-			SetLoggerConsoleFontColor(CONSOLE_FONT_YELLOW);
+			Platform::SetLoggerConsoleFontColor(CONSOLE_FONT_YELLOW);
 			string warningMsg = "[Warning]  " + msg;
 			Print(warningMsg);
-			Print(warningMsg, GetErrorFile());
-			SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
+			Print(warningMsg, GetLoggerFile());
+			Platform::SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
 		}
 
 		void Logger::Error(const string & msg)
 		{
-			SetLoggerConsoleFontColor(CONSOLE_FONT_RED);
+			Platform::SetLoggerConsoleFontColor(CONSOLE_FONT_RED);
 			string warningMsg = "[Error]  " + msg;
 			Print(warningMsg);
 			Print(warningMsg, GetErrorFile());
-			SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
+			Print(warningMsg, GetLoggerFile());
+			Platform::SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
 		}
 
 		void Fatal(const string& msg)
 		{
-			SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
+			Platform::SetLoggerConsoleFontColor(CONSOLE_FONT_WHITE);
 			string warningMsg = "[Fatal]  " + msg;
 			Print(warningMsg);
 			Print(warningMsg, GetErrorFile());
+			Print(warningMsg, GetLoggerFile());
 		}
 	}
 }

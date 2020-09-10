@@ -3,6 +3,9 @@
 
 namespace Cjing3D
 {
+namespace Gui
+{
+
 	GUIFactory::GUIFactory(GUIStage& guiStage) :
 		mGUIStage(guiStage)
 	{
@@ -21,7 +24,7 @@ namespace Cjing3D
 	WidgetPtr GUIFactory::CreateWidget(const StringID& type, const StringID& name)
 	{
 		auto it = mRegisteredWidgetCreators.find(type);
-		if (it == mRegisteredWidgetCreators.end()) 
+		if (it == mRegisteredWidgetCreators.end())
 		{
 			Logger::Warning("[GUIFactory] Invalid widget type:" + type.GetString() + " name:" + name.GetString());
 			return nullptr;
@@ -34,4 +37,5 @@ namespace Cjing3D
 	{
 		return std::make_shared<Widget>(mGUIStage, name);
 	}
+}
 }

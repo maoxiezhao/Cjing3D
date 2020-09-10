@@ -4,260 +4,161 @@
 #include "renderer\RHI\rhiShader.h"
 #include "system\sceneSystem.h"
 
-namespace Cjing3D
-{
+namespace Cjing3D {
+namespace {
+	std::map<std::string, ShaderPtr> mLoadedShaderMap;
+	std::map<std::string, InputLayoutPtr> mLoadedInputLayoutMap;
 
-ShaderLib::ShaderLib(Renderer & renderer) :
-	mRenderer(renderer)
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	ShaderPtr GetOrCreateShader(const std::string& path)
+	{
+		auto it = mLoadedShaderMap.find(path);
+		if (it != mLoadedShaderMap.end()) 
+		{
+			return it->second;
+		}
+		else
+		{
+			ShaderPtr shaderPtr = CJING_MAKE_SHARED<Shader>();
+			mLoadedShaderMap[path] = shaderPtr;
+			return shaderPtr;
+		}
+	}
+
+	InputLayoutPtr GetOrCreateInputLayout(const std::string& path)
+	{
+		auto it = mLoadedInputLayoutMap.find(path);
+		if (it != mLoadedInputLayoutMap.end())
+		{
+			return it->second;
+		}
+		else
+		{
+			InputLayoutPtr inputLayoutPtr = CJING_MAKE_SHARED<InputLayout>();
+			mLoadedInputLayoutMap[path] = inputLayoutPtr;
+			return inputLayoutPtr;
+		}
+	}
+
+	void LoadShaderImpl(SHADERSTAGES stages, const void* data, size_t length, ShaderPtr& shaderPtr)
+	{
+		const HRESULT result = Renderer::GetDevice().CreateShader(stages, data, length, *shaderPtr);
+		Debug::ThrowIfFailed(result, "Failed to create vertex shader: %08X", result);
+	}
+
+	void LoadInputLayout(ShaderPtr Shader, VertexLayoutDesc* desc, U32 numElements, InputLayoutPtr& inputLayoutPtr)
+	{
+		const HRESULT result = Renderer::GetDevice().CreateInputLayout(desc, numElements, *Shader, *inputLayoutPtr);
+		Debug::ThrowIfFailed(result, "Failed to create input layout: %08X", result);
+	}
+}
+
+ShaderLib::ShaderLib()
 {
 }
 
 void ShaderLib::Initialize()
 {
-	LoadVertexShaders();
-	LoadPixelShaders();
-	LoadComputeShaders();
 }
 
 void ShaderLib::Uninitialize()
 {
-	auto& resourceManager = mRenderer.GetResourceManager();
-	for (int i = 0; i < VertexShaderType_Count; i++) {
-		mVertexShader[i] = nullptr;
+	for (auto kvp : mLoadedShaderMap) {
+		kvp.second->Clear();
 	}
-	for (int i = 0; i < PixelShaderType_Count; i++) {
-		mPixelShader[i] = nullptr;
+	mLoadedShaderMap.clear();
+
+	for (auto kvp : mLoadedInputLayoutMap) {
+		kvp.second->Clear();
 	}
-	for (int i = 0; i < ComputeShaderType_Count; i++) {
-		mComputeShader[i] = nullptr;
-	}
+	mLoadedInputLayoutMap.clear();
 }
 
-void ShaderLib::LoadVertexShaders()
+void ShaderLib::Reload()
 {
-	auto& resourceManager = mRenderer.GetResourceManager();
-	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resrouce_VertexShader);
+	for (auto kvp : mLoadedShaderMap)
 	{
-		// object all
+		if (kvp.second->mStage == SHADERSTAGES_VS)
 		{
-			VertexLayoutDesc layout[] =
+			auto it = mLoadedInputLayoutMap.find(kvp.first);
+			if (it != mLoadedInputLayoutMap.end())
 			{
-				{ "POSITION_NORMAL_SUBSETINDEX", 0u, MeshComponent::VertexPosNormalSubset::format, 0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
-				{ "TEXCOORD", 0u, MeshComponent::VertexTex::format, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
-				{ "COLOR", 0u, MeshComponent::VertexColor::format, 2u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
-
-				// instance
-				{ "INSTANCEMAT",     0u, FORMAT_R32G32B32A32_FLOAT, 3u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-				{ "INSTANCEMAT",     1u, FORMAT_R32G32B32A32_FLOAT, 3u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-				{ "INSTANCEMAT",     2u, FORMAT_R32G32B32A32_FLOAT, 3u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-				{ "INSTANCEUSERDATA",0u, FORMAT_R32G32B32A32_FLOAT, 3u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u }
-			};
-			auto vsinfo = LoadVertexShaderInfo(shaderPath + "objectVS.cso", layout, ARRAYSIZE(layout));
-			mVertexShader[VertexShaderType_ObjectAll] = vsinfo.mVertexShader;
-			mInputLayout[InputLayoutType_ObjectAll] = vsinfo.mInputLayout;
-		}
-		// object pos tex
-		{
-			VertexLayoutDesc posTexLayout[] =
-			{
-				{ "POSITION_NORMAL_SUBSETINDEX", 0u, MeshComponent::VertexPosNormalSubset::format, 0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
-				{ "TEXCOORD", 0u, MeshComponent::VertexTex::format, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
-
-				// instance
-				{ "INSTANCEMAT",     0u, FORMAT_R32G32B32A32_FLOAT, 2u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-				{ "INSTANCEMAT",     1u, FORMAT_R32G32B32A32_FLOAT, 2u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-				{ "INSTANCEMAT",     2u, FORMAT_R32G32B32A32_FLOAT, 2u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-				{ "INSTANCEUSERDATA",0u, FORMAT_R32G32B32A32_FLOAT, 2u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u }
-			};
-			auto vsinfo = LoadVertexShaderInfo(shaderPath + "objectPosTexVS.cso", posTexLayout, ARRAYSIZE(posTexLayout));
-			mVertexShader[VertexShaderType_ObjectPosTex] = vsinfo.mVertexShader;
-			mInputLayout[InputLayoutType_ObjectPosTex] = vsinfo.mInputLayout;
-		}
-		// object pos
-		{
-			VertexLayoutDesc posLayout[] =
-			{
-				{ "POSITION_NORMAL_SUBSETINDEX", 0u, MeshComponent::VertexPosNormalSubset::format, 0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
-
-				// instance
-				{ "INSTANCEMAT",     0u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-				{ "INSTANCEMAT",     1u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-				{ "INSTANCEMAT",     2u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-				{ "INSTANCEUSERDATA",0u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u }
-			};
-			auto vsinfo = LoadVertexShaderInfo(shaderPath + "objectPosVS.cso", posLayout, ARRAYSIZE(posLayout));
-			mVertexShader[VertexShaderType_ObjectPos] = vsinfo.mVertexShader;
-			mInputLayout[InputLayoutType_ObjectPos] = vsinfo.mInputLayout;
-		}
-		// full screen vs
-		auto fullScreenVSInfo = LoadVertexShaderInfo(shaderPath + "screenVS.cso", nullptr, 0);
-		mVertexShader[VertexShaderType_FullScreen] = fullScreenVSInfo.mVertexShader;
-
-		// image vs
-		auto imageVSInfo = LoadVertexShaderInfo(shaderPath + "imageVS.cso", nullptr, 0);
-		mVertexShader[VertexShaderType_Image] = imageVSInfo.mVertexShader;
-
-		// shadow vs
-		VertexLayoutDesc shadowLayout[] =
-		{
-			{ "POSITION_NORMAL_SUBSETINDEX", 0u, MeshComponent::VertexPosNormalSubset::format, 0u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_VERTEX_DATA , 0u },
-
-			// instance
-			{ "INSTANCEMAT", 0u, FORMAT_R32G32B32A32_FLOAT,  1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-			{ "INSTANCEMAT", 1u, FORMAT_R32G32B32A32_FLOAT,  1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-			{ "INSTANCEMAT", 2u, FORMAT_R32G32B32A32_FLOAT,  1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u },
-			{ "INSTANCEUSERDATA",0u, FORMAT_R32G32B32A32_FLOAT, 1u, APPEND_ALIGNED_ELEMENT,  INPUT_PER_INSTANCE_DATA , 1u }
-		};
-		auto shadowVSInfo = LoadVertexShaderInfo(shaderPath + "shadowVS.cso", shadowLayout, ARRAYSIZE(shadowLayout));
-		mVertexShader[VertexShaderType_Shadow] = shadowVSInfo.mVertexShader;
-		mInputLayout[InputLayoutType_Shadow] = shadowVSInfo.mInputLayout;
-
-		// cube shadow vs
-		if (!mRenderer.GetDevice().CheckGraphicsFeatureSupport(GraphicsFeatureSupport::VIEWPORT_AND_RENDERTARGET_ARRAYINDEX_WITHOUT_GS))
-		{
-			Debug::Warning("Failed to load cubeShadowVS: Feature not support: VIEWPORT_AND_RENDERTARGET_ARRAYINDEX_WITHOUT_GS");
-		}
-		else
-		{
-			mVertexShader[VertexShaderType_ShadowCube] = LoadShader(SHADERSTAGES_VS, shaderPath + "cubeShadowVS.cso");
+				InputLayoutPtr inputLayout = it->second;
+				LoadVertexShaderInfo(kvp.first, inputLayout->mDescs.data(), inputLayout->mDescs.size());
+				continue;
+			}
 		}
 
-		// full screen vs
-		auto skyVSInfo = LoadVertexShaderInfo(shaderPath + "skyVS.cso", nullptr, 0);
-		mVertexShader[VertexShaderType_Sky] = skyVSInfo.mVertexShader;
+		LoadShader(kvp.second->mStage, kvp.first);
 	}
 }
 
-void ShaderLib::LoadPixelShaders()
-{
-	auto& resourceManager = mRenderer.GetResourceManager();
-	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resrouce_PixelShader);
-	{
-		// object
-		mPixelShader[PixelShaderType_Object_Forward] = LoadShader(SHADERSTAGES_PS, shaderPath + "objectForwardPS.cso");
-		mPixelShader[PixelShaderType_Object_Forward_Transparent] = LoadShader(SHADERSTAGES_PS, shaderPath + "objectForwardTransparentPS.cso");
-		mPixelShader[PixelShaderType_Object_AlphaTest] = LoadShader(SHADERSTAGES_PS, shaderPath + "objectAlphaTestPS.cso");
-		mPixelShader[PixelShaderType_Object_TiledForward] = LoadShader(SHADERSTAGES_PS, shaderPath + "objectTiledForwardPS.cso");
-		mPixelShader[PixelShaderType_Object_TiledForward_Transparent] = LoadShader(SHADERSTAGES_PS, shaderPath + "objectTiledForwardTransparentPS.cso");
-
-		// full screen ps
-		mPixelShader[PixelShaderType_FullScreen] = LoadShader(SHADERSTAGES_PS, shaderPath + "screenPS.cso");
-		// image ps
-		mPixelShader[PixelShaderType_Image] = LoadShader(SHADERSTAGES_PS, shaderPath + "imagePS.cso");
-		// full screen ps
-		mPixelShader[PixelShaderType_Sky] = LoadShader(SHADERSTAGES_PS, shaderPath + "skyPS.cso");
-	}
-}
-
-void ShaderLib::LoadComputeShaders()
-{
-	auto& resourceManager = mRenderer.GetResourceManager();
-	const std::string shaderPath = resourceManager.GetStandardResourceDirectory(Resource_ComputeShader);
-	{
-		mComputeShader[ComputeShaderType_Tonemapping]       = LoadShader(SHADERSTAGES_CS, shaderPath + "toneMapping.cso");
-		mComputeShader[ComputeShaderType_MipmapGenerate]    = LoadShader(SHADERSTAGES_CS, shaderPath + "mipmapGenerate.cso");
-		mComputeShader[ComputeShaderType_FXAA]              = LoadShader(SHADERSTAGES_CS, shaderPath + "fxaaCS.cso");
-		mComputeShader[ComputeShaderType_Skinning]          = LoadShader(SHADERSTAGES_CS, shaderPath + "skinningCS.cso");
-		mComputeShader[ComputeShaderType_TiledFrustum]      = LoadShader(SHADERSTAGES_CS, shaderPath + "tileFrustumCS.cso");
-		mComputeShader[ComputeShaderType_LightTiledCulling] = LoadShader(SHADERSTAGES_CS, shaderPath + "lightTiledCullingCS.cso");
-	}
-}
-
-std::shared_ptr<Shader> ShaderLib::GetVertexShader(VetextShaderType shaderType)
-{
-	Debug::CheckAssertion(shaderType < VetextShaderType::VertexShaderType_Count);
-	return mVertexShader[static_cast<size_t>(shaderType)];
-}
-
-std::shared_ptr<InputLayout> ShaderLib::GetVertexLayout(InputLayoutType layoutType)
-{
-	return mInputLayout[static_cast<size_t>(layoutType)];
-}
-
-std::shared_ptr<Shader> ShaderLib::GetPixelShader(PixelShaderType shaderType)
-{
-	Debug::CheckAssertion(shaderType < PixelShaderType::PixelShaderType_Count);
-	return mPixelShader[static_cast<size_t>(shaderType)];
-}
-
-std::shared_ptr<Shader> ShaderLib::GetComputeShader(ComputeShaderType shaderType)
-{
-	Debug::CheckAssertion(shaderType < ComputeShaderType::ComputeShaderType_Count);
-	return mComputeShader[static_cast<size_t>(shaderType)];
-}
-
-InputLayoutPtr ShaderLib::LoadInputLayout(ShaderPtr Shader, VertexLayoutDesc* desc, U32 numElements)
-{
-	InputLayoutPtr inputLayoutPtr = CJING_MAKE_SHARED<InputLayout>();
-	if (Shader != nullptr && desc != nullptr)
-	{
-		auto& device = mRenderer.GetDevice();
-		const HRESULT result = device.CreateInputLayout(desc, numElements, *Shader, *inputLayoutPtr);
-		Debug::ThrowIfFailed(result, "Failed to create input layout: %08X", result);
-	}
-	return inputLayoutPtr;
-}
 
 ShaderPtr ShaderLib::LoadShader(SHADERSTAGES stages, const std::string& path)
 {
-	Logger::Info("Load shader:" + path);
 	// 目前所有shader都只是缓存了一份，但并未做索引，
+	auto resourceManager = GetGlobalContext().gResourceManager;
+	auto shaderDirectory = resourceManager->GetStandardResourceDirectory(Resource_Shader);
+
+	const std::string fullPath = shaderDirectory + path;
 	std::shared_ptr<Shader> shaderPtr = nullptr;
-	if (!FileData::IsFileExists(path))
+	if (!FileData::IsFileExists(fullPath))
 	{
-		Debug::Warning("Failed to load shader:" + path);
+		Debug::Warning("Failed to load shader:" + fullPath);
 		return shaderPtr;
 	}
 
 	size_t length = 0;
-	const char* byteData = FileData::ReadFileBytes(path, length);
+	const char* byteData = FileData::ReadFileBytes(fullPath, length);
 	if (byteData == nullptr)
 	{
-		Debug::Warning("Failed to load shader:" + path);
+		Debug::Warning("Failed to load shader:" + fullPath);
 		return shaderPtr;
 	}
 
-	ShaderPtr ret = LoadShader(stages, byteData, length);
+	shaderPtr = GetOrCreateShader(path);
+	LoadShaderImpl(stages, byteData, length, shaderPtr);
 	SAFE_DELETE_ARRAY(byteData);
 
-	return ret;
-}
-
-ShaderPtr ShaderLib::LoadShader(SHADERSTAGES stages, const void*data, size_t length)
-{ 
-	ShaderPtr shaderPtr = CJING_MAKE_SHARED<Shader>();
-	auto& device = mRenderer.GetDevice();
-	{
-		const HRESULT result = device.CreateShader(stages, data, length, *shaderPtr);
-		Debug::ThrowIfFailed(result, "Failed to create vertex shader: %08X", result);
-	}
 	return shaderPtr;
 }
 
+
 VertexShaderInfo ShaderLib::LoadVertexShaderInfo(const std::string& path, VertexLayoutDesc* desc, U32 numElements)
 {
-	Logger::Info("Load shader:" + path);
+	auto resourceManager = GetGlobalContext().gResourceManager;
+	auto shaderDirectory = resourceManager->GetStandardResourceDirectory(Resource_Shader);
+
+	const std::string fullPath = shaderDirectory + path;
 	VertexShaderInfo vertexShaderInfo = {};
-	if (!FileData::IsFileExists(path))
+	if (!FileData::IsFileExists(fullPath))
 	{
-		Debug::Warning("Failed to load vertex shader:" + path);
+		Debug::Warning("Failed to load vertex shader:" + fullPath);
 		return vertexShaderInfo;
 	}
 
 	size_t length = 0;
-	const char* byteData = FileData::ReadFileBytes(path, length);
+	const char* byteData = FileData::ReadFileBytes(fullPath, length);
 	if (byteData == nullptr)
 	{
-		Debug::Warning("Failed to load vertex shader:" + path);
+		Debug::Warning("Failed to load vertex shader:" + fullPath);
 		return vertexShaderInfo;
 	}
 
-	vertexShaderInfo.mVertexShader = LoadShader(SHADERSTAGES_VS, byteData, length);
-	vertexShaderInfo.mInputLayout = LoadInputLayout(vertexShaderInfo.mVertexShader, desc, numElements);
+	vertexShaderInfo.mVertexShader = GetOrCreateShader(path);
+	vertexShaderInfo.mInputLayout = GetOrCreateInputLayout(path);
+
+	// load shader
+	LoadShaderImpl(SHADERSTAGES_VS, byteData, length, vertexShaderInfo.mVertexShader);
+
+	// load input layout
+	if (vertexShaderInfo.mVertexShader->IsValid() && desc != nullptr && numElements > 0) {
+		LoadInputLayout(vertexShaderInfo.mVertexShader, desc, numElements, vertexShaderInfo.mInputLayout);
+	}
 
 	SAFE_DELETE_ARRAY(byteData);
 
 	return vertexShaderInfo;
 }
-
 }

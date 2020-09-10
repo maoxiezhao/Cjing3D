@@ -2,6 +2,7 @@
 
 #include "system\ecsSystem.h"
 #include "renderer\RHI\rhiResource.h"
+#include "renderer\RHI\device.h"
 
 #include <functional>
 
@@ -9,9 +10,14 @@ namespace Cjing3D
 {
 	class Scene;
 	class GraphicsDevice;
-	class Renderer;
+	
 
 	// 延迟的Mip生成器
+	struct MipGenerateOption
+	{
+		int arrayIndex = -1;
+	};
+
 	class DeferredMIPGenerator
 	{
 	public:
@@ -23,24 +29,23 @@ namespace Cjing3D
 			MIPGENFILTER_GAUSSIAN,
 		};
 
-		DeferredMIPGenerator(Renderer& renderer);
+		DeferredMIPGenerator();
 
-		void AddTexture(RhiTexture2D& texture);
-		void UpdateMipGenerating();
-		void GenerateMipChain(RhiTexture2D& texture, MIPGENFILTER filter);
+		void AddTexture(Texture2D& texture, MipGenerateOption option = MipGenerateOption());
+		void UpdateMipGenerating(CommandList cmd);
+		void GenerateMipChain(CommandList cmd, Texture2D& texture, MIPGENFILTER filter, MipGenerateOption option = MipGenerateOption());
 
 	private:
-		Renderer& mRenderer;
-
 		// TODO; 可能存在某些纹理提前释放问题
-		std::vector<RhiTexture2D*> mMipGenDeferredArray;
+		std::vector<std::pair<Texture2D*, MipGenerateOption>> mMipGenDeferredArray;
+		const U32 maxGenerateCountPerFrame = 16;	// TODO
 	};
 	struct alignas(16) RenderInstance 
 	{
 		XMFLOAT4A mat0;
 		XMFLOAT4A mat1;
 		XMFLOAT4A mat2;
-		XMFLOAT4A userdata;
+		XMUINT4   userdata;
 
 		RenderInstance(const XMFLOAT4X4& mat, const XMFLOAT4 color = XMFLOAT4(1, 1, 1, 1))
 		{
@@ -66,10 +71,18 @@ namespace Cjing3D
 			mat2.z = mat._33;
 			mat2.w = mat._43;
 
-			userdata.x = 0.0f;
-			userdata.y = 0.0f;
-			userdata.z = 0.0f;
-			userdata.w = 0.0f;
+			userdata.x = Color4::Convert(color).GetRGBA();
+			userdata.y = 0;
+			userdata.z = 0;
+			userdata.w = 0;
+		}
+
+		inline void SetUserdata(U32 userdataX, U32 userdataY, U32 userdataZ, U32 userdataW)
+		{
+			userdata.x = userdataX;
+			userdata.y = userdataY;
+			userdata.z = userdataZ;
+			userdata.w = userdataW;
 		}
 	};
 

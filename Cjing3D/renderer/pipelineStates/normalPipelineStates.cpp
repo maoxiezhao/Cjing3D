@@ -1,6 +1,6 @@
 #include "PipelineStateManager.h"
 #include "renderer\shaderLib.h"
-#include "renderer\stateManager.h"
+#include "renderer\preset\renderPreset.h"
 #include "system\component\material.h"
 
 namespace Cjing3D
@@ -16,23 +16,23 @@ namespace Cjing3D
 			return hashValue;
 		}
 
-		InputLayoutPtr GetInputLayout(RenderPassType renderPass, bool alphaTest, ShaderLib& shaderLib)
+		InputLayoutPtr GetInputLayout(RenderPassType renderPass, bool alphaTest, RenderPreset& renderPreset)
 		{
 			InputLayoutPtr ret = nullptr;
 			switch (renderPass)
 			{
 			case RenderPassType_Forward:
 			case RenderPassType_TiledForward:
-				ret = shaderLib.GetVertexLayout(InputLayoutType_ObjectAll);
+				ret = renderPreset.GetVertexLayout(InputLayoutType_ObjectAll);
 				break;
 			case RenderPassType_Shadow:
 			case RenderPassType_ShadowCube:
-				ret = shaderLib.GetVertexLayout(InputLayoutType_Shadow);
+				ret = renderPreset.GetVertexLayout(InputLayoutType_Shadow);
 				break;
 			case RenderPassType_Depth:
 				ret = alphaTest == true ?
-					shaderLib.GetVertexLayout(InputLayoutType_ObjectPosTex) :
-					shaderLib.GetVertexLayout(InputLayoutType_ObjectPos);
+					renderPreset.GetVertexLayout(InputLayoutType_ObjectPosTex) :
+					renderPreset.GetVertexLayout(InputLayoutType_ObjectPos);
 				break;
 			default:
 				break;
@@ -40,25 +40,25 @@ namespace Cjing3D
 			return ret;
 		}
 
-		ShaderPtr GetVertexShader(RenderPassType renderPass, bool alphaTest, ShaderLib& shaderLib)
+		ShaderPtr GetVertexShader(RenderPassType renderPass, bool alphaTest, RenderPreset& renderPreset)
 		{
 			ShaderPtr ret = nullptr;
 			switch (renderPass)
 			{
 			case RenderPassType_Forward:
 			case RenderPassType_TiledForward:
-				ret = shaderLib.GetVertexShader(VertexShaderType_ObjectAll);
+				ret = renderPreset.GetVertexShader(VertexShaderType_ObjectAll);
 				break;
 			case RenderPassType_Shadow:
-				ret = shaderLib.GetVertexShader(VertexShaderType_Shadow);
+				ret = renderPreset.GetVertexShader(VertexShaderType_Shadow);
 				break;
 			case RenderPassType_ShadowCube:
-				ret = shaderLib.GetVertexShader(VertexShaderType_ShadowCube);
+				ret = renderPreset.GetVertexShader(VertexShaderType_ShadowCube);
 				break;
 			case RenderPassType_Depth:
 				ret = alphaTest == true ?
-					shaderLib.GetVertexShader(VertexShaderType_ObjectPosTex) :
-					shaderLib.GetVertexShader(VertexShaderType_ObjectPos);
+					renderPreset.GetVertexShader(VertexShaderType_ObjectPosTex) :
+					renderPreset.GetVertexShader(VertexShaderType_ObjectPos);
 				break;
 			default:
 				break;
@@ -66,29 +66,29 @@ namespace Cjing3D
 			return ret;
 		}
 
-		ShaderPtr GetPixelShader(RenderPassType renderPass, bool alphaTest, bool transparent, ShaderLib& shaderLib)
+		ShaderPtr GetPixelShader(RenderPassType renderPass, bool alphaTest, bool transparent, RenderPreset& renderPreset)
 		{
 			ShaderPtr ret = nullptr;
 			switch (renderPass)
 			{
 			case RenderPassType_Forward:
 				if (transparent) {
-					ret = shaderLib.GetPixelShader(PixelShaderType_Object_Forward_Transparent);
+					ret = renderPreset.GetPixelShader(PixelShaderType_Object_Forward_Transparent);
 				} else {
-					ret = shaderLib.GetPixelShader(PixelShaderType_Object_Forward);
+					ret = renderPreset.GetPixelShader(PixelShaderType_Object_Forward);
 				}
 				break;
 			case RenderPassType_TiledForward:
 				if (transparent) {
-					ret = shaderLib.GetPixelShader(PixelShaderType_Object_TiledForward_Transparent);
+					ret = renderPreset.GetPixelShader(PixelShaderType_Object_TiledForward_Transparent);
 				}
 				else {
-					ret = shaderLib.GetPixelShader(PixelShaderType_Object_TiledForward);
+					ret = renderPreset.GetPixelShader(PixelShaderType_Object_TiledForward);
 				}
 				break;
 			case RenderPassType_Depth:
 				ret = alphaTest == true ?
-					shaderLib.GetPixelShader(PixelShaderType_Object_AlphaTest) : nullptr;
+					renderPreset.GetPixelShader(PixelShaderType_Object_AlphaTest) : nullptr;
 				break;
 			default:
 				break;
@@ -99,8 +99,7 @@ namespace Cjing3D
 
 	void PipelineStateManager::SetupNormalPipelineStates()
 	{
-		ShaderLib& shaderLib = mRenderer.GetShaderLib();
-		StateManager& stateManager = mRenderer.GetStateManager();
+		RenderPreset& renderPreset = Renderer::GetRenderPreset();
 		NormalRenderParams params = {};
 
 		// base object rendering
@@ -124,21 +123,21 @@ namespace Cjing3D
 
 					PipelineStateDesc infoState;
 					infoState.mPrimitiveTopology = TRIANGLELIST;
-					infoState.mVertexShader = GetVertexShader(renderPass, alphaTest, shaderLib);
-					infoState.mPixelShader = GetPixelShader(renderPass, alphaTest, transparent, shaderLib);
-					infoState.mInputLayout = GetInputLayout(renderPass, alphaTest, shaderLib);
+					infoState.mVertexShader = GetVertexShader(renderPass, alphaTest, renderPreset);
+					infoState.mPixelShader = GetPixelShader(renderPass, alphaTest, transparent, renderPreset);
+					infoState.mInputLayout = GetInputLayout(renderPass, alphaTest, renderPreset);
 
 					// blendState
 					switch (blendType)
 					{
 					case BlendType_Opaque:
-						infoState.mBlendState = stateManager.GetBlendState(BlendStateID_Opaque);
+						infoState.mBlendState = renderPreset.GetBlendState(BlendStateID_Opaque);
 						break;
 					case BlendType_Alpha:
-						infoState.mBlendState = stateManager.GetBlendState(BlendStateID_Transpranent);
+						infoState.mBlendState = renderPreset.GetBlendState(BlendStateID_Transpranent);
 						break;
 					case BlendType_PreMultiplied:
-						infoState.mBlendState = stateManager.GetBlendState(BlendStateID_PreMultiplied);
+						infoState.mBlendState = renderPreset.GetBlendState(BlendStateID_PreMultiplied);
 						break;
 					default:
 						assert(0);
@@ -148,7 +147,7 @@ namespace Cjing3D
 						renderPass == RenderPassType_Depth && 
 						renderPass == RenderPassType_Shadow &&
 						renderPass == RenderPassType_ShadowCube) {
-						infoState.mBlendState = stateManager.GetBlendState(BlendStateID_ColorWriteDisable);
+						infoState.mBlendState = renderPreset.GetBlendState(BlendStateID_ColorWriteDisable);
 					}
 
 					// depthStencilState
@@ -158,21 +157,21 @@ namespace Cjing3D
 					case RenderPassType_TiledForward:
 						if (transparent)
 						{
-							infoState.mDepthStencilState = stateManager.GetDepthStencilState(DepthStencilStateID_GreaterEqualReadWrite);
+							infoState.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_GreaterEqualReadWrite);
 						}
 						else
 						{
 							// 因为非透明物体在depth prepass中已经写入了depthBuffer(支持alphaTest，减少overdraw)，
 							// 这里只需要读取depthBuffer，且相等时绘制
-							infoState.mDepthStencilState = stateManager.GetDepthStencilState(DepthStencilStateID_DepthReadEqual);
+							infoState.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_DepthReadEqual);
 						}
 						break;
 					case RenderPassType_Shadow:
 					case RenderPassType_ShadowCube:
-						infoState.mDepthStencilState = stateManager.GetDepthStencilState(DepthStencilStateID_Shadow);
+						infoState.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_Shadow);
 						break;
 					default:
-						infoState.mDepthStencilState = stateManager.GetDepthStencilState(DepthStencilStateID_GreaterEqualReadWrite);
+						infoState.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_GreaterEqualReadWrite);
 						break;
 					}
 
@@ -181,10 +180,10 @@ namespace Cjing3D
 					{
 					case RenderPassType_Shadow:
 					case RenderPassType_ShadowCube:
-						infoState.mRasterizerState = stateManager.GetRasterizerState(RasterizerStateID_Shadow);
+						infoState.mRasterizerState = renderPreset.GetRasterizerState(RasterizerStateID_Shadow);
 						break;
 					default:
-						infoState.mRasterizerState = stateManager.GetRasterizerState(RasterizerStateID_Front);
+						infoState.mRasterizerState = renderPreset.GetRasterizerState(RasterizerStateID_Front);
 						break;
 					}
 	
@@ -198,7 +197,7 @@ namespace Cjing3D
 	}
 
 
-	PipelineState PipelineStateManager::GetNormalPipelineState(RenderPassType renderPassType, MaterialComponent& material, bool forceAlphaTest)
+	PipelineState* PipelineStateManager::GetNormalPipelineState(RenderPassType renderPassType, MaterialComponent& material, bool forceAlphaTest)
 	{
 		NormalRenderParams params;
 		params.renderPassType = renderPassType;
@@ -208,10 +207,10 @@ namespace Cjing3D
 		U32 hashValue = ConvertNormalRenderParamsToHashCode(params);
 		auto it = mNormalPipelineStateIndexMap.find(hashValue);
 		if (it != mNormalPipelineStateIndexMap.end()) {
-			return mPipelineStates[it->second];
+			return &mPipelineStates[it->second];
 		}
 		else {
-			return PipelineState();
+			return nullptr;
 		}
 	}
 

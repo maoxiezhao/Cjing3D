@@ -1,5 +1,5 @@
 #include "luaContext.h"
-#include "luaBinder.h"
+#include "scripts\binder\luaBinder.h"
 #include "helper\debug.h"
 #include "helper\fileSystem.h"
 #include "helper\profiler.h"
@@ -13,11 +13,12 @@ ENUM_TRAITS_REGISTER_ENUM_BEGIN(SystemFunctionIndex)
 ENUM_TRAITS_REGISTER_ENUM_DEFINE(CLIENT_LUA_MAIN_INITIALIZE)
 ENUM_TRAITS_REGISTER_ENUM_DEFINE(CLIENT_LUA_MAIN_START)
 ENUM_TRAITS_REGISTER_ENUM_DEFINE(CLIENT_LUA_MAIN_UPDATE)
+ENUM_TRAITS_REGISTER_ENUM_DEFINE(CLIENT_LUA_MAIN_FIXED_UPDATE)
 ENUM_TRAITS_REGISTER_ENUM_DEFINE(CLIENT_LUA_MAIN_STOP)
+ENUM_TRAITS_REGISTER_ENUM_DEFINE(CLIENT_LUA_MAIN_CHANGE_SCENE)
 ENUM_TRAITS_REGISTER_ENUM_END(SystemFunctionIndex)
 
-LuaContext::LuaContext(SystemContext & systemContext) :
-	SubSystem(systemContext)
+LuaContext::LuaContext() 
 {
 }
 
@@ -66,7 +67,9 @@ void LuaContext::InitializeEnum(lua_State * l)
 	systemEnumBinder.AddEnum(EnumToString(CLIENT_LUA_MAIN_INITIALIZE), CLIENT_LUA_MAIN_INITIALIZE);
 	systemEnumBinder.AddEnum(EnumToString(CLIENT_LUA_MAIN_START), CLIENT_LUA_MAIN_START);
 	systemEnumBinder.AddEnum(EnumToString(CLIENT_LUA_MAIN_UPDATE), CLIENT_LUA_MAIN_UPDATE);
+	systemEnumBinder.AddEnum(EnumToString(CLIENT_LUA_MAIN_FIXED_UPDATE), CLIENT_LUA_MAIN_FIXED_UPDATE);
 	systemEnumBinder.AddEnum(EnumToString(CLIENT_LUA_MAIN_STOP), CLIENT_LUA_MAIN_STOP);
+	systemEnumBinder.AddEnum(EnumToString(CLIENT_LUA_MAIN_CHANGE_SCENE), CLIENT_LUA_MAIN_CHANGE_SCENE);
 
 	// bind input enum
 	auto keyEnumBinder = LuaBinder(l).BeginModule("KeyCode");
@@ -91,6 +94,10 @@ void LuaContext::GC()
 	PROFILER_BEGIN_CPU_BLOCK("LuaGC");
 	lua_gc(mLuaState, LUA_GCSTEP, 200);
 	PROFILER_END_BLOCK();
+
+	if (lua_gettop(mLuaState) != 0) {
+		Debug::Warning("There are something in lua stack unrealeased.");
+	}
 }
 
 void LuaContext::Uninitialize()
@@ -103,6 +110,9 @@ void LuaContext::Uninitialize()
 
 void LuaContext::FixedUpdate()
 {
+	PROFILER_BEGIN_CPU_BLOCK("LuaFixedUpdate");
+	OnMainFixedUpdate();
+	PROFILER_END_BLOCK();
 }
 
 bool LuaContext::DoLuaString(lua_State * l, const std::string & luaString, int arguments, int results)
@@ -178,7 +188,12 @@ void LuaContext::OnMainUpdate()
 	DoLuaSystemFunctionWithIndex(CLIENT_LUA_MAIN_UPDATE);
 }
 
-void LuaContext::OnMainUninitialize()
+void LuaContext::OnMainFixedUpdate()
+{
+	DoLuaSystemFunctionWithIndex(CLIENT_LUA_MAIN_FIXED_UPDATE);
+}
+
+void LuaContext::OnMainStop()
 {
 	DoLuaSystemFunctionWithIndex(CLIENT_LUA_MAIN_STOP);
 }
@@ -196,6 +211,31 @@ bool LuaContext::DoLuaSystemFunctionWithIndex(SystemFunctionIndex index)
 
 	lua_pop(mLuaState, 1);
 	return true;
+}
+
+void LuaContext::StartMainScript()
+{
+	OnMainStart();
+}
+
+void LuaContext::StopMainScript()
+{
+	OnMainStop();
+}
+
+void LuaContext::ChangeLuaScene(const std::string& name)
+{
+	mSystemExports.Push();
+
+	lua_rawgeti(mLuaState, -1, static_cast<int>(CLIENT_LUA_MAIN_CHANGE_SCENE));
+	LuaTools::Push<std::string>(mLuaState, name);
+	if (!LuaTools::CallFunction(mLuaState, 1, 0, ""))
+	{
+		lua_pop(mLuaState, 1);
+		return;
+	}
+
+	lua_pop(mLuaState, 1);
 }
 
 int LuaContext::api_panic(lua_State*l)

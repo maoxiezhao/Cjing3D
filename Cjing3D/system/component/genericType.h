@@ -36,6 +36,22 @@ namespace Cjing3D {
 		StringID mName;
 	};
 
+	class LayerComponent : public Component
+	{
+	public:
+		LayerComponent() : Component(ComponentType_Layer) {}
+
+		static const U32 DefaultLayerMask = 0xFFFFFFFF;
+		U32 mLayerMask = DefaultLayerMask;
+
+		inline void SetLayerMask(U32 mask) { mLayerMask = mask; }
+		inline U32 GetLayerMask()const { return mLayerMask; }
+
+		virtual void Serialize(Archive& archive, U32 seed = 0);
+		virtual void Unserialize(Archive& archive)const;
+
+	};
+
 	//  Hierarchy用于组织Transform之间的层级关系
 	class HierarchyComponent : public Component
 	{
@@ -44,10 +60,10 @@ namespace Cjing3D {
 
 		// parent entity
 		ECS::Entity mParent = ECS::INVALID_ENTITY;
+		U32 mChildBindLayerMask = LayerComponent::DefaultLayerMask;
 
 		virtual void Serialize(Archive& archive, U32 seed = 0);
 		virtual void Unserialize(Archive& archive)const;
 	};
-
 }
 

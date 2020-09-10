@@ -19,6 +19,7 @@ namespace Cjing3D
 		ClearRenderData();
 
 		// setup index buffer
+		if (!mIndices.empty())
 		{
 			const auto result = CreateStaticIndexBuffer(device, mIndexBuffer, mIndices);
 			Debug::ThrowIfFailed(result, "Failed to create index buffer:%08x", result);
@@ -29,6 +30,7 @@ namespace Cjing3D
 
 		// setup vertex pos buffer
 		// format: pos + normal + subsetindex
+		if(!mVertexPositions.empty())
 		{
 			// 创建VertexPosNormalSubset结构
 			std::vector<VertexPosNormalSubset> vertices(mVertexPositions.size());
@@ -47,19 +49,23 @@ namespace Cjing3D
 
 			const auto result = CreateBABVertexBuffer(device, mVertexBufferPos, vertices);
 			Debug::ThrowIfFailed(result, "Failed to create vertex buffer:%08x", result);
+
+			mAABB = AABB(XMLoad(mMinPos), XMLoad(mMaxPos));
 		}
-
-		mAABB = AABB(XMLoad(mMinPos), XMLoad(mMaxPos));
-
+		else
+		{
+			mAABB = AABB();
+		}
+	
 		// vertex texcoords
-		if (mVertexTexcoords.empty() == false)
+		if (!mVertexTexcoords.empty())
 		{
 			const auto result = CreateStaticVertexBuffer(device, mVertexBufferTex, mVertexTexcoords, VertexTex::format);
 			Debug::ThrowIfFailed(result, "Failed to create vertex texcoords buffer:%08x", result);
 		}
 
 		// vertex colors
-		if (mVertexColors.empty() == false)
+		if (!mVertexColors.empty())
 		{
 			const auto result = CreateStaticVertexBuffer(device, mVertexBufferColor, mVertexColors, VertexColor::format);
 			Debug::ThrowIfFailed(result, "Failed to create vertex colors buffer:%08x", result);
@@ -145,9 +151,7 @@ namespace Cjing3D
 			}
 		}
 
-		SystemContext& systemContext = SystemContext::GetSystemContext();
-		Renderer& renderer = systemContext.GetSubSystem<Renderer>();
-		SetupRenderData(renderer.GetDevice());
+		SetupRenderData(Renderer::GetDevice());
 	}
 
 	void MeshComponent::Unserialize(Archive& archive) const

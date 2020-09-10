@@ -1,9 +1,9 @@
 #pragma once
 
-#include "scripts\luaBinder.h"
-#include "scripts\luaTypeMapping.h"
+#include "scripts\binder\luaBinder.h"
+#include "scripts\binder\luaTypeMapping.h"
 #include "helper\variant.h"
-#include "gui\widgets.h"
+#include "gui\guiWidgets\widgets.h"
 
 #include <vector>
 
@@ -21,15 +21,15 @@ namespace LuaApi
 
 		Variant& GetVariant() { return mValue; }
 		void SetVariant(Variant variant) { mValue = variant; }
-		void SetWidget(WidgetPtr widget) { mWidget = widget; }
+		void SetWidget(Gui::WidgetPtr widget) { mWidget = widget; }
 
 		F32 GetFloat() { return mValue.GetValue<F32>(); }
 		I32 GetInt() { return mValue.GetValue<I32>(); }
 		std::string GetString() { return mValue.GetValue<std::string>(); }
-		WidgetPtr GetWidget() { return mWidget; }
+		Gui::WidgetPtr GetWidget() { return mWidget; }
 
 		Variant mValue;
-		WidgetPtr mWidget = nullptr;
+		Gui::WidgetPtr mWidget = nullptr;
 	};
 
 	class BindLuaVariantArray

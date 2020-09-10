@@ -1,14 +1,11 @@
-package.path = package.path .. ";../Assets/Scripts/?.lua"
+package.path = package.path .. ";GameAssets/Scripts/?.lua"
 
 require("common.common")
 require("common.global")
-require("scene")
-
-Logger.Info("Load main file success.")
+require("scene.editorScene")
 
 MainInstance = ClassDefinition(MainInstance);
 function MainInstance:ctor()
-	self.m_main_scene = MainScene:new();
 end 
 
 function MainInstance:onMainInitialize()
@@ -20,27 +17,29 @@ function MainInstance:onMainInitialize()
 	-- initialize modules
 	global_context.m_addon_manager:initialize();
 
-	self.m_main_scene:initialize();
-end 
+	-- initialize scene manager
+	global_context.m_scene_manager:initialize();
+end
 
 function MainInstance:onMainStart()
 	Logger.Info("onMainStart")
-
-	self.m_main_scene:onStart();
 end
 
 function MainInstance:onMainUpdate()
-	local deltaTime = System.GetDeltaTime();
+end 
 
-	self.m_main_scene:update(deltaTime);
+function MainInstance:onMainFixedUpdate()
+	local deltaTime = System.GetDeltaTime();
+	global_context.m_scene_manager:update(deltaTime);
 end 
 
 function MainInstance:onMainUnInitialize()
 	Logger.Info("OnMainUnInitialize")
 
-	self.m_main_scene:uninitialize();
+	-- uninitialzie scene manager
+	global_context.m_scene_manager:uninitialize();
 
-	-- uninitiaize modules
+	-- uninitialize modules
 	global_context.m_addon_manager:uninitialize();
 end 
 
@@ -49,8 +48,18 @@ function clinet_main_initialize() mainInstance:onMainInitialize(); end
 function clinet_main_start() mainInstance:onMainStart(); end 
 function client_main_tick() mainInstance:onMainUpdate(); end 
 function client_main_stop() mainInstance:onMainUnInitialize(); end 
+function client_main_fixedUpdate() mainInstance:onMainFixedUpdate(); end
+function client_main_change_scene(name)
+	local class_def = _G[name];
+	if class_def == nil then 
+		return;
+	end 
+	global_context.m_scene_manager:setNextScene(class_def:new());
+end 
 
 SystemExports[SystemFunctionIndex.CLIENT_LUA_MAIN_INITIALIZE] = clinet_main_initialize;
 SystemExports[SystemFunctionIndex.CLIENT_LUA_MAIN_START] = clinet_main_start;
 SystemExports[SystemFunctionIndex.CLIENT_LUA_MAIN_UPDATE] = client_main_tick;
+SystemExports[SystemFunctionIndex.CLIENT_LUA_MAIN_FIXED_UPDATE] = client_main_fixedUpdate;
 SystemExports[SystemFunctionIndex.CLIENT_LUA_MAIN_STOP] = client_main_stop;
+SystemExports[SystemFunctionIndex.CLIENT_LUA_MAIN_CHANGE_SCENE] = client_main_change_scene;

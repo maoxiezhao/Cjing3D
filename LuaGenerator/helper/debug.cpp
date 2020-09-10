@@ -1,5 +1,10 @@
 #include "debug.h"
 #include "logger.h"
+#include "..\platform\gameWindow.h"
+
+#include <stdarg.h>
+#include <stdexcept>
+#include <windows.h>
 
 namespace Cjing3D
 {
@@ -9,7 +14,7 @@ namespace Cjing3D
 	{
 	}
 
-	Exception::Exception(const char * format, ...) :
+	Exception::Exception(const char* format, ...) :
 		Exception()
 	{
 		va_list args;
@@ -20,7 +25,7 @@ namespace Cjing3D
 		Debug::Error(mMsg);
 	}
 
-	Exception::Exception(const char * format, va_list args) :
+	Exception::Exception(const char* format, va_list args) :
 		Exception()
 	{
 		vsnprintf_s(mMsg, std::size(mMsg), format, args);
@@ -49,20 +54,27 @@ namespace Cjing3D
 			if (ShowDebugConsole)
 			{
 				{
-					//bool result = AllocConsole();
-					//Debug::ThrowIfFailed(result, "Alloc console failed.");
+					bool result = AllocConsole();
+					Debug::ThrowIfFailed(result, "Alloc console failed.");
 				}
 				{
 					FILE* stream;
-					bool result = freopen_s(&stream, "conin$", "r+t", stdin);
+					int result = freopen_s(&stream, "CONOUT$", "w+t", stdout);
+					Debug::ThrowIfFailed(result == 0, "stdout redirection failed.");
+
+					std::cout.clear();
+				}
+				{
+					FILE* stream;
+					int result = freopen_s(&stream, "CONIN$", "r+t", stdin);
 					Debug::ThrowIfFailed(result == 0, "stdin redirection failed.");
 				}
-				{
-					FILE* stream;
-					bool result = freopen_s(&stream, "conout$", "w+t", stdout);
-					Debug::ThrowIfFailed(result == 0, "stdout redirection failed.");
-				}
 			}
+		}
+
+		void UninitializeDebugConsolse()
+		{
+			FreeConsole();
 		}
 
 		void SetDebugConsoleEnable(bool t)
@@ -85,12 +97,12 @@ namespace Cjing3D
 			AbortOnDie = t;
 		}
 
-		void Warning(const std::string & warningMsg)
+		void Warning(const std::string& warningMsg)
 		{
 			Logger::Warning(warningMsg);
 		}
 
-		void Error(const std::string & errorMsg)
+		void Error(const std::string& errorMsg)
 		{
 			Logger::Error(errorMsg);
 			if (DieOnError)
@@ -103,7 +115,7 @@ namespace Cjing3D
 				std::abort();
 		}
 
-		void CheckAssertion(bool assertion, const std::string & errorMsg)
+		void CheckAssertion(bool assertion, const std::string& errorMsg)
 		{
 			if (!assertion) {
 				Die(errorMsg);
@@ -117,7 +129,7 @@ namespace Cjing3D
 			}
 		}
 
-		void ThrowIfFailed(bool result, const char * format, ...)
+		void ThrowIfFailed(bool result, const char* format, ...)
 		{
 			if (false == result) {
 				va_list args;
@@ -136,7 +148,7 @@ namespace Cjing3D
 			}
 		}
 
-		void ThrowIfFailed(HRESULT result, const char * format, ...)
+		void ThrowIfFailed(HRESULT result, const char* format, ...)
 		{
 			if (FAILED(result)) {
 				va_list args;
@@ -148,13 +160,26 @@ namespace Cjing3D
 			}
 		}
 
-		void Die(const std::string & dieMsg)
+		void ThrowInvalidArgument(const char* format, ...)
+		{
+			char msg[128];
+			va_list args;
+			va_start(args, format);
+			vsnprintf_s(msg, std::size(msg), format, args);
+			va_end(args);
+			throw std::invalid_argument(msg);
+		}
+
+		void Die(const std::string& dieMsg)
 		{
 			Logger::Fatal(dieMsg);
-			if (ShowMsgBox)
-				MessageBox(NULL, TEXT(dieMsg.c_str()), NULL, MB_OK);
-			if (AbortOnDie)
+			if (ShowMsgBox) {
+				GameWindow::ShowMessageBox(dieMsg.c_str());
+			}
+
+			if (AbortOnDie) {
 				std::abort();
+			}
 
 			Exception exception(dieMsg.c_str());
 			throw exception;

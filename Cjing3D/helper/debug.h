@@ -1,11 +1,10 @@
 #pragma once
 
+#include "common\definitions.h"
+
 #include <string>
-#include <windows.h>
 #include <exception>
 #include <sstream>
-
-#include "common\definitions.h"
 
 namespace Cjing3D {
 
@@ -44,6 +43,7 @@ namespace Cjing3D {
 		void ThrowIfFailed(bool result, const char* format, ...);
 		void ThrowIfFailed(HRESULT result);
 		void ThrowIfFailed(HRESULT result, const char* format, ...);
+		void ThrowInvalidArgument(const char* format, ...);
 	}
 
 #define ERR_FAIL_COND(mCond)																		\

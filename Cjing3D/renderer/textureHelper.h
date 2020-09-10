@@ -1,7 +1,7 @@
 #pragma once
 
-#include "renderer\renderableCommon.h"
 #include "RHI\rhiResource.h"
+#include "utils\color.h"
 
 namespace Cjing3D
 {

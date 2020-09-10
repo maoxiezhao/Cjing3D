@@ -2,22 +2,45 @@
 #include "resourceManager.h"
 #include "renderer\renderableCommon.h"
 #include "renderer\RHI\rhiShader.h"
+#include "helper\IDGenerator.h"
 
 namespace Cjing3D {
 
-template<typename T>
-Resource_Type Resource::DeduceResourceType()
-{
-	return Resource_Unknown;
-}
-
-#define ADDTORESOURCETYPE(T, enumT) template<> Resource_Type Resource::DeduceResourceType<T>() { return enumT; }
-
-Resource::Resource(Resource_Type type) :
+Resource::Resource(ResourceType type) :
 	mType(type),
 	mGUID(GENERATE_ID)
 {
 }
 
+
+TextureResource::TextureResource() :
+	Resource(Resource_Texture)
+{
+}
+
+TextureResource::~TextureResource()
+{
+	if (mTexture != nullptr && mAutoRelease)
+	{
+		mTexture->Clear();
+		CJING_MEM_DELETE(mTexture);
+	}
+}
+
+Texture2D* TextureResource::CreateNewTexture()
+{
+	mTexture = CJING_MEM_NEW(Texture2D);
+	mAutoRelease = true;
+	return mTexture;
+}
+
+SoundResource::SoundResource() :
+	Resource(Resource_Sound)
+{
+}
+
+SoundResource::~SoundResource()
+{
+}
 
 }

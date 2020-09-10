@@ -1,56 +1,8 @@
 #pragma once
 
-#include "common\common.h"
-#include "system\component\genericType.h"
-#include "system\component\transform.h"
-#include "system\component\camera.h"
-#include "system\component\mesh.h"
-#include "system\component\object.h"
-#include "system\component\material.h"
-#include "system\component\light.h"
-#include "system\component\terrain.h"
-#include "system\component\animation.h"
-#include "system\component\weather.h"
-
-#include "helper\archive.h"
-
-#include <map>
-#include <tuple>
+#include "sceneSystemInclude.h"
 
 namespace Cjing3D {
-
-	// TODO
-	using ComponentManagerTypesConst = std::tuple<
-		const ECS::ComponentManager<NameComponent>*,
-		const ECS::ComponentManager<TransformComponent>*,
-		const ECS::ComponentManager<HierarchyComponent>*,
-		const ECS::ComponentManager<MaterialComponent>*,
-		const ECS::ComponentManager<MeshComponent>*,
-		const ECS::ComponentManager<ObjectComponent>*,
-		const ECS::ComponentManager<AABBComponent>*,
-		const ECS::ComponentManager<LightComponent>*,
-		const ECS::ComponentManager<AABBComponent>*,
-		const ECS::ComponentManager<TerrainComponent>*,
-		const ECS::ComponentManager<ArmatureComponent>*,
-		const ECS::ComponentManager<AnimationComponent>*,
-		const ECS::ComponentManager<WeatherComponent>*
-	>;
-
-	using ComponentManagerTypes = std::tuple<
-		ECS::ComponentManager<NameComponent>*,
-		ECS::ComponentManager<TransformComponent>*,
-		ECS::ComponentManager<HierarchyComponent>*,
-		ECS::ComponentManager<MaterialComponent>*,
-		ECS::ComponentManager<MeshComponent>*,
-		ECS::ComponentManager<ObjectComponent>*,
-		ECS::ComponentManager<AABBComponent>*,
-		ECS::ComponentManager<LightComponent>*,
-		ECS::ComponentManager<AABBComponent>*,
-		ECS::ComponentManager<TerrainComponent>*,
-		ECS::ComponentManager<ArmatureComponent>*,
-		ECS::ComponentManager<AnimationComponent>*,
-		ECS::ComponentManager<WeatherComponent>*
-	>;
 
 	class Scene
 	{
@@ -78,19 +30,45 @@ namespace Cjing3D {
 		ECS::Entity CreateArmature(const std::string& name);
 		ECS::Entity CreateAnimation(const std::string& name);
 		ECS::Entity CreateWeather(const std::string& name);
+		ECS::Entity CreateSound(const std::string& name, const std::string& filePath, bool is3DSound = true, const F32x3& pos = { 0.0f, 0.0f, 0.0f });
+		ECS::Entity CreateParticle(const std::string& name, const F32x3& pos = { 0.0f, 0.0f, 0.0f });
 
 		// create by entity
 		NameComponent& GetOrCreateNameByEntity(ECS::Entity entity);
 		TransformComponent& GetOrCreateTransformByEntity(ECS::Entity entity);
 		LightComponent& GetOrCreateLightByEntity(ECS::Entity entity);
+		ObjectComponent& GetOrCreateObjectByEntity(ECS::Entity entity);
+		LayerComponent& GetOrCreateLayerByEntity(ECS::Entity entity);
+		ParticleComponent& GetOrCreateParticleByEntity(ECS::Entity entity);
+		SoundComponent& GetOrCreateSoundByEntity(ECS::Entity entity);
+		TerrainComponent& GetOrCreateTerrainByEntity(ECS::Entity entity);
 
 		ECS::Entity CreateEntityByName(const std::string& name);
 		ECS::Entity GetEntityByName(const StringID& name);
 
+		bool RenameEntity(ECS::Entity entity, const std::string& name);
 		void RemoveEntity(ECS::Entity entity);
 		// entity间的层级结构基于 hierarchy component
 		void AttachEntity(ECS::Entity entity, ECS::Entity parent, bool alreadyInLocalSpace = false, bool detachIfAttached = true);
 		void DetachEntity(ECS::Entity entity);
+		void DetachEntityChildren(ECS::Entity entity);
+		bool IsEntityAttached(ECS::Entity entity)const;
+		ECS::Entity DuplicateEntity(ECS::Entity entity);
+		void SetEntityLayerMask(ECS::Entity entity, U32 layerMask);
+		std::string GetEntityName(ECS::Entity entity)const;
+		void RemoveComponentByType(ECS::Entity entity, ComponentType type);
+
+		struct PickResult
+		{
+			ECS::Entity entity = INVALID_ENTITY;
+			F32 distance = FLT_MAX;
+			F32x3 position = F32x3(0.0f, 0.0f, 0.0f);
+			F32x2 bary = F32x2(0.0f, 0.0f);
+		};
+		PickResult MousePickObjects(const U32x2& mousePos, const U32 layerMask = LayerComponent::DefaultLayerMask, bool triangleIntersect = true);
+		PickResult PickObjects(const Ray& ray, const U32 layerMask = LayerComponent::DefaultLayerMask, bool triangleIntersect = true);
+		PickResult PickObjects(const std::vector<ECS::Entity>& objects, const Ray& ray, const U32 layerMask = LayerComponent::DefaultLayerMask, bool triangleIntersect = true);
+		PickResult PickObjectsByBullet(const Ray& ray, const U32 layerMask = LayerComponent::DefaultLayerMask);
 
 		template<typename ComponentT>
 		ComponentT* GetComponent(ECS::Entity entity)
@@ -128,6 +106,7 @@ namespace Cjing3D {
 
 		U32 GetEntityCount()const;
 
+		ECS::Entity LoadModel(const std::string& path);
 		ECS::Entity LoadSceneFromArchive(const std::string& path);
 		void SaveSceneToArchive(const std::string& path);
 
@@ -139,6 +118,7 @@ namespace Cjing3D {
 
 		// TODO: componentManager集合的维护非常繁琐，后续会重新设计结构或者用宏封装一层
 		ECS::ComponentManager<NameComponent> mNames;
+		ECS::ComponentManager<LayerComponent> mLayers;
 		ECS::ComponentManager<TransformComponent> mTransforms;
 		ECS::ComponentManager<HierarchyComponent> mHierarchies;
 		ECS::ComponentManager<MaterialComponent> mMaterials;
@@ -151,6 +131,8 @@ namespace Cjing3D {
 		ECS::ComponentManager<ArmatureComponent> mArmatures;
 		ECS::ComponentManager<AnimationComponent> mAnimations;
 		ECS::ComponentManager<WeatherComponent> mWeathers;
+		ECS::ComponentManager<SoundComponent> mSounds;
+		ECS::ComponentManager<ParticleComponent> mParticles;
 
 		AABB mSceneAABB;
 
@@ -166,7 +148,9 @@ namespace Cjing3D {
 
 	#include "system\sceneSystem.inl"
 
-	//  Scene System Update
+//  Scene System Update
+namespace SceneSystem 
+{
 	void UpdateHierarchySystem(Scene& scene);
 	void UpdateSceneTransformSystem(Scene& scene);
 	void UpdateSceneObjectSystem(Scene& scene);
@@ -174,5 +158,8 @@ namespace Cjing3D {
 	void UpdateSceneTerrainSystem(Scene& scene);
 	void UpdateSceneArmatureSystem(Scene& scene);
 	void UpdateSceneAnimationSystem(Scene& scene);
+	void UpdateSceneSoundSystem(Scene& scene);
+	void UpdateSceneParticleSystem(Scene& scene, F32 deltaTime);
+}
 }
 	

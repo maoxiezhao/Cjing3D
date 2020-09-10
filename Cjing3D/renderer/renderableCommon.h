@@ -1,23 +1,20 @@
 #pragma once
 
 #include "common\common.h"
-#include "helper\IDGenerator.h"
+#include "core\globalContext.hpp"
 #include "utils\geometry.h"
 #include "utils\intersectable.h"
 #include "utils\color.h"
 #include "helper\stringID.h"
 
-#include <wrl.h>
 #include <memory>
 #include <vector>
 #include <string>
 #include <list>
 
-#include "hf\shaderInterop.h"
-#include "hf\shaderInteropRender.h"
-
-template<typename T>
-using ComPtr = Microsoft::WRL::ComPtr<T>;
+#include "shaderInterop\shaderInterop.h"
+#include "shaderInterop\shaderInteropRender.h"
+#include "shaderInterop\shaderInteropImage.h"
 
 enum BlendType
 {
@@ -42,6 +39,7 @@ enum RenderPassType
 	RenderPassType_Shadow,
 	RenderPassType_ShadowCube,
 	RenderPassType_Depth,
+	RenderPassType_Count,
 };
 
 enum RenderableType

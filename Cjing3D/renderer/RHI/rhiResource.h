@@ -1,7 +1,7 @@
 #pragma once
 
-#include "renderer\RHI\rhiStructure.h"
-#include "renderer\includeD3D11.h"
+#include "renderer\RHI\rhiDefinition.h"
+#include "renderer\RHI\d3d11\includeD3D11.h"
 
 namespace Cjing3D
 {
@@ -37,6 +37,10 @@ namespace Cjing3D
 	class GPUBuffer : public GPUResource
 	{
 	public:
+		~GPUBuffer() {
+			Clear();
+		}
+
 		GPUBufferDesc mDesc;
 		GPUBufferDesc GetDesc() { return mDesc; }
 		void SetDesc(GPUBufferDesc desc) {	mDesc = desc;}
@@ -136,5 +140,32 @@ namespace Cjing3D
 	{
 	public:
 		GPUQueryDesc mDesc;
+	};
+
+	struct GPUResourceMapping
+	{
+		enum FLAGS
+		{
+			FLAG_EMPTY = 0,
+			FLAG_READ = 1,
+			FLAG_WRITE = 2,
+		};
+		U32 mFlags = FLAG_EMPTY;
+		void* mData = nullptr;
+	};
+
+	struct IndirectArgsInstanced
+	{
+		U32 mVertexCountPerInstance;
+		U32 mInstanceCount;
+		U32 mStartVertexLocation;
+		U32 mStartInstanceLocation;
+	};
+
+	struct IndirectArgsDispatch
+	{
+		U32 mThreadGroupCountX;
+		U32 mThreadGroupCountY;
+		U32 mThreadGroupCountZ;
 	};
 }

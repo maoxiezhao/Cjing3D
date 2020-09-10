@@ -2,71 +2,77 @@
 
 #include "common\common.h"
 #include "core\subSystem.hpp"
-#include "helper\enumInfo.h"
+#include "input\keyboard.h"
+#include "input\mouse.h"
+#include "input\gamepad.h"
 
 namespace Cjing3D
 {
-
-enum KeyCode
-{
-	// Keyboard
-	F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, F13, F14, F15,/*Function*/
-	Alpha0, Alpha1, Alpha2, Alpha3, Alpha4, Alpha5, Alpha6, Alpha7, Alpha8, Alpha9,/*Numbers*/
-	Keypad0, Keypad1, Keypad2, Keypad3, Keypad4, Keypad5, Keypad6, Keypad7, Keypad8, Keypad9,/*Numpad*/
-	Q, W, E, R, T, Y, U, I, O, P, A, S, D, F, G, H, J, K, L, Z, X, C, V, B, N, M, /*Letters*/
-	Esc,
-	Tab,
-	Shift_Left, 
-	Shift_Right,
-	Ctrl_Left, 
-	Ctrl_Right,
-	Alt_Left, 
-	Alt_Right,
-	Space,
-	CapsLock,
-	Backspace,
-	Enter,
-	Delete,
-	Arrow_Left, 
-	Arrow_Right, 
-	Arrow_Up,
-	Arrow_Down,
-	Page_Up, Page_Down,
-	Home,
-	End,
-	Insert,
-	// Mouse
-	Click_Left,
-	Click_Middle,
-	Click_Right,
-	key_count
-};
 
 LUA_BINDER_REGISTER_CLASS
 class InputManager : public SubSystem
 {
 public:
-	LUA_BINDER_REGISTER_CLASS_CONSTRUCTOR
-	InputManager(SystemContext& systemContext);
-	~InputManager();
+	InputManager();
+	virtual ~InputManager();
 
-	void Initialize(HWND windowHwnd, HINSTANCE windowInstance);
-	void Uninitialize();
+	virtual void Initialize();
 	virtual void Update(F32 deltaTime);
+	virtual void Uninitialize();
 
-    LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
-	bool IsKeyDown(const KeyCode key)const;
-
+	// keyboard
 	LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
-	bool IsKeyUp(const KeyCode key)const;
-
+	bool IsKeyDown(const KeyCode& key, U32 index = 0)const;
 	LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
-	bool IsKeyHold(const KeyCode key)const;
+	bool IsKeyPressed(const KeyCode& key, U32 index = 0);
+	LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
+	bool IsKeyReleased(const KeyCode& key, U32 index = 0);
+	LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
+	bool IsKeyHold(const KeyCode& key, U32 index = 0, U32 frames = 16, bool continuous = true);
 
+	// mouse
 	LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
 	I32x2 GetMousePos()const;
+	LUA_BINDER_REGISTER_CLASS_METHOD_FUNCTION
+	F32 GetMouseWheelDelta()const;
+	MouseState GetMouseState()const;
+	MouseState GetPeveMouseState()const;
+
+	virtual const std::shared_ptr<KeyBoard> GetKeyBoard()const = 0;
+	virtual const std::shared_ptr<Mouse>    GetMouse()const = 0;
+	virtual const std::shared_ptr<Gamepad>  GetGamePad()const = 0;
+
+private:
+	struct InputInst
+	{
+		KeyCode mKeyCode = KeyCode::Unknown;
+		U32 mControllerIndex = 0;
+
+		bool operator<(const InputInst& rhs) {
+			return (mKeyCode != rhs.mKeyCode || mControllerIndex != rhs.mControllerIndex);
+		}
+
+		struct LessComparer {
+			bool operator()(const InputInst& a, const InputInst& b) const {
+				return (a.mKeyCode < b.mKeyCode || a.mControllerIndex < b.mControllerIndex);
+			}
+		};
+	};
+	std::map<InputInst, U32, InputInst::LessComparer> mInputKeys;
+
+	struct InputController
+	{
+		enum ControllerType
+		{
+			UNKNOWN,
+			GAMEPAD,
+			RAWINPUT,
+		};
+		ControllerType mType = UNKNOWN;
+		int mIndex = 0;
+	};
+	std::vector<InputController> mInputControllers;
+
+	void RegisterController(U32 index, InputController::ControllerType type);
 };
-
-ENUM_TRAITS_REGISTER_ENUM_HEADER(KeyCode)
-
 }

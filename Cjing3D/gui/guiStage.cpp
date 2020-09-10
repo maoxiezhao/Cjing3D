@@ -1,26 +1,15 @@
-#include "guiStage.h"
-#include "guiRenderer.h"
-#include "imguiStage.h"
-#include "widgetManager.h"
-#include "engine.h"
-#include "core\systemContext.hpp"
+#include "gui\guiStage.h"
+#include "gui\guiRenderer.h"
 #include "renderer\renderer.h"
 #include "helper\logger.h"
 
+#include "gui\guiWidgets\widgetManager.h"
+
 namespace Cjing3D
 {
-	namespace {
-
-#ifdef CJING_IMGUI_ENABLE
-		IMGUIStage mImGuiStage;
-#endif
-	}
-
 	using namespace Gui;
 
-	GUIStage::GUIStage(SystemContext & systemContext):
-		SubSystem(systemContext),
-		mRenderer(nullptr)
+	GUIStage::GUIStage()
 	{
 	}
 
@@ -30,56 +19,52 @@ namespace Cjing3D
 
 	void GUIStage::Initialize()
 	{
+		// initialize gui renderer
 		mRenderer = std::make_unique<GUIRenderer>(*this);
 
-		mWidgetManager = std::make_unique<WidgetManager>(*this);
+		// initialize widget manager
+		mWidgetManager = std::make_unique<Gui::WidgetManager>(*this);
 		mWidgetManager->Initialize();
 
-#ifdef CJING_IMGUI_ENABLE
-		mImGuiStage.Initialize();
-		mRenderer->SetImGuiStage(&mImGuiStage);
-#endif
+		// initialize widget hierarchy		
+		mWidgetHierarchy = std::make_unique<Gui::WidgetHierarchy>(*this);
+		mWidgetHierarchy->Initialize(Renderer::GetScreenSize());
 
-		SystemContext& systemContext = SystemContext::GetSystemContext();
-		Renderer& renderer = systemContext.GetSubSystem<Renderer>();
-		U32x2 screenSize = renderer.GetScreenSize();
-		
-		// initialize root widget
-		mRootWidget = std::make_shared<Widget>(*this, STRING_ID(root));
-		mRootWidget->SetArea(Rect(
-			0.0f, 0.0f,
-			(F32)screenSize[0], (F32)screenSize[1]
-		));
-		mRootWidget->SetVisible(true);
-
+		// load registered keys
 		LoadRegisteredKeys();
 
-		InputManager& inputManager = systemContext.GetSubSystem<InputManager>();
-		mPrevMousePos = inputManager.GetMousePos();
+		// save previous mouse pos
+		mPrevMousePos = GetGlobalContext().gInputManager->GetMousePos();
 
 		Logger::Info("GUI Stage initialized");
 	}
 
 	void GUIStage::Uninitialize()
 	{
-#ifdef CJING_IMGUI_ENABLE
-		mImGuiStage.Uninitialize();
-#endif
+		mWidgetHierarchy->Uninitialize();
 		mWidgetManager->Uninitialize();
-		mWidgetManager.reset();
-
-		mRootWidget.reset();
 
 		Logger::Info("GUI Stage uninitialized");
 	}
 
 	void GUIStage::Update(F32 deltaTime)
 	{
-		PROFILER_BEGIN_CPU_BLOCK("GuiUpdate");
+		if (!IsGUIVisible()) {
+			return;
+		}
 
-#ifdef CJING_IMGUI_ENABLE
-		mImGuiStage.Update(deltaTime);
-#endif
+		PROFILER_BEGIN_CPU_BLOCK("GuiUpdate");
+		mWidgetHierarchy->Update(deltaTime);
+		PROFILER_END_BLOCK();
+	}
+
+	void GUIStage::FixedUpdate()
+	{
+		if (!IsGUIVisible()) {
+			return;
+		}
+
+		PROFILER_BEGIN_CPU_BLOCK("GuiFixedUpdate");
 		// notify input
 		NotifyInput();
 
@@ -87,14 +72,17 @@ namespace Cjing3D
 		HandleInputEvents();
 
 		// update all widgets
-		mRootWidget->Update(deltaTime);
+		mWidgetHierarchy->FixedUpdate();
+
+		// update all animations
+		mWidgetHierarchy->UpdateAnimation();
 
 		PROFILER_END_BLOCK();
 	}
 
 	WidgetPtr GUIStage::LoadWidgetFromXML(const StringID& name, const std::string& filePath, LuaRef scriptHandler)
 	{
-		return LoadWidgetFromXML(mRootWidget, name, filePath, scriptHandler);
+		return LoadWidgetFromXML(nullptr, name, filePath, scriptHandler);
 	}
 
 	WidgetPtr GUIStage::LoadWidgetFromXML(WidgetPtr parent, const StringID& name, const std::string& filePath, LuaRef scriptHandler)
@@ -107,8 +95,13 @@ namespace Cjing3D
 
 		widget->SetName(name);
 
-		if (parent != nullptr) {
+		if (parent != nullptr) 
+		{
 			parent->Add(widget);
+		}
+		else
+		{
+			mWidgetHierarchy->AddWidget(widget);
 		}
 
 		return widget;
@@ -119,19 +112,10 @@ namespace Cjing3D
 		mRegisteredKeyBoardKeys.push_back(key);
 	}
 
-	void GUIStage::SetImGUIStageVisible(bool visible)
-	{
-		mImGuiStage.SetVisible(visible);
-	}
 
-	bool GUIStage::IsImGUIStageVisible() const
+	void GUIStage::PushInputEvent(const GUIInputEvent& ent)
 	{
-		return mImGuiStage.IsVisible();
-	}
-
-	IMGUIStage& GUIStage::GetImGUIStage()
-	{
-		return mImGuiStage;
+		mInputEventQueue.push(ent);
 	}
 
 	void GUIStage::LoadRegisteredKeys()
@@ -139,37 +123,53 @@ namespace Cjing3D
 		mRegisteredMouseKeys.push_back(KeyCode::Click_Left);
 		mRegisteredMouseKeys.push_back(KeyCode::Click_Middle);
 		mRegisteredMouseKeys.push_back(KeyCode::Click_Right);
+
+		mRegisteredKeyBoardKeys.push_back(KeyCode::Arrow_Left);
+		mRegisteredKeyBoardKeys.push_back(KeyCode::Arrow_Right);
+		mRegisteredKeyBoardKeys.push_back(KeyCode::Arrow_Down);
+		mRegisteredKeyBoardKeys.push_back(KeyCode::Arrow_Up);
 	}
 
 	void GUIStage::NotifyInput()
 	{
 		// 响应输入，并将其以事件的形式分发给widgets
-		SystemContext& systemContext = SystemContext::GetSystemContext();
-		InputManager& inputManager = systemContext.GetSubSystem<InputManager>();
+		auto inputManager = GetGlobalContext().gInputManager;
 
 		// notify mouse event
+		I32x2 mousePos = inputManager->GetMousePos();
 		for (auto keyCode : mRegisteredMouseKeys)
 		{
-			if (inputManager.IsKeyDown(keyCode)) {
-				GUIInputEvent e = {};
+			if (inputManager->IsKeyPressed(keyCode)) {
+				Gui::GUIInputEvent e = {};
 				e.type = GUI_INPUT_EVENT_TYPE_MOUSE_BUTTONDOWN;
 				e.key = keyCode;
+				e.pos = mousePos;
 				mInputEventQueue.push(e);
 			}
-			else if (inputManager.IsKeyUp(keyCode)) {
-				GUIInputEvent e = {};
+			else if (inputManager->IsKeyReleased(keyCode)) {
+				Gui::GUIInputEvent e = {};
 				e.type = GUI_INPUT_EVENT_TYPE_MOUSE_BUTTONUP;
 				e.key = keyCode;
+				e.pos = mousePos;
 				mInputEventQueue.push(e);
 			}
 		}
 
-		I32x2 mousePos = inputManager.GetMousePos();
 		if (mousePos != mPrevMousePos)
 		{
 			mPrevMousePos = mousePos;
-			GUIInputEvent e = {};
+			Gui::GUIInputEvent e = {};
 			e.type = GUI_INPUT_EVENT_TYPE_MOUSE_MOTION;
+			e.pos = mousePos;
+			mInputEventQueue.push(e);
+		}
+
+		auto mouseWheelDelta = inputManager->GetMouseWheelDelta();
+		if (mouseWheelDelta != 0)
+		{
+			Gui::GUIInputEvent e = {};
+			e.type = GUI_INPUT_EVENT_TYPE_MOUSE_WHEEL_CHANGED;
+			e.delta = (I32)mouseWheelDelta;
 			e.pos = mousePos;
 			mInputEventQueue.push(e);
 		}
@@ -177,16 +177,40 @@ namespace Cjing3D
 		// notify keyboard event
 		for (auto keyCode : mRegisteredKeyBoardKeys)
 		{
-			if (inputManager.IsKeyDown(keyCode)) {
-				GUIInputEvent e = {};
+			if (inputManager->IsKeyPressed(keyCode))
+			{
+				Gui::GUIInputEvent e = {};
 				e.type = GUI_INPUT_EVENT_TYPE_KEYBOARD_KEYDOWN;
 				e.key = keyCode;
+
+				if (inputManager->IsKeyHold(KeyCode::Shift_Left) || inputManager->IsKeyHold(KeyCode::Shift_Right)) {
+					e.modifiers |= GUI_INPUT_KEYBOARD_MODIFIER::mod_shift;
+				}
+				if (inputManager->IsKeyHold(KeyCode::Alt_Left) || inputManager->IsKeyHold(KeyCode::Alt_Right)) {
+					e.modifiers |= GUI_INPUT_KEYBOARD_MODIFIER::mod_alt;
+				}
+				if (inputManager->IsKeyHold(KeyCode::Ctrl_Left) || inputManager->IsKeyHold(KeyCode::Ctrl_Right)) {
+					e.modifiers |= GUI_INPUT_KEYBOARD_MODIFIER::mod_control;
+				}
+
 				mInputEventQueue.push(e);
 			}
-			else if (inputManager.IsKeyUp(keyCode)) {
-				GUIInputEvent e = {};
+			else if (inputManager->IsKeyReleased(keyCode))
+			{
+				Gui::GUIInputEvent e = {};
 				e.type = GUI_INPUT_EVENT_TYPE_KEYBOARD_KEYUP;
 				e.key = keyCode;
+
+				if (inputManager->IsKeyHold(KeyCode::Shift_Left) || inputManager->IsKeyHold(KeyCode::Shift_Right)) {
+					e.modifiers |= GUI_INPUT_KEYBOARD_MODIFIER::mod_shift;
+				}
+				if (inputManager->IsKeyHold(KeyCode::Alt_Left) || inputManager->IsKeyHold(KeyCode::Alt_Right)) {
+					e.modifiers |= GUI_INPUT_KEYBOARD_MODIFIER::mod_alt;
+				}
+				if (inputManager->IsKeyHold(KeyCode::Ctrl_Left) || inputManager->IsKeyHold(KeyCode::Ctrl_Right)) {
+					e.modifiers |= GUI_INPUT_KEYBOARD_MODIFIER::mod_control;
+				}
+
 				mInputEventQueue.push(e);
 			}
 		}
@@ -199,145 +223,21 @@ namespace Cjing3D
 	{
 		while (!mInputEventQueue.empty())
 		{
-			GUIInputEvent e = mInputEventQueue.front();
+			Gui::GUIInputEvent e = mInputEventQueue.front();
 			mInputEventQueue.pop();
-
-			switch (e.type)
-			{
-			case GUI_INPUT_EVENT_TYPE_KEYBOARD_KEYDOWN:
-				HandldKeyboardButton(e.key, GUI_INPUT_KEY_STATE_KEYDOWN);
-				break;
-			case GUI_INPUT_EVENT_TYPE_KEYBOARD_KEYUP:
-				HandldKeyboardButton(e.key, GUI_INPUT_KEY_STATE_KEYUP);
-				break;
-			case GUI_INPUT_EVENT_TYPE_MOUSE_MOTION:
-				HandleMouseMove(e.pos);
-				break;
-			case GUI_INPUT_EVENT_TYPE_MOUSE_BUTTONDOWN:
-				HandleMouseButton(e.key, GUI_INPUT_KEY_STATE_KEYDOWN);
-				break;
-			case GUI_INPUT_EVENT_TYPE_MOUSE_BUTTONUP:
-				HandleMouseButton(e.key, GUI_INPUT_KEY_STATE_KEYUP);
-				break;
-			default:
-				break;
-			}
-		}
-	}
-
-	void GUIStage::HandldKeyboardButton(KeyCode key, GUI_INPUT_KEY_STATE state)
-	{
-		if (mCaptureWidget != nullptr) {
-			HandleKeyboardButtonEvent(*mRootWidget, mCaptureWidget, key, state);
-			return;
-		}
-
-		if (mRootWidget == nullptr) {
-			return;
-		}
-
-		WidgetPtr targetWidget = mMouseFocusWidget;
-		if (targetWidget == nullptr) {
-			targetWidget = mRootWidget;
-		}
-
-		HandleKeyboardButtonEvent(*mRootWidget, targetWidget, key, state);
-	}
-
-	void GUIStage::HandleMouseButton(KeyCode key, GUI_INPUT_KEY_STATE state)
-	{
-		if (mCaptureWidget != nullptr) {
-			HandleMouseButtonEvent(*mRootWidget, mCaptureWidget, key, state);
-			return;
-		}
-
-		if (mRootWidget == nullptr) {
-			return;
-		}
-
-		WidgetPtr targetWidget = mMouseFocusWidget;
-		if (targetWidget == nullptr) {
-			targetWidget = mRootWidget;
-		}
-
-		HandleMouseButtonEvent(*mRootWidget, targetWidget, key, state);
-
-		mLastClickWidget = targetWidget;
-		mLastClickTime;
-	}
-
-	void GUIStage::HandleMouseMove(I32x2 mousePos)
-	{
-		if (mCaptureWidget != nullptr) {
-			mCaptureWidget->Fire(UI_EVENT_TYPE::UI_EVENT_MOUSE_MOTION, mMouseFocusWidget.get(), VariantArray());
-			return;
-		}
-
-		if (mRootWidget == nullptr) {
-			return;
-		}
-
-		F32x2 fMousePos = { (F32)mousePos[0], (F32)mousePos[1] };
-		WidgetPtr targetWidget = mRootWidget->GetChildWidgetByGlobalCoords(fMousePos);
-		if (targetWidget != mMouseFocusWidget)
-		{
-			if (mMouseFocusWidget != nullptr) {
-				mRootWidget->Fire(UI_EVENT_TYPE::UI_EVENT_MOUSE_LEAVE, mMouseFocusWidget.get(), VariantArray());
-			}
-
-			mMouseFocusWidget = targetWidget;
-				
-			if (mMouseFocusWidget != nullptr){
-				mRootWidget->Fire(UI_EVENT_TYPE::UI_EVENT_MOUSE_ENTER, mMouseFocusWidget.get(), VariantArray());
-			}
-		}
-
-		if (targetWidget == nullptr) {
-			targetWidget = mRootWidget;
-		}
-
-		mRootWidget->Fire(UI_EVENT_TYPE::UI_EVENT_MOUSE_MOTION, mMouseFocusWidget.get(), VariantArray());
-	}
-
-	void GUIStage::HandleKeyboardButtonEvent(Widget& dispatcher, WidgetPtr targetWidget, KeyCode key, GUI_INPUT_KEY_STATE state)
-	{
-		if (state == GUI_INPUT_KEY_STATE_KEYDOWN)
-		{
-			VariantArray variants;
-			variants.push_back(Variant(static_cast<U32>(key)));
-
-			dispatcher.Fire(UI_EVENT_TYPE::UI_EVENT_KEYBOARD_KEYDOWN, targetWidget.get(), variants);
-		}
-		else
-		{
-			VariantArray variants;
-			variants.push_back(Variant(static_cast<U32>(key)));
-
-			dispatcher.Fire(UI_EVENT_TYPE::UI_EVENT_KEYBOARD_KEYUP, targetWidget.get(), variants);
-		}
-	}
-
-	void GUIStage::HandleMouseButtonEvent(Widget& dispatcher, WidgetPtr targetWidget, KeyCode key, GUI_INPUT_KEY_STATE state)
-	{
-		if (state == GUI_INPUT_KEY_STATE_KEYDOWN)
-		{
-			VariantArray variants;
-			variants.push_back(Variant(static_cast<U32>(key - KeyCode::Click_Left)));
-
-			dispatcher.Fire(UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_DOWN, targetWidget.get(), variants);
-		}
-		else
-		{
-			VariantArray variants;
-			variants.push_back(Variant(static_cast<U32>(key - KeyCode::Click_Left)));
-
-			dispatcher.Fire(UI_EVENT_TYPE::UI_EVENT_MOUSE_BUTTON_UP, targetWidget.get(), variants);
+			mWidgetHierarchy->HandleInputEvents(e);
 		}
 	}
 
 	// 仅由GUIRenderer调用 
 	void GUIStage::RenderImpl()
 	{
-		mRootWidget->Render({0.0f, 0.0f});
+		if (!IsGUIVisible()) {
+			return;
+		}
+
+		PROFILER_BEGIN_CPU_BLOCK("GuiRender");
+		mWidgetHierarchy->Render();
+		PROFILER_END_BLOCK();
 	}
 }

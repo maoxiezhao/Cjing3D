@@ -15,9 +15,9 @@ namespace Cjing3D {
 		std::string mSurfaceMapName;
 		std::string mNormalMapName;
 
-		Texture2DPtr mBaseColorMap = nullptr;
-		Texture2DPtr mSurfaceMap = nullptr;
-		Texture2DPtr mNormalMap = nullptr;
+		TextureResourcePtr mBaseColorMap = nullptr;
+		TextureResourcePtr mSurfaceMap = nullptr;
+		TextureResourcePtr mNormalMap = nullptr;
 
 	public:
 		MaterialComponent();
@@ -31,15 +31,28 @@ namespace Cjing3D {
 		inline void SetIsUsingVertexColors(bool useVertexColors) { mIsUsingVertexColors = useVertexColors; }
 		inline F32  GetAlphaCutRef()const { return mAlphaCutRef; }
 		inline void SetAlphaCutRef(F32 alpha) { mAlphaCutRef = alpha; }
-
 		inline bool IsNeedAlphaTest()const { return mAlphaCutRef < (1.0f - 0.0001); }
-
 		inline bool IsDirty()const { return mIsDirty; }
 		inline void SetIsDirty(bool isDirty) { mIsDirty = isDirty; }
 
 		ShaderMaterial CreateMaterialCB();
 		void SetupConstantBuffer(GraphicsDevice& device);
 		GPUBuffer& GetConstantBuffer() { return mConstantBuffer; }
+
+		bool LoadBaseColorMap(const std::string& filePath);
+		bool LoadNormalMap(const std::string& filePath);
+		bool LoadSurfaceMap(const std::string& filePath);
+		
+		const Texture2D* GetBaseColorMap()const;
+		const Texture2D* GetNormalMap()const;
+		const Texture2D* GetSurfaceMap()const;
+
+		Texture2D* GetBaseColorMapPtr()const;
+		Texture2D* GetNormalMapPtr()const;
+		Texture2D* GetSurfaceMapPtr()const;
+
+		void SetCustomShader(const StringID& id) { mCustomShader = id; }
+		StringID GetCustomShader()const { return mCustomShader; }
 
 		virtual void Serialize(Archive& archive, U32 seed = 0);
 		virtual void Unserialize(Archive& archive)const;
@@ -49,11 +62,12 @@ namespace Cjing3D {
 
 		bool mIsDirty = true;
 		bool mIsUsingVertexColors = false;
-		bool mIsCastingShadow = false;
+		bool mIsCastingShadow = true;
 		BlendType mBlendType = BlendType_Opaque;
 		F32 mAlphaCutRef = 1.0f;
 
 		// TODO£º support custom shader
+		StringID mCustomShader = StringID::EMPTY;
 	};
 
 }

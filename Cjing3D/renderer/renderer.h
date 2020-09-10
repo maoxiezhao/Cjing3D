@@ -13,86 +13,92 @@ namespace Cjing3D
 
 class GraphicsDevice;
 class ShaderLib;
-class StateManager;
 class ResourceManager;
+class RenderPreset;
 class CameraComponent;
 class LightComponent;
-class BufferManager;
 class Scene;
 class MaterialComponent;
 class PipelineStateManager;
-class Renderer2D;
 class RenderPass;
 class TerrainTree;
+struct PresentConfig;
 
-
-// TODO: change to renderer namesapce
 // Renderer被设计为一个仅仅提供各种渲染方法的集合（namespace)，具体的调用方式应该由renderPath决定
-class Renderer : public SubSystem
+namespace Renderer
 {
-public:
-	Renderer(SystemContext& gameContext, RenderingDeviceType deviceType, HWND window);
-	~Renderer();
-
-	virtual void FixedUpdate();
-	virtual void Update(F32 deltaTime);
-
-	void UpdatePerFrameData(F32 deltaTime);
-	void RefreshRenderData();
-
 	void Initialize();
 	void Uninitialize();
-	void Render();
-	void Compose();
-	void Present();
-	
+	void UninitializeDevice();
+	bool IsInitialized();
+
+	void EndFrame();
+	void FixedUpdate();
+	void Update(F32 deltaTime);
+
+	void UpdatePerFrameData(F32 deltaTime, U32 renderLayerMask);
+	void RefreshRenderData(CommandList cmd);
+
 	// getter
 	GraphicsDevice& GetDevice();
-	ResourceManager& GetResourceManager();
 	CameraComponent& GetCamera();
 	ShaderLib& GetShaderLib();
-	StateManager& GetStateManager();
-	BufferManager& GetBufferManager();
+	RenderPreset& GetRenderPreset();
 	Scene& GetMainScene();
 	PipelineStateManager& GetPipelineStateManager();
-	Renderer2D& GetRenderer2D();
 	RenderPath* GetRenderPath();
 
 	// base status
-	void SetGamma(F32 gamma) { mGamma = gamma; }
-	F32 GetGamma()const { return mGamma; }
-	U32 GetShadowCascadeCount()const;
-	U32 GetShadowRes2DResolution()const;
-	F32x3 GetAmbientColor()const;
+	void SetDevice(const std::shared_ptr<GraphicsDevice>& device);
+	void SetGamma(F32 gamma);
+	F32 GetGamma();
+	U32 GetShadowCascadeCount();
+	U32 GetShadowRes2DResolution();
+	F32x3 GetAmbientColor();
 	void SetAmbientColor(F32x3 color);
-	void SetAlphaCutRef(F32 alpha);
-	void ResetAlphaCutRef() { SetAlphaCutRef(1.0f); }
+	void SetAlphaCutRef(CommandList cmd, F32 alpha);
+	void ResetAlphaCutRef(CommandList cmd);
 	void SetScreenSize(U32 width, U32 height);
-	U32x2 GetScreenSize()const;
+	U32x2 GetScreenSize();
+	XMMATRIX GetScreenProjection();
+	Ray GetMainCameraMouseRay(const U32x2& pos);
 
 	// Render Method
-	void RenderShadowmaps(CameraComponent& camera);
-	void RenderSceneOpaque(CameraComponent& camera, RenderPassType renderPassType);
-	void RenderSceneTransparent(CameraComponent& camera, RenderPassType renderPassType);
-	void RenderImpostor(CameraComponent& camera, RenderPassType renderPassType);
-	void RenderSky();
+	void RenderSceneOpaque(CommandList cmd, CameraComponent& camera, RenderPassType renderPassType);
+	void RenderSceneTransparent(CommandList cmd, CameraComponent& camera, RenderPassType renderPassType);
+	void RenderImpostor(CommandList cmd, CameraComponent& camera, RenderPassType renderPassType);
+	void RenderSky(CommandList cmd);
+	void RenderLinearDepth(CommandList cmd, Texture2D& depthBuffer, Texture2D& linearDepthBuffer);
+	void RenderSSAO(CommandList cmd, Texture2D& depthBuffer, Texture2D& linearDepthBuffer, Texture2D& aoTexture, F32 aoRange, U32 aoSampleCount);
+	void RenderParticles(CommandList cmd, CameraComponent& camera, Texture2D& linearDepthBuffer);
 
-	bool IsTiledCullingDebug()const;
-	U32x2 GetCullingTiledCount()const;
-	void TiledLightCulling(Texture2D& depthBuffer);
+	// shadow
+	void RenderShadowmaps(CommandList cmd, CameraComponent& camera, U32 renderLayerMask);
+	void RenderDirLightShadowmap(CommandList cmd, LightComponent& light, CameraComponent& camera, U32 renderLayerMask);
+	void RenderPointLightShadowmap(CommandList cmd, LightComponent& light, CameraComponent& camera, U32 renderLayerMask);
+
+	// blur
+	void GaussianBlur(CommandList cmd, Texture2D& input, Texture2D& temp, Texture2D& output);
+	void BilateralBlur(CommandList cmd, Texture2D& input, Texture2D& temp, Texture2D& output, Texture2D& linearDepthBuffer, F32 depthThreshold);
+	void UpsampleBilateral(CommandList cmd, Texture2D& input, Texture2D& output, Texture2D& linearDepthBuffer, F32 depthThreshold);
+
+	// tiled light culling
+	bool IsTiledCullingDebug();
+	U32x2 GetCullingTiledCount();
+	void TiledLightCulling(CommandList cmd, Texture2D& depthBuffer);
 
 	// postprocess
-	void PostprocessTonemap(Texture2D& input, Texture2D& output, F32 exposure);
-	void PostprocessFXAA(Texture2D& input, Texture2D& output);
+	void PostprocessTonemap(CommandList cmd, Texture2D& input, Texture2D& output, F32 exposure);
+	void PostprocessFXAA(CommandList cmd, Texture2D& input, Texture2D& output);
 
 	// Binding Method
-	void BindCommonResource();
-	void BindConstanceBuffer(SHADERSTAGES stage);
-	void BindShadowMaps(SHADERSTAGES stage);
+	void BindCommonResource(CommandList cmd);
+	void BindConstanceBuffer(CommandList cmd, SHADERSTAGES stage);
+	void BindShadowMaps(CommandList cmd, SHADERSTAGES stage);
 
 	// const buffer function
-	void UpdateCameraCB(CameraComponent& camera);
-	void UpdateFrameCB();
+	void UpdateCameraCB(CommandList cmd, CameraComponent& camera);
+	void UpdateFrameCB(CommandList cmd);
 
 	// render path method
 	void SetCurrentRenderPath(RenderPath* renderPath);
@@ -101,6 +107,8 @@ public:
 	void AddDeferredTextureMipGen(Texture2D& texture);
 
 	// render path
+	void InitializeRenderPasses();
+	void UninitializeRenderPasses();
 	void RegisterRenderPass(const StringID& name, std::shared_ptr<RenderPass> renderPath);
 	std::shared_ptr<RenderPass> GetRenderPass(const StringID& name);
 
@@ -109,19 +117,22 @@ public:
 	void UnRegisterTerrain(ECS::Entity entity);
 	std::shared_ptr<TerrainTree> GetTerrainTree(ECS::Entity entity);
 
+	// debug
+	void RenderDebugScene(CommandList cmd, CameraComponent& camera);
+	void SetDebugGridSize(const I32x2& gridSize);
+	void SetDebugGridOffset(const F32x3& posOffset);
+
 	// shader
+	void ReloadShaders();
 	ShaderPtr LoadShader(SHADERSTAGES stages, const std::string& path);
 	VertexShaderInfo LoadVertexShaderInfo(const std::string& path, VertexLayoutDesc* desc, U32 numElements);
-
-private:
-	void InitializeRenderPasses();
-	void UninitializeRenderPasses();
+	void RegisterCustomPipelineState(RenderPassType passType, const StringID& name, PipelineStateDesc desc);
+	PipelineState* GetPipelineStateByStringID(RenderPassType passType, const StringID& id);
 
 	GraphicsDevice* CreateGraphicsDeviceByType(RenderingDeviceType deviceType, HWND window);
-	void ProcessRenderQueue(RenderQueue& queue, RenderPassType renderPassType, RenderableType renderableType, U32 instanceReplicator = 1, InstanceHandler* instanceHandler = nullptr);
-	void RenderDirLightShadowmap(LightComponent& light, CameraComponent& camera);
-	void RenderPointLightShadowmap(LightComponent& light, CameraComponent& camera);
-	void ProcessSkinning();
+	void ProcessRenderQueue(CommandList cmd, RenderQueue& queue, RenderPassType renderPassType, RenderableType renderableType, U32 instanceReplicator = 1, InstanceHandler* instanceHandler = nullptr);
+	void ProcessSkinning(CommandList cmd);
+	void ProcessParticles(CommandList cmd, Scene& scene, const std::vector<U32>& culledParticles);
 
 	// 当前帧的裁剪后的数据
 	struct FrameCullings
@@ -129,33 +140,28 @@ private:
 		Frustum mFrustum;
 		std::vector<U32> mCulledObjects; // 记录渲染的object index
 		std::vector<U32> mCulledLights;
+		std::vector<U32> mCulledParticles;
 
 		void Clear();
 	};
-	std::unordered_map<const CameraComponent*, FrameCullings> mFrameCullings;
 
-public:
 	// 每帧所用的线性分配器
-	enum FrameAllocatorType
-	{
-		FrameAllocatorType_Update = 0,
-		FrameAllocatorType_Render,
-		FrameAllocatorType_Count
-	};
-	LinearAllocator& GetFrameAllocator(FrameAllocatorType type);
+	LinearAllocator& GetFrameAllocator();
+	LinearAllocator& GetRenderAllocator(CommandList cmd);
 
 	// 用于记录每一帧的基础数据
 	class RenderFrameData
 	{
 	public:
-		F32x2 mFrameScreenSize;
-		F32x2 mFrameInvScreenSize;
-		U32 mShaderLightArrayCount;
-		F32x3 mFrameAmbient;
+		F32x2 mFrameScreenSize = F32x2(0.0f, 0.0f);
+		F32x2 mFrameInvScreenSize = F32x2(0.0f, 0.0f);
+		U32 mShaderLightArrayCount = 0;
+		F32x3 mFrameAmbient = F32x3(0.0f, 0.0f, 0.0f);
+		F32 mFrameDeltaTime = 0.0f;
+		F32 mFrameTime = 0.0f;;
 
 		void Clear();
 	};
-	RenderFrameData mFrameData;
 
 	// GPU Query, latency为延迟读取的数量，避免在同一帧中请求/读取同一个query
 	template<I32 latency>
@@ -165,7 +171,7 @@ public:
 		GPUQueryHandler() {};
 		~GPUQueryHandler() { Uninitialize(); }
 
-		void Initialize(Renderer& renderer, GPUQueryDesc& desc)
+		void Initialize(GPUQueryDesc& desc)
 		{
 			if (IsInitialized()) {
 				return;
@@ -173,7 +179,7 @@ public:
 
 			for (int i = 0; i < latency; i++)
 			{
-				renderer.GetDevice().CreateQuery(desc, mQueries[i]);
+				GetDevice().CreateQuery(desc, mQueries[i]);
 				mActiveTable[i] = false;
 			}
 			currentIndex = 0;
@@ -222,29 +228,20 @@ public:
 		I32 currentIndex = 0;
 		bool mActiveTable[latency];
 	};
+};
 
-private:
-	bool mIsInitialized;
-	bool mIsRendering;
-	U32 mFrameNum = 0;
-	U32x2 mScreenSize;
-	F32 mGamma = 2.2f;
-	CommonCB mCommonCB;
-	std::vector<int> mPendingUpdateMaterials;
-	LinearAllocator mFrameAllocator[FrameAllocatorType_Count];
-
-	// base member
-	std::unique_ptr<GraphicsDevice> mGraphicsDevice;
-	std::unique_ptr<ShaderLib> mShaderLib;
-	std::unique_ptr<StateManager> mStateManager;
-	std::unique_ptr<BufferManager> mBufferManager;
-	std::unique_ptr<DeferredMIPGenerator> mDeferredMIPGenerator;
-	std::unique_ptr<PipelineStateManager> mPipelineStateManager;
-	std::unique_ptr<Renderer2D> mRenderer2D;
-	std::unique_ptr<RenderPath> mCurrentRenderPath;
-
-	// render pass
-	std::map<StringID, std::shared_ptr<RenderPass>> mRenderPassMap;
+// renderer sub system
+class RendererSystem : public SubSystem
+{
+public:
+	void Initialize()
+	{
+		Renderer::Initialize();
+	}
+	void Uninitialize()override
+	{
+		Renderer::Uninitialize();
+	}
 };
 
 }

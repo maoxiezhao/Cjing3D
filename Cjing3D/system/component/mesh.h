@@ -51,6 +51,7 @@ namespace Cjing3D {
 
 		IndexFormat GetIndexFormat()const { return IndexFormat::INDEX_FORMAT_32BIT; }
 		std::vector<MeshSubset>& GetSubsets() { return mSubsets; }
+		bool IsEmpty()const { return mIndices.empty(); }
 
 		bool IsSkinned()const { return mArmature != ECS::INVALID_ENTITY; }
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "scripts\luaBinder.h"
-#include "scripts\luaTypeMapping.h"
+#include "scripts\binder\luaBinder.h"
+#include "scripts\binder\luaTypeMapping.h"
 #include "utils\math.h"
 
 namespace Cjing3D
@@ -39,6 +39,11 @@ namespace Cjing3D
 		{
 			LuaApi::BindLuaMatrix matrix = LuaTools::Get<LuaApi::BindLuaMatrix>(l, index);
 			return matrix.mValue;
+		}
+
+		static XMMATRIX Opt(lua_State* l, int index, const XMMATRIX& defValue)
+		{
+			return lua_isnoneornil(l, index) ? defValue : Get(l, index);
 		}
 	};
 }

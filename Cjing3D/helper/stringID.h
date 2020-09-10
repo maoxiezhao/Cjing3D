@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common\definitions.h"
+#include "helper\binaryArchive.h"
 
 #include <algorithm>
 #include <string>
@@ -8,7 +9,7 @@
 
 namespace Cjing3D {
 
-	class Archive;
+	class UTF8String;
 
 	/**
 	*	\brief 32bit hash String
@@ -24,6 +25,8 @@ namespace Cjing3D {
 		StringID(const std::string& str);
 		StringID(const StringID& rhs);
 		StringID(StringID&& rhs);
+		explicit StringID(const UTF8String& str);
+
 		~StringID();
 
 		StringID& operator= (const StringID& rhs);

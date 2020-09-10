@@ -36,7 +36,7 @@ namespace Cjing3D
 			mChildrenNameMap.clear();
 		}
 
-		void Add(NodePtr node)
+		virtual void Add(NodePtr node)
 		{
 			if (HaveChild(node)) {
 				return;
@@ -54,7 +54,7 @@ namespace Cjing3D
 			OnChildAdded(node);
 		}
 
-		void Remove(const StringID& name)
+		virtual void Remove(const StringID& name)
 		{
 			NodePtr node = Find(name);
 			if (node == nullptr) {
@@ -72,7 +72,7 @@ namespace Cjing3D
 			node->SetParent(nullptr);
 		}
 
-		void Remove(NodePtr node)
+		virtual void Remove(NodePtr node)
 		{
 			if (!HaveChild(node)) {
 				return;
@@ -102,8 +102,27 @@ namespace Cjing3D
 			mChildrenNameMap.clear();
 		}
 
+		const ChildrenType& GetChildren() const
+		{
+			return mChildren;
+		}
+
+		ChildrenType& GetChildren()
+		{
+			return mChildren;
+		}
+
+		size_t GetChildrenCount()const
+		{
+			return mChildren.size();
+		}
+
 		bool HaveChild(NodePtr node)const
 		{
+			if (node == nullptr) {
+				return true;
+			}
+
 			StringID name = node->GetName();
 			if (name != StringID::EMPTY) {
 				return HaveChild(name);

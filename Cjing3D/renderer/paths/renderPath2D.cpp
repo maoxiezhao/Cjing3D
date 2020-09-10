@@ -1,13 +1,13 @@
 #include "renderPath2D.h"
 #include "renderer\renderer.h"
 #include "renderer\paths\renderImage.h"
-#include "core\systemContext.hpp"
+#include "core\globalContext.hpp"
 #include "gui\guiStage.h"
+#include "renderer\2D\renderer2D.h"
 
 namespace Cjing3D
 {
-	RenderPath2D::RenderPath2D(Renderer & renderer):
-		RenderPath(renderer)
+	RenderPath2D::RenderPath2D()
 	{
 	}
 
@@ -17,10 +17,9 @@ namespace Cjing3D
 
 	void RenderPath2D::ResizeBuffers()
 	{
-		RenderPath::ResizeBuffers();
-
-		const auto screenSize = mRenderer.GetDevice().GetScreenSize();
-		FORMAT format = mRenderer.GetDevice().GetBackBufferFormat();
+		auto& device = Renderer::GetDevice();
+		const auto screenSize = device.GetScreenSize();
+		FORMAT format = device.GetBackBufferFormat();
 
 		TextureDesc desc = {};
 		desc.mWidth = screenSize[0];
@@ -29,10 +28,9 @@ namespace Cjing3D
 		desc.mBindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
 		desc.mClearValue.color[3] = 0.0f;
 		{
-			const auto result = mRenderer.GetDevice().CreateTexture2D(&desc, nullptr, mRTFinal);
+			const auto result = device.CreateTexture2D(&desc, nullptr, mRTFinal);
 			Debug::ThrowIfFailed(result, "Failed to create render target:%08x", result);
-
-			mRenderer.GetDevice().SetResourceName(mRTFinal, "mRTFinal");
+			device.SetResourceName(mRTFinal, "mRTFinal");
 		}
 
 		//////////////////////////////////////////////////////////////////////////////////////////
@@ -41,13 +39,22 @@ namespace Cjing3D
 			desc.mParams.push_back({ RenderBehaviorParam::RenderType_RenderTarget, &mRTFinal,         -1, RenderBehaviorParam::RenderOperation_Clear });
 			desc.mParams.push_back({ RenderBehaviorParam::RenderType_DepthStencil, GetDepthBuffer(),  -1, RenderBehaviorParam::RenderOperation_Load });
 
-			mRenderer.GetDevice().CreateRenderBehavior(desc, mRBFinal);
+			device.CreateRenderBehavior(desc, mRBFinal);
 		}
 	}
 
 	void RenderPath2D::Initialize()
 	{
 		RenderPath::Initialize();
+
+		if (!mResolutionChangedConn.IsConnected())
+		{
+			ResizeBuffers();
+			mResolutionChangedConn = EventSystem::Register(EVENT_RESOLUTION_CHANGE,
+				[this](const VariantArray& variants) {
+					ResizeBuffers();
+				});
+		}
 	}
 
 	void RenderPath2D::Uninitialize()
@@ -62,41 +69,55 @@ namespace Cjing3D
 
 	void RenderPath2D::Render()
 	{
-		GraphicsDevice& device = mRenderer.GetDevice();
-		device.BeginEvent("Render2D");
+		GraphicsDevice& device = Renderer::GetDevice();
+		CommandList cmd = device.GetCommandList();
+		device.BeginEvent(cmd, "Render2D");
 		{
-			device.BeginRenderBehavior(mRBFinal);
+			device.BeginRenderBehavior(cmd, mRBFinal);
 
 			ViewPort vp;
 			vp.mWidth = (F32)mRTFinal.GetDesc().mWidth;
 			vp.mHeight = (F32)mRTFinal.GetDesc().mHeight;
 			vp.mMinDepth = 0.0f;
 			vp.mMaxDepth = 1.0f;
-			device.BindViewports(&vp, 1, GraphicsThread::GraphicsThread_IMMEDIATE);
+			device.BindViewports(cmd , &vp, 1);
+			
+			RectInt rect;
+			rect.mBottom = INT32_MAX;
+			rect.mLeft = INT32_MIN;
+			rect.mRight = INT32_MAX;
+			rect.mTop = INT32_MIN;
+			device.BindScissorRects(cmd, 1, &rect);
 
-			RenderGUI();
+			RenderGUI(cmd);
+			Render2D(cmd);
 
-			device.EndRenderBehavior();
+			device.EndRenderBehavior(cmd);
 		}
-
-		device.EndEvent();
+		device.EndEvent(cmd);
 
 		RenderPath::Render();
 	}
 
-	void RenderPath2D::RenderGUI()
+	void RenderPath2D::RenderGUI(CommandList cmd)
 	{
-		GraphicsDevice& device = mRenderer.GetDevice();
-		device.BeginEvent("RenderGUI");
+		GraphicsDevice& device = Renderer::GetDevice();
+		device.BeginEvent(cmd, "RenderGUI");
 
 		// 从guiStage中获取guiRenderer执行渲染过程
-		GUIStage& guiStage = SystemContext::GetSystemContext().GetSubSystem<GUIStage>();
-		guiStage.GetGUIRenderer().Render();
+		GetGlobalContext().gGUIStage->GetGUIRenderer().Render();
 	
-		device.EndEvent();
+		device.EndEvent(cmd);
 	}
 
-	void RenderPath2D::Compose()
+	void RenderPath2D::Render2D(CommandList cmd)
+	{
+		Renderer::GetDevice().BeginEvent(cmd,"Render2D");
+		Renderer2D::Render2D(cmd);
+		Renderer::GetDevice().EndEvent(cmd);
+	}
+
+	void RenderPath2D::Compose(CommandList cmd)
 	{
 		if (mRTFinal.IsValid())
 		{
@@ -104,9 +125,9 @@ namespace Cjing3D
 			params.EnableFullScreen();
 			params.mBlendType = BlendType_PreMultiplied;
 
-			RenderImage::Render(mRTFinal, params, mRenderer);
+			RenderImage::Render(cmd, mRTFinal, params);
 		}
 
-		RenderPath::Compose();
+		RenderPath::Compose(cmd);
 	}
 }

@@ -9,10 +9,11 @@ namespace Cjing3D {
 
 // TODO use config file
 std::map<std::string, bool>	LuaBindingsGenerator::ignoreFiles = {
-	{ "x64",           true },
-	{ "generates",     true },
-	{ "renderer",      true },
-	{ "scripts",       true },
+	{ "x64",					true },
+	{ "generates",				true },
+	{ "renderer",				true },
+	{ "scripts",				true },
+	{ "utils",					true },
 };
 
 const int MAX_CLASS_NAME_LENGTH = 20;
@@ -21,7 +22,7 @@ namespace {
 
 const std::string generateStringPrefix = R"(
 #include "scripts\luaContext.h"
-#include "scripts\luaBinder.h"
+#include "scripts\binder\luaBinder.h"
 
 using namespace Cjing3D;
 int AutoLuaBindFunctions::REGISTER_AUTO_BINDING_FUNC(){return 0;}
@@ -291,6 +292,9 @@ ConstructorMetainfo ConstructorMetainfo::Parse(const std::string & srcBuffer)
 			if (token == "const") {
 				token = GetNextToken(currentLine);
 			}
+			else if (token == "T_RPAREN") {
+				break;
+			}
 
 			metaInfo.mAargs.push_back(token);
 
@@ -312,6 +316,10 @@ ConstructorMetainfo ConstructorMetainfo::Parse(const std::string & srcBuffer)
 
 const std::string ConstructorMetainfo::GenerateRegisterCode() const
 {
+	if (mFunctionName.empty()) {
+		return "";
+	}
+
 	std::string registerString = ".AddConstructor(_LUA_ARGS_(";
 	int index = 0;
 	for (auto& arg : mAargs)
@@ -422,7 +430,6 @@ void LuaBindingsGenerator::ParseAllHeader(const std::string & path)
 
 void LuaBindingsGenerator::ParseHeader(const std::string & path, const std::string& name)
 {
-	OutputDebugString(("Generating lua binding file:" + path + "\n").c_str());
 	Logger::Info(("Generating lua binding file:" + path).c_str());
 
 	bool isHeaderDependent = false;

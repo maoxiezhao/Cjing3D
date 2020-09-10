@@ -1,9 +1,8 @@
 #pragma once
 
-#include <unordered_map>
-
 #include "common\common.h"
-#include "optick\optick.h"
+#include "renderer\RHI\rhiDefinition.h"
+#include "optick.h"
 
 namespace Cjing3D
 {
@@ -22,11 +21,12 @@ public:
 
 	void Initialize();
 	void Uninitialize();
+	void Clear();
 
 	void BeginFrame();
 	void EndFrame();
 	void BeginCPUBlock(const StringID& name);
-	void BeginGPUBlock(const StringID& name);
+	void BeginGPUBlock(const StringID& name, CommandList cmd);
 	void EndBlock();
 
 	void SetProfileEnable(bool enable) { mProfileEnable = enable; };
@@ -53,7 +53,8 @@ private:
 #define PROFILER_BEGIN_FRAME() Profiler::GetInstance().BeginFrame();
 #define PROFILER_END_FRAME() Profiler::GetInstance().EndFrame();
 #define PROFILER_BEGIN_CPU_BLOCK(name) Profiler::GetInstance().BeginCPUBlock(StringID(name));
-#define PROFILER_BEGIN_GPU_BLOCK(name) Profiler::GetInstance().BeginGPUBlock(StringID(name));
+#define PROFILER_BEGIN_GPU_BLOCK(cmd, name) Profiler::GetInstance().BeginGPUBlock(StringID(name), cmd);
 #define PROFILER_END_BLOCK() Profiler::GetInstance().EndBlock();
-
+#define PROFILER_BEGIN_CPU_GPU_BLOCK(cmd, name)  Profiler::GetInstance().BeginGPUBlock(StringID(std::string("GPU_") + name), cmd);Profiler::GetInstance().BeginCPUBlock(StringID(std::string("CPU_") + name));
+#define PROFILER_END_CPU_GPU_BLOCK() Profiler::GetInstance().EndBlock();Profiler::GetInstance().EndBlock();
 }

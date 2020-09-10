@@ -1,59 +1,80 @@
 #include "rendererUtils.h"
 #include "renderer\renderer.h"
 #include "renderer\shaderLib.h"
-#include "renderer\bufferManager.h"
-#include "renderer\stateManager.h"
+#include "renderer\preset\renderPreset.h"
 
 namespace Cjing3D
 {
-	DeferredMIPGenerator::DeferredMIPGenerator(Renderer& renderer):
-		mRenderer(renderer)
+	DeferredMIPGenerator::DeferredMIPGenerator()
 	{
 	}
 
-	void DeferredMIPGenerator::AddTexture(RhiTexture2D& texture)
+	void DeferredMIPGenerator::AddTexture(Texture2D& texture, MipGenerateOption option)
 	{
-		mMipGenDeferredArray.push_back(&texture);
+		mMipGenDeferredArray.push_back(std::make_pair(&texture, option));
 	}
 
-	void DeferredMIPGenerator::UpdateMipGenerating()
+	void DeferredMIPGenerator::UpdateMipGenerating(CommandList cmd)
 	{
 		// 处理每个mip生成任务
-		for (auto texture : mMipGenDeferredArray) {
-			GenerateMipChain(*texture, MIPGENFILTER::MIPGENFILTER_LINEAR);
+		for (const auto& it : mMipGenDeferredArray) {
+			GenerateMipChain(cmd, *(it.first), MIPGENFILTER::MIPGENFILTER_LINEAR, it.second);
 		}
 		mMipGenDeferredArray.clear();
 	}
 
-	void DeferredMIPGenerator::GenerateMipChain(RhiTexture2D & texture, MIPGENFILTER filter)
+	void DeferredMIPGenerator::GenerateMipChain(CommandList cmd, Texture2D & texture, MIPGENFILTER filter, MipGenerateOption option)
 	{
 		auto desc = texture.GetDesc();
 		if (desc.mMipLevels <= 1) {
 			return;
 		}
 
-		GraphicsDevice& device = mRenderer.GetDevice();
-		BufferManager& bufferManger = mRenderer.GetBufferManager();
-		ShaderLib& shaderLib = mRenderer.GetShaderLib();
-		StateManager& stateManager = mRenderer.GetStateManager();
+		GraphicsDevice& device = Renderer::GetDevice();
+		RenderPreset& renderPreset = Renderer::GetRenderPreset();
 
 		// generate mipmap by compute shader
-		switch (filter)
+		bool isHDR = device.IsFormatUnorm(desc.mFormat);
+		U32 dispatchZ = 1;
+		if (desc.mMiscFlags & RESOURCE_MISC_TEXTURECUBE)
 		{
-		case MIPGENFILTER_POINT:
-			device.BeginEvent("GenerateMipChain-FilterPoint");
-			device.BindComputeShader(shaderLib.GetComputeShader(ComputeShaderType_MipmapGenerate));
-			device.BindSamplerState(SHADERSTAGES_CS, *stateManager.GetSamplerState(SamplerStateID_PointClampGreater), SAMPLER_SLOT_0);
+			switch (filter)
+			{
+			case MIPGENFILTER_POINT:
+				device.BeginEvent(cmd, "GenerateMipChain-FilterPoint");
+				device.BindComputeShader(cmd, renderPreset.GetComputeShader(isHDR ? ComputeShaderType_MipmapCubeGenerateUnorm : ComputeShaderType_MipmapCubeGenerate));
+				device.BindSamplerState(cmd, SHADERSTAGES_CS, *renderPreset.GetSamplerState(SamplerStateID_PointClamp), SAMPLER_SLOT_0);
 
-			break;
-		case MIPGENFILTER_LINEAR:
-			device.BeginEvent("GenerateMipChain-FilterLinear");
-			device.BindComputeShader(shaderLib.GetComputeShader(ComputeShaderType_MipmapGenerate));
-			device.BindSamplerState(SHADERSTAGES_CS, *stateManager.GetSamplerState(SamplerStateID_LinearClampGreater), SAMPLER_SLOT_0);
+				break;
+			case MIPGENFILTER_LINEAR:
+				device.BeginEvent(cmd, "GenerateMipChain-FilterLinear");
+				device.BindComputeShader(cmd, renderPreset.GetComputeShader(isHDR ? ComputeShaderType_MipmapCubeGenerateUnorm : ComputeShaderType_MipmapCubeGenerate));
+				device.BindSamplerState(cmd, SHADERSTAGES_CS, *renderPreset.GetSamplerState(SamplerStateID_LinearClamp), SAMPLER_SLOT_0);
 
-			break;
-		default:
-			return;
+				break;
+			default:
+				return;
+			}
+		}
+		else
+		{
+			switch (filter)
+			{
+			case MIPGENFILTER_POINT:
+				device.BeginEvent(cmd, "GenerateMipChain-FilterPoint");
+				device.BindComputeShader(cmd, renderPreset.GetComputeShader(isHDR ? ComputeShaderType_MipmapGenerateUnorm : ComputeShaderType_MipmapGenerate));
+				device.BindSamplerState(cmd, SHADERSTAGES_CS, *renderPreset.GetSamplerState(SamplerStateID_PointClamp), SAMPLER_SLOT_0);
+				dispatchZ = 6;
+				break;
+			case MIPGENFILTER_LINEAR:
+				device.BeginEvent(cmd, "GenerateMipChain-FilterLinear");
+				device.BindComputeShader(cmd, renderPreset.GetComputeShader(isHDR ? ComputeShaderType_MipmapGenerateUnorm : ComputeShaderType_MipmapGenerate));
+				device.BindSamplerState(cmd, SHADERSTAGES_CS, *renderPreset.GetSamplerState(SamplerStateID_LinearClamp), SAMPLER_SLOT_0);
+				dispatchZ = 6;
+				break;
+			default:
+				return;
+			}
 		}
 
 		U32 currentWidth = desc.mWidth;
@@ -65,11 +86,11 @@ namespace Cjing3D
 			currentHeight = std::max(1u, currentHeight / 2);
 
 			// 输出绑定的是下一级的纹理,必须先绑定UAV,不然上一级的ouput无法绑定到下一级的input
-			device.BindUAV(&texture, 0, mipLevel + 1);
+			device.BindUAV(cmd, &texture, 0, mipLevel + 1);
 
 			// bind input and output
 			// 输入绑定的是上一级的纹理
-			device.BindGPUResource(SHADERSTAGES_CS, texture, TEXTURE_SLOT_UNIQUE_0, mipLevel);
+			device.BindGPUResource(cmd, SHADERSTAGES_CS, &texture, TEXTURE_SLOT_UNIQUE_0, mipLevel);
 
 			// update constant buffer
 			MipmapGenerateCB cb;
@@ -77,20 +98,21 @@ namespace Cjing3D
 			cb.gMipmapGenResolution.y = currentHeight;
 			cb.gMipmapInverseResolution.x = (1.0f / currentWidth);
 			cb.gMipmapInverseResolution.y = (1.0f / currentHeight);
-			GPUBuffer& mipgenBuffer = bufferManger.GetConstantBuffer(ConstantBufferType_MipmapGenerate);
-			device.UpdateBuffer(mipgenBuffer, &cb, sizeof(MipmapGenerateCB));
-			device.BindConstantBuffer(SHADERSTAGES_CS, mipgenBuffer, CB_GETSLOT_NAME(MipmapGenerateCB));
+			GPUBuffer& mipgenBuffer = renderPreset.GetConstantBuffer(ConstantBufferType_MipmapGenerate);
+			device.UpdateBuffer(cmd, mipgenBuffer, &cb, sizeof(MipmapGenerateCB));
+			device.BindConstantBuffer(cmd, SHADERSTAGES_CS, mipgenBuffer, CB_GETSLOT_NAME(MipmapGenerateCB));
 
 			device.Dispatch(
+				cmd,
 				(U32)((currentWidth + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
 				(U32)((currentHeight + SHADER_POSTPROCESS_BLOCKSIZE - 1) / SHADER_POSTPROCESS_BLOCKSIZE),
-				1
+				dispatchZ
 			);
 		}
 
-		device.UnBindUAVs(0, 1);
-		device.UnbindGPUResources(TEXTURE_SLOT_UNIQUE_0, 1);
-		device.EndEvent();
+		device.UnBindUAVs(cmd, 0, 1);
+		device.UnbindGPUResources(cmd, TEXTURE_SLOT_UNIQUE_0, 1);
+		device.EndEvent(cmd);
 	}
 
 	void RenderBatch::Init(ECS::Entity objectEntity, ECS::Entity meshEntity, F32 distance)

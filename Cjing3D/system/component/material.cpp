@@ -1,6 +1,7 @@
 #include "material.h"
 #include "renderer\renderer.h"
 #include "renderer\RHI\rhiFactory.h"
+#include "renderer\textureHelper.h"
 #include "resource\resourceManager.h"
 
 Cjing3D::MaterialComponent::MaterialComponent():
@@ -29,6 +30,60 @@ void Cjing3D::MaterialComponent::SetupConstantBuffer(GraphicsDevice& device)
 	}
 }
 
+bool Cjing3D::MaterialComponent::LoadBaseColorMap(const std::string& filePath)
+{
+	auto resourceManager = GetGlobalContext().gResourceManager;
+	mBaseColorMapName = filePath;
+	mBaseColorMap = resourceManager->GetOrCreate<TextureResource>(StringID(filePath));
+	return true;
+}
+
+bool Cjing3D::MaterialComponent::LoadNormalMap(const std::string& filePath)
+{
+	auto resourceManager = GetGlobalContext().gResourceManager;
+	mNormalMapName = filePath;
+	mNormalMap = resourceManager->GetOrCreate<TextureResource>(StringID(filePath));
+	return true;
+}
+
+bool Cjing3D::MaterialComponent::LoadSurfaceMap(const std::string& filePath)
+{
+	auto resourceManager = GetGlobalContext().gResourceManager;
+	mSurfaceMapName = filePath;
+	mSurfaceMap = resourceManager->GetOrCreate<TextureResource>(StringID(filePath));
+	return true;
+}
+
+const Cjing3D::Texture2D* Cjing3D::MaterialComponent::GetBaseColorMap() const
+{
+	return mBaseColorMap != nullptr ? mBaseColorMap->mTexture : TextureHelper::GetWhite();
+}
+
+const Cjing3D::Texture2D* Cjing3D::MaterialComponent::GetNormalMap() const
+{
+	return mNormalMap != nullptr ? mNormalMap->mTexture : nullptr;
+}
+
+const Cjing3D::Texture2D* Cjing3D::MaterialComponent::GetSurfaceMap() const
+{
+	return mSurfaceMap != nullptr ? mSurfaceMap->mTexture : TextureHelper::GetWhite();
+}
+
+Cjing3D::Texture2D* Cjing3D::MaterialComponent::GetBaseColorMapPtr() const
+{
+	return mBaseColorMap != nullptr ? mBaseColorMap->mTexture : nullptr;
+}
+
+Cjing3D::Texture2D* Cjing3D::MaterialComponent::GetNormalMapPtr() const
+{
+	return mNormalMap != nullptr ? mNormalMap->mTexture : nullptr;
+}
+
+Cjing3D::Texture2D* Cjing3D::MaterialComponent::GetSurfaceMapPtr() const
+{
+	return mSurfaceMap != nullptr ? mSurfaceMap->mTexture : nullptr;
+}
+
 void Cjing3D::MaterialComponent::Serialize(Archive& archive, U32 seed)
 {
 	archive >> mBaseColor;
@@ -42,23 +97,22 @@ void Cjing3D::MaterialComponent::Serialize(Archive& archive, U32 seed)
 	archive >> mIsCastingShadow;
 	archive >> mAlphaCutRef;
 
-	ResourceManager& resourceManager = GlobalGetSubSystem<ResourceManager>();
-
+	auto resourceManager = GetGlobalContext().gResourceManager;
 	const std::string parentPath =  archive.GetDirectory();
 	if (mBaseColorMapName.empty() == false)
 	{
 		auto texPath = FileData::ConvertToAvailablePath(parentPath + mBaseColorMapName);
-		mBaseColorMap = resourceManager.GetOrCreate<RhiTexture2D>(StringID(texPath));
+		mBaseColorMap = resourceManager->GetOrCreate<TextureResource>(StringID(texPath));
 	}
 	if (mNormalMapName.empty() == false)
 	{
 		auto texPath = FileData::ConvertToAvailablePath(parentPath + mNormalMapName);
-		mNormalMap = resourceManager.GetOrCreate<RhiTexture2D>(StringID(texPath));
+		mNormalMap = resourceManager->GetOrCreate<TextureResource>(StringID(texPath));
 	}
 	if (mSurfaceMapName.empty() == false)
 	{
 		auto texPath = FileData::ConvertToAvailablePath(parentPath + mSurfaceMapName);
-		mSurfaceMap = resourceManager.GetOrCreate<RhiTexture2D>(StringID(texPath));
+		mSurfaceMap = resourceManager->GetOrCreate<TextureResource>(StringID(texPath));
 	}
 
 	// renderer will setup render data

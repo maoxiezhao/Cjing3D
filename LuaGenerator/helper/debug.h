@@ -1,8 +1,8 @@
 #pragma once
 
 #include <string>
-#include <windows.h>
 #include <exception>
+#include <sstream>
 
 namespace Cjing3D {
 
@@ -24,6 +24,7 @@ namespace Cjing3D {
 	{
 		void SetDebugConsoleEnable(bool t);
 		void InitializeDebugConsole();
+		void UninitializeDebugConsolse();
 
 		void SetDieOnError(bool t);
 		void SetPopBoxOnDie(bool t);
@@ -38,8 +39,26 @@ namespace Cjing3D {
 
 		void ThrowIfFailed(bool result);
 		void ThrowIfFailed(bool result, const char* format, ...);
-		void ThrowIfFailed(HRESULT result);
-		void ThrowIfFailed(HRESULT result, const char* format, ...);
+		void ThrowInvalidArgument(const char* format, ...);
 	}
+
+#define ERR_FAIL_COND(mCond)																		\
+	if (mCond) {																					\
+		std::ostringstream oss;																		\
+		oss << __FUNCTION__; oss << __FILE__; oss << __LINE__;										\
+		oss << "Condition \"" _STR(mCond) "\" is true. returned: " _STR(mRet);					    \
+		Debug::Error(oss.str());																	\
+	} else                                                                                          \
+		((void)0)
+
+#define ERR_FAIL_COND_V(mCond, mRet)															    \
+	if (mCond) {																					\
+		std::ostringstream oss;																		\
+		oss << __FUNCTION__; oss << __FILE__; oss << __LINE__;										\
+		oss << "Condition \"" _STR(mCond) "\" is true. returned: " _STR(mRet);					    \
+		Debug::Error(oss.str());																	\
+		return mRet;                                                                                \
+	} else                                                                                          \
+		((void)0)
 
 }

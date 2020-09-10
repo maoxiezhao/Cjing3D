@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <array>
 #include <utility>
+#include <tuple>
 
 namespace Cjing3D {
 
@@ -108,7 +109,7 @@ namespace Cjing3D {
 		{
 			Array<T, N> result;
 			for (int i = 0; i < N; i++) {
-				result[i] = lhs[i] + this->at(i);
+				result[i] = lhs[i] + this->_Elems[i];
 			}
 			return result;
 		}
@@ -118,7 +119,7 @@ namespace Cjing3D {
 		{
 			Array<T, N> result;
 			for (int i = 0; i < N; i++) {
-				result[i] = this->at(i) - lhs[i];
+				result[i] = this->_Elems[i] - lhs[i];
 			}
 			return result;
 		}
@@ -150,6 +151,40 @@ namespace Cjing3D {
 			}
 			return *this;
 		}
+
+		template<typename T, size_t N>
+		std::enable_if_t<std::is_integral<T>::value || std::is_floating_point<T>::value, Array<T, N>>
+			operator*(const Array<T, N>& lhs)const
+		{
+			Array<T, N> result;
+			for (int i = 0; i < N; i++) {
+				result[i] = lhs[i] * this->_Elems[i];
+			}
+			return result;
+		}
+
+		bool operator!= (const Array<T, N>& rhs)const {
+			for (int i = 0; i < N; i++) {
+				if (this->_Elems[i] != rhs[i]) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		bool operator== (const Array<T, N>& rhs)const {
+			for (int i = 0; i < N; i++) {
+				if (this->_Elems[i] != rhs[i]) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		T x()const { return this->at(0); }
+		T y()const { return this->at(1); }
+		T z()const { return this->at(2); }
+		T w()const { return this->at(3); }
 	};
 
 }

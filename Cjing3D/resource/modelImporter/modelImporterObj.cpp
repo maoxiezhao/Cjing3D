@@ -1,7 +1,8 @@
-#include "resource\modelImporter.h"
-#include "core\systemContext.hpp"
+#include "resource\modelImporter\modelImporter.h"
+#include "core\globalContext.hpp"
 #include "resource\resourceManager.h"
 #include "system\sceneSystem.h"
+#include "renderer\renderer.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "utils\tinyobjloader.h"
@@ -16,13 +17,12 @@ namespace ModelImporter
 		bool loadVertexColors = false;
 	}
 
-	ECS::Entity ImportModelObj(const std::string& fileName)
+	ECS::Entity ImportModelObj(const std::string& fileName, Scene& scene)
 	{
 		std::filesystem::path path(fileName);
 
-		auto& renderer = GlobalGetSubSystem<Renderer>();
-		auto& device = renderer.GetDevice();
-		auto& resourceManager = GlobalGetSubSystem<ResourceManager>();
+		auto& device = Renderer::GetDevice();
+		auto resourceManager = GetGlobalContext().gResourceManager;
 
 		tinyobj::attrib_t objAttrib;
 		std::vector <tinyobj::shape_t> objShapes;
@@ -62,17 +62,17 @@ namespace ModelImporter
 			if (material->mBaseColorMapName.empty() == false)
 			{
 				auto texPath = FileData::ConvertToAvailablePath(parentPath + material->mBaseColorMapName);
-				material->mBaseColorMap = resourceManager.GetOrCreate<RhiTexture2D>(StringID(texPath));
+				material->mBaseColorMap = resourceManager->GetOrCreate<TextureResource>(StringID(texPath));
 			}
 			if (material->mNormalMapName.empty() == false)
 			{
 				auto texPath = FileData::ConvertToAvailablePath(parentPath + material->mNormalMapName);
-				material->mNormalMap = resourceManager.GetOrCreate<RhiTexture2D>(StringID(texPath));
+				material->mNormalMap = resourceManager->GetOrCreate<TextureResource>(StringID(texPath));
 			}
 			if (material->mSurfaceMapName.empty() == false)
 			{
 				auto texPath = FileData::ConvertToAvailablePath(parentPath + material->mSurfaceMapName);
-				material->mSurfaceMap = resourceManager.GetOrCreate<RhiTexture2D>(StringID(texPath));
+				material->mSurfaceMap = resourceManager->GetOrCreate<TextureResource>(StringID(texPath));
 			}
 
 			materialArray.push_back(materialEntity);
@@ -84,8 +84,12 @@ namespace ModelImporter
 			materialArray.push_back(materialEntity);
 		}
 
-		Entity rootEntity = ECS::CreateEntity();
-		TransformComponent& rootTransform = newScene.GetOrCreateTransformByEntity(rootEntity);
+		Entity rootEntity = INVALID_ENTITY;			
+		if (objShapes.size() > 1)
+		{
+			rootEntity = ECS::CreateEntity();
+			TransformComponent& rootTransform = newScene.GetOrCreateTransformByEntity(rootEntity);
+		}
 
 		// load shape
 		for (auto& objShape : objShapes)
@@ -189,10 +193,15 @@ namespace ModelImporter
 			mesh->SetupRenderData(device);
 
 			// attach to root entity
-			newScene.AttachEntity(objectEntity, rootEntity, true);
+			if (rootEntity != INVALID_ENTITY) {
+				newScene.AttachEntity(objectEntity, rootEntity, true);
+			}
+			else {
+				rootEntity = objectEntity;
+			}
 		}
 
-		Scene::GetScene().Merge(newScene);
+		scene.Merge(newScene);
 
 		return rootEntity;
 	}

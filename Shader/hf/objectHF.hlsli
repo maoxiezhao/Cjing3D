@@ -10,22 +10,27 @@
 #include "brdf.hlsli"
 #include "lightingHF.hlsli"
 
-TEXTURE2D(texture_basecolormap, TEXTURE_BASECOLOR_MAP);
-TEXTURE2D(texture_normalmap, TEXTURE_NORMAL_MAP);
-TEXTURE2D(texture_surfacemap, TEXTURE_SURFACE_MAP);
+TEXTURE2D(texture_basecolormap, float4, TEXTURE_BASECOLOR_MAP);
+TEXTURE2D(texture_normalmap, float4, TEXTURE_NORMAL_MAP);
+TEXTURE2D(texture_surfacemap, float4, TEXTURE_SURFACE_MAP);
  
+TEXTURE2D(texture_ao, float4, TEXTURE_SLOT_AO);
+
+#ifndef _OBJECT_SAMPLER_
+#define _OBJECT_SAMPLER_ sampler_object
+#endif
+
 /////////////////////////////////////////////////////////////////////
 // Tiled forward lighting
 ////////////////////////////////////////////////////////////////////
 #ifdef _TILED_FORWRAD_LIGHTING_
-float4 TiledForwardLighting(in float2 pixel, in Surface surface)
+void TiledForwardLighting(in float2 pixel, in Surface surface, inout Lighting lighting)
 {
     const uint2 tilePos = uint2(floor(pixel / LIGHT_CULLING_TILED_BLOCK_SIZE));
     const uint tileIndex = Flatten(tilePos, gFrameTileCullingCount);
     const uint tileBucketAddress = tileIndex * SHADER_LIGHT_TILE_BUCKET_COUNT;
     
     // 对于每个tile获取对应的tileBucket,每个tileBucket为U32整型，每一位1or0表示是否受对应光源影响
-    float3 color = GetAmbientLight().rgb;
     [branch]
     if (gShaderLightArrayCount > 0)
     {
@@ -52,10 +57,10 @@ float4 TiledForwardLighting(in float2 pixel, in Surface surface)
                     switch (light.GetLightType())
                     {
                         case SHADER_LIGHT_TYPE_DIRECTIONAL:
-                            color += DirectionalLight(light, surface);
+                            DirectionalLight(light, surface, lighting);
                             break;
                         case SHADER_LIGHT_TYPE_POINT:
-                            color += PointLight(light, surface);
+                            PointLight(light, surface, lighting);
                             break;
                         case SHADER_LIGHT_TYPE_SPOT:
                             break;
@@ -70,8 +75,6 @@ float4 TiledForwardLighting(in float2 pixel, in Surface surface)
         }
         
     }
-
-    return float4(color.rgb, 1.0f);
 }
 #endif
 
@@ -79,10 +82,8 @@ float4 TiledForwardLighting(in float2 pixel, in Surface surface)
 // Simple lighting
 ////////////////////////////////////////////////////////////////////
 #ifdef _FORWRAD_LIGHTING_
-float4 ForwardLighting(in Surface surface)
+void ForwardLighting(in Surface surface, inout Lighting lighting)
 {
-	float3 color = GetAmbientLight().rgb;
-
 	// 简单光照下，不考虑光源的culling,直接遍历传递过来的所有光源并执行对应光照计算
 	for (uint lightIndex = 0; lightIndex < gShaderLightArrayCount; lightIndex++)
 	{
@@ -91,19 +92,24 @@ float4 ForwardLighting(in Surface surface)
 		switch (light.GetLightType())
 		{
 		case SHADER_LIGHT_TYPE_DIRECTIONAL:
-			color += DirectionalLight(light, surface);
+			DirectionalLight(light, surface, lighting);
 			break;
 		case SHADER_LIGHT_TYPE_POINT:
-			color += PointLight(light, surface);
+			PointLight(light, surface, lighting);
 			break;
 		case SHADER_LIGHT_TYPE_SPOT:
 			break;
 		}
 	}
-
-	return float4(color.rgb, 1.0f);
 }
 #endif
+
+float3 ApplyLight(in Surface surface, in Lighting light)
+{
+    float3 diffuse = light.directDiffuse + light.ambient * surface.occlusion;
+    float3 specular = light.directSpecular;
+    return surface.albedo * diffuse + specular;
+}
 
 #if !defined(_DISABLE_OBJECT_PS_)
 
@@ -117,7 +123,7 @@ float4 main(PixelInputType input) : SV_TARGET
 
     [branch]
     if (gMaterial.haveBaseColorMap > 0) {
-        color = texture_basecolormap.Sample(sampler_linear_clamp, input.tex);
+        color = texture_basecolormap.Sample(_OBJECT_SAMPLER_, input.tex);
         color.rgb = DeGammaCorrect(color.rgb);
     } else {
 		color = float4(1.0, 1.0, 1.0, 1.0);
@@ -126,7 +132,11 @@ float4 main(PixelInputType input) : SV_TARGET
     
     ALPHATEST(color.a);
 
+    // 除以w(viewZ) => NCD
+    input.pos2D.xy /= input.pos2D.w;
+    
 	float3 pos3D = input.pos3D.xyz;
+    float2 screenPos = input.pos2D.xy * float2(0.5f, -0.5f) + float2(0.5f, 0.5f); // NDC => Screen
 	float3 view = gCameraPos - pos3D;
 	float dist = length(view);
 
@@ -140,7 +150,7 @@ float4 main(PixelInputType input) : SV_TARGET
     if (gMaterial.haveNormalMap > 0)
 	{
 		float3x3 TBN = ComputeTangateTransform(surface.normal, surface.position, input.tex);
-        float3 nor = texture_normalmap.Sample(sampler_linear_clamp, input.tex).rgb;
+        float3 nor = texture_normalmap.Sample(_OBJECT_SAMPLER_, input.tex).rgb;
         nor = nor.rgb * 2 - 1;
         surface.normal = normalize(mul(nor, TBN));
     }
@@ -149,26 +159,37 @@ float4 main(PixelInputType input) : SV_TARGET
     float3 spcularIntensity = float3(1.0f, 1.0f, 1.0f);
     [branch]
     if (gMaterial.haveSurfaceMap > 0) {
-        spcularIntensity = texture_surfacemap.Sample(sampler_linear_clamp, input.tex).rgb;
+        spcularIntensity = texture_surfacemap.Sample(_OBJECT_SAMPLER_, input.tex).rgb;
     }
 	
+    // SSAO
+    float occlusion = 1.0f;
+#ifndef _TRNAPARENT_
+    occlusion = texture_ao.SampleLevel(sampler_linear_clamp, screenPos, 0.0f).r;
+#endif
+    
     surface = CreateSurface(
 		surface.position,
 		surface.normal,
 		surface.view,
-		input.color,
-	    spcularIntensity
+		color,
+	    spcularIntensity,
+        occlusion
 	);
 
+    Lighting lighting = CreateLighting(0.0f, 0.0f, GetAmbientLight());
+    
 #ifdef _TILED_FORWRAD_LIGHTING_
-    color *= TiledForwardLighting(input.pos.xy, surface);
+    TiledForwardLighting(input.pos.xy, surface, lighting);
 #endif
     
 #ifdef _FORWRAD_LIGHTING_
-    color *= ForwardLighting(surface);
+    ForwardLighting(surface, lighting);
 #endif
 		
-	return color;
+    color.rgb = ApplyLight(surface, lighting);
+    
+    return color;
 }
 
 #endif

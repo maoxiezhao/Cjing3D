@@ -1,11 +1,18 @@
 #include "PipelineStateManager.h"
 #include "renderer\shaderLib.h"
-#include "renderer\stateManager.h"
+#include "renderer\preset\renderPreset.h"
 
 namespace Cjing3D {
+namespace {
+	U32 ConvertStringID(const StringID& id)
+	{
+		U32 hash = id.HashValue();
+		return hash < 100 ? hash + 100 : hash;
+	}
 
-PipelineStateManager::PipelineStateManager(Renderer & renderer):
-	mRenderer(renderer)
+}
+
+PipelineStateManager::PipelineStateManager()
 {
 }
 
@@ -15,31 +22,42 @@ PipelineStateManager::~PipelineStateManager()
 
 void PipelineStateManager::SetupPipelineStateIDs()
 {
-	ShaderLib& shaderLib = mRenderer.GetShaderLib();
-	StateManager& stateManager = mRenderer.GetStateManager();
+	RenderPreset& renderPreset = Renderer::GetRenderPreset();
 	{
 		PipelineStateDesc desc = {};
-		desc.mVertexShader      = shaderLib.GetVertexShader(VertexShaderType_Sky);
-		desc.mPixelShader       = shaderLib.GetPixelShader(PixelShaderType_Sky);
-		desc.mBlendState	    = stateManager.GetBlendState(BlendStateID_Opaque);
-		desc.mDepthStencilState = stateManager.GetDepthStencilState(DepthStencilStateID_DepthRead);
-		desc.mRasterizerState   = stateManager.GetRasterizerState(RasterizerStateID_Sky);
+		desc.mVertexShader      = renderPreset.GetVertexShader(VertexShaderType_Sky);
+		desc.mPixelShader       = renderPreset.GetPixelShader(PixelShaderType_Sky);
+		desc.mBlendState	    = renderPreset.GetBlendState(BlendStateID_Opaque);
+		desc.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_DepthRead);
+		desc.mRasterizerState   = renderPreset.GetRasterizerState(RasterizerStateID_Sky);
 		desc.mPrimitiveTopology = TRIANGLESTRIP;
 
 		RegisterPipelineState(PipelineStateID_SkyRendering, desc);
 	}
+	{
+		PipelineStateDesc desc  = {};
+		desc.mVertexShader      = renderPreset.GetVertexShader(VertexShaderType_PosColor);
+		desc.mPixelShader	    = renderPreset.GetPixelShader(PixelShaderType_PosColor);
+		desc.mInputLayout	    = renderPreset.GetVertexLayout(InputLayoutType_PosColor);
+		desc.mBlendState	    = renderPreset.GetBlendState(BlendStateID_Transpranent);
+		desc.mDepthStencilState = renderPreset.GetDepthStencilState(DepthStencilStateID_DepthRead);
+		desc.mRasterizerState   = renderPreset.GetRasterizerState(RasterizerStateID_WireFrame_DoubleSided);
+		desc.mPrimitiveTopology = LINELIST;
+
+		RegisterPipelineState(PipelineStateID_GridHelper, desc);
+	}
 }
 
-PipelineState PipelineStateManager::GetPipelineStateByID(PipelineStateID stateID)
+PipelineState* PipelineStateManager::GetPipelineStateByID(PipelineStateID stateID)
 {
 	auto it = mPipelineStateIDMap.find(stateID);
 	if (it != mPipelineStateIDMap.end())
 	{
-		return mPipelineStates[it->second];
+		return &mPipelineStates[it->second];
 	}
 	else
 	{
-		return PipelineState();
+		return nullptr;
 	}
 }
 
@@ -61,7 +79,7 @@ U32 PipelineStateManager::RegisterPipelineState(PipelineStateDesc desc)
 {
 	U32 index = mPipelineStates.size();
 	auto& state = mPipelineStates.emplace_back();
-	mRenderer.GetDevice().CreatePipelineState(desc, state);
+	Renderer::GetDevice().CreatePipelineState(desc, state);
 
 	return index;
 }
@@ -75,4 +93,32 @@ void PipelineStateManager::RegisterPipelineState(PipelineStateID stateID, Pipeli
 		mPipelineStateIDMap[stateID] = index;
 	}
 }
+
+PipelineState* PipelineStateManager::GetCustomPipelineState(RenderPassType passType, const StringID& id)
+{
+	auto& passPSOs = mCustomPipelineStateMap.mPassPSOs[passType];
+	auto stateID = ConvertStringID(id);
+	auto it = passPSOs.mPSONameMap.find(stateID);
+	if (it != passPSOs.mPSONameMap.end())
+	{
+		return &mPipelineStates[it->second];
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
+void PipelineStateManager::RegisterCustomPipelineState(RenderPassType passType, const StringID& name, PipelineStateDesc desc)
+{
+	auto& passPSOs = mCustomPipelineStateMap.mPassPSOs[passType];
+	auto stateID = ConvertStringID(name);
+	auto it = passPSOs.mPSONameMap.find(stateID);
+	if (it == passPSOs.mPSONameMap.end())
+	{
+		U32 index = RegisterPipelineState(desc);
+		passPSOs.mPSONameMap[stateID] = index;
+	}
+}
+
 }
