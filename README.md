@@ -1,6 +1,6 @@
 # Cjing3D
 ####
-See developing version: Cing3D-Test https://github.com/maoxiezhao/Cjing3D-Test
+See developing version: https://github.com/maoxiezhao/Vulkan-Test
 ####
 Features:
 * basic framework (container/string/event/input/allocator/math)
